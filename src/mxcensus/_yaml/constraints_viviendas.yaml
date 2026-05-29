@@ -1,0 +1,301 @@
+TOTHOG:
+  CLAVIVP_CAT:
+  - Vivienda
+  - Otro
+VIVPARH_CV:
+  CLAVIVP_CAT:
+  - Vivienda
+HOGJEF_F:
+  JEFE_SEXO:
+  - Mujer
+  CLAVIVP_CAT:
+  - Vivienda
+  - Otro
+HOGJEF_M:
+  JEFE_SEXO:
+  - Hombre
+  CLAVIVP_CAT:
+  - Vivienda
+  - Otro
+VPH_PISODT:
+  CLAVIVP_CAT:
+  - Vivienda
+  PISOS:
+  - Cemento o firme
+  - Madera, mosaico u otro recubrimiento
+VPH_PISOTI:
+  CLAVIVP_CAT:
+  - Vivienda
+  PISOS:
+  - Tierra
+VPH_1DOR:
+  CLAVIVP_CAT:
+  - Vivienda
+  CUADORM_CAT:
+  - "1"
+VPH_2YMASD:
+  CLAVIVP_CAT:
+  - Vivienda
+  CUADORM_CAT:
+  - 2+
+VPH_1CUART:
+  CLAVIVP_CAT:
+  - Vivienda
+  TOTCUART_CAT:
+  - "1"
+VPH_2CUART:
+  CLAVIVP_CAT:
+  - Vivienda
+  TOTCUART_CAT:
+  - "2"
+VPH_3YMASC:
+  CLAVIVP_CAT:
+  - Vivienda
+  TOTCUART_CAT:
+  - 3+
+VPH_C_ELEC:
+  CLAVIVP_CAT:
+  - Vivienda
+  ELECTRICIDAD:
+  - Sí
+VPH_S_ELEC:
+  CLAVIVP_CAT:
+  - Vivienda
+  ELECTRICIDAD:
+  - 'No'
+VPH_AGUADV:
+  CLAVIVP_CAT:
+  - Vivienda
+  AGUA_ENTUBADA:
+  - Dentro de la vivienda
+  - Sólo en el patio o terreno
+VPH_AGUAFV:
+  CLAVIVP_CAT:
+  - Vivienda
+  AGUA_ENTUBADA:
+  - No tiene
+VPH_AEASP:
+  CLAVIVP_CAT:
+  - Vivienda
+  AGUA_ENTUBADA:
+  - Dentro de la vivienda
+  - Sólo en el patio o terreno
+  ABA_AGUA_ENTU:
+  - Del servicio público de agua
+VPH_TINACO:
+  CLAVIVP_CAT:
+  - Vivienda
+  TINACO:
+  - Sí
+VPH_CISTER:
+  CLAVIVP_CAT:
+  - Vivienda
+  CISTERNA:
+  - Sí
+VPH_EXCSA:
+  CLAVIVP_CAT:
+  - Vivienda
+  SERSAN:
+  - Taza de baño (excusado o sanitario).
+VPH_LETR:
+  CLAVIVP_CAT:
+  - Vivienda
+  SERSAN:
+  - Letrina (pozo u hoyo).
+VPH_DRENAJ:
+  CLAVIVP_CAT:
+  - Vivienda
+  DRENAJE_CAT:
+  - Sí
+VPH_NODREN:
+  CLAVIVP_CAT:
+  - Vivienda
+  DRENAJE_CAT:
+  - 'No'
+VPH_C_SERV:
+  CLAVIVP_CAT:
+  - Vivienda
+  ELECTRICIDAD:
+  - Sí
+  AGUA_ENTUBADA:
+  - Dentro de la vivienda
+  - Sólo en el patio o terreno
+  DRENAJE_CAT:
+  - Sí
+VPH_NDEAED:
+  CLAVIVP_CAT:
+  - Vivienda
+  ELECTRICIDAD:
+  - 'No'
+  AGUA_ENTUBADA:
+  - No tiene
+  DRENAJE_CAT:
+  - 'No'
+VPH_DSADMA:
+  CLAVIVP_CAT:
+  - Vivienda
+  DRENAJE_CAT:
+  - Sí
+  SERSAN:
+  - Taza de baño (excusado o sanitario).
+  - Letrina (pozo u hoyo).
+  CONAGUA:
+  - Tiene descarga directa de agua.
+  - Le echan agua con cubeta.
+VPH_NDACMM:
+  CLAVIVP_CAT:
+  - Vivienda
+  AUTOPROP:
+  - 'No'
+  MOTOCICLETA:
+  - 'No'
+VPH_SNBIEN:
+  CLAVIVP_CAT:
+  - Vivienda
+  REFRIGERADOR:
+  - 'No'
+  LAVADORA:
+  - 'No'
+  HORNO:
+  - 'No'
+  AUTOPROP:
+  - 'No'
+  MOTOCICLETA:
+  - 'No'
+  BICICLETA:
+  - 'No'
+  RADIO:
+  - 'No'
+  TELEVISOR:
+  - 'No'
+  COMPUTADORA:
+  - 'No'
+  INTERNET:
+  - 'No'
+  TELEFONO:
+  - 'No'
+  CELULAR:
+  - 'No'
+  SERV_TV_PAGA:
+  - 'No'
+  SERV_PEL_PAGA:
+  - 'No'
+  CON_VJUEGOS:
+  - 'No'
+VPH_REFRI:
+  CLAVIVP_CAT:
+  - Vivienda
+  REFRIGERADOR:
+  - Sí
+VPH_LAVAD:
+  CLAVIVP_CAT:
+  - Vivienda
+  LAVADORA:
+  - Sí
+VPH_HMICRO:
+  CLAVIVP_CAT:
+  - Vivienda
+  HORNO:
+  - Sí
+VPH_AUTOM:
+  CLAVIVP_CAT:
+  - Vivienda
+  AUTOPROP:
+  - Sí
+VPH_MOTO:
+  CLAVIVP_CAT:
+  - Vivienda
+  MOTOCICLETA:
+  - Sí
+VPH_BICI:
+  CLAVIVP_CAT:
+  - Vivienda
+  BICICLETA:
+  - Sí
+VPH_RADIO:
+  CLAVIVP_CAT:
+  - Vivienda
+  RADIO:
+  - Sí
+VPH_TV:
+  CLAVIVP_CAT:
+  - Vivienda
+  TELEVISOR:
+  - Sí
+VPH_PC:
+  CLAVIVP_CAT:
+  - Vivienda
+  COMPUTADORA:
+  - Sí
+VPH_TELEF:
+  CLAVIVP_CAT:
+  - Vivienda
+  TELEFONO:
+  - Sí
+VPH_CEL:
+  CLAVIVP_CAT:
+  - Vivienda
+  CELULAR:
+  - Sí
+VPH_INTER:
+  CLAVIVP_CAT:
+  - Vivienda
+  INTERNET:
+  - Sí
+VPH_STVP:
+  CLAVIVP_CAT:
+  - Vivienda
+  SERV_TV_PAGA:
+  - Sí
+VPH_SPMVPI:
+  CLAVIVP_CAT:
+  - Vivienda
+  SERV_PEL_PAGA:
+  - Sí
+VPH_CVJ:
+  CLAVIVP_CAT:
+  - Vivienda
+  CON_VJUEGOS:
+  - Sí
+VPH_SINRTV:
+  CLAVIVP_CAT:
+  - Vivienda
+  RADIO:
+  - 'No'
+  TELEVISOR:
+  - 'No'
+VPH_SINLTC:
+  CLAVIVP_CAT:
+  - Vivienda
+  TELEFONO:
+  - 'No'
+  CELULAR:
+  - 'No'
+VPH_SINCINT:
+  CLAVIVP_CAT:
+  - Vivienda
+  COMPUTADORA:
+  - 'No'
+  INTERNET:
+  - 'No'
+VPH_SINTIC:
+  CLAVIVP_CAT:
+  - Vivienda
+  RADIO:
+  - 'No'
+  TELEVISOR:
+  - 'No'
+  COMPUTADORA:
+  - 'No'
+  INTERNET:
+  - 'No'
+  TELEFONO:
+  - 'No'
+  CELULAR:
+  - 'No'
+  SERV_TV_PAGA:
+  - 'No'
+  SERV_PEL_PAGA:
+  - 'No'
+  CON_VJUEGOS:
+  - 'No'

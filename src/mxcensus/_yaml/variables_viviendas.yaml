@@ -1,0 +1,742 @@
+ENT:
+  Descripción: Entidad Federativa
+  Pregunta: Entidad Federativa
+  Categorías: {}
+MUN:
+  Descripción: Municipio o Demarcación territorial
+  Pregunta: Municipio o Demarcación territorial
+  Categorías: {}
+LOC50K:
+  Descripción: Clave de la localidad de 50 000 y más habitantes
+  Pregunta: Clave de la localidad de 50 000 y más habitantes
+  Categorías:
+    '{0001..9999}': Localidad de 50 000 y más habitantes
+    0: Localidad menor de 50 000 habitantes
+ID_VIV:
+  Descripción: Identificador único de la vivienda
+  Pregunta: Identificador único de vivienda
+  Categorías: {}
+COBERTURA:
+  Descripción: Tipo de cobertura en el municipio
+  Pregunta: Tipo de cobertura en el municipio
+  Categorías:
+    1: Municipio censado
+    2: Municipio muestreado
+    3: Municipio con muestra insuficiente
+ESTRATO:
+  Descripción: 'Estrato '
+  Pregunta: Estrato
+  Categorías: {}
+UPM:
+  Descripción: Unidad Primaria de Muestreo
+  Pregunta: Unidad Primaria de Muestreo
+  Categorías: {}
+FACTOR:
+  Descripción: Factor de Expansión
+  Pregunta: Factor de expansión
+  Categorías: {}
+CLAVIVP:
+  Descripción: 'Clase de vivienda particular '
+  Pregunta: 'Clase de vivienda particular '
+  Categorías:
+    1: Casa única en el terreno
+    2: Casa que comparte terreno con otra(s)
+    3: Casa dúplex
+    4: Departamento en edificio
+    5: Vivienda en vecindad o cuartería
+    6: Vivienda en cuarto de azotea de un edificio
+    7: Local no construido para habitación
+    8: Vivienda móvil
+    9: Refugio
+    99: No especificado de vivienda particular
+CLAVIVP_CAT:
+  Descripción: 'Clase de vivienda particular '
+  Pregunta: 'Clase de vivienda particular'
+  Original: CLAVIVP
+  Categorías:
+    1: Vivienda
+    2: Vivienda
+    3: Vivienda
+    4: Vivienda
+    5: Vivienda
+    6: Vivienda
+    7: Otro
+    8: Otro
+    9: Otro
+    99: Vivienda
+PAREDES:
+  Descripción: Paredes
+  Pregunta: ¿De qué material es la mayor parte de las paredes o muros de esta vivienda?
+  Categorías:
+    1: Material de desecho
+    2: Lámina de cartón
+    3: Lámina de asbesto o metálica
+    4: Carrizo, bambú  o palma
+    5: Embarro o bajareque
+    6: Madera
+    7: Adobe
+    8: Tabique, ladrillo, block, piedra, cantera, cemento o concreto
+    9: No especificado
+    -1: Blanco por pase
+TECHOS:
+  Descripción: Techos
+  Pregunta: ¿De qué material es la mayor parte del techo de esta vivienda?
+  Categorías:
+    1: Material de desecho
+    2: Lámina de cartón
+    3: Lámina metálica
+    4: 'Lámina de asbesto '
+    5: Lámina de fibrocemento
+    6: Palma o paja
+    7: Madera o tejamanil
+    8: Terrado con viguería
+    9: Teja
+    10: Losa de concreto o viguetas con bovedilla
+    99: No especificado
+    -1: Blanco por pase
+PISOS:
+  Descripción: Pisos
+  Pregunta: ¿De qué material es la mayor parte del piso de esta vivienda?
+  Categorías:
+    1: Tierra
+    2: Cemento o firme
+    3: Madera, mosaico u otro recubrimiento
+    9: No especificado
+    -1: Blanco por pase
+COCINA:
+  Descripción: Cocina
+  Pregunta: ¿Esta vivienda tiene un cuarto para cocinar?
+  Categorías:
+    1: Sí
+    3: 'No'
+    9: No especificado
+    -1: Blanco por pase
+CUADORM:
+  Descripción: Dormitorios
+  Pregunta: ¿Cuántos cuartos se usan para dormir sin contar pasillos?
+  Categorías:
+    1..25: 1..25
+    99: No especificado
+    -1: -1
+CUADORM_CAT:
+  Descripción: Dormitorios
+  Pregunta: ¿Cuántos cuartos se usan para dormir sin contar pasillos?
+  Original: CUADORM
+  Categorías:
+    1: "1"
+    2..25: "2+"
+    99: No especificado
+    -1: Blanco por pase
+TOTCUART:
+  Descripción: Cuartos
+  Pregunta: ¿Cuántos cuartos tiene en total esta vivienda contando la cocina? (No
+    cuente pasillos ni baños)
+  Categorías:
+    1..25: 1..25
+    99: No especificado
+    -1: -1
+TOTCUART_CAT:
+  Descripción: Cuartos
+  Pregunta: ¿Cuántos cuartos tiene en total esta vivienda contando la cocina? (No
+    cuente pasillos ni baños)
+  Original: TOTCUART
+  Categorías:
+    1: "1"
+    2: "2"
+    3..25: "3+"
+    99: No especificado
+    -1: Blanco por pase
+LUG_COC:
+  Descripción: Lugar donde cocinan
+  Pregunta: '¿El espacio para cocinar o preparar alimentos está:'
+  Categorías:
+    1: al interior de la vivienda?
+    2: en un cuarto separado de la vivienda?
+    3: en un pasillo o corredor fuera de la vivienda?
+    4: en un tejabán o techito?
+    5: al aire libre?
+    6: ¿No tiene un espacio para cocinar?
+    9: No especificado
+    -1: Blanco por pase
+COMBUSTIBLE:
+  Descripción: Combustible
+  Pregunta: '¿El combustible que más usan para cocinar es:'
+  Categorías:
+    1: leña o carbón?
+    2: gas?
+    3: electricidad?
+    4: ¿Otro combustible?
+    5: ¿No cocinan?
+    9: No especificado
+    -1: Blanco por pase
+ESTUFA:
+  Descripción: Fogón con chimenea
+  Pregunta: '¿El fogón (anafre, estufa, comal) donde cocinan con leña o carbón:'
+  Categorías:
+    1: tiene un tubo o chimenea para sacar el humo?
+    3: no tiene tubo o chimenea para sacar el humo?
+    9: No especificado
+    -1: Blanco por pase
+ELECTRICIDAD:
+  Descripción: Electricidad
+  Pregunta: ¿Hay luz eléctrica en esta vivienda?
+  Categorías:
+    1: Sí
+    3: 'No'
+    9: No especificado
+    -1: Blanco por pase
+FOCOS:
+  Descripción: Focos (total)
+  Pregunta: ¿Cuántos focos tiene esta vivienda?
+  Categorías:
+    1..998: 1..998
+    999: No especificado
+    Nulo: Blanco por pase
+FOCOS_AHORRA:
+  Descripción: Focos (ahorradores)
+  Pregunta: ¿Cuántos focos son ahorradores?
+  Categorías:
+    0..998: 0..998
+    999: No especificado
+    Nulo: Blanco por pase
+AGUA_ENTUBADA:
+  Descripción: Agua entubada
+  Pregunta: '¿El agua la obtienen de llaves o mangueras que están:'
+  Categorías:
+    1: Dentro de la vivienda
+    2: Sólo en el patio o terreno
+    3: No tiene
+    9: No especificado
+    -1: Blanco por pase
+ABA_AGUA_ENTU:
+  Descripción: Abastecimiento de agua
+  Pregunta: '¿El agua que usan en su vivienda proviene:'
+  Categorías:
+    1: Del servicio público de agua
+    2: De un pozo comunitario
+    3: De un pozo particular
+    4: De una pipa
+    5: De otra vivienda
+    6: De la lluvia
+    7: De otro lugar
+    9: No especificado
+    -1: Blanco por pase
+ABA_AGUA_NO_ENTU:
+  Descripción: Agua no entubada
+  Pregunta: 'Entonces, ¿acarrean el agua de:'
+  Categorías:
+    1: un pozo
+    2: una llave comunitaria
+    3: otra vivienda
+    4: un río, arroyo o lago
+    5: La trae una pipa
+    6: La captan de la lluvia
+    9: No especificado
+    -1: Blanco por pase
+TINACO:
+  Descripción: Equipamiento (tinaco)
+  Pregunta: tinaco?
+  Categorías:
+    1: Sí
+    2: 'No'
+    9: No especificado
+    -1: Blanco por pase
+CISTERNA:
+  Descripción: Equipamiento (cisterna o aljibe)
+  Pregunta: cisterna o aljibe?
+  Categorías:
+    3: Sí
+    4: 'No'
+    9: No especificado
+    -1: Blanco por pase
+BOMBA_AGUA:
+  Descripción: Equipamiento (bomba de agua)
+  Pregunta: bomba de agua?
+  Categorías:
+    5: Sí
+    6: 'No'
+    9: No especificado
+    -1: Blanco por pase
+REGADERA:
+  Descripción: Equipamiento (regadera)
+  Pregunta: regadera?
+  Categorías:
+    7: Sí
+    8: 'No'
+    9: No especificado
+    -1: Blanco por pase
+BOILER:
+  Descripción: Equipamiento (boiler o calentador de agua)
+  Pregunta: 'boiler o calentador de agua? (Gas, eléctrico, leña)'
+  Categorías:
+    1: Sí
+    2: 'No'
+    9: No especificado
+    -1: Blanco por pase
+CALENTADOR_SOLAR:
+  Descripción: Equipamiento (calentador solar de agua)
+  Pregunta: calentador solar de agua?
+  Categorías:
+    3: Sí
+    4: 'No'
+    9: No especificado
+    -1: Blanco por pase
+AIRE_ACON:
+  Descripción: Equipamiento (aire acondicionado)
+  Pregunta: aire acondicionado?
+  Categorías:
+    5: Sí
+    6: 'No'
+    9: No especificado
+    -1: Blanco por pase
+PANEL_SOLAR:
+  Descripción: Equipamiento (panel solar para tener electricidad)
+  Pregunta: panel solar para tener electricidad?
+  Categorías:
+    7: Sí
+    8: 'No'
+    9: No especificado
+    -1: Blanco por pase
+SERSAN:
+  Descripción: Sanitario
+  Pregunta: '¿Tienen:'
+  Categorías:
+    1: Taza de baño (excusado o sanitario).
+    2: Letrina (pozo u hoyo).
+    3: No tienen taza de baño ni letrina.
+    9: No especificado
+    -1: Blanco por pase
+CONAGUA:
+  Descripción: Admisión de agua
+  Pregunta: '¿La taza de baño (letrina):'
+  Categorías:
+    1: Tiene descarga directa de agua.
+    2: Le echan agua con cubeta.
+    3: No se le puede echar agua.
+    9: No especificado
+    -1: Blanco por pase
+USOEXC:
+  Descripción: Uso del sanitario
+  Pregunta: ¿La taza de baño (letrina) es compartida con otra vivienda?
+  Categorías:
+    1: Sí
+    3: 'No'
+    9: No especificado
+    -1: Blanco por pase
+DRENAJE:
+  Descripción: Drenaje
+  Pregunta: '¿Esta vivienda tiene drenaje o desagüe conectado a:'
+  Categorías:
+    1: La red pública.
+    2: Una fosa séptica o tanque séptico (biodigestor).
+    3: Una tubería que va a dar a una barranca o grieta.
+    4: Una tubería que va a dar a un río, lago o mar.
+    5: No tiene drenaje.
+    9: No especificado
+    -1: Blanco por pase
+DRENAJE_CAT:
+  Descripción: Drenaje
+  Pregunta: '¿Esta vivienda tiene drenaje o desagüe conectado a:'
+  Original: DRENAJE
+  Categorías:
+    1: Sí
+    2: Sí
+    3: Sí
+    4: Sí
+    5: 'No'
+    9: No especificado
+    -1: Blanco por pase
+SEPARACION1:
+  Descripción: Separación (orgánica e inorgánica)
+  Pregunta: separar la basura en orgánica e inorgánica?
+  Categorías:
+    1: Sí
+    2: 'No'
+    9: No especificado
+    -1: Blanco por pase
+SEPARACION2:
+  Descripción: Separación (alimentar animales)
+  Pregunta: separar desperdicios para alimentar animales?
+  Categorías:
+    3: Sí
+    4: 'No'
+    9: No especificado
+    -1: Blanco por pase
+SEPARACION3:
+  Descripción: Separación (echarlos a las plantas)
+  Pregunta: separar desperdicios para echarlos a las plantas?
+  Categorías:
+    5: Sí
+    6: 'No'
+    9: No especificado
+    -1: Blanco por pase
+SEPARACION4:
+  Descripción: Separación (vender, regalar, donar o reutilizar)
+  Pregunta: separar cartón, latas o plástico  para vender, regalar, donar o reutilizar?
+  Categorías:
+    7: Sí
+    8: 'No'
+    9: No especificado
+    -1: Blanco por pase
+DESTINO_BAS:
+  Descripción: Eliminación de basura
+  Pregunta: '¿La basura de esta vivienda:'
+  Categorías:
+    1: Se la dan a un camión o carrito de basura
+    2: La dejan en un contenedor o depósito
+    3: La queman
+    4: La entierran
+    5: La llevan al basurero público
+    6: La tiran en otro lugar? (Calle, baldío, barranca, río)
+    9: No especificado
+    -1: Blanco por pase
+REFRIGERADOR:
+  Descripción: Bienes y TIC (refrigerador)
+  Pregunta: refrigerador?
+  Categorías:
+    1: Sí
+    2: 'No'
+    9: No especificado
+    -1: Blanco por pase
+LAVADORA:
+  Descripción: Bienes y TIC (lavadora)
+  Pregunta: lavadora?
+  Categorías:
+    3: Sí
+    4: 'No'
+    9: No especificado
+    -1: Blanco por pase
+HORNO:
+  Descripción: Bienes y TIC (horno de microondas)
+  Pregunta: horno de microondas?
+  Categorías:
+    5: Sí
+    6: 'No'
+    9: No especificado
+    -1: Blanco por pase
+AUTOPROP:
+  Descripción: Bienes y TIC (automóvil o camioneta)
+  Pregunta: automóvil o camioneta?
+  Categorías:
+    7: Sí
+    8: 'No'
+    9: No especificado
+    -1: Blanco por pase
+MOTOCICLETA:
+  Descripción: Bienes y TIC (motocicleta o motoneta)
+  Pregunta: motocicleta o motoneta?
+  Categorías:
+    1: Sí
+    2: 'No'
+    9: No especificado
+    -1: Blanco por pase
+BICICLETA:
+  Descripción: Bienes y TIC (bicicleta como medio de transporte)
+  Pregunta: bicicleta que se utilice como medio de transporte?
+  Categorías:
+    3: Sí
+    4: 'No'
+    9: No especificado
+    -1: Blanco por pase
+RADIO:
+  Descripción: Bienes y TIC (radio)
+  Pregunta: algún aparato o dispositivo para oír radio?
+  Categorías:
+    5: Sí
+    6: 'No'
+    9: No especificado
+    -1: Blanco por pase
+TELEVISOR:
+  Descripción: Bienes y TIC (televisor)
+  Pregunta: televisor?
+  Categorías:
+    7: Sí
+    8: 'No'
+    9: No especificado
+    -1: Blanco por pase
+COMPUTADORA:
+  Descripción: Bienes y TIC (computadora, laptop o tablet)
+  Pregunta: computadora, laptop o tablet?
+  Categorías:
+    1: Sí
+    2: 'No'
+    9: No especificado
+    -1: Blanco por pase
+TELEFONO:
+  Descripción: Bienes y TIC (línea telefónica fija)
+  Pregunta: línea telefónica fija?
+  Categorías:
+    3: Sí
+    4: 'No'
+    9: No especificado
+    -1: Blanco por pase
+CELULAR:
+  Descripción: Bienes y TIC (teléfono celular)
+  Pregunta: teléfono celular?
+  Categorías:
+    5: Sí
+    6: 'No'
+    9: No especificado
+    -1: Blanco por pase
+INTERNET:
+  Descripción: Bienes y TIC (Internet)
+  Pregunta: Internet?
+  Categorías:
+    7: Sí
+    8: 'No'
+    9: No especificado
+    -1: Blanco por pase
+SERV_TV_PAGA:
+  Descripción: Bienes y TIC (servicio de televisión de paga)
+  Pregunta: servicio de televisión de paga? (cable o satelital)
+  Categorías:
+    1: Sí
+    2: 'No'
+    9: No especificado
+    -1: Blanco por pase
+SERV_PEL_PAGA:
+  Descripción: Bienes y TIC (Servicio de películas, música o videos de paga por Internet)
+  Pregunta: Servicio de películas, música o videos de paga por Internet?
+  Categorías:
+    3: Sí
+    4: 'No'
+    9: No especificado
+    -1: Blanco por pase
+CON_VJUEGOS:
+  Descripción: Bienes y TIC (consola de videojuegos)
+  Pregunta: consola de videojuegos?
+  Categorías:
+    5: Sí
+    6: 'No'
+    9: No especificado
+    -1: Blanco por pase
+TENENCIA:
+  Descripción: Tenencia
+  Pregunta: '¿En esta vivienda:'
+  Categorías:
+    1: Vive la persona que es dueña o propietaria
+    2: Se paga renta
+    3: Es de un familiar o les prestan la vivienda
+    4: La ocupan en otra situación
+    9: No especificado
+    -1: Blanco por pase
+ESCRITURAS:
+  Descripción: Escritura o título
+  Pregunta: '¿Esta vivienda cuenta con escrituras o título de propiedad:'
+  Categorías:
+    1: A nombre de la persona dueña o propietaria
+    2: A nombre de otra persona
+    3: No tiene escrituras
+    8: No sabe
+    9: No especificado
+    -1: Blanco por pase
+FORMA_ADQUI:
+  Descripción: 'Adquisición'
+  Pregunta: '¿La persona dueña o propietaria de esta vivienda:'
+  Categorías:
+    1: La compró hecha
+    2: La mandó construir
+    3: La construyó ella (él) misma(o) o familiares
+    4: La heredó
+    5: La recibió como apoyo del gobierno
+    6: La obtuvo de otra manera
+    9: No especificado
+    -1: Blanco por pase
+FINANCIAMIENTO1:
+  Descripción: Financiamiento (opción 1)
+  Pregunta: 'Para pagar o construir esta vivienda, ¿le dio crédito:'
+  Categorías:
+    1: INFONAVIT
+    2: FOVISSSTE
+    3: PEMEX
+    4: FONHAPO
+    5: Banco
+    6: Otra institución
+    7: Le prestó un familiar, amiga(o) o prestamista
+    8: Usó sus propios recursos
+    9: No especificado
+    -1: Blanco por pase
+FINANCIAMIENTO2:
+  Descripción: Financiamiento (opción 2)
+  Pregunta: 'Para pagar o construir esta vivienda, ¿le dio crédito:'
+  Categorías:
+    2: FOVISSSTE
+    3: PEMEX
+    4: FONHAPO
+    5: Banco
+    6: Otra institución
+    7: Le prestó un familiar, amiga(o) o prestamista
+    8: Usó sus propios recursos
+    -1: Blanco por pase
+FINANCIAMIENTO3:
+  Descripción: Financiamiento (opción 3)
+  Pregunta: 'Para pagar o construir esta vivienda, ¿le dio crédito:'
+  Categorías:
+    3: PEMEX
+    4: FONHAPO
+    5: Banco
+    6: Otra institución
+    7: Le prestó un familiar, amiga(o) o prestamista
+    8: Usó sus propios recursos
+    -1: Blanco por pase
+DEUDA:
+  Descripción: Deuda
+  Pregunta: '¿Esta vivienda:'
+  Categorías:
+    1: Está totalmente pagada
+    2: La están pagando
+    3: La dejaron de pagar
+    8: No sabe
+    9: No especificado
+    -1: Blanco por pase
+NUMPERS:
+  Descripción: Número de personas en la vivienda
+  Pregunta: Número de personas en la vivienda
+  Categorías:
+    1..99999: Total de personas
+DUE1_NUM:
+  Descripción: Dueña(o) o propietaria(o) (número de renglón 1)
+  Pregunta: Número de persona
+  Categorías:
+    01..54: 01..54
+    99: No especificado
+    -1: Blanco por pase
+DUE2_NUM:
+  Descripción: Dueña(o) o propietaria(o) (número de renglón 2)
+  Pregunta: Número de persona
+  Categorías:
+    01..54: 01..54
+    -1: Blanco por pase
+MCONMIG:
+  Descripción: Condición de migración internacional
+  Pregunta: Durante los últimos 5 años, esto es, de marzo de 2015 a la fecha, ¿alguna
+    persona que vive o vivía con ustedes (en esta vivienda) se fue a vivir a otro
+    país?
+  Categorías:
+    1: Sí
+    3: 'No'
+    9: No especificado
+MNUMPERS:
+  Descripción: Número de personas (migración internacional)
+  Pregunta: ¿Cuántas personas?
+  Categorías:
+    1..54: 1..54
+    -1: -1
+INGR_PEROTROPAIS:
+  Descripción: Otros ingresos (alguien que vive en otro país)
+  Pregunta: de alguien que vive en otro país?
+  Categorías:
+    1: Sí
+    2: 'No'
+    9: No especificado
+INGR_PERDENTPAIS:
+  Descripción: Otros ingresos (alguien que vive en otra vivienda dentro del país)
+  Pregunta: 'de alguien que vive en otra vivienda dentro del país?'
+  Categorías:
+    3: Sí
+    4: 'No'
+    9: No especificado
+INGR_AYUGOB:
+  Descripción: Otros ingresos (programas de gobierno)
+  Pregunta: 'de programas de gobierno? Por ejemplo: PROSPERA, BIENESTAR, Adultos Mayores,
+    PROCAMPO, PROAGRO, Jóvenes Construyendo el Futuro, etcétera'
+  Categorías:
+    5: Sí
+    6: 'No'
+    9: No especificado
+INGR_JUBPEN:
+  Descripción: Otros ingresos (jubilación o pensión)
+  Pregunta: por jubilación o pensión?
+  Categorías:
+    7: Sí
+    8: 'No'
+    9: No especificado
+ALIMENTACION:
+  Descripción: Acceso a los alimentos en la vivienda
+  Pregunta: En los últimos tres meses, ¿alguna vez en su vivienda, por falta de dinero
+    o recursos, se quedaron sin comida?
+  Categorías:
+    1: Sí
+    3: 'No'
+    9: No especificado
+ALIM_ADL1:
+  Descripción: Alimentación de los adultos (poca variedad de alimentos)
+  Pregunta: Por falta de dinero o recursos, tuvieron una alimentación basada en muy
+    poca variedad de alimentos?
+  Categorías:
+    1: Sí
+    2: 'No'
+    9: No especificado
+ALIM_ADL2:
+  Descripción: 'Alimentación de los adultos dejaron de desayunar, comer o cenar)'
+  Pregunta: Por falta de dinero o recursos, dejaron de desayunar, comer o cenar?
+  Categorías:
+    3: Sí
+    4: 'No'
+    9: No especificado
+ING_ALIM_ADL1:
+  Descripción: Ingesta de alimentos de los adultos (comieron menos de lo que usted
+    piensa debían comer)
+  Pregunta: por falta de dinero o recursos, comieron menos de lo que usted piensa
+    debían comer?
+  Categorías:
+    1: Sí
+    2: 'No'
+    9: No especificado
+ING_ALIM_ADL2:
+  Descripción: Ingesta de alimentos de los adultos (sintieron hambre pero no comieron)
+  Pregunta: por falta de dinero o recursos, sintieron hambre pero no comieron?
+  Categorías:
+    3: Sí
+    4: 'No'
+    9: No especificado
+ING_ALIM_ADL3:
+  Descripción: Ingesta de alimentos de los adultos (sólo comieron una vez al día o
+    dejaron de comer todo un día)
+  Pregunta: por falta de dinero o recursos, sólo comieron una vez al día o dejaron
+    de comer todo un día?
+  Categorías:
+    5: Sí
+    6: 'No'
+    9: No especificado
+TIPOHOG:
+  Descripción: Tipo de hogar
+  Pregunta: Tipo de hogar censal
+  Categorías:
+    1: Hogar Nuclear (Familiar)
+    2: Hogar Ampliado (Familiar)
+    3: Hogar Compuesto (Familiar)
+    4: Hogar no especificado (Familiar)
+    5: Hogar unipersonal (No familiar)
+    6: Hogar corresidente (No familiar)
+    9: No se sabe la composición
+INGTRHOG:
+  Descripción: Ingresos por trabajo en el hogar
+  Pregunta: Ingresos mensuales por trabajo en el hogar
+  Categorías:
+    0: 0
+    1..999997: 1..999997
+    999998: Ingresos mayores a 999,997
+    999999: No especificado
+    Nulo: Blanco por pase
+JEFE_SEXO:
+  Descripción: 'Sexo del jefe '
+  Pregunta: Sexo del jefe de la vivienda
+  Categorías:
+    1: Hombre
+    3: Mujer
+JEFE_EDAD:
+  Descripción: 'Edad del jefe '
+  Pregunta: Edad del jefe de la vivienda
+  Categorías:
+    12..130: Años cumplidos
+    999: No especificado
+TAMLOC:
+  Descripción: Tamaño de localidad
+  Pregunta: Tamaño de localidad
+  Categorías:
+    1: Menos de 2 500 habitantes
+    2: De 2 500 a 14 999 habitantes
+    3: De 15 000 a 49 999 habitantes
+    4: De 50 000 a 99 999 habitantes
+    5: 100 000 y más habitantes

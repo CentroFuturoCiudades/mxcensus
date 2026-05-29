@@ -1,0 +1,1821 @@
+ENT:
+  Descripción: Entidad Federativa
+  Pregunta: Entidad Federativa
+  Categorías: {}
+MUN:
+  Descripción: Municipio o Demarcación territorial
+  Pregunta: Municipio o Demarcación territorial
+  Categorías: {}
+LOC50K:
+  Descripción: Clave de la localidad de 50 000 y más habitantes
+  Pregunta: Clave de la localidad de 50 000 y más habitantes
+  Categorías:
+    '{0001..9999}': Localidad de 50 000 y más habitantes
+    0: Localidad menor de 50 000 habitantes
+ID_VIV:
+  Descripción: Identificador único de  vivienda
+  Pregunta: Identificador único de vivienda
+  Categorías: {}
+ID_PERSONA:
+  Descripción: Identificador único de persona
+  Pregunta: Identificador único de persona
+  Categorías: {}
+COBERTURA:
+  Descripción: Tipo de cobertura en el municipio
+  Pregunta: Tipo de cobertura en el municipio
+  Categorías:
+    1: Municipio censado
+    2: Municipio muestreado
+    3: Municipio con muestra insuficiente
+ESTRATO:
+  Descripción: 'Estrato '
+  Pregunta: Estrato
+  Categorías: {}
+UPM:
+  Descripción: Unidad Primaria de Muestreo
+  Pregunta: Unidad Primaria de Muestreo
+  Categorías: {}
+FACTOR:
+  Descripción: Factor de Expansión
+  Pregunta: Factor de expansión
+  Categorías: {}
+CLAVIVP:
+  Descripción: 'Clase de vivienda particular '
+  Pregunta: 'Clase de vivienda particular '
+  Categorías:
+    1: Casa única en el terreno
+    2: Casa que comparte terreno con otra(s)
+    3: Casa dúplex
+    4: Departamento en edificio
+    5: Vivienda en vecindad o cuartería
+    6: Vivienda en cuarto de azotea de un edificio
+    7: Local no construido para habitación
+    8: Vivienda móvil
+    9: Refugio
+    99: No especificado de vivienda particular
+NUMPER:
+  Descripción: Número de persona
+  Pregunta: Número de persona
+  Categorías:
+    01..54: Número de la persona
+SEXO:
+  Descripción: Sexo
+  Pregunta: '(NOMBRE) es hombre/mujer:'
+  Categorías:
+    1: Hombre
+    3: Mujer
+EDAD:
+  Descripción: Edad
+  Pregunta: ¿Cuántos años cumplidos tiene (NOMBRE)?
+  Categorías:
+    0: Menos de un año
+    1..130: Años cumplidos
+    999: No especificado
+PARENTESCO:
+  Descripción: Parentesco
+  Pregunta: ¿Qué es (NOMBRE) de la jefa o jefe?
+  Categorías:
+    101: Jefa(e)
+    201: Esposa(o)
+    202: Concubina(o) o unión libre
+    203: Amante o querida(o)
+    301: Hija(o)
+    302: Hija(o) adoptiva(o)
+    303: Hijastra(o)
+    304: Hija(o) de crianza
+    401: Madre o padre
+    402: Madrastra o padrastro
+    403: Hermana(o)
+    404: Media(o) hermana(o)
+    405: Hermanastra(o)
+    406: Abuela(o)
+    407: Bisabuela(o) o tatarabuela(o)
+    408: Nieta(o)
+    409: Nietastra(o)
+    410: Esposa(o) de nieto(a)
+    411: Bisnieta(o) o tataranieta(o)
+    412: Tía(o)
+    413: Sobrina(o)
+    414: Sobrina(o) nieta(o)
+    415: Prima(o)
+    416: Suegra(o)
+    417: Consuegra(o)
+    418: Nuera o yerno
+    419: Cuñada(o)
+    420: Concuña(o)
+    421: Madrina o padrino
+    422: Ahijada(o)
+    423: Comadre o compadre
+    424: Otros familiares
+    501: Sin parentesco
+    502: Tutor(a)
+    503: Tutelada(o)
+    601: Trabajador(a) doméstico(a)
+    611: Esposa(o) de trabajador(a) doméstico(a)
+    612: Hija(o) de trabajador(a) doméstico(a)
+    613: Otro pariente de trabajador(a) doméstico(a)
+    701: Huésped
+    999: No especificado
+    -1: Blanco por pase
+IDENT_MADRE:
+  Descripción: Identificación de la madre
+  Pregunta: '¿La madre de (NOMBRE):'
+  Categorías:
+    01..54: 01..54
+    96: Vive en otra vivienda
+    97: Ya falleció
+    98: No sabe
+    99: No especificado
+IDENT_MADRE_CAT:
+  Descripción: Identificación de la madre
+  Pregunta: '¿La madre de (NOMBRE):'
+  Original: IDENT_MADRE
+  Categorías:
+    01..54: Vive en esta vivienda
+    96: Vive en otra vivienda
+    97: Ya falleció
+    98: No sabe
+    99: No especificado
+IDENT_PADRE:
+  Descripción: Identificación del padre
+  Pregunta: '¿El padre de (NOMBRE):'
+  Categorías:
+    01..54: 01..54
+    96: Vive en otra vivienda
+    97: Ya falleció
+    98: No sabe
+    99: No especificado
+IDENT_PADRE_CAT:
+  Descripción: Identificación del padre
+  Pregunta: '¿El padre de (NOMBRE):'
+  Original: IDENT_PADRE
+  Categorías:
+    01..54: Vive en esta vivienda
+    96: Vive en otra vivienda
+    97: Ya falleció
+    98: No sabe
+    99: No especificado
+ENT_PAIS_NAC:
+  Descripción: Entidad o país de nacimiento
+  Pregunta: ¿En qué estado de la República Mexicana o en qué país nació (NOMBRE)?
+  Categorías:
+    001..032: 001..032
+    100..535: 100..535
+    997: 997
+    998: 998
+    999: 999
+ENT_PAIS_NAC_CAT:
+  Descripción: Entidad o país de nacimiento categorías resumidas.
+  Pregunta: ¿En qué estado de la República Mexicana o en qué país nació (NOMBRE)?
+  Original: ENT_PAIS_NAC
+  Categorías:
+    001..032: OtraEnt
+    100..535: OtroPais
+    997: OtraEnt
+    998: OtroPais
+    999: No especificado
+NACIONALIDAD:
+  Descripción: Nacionalidad mexicana
+  Pregunta: ¿(NOMBRE) tiene nacionalidad mexicana?
+  Categorías:
+    1: Sí
+    3: 'No'
+    9: No especificado
+SERSALUD:
+  Descripción: Uso de servicios de salud
+  Pregunta: Cuando (NOMBRE) tiene problemas de salud, ¿en dónde se atiende?
+  Categorías:
+    1: Seguro Social (IMSS)
+    2: ISSSTE
+    3: ISSSTE estatal
+    4: PEMEX, Defensa o Marina
+    5: Centro de Salud u Hospital de la SSA, Seguro Popular o Instituto de Salud para
+      el Bienestar
+    6: IMSS-PROSPERA o IMSS-BIENESTAR
+    7: Consultorio, clínica u hospital privado
+    8: Consultorio de farmacia
+    9: Otro lugar
+    10: No se atiende
+    99: No especificado
+AFRODES:
+  Descripción: Afrodescendientes o Afromexicanos
+  Pregunta: Por sus antepasados y de acuerdo con sus costumbres y tradiciones, ¿(NOMBRE)
+    se considera afromexicano(a) negro(a) o afrodescendiente?
+  Categorías:
+    1: Sí
+    3: 'No'
+    9: No especificado
+REGIS_NAC:
+  Descripción: Registro de nacimiento
+  Pregunta: '¿(NOMBRE) tiene acta de nacimiento o está inscrita(o) en el registro
+    civil de:'
+  Categorías:
+    1: República Mexicana
+    2: Otro país
+    3: No tiene
+    9: No especificado
+DHSERSAL1:
+  Descripción: Afiliación a servicios de salud (opción 1)
+  Pregunta: '¿(NOMBRE) está afiliada(o) o tiene derecho a servicios médicos en:'
+  Categorías:
+    1: IMSS
+    2: ISSSTE
+    3: ISSSTE_E
+    4: P_D_M
+    5: Popular_NGenración_SBienestar
+    6: IMSS_Prospera/Bienestar
+    7: Privado
+    8: Otro
+    9: No afiliado
+    -1: Blanco por pase
+    99: No especificado
+DHSERSAL2:
+  Descripción: Afiliación a servicios de salud (opción 2)
+  Pregunta: '¿(NOMBRE) está afiliada(o) o tiene derecho a servicios médicos en:'
+  Categorías:
+    2: ISSSTE
+    3: ISSSTE_E
+    4: P_D_M
+    5: Popular_NGenración_SBienestar
+    6: IMSS_Prospera/Bienestar
+    7: Privado
+    8: Otro
+    -1: Blanco por pase
+RELIGION:
+  Descripción: Religión
+  Pregunta: ¿Cuál es la religión de (NOMBRE)?
+  Categorías:
+    1101: Católica
+    1201: Católica ortodoxa
+    1301: Anabautista/Menonita
+    1302: Anglicana/Episcopal
+    1303: Bautista
+    1304: Luterana
+    1305: Metodista
+    1306: Presbiteriana
+    1307: Otras protestantes
+    1311: Amistad Cristiana
+    1312: Asambleas de Dios
+    1313: Iglesia Apostólica de la Fe en Cristo Jesús
+    1314: Iglesia de Dios
+    1315: Iglesia de Dios de la Profecía
+    1316: Iglesia de Dios en México del Evangelio Completo
+    1317: Príncipe de Paz
+    1318: Otras asociaciones pentecostales
+    1321: Iglesia Cristiana Interdenominacional
+    1322: "Iglesia del Dios Vivo:  Columna y Apoyo de la Verdad:  la Luz del Mundo"
+    1323: Iglesia de Cristo
+    1324: Iglesia del Nazareno
+    1325: Movimientos Sincréticos Judaicos Neoisraelitas
+    1326: Otras cristianas evangélicas
+    1331: Adventista del Séptimo Día
+    1332: Iglesia de Jesucristo de los Santos de los Últimos Días (Mormón)
+    1333: Testigo de Jehová
+    1341: Cristiana
+    1342: Evangélica
+    1343: Pentecostal
+    1344: Protestante
+    2101: Judía
+    2201: Islámica
+    2301: Budista
+    2302: Hinduista
+    2303: Otras de origen oriental
+    2401: New Age y Escuelas esotéricas
+    2501: Raíces étnicas
+    2601: Raíces afro
+    2701: Espiritualista
+    2801: Cultos populares
+    2901: Otros movimientos religiosos
+    3101: Ninguna religión
+    3102: Ateos
+    3103: Agnósticos
+    3104: Sin adscripción religiosa (creyente)
+    9999: No especificado
+RELIGION_CAT:
+  Descripción: Religión
+  Pregunta: ¿Cuál es la religión de (NOMBRE)?
+  Original: RELIGION
+  Categorías:
+    1101: Católica
+    1201: Otros credos
+    1301: Protestante/cristiano evangélico
+    1302: Protestante/cristiano evangélico
+    1303: Protestante/cristiano evangélico
+    1304: Protestante/cristiano evangélico
+    1305: Protestante/cristiano evangélico
+    1306: Protestante/cristiano evangélico
+    1307: Protestante/cristiano evangélico
+    1311: Protestante/cristiano evangélico
+    1312: Protestante/cristiano evangélico
+    1313: Protestante/cristiano evangélico
+    1314: Protestante/cristiano evangélico
+    1315: Protestante/cristiano evangélico
+    1316: Protestante/cristiano evangélico
+    1317: Protestante/cristiano evangélico
+    1318: Protestante/cristiano evangélico
+    1321: Protestante/cristiano evangélico
+    1322: Protestante/cristiano evangélico
+    1323: Protestante/cristiano evangélico
+    1324: Protestante/cristiano evangélico
+    1325: Protestante/cristiano evangélico
+    1326: Protestante/cristiano evangélico
+    1331: Protestante/cristiano evangélico
+    1332: Protestante/cristiano evangélico
+    1333: Protestante/cristiano evangélico
+    1341: Protestante/cristiano evangélico
+    1342: Protestante/cristiano evangélico
+    1343: Protestante/cristiano evangélico
+    1344: Protestante/cristiano evangélico
+    2101: Otros credos
+    2201: Otros credos
+    2301: Otros credos
+    2302: Otros credos
+    2303: Otros credos
+    2401: Otros credos
+    2501: Otros credos
+    2601: Otros credos
+    2701: Otros credos
+    2801: Otros credos
+    2901: Otros credos
+    3101: Sin religión / Sin adscripción religiosa
+    3102: Sin religión / Sin adscripción religiosa
+    3103: Sin religión / Sin adscripción religiosa
+    3104: Sin religión / Sin adscripción religiosa
+    9999: No especificado
+DIS_VER:
+  Descripción: Discapacidad (visual)
+  Pregunta: En su vida diaria, ¿(NOMBRE) cuánta dificultad tiene para:ver, aun usando lentes?
+  Categorías:
+    1: No tiene dificultad
+    2: Lo hace con poca dificultad
+    3: Lo hace con mucha dificultad
+    4: No puede hacerlo
+    8: Se desconoce el grado de la discapacidad
+    9: No especificado
+DIS_OIR:
+  Descripción: Discapacidad (auditiva)
+  Pregunta: En su vida diaria, ¿(NOMBRE) cuánta dificultad tiene para:oír, aun usando aparato auditivo?
+  Categorías:
+    1: No tiene dificultad
+    2: Lo hace con poca dificultad
+    3: Lo hace con mucha dificultad
+    4: No puede hacerlo
+    8: Se desconoce el grado de la discapacidad
+    9: No especificado
+DIS_CAMINAR:
+  Descripción: Discapacidad (motriz)
+  Pregunta: En su vida diaria, ¿(NOMBRE) cuánta dificultad tiene para:caminar, subir o bajar?
+  Categorías:
+    1: No tiene dificultad
+    2: Lo hace con poca dificultad
+    3: Lo hace con mucha dificultad
+    4: No puede hacerlo
+    8: Se desconoce el grado de la discapacidad
+    9: No especificado
+DIS_RECORDAR:
+  Descripción: Discapacidad (recordar)
+  Pregunta: En su vida diaria, ¿(NOMBRE) cuánta dificultad tiene para:recordar o concentrarse?
+  Categorías:
+    1: No tiene dificultad
+    2: Lo hace con poca dificultad
+    3: Lo hace con mucha dificultad
+    4: No puede hacerlo
+    8: Se desconoce el grado de la discapacidad
+    9: No especificado
+DIS_BANARSE:
+  Descripción: Discapacidad (bañarse)
+  Pregunta: En su vida diaria, ¿(NOMBRE) cuánta dificultad tiene para:bañarse, vestirse o comer?
+  Categorías:
+    1: No tiene dificultad
+    2: Lo hace con poca dificultad
+    3: Lo hace con mucha dificultad
+    4: No puede hacerlo
+    8: Se desconoce el grado de la discapacidad
+    9: No especificado
+DIS_HABLAR:
+  Descripción: Discapacidad (comunicación)
+  Pregunta: 'En su vida diaria, ¿(NOMBRE) cuánta dificultad tiene para:hablar o comunicarse (por ejemplo: entender o ser entendido por otros)?'
+  Categorías:
+    1: No tiene dificultad
+    2: Lo hace con poca dificultad
+    3: Lo hace con mucha dificultad
+    4: No puede hacerlo
+    8: Se desconoce el grado de la discapacidad
+    9: No especificado
+DIS_MENTAL:
+  Descripción: Problema o condición mental
+  Pregunta: '¿Tiene algún problema o condición mental?
+
+    (Autismo, síndrome de Down, esquizofrenia, etcétera)'
+  Categorías:
+    5: Sí
+    6: 'No'
+    9: No especificado
+CAU_VER:
+  Descripción: Causa de la discapacidad (visual)
+  Pregunta: '¿La dificultad de (NOMBRE) para ver, aun usando lentes es:'
+  Categorías:
+    1: Nació así
+    2: Enfermedad
+    3: Accidente
+    4: Edad avanzada
+    5: Otra causa
+    9: No especificado
+    -1: Blanco por pase
+CAU_OIR:
+  Descripción: Causa de la discapacidad (auditiva)
+  Pregunta: '¿La dificultad de (NOMBRE) para oír, aun usando aparato auditivo es:'
+  Categorías:
+    1: Nació así
+    2: Enfermedad
+    3: Accidente
+    4: Edad avanzada
+    5: Otra causa
+    9: No especificado
+    -1: Blanco por pase
+CAU_CAMINAR:
+  Descripción: Causa de la discapacidad (motriz)
+  Pregunta: '¿La dificultad de (NOMBRE) para caminar, subir o bajar es:'
+  Categorías:
+    1: Nació así
+    2: Enfermedad
+    3: Accidente
+    4: Edad avanzada
+    5: Otra causa
+    9: No especificado
+    -1: Blanco por pase
+CAU_RECORDAR:
+  Descripción: Causa de la discapacidad (recordar)
+  Pregunta: '¿La dificultad de (NOMBRE) para recordar o concentrarse es:'
+  Categorías:
+    1: Nació así
+    2: Enfermedad
+    3: Accidente
+    4: Edad avanzada
+    5: Otra causa
+    9: No especificado
+    -1: Blanco por pase
+CAU_BANARSE:
+  Descripción: Causa de la discapacidad (bañarse)
+  Pregunta: '¿La dificultad de (NOMBRE) para bañarse, vestirse o comer es:'
+  Categorías:
+    1: Nació así
+    2: Enfermedad
+    3: Accidente
+    4: Edad avanzada
+    5: Otra causa
+    9: No especificado
+    -1: Blanco por pase
+CAU_HABLAR:
+  Descripción: Causa de la discapacidad (comunicación)
+  Pregunta: '¿La dificultad de (NOMBRE) para hablar o comunicarse (entender o ser
+    entendido por otros) es:'
+  Categorías:
+    1: Nació así
+    2: Enfermedad
+    3: Accidente
+    4: Edad avanzada
+    5: Otra causa
+    9: No especificado
+    -1: Blanco por pase
+CAU_MENTAL:
+  Descripción: Causa del problema o condición mental
+  Pregunta: '¿La causa del problema o condición mental de (NOMBRE) es:'
+  Categorías:
+    1: Nació así
+    2: Enfermedad
+    3: Accidente
+    4: Edad avanzada
+    5: Otra causa
+    9: No especificado
+    -1: Blanco por pase
+HLENGUA:
+  Descripción: Lengua indígena
+  Pregunta: '¿(NOMBRE) habla algún dialecto o lengua indígena?'
+  Categorías:
+    1: Sí
+    3: 'No'
+    9: No especificado
+    -1: Blanco por pase
+QDIALECT_INALI:
+  Descripción: Nombre de la lengua indígena - Clave
+  Pregunta: ¿Qué dialecto o lengua indígena habla (NOMBRE)?
+  Categorías:
+    101: "Kickapoo"
+    201: "Pápago"
+    202: "Pima"
+    203: "Tepehuano del norte"
+    204: "Tepehuano del sur"
+    205: "Tarahumara"
+    206: "Guarijío"
+    207: "Yaqui"
+    208: "Mayo"
+    209: "Cora"
+    210: "Huichol"
+    211: "Náhuatl"
+    301: "Paipai"
+    303: "Cucapá"
+    304: "Kumiai"
+    305: "Kiliwa"
+    401: "Seri"
+    501: "Otomí"
+    502: "Mazahua"
+    503: "Matlatzinca"
+    504: "Tlahuica"
+    505: "Pame"
+    506: "Chichimeco Jonaz"
+    507: "Chinanteco"
+    508: "Tlapaneco"
+    509: "Mazateco"
+    510: "Ixcateco"
+    511: "Chocholteco"
+    512: "Popoloca"
+    513: "Zapoteco"
+    514: "Chatino"
+    515: "Amuzgo"
+    516: "Mixteco"
+    517: "Cuicateco"
+    518: "Triqui"
+    601: "Huasteco"
+    602: "Maya"
+    603: "Lacandón"
+    604: "Ch'ol"
+    605: "Chontal de Tabasco"
+    606: "Tseltal"
+    607: "Tsotsil"
+    608: "Q anjob al"
+    609: "Akateko"
+    610: "Jakalteko"
+    611: "Qato'k"
+    612: "Chuj"
+    613: "Tojolabal"
+    614: "Q eqchi"
+    615: "K iche"
+    616: "Kaqchikel"
+    617: "Teko"
+    618: "Mam"
+    619: "Awakateko"
+    620: "Ixil"
+    701: "Totonaco"
+    702: "Tepehua"
+    801: "Tarasco"
+    901: "Mixe"
+    902: "Sayulteco"
+    903: "Oluteco"
+    904: "Texistepequeño"
+    905: "Ayapaneco"
+    906: "Popoluca de la Sierra"
+    907: "Zoque"
+    1001: "Chontal de Oaxaca"
+    1101: "Huave"
+    8000: "Otras lenguas indígenas de América"
+    9000: No especificado
+    9010: "Chontal insuficientemente especificado"
+    9020: "Tepehuano insuficientemente especificado"
+    9030: "Popoluca insuficientemente especificado"
+    9999: No especificado
+    -1: Blanco por pase
+HESPANOL:
+  Descripción: Habla español
+  Pregunta: ¿(NOMBRE) habla también español?
+  Categorías:
+    1: Sí
+    3: 'No'
+    9: No especificado
+    -1: Blanco por pase
+ELENGUA:
+  Descripción: Comprensión de lengua indígena
+  Pregunta: ¿(NOMBRE) entiende algún dialecto o lengua indígena?
+  Categorías:
+    5: Sí
+    7: 'No'
+    9: No especificado
+    -1: Blanco por pase
+PERTE_INDIGENA:
+  Descripción: Autoadscripción indígena
+  Pregunta: De acuerdo con su cultura, ¿(NOMBRE) se considera indígena?
+  Categorías:
+    1: Sí
+    3: 'No'
+    9: No especificado
+    -1: Blanco por pase
+ASISTEN:
+  Descripción: Asistencia escolar
+  Pregunta: ¿(NOMBRE) asiste actualmente a la escuela?
+  Categorías:
+    1: Sí
+    3: 'No'
+    9: No especificado
+    -1: Blanco por pase
+MUN_ASI:
+  Descripción: Municipio de asistencia escolar
+  Pregunta: ¿En qué municipio (Demarcación territorial) está la escuela donde estudia
+    (NOMBRE)?
+  Categorías:
+    001..570: 001..570
+    999: No especificado
+    -1: Blanco por pase
+ENT_PAIS_ASI:
+  Descripción: Entidad o país de asistencia escolar
+  Pregunta: ¿En qué estado o país está la escuela donde estudia (NOMBRE)?
+  Categorías:
+    001..032: 001..032
+    100..535: 100..535
+    997: No especificado de Entidad Federativa
+    998: No especificado de país
+    999: No especificado
+    -1: Blanco por pase
+TIE_TRASLADO_ESCU:
+  Descripción: Tiempo de traslado a la escuela
+  Pregunta: ¿Cuánto tiempo hace (NOMBRE) de aquí a su escuela?
+  Categorías:
+    1: Hasta 15 minutos
+    2: 16 a 30 minutos
+    3: 31 minutos a 1 hora
+    4: Más de 1 hora y hasta 2 horas
+    5: Más de 2 horas
+    6: No se traslada
+    9: No especificado
+    -1: Blanco por pase
+MED_TRASLADO_ESC1:
+  Descripción: Modo o medio de traslado a la escuela (opción 1)
+  Pregunta: ¿Cómo acostumbra (NOMBRE) ir de aquí a su escuela?
+  Categorías:
+    1: Caminando
+    2: Bicicleta
+    3: Metro, tren ligero, tren suburbano
+    4: Trolebús
+    5: 'Metrobús (autobús en carril confinado)'
+    6: Camión, autobús, combi, colectivo
+    7: Transporte escolar
+    8: Taxi (sitio, calle, otro)
+    9: Taxi (App Internet)
+    10: Motocicleta o motoneta
+    11: Automóvil o camioneta
+    12: Otro
+    99: No especificado
+    -1: Blanco por pase
+MED_TRASLADO_ESC2:
+  Descripción: Modo o medio de traslado a la escuela (opción 2)
+  Pregunta: ¿Cómo acostumbra (NOMBRE) ir de aquí a su escuela?
+  Categorías:
+    2: Bicicleta
+    3: Metro, tren ligero, tren suburbano
+    4: Trolebús
+    5: 'Metrobús (autobús en carril confinado)'
+    6: Camión, autobús, combi, colectivo
+    7: Transporte escolar
+    8: Taxi (sitio, calle, otro)
+    9: Taxi (App Internet)
+    10: Motocicleta o motoneta
+    11: Automóvil o camioneta
+    12: Otro
+    -1: Blanco por pase
+MED_TRASLADO_ESC3:
+  Descripción: Modo o medio de traslado a la escuela (opción 3)
+  Pregunta: ¿Cómo acostumbra (NOMBRE) ir de aquí a su escuela?
+  Categorías:
+    3: Metro, tren ligero, tren suburbano
+    4: Trolebús
+    5: 'Metrobús (autobús en carril confinado)'
+    6: Camión, autobús, combi, colectivo
+    7: Transporte escolar
+    8: Taxi (sitio, calle, otro)
+    9: Taxi (App Internet)
+    10: Motocicleta o motoneta
+    11: Automóvil o camioneta
+    12: Otro
+    -1: Blanco por pase
+NIVACAD:
+  Descripción: Escolaridad (nivel)
+  Pregunta: ¿Cuál fue el último año o grado aprobado por (NOMBRE) en la escuela?
+  Categorías:
+    0: Ninguno
+    1: Preescolar
+    2: Primaria
+    3: Secundaria
+    4: Preparatoria o bachillerato general
+    5: Bachillerato tecnológico
+    6: Estudios técnicos o comerciales con primaria terminada
+    7: Estudios técnicos o comerciales con secundaria terminada
+    8: Estudios técnicos o comerciales con preparatoria terminada
+    9: Normal con primaria o secundaria terminada
+    10: Normal de licenciatura
+    11: Licenciatura
+    12: Especialidad
+    13: Maestría
+    14: Doctorado
+    99: No especificado
+    -1: Blanco por pase
+ESCOLARI:
+  Descripción: Escolaridad (grado)
+  Pregunta: ¿Cuál fue el último año o grado aprobado por (NOMBRE) en la escuela?
+  Categorías:
+    0: 0
+    01..08: 01..08
+    99: No especificado
+    -1: Blanco por pase
+EDUC:
+  Descripción: Joint NIVACAD-ESCOLARI
+  Categorías:
+    "Ninguno_0": "Sin Educación"
+    "Preescolar_1": "Sin Educación"
+    "Preescolar_2": "Sin Educación"
+    "Preescolar_3": "Sin Educación"
+    "Preescolar_No especificado": "Sin Educación"
+    "Primaria_1": "Primaria_incom"
+    "Primaria_2": "Primaria_incom"
+    "Primaria_3": "Primaria_incom"
+    "Primaria_4": "Primaria_incom"
+    "Primaria_5": "Primaria_incom"
+    "Primaria_6": "Primaria_com"
+    "Primaria_No especificado": "Primaria_incom"
+    "Secundaria_1": "Secundaria_incom"
+    "Secundaria_2": "Secundaria_incom"
+    "Secundaria_3": "Secundaria_com"
+    "Secundaria_No especificado": "Secundaria_incom"
+    "Preparatoria o bachillerato general_1": "Posbásica"
+    "Preparatoria o bachillerato general_2": "Posbásica"
+    "Preparatoria o bachillerato general_3": "Posbásica"
+    "Preparatoria o bachillerato general_4": "Posbásica"
+    "Preparatoria o bachillerato general_No especificado": "Posbásica"
+    "Bachillerato tecnológico_1": "Posbásica"
+    "Bachillerato tecnológico_2": "Posbásica"
+    "Bachillerato tecnológico_3": "Posbásica"
+    "Bachillerato tecnológico_4": "Posbásica"
+    "Bachillerato tecnológico_No especificado": "Posbásica"
+    "Estudios técnicos o comerciales con primaria terminada_1": "Primaria_com"
+    "Estudios técnicos o comerciales con primaria terminada_2": "Primaria_com"
+    "Estudios técnicos o comerciales con primaria terminada_3": "Primaria_com"
+    "Estudios técnicos o comerciales con primaria terminada_4": "Primaria_com"
+    "Estudios técnicos o comerciales con primaria terminada_No especificado": "Primaria_com"
+    "Estudios técnicos o comerciales con secundaria terminada_1": "Posbásica"
+    "Estudios técnicos o comerciales con secundaria terminada_2": "Posbásica"
+    "Estudios técnicos o comerciales con secundaria terminada_3": "Posbásica"
+    "Estudios técnicos o comerciales con secundaria terminada_4": "Posbásica"
+    "Estudios técnicos o comerciales con secundaria terminada_5": "Posbásica"
+    "Estudios técnicos o comerciales con secundaria terminada_No especificado": "Posbásica"
+    "Estudios técnicos o comerciales con preparatoria terminada_1": "Posbásica"
+    "Estudios técnicos o comerciales con preparatoria terminada_2": "Posbásica"
+    "Estudios técnicos o comerciales con preparatoria terminada_3": "Posbásica"
+    "Estudios técnicos o comerciales con preparatoria terminada_4": "Posbásica"
+    "Estudios técnicos o comerciales con preparatoria terminada_No especificado": "Posbásica"
+    "Normal con primaria o secundaria terminada_1": "Posbásica"
+    "Normal con primaria o secundaria terminada_2": "Posbásica"
+    "Normal con primaria o secundaria terminada_3": "Posbásica"
+    "Normal con primaria o secundaria terminada_4": "Posbásica"
+    "Normal con primaria o secundaria terminada_No especificado": "Posbásica"
+    "Normal de licenciatura_1": "Posbásica"
+    "Normal de licenciatura_2": "Posbásica"
+    "Normal de licenciatura_3": "Posbásica"
+    "Normal de licenciatura_4": "Posbásica"
+    "Normal de licenciatura_5": "Posbásica"
+    "Normal de licenciatura_6": "Posbásica"
+    "Normal de licenciatura_No especificado": "Posbásica"
+    "Licenciatura_1": "Posbásica"
+    "Licenciatura_2": "Posbásica"
+    "Licenciatura_3": "Posbásica"
+    "Licenciatura_4": "Posbásica"
+    "Licenciatura_5": "Posbásica"
+    "Licenciatura_6": "Posbásica"
+    "Licenciatura_7": "Posbásica"
+    "Licenciatura_8": "Posbásica"
+    "Licenciatura_No especificado": "Posbásica"
+    "Especialidad_1": "Posbásica"
+    "Especialidad_2": "Posbásica"
+    "Especialidad_No especificado": "Posbásica"
+    "Maestría_1": "Posbásica"
+    "Maestría_2": "Posbásica"
+    "Maestría_3": "Posbásica"
+    "Maestría_4": "Posbásica"
+    "Maestría_5": "Posbásica"
+    "Maestría_6": "Posbásica"
+    "Maestría_No especificado": "Posbásica"
+    "Doctorado_1": "Posbásica"
+    "Doctorado_2": "Posbásica"
+    "Doctorado_3": "Posbásica"
+    "Doctorado_4": "Posbásica"
+    "Doctorado_5": "Posbásica"
+    "Doctorado_6": "Posbásica"
+    "Doctorado_No especificado": "Posbásica"
+    "No especificado_No especificado": "No especificado"
+    "Blanco por pase_Blanco por pase": "Blanco por pase"
+NOMCAR_C:
+  Descripción: Nombre de la carrera - Clave
+  Pregunta: ¿Cuál es el nombre de la carrera (normal, carrera técnica o comercial,
+    licenciatura, especialidad, maestría o doctorado) que estudia o estudió (NOMBRE)?
+  Categorías:
+    111: Diseño curricular y pedagogía
+    112: "Planeación:  evaluación e investigación educativa"
+    113: Orientación e intervención educativa
+    114: Tecnología y comunicación educativa
+    115: Ciencias de la educación
+    110: Planes multidisciplinarios o generales del campo de ciencias de la educación y pedagogía
+    121: "Formación docente en educación básica:  nivel preescolar"
+    122: "Formación docente en educación básica:  nivel primaria"
+    123: "Formación docente en educación básica:  nivel secundaria"
+    124: Formación docente en educación media superior
+    125: Formación docente en educación superior
+    126: Formación docente en la enseñanza de asignaturas específicas
+    127: Formación docente en otros servicios educativos
+    120: Planes multidisciplinarios o generales del campo de formación docente
+    211: Bellas artes
+    212: Artes escénicas
+    213: Música
+    214: Tecnologías audiovisuales para medios de comunicación
+    215: Diseño y comunicación gráfica y editorial
+    216: "Diseño industrial:  de moda e interiores"
+    217: Artesanía tradicional y manualidades
+    210: Planes multidisciplinarios o generales del campo de artes
+    221: Teología
+    222: Adquisición de idiomas extranjeros
+    223: Literatura
+    224: Lingüística
+    225: Historia y arqueología
+    226: Filosofía y ética
+    220: Planes multidisciplinarios o generales del campo de humanidades
+    311: Psicología
+    312: Sociología y antropología
+    313: Ciencias políticas
+    314: Economía
+    315: Trabajo y atención social
+    310: Planes multidisciplinarios o generales del campo de ciencias sociales y estudios del comportamiento
+    321: Comunicación y periodismo
+    322: Biblioteconomía y archivonomía
+    331: Derecho
+    332: Criminología y criminalística
+    411: Negocios y comercio
+    412: Mercadotecnia y publicidad
+    413: "Finanzas:  banca y seguros"
+    414: Contabilidad y fiscalización
+    410: Planes multidisciplinarios o generales del campo de negocios y contabilidad
+    421: Administración de empresas
+    422: Administración turística y de restaurantes
+    423: Administración pública
+    424: Administración en el ámbito de la ingeniería y la construcción
+    425: "Administración en los campos de la educación:  salud:  deporte:  agronomía y las artes y humanidades"
+    420: Planes multidisciplinarios o generales del campo de administración y gestión
+    511: Biología
+    512: Bioquímica y biofísica
+    513: Ecología y ciencias ambientales
+    510: Planes multidisciplinarios o generales del campo de ciencias biológicas y ambientales
+    521: Física y astronomía
+    522: Química
+    523: Ciencias de la tierra y de la atmósfera
+    520: "Planes multidisciplinarios o generales del campo de las ciencias físicas:  químicas y de la tierra"
+    531:  Matemáticas
+    532: Estadística y actuaría
+    611: Ciencias computacionales
+    612: Desarrollo de hardware
+    613: Desarrollo de software
+    610: Planes multidisciplinarios o generales del campo de innovación en tecnologías de la información y la comunicación
+    621: Telecomunicaciones
+    622: Informática
+    623: Soporte y servicios de mantenimiento a las tecnologías de la información y comunicación
+    620: Planes multidisciplinarios o generales del campo de implementación de las tecnologías de la información y la comunicación
+    711: Mecánica y profesiones afines al trabajo metálico
+    712: Electricidad y generación de energía
+    713: "Electrónica:  automatización y aplicaciones de la mecánica-eléctrica"
+    714: Ingeniería de procesos químicos
+    715: "Vehículos:  barcos y aeronaves motorizadas"
+    716: Tecnología para la protección del medio ambiente
+    717: Ingeniería Industrial
+    710: "Planes multidisciplinarios o generales del campo de ingeniería mecánica:  eléctrica:  electrónica:  química y profesiones afines"
+    721: Industria de la alimentación
+    722: "Industria textil:  del calzado y piel"
+    723: "Industrias de materiales diversos (cerámica:  madera:  plástico y vidrio)"
+    724: "Industria de la minería:  extracción y metalurgia"
+    720: Planes multidisciplinarios o generales del campo de manufacturas y procesos
+    731: Arquitectura y urbanismo
+    732: Construcción e ingeniería civil
+    811: Producción y explotación agrícola y ganadera
+    812: Horticultura
+    813: Silvicultura
+    814: Pesca y acuacultura
+    810: "Planes multidisciplinarios o generales del campo de agronomía:  horticultura:  silvicultura y pesca"
+    821: Veterinaria
+    911: Medicina general
+    912: Medicina homeopática
+    913: Medicina de especialidad
+    921: Enfermería general y obstetricia
+    922: Enfermería de especialidad
+    931: Estomatología y odontología general
+    932: Estomatología y odontología de especialidad
+    941: Terapia y rehabilitación
+    942: Nutrición
+    943: Tratamientos alternativos y acupuntura
+    940: "Planes multidisciplinarios o generales del campo de terapia:  rehabilitación y tratamientos alternativos"
+    951: Atención prehospitalaria y emergencias médicas
+    952: Biomedicina
+    953: Diagnóstico médico y tecnología del tratamiento
+    954: Farmacia
+    955: Audiometría y optometría
+    956: Salud pública
+    950: Planes multidisciplinarios o generales el campo de disciplinas auxiliares para la salud
+    1011: Deportes
+    1012: Servicios funerarios
+    1013: Servicios de cuidado personal y belleza
+    1014: Servicios de apoyo y asistencia administrativa
+    1015: Gastronomía y servicios de alimentos
+    1016: Hospitalidad y turismo
+    1010: Planes multidisciplinarios o generales del campo de servicios personales y deportes
+    1021: Servicios de transporte
+    1031: Seguridad para el trabajo
+    1041: Seguridad pública
+    1042: Servicios militares
+    9999: No especificado
+    -1: Blanco por pase
+ALFABET:
+  Descripción: Alfabetismo
+  Pregunta: ¿(NOMBRE) sabe leer y escribir un recado?
+  Categorías:
+    1: Sí
+    3: 'No'
+    9: No especificado
+    -1: Blanco por pase
+ESCOACUM:
+  Descripción: Escolaridad acumulada
+  Pregunta: Escolaridad acumulada
+  Categorías:
+    0..24: 0..24
+    99: No especificado
+    -1: -1
+ENT_PAIS_RES_5A:
+  Descripción: Entidad o país de residencia en marzo de 2015
+  Pregunta: Hace 5 años, en marzo de 2015, ¿en qué estado de la República o en qué país vivía (NOMBRE)?
+  Categorías:
+    001..032: 001..032
+    100..535: 100..535
+    997: 997
+    998: 998
+    999: 999
+    -1: Blanco por pase
+ENT_PAIS_RES_CAT:
+  Original: ENT_PAIS_RES_5A
+  Categorías:
+    001..032: OtraEnt
+    100..535: OtroPais
+    997: OtraEnt
+    998: OtroPais
+    999: No especificado
+    -1: Blanco por pase
+MUN_RES_5A:
+  Descripción: Municipio de residencia en marzo de 2015
+  Pregunta: ¿En qué municipio (Demarcación territorial) vivía (NOMBRE) en marzo de
+    2015?
+  Categorías:
+    001..570: 001..570
+    999: No especificado
+    -1: Blanco por pase
+CAUSA_MIG_V:
+  Descripción: Causa de la migración (otra causa)
+  Pregunta: ¿Por qué (NOMBRE) dejó de vivir en (MUNICIPIO O Demarcación territorial O PAÍS)?
+  Categorías:
+    101: Buscar trabajo
+    102: Cambio u oferta de trabajo
+    103: Despido o conclusión de trabajo
+    104: Distancia al trabajo
+    105: Jubilación o pensión
+    109: Otros motivos laborales
+    201: Costo de la vivienda (compra o renta)
+    209: Situación económica
+    301: Reunirse con la familia
+    302: Matrimonio o unión de algún familiar
+    303: Divorcio o separación de algún familiar
+    304: Falleció o nació algún familiar
+    305: Cuidar a algún familiar
+    306: Situación laboral de algún familiar
+    307: Situación escolar de algún familiar
+    309: Otros motivos familiares
+    401: Se casó o unió
+    402: Divorcio o separación
+    403: Cuidados de salud
+    404: Motivos de edad
+    405: Mejorar calidad de vida
+    406: Independizarse
+    409: Otros motivos personales
+    501: Estudiar
+    502: Término de estudios
+    503: Distancia a la escuela
+    509: Otros motivos educativos
+    601: Inseguridad delictiva o violencia
+    602: Violencia intrafamiliar
+    603: Motivos políticos y de gobierno
+    604: Motivos de servicios asistenciales
+    609: "Otros motivos sociales, ambientales o de servicios"
+    701: Desastres naturales
+    709: Otros desastres
+    801: Lo deportaron (regresaron)
+    809: Motivos legales y administrativos
+    901: "Adquisición, venta o construcción de vivienda"
+    902: Mejorar condiciones de vivienda (no económica)
+    903: Término de contrato y otros motivos de renta
+    905: Ubicación de la vivienda
+    906: Cambio de domicilio sin causa específica
+    909: Otras situaciones de la vivienda
+    1001: Evangelizar y motivos misioneros
+    1002: Persecución religiosa
+    1009: Otros motivos religiosos
+    9999: No especificado
+    -1: Blanco por pase
+SITUA_CONYUGAL:
+  Descripción: Situación conyugal
+  Pregunta: '¿Actualmente (NOMBRE):'
+  Categorías:
+    1: unión libre
+    2: separada(o)
+    3: divorciada(o)
+    4: viuda(o)
+    5: casada(o) sólo por el civil
+    6: casada(o) sólo religiosamente
+    7: casada(o) civil y religiosamente
+    8: soltera(o)
+    9: No especificado
+    -1: Blanco por pase
+SITUA_CONYUGAL_CAT:
+  Descripción: Situación conyugal
+  Pregunta: '¿Actualmente (NOMBRE):'
+  Original: SITUA_CONYUGAL
+  Categorías:
+    1: casado
+    2: separado
+    3: separado
+    4: separado
+    5: casado
+    6: casado
+    7: casado
+    8: soltero
+    9: No especificado
+    -1: Blanco por pase
+IDENT_PAREJA:
+  Descripción: Identificación de la pareja
+  Pregunta: En esta vivienda, ¿vive la pareja o esposa(o) de (NOMBRE)?
+  Categorías:
+    01..54: 01..54
+    96: 'No'
+    99: No especificado
+    -1: Blanco por pase
+IDENT_PAREJA_CAT:
+  Descripción: Identificación de la pareja
+  Pregunta: En esta vivienda, ¿vive la pareja o esposa(o) de (NOMBRE)?
+  Original: IDENT_PAREJA
+  Categorías:
+    01..54: Sí
+    96: 'No'
+    99: No especificado
+    -1: Blanco por pase
+CONACT:
+  Descripción: 'Condición de actividad  (con rescate por verificación de actividad)'
+  Pregunta: 'Ahora le voy a preguntar por la situación laboral.
+    ¿La semana pasada (NOMBRE):'
+  Categorías:
+    10: Trabajó
+    13: Se declara que busca trabajo y en la verificación se rescata que trabaja
+    14: Se declara que es jubilado o pensionado y en la verificación se rescata que
+      trabaja
+    15: Se declara que es estudiante y en la verificación se rescata que trabaja
+    16: Se dedica a los quehaceres del hogar y en la verificación se rescata que trabaja
+    17: Se declara que tiene alguna limitación física o mental permanente que le impide
+      trabajar y en la verificación se rescata que trabaja
+    18: Se declara en otra situación de actividad y en la verificación se rescata
+      que trabaja
+    19: No se tiene información en condición de actividad y en la verificación se
+      rescata que trabaja
+    20: Tenía trabajo pero no trabajó
+    30: Buscó trabajo
+    40: Es pensionada(o) o jubilada(o)
+    50: Es estudiante
+    60: Se dedica a los quehaceres del hogar
+    70: Está incapacitado permanentemente para trabajar
+    80: No trabaja
+    99: No especificado
+    -1: Blanco por pase
+CONACT_CAT:
+  Original: CONACT
+  Categorías:
+    10: Trabaja
+    13: Trabaja
+    14: Trabaja
+    15: Trabaja
+    16: Trabaja
+    17: Trabaja
+    18: Trabaja
+    19: Trabaja
+    20: Trabaja
+    30: Buscó trabajo
+    40: No trabaja
+    50: No trabaja
+    60: No trabaja
+    70: No trabaja
+    80: No trabaja
+    99: No especificado
+    -1: Blanco por pase
+OCUPACION_C:
+  Descripción: Nombre de la ocupación - Clave
+  Pregunta: ' ¿Cuál fue la ocupación de (NOMBRE) la semana pasada? Por ejemplo: técnico
+    electricista, maestra de primaria, vendedora de frutas, albañil, mecánico de autos'
+  Categorías:
+    111: "Funcionarios, legisladores y autoridades gubernamentales"
+    112: Presidentes y directores generales
+    113: "Directores de organizaciones políticas, sindicales y civiles"
+    121: Directores y gerentes en servicios financieros y administrativos
+    122: "Directores y gerentes en servicios de salud, enseñanza y sociales"
+    131: "Directores y gerentes en producción agropecuaria, industrial, construcción y mantenimiento"
+    132: "Directores y gerentes en informática, telecomunicaciones, transporte y en investigación y desarrollo tecnológico"
+    141: "Directores y gerentes de ventas, restaurantes y hoteles"
+    142: "Directores y gerentes de museos, cines y otros establecimientos"
+    151: Coordinadores y jefes de área en servicios financieros y administrativos
+    152: "Coordinadores y jefes de área en servicios de salud, enseñanza, sociales y jueces calificadores"
+    161: "Coordinadores y jefes de área en producción agropecuaria, industrial, construcción y mantenimiento"
+    162: "Coordinadores y jefes de área en informática, telecomunicaciones, transporte y en investigación y desarrollo tecnológico  "
+    171: "Coordinadores y jefes de área de ventas, restaurantes y hoteles"
+    172: "Coordinadores y jefes de área en museos, cines y otros establecimientos"
+    199: "Otros directores, funcionarios, gerentes, coordinadores y jefes de área, no clasificados anteriormente                                      "
+    211: Administradores y mercadólogos
+    212: "Contadores, auditores y profesionistas en finanzas"
+    213: Investigadores y profesionistas en ciencias sociales
+    214: Investigadores y profesionistas en ciencias humanistas
+    215: "Escritores, periodistas y traductores"
+    216: "Pintores, diseñadores y dibujantes artísticos, escultores y escenógrafos"
+    217: Artistas interpretativos
+    221: "Investigadores y profesionistas en física, matemáticas, estadística y actuaría"
+    222: "Investigadores y profesionistas en ciencias biológicas, químicas y del medio ambiente"
+    223: Profesionistas en ciencias agronómicas
+    224: Ingenieros eléctricos y en electrónica
+    225: "Ingenieros químicos, mecánicos, industriales, mineros y metalúrgicos"
+    226: "Ingenieros civiles, topógrafos y arquitectos"
+    227: Investigadores y profesionistas en sistemas computacionales
+    228: Ingenieros en comunicaciones y telecomunicaciones
+    231: Supervisores educativos y especialistas en ciencias de la educación
+    232: Profesores de nivel medio y superior
+    233: Profesores de nivel básico
+    234: Profesores de enseñanza especial
+    239: "Otros profesores y especialistas en docencia, no clasificados anteriormente"
+    241: Médicos generales y dentistas
+    242: Médicos especialistas
+    243: Otros especialistas en salud
+    251: "Auxiliares en administración, contabilidad y finanzas"
+    252: Inspectores públicos
+    253: Auxiliares en ciencias sociales y humanistas
+    254: "Diseñadores de modas, industriales, gráficos y decoradores de interiores"
+    255: "Locutores, animadores y payasos"
+    256: "Deportistas, entrenadores y árbitros"
+    261: "Auxiliares y técnicos en ciencias físicas, matemáticas, biológicas, químicas, del medio ambiente y agronómicas"
+    262: "Auxiliares y técnicos industriales, topógrafos, mineros y dibujantes técnicos"
+    263: "Mecánicos y técnicos en mantenimiento y reparación de equipos mecánicos, vehículos de motor, instrumentos industriales y equipo de refrigeración"
+    264: "Técnicos eléctricos, en electrónica y de equipos en telecomunicaciones y electromecánicos"
+    265: Auxiliares y técnicos en informática y en equipos de comunicaciones y grabación
+    266: Controladores de tráfico aéreo y de otros transportes
+    271: "Auxiliares y técnicos en educación, instructores y capacitadores"
+    281: Enfermeras y técnicos en medicina
+    282: Trabajadores de apoyo en salud
+    299: Otros profesionistas y técnicos no clasificados anteriormente
+    310: "Supervisores de secretarias, capturistas, cajeros y trabajadores de control de archivo y transporte"
+    311: "Secretarias, taquígrafos, mecanógrafos, capturistas de datos y operadores de máquinas de oficina"
+    312: "Cajeros, cobradores y pagadores"
+    313: Trabajadores en archivo y control de almacén y bodega
+    314: Trabajadores en el control de la operación de transporte
+    320: Supervisores de trabajadores que brindan y manejan información
+    321: "Recepcionistas, trabajadores que brindan información y telefonistas"
+    322: Trabajadores en agencias de viajes e información turística
+    323: Encuestadores y codificadores
+    399: "Otros trabajadores auxiliares en actividades administrativas, no clasificados anteriormente"
+    411: Comerciantes en establecimientos
+    420: Encargados y supervisores de ventas de productos y de servicios financieros
+    421: Empleados de ventas y vendedores por teléfono
+    422: "Agentes, representantes de ventas y vendedores por catálogo"
+    423: Trabajadores en la promoción de ventas y modelos
+    430: Supervisores en servicios de alquiler
+    431: Trabajadores en servicios de alquiler
+    499: "Otros comerciantes, empleados en ventas y agentes de ventas en establecimientos, no clasificados anteriormente"
+    510: "Supervisores en la preparación y servicio de alimentos y bebidas, así como en servicios de esparcimiento y de hotelería"
+    511: Trabajadores en la preparación y servicio de alimentos y bebidas en establecimientos
+    520: Supervisores y encargados de trabajadores en cuidados personales y del hogar
+    521: "Peluqueros, embellecedores y similares"
+    522: Trabajadores en el cuidado de personas
+    523: Azafatas y sobrecargos
+    524: Jardineros
+    525: Trabajadores en otros servicios personales
+    529: Otros trabajadores en servicios personales no clasificados anteriormente
+    530: Supervisores en servicios de protección y vigilancia
+    531: Trabajadores en servicios de protección y vigilancia
+    540: "Supervisores de la Armada, Ejército y Fuerza Aérea"
+    541: "Trabajadores de la Armada, Ejército y Fuerza Aérea"
+    610: "Supervisores, encargados y capataces agropecuarios"
+    611: Trabajadores en actividades agrícolas
+    612: Trabajadores en actividades ganaderas y en la cría de animales
+    613: Trabajadores que combinan actividades agrícolas con ganaderas
+    620: "Supervisores, encargados y capataces de trabajadores en actividades pesqueras, acuícolas, forestales, caza y similares"
+    621: Trabajadores en actividades pesqueras y de acuacultura
+    622: Trabajadores en actividades silvícolas y forestales
+    623: "Trabajadores en actividades de caza, trampería y similares"
+    631: Operadores de maquinaria agropecuaria y forestal
+    699: "Otros trabajadores en actividades agrícolas, ganaderas, forestales, caza y pesca, no clasificados anteriormente"
+    710: "Supervisores de trabajadores en la extracción, albañiles y en acabados de la construcción"
+    711: Trabajadores en la extracción
+    712: Albañiles y otros trabajadores en la edificación de construcciones
+    713: "Yeseros, instaladores de pisos, climas, impermeabilizante, vidrio, etc., plomeros y pintores"
+    719: "Otros trabajadores relacionados con la extracción y la edificación de construcción, no clasificados anteriormente"
+    720: Supervisores de artesanos y trabajadores en el tratamiento y elaboración de productos de metal
+    721: "Moldeadores, soldadores, hojalateros y pintores de metales"
+    722: "Herreros, cerrajeros, joyeros y artesanos en la elaboración de productos de metal"
+    729: "Otros trabajadores relacionados con el tratamiento y elaboración de productos de metal, no clasificados anteriormente"
+    730: "Supervisores de artesanos y trabajadores en la elaboración de productos de madera, papel, textiles y de cuero y piel"
+    731: Artesanos y trabajadores en la elaboración de productos de madera
+    732: "Artesanos y trabajadores en la elaboración de productos de papel, cartón y trabajos de impresión"
+    733: Trabajadores en la preparación de fibras textiles y tejedores de fibras textiles
+    734: "Artesanos en la elaboración de productos textiles, cuero, piel y similares"
+    735: Tapiceros y trabajadores en el tratamiento y elaboración de productos de cuero y piel
+    739: "Otros trabajadores relacionados con la elaboración de productos de madera, papel, textiles, cuero y piel, no clasificados anteriormente"
+    740: "Supervisores de artesanos y trabajadores en la elaboración de productos de hule, caucho, plásticos y de sustancias químicas"
+    741: "Artesanos y trabajadores en la elaboración de productos de hule, caucho, plásticos y de sustancias químicas"
+    750: "Supervisores de trabajadores en la elaboración y procesamiento de alimentos, bebidas y productos de tabaco"
+    751: "Trabajadores en la elaboración y procesamiento de alimentos, bebidas y productos de tabaco"
+    759: "Otros trabajadores relacionados con la elaboración y procesamiento de alimentos, bebidas y productos de tabaco, no clasificados anteriormente"
+    760: "Supervisores de artesanos y trabajadores en la elaboración de productos de cerámica, vidrio, azulejo y similares"
+    761: "Artesanos y trabajadores en la elaboración de productos de cerámica, vidrio, azulejo y similares"
+    799: Otros trabajadores artesanales no clasificados anteriormente
+    810: Supervisores de operadores de maquinaria industrial
+    811: "Operadores de máquinas y equipos para la extracción en minas, canteras y pozos"
+    812: "Operadores de máquinas y equipos en la fabricación metalúrgica, fabricación de maquinaria y productos metálicos"
+    813: "Operadores de máquinas y equipos en la elaboración de productos químicos, plástico, tratamiento de agua y petroquímica"
+    814: Operadores de máquinas para la madera y papel
+    815: "Operadores de máquinas y equipos en la elaboración de productos textiles, cuero y piel"
+    816: "Operadores de máquinas en la elaboración de alimentos, bebidas y tabaco"
+    817: "Operadores de máquinas en la elaboración de cemento y productos de cerámica, vidrio y similares"
+    818: Operadores de máquinas para la generación de energía
+    819: "Otros operadores de instalaciones y maquinaria fija industrial, no clasificados anteriormente"
+    820: "Supervisores en procesos de ensamblado y montaje de maquinaria, herramientas y productos metálicos, eléctricos y electrónicos"
+    821: "Ensambladores y montadores de herramientas, maquinaria, productos metálicos y electrónicos"
+    830: Supervisores de conductores de transporte y de maquinaria móvil
+    831: Conductores de transporte aéreo
+    832: Conductores de transporte marítimo
+    833: Conductores de transporte en vías férreas
+    834: Conductores de transporte terrestre con motor
+    835: Conductores de maquinaria móvil
+    899: "Otros operadores de maquinaria industrial, ensambladores y conductores de transporte, no clasificados anteriormente"
+    911: Trabajadores de apoyo en actividades agropecuarias
+    912: "Trabajadores de apoyo en actividades forestales, pesca y caza"
+    921: Trabajadores de apoyo en la minería y extracción
+    922: Trabajadores de apoyo en la construcción y la plomería
+    923: Trabajadores de apoyo en la industria
+    931: Ayudantes de conductores de transporte
+    932: Conductores de transporte en bicicleta y animal
+    933: Cargadores
+    941: Ayudantes en la preparación de alimentos
+    951: Vendedores ambulantes (excluyendo los de venta de alimentos)
+    952: Vendedores ambulantes de alimentos
+    959: Otros vendedores ambulantes no clasificados anteriormente
+    960: "Supervisores en limpieza, amas de llaves, mayordomos y en estacionamientos"
+    961: Trabajadores domésticos
+    962: "Trabajadores de limpieza, recamaristas, mozos de limpieza y limpiadores de calzado"
+    963: Lavadores y cuidadores de vehículos
+    964: Lavanderos y planchadores
+    965: Ayudantes de jardineros
+    966: "Recolectores de desechos, material reciclable y de otros materiales"
+    971: "Trabajadores de paquetería, empacado y de apoyo para espectáculos"
+    972: Trabajadores repartidores de mensajería y mercancías (a pie o en bicicleta)
+    973: "Lecturistas de medidores, recolectores de dinero y elevadoristas"
+    989: "Otros trabajadores en actividades elementales y de apoyo, no clasificados anteriormente"
+    999: No especificado
+    -1: Blanco por pase
+OCUPACION_C_COARSE:
+  Original: OCUPACION_C
+  Categorías:
+    11: "Funcionarios y altas autoridades de los sectores público, privado y social"
+    12: "Directores y gerentes en servicios financieros, legales, administrativos y sociales"
+    13: "Directores y gerentes en producción, tecnología y transporte"
+    14: "Directores y gerentes de ventas, restaurantes, hoteles y otros establecimientos"
+    15: "Coordinadores y jefes de área en servicios financieros, administrativos y sociales"
+    16: "Coordinadores y jefes de área en producción y tecnología"
+    17: "Coordinadores y jefes de área de ventas, restaurantes, hoteles y otros establecimientos"
+    19: "Otros directores, funcionarios, gerentes, coordinadores y jefes de área, no clasificados anteriormente"
+    21: "Profesionistas en ciencias económico-administrativas, ciencias sociales, humanistas y en artes"
+    22: "Investigadores y profesionistas en ciencias exactas, biológicas, ingeniería, informática y en telecomunicaciones"
+    23: "Profesores y especialistas en docencia"
+    24: "Médicos, enfermeras y otros especialistas en salud"
+    25: "Auxiliares y técnicos en ciencias económico-administrativas, ciencias sociales, humanistas y en artes"
+    26: "Auxiliares y técnicos en ciencias exactas, biológicas, ingeniería, informática y en telecomunicaciones"
+    27: "Auxiliares y técnicos en educación, instructores y capacitadores"
+    28: "Enfermeras, técnicos en medicina y trabajadores de apoyo en salud"
+    29: "Otros profesionistas y técnicos no clasificados anteriormente"
+    31: "Supervisores de personal de apoyo administrativo, secretarias, capturistas, cajeros y trabajadores de control de archivo y transporte"
+    32: "Supervisores y trabajadores que brindan y manejan información"
+    39: "Otros trabajadores auxiliares en actividades administrativas, no clasificados anteriormente"
+    41: "Comerciantes en establecimientos"
+    42: "Empleados de ventas en establecimientos"
+    43: "Trabajadores en servicios de alquiler"
+    49: "Otros comerciantes, empleados en ventas y agentes de ventas en establecimientos, no clasificados anteriormente"
+    51: "Trabajadores en la preparación y servicio de alimentos y bebidas, así como en servicios de esparcimiento y de hotelería"
+    52: "Trabajadores en cuidados personales y del hogar"
+    53: "Trabajadores en servicios de protección y vigilancia"
+    54: "Trabajadores de la Armada, Ejército y Fuerza Aérea"
+    61: "Trabajadores en actividades agrícolas y ganaderas"
+    62: "Trabajadores en actividades pesqueras, forestales, caza y similares"
+    63: "Operadores de maquinaria agropecuaria y forestal"
+    69: "Otros trabajadores en actividades agrícolas, ganaderas, forestales, caza y pesca, no clasificados anteriormente"
+    71: "Trabajadores en la extracción y la edificación de construcciones"
+    72: "Artesanos y trabajadores en el tratamiento y elaboración de productos de metal"
+    73: "Artesanos y trabajadores en la elaboración de productos de madera, papel, textiles y de cuero y piel"
+    74: "Artesanos y trabajadores en la elaboración de productos de hule, caucho, plásticos y de sustancias químicas"
+    75: "Trabajadores en la elaboración y procesamiento de alimentos, bebidas y productos de tabaco"
+    76: "Artesanos y trabajadores en la elaboración de productos de cerámica, vidrio, azulejo y similares"
+    79: "Otros trabajadores artesanales no clasificados anteriormente"
+    81: "Operadores de instalaciones y maquinaria industrial"
+    82: "Ensambladores y montadores de herramientas, maquinaria, productos metálicos y electrónicos"
+    83: "Conductores de transporte y de maquinaria móvil"
+    89: "Otros operadores de maquinaria industrial, ensambladores y conductores de transporte, no clasificados anteriormente"
+    91: "Trabajadores de apoyo en actividades agropecuarias, forestales, pesca y caza"
+    92: "Trabajadores de apoyo en la minería, construcción e industria"
+    93: "Ayudantes de conductores de transporte, conductores de transporte de tracción humana y animal y cargadores"
+    94: "Ayudantes en la preparación de alimentos"
+    95: "Vendedores ambulantes"
+    96: "Trabajadores domésticos, de limpieza, planchadores y otros trabajadores de limpieza"
+    97: "Trabajadores de paquetería, de apoyo para espectáculos, mensajeros y repartidores de mercancías"
+    98: "Otros trabajadores en actividades elementales y de apoyo, no clasificados anteriormente"
+    99: No especificado
+    -1: Blanco por pase
+SITTRA:
+  Descripción: Posición en el trabajo
+  Pregunta: '¿En ese trabajo (NOMBRE) fue:'
+  Categorías:
+    1: empleada(o) u obrera(o)
+    2: jornalera(o) o peón(a)
+    3: ayudante con pago
+    4: patrón(a) o empleador(a)
+    5: trabajador(a) por cuenta propia
+    6: trabajador(a) sin pago
+    9: No especificado
+    -1: Blanco por pase
+AGUINALDO:
+  Descripción: Prestaciones laborales (aguinaldo)
+  Pregunta: aguinaldo?
+  Categorías:
+    1: Sí
+    2: 'No'
+    9: No especificado
+    -1: Blanco por pase
+VACACIONES:
+  Descripción: Prestaciones laborales (vacaciones con goce de sueldo)
+  Pregunta: vacaciones con goce de sueldo?
+  Categorías:
+    3: Sí
+    4: 'No'
+    9: No especificado
+    -1: Blanco por pase
+SERVICIO_MEDICO:
+  Descripción: Prestaciones laborales (servicio médico)
+  Pregunta: servicio médico (IMSS, ISSSTE u otro)?
+  Categorías:
+    5: Sí
+    6: 'No'
+    9: No especificado
+    -1: Blanco por pase
+UTILIDADES:
+  Descripción: 'Prestaciones laborales (reparto de utilidades) '
+  Pregunta: reparto de utilidades?
+  Categorías:
+    7: Sí
+    8: 'No'
+    9: No especificado
+    -1: Blanco por pase
+INCAP_SUELDO:
+  Descripción: Prestaciones laborales (licencia o incapacidad con goce de sueldo)
+  Pregunta: licencia o incapacidad con goce de sueldo?
+  Categorías:
+    1: Sí
+    2: 'No'
+    9: No especificado
+    -1: Blanco por pase
+SAR_AFORE:
+  Descripción: Prestaciones laborales (ahorro para el retiro)
+  Pregunta: AFORE o SAR (ahorro para el retiro)?
+  Categorías:
+    3: Sí
+    4: 'No'
+    9: No especificado
+    -1: Blanco por pase
+CREDITO_VIVIENDA:
+  Descripción: Prestaciones laborales (crédito para la vivienda)
+  Pregunta: crédito para la vivienda
+  Categorías:
+    5: Sí
+    6: 'No'
+    9: No especificado
+    -1: Blanco por pase
+INGTRMEN:
+  Descripción: ' Ingresos por trabajo mensualizado'
+  Pregunta: ¿Cuánto gana (NOMBRE) por ese trabajo?
+  Categorías:
+    0: 0
+    1..999997: 1..999997
+    999998: Ingresos mayores a 999,997
+    999999: No especificado
+    Nulo: Blanco por pase
+HORTRA:
+  Descripción: Horas trabajadas
+  Pregunta: ¿Cuántas horas trabajó (NOMBRE) la semana pasada?
+  Categorías:
+    0..140: 0..140
+    999: No especificado
+    Nulo: Blanco por pase
+ACTIVIDADES_C:
+  Descripción: Actividad del negocio, empresa o lugar - Clave
+  Pregunta: '¿A qué se dedica el negocio, empresa o lugar donde trabajó (NOMBRE)?
+    Por ejemplo: hacer muebles de madera, hacer escobas, reparar autos, vender ropa
+    usada, armar televisores'
+  Categorías:
+    1110: Agricultura
+    1121: Cría y explotación de animales
+    1122: Acuicultura
+    1130: Aprovechamiento forestal
+    1141: Pesca
+    1142: Caza y captura
+    1150: Servicios relacionados con las actividades agropecuarias y forestales
+    1199: "Descripciones insuficientemente especificadas de subsector de actividad del sector 11 Agricultura, cría y explotación de animales, aprovechamiento forestal, pesca y caza"
+    2110: Extracción de petróleo y gas
+    2121: Minería de carbón mineral
+    2122: Minería de minerales metálicos
+    2123: Minería de minerales no metálicos
+    2129: Descripciones insuficientemente especificadas de minerales metálicos y no metálicos
+    2131: Servicios relacionados con la minería
+    2132: Perforación de pozos petroleros y de gas
+    2199: Descripciones insuficientemente especificadas de subsector de actividad del sector 21 Minería
+    2211: "Generación, transmisión, distribución y comercialización de energía eléctrica"
+    2212: "Captación, tratamiento y suministro de agua"
+    2213: Suministro de gas natural por ductos al consumidor final
+    2361: Edificación residencial
+    2362: Autoconstrucción residencial
+    2363: Edificación no residencial
+    2370: Construcción de obras de ingeniería civil
+    2381: Trabajos especializados para la construcción
+    2382: Trabajos de albañilería de instalaciones hidrosanitarias y eléctricas y de trabajos en exteriores
+    2399: Descripciones insuficientemente especificadas de subsector de actividad del sector 23 Construcción
+    3110: Industria alimentaria
+    3120: Industria de las bebidas y del tabaco
+    3130: Fabricación de insumos textiles y acabado de textiles
+    3140: "Fabricación de productos textiles, excepto prendas de vestir"
+    3150: Fabricación de prendas de vestir
+    3160: "Curtido y acabado de cuero y piel, y fabricación de productos de cuero, piel y materiales sucedáneos"
+    3210: Industria de la madera
+    3220: Industria del papel
+    3230: Impresión e industrias conexas
+    3240: Fabricación de productos derivados del petróleo y del carbón
+    3250: Industria química
+    3260: Industria del plástico y del hule
+    3270: Fabricación de productos a base de minerales no metálicos
+    3310: Industrias metálicas básicas
+    3320: Fabricación de productos metálicos
+    3330: Fabricación de maquinaria y equipo
+    3340: "Fabricación de equipo de computación, comunicación, medición y de otros equipos, componentes y accesorios electrónicos"
+    3350: "Fabricación de accesorios, aparatos eléctricos y equipo de generación de energía eléctrica"
+    3360: Fabricación de equipo de transporte
+    3370: "Fabricación de muebles, colchones y persianas"
+    3380: Otras industrias manufactureras
+    3399: Descripciones insuficientemente especificadas de subsector de actividad del sector 31-33 Industrias manufactureras
+    4310: "Comercio al por mayor de abarrotes, alimentos, bebidas, hielo y tabaco"
+    4320: Comercio al por mayor de productos textiles y calzado
+    4330: "Comercio al por mayor de productos farmacéuticos, de perfumería, artículos para el esparcimiento, electrodomésticos menores y aparatos de línea blanca"
+    4340: "Comercio al por mayor de materias primas agropecuarias y forestales, para la industria, y materiales de desecho"
+    4350: "Comercio al por mayor de maquinaria, equipo y mobiliario para actividades agropecuarias, industriales, de servicios y comerciales, y de otra maquinaria y equipo de uso general"
+    4360: "Comercio al por mayor de camiones y de partes y refacciones nuevas para automóviles, camionetas y camiones"
+    4370: Intermediación de comercio al por mayor
+    4399: Descripciones insuficientemente especificadas de subsector de actividad del sector 43 Comercio al por mayor
+    4611: "Comercio al por menor de abarrotes, alimentos, bebidas, hielo y tabaco"
+    4612: "Comercio ambulante de abarrotes, alimentos, bebidas y tabaco"
+    4620: Comercio al por menor en tiendas de autoservicio y departamentales
+    4631: "Comercio al por menor de productos textiles, bisutería, accesorios de vestir y calzado"
+    4632: "Comercio ambulante de productos textiles, bisutería, accesorios de vestir y calzado"
+    4641: Comercio al por menor de artículos para el cuidado de la salud
+    4642: Comercio ambulante de artículos para el cuidado de la salud
+    4651: "Comercio al por menor de artículos de papelería, para el esparcimiento y otros artículos de uso personal"
+    4652: "Comercio ambulante de artículos de papelería, para el esparcimiento y otros artículos de uso personal"
+    4661: "Comercio al por menor de enseres domésticos, computadoras, artículos para la decoración de interiores y de artículos usados"
+    4662: "Comercio ambulante de enseres domésticos, artículos para la decoración de interiores y de artículos usados"
+    4671: "Comercio al por menor de artículos de ferretería, tlapalería y vidrios"
+    4672: Comercio ambulante de artículos de ferretería y tlapalería
+    4681: "Comercio al por menor de vehículos de motor, refacciones, combustibles y lubricantes"
+    4682: "Comercio ambulante de partes y refacciones para automóviles, camionetas y combustibles"
+    4690: "Comercio al por menor exclusivamente a través de internet, catálogos impresos, televisión y similares"
+    4699: Descripciones insuficientemente especificadas de subsector de actividad del sector 46 Comercio al por menor
+    4810: Transporte aéreo
+    4820: Transporte por ferrocarril
+    4830: Transporte por agua
+    4840: Autotransporte de carga
+    4850: "Transporte terrestre de pasajeros, excepto por ferrocarril"
+    4860: Transporte por ductos
+    4870: Transporte turístico
+    4881: Servicios relacionados con el transporte
+    4882: "Servicios de reparación y limpieza exterior de aviones, barcos y trenes"
+    4899: Descripciones insuficientemente especificadas de subsector de actividad del sector 48 Transportes
+    4910: Servicios postales
+    4920: Servicios de mensajería y paquetería
+    4930: Servicios de almacenamiento
+    5110: "Edición de periódicos, revistas, libros, software y otros materiales, y edición de estas publicaciones integrada con la impresión"
+    5120: "Industria fílmica y del video, e industria del sonido"
+    5150: Radio y televisión
+    5170: Telecomunicaciones
+    5180: "Procesamiento electrónico de información, hospedaje y otros servicios relacionados"
+    5190: Otros servicios de información
+    5199: Descripciones insuficientemente especificadas de subsector de actividad del sector 51 Información en medios masivos
+    5210: Banca central (Banco de México)
+    5221: "Banca múltiple, y administración de fondos y fideicomisos del sector privado"
+    5222: Otras instituciones de intermediación crediticia y financiera de ahorro y préstamo del sector privado
+    5223: "Banca de desarrollo, y administración de fondos y fideicomisos del sector público"
+    5229: Descripciones insuficientemente especificadas de servicios financieros no bursátiles
+    5230: "Actividades bursátiles, cambiarias y de inversión financiera"
+    5240: "Compañías de seguros, fianzas y administración de fondos para el retiro"
+    5250: Sociedades de inversión especializadas en fondos para el retiro y fondos de inversión
+    5299: Descripciones insuficientemente especificadas de subsector de actividad del sector 52 Servicios financieros y de seguros
+    5310: Servicios inmobiliarios
+    5321: "Servicios de alquiler de automóviles, camiones y otros transportes terrestres"
+    5322: "Servicios de alquiler y centros de alquiler de bienes muebles, excepto equipo de transporte terrestre"
+    5330: "Servicios de alquiler de marcas registradas, patentes y franquicias"
+    5399: Descripciones insuficientemente especificadas de subsector de actividad del sector 53 Servicios inmobiliarios y de alquiler de bienes muebles e intangibles
+    5411: "Servicios profesionales, científicos y técnicos"
+    5412: Servicios de investigación científica y desarrollo
+    5413: Servicios veterinarios
+    5414: Servicios de fotografía y videograbación
+    5510: Corporativos
+    5611: "Servicios de apoyo a los negocios, de empleo y apoyo secretarial"
+    5612: "Limpieza interior de aviones, barcos y trenes"
+    5613: Servicios de limpieza y de instalación y mantenimiento de áreas verdes
+    5614: "Servicios de investigación, protección y seguridad"
+    5615: Agencias de viajes y servicios de reservaciones
+    5616: Servicios combinados de apoyo a instalaciones
+    5621: "Manejo de residuos, y servicios de remediación por el sector privado"
+    5622: "Manejo de residuos, y servicios de remediación por el sector público"
+    6111: "Escuelas de educación básica, media y para necesidades especiales pertenecientes al sector privado"
+    6112: "Escuelas de educación básica, media y para necesidades especiales pertenecientes al sector público"
+    6119: "Escuelas de educación básica, media y para necesidades especiales no especificadas de sector privado o público"
+    6121: Escuelas de educación técnica superior perteneciente al sector privado
+    6122: Escuelas de educación técnica superior perteneciente al sector público
+    6129: Escuelas de educación técnica superior no especificadas de sector privado o público
+    6131: Escuelas de educación superior pertenecientes al sector privado
+    6132: Escuelas de educación superior pertenecientes al sector público
+    6139: Escuelas de educación superior no especificadas de sector privado o público
+    6141: Otros servicios educativos pertenecientes al sector privado
+    6142: Otros servicios educativos pertenecientes al sector público
+    6149: Otros servicios educativos no especificados de sector privado o público
+    6150: Servicios de apoyo a la educación
+    6199: Descripciones insuficientemente especificadas de subsector de actividad del sector 61 Servicios educativos
+    6211: Servicios médicos de consulta externa y servicios relacionados pertenecientes al sector privado
+    6212: Servicios médicos de consulta externa y servicios relacionados pertenecientes al sector público
+    6219: Servicios médicos de consulta externa y servicios relacionados no especificados de sector privado o público
+    6221: Hospitales pertenecientes al sector privado
+    6222: Hospitales pertenecientes al sector público
+    6229: Hospitales no especificados de sector privado o público
+    6231: "Residencias del sector privado con cuidados de enfermeras para enfermos convalecientes, en rehabilitación, incurables y terminales"
+    6232: "Residencias del sector público con cuidados de enfermeras para enfermos convalecientes, en rehabilitación, incurables y terminales"
+    6239: "Residencias con cuidados de enfermeras para enfermos convalecientes, en rehabilitación, incurables y terminales no especificadas de sector privado o público"
+    6241: Otros servicios de asistencia social pertenecientes al sector privado
+    6242: Otros servicios de asistencia social pertenecientes al sector público
+    6249: Otros servicios de asistencia social no especificados de sector privado o público
+    6251: Guarderías pertenecientes al sector privado
+    6252: Guarderías pertenecientes al sector público
+    6259: Guarderías no especificadas de sector privado o público
+    6299: Descripciones insuficientemente especificadas de subsector de actividad del sector 62 Servicios de salud y de asistencia social
+    7111: Compañías y grupos de espectáculos artísticos y culturales
+    7112: Deportistas y equipos deportivos profesionales
+    7113: "Promotores, agentes y representantes de espectáculos artísticos, deportivos y similares"
+    7114: "Artistas, escritores y técnicos independientes"
+    7115: Trabajadores ambulantes en servicios de esparcimiento
+    7120: "Museos, sitios históricos, zoológicos y similares"
+    7131: Servicios de entretenimiento en instalaciones recreativas y otros servicios recreativos
+    7132: Venta de billetes de Lotería Nacional
+    7133: Venta ambulante de billetes de Lotería Nacional
+    7210: Servicios de alojamiento temporal
+    7221: Servicios de preparación de alimentos y bebidas
+    7222: Servicios de preparación de alimentos y bebidas por trabajadores en unidades ambulantes
+    7223: Centros nocturnos
+    8111: Servicios de reparación y mantenimiento de automóviles y camiones
+    8112: "Servicios de reparación y mantenimiento de equipo, maquinaria, artículos para el hogar y personales"
+    8119: Descripciones insuficientemente especificadas de servicios de reparación y mantenimiento de bienes muebles
+    8121: Servicios personales
+    8122: Estacionamientos y pensiones para vehículos automotores
+    8123: Servicios de cuidado y de lavado de automóviles por trabajadores ambulantes
+    8124: Servicios de revelado e impresión de fotografías
+    8125: Servicios de administración de cementerios
+    8130: Asociaciones y organizaciones
+    8140: Hogares con empleados domésticos
+    9311: Órganos legislativos
+    9312: Administración Pública Federal
+    9313: Administración Pública Estatal
+    9314: Administración Pública Municipal
+    9319: Descripciones de administración pública que no especifican el nivel de gobierno
+    9320: Organismos internacionales y extraterritoriales
+    9399: "Descripciones insuficientemente especificadas de subsector de actividad del Sector 93 Actividades legislativas, gubernamentales, de impartición de justicia y de organismos internacionales y extraterritoriales"
+    9999: No especificado
+    -1: Blanco por pase
+ACTIVIDADES_C_COARSE:
+  Original: ACTIVIDADES_C
+  Categorías:
+    11: "Agricultura, cría y explotación de animales, aprovechamiento forestal, pesca y caza"
+    21: "Minería"
+    22: "Generación, transmisión, distribución y comercialización de energía eléctrica, suministro de agua y de gas natural por ductos al consumidor final"
+    23: "Construcción"
+    31: "Industrias manufactureras"
+    32: "Industrias manufactureras"
+    33: "Industrias manufactureras"
+    43: "Comercio al por mayor"
+    46: "Comercio al por menor"
+    48: "Transportes, correos y almacenamiento"
+    49: "Transportes, correos y almacenamiento"
+    51: "Información en medios masivos"
+    52: "Servicios financieros y de seguros"
+    53: "Servicios inmobiliarios y de alquiler de bienes muebles e intangibles"
+    54: "Servicios profesionales, científicos y técnicos"
+    55: "Corporativos"
+    56: "Servicios de apoyo a los negocios y manejo de residuos, y servicios de remediación"
+    61: "Servicios educativos"
+    62: "Servicios de salud y de asistencia social"
+    71: "Servicios de esparcimiento, culturales y deportivos, y otros servicios recreativos"
+    72: "Servicios de alojamiento temporal y de preparación de alimentos y bebidas"
+    81: "Otros servicios excepto actividades gubernamentales"
+    93: "Actividades legislativas, gubernamentales, de impartición de justicia y de organismos internacionales y extraterritoriales"
+    99: No especificado
+    -1: Blanco por pase
+MUN_TRAB:
+  Descripción: Municipio de trabajo
+  Pregunta: ¿En qué municipio (Demarcación territorial) está el negocio, empresa o
+    lugar donde trabajó (NOMBRE) la semana pasada?
+  Categorías:
+    001..570: 001..570
+    999: No especificado
+    -1: Blanco por pase
+ENT_PAIS_TRAB:
+  Descripción: Entidad o país de trabajo
+  Pregunta: ¿En qué estado o país está el negocio, empresa o lugar donde trabajó (NOMBRE) la semana pasada?
+  Categorías:
+    001..032: 001..032
+    100..535: 100..535
+    997: No especificado de Entidad Federativa
+    998: No especificado de país
+    999: No especificado
+    -1: Blanco por pase
+TIE_TRASLADO_TRAB:
+  Descripción: Tiempo de traslado al trabajo
+  Pregunta: ¿Cuánto tiempo hace (NOMBRE) de aquí a su trabajo?
+  Categorías:
+    1: Hasta 15 minutos
+    2: 16 a 30 minutos
+    3: 31 minutos a 1 hora
+    4: Más de 1 hora y hasta 2 horas
+    5: Más de 2 horas
+    6: No es posible determinarlo
+    7: No se traslada
+    9: No especificado
+    -1: Blanco por pase
+MED_TRASLADO_TRAB1:
+  Descripción: Modo o medio de traslado al trabajo (opción 1)
+  Pregunta: ¿Cómo acostumbra (NOMBRE) ir de aquí a su trabajo?
+  Categorías:
+    1: Caminando
+    2: Bicicleta
+    3: Metro, tren ligero, tren suburbano
+    4: Trolebús
+    5: 'Metrobús (autobús en carril confinado)'
+    6: Camión, autobús, combi, colectivo
+    7: Transporte de personal
+    8: Taxi (sitio, calle, otro)
+    9: Taxi (App Internet)
+    10: Motocicleta o motoneta
+    11: Automóvil o camioneta
+    12: Otro
+    99: No especificado
+    -1: Blanco por pase
+MED_TRASLADO_TRAB2:
+  Descripción: Modo o medio de traslado al trabajo (opción 2)
+  Pregunta: ¿Cómo acostumbra (NOMBRE) ir de aquí a su trabajo?
+  Categorías:
+    2: Bicicleta
+    3: Metro, tren ligero, tren suburbano
+    4: Trolebús
+    5: Metrobús (autobús en carril confinado)
+    6: Camión, autobús, combi, colectivo
+    7: Transporte de personal
+    8: Taxi (sitio, calle, otro)
+    9: Taxi (App Internet)
+    10: Motocicleta o motoneta
+    11: Automóvil o camioneta
+    12: Otro
+    -1: Blanco por pase
+MED_TRASLADO_TRAB3:
+  Descripción: Modo o medio de traslado al trabajo (opción 3)
+  Pregunta: ¿Cómo acostumbra (NOMBRE) ir de aquí a su trabajo?
+  Categorías:
+    3: Metro, tren ligero, tren suburbano
+    4: Trolebús
+    5: 'Metrobús (autobús en carril confinado)'
+    6: Camión, autobús, combi, colectivo
+    7: Transporte de personal
+    8: Taxi (sitio, calle, otro)
+    9: Taxi (App Internet)
+    10: Motocicleta o motoneta
+    11: Automóvil o camioneta
+    12: Otro
+    -1: Blanco por pase
+HIJOS_NAC_VIVOS:
+  Descripción: Hijas(os) nacidas(os) vivas(os)
+  Pregunta: En total, ¿cuántas hijas e hijos que nacieron vivos ha tenido (NOMBRE)?
+  Categorías:
+    0: 0
+    1..25: 1..25
+    98: No especificado
+    99: No especificado
+    -1: -1
+HIJOS_FALLECIDOS:
+  Descripción: Hijas(os) fallecidas(os)
+  Pregunta: De las hijas e hijos que nacieron vivos de (NOMBRE), ¿cuántos han muerto?
+  Categorías:
+    0: 0
+    1..25: 1..25
+    99: No especificado
+    -1: -1
+HIJOS_SOBREVIV:
+  Descripción: Hijas(os) sobrevivientes
+  Pregunta: ¿Cuántas de las hijas e hijos de (NOMBRE) viven actualmente?
+  Categorías:
+    0: 0
+    1..25: 1..25
+    99: No especificado
+    -1: -1
+FECHA_NAC_M:
+  Descripción: Fecha de nacimiento (mes)
+  Pregunta: ¿En qué mes y año nació la última hija o hijo nacido vivo de (NOMBRE)?
+  Categorías:
+    01..12: 01..12
+    99: No especificado
+    -1: -1
+FECHA_NAC_A:
+  Descripción: Fecha de nacimiento (año)
+  Pregunta: ¿En qué mes y año nació la última hija o hijo nacido vivo de (NOMBRE)?
+  Categorías:
+    1920..2020: 1920..2020
+    9999: No especificado
+    -1: -1
+SOBREVIVENCIA:
+  Descripción: Sobrevivencia
+  Pregunta: Esta última hija o hijo de (NOMBRE), ¿vive actualmente?
+  Categorías:
+    1: Sí
+    3: 'No'
+    9: No especificado
+    -1: Blanco por pase
+IDENT_HIJO:
+  Descripción: Identificación de la última hija o hijo
+  Pregunta: ¿Dónde vive esta última hija o hijo de (NOMBRE)?
+  Categorías:
+    01..54: 01..54
+    96: En otra vivienda
+    99: No especificado
+    -1: Blanco por pase
+IDENT_HIJO_CAT:
+  Descripción: Identificación de la última hija o hijo
+  Pregunta: ¿Dónde vive esta última hija o hijo de (NOMBRE)?
+  Original: IDENT_HIJO
+  Categorías:
+    01..54: Esta vivienda
+    96: En otra vivienda
+    99: No especificado
+    -1: Blanco por pase
+EDAD_MORIR_D:
+  Descripción: Edad al morir (días)
+  Pregunta: ¿Qué edad tenía cuando murió?
+  Categorías:
+    0: 0
+    1..29: 1..29
+    98: Edad al morir menos de un mes
+    99: No especificado
+    -1: Blanco por pase
+EDAD_MORIR_M:
+  Descripción: Edad al morir (meses)
+  Pregunta: ¿Qué edad tenía cuando murió?
+  Categorías:
+    1..11: 1..11
+    98: Edad al morir menos de un año
+    -1: Blanco por pase
+EDAD_MORIR_A:
+  Descripción: Edad al morir (años)
+  Pregunta: ¿Qué edad tenía cuando murió?
+  Categorías:
+    1..99: 1..99
+    -1: Blanco por pase
+EDAD_MORIR_TD:
+  Descripción: 'Edad al morir '
+  Pregunta: ¿Qué edad tenía cuando murió? Total de días de vida al morir
+  Categorías:
+    0..364: 0..364
+    998: 'De un año o más'
+    999: No especificado
+    -1: Blanco por pase
+TAMLOC:
+  Descripción: Tamaño de localidad
+  Pregunta: Tamaño de localidad
+  Categorías:
+    1: Menos de 2 500 habitantes
+    2: De 2 500 a 14 999 habitantes
+    3: De 15 000 a 49 999 habitantes
+    4: De 50 000 a 99 999 habitantes
+    5: 100 000 y más habitantes
+

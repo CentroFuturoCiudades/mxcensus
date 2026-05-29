@@ -1,0 +1,1305 @@
+POBTOT: {}
+POBFEM:
+  SEXO:
+  - Mujer
+POBMAS:
+  SEXO:
+  - Hombre
+P_0A2:
+  EDAD_CAT:
+  - 0-2
+P_0A2_F:
+  EDAD_CAT:
+  - 0-2
+  SEXO:
+  - Mujer
+P_0A2_M:
+  EDAD_CAT:
+  - 0-2
+  SEXO:
+  - Hombre
+P_3YMAS:
+  EDAD_CAT:
+  - 3-4
+  - '5'
+  - 6-7
+  - 8-11
+  - 12-14
+  - 15-17
+  - 18-24
+  - 25-49
+  - 50-59
+  - 60-64
+  - 65-130
+P_3YMAS_M:
+  EDAD_CAT:
+  - 3-4
+  - '5'
+  - 6-7
+  - 8-11
+  - 12-14
+  - 15-17
+  - 18-24
+  - 25-49
+  - 50-59
+  - 60-64
+  - 65-130
+  SEXO:
+  - Hombre
+P_3YMAS_F:
+  EDAD_CAT:
+  - 3-4
+  - '5'
+  - 6-7
+  - 8-11
+  - 12-14
+  - 15-17
+  - 18-24
+  - 25-49
+  - 50-59
+  - 60-64
+  - 65-130
+  SEXO:
+  - Mujer
+P_5YMAS:
+  EDAD_CAT:
+  - '5'
+  - 6-7
+  - 8-11
+  - 12-14
+  - 15-17
+  - 18-24
+  - 25-49
+  - 50-59
+  - 60-64
+  - 65-130
+P_5YMAS_M:
+  EDAD_CAT:
+  - '5'
+  - 6-7
+  - 8-11
+  - 12-14
+  - 15-17
+  - 18-24
+  - 25-49
+  - 50-59
+  - 60-64
+  - 65-130
+  SEXO:
+  - Hombre
+P_5YMAS_F:
+  EDAD_CAT:
+  - '5'
+  - 6-7
+  - 8-11
+  - 12-14
+  - 15-17
+  - 18-24
+  - 25-49
+  - 50-59
+  - 60-64
+  - 65-130
+  SEXO:
+  - Mujer
+P_12YMAS:
+  EDAD_CAT:
+  - 12-14
+  - 15-17
+  - 18-24
+  - 25-49
+  - 50-59
+  - 60-64
+  - 65-130
+P_12YMAS_M:
+  EDAD_CAT:
+  - 12-14
+  - 15-17
+  - 18-24
+  - 25-49
+  - 50-59
+  - 60-64
+  - 65-130
+  SEXO:
+  - Hombre
+P_12YMAS_F:
+  EDAD_CAT:
+  - 12-14
+  - 15-17
+  - 18-24
+  - 25-49
+  - 50-59
+  - 60-64
+  - 65-130
+  SEXO:
+  - Mujer
+P_15YMAS:
+  EDAD_CAT:
+  - 15-17
+  - 18-24
+  - 25-49
+  - 50-59
+  - 60-64
+  - 65-130
+P_15YMAS_M:
+  EDAD_CAT:
+  - 15-17
+  - 18-24
+  - 25-49
+  - 50-59
+  - 60-64
+  - 65-130
+  SEXO:
+  - Hombre
+P_15YMAS_F:
+  EDAD_CAT:
+  - 15-17
+  - 18-24
+  - 25-49
+  - 50-59
+  - 60-64
+  - 65-130
+  SEXO:
+  - Mujer
+P_18YMAS:
+  EDAD_CAT:
+  - 18-24
+  - 25-49
+  - 50-59
+  - 60-64
+  - 65-130
+P_18YMAS_M:
+  EDAD_CAT:
+  - 18-24
+  - 25-49
+  - 50-59
+  - 60-64
+  - 65-130
+  SEXO:
+  - Hombre
+P_18YMAS_F:
+  EDAD_CAT:
+  - 18-24
+  - 25-49
+  - 50-59
+  - 60-64
+  - 65-130
+  SEXO:
+  - Mujer
+P_3A5:
+  EDAD_CAT:
+  - 3-4
+  - '5'
+P_3A5_M:
+  EDAD_CAT:
+  - 3-4
+  - '5'
+  SEXO:
+  - Hombre
+P_3A5_F:
+  EDAD_CAT:
+  - 3-4
+  - '5'
+  SEXO:
+  - Mujer
+P_6A11:
+  EDAD_CAT:
+  - 6-7
+  - 8-11
+P_6A11_M:
+  EDAD_CAT:
+  - 6-7
+  - 8-11
+  SEXO:
+  - Hombre
+P_6A11_F:
+  EDAD_CAT:
+  - 6-7
+  - 8-11
+  SEXO:
+  - Mujer
+P_8A14:
+  EDAD_CAT:
+  - 8-11
+  - 12-14
+P_8A14_M:
+  EDAD_CAT:
+  - 8-11
+  - 12-14
+  SEXO:
+  - Hombre
+P_8A14_F:
+  EDAD_CAT:
+  - 8-11
+  - 12-14
+  SEXO:
+  - Mujer
+P_12A14:
+  EDAD_CAT:
+  - 12-14
+P_12A14_M:
+  EDAD_CAT:
+  - 12-14
+  SEXO:
+  - Hombre
+P_12A14_F:
+  EDAD_CAT:
+  - 12-14
+  SEXO:
+  - Mujer
+P_15A17:
+  EDAD_CAT:
+  - 15-17
+P_15A17_M:
+  EDAD_CAT:
+  - 15-17
+  SEXO:
+  - Hombre
+P_15A17_F:
+  EDAD_CAT:
+  - 15-17
+  SEXO:
+  - Mujer
+P_18A24:
+  EDAD_CAT:
+  - 18-24
+P_18A24_M:
+  EDAD_CAT:
+  - 18-24
+  SEXO:
+  - Hombre
+P_18A24_F:
+  EDAD_CAT:
+  - 18-24
+  SEXO:
+  - Mujer
+P_15A49_F:
+  EDAD_CAT:
+  - 15-17
+  - 18-24
+  - 25-49
+  SEXO:
+  - Mujer
+P_60YMAS:
+  EDAD_CAT:
+  - 60-64
+  - 65-130
+P_60YMAS_M:
+  EDAD_CAT:
+  - 60-64
+  - 65-130
+  SEXO:
+  - Hombre
+P_60YMAS_F:
+  EDAD_CAT:
+  - 60-64
+  - 65-130
+  SEXO:
+  - Mujer
+POB0_14:
+  EDAD_CAT:
+  - 0-2
+  - 3-4
+  - '5'
+  - 6-7
+  - 8-11
+  - 12-14
+POB15_64:
+  EDAD_CAT:
+  - 15-17
+  - 18-24
+  - 25-49
+  - 50-59
+  - 60-64
+POB65_MAS:
+  EDAD_CAT:
+  - 65-130
+PNACENT:
+  ENT_PAIS_NAC_CAT:
+  - EstaEnt
+PNACENT_F:
+  SEXO:
+  - Mujer
+  ENT_PAIS_NAC_CAT:
+  - EstaEnt
+PNACENT_M:
+  SEXO:
+  - Hombre
+  ENT_PAIS_NAC_CAT:
+  - EstaEnt
+PNACOE:
+  ENT_PAIS_NAC_CAT:
+  - OtraEnt
+PNACOE_F:
+  SEXO:
+  - Mujer
+  ENT_PAIS_NAC_CAT:
+  - OtraEnt
+PNACOE_M:
+  SEXO:
+  - Hombre
+  ENT_PAIS_NAC_CAT:
+  - OtraEnt
+PRES2015:
+  EDAD_CAT:
+  - '5'
+  - 6-7
+  - 8-11
+  - 12-14
+  - 15-17
+  - 18-24
+  - 25-49
+  - 50-59
+  - 60-64
+  - 65-130
+  ENT_PAIS_RES_CAT:
+  - EstaEnt
+PRES2015_F:
+  SEXO:
+  - Mujer
+  EDAD_CAT:
+  - '5'
+  - 6-7
+  - 8-11
+  - 12-14
+  - 15-17
+  - 18-24
+  - 25-49
+  - 50-59
+  - 60-64
+  - 65-130
+  ENT_PAIS_RES_CAT:
+  - EstaEnt
+PRES2015_M:
+  SEXO:
+  - Hombre
+  EDAD_CAT:
+  - '5'
+  - 6-7
+  - 8-11
+  - 12-14
+  - 15-17
+  - 18-24
+  - 25-49
+  - 50-59
+  - 60-64
+  - 65-130
+  ENT_PAIS_RES_CAT:
+  - EstaEnt
+PRESOE15:
+  EDAD_CAT:
+  - '5'
+  - 6-7
+  - 8-11
+  - 12-14
+  - 15-17
+  - 18-24
+  - 25-49
+  - 50-59
+  - 60-64
+  - 65-130
+  ENT_PAIS_RES_CAT:
+  - OtraEnt
+PRESOE15_F:
+  SEXO:
+  - Mujer
+  EDAD_CAT:
+  - '5'
+  - 6-7
+  - 8-11
+  - 12-14
+  - 15-17
+  - 18-24
+  - 25-49
+  - 50-59
+  - 60-64
+  - 65-130
+  ENT_PAIS_RES_CAT:
+  - OtraEnt
+PRESOE15_M:
+  SEXO:
+  - Hombre
+  EDAD_CAT:
+  - '5'
+  - 6-7
+  - 8-11
+  - 12-14
+  - 15-17
+  - 18-24
+  - 25-49
+  - 50-59
+  - 60-64
+  - 65-130
+  ENT_PAIS_RES_CAT:
+  - OtraEnt
+P3YM_HLI:
+  EDAD_CAT:
+  - 3-4
+  - '5'
+  - 6-7
+  - 8-11
+  - 12-14
+  - 15-17
+  - 18-24
+  - 25-49
+  - 50-59
+  - 60-64
+  - 65-130
+  HLENGUA:
+  - Sí
+P3YM_HLI_F:
+  SEXO:
+  - Mujer
+  EDAD_CAT:
+  - 3-4
+  - '5'
+  - 6-7
+  - 8-11
+  - 12-14
+  - 15-17
+  - 18-24
+  - 25-49
+  - 50-59
+  - 60-64
+  - 65-130
+  HLENGUA:
+  - Sí
+P3YM_HLI_M:
+  SEXO:
+  - Hombre
+  EDAD_CAT:
+  - 3-4
+  - '5'
+  - 6-7
+  - 8-11
+  - 12-14
+  - 15-17
+  - 18-24
+  - 25-49
+  - 50-59
+  - 60-64
+  - 65-130
+  HLENGUA:
+  - Sí
+P3HLINHE:
+  EDAD_CAT:
+  - 3-4
+  - '5'
+  - 6-7
+  - 8-11
+  - 12-14
+  - 15-17
+  - 18-24
+  - 25-49
+  - 50-59
+  - 60-64
+  - 65-130
+  HLENGUA:
+  - Sí
+  HESPANOL:
+  - 'No'
+P3HLINHE_F:
+  SEXO:
+  - Mujer
+  EDAD_CAT:
+  - 3-4
+  - '5'
+  - 6-7
+  - 8-11
+  - 12-14
+  - 15-17
+  - 18-24
+  - 25-49
+  - 50-59
+  - 60-64
+  - 65-130
+  HLENGUA:
+  - Sí
+  HESPANOL:
+  - 'No'
+P3HLINHE_M:
+  SEXO:
+  - Hombre
+  EDAD_CAT:
+  - 3-4
+  - '5'
+  - 6-7
+  - 8-11
+  - 12-14
+  - 15-17
+  - 18-24
+  - 25-49
+  - 50-59
+  - 60-64
+  - 65-130
+  HLENGUA:
+  - Sí
+  HESPANOL:
+  - 'No'
+P3HLI_HE:
+  EDAD_CAT:
+  - 3-4
+  - '5'
+  - 6-7
+  - 8-11
+  - 12-14
+  - 15-17
+  - 18-24
+  - 25-49
+  - 50-59
+  - 60-64
+  - 65-130
+  HLENGUA:
+  - Sí
+  HESPANOL:
+  - Sí
+P3HLI_HE_F:
+  SEXO:
+  - Mujer
+  EDAD_CAT:
+  - 3-4
+  - '5'
+  - 6-7
+  - 8-11
+  - 12-14
+  - 15-17
+  - 18-24
+  - 25-49
+  - 50-59
+  - 60-64
+  - 65-130
+  HLENGUA:
+  - Sí
+  HESPANOL:
+  - Sí
+P3HLI_HE_M:
+  SEXO:
+  - Hombre
+  EDAD_CAT:
+  - 3-4
+  - '5'
+  - 6-7
+  - 8-11
+  - 12-14
+  - 15-17
+  - 18-24
+  - 25-49
+  - 50-59
+  - 60-64
+  - 65-130
+  HLENGUA:
+  - Sí
+  HESPANOL:
+  - Sí
+P5_HLI:
+  EDAD_CAT:
+  - '5'
+  - 6-7
+  - 8-11
+  - 12-14
+  - 15-17
+  - 18-24
+  - 25-49
+  - 50-59
+  - 60-64
+  - 65-130
+  HLENGUA:
+  - Sí
+P5_HLI_NHE:
+  EDAD_CAT:
+  - '5'
+  - 6-7
+  - 8-11
+  - 12-14
+  - 15-17
+  - 18-24
+  - 25-49
+  - 50-59
+  - 60-64
+  - 65-130
+  HLENGUA:
+  - Sí
+  HESPANOL:
+  - 'No'
+P5_HLI_HE:
+  EDAD_CAT:
+  - '5'
+  - 6-7
+  - 8-11
+  - 12-14
+  - 15-17
+  - 18-24
+  - 25-49
+  - 50-59
+  - 60-64
+  - 65-130
+  HLENGUA:
+  - Sí
+  HESPANOL:
+  - Sí
+POB_AFRO:
+  AFRODES:
+  - Sí
+POB_AFRO_F:
+  SEXO:
+  - Mujer
+  AFRODES:
+  - Sí
+POB_AFRO_M:
+  SEXO:
+  - Hombre
+  AFRODES:
+  - Sí
+PCON_DISC:
+  DIS_CON:
+  - Sí
+PCDISC_MOT:
+  DIS_CAMINAR:
+  - Lo hace con mucha dificultad
+  - No puede hacerlo
+PCDISC_VIS:
+  DIS_VER:
+  - Lo hace con mucha dificultad
+  - No puede hacerlo
+PCDISC_LENG:
+  DIS_HABLAR:
+  - Lo hace con mucha dificultad
+  - No puede hacerlo
+PCDISC_AUD:
+  DIS_OIR:
+  - Lo hace con mucha dificultad
+  - No puede hacerlo
+PCDISC_MOT2:
+  DIS_BANARSE:
+  - Lo hace con mucha dificultad
+  - No puede hacerlo
+PCDISC_MEN:
+  DIS_RECORDAR:
+  - Lo hace con mucha dificultad
+  - No puede hacerlo
+PCON_LIMI:
+  DIS_LIMI:
+  - Sí
+PCLIM_CSB:
+  DIS_CAMINAR:
+  - Lo hace con poca dificultad
+PCLIM_VIS:
+  DIS_VER:
+  - Lo hace con poca dificultad
+PCLIM_HACO:
+  DIS_HABLAR:
+  - Lo hace con poca dificultad
+PCLIM_OAUD:
+  DIS_OIR:
+  - Lo hace con poca dificultad
+PCLIM_MOT2:
+  DIS_BANARSE:
+  - Lo hace con poca dificultad
+PCLIM_RE_CO:
+  DIS_RECORDAR:
+  - Lo hace con poca dificultad
+PCLIM_PMEN:
+  DIS_MENTAL:
+  - Sí
+PSIND_LIM:
+  DIS_VER:
+  - No tiene dificultad
+  DIS_OIR:
+  - No tiene dificultad
+  DIS_CAMINAR:
+  - No tiene dificultad
+  DIS_RECORDAR:
+  - No tiene dificultad
+  DIS_BANARSE:
+  - No tiene dificultad
+  DIS_HABLAR:
+  - No tiene dificultad
+  DIS_MENTAL:
+  - 'No'
+P3A5_NOA:
+  EDAD_CAT:
+  - 3-4
+  - '5'
+  ASISTEN:
+  - 'No'
+P3A5_NOA_F:
+  EDAD_CAT:
+  - 3-4
+  - '5'
+  SEXO:
+  - Mujer
+  ASISTEN:
+  - 'No'
+P3A5_NOA_M:
+  EDAD_CAT:
+  - 3-4
+  - '5'
+  SEXO:
+  - Hombre
+  ASISTEN:
+  - 'No'
+P6A11_NOA:
+  EDAD_CAT:
+  - 6-7
+  - 8-11
+  ASISTEN:
+  - 'No'
+P6A11_NOAF:
+  EDAD_CAT:
+  - 6-7
+  - 8-11
+  SEXO:
+  - Mujer
+  ASISTEN:
+  - 'No'
+P6A11_NOAM:
+  EDAD_CAT:
+  - 6-7
+  - 8-11
+  SEXO:
+  - Hombre
+  ASISTEN:
+  - 'No'
+P12A14NOA:
+  EDAD_CAT:
+  - 12-14
+  ASISTEN:
+  - 'No'
+P12A14NOAF:
+  EDAD_CAT:
+  - 12-14
+  SEXO:
+  - Mujer
+  ASISTEN:
+  - 'No'
+P12A14NOAM:
+  EDAD_CAT:
+  - 12-14
+  SEXO:
+  - Hombre
+  ASISTEN:
+  - 'No'
+P15A17A:
+  EDAD_CAT:
+  - 15-17
+  ASISTEN:
+  - Sí
+P15A17A_F:
+  EDAD_CAT:
+  - 15-17
+  SEXO:
+  - Mujer
+  ASISTEN:
+  - Sí
+P15A17A_M:
+  EDAD_CAT:
+  - 15-17
+  SEXO:
+  - Hombre
+  ASISTEN:
+  - Sí
+P18A24A:
+  EDAD_CAT:
+  - 18-24
+  ASISTEN:
+  - Sí
+P18A24A_F:
+  EDAD_CAT:
+  - 18-24
+  SEXO:
+  - Mujer
+  ASISTEN:
+  - Sí
+P18A24A_M:
+  EDAD_CAT:
+  - 18-24
+  SEXO:
+  - Hombre
+  ASISTEN:
+  - Sí
+P8A14AN:
+  EDAD_CAT:
+  - 8-11
+  - 12-14
+  ALFABET:
+  - 'No'
+P8A14AN_F:
+  EDAD_CAT:
+  - 8-11
+  - 12-14
+  SEXO:
+  - Mujer
+  ALFABET:
+  - 'No'
+P8A14AN_M:
+  EDAD_CAT:
+  - 8-11
+  - 12-14
+  SEXO:
+  - Hombre
+  ALFABET:
+  - 'No'
+P15YM_AN:
+  EDAD_CAT:
+  - 15-17
+  - 18-24
+  - 25-49
+  - 50-59
+  - 60-64
+  - 65-130
+  ALFABET:
+  - 'No'
+P15YM_AN_F:
+  EDAD_CAT:
+  - 15-17
+  - 18-24
+  - 25-49
+  - 50-59
+  - 60-64
+  - 65-130
+  SEXO:
+  - Mujer
+  ALFABET:
+  - 'No'
+P15YM_AN_M:
+  EDAD_CAT:
+  - 15-17
+  - 18-24
+  - 25-49
+  - 50-59
+  - 60-64
+  - 65-130
+  SEXO:
+  - Hombre
+  ALFABET:
+  - 'No'
+P15YM_SE:
+  EDAD_CAT:
+  - 15-17
+  - 18-24
+  - 25-49
+  - 50-59
+  - 60-64
+  - 65-130
+  EDUC:
+  - Sin Educación
+P15YM_SE_F:
+  EDAD_CAT:
+  - 15-17
+  - 18-24
+  - 25-49
+  - 50-59
+  - 60-64
+  - 65-130
+  SEXO:
+  - Mujer
+  EDUC:
+  - Sin Educación
+P15YM_SE_M:
+  EDAD_CAT:
+  - 15-17
+  - 18-24
+  - 25-49
+  - 50-59
+  - 60-64
+  - 65-130
+  SEXO:
+  - Hombre
+  EDUC:
+  - Sin Educación
+P15PRI_IN:
+  EDAD_CAT:
+  - 15-17
+  - 18-24
+  - 25-49
+  - 50-59
+  - 60-64
+  - 65-130
+  EDUC:
+  - Primaria_incom
+P15PRI_INF:
+  EDAD_CAT:
+  - 15-17
+  - 18-24
+  - 25-49
+  - 50-59
+  - 60-64
+  - 65-130
+  SEXO:
+  - Mujer
+  EDUC:
+  - Primaria_incom
+P15PRI_INM:
+  EDAD_CAT:
+  - 15-17
+  - 18-24
+  - 25-49
+  - 50-59
+  - 60-64
+  - 65-130
+  SEXO:
+  - Hombre
+  EDUC:
+  - Primaria_incom
+P15PRI_CO:
+  EDAD_CAT:
+  - 15-17
+  - 18-24
+  - 25-49
+  - 50-59
+  - 60-64
+  - 65-130
+  EDUC:
+  - Primaria_com
+P15PRI_COF:
+  EDAD_CAT:
+  - 15-17
+  - 18-24
+  - 25-49
+  - 50-59
+  - 60-64
+  - 65-130
+  SEXO:
+  - Mujer
+  EDUC:
+  - Primaria_com
+P15PRI_COM:
+  EDAD_CAT:
+  - 15-17
+  - 18-24
+  - 25-49
+  - 50-59
+  - 60-64
+  - 65-130
+  SEXO:
+  - Hombre
+  EDUC:
+  - Primaria_com
+P15SEC_IN:
+  EDAD_CAT:
+  - 15-17
+  - 18-24
+  - 25-49
+  - 50-59
+  - 60-64
+  - 65-130
+  EDUC:
+  - Secundaria_incom
+P15SEC_INF:
+  EDAD_CAT:
+  - 15-17
+  - 18-24
+  - 25-49
+  - 50-59
+  - 60-64
+  - 65-130
+  SEXO:
+  - Mujer
+  EDUC:
+  - Secundaria_incom
+P15SEC_INM:
+  EDAD_CAT:
+  - 15-17
+  - 18-24
+  - 25-49
+  - 50-59
+  - 60-64
+  - 65-130
+  SEXO:
+  - Hombre
+  EDUC:
+  - Secundaria_incom
+P15SEC_CO:
+  EDAD_CAT:
+  - 15-17
+  - 18-24
+  - 25-49
+  - 50-59
+  - 60-64
+  - 65-130
+  EDUC:
+  - Secundaria_com
+P15SEC_COF:
+  EDAD_CAT:
+  - 15-17
+  - 18-24
+  - 25-49
+  - 50-59
+  - 60-64
+  - 65-130
+  SEXO:
+  - Mujer
+  EDUC:
+  - Secundaria_com
+P15SEC_COM:
+  EDAD_CAT:
+  - 15-17
+  - 18-24
+  - 25-49
+  - 50-59
+  - 60-64
+  - 65-130
+  SEXO:
+  - Hombre
+  EDUC:
+  - Secundaria_com
+P18YM_PB:
+  EDAD_CAT:
+  - 18-24
+  - 25-49
+  - 50-59
+  - 60-64
+  - 65-130
+  EDUC:
+  - Posbásica
+P18YM_PB_F:
+  EDAD_CAT:
+  - 18-24
+  - 25-49
+  - 50-59
+  - 60-64
+  - 65-130
+  SEXO:
+  - Mujer
+  EDUC:
+  - Posbásica
+P18YM_PB_M:
+  EDAD_CAT:
+  - 18-24
+  - 25-49
+  - 50-59
+  - 60-64
+  - 65-130
+  SEXO:
+  - Hombre
+  EDUC:
+  - Posbásica
+PEA:
+  EDAD_CAT:
+  - 12-14
+  - 15-17
+  - 18-24
+  - 25-49
+  - 50-59
+  - 60-64
+  - 65-130
+  CONACT_CAT:
+  - Trabaja
+  - Buscó trabajo
+PEA_F:
+  EDAD_CAT:
+  - 12-14
+  - 15-17
+  - 18-24
+  - 25-49
+  - 50-59
+  - 60-64
+  - 65-130
+  SEXO:
+  - Mujer
+  CONACT_CAT:
+  - Trabaja
+  - Buscó trabajo
+PEA_M:
+  EDAD_CAT:
+  - 12-14
+  - 15-17
+  - 18-24
+  - 25-49
+  - 50-59
+  - 60-64
+  - 65-130
+  SEXO:
+  - Hombre
+  CONACT_CAT:
+  - Trabaja
+  - Buscó trabajo
+PE_INAC:
+  EDAD_CAT:
+  - 12-14
+  - 15-17
+  - 18-24
+  - 25-49
+  - 50-59
+  - 60-64
+  - 65-130
+  CONACT_CAT:
+  - No trabaja
+PE_INAC_F:
+  EDAD_CAT:
+  - 12-14
+  - 15-17
+  - 18-24
+  - 25-49
+  - 50-59
+  - 60-64
+  - 65-130
+  SEXO:
+  - Mujer
+  CONACT_CAT:
+  - No trabaja
+PE_INAC_M:
+  EDAD_CAT:
+  - 12-14
+  - 15-17
+  - 18-24
+  - 25-49
+  - 50-59
+  - 60-64
+  - 65-130
+  SEXO:
+  - Hombre
+  CONACT_CAT:
+  - No trabaja
+POCUPADA:
+  EDAD_CAT:
+  - 12-14
+  - 15-17
+  - 18-24
+  - 25-49
+  - 50-59
+  - 60-64
+  - 65-130
+  CONACT_CAT:
+  - Trabaja
+POCUPADA_F:
+  EDAD_CAT:
+  - 12-14
+  - 15-17
+  - 18-24
+  - 25-49
+  - 50-59
+  - 60-64
+  - 65-130
+  SEXO:
+  - Mujer
+  CONACT_CAT:
+  - Trabaja
+POCUPADA_M:
+  EDAD_CAT:
+  - 12-14
+  - 15-17
+  - 18-24
+  - 25-49
+  - 50-59
+  - 60-64
+  - 65-130
+  SEXO:
+  - Hombre
+  CONACT_CAT:
+  - Trabaja
+PDESOCUP:
+  EDAD_CAT:
+  - 12-14
+  - 15-17
+  - 18-24
+  - 25-49
+  - 50-59
+  - 60-64
+  - 65-130
+  CONACT_CAT:
+  - Buscó trabajo
+PDESOCUP_F:
+  EDAD_CAT:
+  - 12-14
+  - 15-17
+  - 18-24
+  - 25-49
+  - 50-59
+  - 60-64
+  - 65-130
+  SEXO:
+  - Mujer
+  CONACT_CAT:
+  - Buscó trabajo
+PDESOCUP_M:
+  EDAD_CAT:
+  - 12-14
+  - 15-17
+  - 18-24
+  - 25-49
+  - 50-59
+  - 60-64
+  - 65-130
+  SEXO:
+  - Hombre
+  CONACT_CAT:
+  - Buscó trabajo
+PSINDER:
+  DHSERSAL_No afiliado:
+  - 1
+PDER_SS:
+  DHSERSAL_AFIL:
+  - 1
+PDER_IMSS:
+  DHSERSAL_IMSS:
+  - 1
+PDER_ISTE:
+  DHSERSAL_ISSSTE:
+  - 1
+PDER_ISTEE:
+  DHSERSAL_ISSSTE_E:
+  - 1
+PAFIL_PDOM:
+  DHSERSAL_P_D_M:
+  - 1
+PDER_SEGP:
+  DHSERSAL_Popular_NGenración_SBienestar:
+  - 1
+PDER_IMSSB:
+  DHSERSAL_IMSS_Prospera/Bienestar:
+  - 1
+PAFIL_IPRIV:
+  DHSERSAL_Privado:
+  - 1
+PAFIL_OTRAI:
+  DHSERSAL_Otro:
+  - 1
+PAFIL_PUB:
+  DHSERSAL_PUB:
+  - 1
+P12YM_SOLT:
+  EDAD_CAT:
+  - 12-14
+  - 15-17
+  - 18-24
+  - 25-49
+  - 50-59
+  - 60-64
+  - 65-130
+  SITUA_CONYUGAL_CAT:
+  - soltero
+P12YM_CASA:
+  EDAD_CAT:
+  - 12-14
+  - 15-17
+  - 18-24
+  - 25-49
+  - 50-59
+  - 60-64
+  - 65-130
+  SITUA_CONYUGAL_CAT:
+  - casado
+P12YM_SEPA:
+  EDAD_CAT:
+  - 12-14
+  - 15-17
+  - 18-24
+  - 25-49
+  - 50-59
+  - 60-64
+  - 65-130
+  SITUA_CONYUGAL_CAT:
+  - separado
+PCATOLICA:
+  RELIGION_CAT:
+  - Católica
+PRO_CRIEVA:
+  RELIGION_CAT:
+  - Protestante/cristiano evangélico
+POTRAS_REL:
+  RELIGION_CAT:
+  - Otros credos
+PSIN_RELIG:
+  RELIGION_CAT:
+  - Sin religión / Sin adscripción religiosa
+

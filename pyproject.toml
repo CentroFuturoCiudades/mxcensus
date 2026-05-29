@@ -1,0 +1,30 @@
+[project]
+name = "mxcensus"
+version = "0.1.0"
+description = "Mexico Census 2020 (CPV 2020) data loader and preprocessor"
+readme = "README.md"
+authors = [{ name = "Gonzalo Peraza", email = "ggperaza@gmail.com" }]
+requires-python = ">=3.13"
+dependencies = [
+    "chardet>=7.2.0",
+    "geopandas>=1.1.2",
+    "numpy>=2.0",
+    "pandas>=3.0.0",
+    "pandera>=0.29.0",
+    "pyyaml>=6.0.3",
+]
+
+[project.scripts]
+mxcensus = "mxcensus._cli:main"
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0",
+]
+
+[build-system]
+requires = ["uv_build>=0.9.0"]
+build-backend = "uv_build"
+
+[tool.uv]
+package = true
