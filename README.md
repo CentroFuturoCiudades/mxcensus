@@ -28,6 +28,9 @@ census = mxcensus.load_census(state=9)
 # Extended-questionnaire microdata
 personas = mxcensus.load_extended_personas(state=9)
 viviendas = mxcensus.load_extended_viviendas(state=9)
+
+# Geometries (Marco Geoestadístico) merged with census counts
+mg_aur, mg_loc_ageb = mxcensus.load_mg_census(state=9)
 ```
 
 Pre-download a state's files (optional; loaders fetch on demand):
@@ -44,6 +47,17 @@ mxcensus info           # cache directory and mirror URL
 | **ITER** | Locality | Aggregate counts (state → municipality → locality) |
 | **RESARGEBUB** | Urban block | AGEB (urban statistical areas) and MZA (city blocks) |
 | **Cuestionario Ampliado** | Microdata | Individual person and household records |
+| **Marco Geoestadístico** | Geometries | INEGI's 2020 geostatistical boundaries (15 layers/state) as GeoParquet |
+
+### Geometries (Marco Geoestadístico)
+
+All 15 INEGI Marco Geoestadístico 2020 layers per state are mirrored as GeoParquet,
+named `mg_{suffix}_{NN}.parquet` (suffix ∈ `a, ar, cd, e, ent, fm, l, lpr, m, mun, pe,
+pem, sia, sil, sip`; `NN` = state code). Fetch individual layers via
+`mxcensus.data.POOCH.fetch("mg_m_09.parquet")`. The convenience wrapper
+`load_mg_census(state=N)` consumes four of them (`a` urban AGEB, `l` urban locality,
+`lpr` rural locality points, `ar` rural AGEB) and returns census counts joined to
+geometry as a GeoDataFrame.
 
 ## Variable dictionaries
 
@@ -65,15 +79,19 @@ maps under `Categorías`.
 
 ## Data source and attribution
 
-All census data originates from INEGI's open-data ("datos abiertos") release of
-the Censo de Población y Vivienda 2020:
+All data originates from INEGI's open-data ("datos abiertos") releases:
 
-- Census program: <https://www.inegi.org.mx/programas/ccpv/2020/>
+- Census tabular data and microdata — Censo de Población y Vivienda 2020:
+  <https://www.inegi.org.mx/programas/ccpv/2020/>
+- Geometries — Marco Geoestadístico (Censo 2020):
+  <https://www.inegi.org.mx/temas/mg/>
 
 When you publish work that uses data obtained through `mxcensus`, INEGI's terms
-require you to credit INEGI as the author of the data. Use the citation:
+require you to credit INEGI as the author of the data. Use the citation(s):
 
 > **Fuente: INEGI, Censo de Población y Vivienda 2020.**
+>
+> **Fuente: INEGI, Marco Geoestadístico, Censo de Población y Vivienda 2020.**
 
 The data is provided under INEGI's **Términos de Libre Uso de la Información del
 INEGI** (Terms of Free Use):
@@ -93,7 +111,9 @@ In compliance with the terms above (clause 1g), note that `mxcensus` does **not*
 distribute INEGI's data unaltered. The original INEGI CSV files are transformed
 before and during loading:
 
-- **Format conversion** — the source CSVs are converted to parquet for the mirror.
+- **Format conversion** — the source CSVs are converted to parquet, and the Marco
+  Geoestadístico GeoPackage layers to GeoParquet (rural locality points promoted to
+  MultiPoint), for the mirror.
 - **Censored values** — INEGI's `*` suppression marker (meaning 0, 1, or 2
   persons) is mapped to masked integers, and zeros are imputed where parent-level
   totals confirm a suppressed value must be 0.

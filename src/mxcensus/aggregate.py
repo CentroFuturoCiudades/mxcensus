@@ -821,3 +821,39 @@ def mg_agebs_ur(
     assert mg_aur.POBTOT.sum() == mg_loc_ageb.POBTOT.sum()
 
     return mg_aur, mg_loc_ageb
+
+
+def load_mg_census(*, state: int) -> tuple[gpd.GeoDataFrame, gpd.GeoDataFrame]:
+    """Load Marco Geoestadístico geometries merged with census data for one state.
+
+    Fetches the four MGN geoparquet layers for ``state`` from the mxcensus mirror
+    via Pooch (downloading on first call), loads the census via :func:`load_census`,
+    and runs the full geometry-merge pipeline (:func:`merge_loc_agebs`,
+    :func:`merge_mg_census`, :func:`mg_agebs_ur`).
+
+    Parameters
+    ----------
+    state : int
+        INEGI state code (ENTIDAD) 1–32.
+
+    Returns
+    -------
+    tuple[gpd.GeoDataFrame, gpd.GeoDataFrame]
+        ``(mg_aur, mg_loc_ageb)`` as returned by :func:`mg_agebs_ur`: urban and
+        aggregated-rural AGEBs, and the locality/AGEB geometries with census
+        attributes and ``PARENT_RURAL_AGEB``.
+    """
+    from mxcensus.data._catalog import STATE_CODE_FMT
+    from mxcensus.data._registry import POOCH
+
+    code = STATE_CODE_FMT(state)
+    mg_ageb_path = Path(POOCH.fetch(f"mg_a_{code}.parquet"))
+    mg_loc_path = Path(POOCH.fetch(f"mg_l_{code}.parquet"))
+    mg_loc_p_path = Path(POOCH.fetch(f"mg_lpr_{code}.parquet"))
+    mg_ar_path = Path(POOCH.fetch(f"mg_ar_{code}.parquet"))
+
+    _, _, df_loc, df_ageb = load_census(state=state)
+    df_loc_ageb = merge_loc_agebs(df_loc, df_ageb)
+    mg_loc_ageb = merge_mg_census(mg_loc_path, mg_loc_p_path, mg_ageb_path, df_loc_ageb)
+    mg_aur, mg_loc_ageb = mg_agebs_ur(mg_ar_path, mg_loc_ageb)
+    return mg_aur, mg_loc_ageb
