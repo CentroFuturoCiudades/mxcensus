@@ -26,6 +26,14 @@ def variables_viviendas() -> dict:
     return _load_yaml("variables_viviendas.yaml")
 
 
+def variables_iter() -> dict:
+    return _load_yaml("variables_iter.yaml")
+
+
+def variables_resargebub() -> dict:
+    return _load_yaml("variables_resargebub.yaml")
+
+
 def constraints_personas() -> dict:
     return _load_yaml("constraints_personas.yaml")
 

@@ -12,7 +12,7 @@ import pooch
 from ._paths import get_pooch_cache_dir
 
 _DATA_RELEASE_TAG = "data-v0.1.0"
-_BASE_URL = f"https://github.com/OWNER/mxcensus/releases/download/{_DATA_RELEASE_TAG}/"
+_BASE_URL = f"https://github.com/CentroFuturoCiudades/mxcensus/releases/download/{_DATA_RELEASE_TAG}/"
 
 POOCH = pooch.create(
     path=get_pooch_cache_dir(),

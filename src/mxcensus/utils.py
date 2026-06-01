@@ -1,9 +1,40 @@
-"""Shared utilities for category-map expansion and YAML generation from INEGI Excel dictionaries."""
+"""Shared utilities for category-map expansion and YAML generation from INEGI data dictionaries."""
 
 from pathlib import Path
 
 import pandas as pd
 import yaml
+
+
+def get_vars_from_indicator_csv(csv_path: Path, opath: Path) -> dict:
+    """Parse an INEGI ITER/RESARGEBUB "Relación de indicadores" dictionary CSV to YAML.
+
+    These aggregate datasets ship a ``diccionario_datos_*.csv`` whose columns are
+    ``Núm., Indicador, Descripción, Mnemónico, Rangos, Longitud`` after a few title
+    rows. The dictionary is national (identical for every state), so a single file
+    is generated. Unlike the microdata dictionaries (see ``get_cats_from_excel``),
+    these aggregate variables carry no categorical code→label maps, so each entry
+    keeps the source's ``Indicador``/``Descripción``/``Rangos``/``Longitud`` fields.
+    Returns the dict and writes it (keyed by mnemonic) to ``opath``.
+    """
+    rows = pd.read_csv(csv_path, header=None, encoding="utf-8-sig", dtype=str, keep_default_na=False)
+    header_row = rows.index[rows[0].str.strip().str.startswith("Núm")][0]
+    df = pd.read_csv(csv_path, skiprows=header_row, encoding="utf-8-sig", dtype=str, keep_default_na=False)
+    df.columns = [c.strip() for c in df.columns]
+
+    out: dict = {}
+    for _, row in df.iterrows():
+        mnemonic = str(row.get("Mnemónico", "")).strip()
+        if not mnemonic:
+            continue
+        out[mnemonic] = {
+            field: row.get(field, "").strip()
+            for field in ("Indicador", "Descripción", "Rangos", "Longitud")
+        }
+
+    with open(opath, "w", encoding="utf-8") as file:
+        yaml.dump(out, file, default_flow_style=False, sort_keys=False, allow_unicode=True)
+    return out
 
 
 def expand_cat_map(cat_map: dict) -> dict:

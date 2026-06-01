@@ -11,13 +11,17 @@ Steps
    - na_values=["N/D"] (INEGI's missing-data marker becomes NaN)
    - Natural dtype inference is preserved (numeric columns stay numeric;
      columns with "*" censoring markers remain object/string)
-3. Write SHA256 hashes to registry.txt via pooch.make_registry().
+3. Regenerate the bundled ITER/RESARGEBUB variable dictionaries
+   (src/mxcensus/_yaml/) from one state's diccionario CSVs. Disable with
+   --no-dictionaries.
+4. Write SHA256 hashes to registry.txt via pooch.make_registry().
 
 After running
 -------------
 - Upload all files in <output>/ to the GitHub Release tagged with the
   value of _DATA_RELEASE_TAG in src/mxcensus/data/_registry.py.
-- Commit the updated src/mxcensus/data/registry.txt.
+- Commit the updated src/mxcensus/data/registry.txt and any changes to
+  src/mxcensus/_yaml/variables_{iter,resargebub}.yaml.
 
 Quick smoke test (CDMX only)
 -----------------------------
@@ -43,6 +47,7 @@ from mxcensus.data._catalog import (
     iter_entry,
     resargebub_entry,
 )
+from mxcensus.utils import get_vars_from_indicator_csv
 
 # ---------------------------------------------------------------------------
 # Defaults
@@ -53,6 +58,7 @@ _DEFAULT_OUT = _REPO_ROOT / "data" / "parquet"
 _DEFAULT_RAW = _REPO_ROOT / "data" / "raw"
 _DEFAULT_CACHE = _REPO_ROOT / "data" / "cache"
 _DEFAULT_REGISTRY = _REPO_ROOT / "src" / "mxcensus" / "data" / "registry.txt"
+_DEFAULT_YAML = _REPO_ROOT / "src" / "mxcensus" / "_yaml"
 
 # ---------------------------------------------------------------------------
 # Helpers
@@ -181,6 +187,36 @@ def _build_state(state: int, raw_dir: Path, out_dir: Path) -> None:
     _csv_to_parquet(ca_dir / f"Viviendas{code}.CSV", out_dir / f"viviendas_{code}.parquet")
 
 
+def _build_dictionaries(state: int, raw_dir: Path, yaml_dir: Path) -> bool:
+    """Regenerate the bundled ITER/RESARGEBUB variable dictionaries from one state.
+
+    These dictionaries are national (identical across states), so they are built
+    once from a single state's extracted ``diccionario`` CSVs. Returns False (with
+    a warning) if those CSVs aren't on disk — e.g. a --skip-download run whose raw
+    extraction was cleaned — so a missing optional artifact never aborts the build.
+    Note the two datasets use different dictionary folder names (``diccionario_datos``
+    vs ``diccionario_de_datos``).
+    """
+    code = STATE_CODE_FMT(state)
+    iter_dict = (
+        raw_dir / "loc" / f"iter_{code}_cpv2020"
+        / "diccionario_datos" / f"diccionario_datos_iter_{code}CSV20.csv"
+    )
+    resargebub_dict = (
+        raw_dir / "ageb_manz" / f"ageb_mza_urbana_{code}_cpv2020"
+        / "diccionario_de_datos" / f"diccionario_datos_ageb_urbana_{code}_cpv2020.csv"
+    )
+    missing = [p for p in (iter_dict, resargebub_dict) if not p.exists()]
+    if missing:
+        print(f"  ! dictionaries skipped — not found: {', '.join(p.name for p in missing)}")
+        return False
+
+    n_iter = len(get_vars_from_indicator_csv(iter_dict, yaml_dir / "variables_iter.yaml"))
+    n_res = len(get_vars_from_indicator_csv(resargebub_dict, yaml_dir / "variables_resargebub.yaml"))
+    print(f"  wrote variables_iter.yaml ({n_iter} vars), variables_resargebub.yaml ({n_res} vars)")
+    return True
+
+
 # ---------------------------------------------------------------------------
 # CLI
 # ---------------------------------------------------------------------------
@@ -200,13 +236,17 @@ def main() -> None:
                         help="Directory for downloaded ZIPs (pooch cache)")
     parser.add_argument("--registry", type=Path, default=_DEFAULT_REGISTRY, metavar="FILE",
                         help="Output registry.txt path")
+    parser.add_argument("--yaml-dir", type=Path, default=_DEFAULT_YAML, metavar="DIR",
+                        help="Bundled _yaml/ directory for regenerated variable dictionaries")
     parser.add_argument("--skip-download", action="store_true",
                         help="Skip downloading ZIPs (use existing raw CSVs)")
     parser.add_argument("--no-verify", dest="verify", action="store_false",
                         help="Skip the ZIP integrity check after each download")
+    parser.add_argument("--no-dictionaries", dest="dictionaries", action="store_false",
+                        help="Skip regenerating the bundled ITER/RESARGEBUB variable dictionaries")
     parser.add_argument("--retries", type=int, default=2, metavar="N",
                         help="Re-download attempts when a ZIP fails verification (default: 2)")
-    parser.set_defaults(verify=True)
+    parser.set_defaults(verify=True, dictionaries=True)
     args = parser.parse_args()
 
     args.output.mkdir(parents=True, exist_ok=True)
@@ -218,6 +258,10 @@ def main() -> None:
         if not args.skip_download:
             _download_raw(state, args.raw_dir, args.cache_dir, args.verify, args.retries)
         _build_state(state, args.raw_dir, args.output)
+
+    if args.dictionaries:
+        print("\nRegenerating bundled variable dictionaries ...")
+        _build_dictionaries(args.states[0], args.raw_dir, args.yaml_dir)
 
     print(f"\nGenerating registry at {args.registry} ...")
     pooch.make_registry(str(args.output), str(args.registry), recursive=False)

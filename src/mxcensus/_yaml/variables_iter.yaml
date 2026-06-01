@@ -1,0 +1,1889 @@
+ENTIDAD:
+  Indicador: Clave de entidad federativa
+  Descripción: Código que identifica a la entidad federativa. El código 00 identifica
+    a los registros con los totales a nivel nacional.
+  Rangos: 00…32
+  Longitud: '2'
+NOM_ENT:
+  Indicador: Entidad federativa
+  Descripción: Nombre oficial de la entidad federativa.
+  Rangos: Alfanumérico
+  Longitud: '50'
+MUN:
+  Indicador: Clave de municipio o demarcación territorial
+  Descripción: Código que identifica al municipio o demarcación territorial al interior
+    de una entidad federativa, conforme al Marco Geoestadístico. El código 000 identifica
+    a los registros con los totales a nivel de entidad federativa.
+  Rangos: 000…570
+  Longitud: '3'
+NOM_MUN:
+  Indicador: Municipio o demarcación territorial
+  Descripción: Nombre oficial del municipio o demarcación territorial en el caso de
+    la Ciudad de México.
+  Rangos: Alfanumérico
+  Longitud: '50'
+LOC:
+  Indicador: Clave de localidad
+  Descripción: Código que identifica a la localidad al interior de cada municipio
+    o demarcación territorial conforme al Marco Geoestadístico. El código 0000 identifica
+    a los registros con los totales a nivel de municipio o demarcación territorial.
+  Rangos: 0000…9999
+  Longitud: '4'
+NOM_LOC:
+  Indicador: Localidad
+  Descripción: Nombre con el que se reconoce a la localidad dado por la ley o la costumbre.
+  Rangos: Alfanumérico
+  Longitud: '70'
+LONGITUD:
+  Indicador: Longitud
+  Descripción: Ubicación de la localidad expresada en grados, minutos, segundos y
+    milésimas de segundo. Las primeras tres o cuatro posiciones corresponden a los
+    grados y su símbolo; las siguientes tres posiciones indican los minutos y su símbolo
+    y las siguientes 8 posiciones corresponden a los segundos, sus milésimas separados
+    por un punto y su símbolo, la última posición indica que es la longitud situada
+    al Oeste del meridiano de Greenwich (W).
+  Rangos: Caracter
+  Longitud: '16'
+LATITUD:
+  Indicador: Latitud
+  Descripción: Ubicación de la localidad expresada en grados, minutos, segundos y
+    milésimas de segundo. Las primeras tres posiciones corresponden a los grados y
+    su símbolo; las siguientes tres posiciones indican los minutos y su símbolo y
+    las siguientes 8 posiciones corresponden a los segundos, sus milésimas separados
+    por un punto y su símbolo, la última posición indica que es la latitud situada
+    al norte del ecuador (N).
+  Rangos: Caracter
+  Longitud: '15'
+ALTITUD:
+  Indicador: Altitud
+  Descripción: Altura a la que se encuentra una localidad, respecto al nivel medio
+    del mar, expresada en metros.
+  Rangos: Caracter
+  Longitud: '4'
+POBTOT:
+  Indicador: Población total
+  Descripción: Total de personas que residen habitualmente en el país, la entidad
+    federativa, el municipio o la demarcación territorial y la localidad. Incluye
+    la estimación del número de personas en viviendas particulares sin información
+    de ocupantes. Incluye a la población que no especificó su edad.
+  Rangos: 0...999999999
+  Longitud: '9'
+POBFEM:
+  Indicador: Población femenina
+  Descripción: Total de mujeres que residen habitualmente en el país, la entidad federativa,
+    el municipio o la demarcación territorial y la localidad. Incluye la estimación
+    del número de mujeres en viviendas particulares sin información de ocupantes.
+    Incluye a la población que no especificó su edad.
+  Rangos: 0...999999999
+  Longitud: '9'
+POBMAS:
+  Indicador: Población masculina
+  Descripción: Total de hombres que residen habitualmente en el país, la entidad federativa,
+    el municipio o la demarcación territorial y la localidad. Incluye la estimación
+    del número de hombres en viviendas particulares sin información de ocupantes.
+    Incluye a la población que no especificó su edad.
+  Rangos: 0...999999999
+  Longitud: '9'
+P_0A2:
+  Indicador: Población de 0 a 2 años
+  Descripción: Personas de 0 a 2 años de edad.
+  Rangos: 0…999999999
+  Longitud: '9'
+P_0A2_F:
+  Indicador: Población femenina de 0 a 2 años
+  Descripción: Mujeres de 0 a 2 años de edad.
+  Rangos: 0.,.999999999
+  Longitud: '9'
+P_0A2_M:
+  Indicador: Población masculina de 0 a 2 años
+  Descripción: Hombres de 0 a 2 años de edad.
+  Rangos: 0...999999999
+  Longitud: '9'
+P_3YMAS:
+  Indicador: Población de 3 años y más
+  Descripción: Personas de 3 a 130 años de edad.
+  Rangos: 0...999999999
+  Longitud: '9'
+P_3YMAS_F:
+  Indicador: Población femenina de 3 años y más
+  Descripción: Mujeres de 3 a 130 años de edad.
+  Rangos: 0...999999999
+  Longitud: '9'
+P_3YMAS_M:
+  Indicador: Población masculina de 3 años y más
+  Descripción: Hombres de 3 a 130 años de edad.
+  Rangos: 0...999999999
+  Longitud: '9'
+P_5YMAS:
+  Indicador: Población de 5 años y más
+  Descripción: Personas de 5 a 130 años de edad.
+  Rangos: 0...999999999
+  Longitud: '9'
+P_5YMAS_F:
+  Indicador: Población femenina de 5 años y más
+  Descripción: Mujeres de 5 a 130 años de edad.
+  Rangos: 0...999999999
+  Longitud: '9'
+P_5YMAS_M:
+  Indicador: Población masculina de 5 años y más
+  Descripción: Hombres de 5 a 130 años de edad.
+  Rangos: 0...999999999
+  Longitud: '9'
+P_12YMAS:
+  Indicador: Población de 12 años y más
+  Descripción: Personas de 12 a 130 años de edad.
+  Rangos: 0...999999999
+  Longitud: '9'
+P_12YMAS_F:
+  Indicador: Población femenina de 12 años y más
+  Descripción: Mujeres de 12 a 130 años de edad.
+  Rangos: 0...999999999
+  Longitud: '9'
+P_12YMAS_M:
+  Indicador: Población masculina de 12 años y más
+  Descripción: Hombres de 12 a 130 años de edad.
+  Rangos: 0...999999999
+  Longitud: '9'
+P_15YMAS:
+  Indicador: Población de 15 años y más
+  Descripción: Personas de 15 a 130 años de edad.
+  Rangos: 0...999999999
+  Longitud: '9'
+P_15YMAS_F:
+  Indicador: Población femenina de 15 años y más
+  Descripción: Mujeres de 15 a 130 años de edad.
+  Rangos: 0...999999999
+  Longitud: '9'
+P_15YMAS_M:
+  Indicador: Población masculina de 15 años y más
+  Descripción: Hombres de 15 a 130 años de edad.
+  Rangos: 0...999999999
+  Longitud: '9'
+P_18YMAS:
+  Indicador: Población de 18 años y más
+  Descripción: Personas de 18 a 130 años de edad.
+  Rangos: 0...999999999
+  Longitud: '9'
+P_18YMAS_F:
+  Indicador: Población femenina de 18 años y más
+  Descripción: Mujeres de 18 a 130 años de edad.
+  Rangos: 0...999999999
+  Longitud: '9'
+P_18YMAS_M:
+  Indicador: Población masculina de 18 años y más
+  Descripción: Hombres de 18 a 130 años de edad.
+  Rangos: 0...999999999
+  Longitud: '9'
+P_3A5:
+  Indicador: Población de 3 a 5 años
+  Descripción: Personas de 3 a 5 años de edad.
+  Rangos: 0...999999999
+  Longitud: '9'
+P_3A5_F:
+  Indicador: Población femenina de 3 a 5 años
+  Descripción: Mujeres de 3 a 5 años de edad.
+  Rangos: 0...999999999
+  Longitud: '9'
+P_3A5_M:
+  Indicador: Población masculina de 3 a 5 años
+  Descripción: Hombres de 3 a 5 años de edad.
+  Rangos: 0...999999999
+  Longitud: '9'
+P_6A11:
+  Indicador: Población de 6 a 11 años
+  Descripción: Personas de 6 a 11 años de edad.
+  Rangos: 0...999999999
+  Longitud: '9'
+P_6A11_F:
+  Indicador: Población femenina de 6 a 11 años
+  Descripción: Mujeres de 6 a 11 años de edad.
+  Rangos: 0...999999999
+  Longitud: '9'
+P_6A11_M:
+  Indicador: Población masculina de 6 a 11 años
+  Descripción: Hombres de 6 a 11 años de edad.
+  Rangos: 0...999999999
+  Longitud: '9'
+P_8A14:
+  Indicador: Población de 8 a 14 años
+  Descripción: Personas de 8 a 14 años de edad.
+  Rangos: 0...999999999
+  Longitud: '9'
+P_8A14_F:
+  Indicador: Población femenina de 8 a 14 años
+  Descripción: Mujeres de 8 a 14 años de edad.
+  Rangos: 0...999999999
+  Longitud: '9'
+P_8A14_M:
+  Indicador: Población masculina de 8 a 14 años
+  Descripción: Hombres de 8 a 14 años de edad.
+  Rangos: 0...999999999
+  Longitud: '9'
+P_12A14:
+  Indicador: Población de 12 a 14 años
+  Descripción: Personas de 12 a 14 años de edad.
+  Rangos: 0...999999999
+  Longitud: '9'
+P_12A14_F:
+  Indicador: Población femenina de 12 a 14 años
+  Descripción: Mujeres de 12 a 14 años de edad.
+  Rangos: 0...999999999
+  Longitud: '9'
+P_12A14_M:
+  Indicador: Población masculina de 12 a 14 años
+  Descripción: Hombres de 12 a 14 años de edad.
+  Rangos: 0...999999999
+  Longitud: '9'
+P_15A17:
+  Indicador: Población de 15 a 17 años
+  Descripción: Personas de 15 a 17 años de edad.
+  Rangos: 0...999999999
+  Longitud: '9'
+P_15A17_F:
+  Indicador: Población femenina de 15 a 17 años
+  Descripción: Mujeres de 15 a 17 años de edad.
+  Rangos: 0...999999999
+  Longitud: '9'
+P_15A17_M:
+  Indicador: Población masculina de 15 a 17 años
+  Descripción: Hombres de 15 a 17 años de edad.
+  Rangos: 0...999999999
+  Longitud: '9'
+P_18A24:
+  Indicador: Población de 18 a 24 años
+  Descripción: Personas de 18 a 24 años de edad.
+  Rangos: 0...999999999
+  Longitud: '9'
+P_18A24_F:
+  Indicador: Población femenina de 18 a 24 años
+  Descripción: Mujeres de 18 a 24 años de edad.
+  Rangos: 0...999999999
+  Longitud: '9'
+P_18A24_M:
+  Indicador: Población masculina de 18 a 24 años
+  Descripción: Hombres de 18 a 24 años de edad.
+  Rangos: 0...999999999
+  Longitud: '9'
+P_15A49_F:
+  Indicador: Población femenina de 15 a 49 años
+  Descripción: Mujeres de 15 a 49 años de edad.
+  Rangos: 0...999999999
+  Longitud: '9'
+P_60YMAS:
+  Indicador: Población de 60 años y más
+  Descripción: Personas de 60 a 130 años de edad.
+  Rangos: 0...999999999
+  Longitud: '9'
+P_60YMAS_F:
+  Indicador: Población femenina de 60 años y más
+  Descripción: Mujeres de 60 a 130 años de edad.
+  Rangos: 0...999999999
+  Longitud: '9'
+P_60YMAS_M:
+  Indicador: Población masculina de 60 años y más
+  Descripción: Hombres de 60 a 130 años de edad.
+  Rangos: 0...999999999
+  Longitud: '9'
+REL_H_M:
+  Indicador: Relación hombres-mujeres
+  Descripción: Resultado de dividir el total de hombres entre el total de mujeres
+    y multiplicarlo por cien. Indica el número de hombres por cada 100 mujeres.
+  Rangos: 0...999999999
+  Longitud: '9'
+POB0_14:
+  Indicador: Población de 0 a 14 años
+  Descripción: Personas de 0 a 14 años de edad.
+  Rangos: 0...999999999
+  Longitud: '9'
+POB15_64:
+  Indicador: Población de 15 a 64 años
+  Descripción: Personas de 15 a 64 años de edad.
+  Rangos: 0...999999999
+  Longitud: '9'
+POB65_MAS:
+  Indicador: Población de 65 años y más
+  Descripción: Personas de 65 a 130 años de edad.
+  Rangos: 0...999999999
+  Longitud: '9'
+P_0A4:
+  Indicador: Población de 0 a 4 años
+  Descripción: Personas de 0 a 4 años de edad.
+  Rangos: 0...999999999
+  Longitud: '9'
+P_0A4_F:
+  Indicador: Población femenina de 0 a 4 años
+  Descripción: Mujeres de 0 a 4 años de edad.
+  Rangos: 0...999999999
+  Longitud: '9'
+P_0A4_M:
+  Indicador: Población masculina de 0 a 4 años
+  Descripción: Hombres de 0 a 4 años de edad.
+  Rangos: 0...999999999
+  Longitud: '9'
+P_5A9:
+  Indicador: Población de 5 a 9 años
+  Descripción: Personas de 5 a 9 años de edad.
+  Rangos: 0...999999999
+  Longitud: '9'
+P_5A9_F:
+  Indicador: Población femenina de 5 a 9 años
+  Descripción: Mujeres de 5 a 9 años de edad.
+  Rangos: 0...999999999
+  Longitud: '9'
+P_5A9_M:
+  Indicador: Población masculina de 5 a 9 años
+  Descripción: Hombres de 5 a 9 años de edad.
+  Rangos: 0...999999999
+  Longitud: '9'
+P_10A14:
+  Indicador: Población de 10 a 14 años
+  Descripción: Personas de 10 a 14 años de edad.
+  Rangos: 0...999999999
+  Longitud: '9'
+P_10A14_F:
+  Indicador: Población femenina de 10 a 14 años
+  Descripción: Mujeres de 10 a 14 años de edad.
+  Rangos: 0...999999999
+  Longitud: '9'
+P_10A14_M:
+  Indicador: Población masculina de 10 a 14 años
+  Descripción: Hombres de 10 a 14 años de edad.
+  Rangos: 0...999999999
+  Longitud: '9'
+P_15A19:
+  Indicador: Población de 15 a 19 años
+  Descripción: Personas de 15 a 19 años de edad.
+  Rangos: 0...999999999
+  Longitud: '9'
+P_15A19_F:
+  Indicador: Población femenina de 15 a 19 años
+  Descripción: Mujeres de 15 a 19 años de edad.
+  Rangos: 0...999999999
+  Longitud: '9'
+P_15A19_M:
+  Indicador: Población masculina de 15 a 19 años
+  Descripción: Hombres de 15 a 19 años de edad.
+  Rangos: 0...999999999
+  Longitud: '9'
+P_20A24:
+  Indicador: Población de 20 a 24 años
+  Descripción: Personas de 20 a 24 años de edad.
+  Rangos: 0...999999999
+  Longitud: '9'
+P_20A24_F:
+  Indicador: Población femenina de 20 a 24 años
+  Descripción: Mujeres de 20 a 24 años de edad.
+  Rangos: 0...999999999
+  Longitud: '9'
+P_20A24_M:
+  Indicador: Población masculina de 20 a 24 años
+  Descripción: Hombres de 20 a 24 años de edad.
+  Rangos: 0...999999999
+  Longitud: '9'
+P_25A29:
+  Indicador: Población de 25 a 29 años
+  Descripción: Personas de 25 a 29 años de edad.
+  Rangos: 0...999999999
+  Longitud: '9'
+P_25A29_F:
+  Indicador: Población femenina de 25 a 29 años
+  Descripción: Mujeres de 25 a 29 años de edad.
+  Rangos: 0...999999999
+  Longitud: '9'
+P_25A29_M:
+  Indicador: Población masculina de 25 a 29 años
+  Descripción: Hombres de 25 a 29 años de edad.
+  Rangos: 0...999999999
+  Longitud: '9'
+P_30A34:
+  Indicador: Población de 30 a 34 años
+  Descripción: Personas de 30 a 34 años de edad.
+  Rangos: 0...999999999
+  Longitud: '9'
+P_30A34_F:
+  Indicador: Población femenina de 30 a 34 años
+  Descripción: Mujeres de 30 a 34 años de edad.
+  Rangos: 0...999999999
+  Longitud: '9'
+P_30A34_M:
+  Indicador: Población masculina de 30 a 34 años
+  Descripción: Hombres de 30 a 34 años de edad.
+  Rangos: 0...999999999
+  Longitud: '9'
+P_35A39:
+  Indicador: Población de 35 a 39 años
+  Descripción: Personas de 35 a 39 años de edad.
+  Rangos: 0...999999999
+  Longitud: '9'
+P_35A39_F:
+  Indicador: Población femenina de 35 a 39 años
+  Descripción: Mujeres de 35 a 39 años de edad.
+  Rangos: 0...999999999
+  Longitud: '9'
+P_35A39_M:
+  Indicador: Población masculina de 35 a 39 años
+  Descripción: Hombres de 35 a 39 años de edad.
+  Rangos: 0...999999999
+  Longitud: '9'
+P_40A44:
+  Indicador: Población de 40 a 44 años
+  Descripción: Personas de 40 a 44 años de edad.
+  Rangos: 0...999999999
+  Longitud: '9'
+P_40A44_F:
+  Indicador: Población femenina de 40 a 44 años
+  Descripción: Mujeres de 40 a 44 años de edad.
+  Rangos: 0...999999999
+  Longitud: '9'
+P_40A44_M:
+  Indicador: Población masculina de 40 a 44 años
+  Descripción: Hombres de 40 a 44 años de edad.
+  Rangos: 0...999999999
+  Longitud: '9'
+P_45A49:
+  Indicador: Población de 45 a 49 años
+  Descripción: Personas de 45 a 49 años de edad.
+  Rangos: 0...999999999
+  Longitud: '9'
+P_45A49_F:
+  Indicador: Población femenina de 45 a 49 años
+  Descripción: Mujeres de 45 a 49 años de edad.
+  Rangos: 0...999999999
+  Longitud: '9'
+P_45A49_M:
+  Indicador: Población masculina de 45 a 49 años
+  Descripción: Hombres de 45 a 49 años de edad.
+  Rangos: 0...999999999
+  Longitud: '9'
+P_50A54:
+  Indicador: Población de 50 a 54 años
+  Descripción: Personas de 50 a 54 años de edad.
+  Rangos: 0...999999999
+  Longitud: '9'
+P_50A54_F:
+  Indicador: Población femenina de 50 a 54 años
+  Descripción: Mujeres de 50 a 54 años de edad.
+  Rangos: 0...999999999
+  Longitud: '9'
+P_50A54_M:
+  Indicador: Población masculina de 50 a 54 años
+  Descripción: Hombres de 50 a 54 años de edad.
+  Rangos: 0...999999999
+  Longitud: '9'
+P_55A59:
+  Indicador: Población de 55 a 59 años
+  Descripción: Personas de 55 a 59 años de edad.
+  Rangos: 0...999999999
+  Longitud: '9'
+P_55A59_F:
+  Indicador: Población femenina de 55 a 59 años
+  Descripción: Mujeres de 55 a 59 años de edad.
+  Rangos: 0...999999999
+  Longitud: '9'
+P_55A59_M:
+  Indicador: Población masculina de 55 a 59 años
+  Descripción: Hombres de 55 a 59 años de edad.
+  Rangos: 0...999999999
+  Longitud: '9'
+P_60A64:
+  Indicador: Población de 60 a 64 años
+  Descripción: Personas de 60 a 64 años de edad.
+  Rangos: 0...999999999
+  Longitud: '9'
+P_60A64_F:
+  Indicador: Población femenina de 60 a 64 años
+  Descripción: Mujeres de 60 a 64 años de edad.
+  Rangos: 0...999999999
+  Longitud: '9'
+P_60A64_M:
+  Indicador: Población masculina de 60 a 64 años
+  Descripción: Hombres de 60 a 64 años de edad.
+  Rangos: 0...999999999
+  Longitud: '9'
+P_65A69:
+  Indicador: Población de 65 a 69 años
+  Descripción: Personas de 65 a 69 años de edad.
+  Rangos: 0...999999999
+  Longitud: '9'
+P_65A69_F:
+  Indicador: Población femenina de 65 a 69 años
+  Descripción: Mujeres de 65 a 69 años de edad.
+  Rangos: 0...999999999
+  Longitud: '9'
+P_65A69_M:
+  Indicador: Población masculina de 65 a 69 años
+  Descripción: Hombres de 65 a 69 años de edad.
+  Rangos: 0...999999999
+  Longitud: '9'
+P_70A74:
+  Indicador: Población de 70 a 74 años
+  Descripción: Personas de 70 a 74 años de edad.
+  Rangos: 0...999999999
+  Longitud: '9'
+P_70A74_F:
+  Indicador: Población femenina de 70 a 74 años
+  Descripción: Mujeres de 70 a 74 años de edad.
+  Rangos: 0...999999999
+  Longitud: '9'
+P_70A74_M:
+  Indicador: Población masculina de 70 a 74 años
+  Descripción: Hombres de 70 a 74 años de edad.
+  Rangos: 0...999999999
+  Longitud: '9'
+P_75A79:
+  Indicador: Población de 75 a 79 años
+  Descripción: Personas de 75 a 79 años de edad.
+  Rangos: 0...999999999
+  Longitud: '9'
+P_75A79_F:
+  Indicador: Población femenina de 75 a 79 años
+  Descripción: Mujeres de 75 a 79 años de edad.
+  Rangos: 0...999999999
+  Longitud: '9'
+P_75A79_M:
+  Indicador: Población masculina de 75 a 79 años
+  Descripción: Hombres de 75 a 79 años de edad.
+  Rangos: 0...999999999
+  Longitud: '9'
+P_80A84:
+  Indicador: Población de 80 a 84 años
+  Descripción: Personas de 80 a 84 años de edad.
+  Rangos: 0...999999999
+  Longitud: '9'
+P_80A84_F:
+  Indicador: Población femenina de 80 a 84 años
+  Descripción: Mujeres de 80 a 84 años de edad.
+  Rangos: 0...999999999
+  Longitud: '9'
+P_80A84_M:
+  Indicador: Población masculina de 80 a 84 años
+  Descripción: Hombres de 80 a 84 años de edad.
+  Rangos: 0...999999999
+  Longitud: '9'
+P_85YMAS:
+  Indicador: Población de 85 años y más
+  Descripción: Personas de 85 a 130 años de edad.
+  Rangos: 0...999999999
+  Longitud: '9'
+P_85YMAS_F:
+  Indicador: Población femenina de 85 años y más
+  Descripción: Mujeres de 85 a 130 años de edad.
+  Rangos: 0...999999999
+  Longitud: '9'
+P_85YMAS_M:
+  Indicador: Población masculina de 85 años y más
+  Descripción: Hombres de 85 a 130 años de edad.
+  Rangos: 0...999999999
+  Longitud: '9'
+PROM_HNV:
+  Indicador: Promedio de hijas e hijos nacidos vivos
+  Descripción: Resultado de dividir el total de hijas e hijos nacidos vivos de las
+    mujeres de 12 a 130 años de edad, entre el total de mujeres del mismo grupo de
+    edad. Excluye a las mujeres que no especificaron el número de hijas e hijos nacidos
+    vivos y a las que sí han tenido, pero no especificaron el total de ellos.
+  Rangos: 0...999999999
+  Longitud: '9'
+PNACENT:
+  Indicador: Población nacida en la entidad
+  Descripción: Personas nacidas en la misma entidad federativa.
+  Rangos: 0…999999999
+  Longitud: '9'
+PNACENT_F:
+  Indicador: Población femenina nacida en la entidad
+  Descripción: Mujeres nacidas en la misma entidad federativa.
+  Rangos: 0…999999999
+  Longitud: '9'
+PNACENT_M:
+  Indicador: Población masculina nacida en la entidad
+  Descripción: Hombres nacidos en la misma entidad federativa.
+  Rangos: 0…999999999
+  Longitud: '9'
+PNACOE:
+  Indicador: Población nacida en otra entidad
+  Descripción: Personas nacidas en otra entidad federativa.
+  Rangos: 0…999999999
+  Longitud: '9'
+PNACOE_F:
+  Indicador: Población femenina nacida en otra entidad
+  Descripción: Mujeres nacidas en otra entidad federativa.
+  Rangos: 0…999999999
+  Longitud: '9'
+PNACOE_M:
+  Indicador: Población masculina nacida en otra entidad
+  Descripción: Hombres nacidos en otra entidad federativa.
+  Rangos: 0…999999999
+  Longitud: '9'
+PRES2015:
+  Indicador: Población de 5 años y más residente en la entidad en marzo de 2015
+  Descripción: Personas de 5 a 130 años de edad que entre 2015 y 2020 residían en
+    la misma entidad federativa.
+  Rangos: 0…999999999
+  Longitud: '9'
+PRES2015_F:
+  Indicador: Población femenina de 5 años y más residente en la entidad en marzo de
+    2015
+  Descripción: Mujeres de 5 a 130 años de edad que entre 2015 y 2020 residían en la
+    misma entidad federativa.
+  Rangos: 0…999999999
+  Longitud: '9'
+PRES2015_M:
+  Indicador: Población masculina de 5 años y más residente en la entidad en marzo
+    de 2015
+  Descripción: Hombres de 5 a 130 años de edad que entre 2015 y 2020 residían en la
+    misma entidad federativa.
+  Rangos: 0…999999999
+  Longitud: '9'
+PRESOE15:
+  Indicador: Población de 5 años y más residente en otra entidad en marzo de 2015
+  Descripción: Personas de 5 a 130 años de edad que en el 2015 residían en otra entidad
+    federativa.
+  Rangos: 0…999999999
+  Longitud: '9'
+PRESOE15_F:
+  Indicador: Población femenina de 5 años y más residente en otra entidad en marzo
+    de 2015
+  Descripción: Mujeres de 5 a 130 años de edad que en 2015 residían en otra entidad
+    federativa.
+  Rangos: 0…999999999
+  Longitud: '9'
+PRESOE15_M:
+  Indicador: Población masculina de 5 años y más residente en otra entidad en marzo
+    de 2015
+  Descripción: Hombres de 5 a 130 años de edad que en 2015 residían en otra entidad
+    federativa.
+  Rangos: 0…999999999
+  Longitud: '9'
+P3YM_HLI:
+  Indicador: Población de 3 años y más que habla alguna lengua indígena
+  Descripción: Personas de 3 a 130 años de edad que hablan alguna lengua indígena.
+  Rangos: 0...999999999
+  Longitud: '9'
+P3YM_HLI_F:
+  Indicador: Población femenina de 3 años y más que habla alguna lengua indígena
+  Descripción: Mujeres de 3 a 130 años de edad que hablan alguna lengua indígena.
+  Rangos: 0...999999999
+  Longitud: '9'
+P3YM_HLI_M:
+  Indicador: Población masculina de 3 años y más que habla alguna lengua indígena
+  Descripción: Hombres de 3 a 130 años de edad que hablan alguna lengua indígena.
+  Rangos: 0...999999999
+  Longitud: '9'
+P3HLINHE:
+  Indicador: Población de 3 años y más que habla alguna lengua indígena y no habla
+    español
+  Descripción: Personas de 3 a 130 años de edad que hablan alguna lengua indígena
+    y además no hablan español.
+  Rangos: 0...999999999
+  Longitud: '9'
+P3HLINHE_F:
+  Indicador: Población femenina de 3 años y más que habla alguna lengua indígena y
+    no habla español
+  Descripción: Mujeres de 3 a 130 años de edad que hablan alguna lengua indígena y
+    además no hablan español.
+  Rangos: 0...999999999
+  Longitud: '9'
+P3HLINHE_M:
+  Indicador: Población masculina de 3 años y más que habla alguna lengua indígena
+    y no habla español
+  Descripción: Hombres de 3 a 130 años de edad que hablan alguna lengua indígena y
+    además no hablan español.
+  Rangos: 0...999999999
+  Longitud: '9'
+P3HLI_HE:
+  Indicador: Población de 3 años y más que habla alguna lengua indígena y habla español
+  Descripción: Personas de 3 a 130 años de edad que hablan alguna lengua indígena
+    y además hablan español.
+  Rangos: 0...999999999
+  Longitud: '9'
+P3HLI_HE_F:
+  Indicador: Población femenina de 3 años y más que habla alguna lengua indígena y
+    habla español
+  Descripción: Mujeres de 3 a 130 años de edad que hablan alguna lengua indígena y
+    además hablan español.
+  Rangos: 0...999999999
+  Longitud: '9'
+P3HLI_HE_M:
+  Indicador: Población masculina de 3 años y más que habla alguna lengua indígena
+    y habla español
+  Descripción: Hombres de 3 a 130 años de edad que hablan alguna lengua indígena y
+    además hablan español.
+  Rangos: 0...999999999
+  Longitud: '9'
+P5_HLI:
+  Indicador: Población de 5 años y más que habla alguna lengua indígena
+  Descripción: Personas de 5 a 130 años de edad que hablan alguna lengua indígena.
+  Rangos: 0...999999999
+  Longitud: '9'
+P5_HLI_NHE:
+  Indicador: Población de 5 años y más que habla alguna lengua indígena y no habla
+    español
+  Descripción: Personas de 5 a 130 años de edad que hablan alguna lengua indígena
+    y además no hablan español.
+  Rangos: 0...999999999
+  Longitud: '9'
+P5_HLI_HE:
+  Indicador: Población de 5 años y más que habla alguna lengua indígena y habla español
+  Descripción: Personas de 5 a 130 años de edad que hablan alguna lengua indígena
+    y además hablan español.
+  Rangos: 0...999999999
+  Longitud: '9'
+PHOG_IND:
+  Indicador: Población en hogares censales indígenas
+  Descripción: Total de personas que forman hogares censales donde la persona de referencia
+    del hogar o su cónyuge o alguno de los ascendientes de estos, declararon hablar
+    lengua indígena.
+  Rangos: 0...999999999
+  Longitud: '9'
+POB_AFRO:
+  Indicador: Población que se considera afromexicana o afrodescendiente
+  Descripción: Personas que se consideran afromexicanos o afrodescendientes.
+  Rangos: 0...999999999
+  Longitud: '9'
+POB_AFRO_F:
+  Indicador: Población femenina que se considera afromexicana o afrodescendiente
+  Descripción: Mujeres que se consideran afromexicanas o afrodescendientes.
+  Rangos: 0...999999999
+  Longitud: '9'
+POB_AFRO_M:
+  Indicador: Población masculina que se considera afromexicana o afrodescendiente
+  Descripción: Hombres que se consideran afromexicanos o afrodescendientes.
+  Rangos: 0...999999999
+  Longitud: '9'
+PCON_DISC:
+  Indicador: Población con discapacidad
+  Descripción: 'Personas que realizan con mucha dificultad o no pueden hacer al menos
+    una de las siguientes actividades: ver, aun usando lentes; oír, aun usando aparato
+    auditivo; caminar, subir o bajar; recordar o concentrarse; bañarse, vestirse o
+    comer; hablar o comunicarse.'
+  Rangos: 0...999999999
+  Longitud: '9'
+PCDISC_MOT:
+  Indicador: Población con discapacidad para caminar, subir o bajar
+  Descripción: Personas que tiene mucha dificultad o no pueden caminar, subir o bajar.
+  Rangos: 0...999999999
+  Longitud: '9'
+PCDISC_VIS:
+  Indicador: Población con discapacidad para ver, aun usando lentes
+  Descripción: Personas que tienen mucha dificultad o no pueden ver, aun cuando usen
+    lentes.
+  Rangos: 0...999999999
+  Longitud: '9'
+PCDISC_LENG:
+  Indicador: Población con discapacidad para hablar o comunicarse
+  Descripción: Personas que tienen mucha dificultad o no pueden hablar o comunicarse.
+  Rangos: 0...999999999
+  Longitud: '9'
+PCDISC_AUD:
+  Indicador: Población con discapacidad para oír, aun usando aparato auditivo
+  Descripción: Personas que tienen mucha dificultad o no pueden oír, aun usando aparato
+    auditivo.
+  Rangos: 0...999999999
+  Longitud: '9'
+PCDISC_MOT2:
+  Indicador: Población con discapacidad para vestirse, bañarse o comer
+  Descripción: Personas que tienen mucha dificultad o no pueden bañarse, vestirse
+    o comer.
+  Rangos: 0...999999999
+  Longitud: '9'
+PCDISC_MEN:
+  Indicador: Población con discapacidad para recordar o concentrarse
+  Descripción: Personas que tienen mucha dificultad o no pueden recordar o concentrarse.
+  Rangos: 0...999999999
+  Longitud: '9'
+PCON_LIMI:
+  Indicador: Población con limitación
+  Descripción: 'Personas que realizan con poca dificultad al menos una de las siguientes
+    actividades: ver, aun usando lentes; oír, aun usando aparato auditivo; caminar,
+    subir o bajar; recordar o concentrarse; bañarse, vestirse o comer; hablar o comunicarse.'
+  Rangos: 0...999999999
+  Longitud: '9'
+PCLIM_CSB:
+  Indicador: Población con limitación para caminar, subir o bajar
+  Descripción: Personas que tienen poca dificultad para caminar, subir o bajar.
+  Rangos: 0...999999999
+  Longitud: '9'
+PCLIM_VIS:
+  Indicador: Población con limitación para ver, aun usando lentes
+  Descripción: Personas que tienen poca dificultad para ver, aun usando lentes.
+  Rangos: 0...999999999
+  Longitud: '9'
+PCLIM_HACO:
+  Indicador: Población con limitación para hablar o comunicarse
+  Descripción: Personas que tienen poca dificultad para hablar o comunicarse.
+  Rangos: 0...999999999
+  Longitud: '9'
+PCLIM_OAUD:
+  Indicador: Población con limitación para oír, aun usando aparato auditivo
+  Descripción: Personas que tienen poca dificultad para oír, aun usando aparato auditivo.
+  Rangos: 0...999999999
+  Longitud: '9'
+PCLIM_MOT2:
+  Indicador: Población con limitación para vestirse, bañarse o comer
+  Descripción: Personas que tienen poca dificultad para bañarse, vestirse o comer.
+  Rangos: 0...999999999
+  Longitud: '9'
+PCLIM_RE_CO:
+  Indicador: Población con limitación para recordar o concentrarse
+  Descripción: Personas que tienen poca dificultad para recordar o concentrarse.
+  Rangos: 0...999999999
+  Longitud: '9'
+PCLIM_PMEN:
+  Indicador: Población con algún problema o condición mental
+  Descripción: Personas con algún problema o condición mental, como las relacionadas
+    con el trastorno de la conciencia, retraso mental y las alteraciones de la conducta
+    del individuo con otras personas en su entorno social. Incluye a la población
+    que declaró realizar actividades cotidianas con mucha dificultad o no poder hacerlas
+    o las hace con poca dificultad.
+  Rangos: 0...999999999
+  Longitud: '9'
+PSIND_LIM:
+  Indicador: Población sin discapacidad, limitación, problema o condición mental
+  Descripción: 'Personas que no tienen dificultad para realizar alguna actividad cotidiana
+    como: ver, aun usando lentes; oír aun usando aparato auditivo; caminar, subir
+    o bajar; recordar o concentrarse; bañarse, vestirse o comer; hablar o comunicarse,
+    ni tampoco tiene algún problema o condición mental.'
+  Rangos: 0...999999999
+  Longitud: '9'
+P3A5_NOA:
+  Indicador: Población de 3 a 5 años que no asiste a la escuela
+  Descripción: Personas de 3 a 5 años de edad que no van a la escuela.
+  Rangos: 0...999999999
+  Longitud: '9'
+P3A5_NOA_F:
+  Indicador: Población femenina de 3 a 5 años que no asiste a la escuela
+  Descripción: Mujeres de 3 a 5 años de edad que no van a la escuela.
+  Rangos: 0...999999999
+  Longitud: '9'
+P3A5_NOA_M:
+  Indicador: Población masculina de 3 a 5 años que no asiste a la escuela
+  Descripción: Hombres de 3 a 5 años de edad que no van a la escuela.
+  Rangos: 0...999999999
+  Longitud: '9'
+P6A11_NOA:
+  Indicador: Población de 6 a 11 años que no asiste a la escuela
+  Descripción: Personas de 6 a 11 años de edad que no van a la escuela.
+  Rangos: 0...999999999
+  Longitud: '9'
+P6A11_NOAF:
+  Indicador: Población femenina de 6 a 11 años que no asiste a la escuela
+  Descripción: Mujeres de 6 a 11 años de edad que no van a la escuela.
+  Rangos: 0...999999999
+  Longitud: '9'
+P6A11_NOAM:
+  Indicador: Población masculina de 6 a 11 años que no asiste a la escuela
+  Descripción: Hombres de 6 a 11 años de edad que no van a la escuela.
+  Rangos: 0...999999999
+  Longitud: '9'
+P12A14NOA:
+  Indicador: Población de 12 a 14 años que no asiste a la escuela
+  Descripción: Personas de 12 a 14 años de edad que no van a la escuela.
+  Rangos: 0...999999999
+  Longitud: '9'
+P12A14NOAF:
+  Indicador: Población femenina de 12 a 14 años que no asiste a la escuela
+  Descripción: Mujeres de 12 a 14 años de edad que no van a la escuela.
+  Rangos: 0...999999999
+  Longitud: '9'
+P12A14NOAM:
+  Indicador: Población masculina de 12 a 14 años que no asiste a la escuela
+  Descripción: Hombres de 12 a 14 años de edad que no van a la escuela.
+  Rangos: 0...999999999
+  Longitud: '9'
+P15A17A:
+  Indicador: Población de 15 a 17 años que asiste a la escuela
+  Descripción: Personas de 15 a 17 años de edad que van a la escuela.
+  Rangos: 0...999999999
+  Longitud: '9'
+P15A17A_F:
+  Indicador: Población femenina de 15 a 17 años que asiste a la escuela
+  Descripción: Mujeres de 15 a 17 años de edad que van a la escuela.
+  Rangos: 0...999999999
+  Longitud: '9'
+P15A17A_M:
+  Indicador: Población masculina de 15 a 17 años que asiste a la escuela
+  Descripción: Hombres de 15 a 17 años de edad que van a la escuela.
+  Rangos: 0...999999999
+  Longitud: '9'
+P18A24A:
+  Indicador: Población de 18 a 24 años que asiste a la escuela
+  Descripción: Personas de 18 a 24 años de edad que van a la escuela.
+  Rangos: 0...999999999
+  Longitud: '9'
+P18A24A_F:
+  Indicador: Población femenina de 18 a 24 años que asiste a la escuela
+  Descripción: Mujeres de 18 a 24 años de edad que van a la escuela.
+  Rangos: 0...999999999
+  Longitud: '9'
+P18A24A_M:
+  Indicador: Población masculina de 18 a 24 años que asiste a la escuela
+  Descripción: Hombres de 18 a 24 años de edad que van a la escuela.
+  Rangos: 0...999999999
+  Longitud: '9'
+P8A14AN:
+  Indicador: Población de 8 a 14 años que no sabe leer y escribir
+  Descripción: Personas de 8 a 14 años de edad que no saben leer y escribir un recado.
+  Rangos: 0...999999999
+  Longitud: '9'
+P8A14AN_F:
+  Indicador: Población femenina de 8 a 14 años que no sabe leer y escribir
+  Descripción: Mujeres de 8 a 14 años de edad que no saben leer y escribir un recado.
+  Rangos: 0...999999999
+  Longitud: '9'
+P8A14AN_M:
+  Indicador: Población masculina de 8 a 14 años que no sabe leer y escribir
+  Descripción: Hombres de 8 a 14 años de edad que no saben leer y escribir un recado.
+  Rangos: 0...999999999
+  Longitud: '9'
+P15YM_AN:
+  Indicador: Población de 15 años y más analfabeta
+  Descripción: Personas de 15 a 130 años de edad que no saben leer y escribir un recado.
+  Rangos: 0...999999999
+  Longitud: '9'
+P15YM_AN_F:
+  Indicador: Población femenina de 15 años y más analfabeta
+  Descripción: Mujeres de 15 a 130 años de edad que no saben leer y escribir un recado.
+  Rangos: 0...999999999
+  Longitud: '9'
+P15YM_AN_M:
+  Indicador: Población masculina de 15 años y más analfabeta
+  Descripción: Hombres de 15 a 130 años de edad que no saben leer y escribir un recado.
+  Rangos: 0...999999999
+  Longitud: '9'
+P15YM_SE:
+  Indicador: Población de 15 años y más sin escolaridad
+  Descripción: Personas de 15 a 130 años de edad que no aprobaron ningún grado escolar
+    o que sólo tienen nivel preescolar.
+  Rangos: 0...999999999
+  Longitud: '9'
+P15YM_SE_F:
+  Indicador: Población femenina de 15 años y más sin escolaridad
+  Descripción: Mujeres de 15 a 130 años de edad que no aprobaron ningún grado escolar
+    o que sólo tienen nivel preescolar.
+  Rangos: 0...999999999
+  Longitud: '9'
+P15YM_SE_M:
+  Indicador: Población masculina de 15 años y más sin escolaridad
+  Descripción: Hombres de 15 a 130 años de edad que no aprobaron ningún grado escolar
+    o que sólo tienen nivel preescolar.
+  Rangos: 0...999999999
+  Longitud: '9'
+P15PRI_IN:
+  Indicador: Población de 15 años y más con primaria incompleta
+  Descripción: Personas de 15 a 130 años de edad que tienen como máxima escolaridad
+    hasta el quinto grado aprobado en primaria. Incluye a las personas que no especificaron
+    los grados aprobados en el nivel señalado.
+  Rangos: 0...999999999
+  Longitud: '9'
+P15PRI_INF:
+  Indicador: Población femenina de 15 años y más con primaria incompleta
+  Descripción: Mujeres de 15 a 130 años de edad que tienen como máxima escolaridad
+    hasta el quinto grado aprobado en primaria. Incluye a las mujeres que no especificaron
+    los grados aprobados en el nivel señalado.
+  Rangos: 0...999999999
+  Longitud: '9'
+P15PRI_INM:
+  Indicador: Población masculina de 15 años y más con primaria incompleta
+  Descripción: Hombres de 15 a 130 años de edad que tienen como máxima escolaridad
+    hasta el quinto grado aprobado en primaria. Incluye a los hombres que no especificaron
+    los grados aprobados en el nivel señalado.
+  Rangos: 0...999999999
+  Longitud: '9'
+P15PRI_CO:
+  Indicador: Población de 15 años y más con primaria completa
+  Descripción: Personas de 15 a 130 años de edad que tienen como máxima escolaridad
+    6 grados aprobados en primaria.
+  Rangos: 0...999999999
+  Longitud: '9'
+P15PRI_COF:
+  Indicador: Población femenina de 15 años y más con primaria completa
+  Descripción: Mujeres de 15 a 130 años de edad que tienen como máxima escolaridad
+    6 grados aprobados en primaria.
+  Rangos: 0...999999999
+  Longitud: '9'
+P15PRI_COM:
+  Indicador: Población masculina de 15 años y más con primaria completa
+  Descripción: Hombres de 15 a 130 años de edad que tienen como máxima escolaridad
+    6 grados aprobados en primaria.
+  Rangos: 0...999999999
+  Longitud: '9'
+P15SEC_IN:
+  Indicador: Población de 15 años y más con secundaria incompleta
+  Descripción: Personas de 15 a 130 años de edad que tienen como máxima escolaridad
+    hasta segundo grado aprobado de secundaria. Incluye a las personas que no especificaron
+    los grados aprobados en el nivel señalado.
+  Rangos: 0...999999999
+  Longitud: '9'
+P15SEC_INF:
+  Indicador: Población femenina de 15 años y más con secundaria incompleta
+  Descripción: Mujeres de 15 a 130 años de edad que tienen como máxima escolaridad
+    hasta segundo grado aprobado de secundaria. Incluye a las mujeres que no especificaron
+    los grados aprobados en el nivel señalado.
+  Rangos: 0...999999999
+  Longitud: '9'
+P15SEC_INM:
+  Indicador: Población masculina de 15 años y más con secundaria incompleta
+  Descripción: Hombres de 15 a 130 años de edad que tienen como máxima escolaridad
+    hasta segundo grado aprobado de secundaria. Incluye a los hombres que no especificaron
+    los grados aprobados en el nivel señalado.
+  Rangos: 0...999999999
+  Longitud: '9'
+P15SEC_CO:
+  Indicador: Población de 15 años y más con secundaria completa
+  Descripción: Personas de 15 a 130 años de edad que tienen como máxima escolaridad
+    3 grados aprobados en secundaria.
+  Rangos: 0...999999999
+  Longitud: '9'
+P15SEC_COF:
+  Indicador: Población femenina de 15 años y más con secundaria completa
+  Descripción: Mujeres de 15 a 130 años de edad que tienen como máxima escolaridad
+    3 grados aprobados en secundaria.
+  Rangos: 0...999999999
+  Longitud: '9'
+P15SEC_COM:
+  Indicador: Población masculina de 15 años y más con secundaria completa
+  Descripción: Hombres de 15 a 130 años de edad que tienen como máxima escolaridad
+    3 grados aprobados en secundaria.
+  Rangos: 0...999999999
+  Longitud: '9'
+P18YM_PB:
+  Indicador: Población de 18 años y más con educación posbásica
+  Descripción: Personas de 18 a 130 años de edad que tienen como máxima escolaridad
+    algún grado aprobado en preparatoria o bachillerato; normal básica; estudios técnicos
+    o comerciales con secundaria terminada; estudios técnicos o comerciales con preparatoria
+    terminada; normal de licenciatura; licenciatura o profesional; especialidad; maestría
+    o doctorado. Incluye a las personas que no especificaron los grados aprobados
+    en los niveles señalados.
+  Rangos: 0...999999999
+  Longitud: '9'
+P18YM_PB_F:
+  Indicador: Población femenina de 18 años y más con educación posbásica
+  Descripción: 'Mujeres de 18 a 130 años de edad que tienen como máxima escolaridad
+    algún grado aprobado: preparatoria o bachillerato; normal básica; estudios técnicos
+    o comerciales con secundaria terminada; estudios técnicos o comerciales con preparatoria
+    terminada; normal de licenciatura; licenciatura o profesional; especialidad; maestría
+    o doctorado. Incluye a las personas que no especificaron los grados aprobados
+    en los niveles señalados.'
+  Rangos: 0...999999999
+  Longitud: '9'
+P18YM_PB_M:
+  Indicador: Población masculina de 18 años y más con educación posbásica
+  Descripción: Hombres de 18 a 130 años de edad que tienen como máxima escolaridad
+    algún grado aprobado en preparatoria o bachillerato; normal básica; estudios técnicos
+    o comerciales con secundaria terminada; estudios técnicos o comerciales con preparatoria
+    terminada; normal de licenciatura; licenciatura o profesional; especialidad; maestría
+    o doctorado. Incluye a las personas que no especificaron los grados aprobados
+    en los niveles señalados.
+  Rangos: 0...999999999
+  Longitud: '9'
+GRAPROES:
+  Indicador: Grado promedio de escolaridad
+  Descripción: Resultado de dividir el monto de grados escolares aprobados por las
+    personas de 15 a 130 años de edad entre las personas del mismo grupo de edad.
+    Excluye a las personas que no especificaron los grados aprobados.
+  Rangos: 0...999999999
+  Longitud: '9'
+GRAPROES_F:
+  Indicador: Grado promedio de escolaridad de la población femenina
+  Descripción: Resultado de dividir el monto de grados escolares aprobados por las
+    mujeres de 15 a 130 años de edad entre las mujeres del mismo grupo de edad. Excluye
+    a las mujeres que no especificaron los grados aprobados.
+  Rangos: 0...999999999
+  Longitud: '9'
+GRAPROES_M:
+  Indicador: Grado promedio de escolaridad de la población masculina
+  Descripción: Resultado de dividir el monto de grados escolares aprobados por los
+    hombres de 15 a 130 años de edad entre los hombres del mismo grupo de edad. Excluye
+    a los hombres que no especificaron los grados aprobados.
+  Rangos: 0...999999999
+  Longitud: '9'
+PEA:
+  Indicador: Población de 12 años y más económicamente activa
+  Descripción: Personas de 12 a 130 años de edad que trabajaron, tenían trabajo pero
+    no trabajaron o buscaron trabajo en la semana de referencia.
+  Rangos: 0..999999999
+  Longitud: '9'
+PEA_F:
+  Indicador: Población femenina de 12 años y más económicamente activa
+  Descripción: Mujeres de 12 a 130 años de edad que trabajaron, tenían trabajo pero
+    no trabajaron o buscaron trabajo en la semana de referencia.
+  Rangos: 0...999999999
+  Longitud: '9'
+PEA_M:
+  Indicador: Población masculina de 12 años y más económicamente activa
+  Descripción: Hombres de 12 a 130 años de edad que trabajaron, tenían trabajo pero
+    no trabajaron o buscaron trabajo en la semana de referencia.
+  Rangos: 0...999999999
+  Longitud: '9'
+PE_INAC:
+  Indicador: Población de 12 años y más no económicamente activa
+  Descripción: Personas de 12 a 130 años de edad pensionadas o jubiladas; estudiantes;
+    dedicadas a los quehaceres del hogar; están incapacitadas permanentemente para
+    trabajar; o no trabajan.
+  Rangos: 0...999999999
+  Longitud: '9'
+PE_INAC_F:
+  Indicador: Población femenina de 12 años y más no económicamente activa
+  Descripción: Mujeres de 12 a 130 años de edad pensionadas o jubiladas; estudiantes;
+    dedicadas a los quehaceres del hogar; están incapacitadas permanentemente para
+    trabajar; o no trabajan.
+  Rangos: 0...999999999
+  Longitud: '9'
+PE_INAC_M:
+  Indicador: Población masculina de 12 años y más no económicamente activa
+  Descripción: Hombres de 12 a 130 años de edad pensionados o jubilados; estudiantes;
+    dedicados a los quehaceres del hogar; están incapacitados permanentemente para
+    trabajar; o no trabajan.
+  Rangos: 0...999999999
+  Longitud: '9'
+POCUPADA:
+  Indicador: Población de 12 años y más ocupada
+  Descripción: Personas de 12 a 130 años de edad que trabajaron o que no trabajaron,
+    pero sí tenían trabajo en la semana de referencia.
+  Rangos: 0...999999999
+  Longitud: '9'
+POCUPADA_F:
+  Indicador: Población femenina de 12 años y más ocupada
+  Descripción: Mujeres de 12 a 130 años de edad que trabajaron o que no trabajaron,
+    pero sí tenían trabajo en la semana de referencia.
+  Rangos: 0...999999999
+  Longitud: '9'
+POCUPADA_M:
+  Indicador: Población masculina de 12 años y más ocupada
+  Descripción: Hombres de 12 a 130 años de edad que trabajaron o que no trabajaron,
+    pero sí tenían trabajo en la semana de referencia.
+  Rangos: 0...999999999
+  Longitud: '9'
+PDESOCUP:
+  Indicador: Población de 12 años y más desocupada
+  Descripción: Personas de 12 a 130 años de edad que no tenían trabajo, pero buscaron
+    trabajo en la semana de referencia.
+  Rangos: 0...999999999
+  Longitud: '9'
+PDESOCUP_F:
+  Indicador: Población femenina de 12 años y más desocupada
+  Descripción: Mujeres de 12 a 130 años de edad que no tenían trabajo, pero buscaron
+    trabajo en la semana de referencia.
+  Rangos: 0...999999999
+  Longitud: '9'
+PDESOCUP_M:
+  Indicador: Población masculina de 12 años y más desocupada
+  Descripción: Hombres de 12 a 130 años de edad que no tenían trabajo, pero buscaron
+    trabajo en la semana de referencia.
+  Rangos: 0...999999999
+  Longitud: '9'
+PSINDER:
+  Indicador: Población sin afiliación a servicios de salud
+  Descripción: Total de personas que no están afiliadas a servicios médicos en ninguna
+    institución pública o privada
+  Rangos: 0...999999999
+  Longitud: '9'
+PDER_SS:
+  Indicador: Población afiliada a servicios de salud
+  Descripción: 'Total de personas que están afiliadas a servicios médicos en alguna
+    institución de salud pública o privada como: el Instituto Mexicano del Seguro
+    Social (IMSS), el Instituto de Seguridad y Servicios Sociales de los Trabajadores
+    del Estado (ISSSTE e ISSSTE estatal), Petróleos Mexicanos (PEMEX), la Secretaría
+    de la Defensa Nacional (SEDENA), la Secretaría de Marina Armada de México (SEMAR),
+    el Instituto de Salud para el Bienestar (INSABI) o en otra.'
+  Rangos: 0...999999999
+  Longitud: '9'
+PDER_IMSS:
+  Indicador: Población afiliada a servicios de salud en el IMSS
+  Descripción: Total de personas que están afiliadas a servicios médicos en el Instituto
+    Mexicano del Seguro Social (IMSS).
+  Rangos: 0...999999999
+  Longitud: '9'
+PDER_ISTE:
+  Indicador: Población afiliada a servicios de salud en el ISSSTE
+  Descripción: Total de personas que están afiliadas a servicios médicos en el Instituto
+    de Seguridad y Servicios Sociales de los Trabajadores del Estado.
+  Rangos: 0...999999999
+  Longitud: '9'
+PDER_ISTEE:
+  Indicador: Población afiliada a servicios de salud en el ISSSTE estatal
+  Descripción: Total de personas que están afiliadas a servicios médicos en los institutos
+    de seguridad social de los estados (ISSSTE, ISSSEMyM, ISSSTEZAC, ISSSPEA o ISSSTESON).
+  Rangos: 0...999999999
+  Longitud: '9'
+PAFIL_PDOM:
+  Indicador: Población afiliada a servicios de salud en PEMEX, Defensa o Marina
+  Descripción: Total de personas que están afiliadas a servicios médicos en Petróleos
+    Mexicanos (PEMEX), la Secretaría de la Defensa Nacional (SEDENA) o la Secretaría
+    de Marina Armada de México (SEMAR).
+  Rangos: 0...999999999
+  Longitud: '9'
+PDER_SEGP:
+  Indicador: Población afiliada a servicios de salud en el Instituto de Salud para
+    el Bienestar
+  Descripción: Total de personas que están afiliadas a servicios médicos en la Secretaría
+    de Salud, mediante en el Instituto de Salud para el Bienestar.
+  Rangos: 0...999999999
+  Longitud: '9'
+PDER_IMSSB:
+  Indicador: Población afiliada a servicios de salud en el IMSS BIENESTAR
+  Descripción: Total de personas que están afiliadas a servicios médicos en el Instituto
+    Mexicano del Seguro Social (IMSS) BIENESTAR
+  Rangos: 0...999999999
+  Longitud: '9'
+PAFIL_IPRIV:
+  Indicador: Población afiliada a servicios de salud en una institución privada
+  Descripción: Total de personas que están afiliadas a servicios médicos en instituciones
+    de salud privadas.
+  Rangos: 0...999999999
+  Longitud: '9'
+PAFIL_OTRAI:
+  Indicador: Población afiliada a servicios de salud en otra institución
+  Descripción: Total de personas que están afiliadas a servicios médicos en cualquier
+    otra institución de salud pública o privada.
+  Rangos: 0...999999999
+  Longitud: '9'
+P12YM_SOLT:
+  Indicador: Población de 12 años y más soltera o nunca unida
+  Descripción: Personas de 12 a 130 años de edad solteras.
+  Rangos: 0...999999999
+  Longitud: '9'
+P12YM_CASA:
+  Indicador: Población de 12 años y más casada o unida
+  Descripción: Personas de 12 a 130 años de edad casadas sólo por el civil; casadas
+    sólo religiosamente o; casadas por el civil y religiosamente o en unión libre.
+  Rangos: 0...999999999
+  Longitud: '9'
+P12YM_SEPA:
+  Indicador: Población de 12 años y más que estuvo casada o unida
+  Descripción: Personas de 12 a 130 años de edad que están separadas, divorciadas
+    o viudas.
+  Rangos: 0...999999999
+  Longitud: '9'
+PCATOLICA:
+  Indicador: Población con religión católica
+  Descripción: Personas que tienen como creencia o preferencia espiritual la religión
+    católica
+  Rangos: 0...999999999
+  Longitud: '9'
+PRO_CRIEVA:
+  Indicador: Población con grupo religioso protestante/cristiano evangélico
+  Descripción: 'Incluye a las denominaciones religiosas del grupo protestante/cristiano
+    evangélico: protestante, pentecostal, iglesia del Dios vivo, columna y apoyo de
+    la verdad, la luz del mundo, cristiana, evangélica, iglesia de Jesucristo de los
+    santos de los últimos días (mormón) entre otras.'
+  Rangos: 0...999999999
+  Longitud: '9'
+POTRAS_REL:
+  Indicador: Población con otras religiones diferentes a las anteriores
+  Descripción: Personas con otras creencias o preferencias espirituales diferentes
+    a las anteriores.
+  Rangos: 0...999999999
+  Longitud: '9'
+PSIN_RELIG:
+  Indicador: Población sin religión o sin adscripción religiosa
+  Descripción: Personas que declararon no tener religión o no estar adscritas en alguna.
+  Rangos: 0...999999999
+  Longitud: '9'
+TOTHOG:
+  Indicador: Total de hogares censales
+  Descripción: Hogares en viviendas particulares habitadas. Se considera un hogar
+    en cada vivienda particular. Incluye casa única en el terreno; casa que comparte
+    terreno con otra(s); casa dúplex; departamento en edificio; vivienda en vecindad
+    o cuartería; vivienda en cuarto de azotea de un edificio; local no construido
+    para habitación; vivienda móvil; refugio y no especificado de vivienda particular.
+  Rangos: 0...999999999
+  Longitud: '9'
+HOGJEF_F:
+  Indicador: Hogares censales con persona de referencia mujer
+  Descripción: Hogares en viviendas particulares habitadas donde la persona de referencia
+    es mujer. Se considera un hogar en cada vivienda particular. Incluye casa única
+    en el terreno; casa que comparte terreno con otra(s); casa dúplex; departamento
+    en edificio; vivienda en vecindad o cuartería; vivienda en cuarto de azotea; local
+    no construido para habitación; vivienda móvil; refugio y no especificado de vivienda
+    particular.
+  Rangos: 0...999999999
+  Longitud: '9'
+HOGJEF_M:
+  Indicador: Hogares censales con persona de referencia hombre
+  Descripción: Hogares en viviendas particulares habitadas donde la persona de referencia
+    es hombre. Se considera un hogar en cada vivienda particular. Incluye casa única
+    en el terreno; casa que comparte terreno con otra(s); casa dúplex; departamento
+    en edificio; vivienda en vecindad o cuartería; vivienda en cuarto de azotea; local
+    no construido para habitación; vivienda móvil; refugio y no especificado de vivienda
+    particular.
+  Rangos: 0...999999999
+  Longitud: '9'
+POBHOG:
+  Indicador: Población en hogares censales
+  Descripción: Personas en hogares censales. Se considera un hogar en cada vivienda
+    particular. Incluye casa única en el terreno; casa que comparte terreno con otra(s);
+    casa dúplex; departamento en edificio; vivienda en vecindad o cuartería; vivienda
+    en cuarto de azotea; local no construido para habitación; vivienda móvil; refugio
+    y no especificado de vivienda particular.
+  Rangos: 0...99999999
+  Longitud: '9'
+PHOGJEF_F:
+  Indicador: Población en hogares censales con persona de referencia mujer
+  Descripción: Personas en hogares censales donde la persona de referencia es mujer.
+    Se considera un hogar en cada vivienda particular. Incluye casa única en el terreno;
+    casa que comparte terreno con otra(s); casa dúplex; departamento en edificio;
+    vivienda en vecindad o cuartería; vivienda en cuarto de azotea; local no construido
+    para habitación; vivienda móvil; refugio y no especificado de vivienda particular.
+  Rangos: 0...999999999
+  Longitud: '9'
+PHOGJEF_M:
+  Indicador: Población en hogares censales con persona de referencia hombre
+  Descripción: Personas en hogares censales donde la persona de referencia es hombre.
+    Se considera un hogar en cada vivienda particular. Incluye casa única en el terreno;
+    casa que comparte terreno con otra(s); casa dúplex; departamento en edificio;
+    vivienda en vecindad o cuartería; vivienda en cuarto de azotea; local no construido
+    para habitación; vivienda móvil; refugio y no especificado de vivienda particular.
+  Rangos: 0...999999999
+  Longitud: '9'
+VIVTOT:
+  Indicador: Total de viviendas
+  Descripción: Viviendas particulares habitadas, deshabitadas, de uso temporal y colectivas.
+    Incluye a las viviendas sin información de ocupantes.
+  Rangos: 0...999999999
+  Longitud: '9'
+TVIVHAB:
+  Indicador: Total de viviendas habitadas
+  Descripción: Viviendas particulares y colectivas habitadas. Incluye a las viviendas
+    sin información de ocupantes
+  Rangos: 0...999999999
+  Longitud: '9'
+TVIVPAR:
+  Indicador: Total de viviendas particulares
+  Descripción: Viviendas particulares habitadas, deshabitadas y de uso temporal. Excluye
+    a las viviendas sin información de ocupantes.
+  Rangos: 0...999999999
+  Longitud: '9'
+VIVPAR_HAB:
+  Indicador: Viviendas particulares habitadas
+  Descripción: 'Viviendas particulares habitadas de cualquier clase: casa única en
+    el terreno; casa que comparte terreno con otra(s); casa dúplex; departamento en
+    edificio; vivienda en vecindad o cuartería; vivienda en cuarto de azotea de un
+    edificio; local no construido para habitación, vivienda móvil; refugio y no especificado
+    de vivienda particular. Excluye a las viviendas particulares sin información de
+    ocupantes.'
+  Rangos: 0...999999999
+  Longitud: '9'
+VIVPARH_CV:
+  Indicador: Total de viviendas particulares habitadas con características
+  Descripción: Viviendas particulares habitadas a las que se les captan sus características,
+    incluye casa única en el terreno; casa que comparte terreno con otra(s); casa
+    dúplex; departamento en edificio; vivienda en vecindad o cuartería; vivienda en
+    cuarto de azotea de un edificio y no especificado de vivienda particular. Incluye
+    a las viviendas particulares sin información de ocupantes.
+  Rangos: 0...999999999
+  Longitud: '9'
+TVIVPARHAB:
+  Indicador: Total de viviendas particulares habitadas
+  Descripción: 'Viviendas particulares habitadas de cualquier clase: casa única en
+    el terreno; casa que comparte terreno con otra(s); casa dúplex; departamento en
+    edificio; vivienda en vecindad o cuartería; vivienda en cuarto de azotea de un
+    edificio; local no construido para habitación, vivienda móvil; refugio y no especificado
+    de vivienda particular. Incluye a las viviendas particulares sin información de
+    ocupantes.'
+  Rangos: 0...999999999
+  Longitud: '9'
+VIVPAR_DES:
+  Indicador: Viviendas particulares deshabitadas
+  Descripción: Viviendas particulares deshabitadas.
+  Rangos: 0...999999999
+  Longitud: '9'
+VIVPAR_UT:
+  Indicador: Viviendas particulares de uso temporal
+  Descripción: Viviendas particulares de uso temporal.
+  Rangos: 0...999999999
+  Longitud: '9'
+OCUPVIVPAR:
+  Indicador: Ocupantes en viviendas particulares habitadas
+  Descripción: 'Personas que residen en viviendas particulares habitadas de cualquier
+    clase: casa única en el terreno; casa que comparte terreno con otra(s); casa dúplex;
+    departamento en edificio; vivienda en vecindad o cuartería; vivienda en cuarto
+    de azotea de un edificio; local no construido para habitación, vivienda móvil;
+    refugio y no especificado de vivienda particular. Incluye una estimación de personas
+    en viviendas particulares sin información de ocupantes y menores omitidos.'
+  Rangos: 0...99999999
+  Longitud: '9'
+PROM_OCUP:
+  Indicador: Promedio de ocupantes en viviendas particulares habitadas
+  Descripción: Resultado de dividir el número de personas que residen en viviendas
+    particulares habitadas, entre el número de esas viviendas.
+  Rangos: 0...999999999
+  Longitud: '9'
+PRO_OCUP_C:
+  Indicador: Promedio de ocupantes por cuarto en viviendas particulares habitadas
+  Descripción: 'Resultado de dividir el número de personas que residen en viviendas
+    particulares habitadas entre el número de cuartos de esas viviendas. Comprende
+    las viviendas particulares para las que se captaron las características de la
+    vivienda, clasificadas como: casa única en el terreno; casa que comparte terreno
+    con otra(s); casa dúplex; departamento en edificio; vivienda en vecindad o cuartería;
+    vivienda en cuarto de azotea de un edificio y no especificado de vivienda particular.
+    Incluye a las viviendas particulares sin información de ocupantes.'
+  Rangos: 0...999999999
+  Longitud: '9'
+VPH_PISODT:
+  Indicador: Viviendas particulares habitadas con piso de material diferente de tierra
+  Descripción: 'Viviendas particulares habitadas con piso de cemento o firme, madera,
+    mosaico u otro material. Comprende las viviendas particulares para las que se
+    captaron las características de la vivienda, clasificadas como: casa única en
+    el terreno; casa que comparte terreno con otra(s); casa dúplex; departamento en
+    edificio; vivienda en vecindad o cuartería; vivienda en cuarto de azotea de un
+    edificio y no especificado de vivienda particular. Incluye a las viviendas particulares
+    sin información de ocupantes.'
+  Rangos: 0...999999999
+  Longitud: '9'
+VPH_PISOTI:
+  Indicador: Viviendas particulares habitadas con piso de tierra
+  Descripción: 'Viviendas particulares habitadas con piso de tierra. Comprende las
+    viviendas particulares para las que se captaron las características de la vivienda,
+    clasificadas como: casa única en el terreno; casa que comparte terreno con otra(s);
+    casa dúplex; departamento en edificio; vivienda en vecindad o cuartería; vivienda
+    en cuarto de azotea de un edificio y no especificado de vivienda particular. Incluye
+    a las viviendas particulares sin información de ocupantes.'
+  Rangos: 0...999999999
+  Longitud: '9'
+VPH_1DOR:
+  Indicador: Viviendas particulares habitadas con un dormitorio
+  Descripción: 'Viviendas particulares habitadas con un dormitorio. Comprende las
+    viviendas particulares para las que se captaron las características de la vivienda,
+    clasificadas como: casa única en el terreno; casa que comparte terreno con otra(s);
+    casa dúplex; departamento en edificio; vivienda en vecindad o cuartería; vivienda
+    en cuarto de azotea de un edificio y no especificado de vivienda particular. Incluye
+    a las viviendas particulares sin información de ocupantes.'
+  Rangos: 0… 999999999
+  Longitud: '9'
+VPH_2YMASD:
+  Indicador: Viviendas particulares habitadas con dos dormitorios y más
+  Descripción: 'Viviendas particulares habitadas que usan para dormir entre 2 y 25
+    cuartos. Comprende las viviendas particulares para las que se captaron las características
+    de la vivienda, clasificadas como: casa única en el terreno; casa que comparte
+    terreno con otra(s); casa dúplex; departamento en edificio; vivienda en vecindad
+    o cuartería; vivienda en cuarto de azotea de un edificio y no especificado de
+    vivienda particular. Incluye a las viviendas particulares sin información de ocupantes.'
+  Rangos: 0…999999999
+  Longitud: '9'
+VPH_1CUART:
+  Indicador: Viviendas particulares habitadas con sólo un cuarto
+  Descripción: 'Viviendas particulares habitadas que tienen sólo un cuarto. Comprende
+    las viviendas particulares para las que se captaron las características de la
+    vivienda, clasificadas como: casa única en el terreno; casa que comparte terreno
+    con otra(s); casa dúplex; departamento en edificio; vivienda en vecindad o cuartería;
+    vivienda en cuarto de azotea de un edificio y no especificado de vivienda particular.
+    Incluye a las viviendas particulares sin información de ocupantes.'
+  Rangos: 0…999999999
+  Longitud: '9'
+VPH_2CUART:
+  Indicador: Viviendas particulares habitadas con dos cuartos
+  Descripción: 'Viviendas particulares habitadas que tienen dos cuartos. Comprende
+    las viviendas particulares para las que se captaron las características de la
+    vivienda, clasificadas como: casa única en el terreno; casa que comparte terreno
+    con otra(s); casa dúplex; departamento en edificio; vivienda en vecindad o cuartería;
+    vivienda en cuarto de azotea de un edificio y no especificado de vivienda particular.
+    Incluye a las viviendas particulares sin información de ocupantes.'
+  Rangos: 0…999999999
+  Longitud: '9'
+VPH_3YMASC:
+  Indicador: Viviendas particulares habitadas con 3 cuartos y más
+  Descripción: 'Viviendas particulares habitadas que tienen entre 3 y 25 cuartos.
+    Comprende las viviendas particulares para las que se captaron las características
+    de la vivienda, clasificadas como: casa única en el terreno; casa que comparte
+    terreno con otra(s); casa dúplex; departamento en edificio; vivienda en vecindad
+    o cuartería; vivienda en cuarto de azotea de un edificio y no especificado de
+    vivienda particular. Incluye a las viviendas particulares sin información de ocupantes.'
+  Rangos: 0…999999999
+  Longitud: '9'
+VPH_C_ELEC:
+  Indicador: Viviendas particulares habitadas que disponen de energía eléctrica
+  Descripción: 'Viviendas particulares habitadas que tienen energía eléctrica. Comprende
+    las viviendas particulares para las que se captaron las características de la
+    vivienda, clasificadas como: casa única en el terreno; casa que comparte terreno
+    con otra(s); casa dúplex; departamento en edificio; vivienda en vecindad o cuartería;
+    vivienda en cuarto de azotea de un edificio y no especificado de vivienda particular.
+    Incluye a las viviendas particulares sin información de ocupantes.'
+  Rangos: 0…999999999
+  Longitud: '9'
+VPH_S_ELEC:
+  Indicador: Viviendas particulares habitadas que no disponen de energía eléctrica
+  Descripción: 'Viviendas particulares habitadas que no tienen energía eléctrica.
+    Comprende las viviendas particulares para las que se captaron las características
+    de la vivienda, clasificadas como: casa única en el terreno; casa que comparte
+    terreno con otra(s); casa dúplex; departamento en edificio; vivienda en vecindad
+    o cuartería; vivienda en cuarto de azotea de un edificio y no especificado de
+    vivienda particular. Incluye a las viviendas particulares sin información de ocupantes.'
+  Rangos: 0…999999999
+  Longitud: '9'
+VPH_AGUADV:
+  Indicador: Viviendas particulares habitadas que disponen de agua entubada en el
+    ámbito de la vivienda
+  Descripción: 'Viviendas particulares habitadas que tienen disponibilidad de agua
+    entubada dentro de la vivienda o sólo en el patio o terreno. Comprende las viviendas
+    particulares para las que se captaron las características de la vivienda, clasificadas
+    como: casa única en el terreno; casa que comparte terreno con otra(s); casa dúplex;
+    departamento en edificio; vivienda en vecindad o cuartería; vivienda en cuarto
+    de azotea de un edificio y no especificado de vivienda particular. Incluye a las
+    viviendas particulares sin información de ocupantes.'
+  Rangos: 0…999999999
+  Longitud: '9'
+VPH_AEASP:
+  Indicador: Viviendas particulares habitadas que disponen de agua entubada y se abastecen
+    del servicio público de agua
+  Descripción: 'Viviendas particulares habitadas que tienen agua entubada y se abastecen
+    del servicio público de agua. Comprende las viviendas particulares para las que
+    se captaron las características de la vivienda, clasificadas como: casa única
+    en el terreno; casa que comparte terreno con otra(s); casa dúplex; departamento
+    en edificio; vivienda en vecindad o cuartería; vivienda en cuarto de azotea de
+    un edificio y no especificado de vivienda particular. Incluye a las viviendas
+    particulares sin información de ocupantes.'
+  Rangos: 0…999999999
+  Longitud: '9'
+VPH_AGUAFV:
+  Indicador: Viviendas particulares habitadas que no disponen de agua entubada en
+    el ámbito de la vivienda
+  Descripción: 'Viviendas particulares habitadas que no tienen disponibilidad de agua
+    entubada. Comprende las viviendas particulares para las que se captaron las características
+    de la vivienda, clasificadas como: casa única en el terreno; casa que comparte
+    terreno con otra(s); casa dúplex; departamento en edificio; vivienda en vecindad
+    o cuartería; vivienda en cuarto de azotea de un edificio y no especificado de
+    vivienda particular. Incluye a las viviendas particulares sin información de ocupantes.'
+  Rangos: 0…999999999
+  Longitud: '9'
+VPH_TINACO:
+  Indicador: Viviendas particulares habitadas que disponen de tinaco
+  Descripción: 'Viviendas particulares habitadas que tienen tinaco. Comprende las
+    viviendas particulares para las que se captaron las características de la vivienda,
+    clasificadas como: casa única en el terreno; casa que comparte terreno con otra(s);
+    casa dúplex; departamento en edificio; vivienda en vecindad o cuartería; vivienda
+    en cuarto de azotea de un edificio y no especificado de vivienda particular. Incluye
+    a las viviendas particulares sin información de ocupantes.'
+  Rangos: 0…999999999
+  Longitud: '9'
+VPH_CISTER:
+  Indicador: Viviendas particulares habitadas que disponen de cisterna o aljibe
+  Descripción: 'Viviendas particulares habitadas que tienen cisterna o aljibe. Comprende
+    las viviendas particulares para las que se captaron las características de la
+    vivienda, clasificadas como: casa única en el terreno; casa que comparte terreno
+    con otra(s); casa dúplex; departamento en edificio; vivienda en vecindad o cuartería;
+    vivienda en cuarto de azotea de un edificio y no especificado de vivienda particular.
+    Incluye a las viviendas particulares sin información de ocupantes.'
+  Rangos: 0…999999999
+  Longitud: '9'
+VPH_EXCSA:
+  Indicador: Viviendas particulares habitadas que disponen de excusado o sanitario
+  Descripción: 'Viviendas particulares habitadas que tienen taza de baño (excusado
+    o sanitario). Comprende las viviendas particulares para las que se captaron las
+    características de la vivienda, clasificadas como: casa única en el terreno; casa
+    que comparte terreno con otra(s); casa dúplex; departamento en edificio; vivienda
+    en vecindad o cuartería; vivienda en cuarto de azotea de un edificio y no especificado
+    de vivienda particular. Incluye a las viviendas particulares sin información de
+    ocupantes.'
+  Rangos: 0…999999999
+  Longitud: '9'
+VPH_LETR:
+  Indicador: Viviendas particulares habitadas que disponen de letrina (pozo u hoyo)
+  Descripción: 'Viviendas particulares habitadas que tienen letrina (pozo u hoyo).
+    Comprende las viviendas particulares para las que se captaron las características
+    de la vivienda, clasificadas como: casa única en el terreno; casa que comparte
+    terreno con otra(s); casa dúplex; departamento en edificio; vivienda en vecindad
+    o cuartería; vivienda en cuarto de azotea de un edificio y no especificado de
+    vivienda particular. Incluye a las viviendas particulares sin información de ocupantes.'
+  Rangos: 0…999999999
+  Longitud: '9'
+VPH_DRENAJ:
+  Indicador: Viviendas particulares habitadas que disponen de drenaje
+  Descripción: 'Viviendas particulares habitadas que tienen drenaje conectado a la
+    red pública; una fosa séptica o tanque séptico (biodigestor); una tubería que
+    va a dar a una barranca o grieta, río, lago o mar. Comprende las viviendas particulares
+    para las que se captaron las características de la vivienda, clasificadas como:
+    casa única en el terreno; casa que comparte terreno con otra(s); casa dúplex;
+    departamento en edificio; vivienda en vecindad o cuartería; vivienda en cuarto
+    de azotea de un edificio y no especificado de vivienda particular. Incluye a las
+    viviendas particulares sin información de ocupantes.'
+  Rangos: 0…999999999
+  Longitud: '9'
+VPH_NODREN:
+  Indicador: Viviendas particulares habitadas que no disponen de drenaje
+  Descripción: 'Viviendas particulares habitadas que no tienen drenaje. Comprende
+    las viviendas particulares para las que se captaron las características de la
+    vivienda, clasificadas como: casa única en el terreno; casa que comparte terreno
+    con otra(s); casa dúplex; departamento en edificio; vivienda en vecindad o cuartería;
+    vivienda en cuarto de azotea de un edificio y no especificado de vivienda particular.
+    Incluye a las viviendas particulares sin información de ocupantes.'
+  Rangos: 0…999999999
+  Longitud: '9'
+VPH_C_SERV:
+  Indicador: Viviendas particulares habitadas que disponen de energía eléctrica, agua
+    entubada de la red pública y drenaje
+  Descripción: 'Viviendas particulares habitadas que tienen energía eléctrica, agua
+    entubada dentro de la vivienda o sólo en el patio o terreno y drenaje conectado
+    a la red pública; una fosa séptica o tanque séptico (biodigestor); una tubería
+    que va a dar a una barranca o grieta, río, lago o mar. Comprende las viviendas
+    particulares para las que se captaron las características de la vivienda, clasificadas
+    como: casa única en el terreno; casa que comparte terreno con otra(s); casa dúplex;
+    departamento en edificio; vivienda en vecindad o cuartería; vivienda en cuarto
+    de azotea de un edificio y no especificado de vivienda particular. Incluye a las
+    viviendas particulares sin información de ocupantes.'
+  Rangos: 0…999999999
+  Longitud: '9'
+VPH_NDEAED:
+  Indicador: Viviendas particulares habitadas que no disponen de energía eléctrica,
+    agua entubada, ni drenaje
+  Descripción: 'Viviendas particulares habitadas que no tienen energía eléctrica,
+    agua entubada ni drenaje. Comprende las viviendas particulares para las que se
+    captaron las características de la vivienda, clasificadas como: casa única en
+    el terreno; casa que comparte terreno con otra(s); casa dúplex; departamento en
+    edificio; vivienda en vecindad o cuartería; vivienda en cuarto de azotea de un
+    edificio y no especificado de vivienda particular. Incluye a las viviendas particulares
+    sin información de ocupantes.'
+  Rangos: 0…999999999
+  Longitud: '9'
+VPH_DSADMA:
+  Indicador: Viviendas particulares que disponen de drenaje y sanitario con admisión
+    de agua
+  Descripción: 'Viviendas particulares habitadas que tienen drenaje conectado a la
+    red pública; una fosa séptica o tanque séptico (biodigestor); una tubería que
+    va a dar a una barranca o grieta, río, lago o mar; taza de baño (excusado o sanitario);
+    letrina (pozo u hoyo) con admisión de agua. Comprende las viviendas particulares
+    para las que se captaron las características de la vivienda, clasificadas como:
+    casa única en el terreno; casa que comparte terreno con otra(s); casa dúplex;
+    departamento en edificio; vivienda en vecindad o cuartería; vivienda en cuarto
+    de azotea de un edificio y no especificado de vivienda particular. Incluye a las
+    viviendas particulares sin información de ocupantes.'
+  Rangos: 0…999999999
+  Longitud: '9'
+VPH_NDACMM:
+  Indicador: Viviendas particulares habitadas que no disponen de automóvil o camioneta,
+    ni de motocicleta o motoneta
+  Descripción: 'Viviendas particulares habitadas que no tienen automóvil o camioneta
+    ni motocicleta o motoneta. Comprende las viviendas particulares para las que se
+    captaron las características de la vivienda, clasificadas como: casa única en
+    el terreno; casa que comparte terreno con otra(s); casa dúplex; departamento en
+    edificio; vivienda en vecindad o cuartería; vivienda en cuarto de azotea de un
+    edificio y no especificado de vivienda particular. Incluye a las viviendas particulares
+    sin información de ocupantes.'
+  Rangos: 0…999999999
+  Longitud: '9'
+VPH_SNBIEN:
+  Indicador: Viviendas particulares habitadas sin ningún bien
+  Descripción: 'Viviendas particulares habitadas donde no cuentan con refrigerador;
+    lavadora; horno de microondas automóvil o camioneta; motocicleta o motoneta; bicicleta
+    que se utilice como medio de transporte; algún aparato o dispositivo para oír
+    radio; televisor; computadora, laptop o tablet; Internet; línea telefónica fija;
+    teléfono celular; servicio de televisión de paga (cable o satelital); servicio
+    de películas, música o videos de paga por Internet ni consola de videojuegos.
+    Comprende las viviendas particulares para las que se captaron las características
+    de la vivienda, clasificadas como: casa única en el terreno; casa que comparte
+    terreno con otra(s); casa dúplex; departamento en edificio; vivienda en vecindad
+    o cuartería; vivienda en cuarto de azotea de un edificio y no especificado de
+    vivienda particular. Incluye a las viviendas particulares sin información de ocupantes.'
+  Rangos: 0…999999999
+  Longitud: '9'
+VPH_REFRI:
+  Indicador: Viviendas particulares habitadas que disponen de refrigerador
+  Descripción: 'Viviendas particulares habitadas que tienen refrigerador. Comprende
+    las viviendas particulares para las que se captaron las características de la
+    vivienda, clasificadas como: casa única en el terreno; casa que comparte terreno
+    con otra(s); casa dúplex; departamento en edificio; vivienda en vecindad o cuartería;
+    vivienda en cuarto de azotea de un edificio y no especificado de vivienda particular.
+    Incluye a las viviendas particulares sin información de ocupantes.'
+  Rangos: 0…999999999
+  Longitud: '9'
+VPH_LAVAD:
+  Indicador: Viviendas particulares habitadas que disponen de lavadora
+  Descripción: 'Viviendas particulares habitadas que tienen lavadora. Comprende las
+    viviendas particulares para las que se captaron las características de la vivienda,
+    clasificadas como: casa única en el terreno; casa que comparte terreno con otra(s);
+    casa dúplex; departamento en edificio; vivienda en vecindad o cuartería; vivienda
+    en cuarto de azotea de un edificio y no especificado de vivienda particular. Incluye
+    a las viviendas particulares sin información de ocupantes.'
+  Rangos: 0…999999999
+  Longitud: '9'
+VPH_HMICRO:
+  Indicador: Viviendas particulares habitadas que disponen de horno de microondas
+  Descripción: 'Viviendas particulares habitadas que tienen horno de microondas. Comprende
+    las viviendas particulares para las que se captaron las características de la
+    vivienda, clasificadas como: casa única en el terreno; casa que comparte terreno
+    con otra(s); casa dúplex; departamento en edificio; vivienda en vecindad o cuartería;
+    vivienda en cuarto de azotea de un edificio y no especificado de vivienda particular.
+    Incluye a las viviendas particulares sin información de ocupantes.'
+  Rangos: 0…999999999
+  Longitud: '9'
+VPH_AUTOM:
+  Indicador: Viviendas particulares habitadas que disponen de automóvil o camioneta
+  Descripción: 'Viviendas particulares habitadas que tienen automóvil o camioneta.
+    Comprende las viviendas particulares para las que se captaron las características
+    de la vivienda, clasificadas como: casa única en el terreno; casa que comparte
+    terreno con otra(s); casa dúplex; departamento en edificio; vivienda en vecindad
+    o cuartería; vivienda en cuarto de azotea de un edificio y no especificado de
+    vivienda particular. Incluye a las viviendas particulares sin información de ocupantes.'
+  Rangos: 0…999999999
+  Longitud: '9'
+VPH_MOTO:
+  Indicador: Viviendas particulares habitadas que disponen de motocicleta o motoneta
+  Descripción: 'Viviendas particulares habitadas que tienen motocicleta o motoneta.
+    Comprende las viviendas particulares para las que se captaron las características
+    de la vivienda, clasificadas como: casa única en el terreno; casa que comparte
+    terreno con otra(s); casa dúplex; departamento en edificio; vivienda en vecindad
+    o cuartería; vivienda en cuarto de azotea de un edificio y no especificado de
+    vivienda particular. Incluye a las viviendas particulares sin información de ocupantes.'
+  Rangos: 0…999999999
+  Longitud: '9'
+VPH_BICI:
+  Indicador: Viviendas particulares habitadas que disponen de bicicleta como medio
+    de transporte
+  Descripción: 'Viviendas particulares habitadas que tienen bicicleta que se utilice
+    como medio de transporte. Comprende las viviendas particulares para las que se
+    captaron las características de la vivienda, clasificadas como: casa única en
+    el terreno; casa que comparte terreno con otra(s); casa dúplex; departamento en
+    edificio; vivienda en vecindad o cuartería; vivienda en cuarto de azotea de un
+    edificio y no especificado de vivienda particular. Incluye a las viviendas particulares
+    sin información de ocupantes.'
+  Rangos: 0…999999999
+  Longitud: '9'
+VPH_RADIO:
+  Indicador: Viviendas particulares habitadas que disponen de radio
+  Descripción: 'Viviendas particulares habitadas que tienen algún aparato o dispositivo
+    para oír radio. Comprende las viviendas particulares para las que se captaron
+    las características de la vivienda, clasificadas como: casa única en el terreno;
+    casa que comparte terreno con otra(s); casa dúplex; departamento en edificio;
+    vivienda en vecindad o cuartería; vivienda en cuarto de azotea de un edificio
+    y no especificado de vivienda particular. Incluye a las viviendas particulares
+    sin información de ocupantes.'
+  Rangos: 0…999999999
+  Longitud: '9'
+VPH_TV:
+  Indicador: Viviendas particulares habitadas que disponen de televisor
+  Descripción: 'Viviendas particulares habitadas que tienen televisor.  Comprende
+    las viviendas particulares para las que se captaron las características de la
+    vivienda, clasificadas como: casa única en el terreno; casa que comparte terreno
+    con otra(s); casa dúplex; departamento en edificio; vivienda en vecindad o cuartería;
+    vivienda en cuarto de azotea de un edificio y no especificado de vivienda particular.
+    Incluye a las viviendas particulares sin información de ocupantes.'
+  Rangos: 0…999999999
+  Longitud: '9'
+VPH_PC:
+  Indicador: Viviendas particulares habitadas que disponen de computadora, laptop
+    o tablet
+  Descripción: 'Viviendas particulares habitadas que tienen computadora, laptop o
+    tablet. Comprende las viviendas particulares para las que se captaron las características
+    de la vivienda, clasificadas como: casa única en el terreno; casa que comparte
+    terreno con otra(s); casa dúplex; departamento en edificio; vivienda en vecindad
+    o cuartería; vivienda en cuarto de azotea de un edificio y no especificado de
+    vivienda particular. Incluye a las viviendas particulares sin información de ocupantes.'
+  Rangos: 0…999999999
+  Longitud: '9'
+VPH_TELEF:
+  Indicador: Viviendas particulares habitadas que disponen de línea telefónica fija
+  Descripción: 'Viviendas particulares habitadas que tienen línea telefónica fija.
+    Comprende las viviendas particulares para las que se captaron las características
+    de la vivienda, clasificadas como: casa única en el terreno; casa que comparte
+    terreno con otra(s); casa dúplex; departamento en edificio; vivienda en vecindad
+    o cuartería; vivienda en cuarto de azotea de un edificio y no especificado de
+    vivienda particular. Incluye a las viviendas particulares sin información de ocupantes.'
+  Rangos: 0…999999999
+  Longitud: '9'
+VPH_CEL:
+  Indicador: Viviendas particulares habitadas que disponen de teléfono celular
+  Descripción: 'Viviendas particulares habitadas que tienen teléfono celular. Comprende
+    las viviendas particulares para las que se captaron las características de la
+    vivienda, clasificadas como: casa única en el terreno; casa que comparte terreno
+    con otra(s); casa dúplex; departamento en edificio; vivienda en vecindad o cuartería;
+    vivienda en cuarto de azotea de un edificio y no especificado de vivienda particular.
+    Incluye a las viviendas particulares sin información de ocupantes.'
+  Rangos: 0…999999999
+  Longitud: '9'
+VPH_INTER:
+  Indicador: Viviendas particulares habitadas que disponen de Internet
+  Descripción: 'Viviendas particulares habitadas que tienen Internet. Comprende las
+    viviendas particulares para las que se captaron las características de la vivienda,
+    clasificadas como: casa única en el terreno; casa que comparte terreno con otra(s);
+    casa dúplex; departamento en edificio; vivienda en vecindad o cuartería; vivienda
+    en cuarto de azotea de un edificio y no especificado de vivienda particular. Incluye
+    a las viviendas particulares sin información de ocupantes.'
+  Rangos: 0…999999999
+  Longitud: '9'
+VPH_STVP:
+  Indicador: Viviendas particulares habitadas que disponen de servicio de televisión
+    de paga
+  Descripción: 'Viviendas particulares habitadas que tienen servicio de televisión
+    de paga (cable o satelital). Comprende las viviendas particulares para las que
+    se captaron las características de la vivienda, clasificadas como: casa única
+    en el terreno; casa que comparte terreno con otra(s); casa dúplex; departamento
+    en edificio; vivienda en vecindad o cuartería; vivienda en cuarto de azotea de
+    un edificio y no especificado de vivienda particular. Incluye a las viviendas
+    particulares sin información de ocupantes.'
+  Rangos: 0…999999999
+  Longitud: '9'
+VPH_SPMVPI:
+  Indicador: Viviendas particulares habitadas que disponen de servicio de películas,
+    música o videos de paga por Internet
+  Descripción: 'Viviendas particulares habitadas que tienen servicio de películas,
+    música o videos de paga por Internet. Comprende las viviendas particulares para
+    las que se captaron las características de la vivienda, clasificadas como: casa
+    única en el terreno; casa que comparte terreno con otra(s); casa dúplex; departamento
+    en edificio; vivienda en vecindad o cuartería; vivienda en cuarto de azotea de
+    un edificio y no especificado de vivienda particular. Incluye a las viviendas
+    particulares sin información de ocupantes.'
+  Rangos: 0…999999999
+  Longitud: '9'
+VPH_CVJ:
+  Indicador: Viviendas particulares habitadas que disponen de consola de videojuegos
+  Descripción: 'Viviendas particulares habitadas que tienen consola de videojuegos.
+    Comprende las viviendas particulares para las que se captaron las características
+    de la vivienda, clasificadas como: casa única en el terreno; casa que comparte
+    terreno con otra(s); casa dúplex; departamento en edificio; vivienda en vecindad
+    o cuartería; vivienda en cuarto de azotea de un edificio y no especificado de
+    vivienda particular. Incluye a las viviendas particulares sin información de ocupantes.'
+  Rangos: 0…999999999
+  Longitud: '9'
+VPH_SINRTV:
+  Indicador: Viviendas particulares habitadas sin radio ni televisor
+  Descripción: 'Viviendas particulares habitadas que no cuentan con algún aparato
+    o dispositivo para oír radio ni televisor. Comprende las viviendas particulares
+    para las que se captaron las características de la vivienda, clasificadas como:
+    casa única en el terreno; casa que comparte terreno con otra(s); casa dúplex;
+    departamento en edificio; vivienda en vecindad o cuartería; vivienda en cuarto
+    de azotea de un edificio y no especificado de vivienda particular. Incluye a las
+    viviendas particulares sin información de ocupantes.'
+  Rangos: 0…999999999
+  Longitud: '9'
+VPH_SINLTC:
+  Indicador: Viviendas particulares habitadas sin línea telefónica fija ni teléfono
+    celular
+  Descripción: 'Viviendas particulares habitadas que no cuentan con línea telefónica
+    fija, ni teléfono celular. Comprende las viviendas particulares para las que se
+    captaron las características de la vivienda, clasificadas como: casa única en
+    el terreno; casa que comparte terreno con otra(s); casa dúplex; departamento en
+    edificio; vivienda en vecindad o cuartería; vivienda en cuarto de azotea de un
+    edificio y no especificado de vivienda particular. Incluye a las viviendas particulares
+    sin información de ocupantes.'
+  Rangos: 0…999999999
+  Longitud: '9'
+VPH_SINCINT:
+  Indicador: Viviendas particulares habitadas sin computadora ni Internet
+  Descripción: 'Viviendas particulares habitadas que no cuentan con computadora, laptop
+    o tablet ni Internet. Comprende las viviendas particulares para las que se captaron
+    las características de la vivienda, clasificadas como: casa única en el terreno;
+    casa que comparte terreno con otra(s); casa dúplex; departamento en edificio;
+    vivienda en vecindad o cuartería; vivienda en cuarto de azotea de un edificio
+    y no especificado de vivienda particular. Incluye a las viviendas particulares
+    sin información de ocupantes.'
+  Rangos: 0…999999999
+  Longitud: '9'
+VPH_SINTIC:
+  Indicador: Viviendas particulares habitadas sin tecnologías de la información y
+    de la comunicación (TIC)
+  Descripción: 'Viviendas particulares habitadas que no cuentan con algún aparato
+    o dispositivo para oír radio; televisor; computadora, laptop o tablet; línea telefónica
+    fija; teléfono celular; Internet; servicio de televisión de paga (cable o satelital);
+    servicio de películas, música o videos de paga por Internet ni consola de videojuegos.
+    Comprende las viviendas particulares para las que se captaron las características
+    de la vivienda, clasificadas como: casa única en el terreno; casa que comparte
+    terreno con otra(s); casa dúplex; departamento en edificio; vivienda en vecindad
+    o cuartería; vivienda en cuarto de azotea de un edificio y no especificado de
+    vivienda particular. Incluye a las viviendas particulares sin información de ocupantes.'
+  Rangos: 0…999999999
+  Longitud: '9'
+TAMLOC:
+  Indicador: Tamaño de localidad
+  Descripción: Total de personas que residen habitualmente en la localidad, y se clasifica
+    el tamaño con base en el número de la población de la localidad.
+  Rangos: 01..14
+  Longitud: '2'
