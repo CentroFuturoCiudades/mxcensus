@@ -4,6 +4,4 @@ __pycache__/
 dist/
 .venv/
 .uv/
-./data/
-*.parquet
-*.csv
+/data/

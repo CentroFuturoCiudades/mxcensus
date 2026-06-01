@@ -4,7 +4,9 @@ This script is for maintainers only — it is NOT part of the installed package.
 
 Steps
 -----
-1. Download raw ZIPs from INEGI for each requested state.
+1. Download raw ZIPs from INEGI for each requested state, verifying each
+   archive's integrity (truncation + per-member CRC) and re-downloading on
+   failure — INEGI's servers interrupt downloads. Disable with --no-verify.
 2. Convert each extracted CSV to parquet:
    - na_values=["N/D"] (INEGI's missing-data marker becomes NaN)
    - Natural dtype inference is preserved (numeric columns stay numeric;
@@ -28,6 +30,7 @@ Full build (all 32 states — takes a long time and significant bandwidth)
 from __future__ import annotations
 
 import argparse
+import zipfile
 from pathlib import Path
 
 import chardet
@@ -35,7 +38,6 @@ import pandas as pd
 import pooch
 
 from mxcensus.data._catalog import (
-    STATE_ABBR,
     STATE_CODE_FMT,
     cuestionario_ampliado_entry,
     iter_entry,
@@ -63,51 +65,120 @@ def _detect_encoding(path: Path) -> str:
     return "latin-1" if enc.lower() == "ascii" else enc
 
 
-def _download_raw(state: int, raw_dir: Path, cache_dir: Path) -> None:
-    """Download and extract all three ZIPs for one state."""
-    for entry_fn in (iter_entry, resargebub_entry, cuestionario_ampliado_entry):
-        entry = entry_fn(state)
-        zip_name = entry.url.rsplit("/", 1)[-1]
-        extract_dir = raw_dir / entry.dest.parent
-        extract_dir.mkdir(parents=True, exist_ok=True)
+def _fetch_zip(url: str, cache_dir: Path, zip_name: str) -> Path:
+    """Download one ZIP (no hash check, no extraction) and return its cached path."""
+    return Path(
         pooch.retrieve(
-            url=entry.url,
+            url=url,
             known_hash=None,
             path=cache_dir,
             fname=zip_name,
             progressbar=True,
-            processor=pooch.Unzip(extract_dir=str(extract_dir)),
         )
+    )
+
+
+def _verify_zip(zip_path: Path) -> str | None:
+    """Full-archive integrity check. Return None if OK, else a reason string.
+
+    Catches the two failure modes of an interrupted INEGI download:
+    a truncated archive (the central directory lives at the end of the file,
+    so ``ZipFile`` raises ``BadZipFile``), and silent byte corruption
+    (``testzip`` recomputes the CRC of every member).
+    """
+    try:
+        with zipfile.ZipFile(zip_path) as zf:
+            bad_member = zf.testzip()
+    except zipfile.BadZipFile as exc:
+        return f"not a valid/complete ZIP ({exc})"
+    if bad_member is not None:
+        return f"CRC check failed for member {bad_member!r}"
+    return None
+
+
+def _download_raw(
+    state: int, raw_dir: Path, cache_dir: Path, verify: bool, retries: int
+) -> None:
+    """Download, optionally verify, and extract all three ZIPs for one state.
+
+    With ``known_hash=None`` pooch reuses any file already in ``cache_dir``
+    without re-checking it, so a once-corrupt download would persist across
+    runs. Verification deletes a bad file and re-downloads up to ``retries``
+    times; on persistent failure it raises so the build stops loudly instead
+    of converting a truncated archive.
+    """
+    for entry_fn in (iter_entry, resargebub_entry, cuestionario_ampliado_entry):
+        entry = entry_fn(state)
+        zip_name = entry.url.rsplit("/", 1)[-1]
+        extract_dir = raw_dir / entry.extract_dir
+        extract_dir.mkdir(parents=True, exist_ok=True)
+
+        zip_path = _fetch_zip(entry.url, cache_dir, zip_name)
+
+        if verify:
+            reason = _verify_zip(zip_path)
+            attempt = 0
+            while reason is not None and attempt < retries:
+                attempt += 1
+                print(
+                    f"  ! {zip_name}: {reason} — deleting and re-downloading "
+                    f"(attempt {attempt}/{retries})"
+                )
+                zip_path.unlink(missing_ok=True)
+                zip_path = _fetch_zip(entry.url, cache_dir, zip_name)
+                reason = _verify_zip(zip_path)
+            if reason is not None:
+                zip_path.unlink(missing_ok=True)
+                raise RuntimeError(
+                    f"{zip_name}: {reason}. Removed from cache after {retries} "
+                    f"retr{'y' if retries == 1 else 'ies'}; re-run to try again."
+                )
+            print(f"  ✓ verified {zip_name}")
+
+        with zipfile.ZipFile(zip_path) as zf:
+            zf.extractall(extract_dir)
 
 
 def _csv_to_parquet(csv_path: Path, parquet_path: Path, encoding: str = "utf-8-sig") -> None:
-    """Convert a CSV to parquet with INEGI's N/D sentinel mapped to NaN."""
-    df = pd.read_csv(csv_path, encoding=encoding, na_values=["N/D"])
+    """Convert a CSV to parquet with INEGI's N/D sentinel mapped to NaN.
+
+    low_memory=False forces whole-column dtype inference. With pandas' default
+    chunked reading, a column whose codes look numeric in early chunks but turn
+    out mixed later (e.g. ITER's ALTITUD — zero-padded "0018" alongside "00-1"
+    markers and blank rows) lands as a mixed str/NaN object column that pyarrow
+    refuses to write. One-pass inference resolves it to a single string column
+    with proper nulls instead.
+    """
+    df = pd.read_csv(csv_path, encoding=encoding, na_values=["N/D"], low_memory=False)
     df.to_parquet(parquet_path, index=False)
     print(f"  wrote {parquet_path.name}  ({parquet_path.stat().st_size // 1024} KB)")
 
 
 def _build_state(state: int, raw_dir: Path, out_dir: Path) -> None:
     code = STATE_CODE_FMT(state)
-    abbr = STATE_ABBR[state]
-    folder = f"Censo2020_CA_{abbr}_csv"
 
-    # ITER — always utf-8-sig
-    iter_csv = raw_dir / "loc" / f"ITER_{code}CSV20.csv"
+    # ITER — locality-level. Nested: <root>/iter_NN_cpv2020/conjunto_de_datos/...
+    iter_csv = (
+        raw_dir / "loc" / f"iter_{code}_cpv2020"
+        / "conjunto_de_datos" / f"conjunto_de_datos_iter_{code}CSV20.csv"
+    )
     _csv_to_parquet(iter_csv, out_dir / f"iter_{code}.parquet")
 
-    # RESARGEBUB — encoding varies; detect with chardet
-    resargebub_csv = raw_dir / "ageb_manz" / f"RESAGEBURB_{code}CSV20.csv"
+    # RESARGEBUB — AGEB/block-level; encoding varies, detect with chardet.
+    resargebub_csv = (
+        raw_dir / "ageb_manz" / f"ageb_mza_urbana_{code}_cpv2020"
+        / "conjunto_de_datos" / f"conjunto_de_datos_ageb_urbana_{code}_cpv2020.csv"
+    )
     _csv_to_parquet(
         resargebub_csv,
         out_dir / f"resargebub_{code}.parquet",
         encoding=_detect_encoding(resargebub_csv),
     )
 
-    # Extended questionnaire (utf-8-sig for 2020 CA files)
-    base = raw_dir / "cuestionario_ampliado" / folder
-    _csv_to_parquet(base / f"Personas{state}.csv", out_dir / f"personas_{code}.parquet")
-    _csv_to_parquet(base / f"Viviendas{state}.csv", out_dir / f"viviendas_{code}.parquet")
+    # Extended questionnaire — flat ZIP, uppercase .CSV, zero-padded state code.
+    ca_dir = raw_dir / "cuestionario_ampliado"
+    _csv_to_parquet(ca_dir / f"Personas{code}.CSV", out_dir / f"personas_{code}.parquet")
+    _csv_to_parquet(ca_dir / f"Viviendas{code}.CSV", out_dir / f"viviendas_{code}.parquet")
 
 
 # ---------------------------------------------------------------------------
@@ -131,6 +202,11 @@ def main() -> None:
                         help="Output registry.txt path")
     parser.add_argument("--skip-download", action="store_true",
                         help="Skip downloading ZIPs (use existing raw CSVs)")
+    parser.add_argument("--no-verify", dest="verify", action="store_false",
+                        help="Skip the ZIP integrity check after each download")
+    parser.add_argument("--retries", type=int, default=2, metavar="N",
+                        help="Re-download attempts when a ZIP fails verification (default: 2)")
+    parser.set_defaults(verify=True)
     args = parser.parse_args()
 
     args.output.mkdir(parents=True, exist_ok=True)
@@ -140,7 +216,7 @@ def main() -> None:
     for state in args.states:
         print(f"\n=== State {state:02d} ===")
         if not args.skip_download:
-            _download_raw(state, args.raw_dir, args.cache_dir)
+            _download_raw(state, args.raw_dir, args.cache_dir, args.verify, args.retries)
         _build_state(state, args.raw_dir, args.output)
 
     print(f"\nGenerating registry at {args.registry} ...")
