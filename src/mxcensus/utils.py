@@ -1,3 +1,5 @@
+"""Shared utilities for category-map expansion and YAML generation from INEGI Excel dictionaries."""
+
 from pathlib import Path
 
 import pandas as pd
@@ -5,6 +7,7 @@ import yaml
 
 
 def expand_cat_map(cat_map: dict) -> dict:
+    """Expand range-key entries (e.g. ``"1..5": "label"``) into individual int → label pairs."""
     cat_map_new = {}
     for k, v in cat_map.items():
         if isinstance(k, str) and ".." in k:
@@ -28,7 +31,8 @@ def expand_cat_map(cat_map: dict) -> dict:
     return cat_map_new
 
 
-def get_cats_from_excel(excel_path: Path, sheet_name: str, opath: Path) -> Path:
+def get_cats_from_excel(excel_path: Path, sheet_name: str, opath: Path):
+    """Parse an INEGI data-dictionary Excel sheet and write a category YAML file to ``opath``."""
     df_dic = (
         pd.read_excel(
             excel_path,

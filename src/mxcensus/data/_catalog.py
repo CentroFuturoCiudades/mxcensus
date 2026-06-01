@@ -4,6 +4,7 @@ URL patterns were identified from the INEGI open-data portal for the
 Censo de Población y Vivienda 2020. Verify against the live portal before
 relying on downloads, as INEGI occasionally reorganises file locations.
 """
+
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -11,13 +12,38 @@ from pathlib import Path
 
 # Two-digit state ENTIDAD code → lowercase abbreviation used in CA filenames
 STATE_ABBR: dict[int, str] = {
-    1: "ags", 2: "bc", 3: "bcs", 4: "camp", 5: "coah",
-    6: "col", 7: "chis", 8: "chih", 9: "cdmx", 10: "dgo",
-    11: "gto", 12: "gro", 13: "hgo", 14: "jal", 15: "mex",
-    16: "mich", 17: "mor", 18: "nay", 19: "nl", 20: "oax",
-    21: "pue", 22: "qro", 23: "qroo", 24: "slp", 25: "sin",
-    26: "son", 27: "tab", 28: "tamps", 29: "tlax", 30: "ver",
-    31: "yuc", 32: "zac",
+    1: "ags",
+    2: "bc",
+    3: "bcs",
+    4: "camp",
+    5: "coah",
+    6: "col",
+    7: "chis",
+    8: "chih",
+    9: "cdmx",
+    10: "dgo",
+    11: "gto",
+    12: "gro",
+    13: "hgo",
+    14: "jal",
+    15: "mex",
+    16: "mich",
+    17: "mor",
+    18: "nay",
+    19: "nl",
+    20: "oax",
+    21: "pue",
+    22: "qro",
+    23: "qroo",
+    24: "slp",
+    25: "sin",
+    26: "son",
+    27: "tab",
+    28: "tamps",
+    29: "tlax",
+    30: "ver",
+    31: "yuc",
+    32: "zac",
 }
 
 
@@ -34,12 +60,15 @@ CATALOG_VERIFIED_DATE = "2025-05-29"
 
 @dataclass
 class CatalogEntry:
+    """URL, expected local path, and human description for one INEGI census file."""
+
     url: str
     dest: Path  # relative to data_dir
     description: str
 
 
 def iter_entry(state: int) -> CatalogEntry:
+    """Return the INEGI download entry for the ITER (locality-level) file of ``state``."""
     code = STATE_CODE_FMT(state)
     return CatalogEntry(
         url=f"{_BASE}/iter/iter_{code}CSV20.zip",
@@ -49,6 +78,7 @@ def iter_entry(state: int) -> CatalogEntry:
 
 
 def resargebub_entry(state: int) -> CatalogEntry:
+    """Return the INEGI download entry for the RESARGEBUB (AGEB/block-level) file of ``state``."""
     code = STATE_CODE_FMT(state)
     return CatalogEntry(
         url=f"{_BASE}/ageb_manzana/ageb/RESAGEBURB_{code}CSV20.zip",
@@ -58,7 +88,8 @@ def resargebub_entry(state: int) -> CatalogEntry:
 
 
 def cuestionario_ampliado_entry(state: int) -> CatalogEntry:
-    code = STATE_CODE_FMT(state)
+    """Return the INEGI download entry for the extended-questionnaire ZIP of ``state``."""
+    # code = STATE_CODE_FMT(state)
     abbr = STATE_ABBR[state]
     folder = f"Censo2020_CA_{abbr}_csv"
     return CatalogEntry(

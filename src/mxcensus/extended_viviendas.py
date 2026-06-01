@@ -1,4 +1,5 @@
 """Extended questionnaire household table: preprocessing, schema, and loader."""
+
 from __future__ import annotations
 
 import functools
@@ -10,12 +11,13 @@ import pandera.pandas as pa
 from mxcensus._resources import variables_viviendas
 from mxcensus.utils import expand_cat_map
 
-
 # ---------------------------------------------------------------------------
 # Preprocessing
 # ---------------------------------------------------------------------------
 
+
 def financiamiento_create_dummies(df):
+    """Combine up to three financing-source fields into binary dummy columns (capped at 1)."""
     df1 = pd.get_dummies(df.FINANCIAMIENTO1, prefix="FINANCIAMIENTO")
     df2 = pd.get_dummies(df.FINANCIAMIENTO2, prefix="FINANCIAMIENTO")
     df3 = pd.get_dummies(df.FINANCIAMIENTO3, prefix="FINANCIAMIENTO")
@@ -29,6 +31,7 @@ def financiamiento_create_dummies(df):
 
 
 def preprocessor(df):
+    """Apply all derived-column and category-mapping transformations to the raw viviendas DataFrame."""
     variables = variables_viviendas()
     df = df.copy()
 
@@ -188,7 +191,7 @@ def _build_schema() -> pa.DataFrameSchema:
             ),
             "CUADORM": pa.Column(
                 pd.CategoricalDtype(
-                    expand_cat_map(variables["CUADORM"]["Categorías"]).values()
+                    list(expand_cat_map(variables["CUADORM"]["Categorías"]).values())
                 ),
             ),
             "CUADORM_CAT": pa.Column(
@@ -196,7 +199,7 @@ def _build_schema() -> pa.DataFrameSchema:
             ),
             "TOTCUART": pa.Column(
                 pd.CategoricalDtype(
-                    expand_cat_map(variables["TOTCUART"]["Categorías"]).values()
+                    list(expand_cat_map(variables["TOTCUART"]["Categorías"]).values())
                 ),
             ),
             "TOTCUART_CAT": pa.Column(
@@ -233,7 +236,9 @@ def _build_schema() -> pa.DataFrameSchema:
                 pd.CategoricalDtype(variables["ABA_AGUA_ENTU"]["Categorías"].values()),
             ),
             "ABA_AGUA_NO_ENTU": pa.Column(
-                pd.CategoricalDtype(variables["ABA_AGUA_NO_ENTU"]["Categorías"].values()),
+                pd.CategoricalDtype(
+                    variables["ABA_AGUA_NO_ENTU"]["Categorías"].values()
+                ),
             ),
             "TINACO": _col_si_no_bpp,
             "CISTERNA": _col_si_no_bpp,
@@ -288,13 +293,19 @@ def _build_schema() -> pa.DataFrameSchema:
                 pd.CategoricalDtype(variables["FORMA_ADQUI"]["Categorías"].values()),
             ),
             "FINANCIAMIENTO1": pa.Column(
-                pd.CategoricalDtype(variables["FINANCIAMIENTO1"]["Categorías"].values()),
+                pd.CategoricalDtype(
+                    variables["FINANCIAMIENTO1"]["Categorías"].values()
+                ),
             ),
             "FINANCIAMIENTO2": pa.Column(
-                pd.CategoricalDtype(variables["FINANCIAMIENTO1"]["Categorías"].values()),
+                pd.CategoricalDtype(
+                    variables["FINANCIAMIENTO1"]["Categorías"].values()
+                ),
             ),
             "FINANCIAMIENTO3": pa.Column(
-                pd.CategoricalDtype(variables["FINANCIAMIENTO1"]["Categorías"].values()),
+                pd.CategoricalDtype(
+                    variables["FINANCIAMIENTO1"]["Categorías"].values()
+                ),
             ),
             "FINANCIAMIENTO_.+": pa.Column(pd.CategoricalDtype([0, 1]), regex=True),
             "DEUDA": pa.Column(
@@ -303,12 +314,12 @@ def _build_schema() -> pa.DataFrameSchema:
             "NUMPERS": pa.Column(int, pa.Check.between(1, 999)),
             "DUE1_NUM": pa.Column(
                 pd.CategoricalDtype(
-                    expand_cat_map(variables["DUE1_NUM"]["Categorías"]).values()
+                    list(expand_cat_map(variables["DUE1_NUM"]["Categorías"]).values())
                 ),
             ),
             "DUE2_NUM": pa.Column(
                 pd.CategoricalDtype(
-                    expand_cat_map(variables["DUE2_NUM"]["Categorías"]).values()
+                    list(expand_cat_map(variables["DUE2_NUM"]["Categorías"]).values())
                 ),
             ),
             "MCONMIG": pa.Column(
@@ -316,7 +327,7 @@ def _build_schema() -> pa.DataFrameSchema:
             ),
             "MNUMPERS": pa.Column(
                 pd.CategoricalDtype(
-                    expand_cat_map(variables["MNUMPERS"]["Categorías"]).values()
+                    list(expand_cat_map(variables["MNUMPERS"]["Categorías"]).values())
                 ),
             ),
             "INGR_PEROTROPAIS": _col_si_no,
@@ -360,7 +371,9 @@ def _build_schema() -> pa.DataFrameSchema:
                 pd.CategoricalDtype(variables["JEFE_SEXO"]["Categorías"].values())
             ),
             "JEFE_EDAD": pa.Column(
-                "Int64", parsers=pa.Parser(lambda s: s.replace(999, pd.NA)), nullable=True
+                "Int64",
+                parsers=pa.Parser(lambda s: s.replace(999, pd.NA)),
+                nullable=True,
             ),
             "TAMLOC": pa.Column(
                 pd.CategoricalDtype(variables["TAMLOC"]["Categorías"].values())
@@ -376,33 +389,31 @@ def _build_schema() -> pa.DataFrameSchema:
 # Loader
 # ---------------------------------------------------------------------------
 
+
 def load_extended_viviendas(
     survey_path: Path | None = None,
     *,
     state: int | None = None,
-    data_dir: Path | None = None,
 ) -> pd.DataFrame:
     """Load and validate the extended questionnaire household table.
 
     Two calling conventions:
 
-    Explicit path::
+    Explicit path (parquet from the mirror or your own file)::
 
-        load_extended_viviendas(Path("Viviendas14.parquet"))
+        load_extended_viviendas(Path("viviendas_14.parquet"))
 
-    State code (resolves from the XDG data directory)::
+    State code — fetches the raw parquet from the mxcensus mirror via Pooch::
 
         load_extended_viviendas(state=14)
-        load_extended_viviendas(state=14, data_dir=Path("~/my-data"))
     """
     if state is not None:
-        from mxcensus.data._paths import get_data_dir
-        from mxcensus.data._catalog import STATE_ABBR
+        from mxcensus.data._catalog import STATE_CODE_FMT
+        from mxcensus.data._registry import POOCH
 
-        base = data_dir or get_data_dir()
-        abbr = STATE_ABBR[state]
-        folder = f"Censo2020_CA_{abbr}_csv"
-        survey_path = base / "cuestionario_ampliado" / folder / f"Viviendas{state}.parquet"
+        code = STATE_CODE_FMT(state)
+        survey_path = Path(POOCH.fetch(f"viviendas_{code}.parquet"))
+
     if survey_path is None:
         raise ValueError("Provide either survey_path or state=")
 

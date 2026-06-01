@@ -1,13 +1,14 @@
+"""Contingency table builders driven by the constraint YAML specs."""
+
 import pandas as pd
 
 
 def get_tables_dict(constraints_dict, dtypes):
-    """Identify groups of indicators (census) belonging to the same table
-    We will index each table as a frozen set
-    An empty set identifies the total population, the top-most marginal
+    """Group constraint-dict indicators by their variable set and validate category membership.
 
-    To visualize the table we need the complete set fo categories for each variable
-    We can find these in the schema or in the dataframe with the data wich have been validated with such an schema"""
+    Returns a dict keyed by frozenset of variable names; each value has ``Vars``
+    (variable → ordered categories) and ``Cells`` (indicator → cell constraints).
+    """
 
     tables = {}
     for col, var_dict in constraints_dict.items():
@@ -28,6 +29,12 @@ def get_tables_dict(constraints_dict, dtypes):
 
 
 def create_cont_table(table, group=False):
+    """Build a contingency-table DataFrame from a ``get_tables_dict`` entry.
+
+    The variable with the most categories becomes the column axis; all others form
+    a MultiIndex row axis.  Pass ``group=True`` to collapse the innermost indicator
+    level into lists of indicator names per cell.
+    """
     var_dict = table["Vars"]
     cells_dict = table["Cells"]
 

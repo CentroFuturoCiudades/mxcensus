@@ -2,7 +2,6 @@
 from __future__ import annotations
 
 import argparse
-import sys
 
 
 def main() -> None:
@@ -12,35 +11,45 @@ def main() -> None:
     )
     sub = parser.add_subparsers(dest="cmd", required=True)
 
-    dl = sub.add_parser("download", help="Download INEGI Census 2020 data for a state")
-    dl.add_argument("state", type=int, metavar="STATE", help="State code (ENTIDAD), 1-32")
-    dl.add_argument(
-        "--dataset",
-        choices=["iter", "resargebub", "cuestionario_ampliado", "all"],
-        default="all",
-        dest="datasets",
-        help="Which dataset(s) to download (default: all)",
+    fetch_p = sub.add_parser(
+        "fetch",
+        help="Pre-download parquet files for a state from the mirror",
     )
-    dl.add_argument("--data-dir", type=str, default=None, metavar="DIR")
-    dl.add_argument("--force", action="store_true", help="Re-download existing files")
+    fetch_p.add_argument("state", type=int, metavar="STATE", help="State code (ENTIDAD), 1-32")
+    fetch_p.add_argument(
+        "--dataset",
+        choices=["iter", "resargebub", "personas", "viviendas", "all"],
+        default="all",
+        help="Which dataset(s) to fetch (default: all)",
+    )
 
-    sub.add_parser("info", help="Show resolved data directory and catalog info")
+    sub.add_parser("info", help="Show cache directory and mirror info")
 
     args = parser.parse_args()
 
-    if args.cmd == "download":
-        from pathlib import Path
-        from mxcensus.data import download, get_data_dir
+    if args.cmd == "fetch":
+        from mxcensus.data._registry import POOCH
+        from mxcensus.data._catalog import STATE_CODE_FMT
 
-        data_dir = Path(args.data_dir).expanduser() if args.data_dir else None
-        paths = download(args.state, datasets=args.datasets, data_dir=data_dir, force=args.force)
-        print(f"\nDownloaded {len(paths)} dataset(s).")
+        code = STATE_CODE_FMT(args.state)
+        datasets = (
+            ["iter", "resargebub", "personas", "viviendas"]
+            if args.dataset == "all"
+            else [args.dataset]
+        )
+        for ds in datasets:
+            fname = f"{ds}_{code}.parquet"
+            path = POOCH.fetch(fname, progressbar=True)
+            print(f"  {fname} → {path}")
+        print(f"\nFetched {len(datasets)} file(s).")
 
     elif args.cmd == "info":
-        from mxcensus.data import get_data_dir, CATALOG_VERIFIED_DATE
-        print(f"Data directory : {get_data_dir()}")
-        print(f"Catalog verified: {CATALOG_VERIFIED_DATE}")
-        print("Set $MXCENSUS_DATA_DIR to override the data directory.")
+        from mxcensus.data._registry import POOCH, _BASE_URL
+        from mxcensus.data._paths import get_pooch_cache_dir
+
+        print(f"Cache directory : {get_pooch_cache_dir()}")
+        print(f"Mirror base URL : {_BASE_URL}")
+        print("Set $MXCENSUS_CACHE_DIR to override the cache directory.")
 
 
 if __name__ == "__main__":
