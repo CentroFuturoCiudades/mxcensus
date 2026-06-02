@@ -5,3 +5,7 @@ dist/
 .venv/
 .uv/
 /data/
+
+/.quarto/
+**/*.quarto_ipynb
+/_site/

@@ -1,0 +1,43 @@
+project:
+  type: website
+
+website:
+  title: "MXcensus"
+  repo-url: https://github.com/CentroFuturoCiudades/mxcensus
+  repo-actions: [edit, source, issue]
+  navbar:
+    search: false
+    # logo: logo_CFC.png
+    tools:
+      - icon: github
+        menu:
+        - text: Source Code
+          href: https://github.com/CentroFuturoCiudades/mxcensus
+          target: _blank
+        - text: Start an issue
+          href: https://github.com/CentroFuturoCiudades/mxcensus/issues
+          target: _blank
+  sidebar:
+    style: "docked"
+    search: true
+    contents: auto
+format:
+  html:
+    theme:
+      - cosmo
+    toc: true
+    code-fold: false
+    code-tools: false
+    toc-depth: 4
+    toc-expand: true
+
+jupyter: python3
+
+execute:
+  echo: true
+  freeze: true
+  eval: false
+
+bibliography: docs/references.bib
+
+data: last-modified
