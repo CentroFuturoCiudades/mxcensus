@@ -36,6 +36,8 @@ def main() -> None:
         from mxcensus.data._catalog import STATE_CODE_FMT
 
         code = STATE_CODE_FMT(args.state)
+        if args.release and args.dataset != "denue":
+            parser.error("--release only applies to --dataset denue")
         if args.dataset == "denue":
             from mxcensus.data._denue_catalog import latest_release
             rel = args.release or latest_release().yyyymm

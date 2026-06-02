@@ -9,11 +9,19 @@ group to the latest schema (``g10``) so releases are longitudinally comparable.
 
 ``load_denue(state=N)`` returns the latest release harmonized; pass ``release=`` for a
 specific edition and ``harmonize=False`` to get that edition's raw schema.
+
+Maintenance note: the harmonization spec (``_RENAME``, ``_PER_OCU``) is hard-coded here
+and targets the *current* latest schema's mnemonic column names (``g10``). If a future
+INEGI release introduces a new majority schema that becomes ``latest`` in
+``denue_schema_map.yaml``, these dicts must be revisited — the descriptive-name renames
+all map onto g10's column names. ``_latest_schema`` itself reads ``latest`` dynamically
+from the map, so only the rename/per_ocu spec is era-pinned.
 """
 from __future__ import annotations
 
 import functools
 import json
+import warnings
 from hashlib import sha256
 from pathlib import Path
 
@@ -327,6 +335,10 @@ def _latest_schema() -> pa.DataFrameSchema:
     for c in cols:
         if c == "per_ocu":
             schema[c] = pa.Column(str, pa.Check.isin(_OCU_ALLOWED), nullable=True, coerce=True)
+        elif c == "codigo_act":  # SCIAN class code: 4–6 digits (nulls tolerated)
+            schema[c] = pa.Column(
+                str, pa.Check.str_matches(r"^\d{4,6}$"), nullable=True, coerce=True
+            )
         else:
             schema[c] = pa.Column(str, nullable=True, coerce=True)
     return pa.DataFrameSchema(schema, strict=False, coerce=True)
@@ -366,6 +378,20 @@ def _harmonize(gdf: gpd.GeoDataFrame, gid: str, latest_cols: list) -> gpd.GeoDat
         elif col.lower() in by_lower:  # mnemonic/UPPERCASE groups → exact latest casing
             rename[col] = by_lower[col.lower()]
         # else: unmapped → dropped below
+
+    # Guard against a stale rename map: an explicit target that never materialized
+    # means its source column name (a key in _RENAME[gid]) no longer matches the
+    # data, which would otherwise be masked as an all-null column by the add_null
+    # pass below. (A genuinely empty source column still materializes — it's present
+    # but null — so this fires only on an actual key mismatch.)
+    produced = {tgt for src_col, tgt in rename.items() if src_col in explicit}
+    missing_targets = set(explicit.values()) - produced
+    if missing_targets:
+        warnings.warn(
+            f"DENUE {gid}: rename target(s) {sorted(missing_targets)} not produced — "
+            f"source column(s) absent; _RENAME may be stale for this schema.",
+            stacklevel=2,
+        )
     gdf = gdf.rename(columns=rename)
     gdf = gdf[[c for c in gdf.columns if c in latest_cols or c == "geometry"]]
 
@@ -418,6 +444,10 @@ def load_denue(
         raise ValueError("Provide either state= or survey_path=")
 
     gdf = gpd.read_parquet(survey_path)
+    if gdf.crs is None or gdf.crs.to_epsg() != 4326:
+        raise ValueError(
+            f"DENUE file {survey_path} is not EPSG:4326 (got {gdf.crs}); stale mirror?"
+        )
     if harmonize:
         gid = _group_of(gdf, schema_map)
         latest_cols = schema_map["groups"][schema_map["latest"]]["columns"]

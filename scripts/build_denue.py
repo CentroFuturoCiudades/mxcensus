@@ -80,6 +80,18 @@ def _scan_parquet(path: Path) -> dict:
     }
 
 
+def _all_null_cols(path: Path) -> list[str]:
+    """Return the names of columns that are entirely null in one mirrored parquet.
+
+    Surfaces source data-quality gaps — e.g. the 2012 typo variant (group g04, states
+    12/14) ships empty ``Entidad federativa``/``Municipio``/``nombre_act`` name columns
+    while their numeric code columns are populated. Read fully (not metadata) since
+    null-ness isn't in the schema.
+    """
+    df = pd.read_parquet(path)
+    return [c for c in df.columns if c != "geometry" and df[c].isna().all()]
+
+
 def _locate_data_csv(extract_dir: Path) -> Path:
     """Find the establishments CSV across DENUE layouts.
 
@@ -112,6 +124,10 @@ def _read_csv_robust(csv_path: Path) -> tuple[pd.DataFrame, str]:
             return pd.read_csv(csv_path, encoding=enc, dtype=str, low_memory=False), enc
         except UnicodeDecodeError:
             continue
+    # latin-1 decodes any byte, so it never raises UnicodeDecodeError: a structurally
+    # malformed CSV slips through as garbage rows rather than failing here. Such a file
+    # gets an unrecognised column fingerprint and is rejected loudly at load_denue time
+    # (and flagged by the within-release disagreement check in the report).
     return pd.read_csv(csv_path, encoding="latin-1", dtype=str, low_memory=False), "latin-1"
 
 
@@ -256,14 +272,27 @@ def _write_report(out_dir: Path, report_path: Path) -> dict:
             "size_kb": sum(r["size_kb"] for r in recs),
         }
 
-    # Schema groups: stable g01.. by earliest release.
+    # Schema groups: stable g01.. assigned per *file* (sorted by release, then state),
+    # matching denue_schema_map.yaml — so minority within-release schemas (e.g. the
+    # 2012 typo variant in states 12/14) get their own group rather than being hidden
+    # behind a release's lowest-state canonical file.
     fp_to_id: dict[str, str] = {}
-    for yyyymm in releases:
-        fp = per_release[yyyymm]["fingerprint"]
+    fp_cols: dict[str, list] = {}
+    rels_per_fp: dict[str, set] = defaultdict(set)
+    files_per_fp: dict[str, int] = defaultdict(int)
+    for r in sorted(records, key=lambda r: (r["release"], r["state"])):
+        fp = r["fingerprint"]
         if fp not in fp_to_id:
             fp_to_id[fp] = f"g{len(fp_to_id) + 1:02d}"
+            fp_cols[fp] = r["columns"]
+        rels_per_fp[fp].add(r["release"])
+        files_per_fp[fp] += 1
 
-    # Duplicate detection: identical output content across (release, state).
+    # Duplicate detection: identical output content across (release, state). Reliable
+    # within a single build (all files written by the same pyarrow, whose version
+    # string is embedded in the footer); do NOT compare these hashes against a
+    # registry produced by a different pyarrow version — identical input would hash
+    # differently. The genuine same-CSV duplicates this catches are intra-run.
     by_hash: dict[str, list[str]] = {}
     for r in records:
         by_hash.setdefault(r["content_hash"], []).append(f"{r['release']}/{r['state']}")
@@ -286,10 +315,10 @@ def _write_report(out_dir: Path, report_path: Path) -> dict:
 
     L += ["", "## 2. Schema groups", ""]
     for fp, sid in fp_to_id.items():
-        rels = [r for r in releases if per_release[r]["fingerprint"] == fp]
-        cols = next(per_release[r]["columns"] for r in releases
-                    if per_release[r]["fingerprint"] == fp)
-        L.append(f"### {sid} — {len(cols)} columns (releases: {', '.join(rels)})")
+        cols = fp_cols[fp]
+        rels = sorted(rels_per_fp[fp])
+        L.append(f"### {sid} — {len(cols)} columns, {files_per_fp[fp]} file(s) "
+                 f"(releases: {', '.join(rels)})")
         L.append("`" + ", ".join(cols) + "`")
         L.append("")
 
@@ -324,6 +353,25 @@ def _write_report(out_dir: Path, report_path: Path) -> dict:
 
     L += ["", "## 6. Within-release schema disagreements", ""]
     L += [f"- {d}" for d in disagreements] or ["None."]
+
+    # Representative file per schema group (earliest release, lowest state) → its
+    # all-null columns. Flags source name-fields that are empty even though their
+    # code counterpart is populated (e.g. g04's Entidad federativa/Municipio).
+    rep_path: dict[str, Path] = {}
+    for p in sorted(out_dir.glob("denue_*.parquet")):
+        _, rel, code = p.stem.split("_")
+        cols = [c for c in pq.ParquetFile(p).schema_arrow.names if c != "geometry"]
+        gid = fp_to_id[_fingerprint_cols(cols)]
+        if gid not in rep_path:
+            rep_path[gid] = p
+    L += ["", "## 7. Empty columns by schema group "
+          "(all-null in the group's representative file)", ""]
+    empties = []
+    for gid in sorted(rep_path):
+        nulls = _all_null_cols(rep_path[gid])
+        if nulls:
+            empties.append(f"- {gid} (`{rep_path[gid].name}`): {nulls}")
+    L += empties or ["None — every column populated in all representative files."]
 
     report_path.parent.mkdir(parents=True, exist_ok=True)
     report_path.write_text("\n".join(L) + "\n", encoding="utf-8")
