@@ -422,7 +422,7 @@ groups:
     - FECHA_ALTA
   g10:
     n_columns: 42
-    files: 252
+    files: 284
     releases:
     - '202105'
     - '202111'
@@ -432,6 +432,7 @@ groups:
     - '202405'
     - '202411'
     - '202505'
+    - '202605'
     columns:
     - id
     - clee

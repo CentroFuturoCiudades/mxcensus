@@ -1,6 +1,6 @@
 # DENUE validation report
 
-Each mirrored file validated against its group's tight schema (`_group_schema`). Files: 768. Failing: 50.
+Each mirrored file validated against its group's tight schema (`_group_schema`). Files: 800. Failing: 50.
 
 ## denue_201100_08.parquet (g02) — FAIL
 - `Código postal` / str_matches('^\s*\d{1,5}\s*$'): 1 row(s), e.g. `A.P.`

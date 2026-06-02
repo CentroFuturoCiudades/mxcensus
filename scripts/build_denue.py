@@ -170,6 +170,20 @@ def _read_csv_robust(csv_path: Path) -> tuple[pd.DataFrame, str]:
     return df, enc
 
 
+def _cache_name(url: str, yyyymm: str) -> str:
+    """Release-qualified cache filename for a ZIP url.
+
+    Dated editions carry the date in their folder segment (e.g. ``2025_05`` →
+    ``2025_05_denue_09_0525_csv.zip``), which already disambiguates them. The current
+    *undated* edition sits at ``masiva/denue/denue_{state}_csv.zip`` — its folder segment
+    is the generic ``denue`` and the filename is identical across editions, so qualify it
+    with the release id (the 2013-Jul/Oct collision class). Both ``_read_part`` (download)
+    and ``_zip_name_for`` (dictionary lookup) must agree on this name.
+    """
+    folder, fname = url.rstrip("/").rsplit("/", 2)[-2:]
+    return f"{yyyymm}_{fname}" if folder == "denue" else f"{folder}_{fname}"
+
+
 def _read_part(
     entry, raw_dir: Path, cache_dir: Path, retries: int
 ) -> tuple[pd.DataFrame, str, Path]:
@@ -182,14 +196,7 @@ def _read_part(
     # file literally named denue_{NN}_2013_csv.zip, so a basename-only cache key makes
     # the second release silently reuse the first's download. Prefix with the folder
     # segment (e.g. "2013_OCTUBRE_denue_09_2013_csv.zip") to keep them distinct.
-    folder, fname = entry.url.rstrip("/").rsplit("/", 2)[-2:]
-    zip_name = f"{folder}_{fname}"
-    # The current (undated) edition lives at masiva/denue/denue_{state}_csv.zip — its
-    # folder segment is the generic "denue", so the filename is identical across
-    # editions. Qualify the cache key with the release id (from extract_dir =
-    # denue/<yyyymm>/<code>) so a future undated edition can't reuse this one's download.
-    if folder == "denue":
-        zip_name = f"{entry.extract_dir.parts[1]}_{fname}"
+    zip_name = _cache_name(entry.url, entry.extract_dir.parts[1])  # parts: denue/<yyyymm>/<code>
     extract_dir = raw_dir / entry.extract_dir
     extract_dir.mkdir(parents=True, exist_ok=True)
     zip_path = bc.fetch_zip_verified(entry.url, cache_dir, zip_name, retries)
@@ -538,8 +545,7 @@ def _extract_dictionary(zip_path: Path) -> dict:
 def _zip_name_for(rel: str, code: str) -> str:
     """Release-qualified cache filename for a (release, state) dictionary zip."""
     entry = denue_zip_entry(RELEASES_BY_YYYYMM[rel], int(code))[0]
-    folder, fname = entry.url.rstrip("/").rsplit("/", 2)[-2:]
-    return f"{folder}_{fname}"
+    return _cache_name(entry.url, rel)
 
 
 def _canonical_mnemonic_dict(cache_dir: Path) -> dict:
