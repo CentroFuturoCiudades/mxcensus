@@ -436,6 +436,25 @@ def _write_report(out_dir: Path, report_path: Path) -> dict:
             empties.append(f"- {gid} (`{rep_path[gid].name}`): {nulls}")
     L += empties or ["None — every column populated in all representative files."]
 
+    # Schema-group matrix: states (rows) × releases (cols), cell = group id. The single
+    # best view of the grouping — read across a row for a state's drift over time, down a
+    # column for within-release disagreements (§6). Markdown can't colour cells, so the
+    # group id is the key.
+    cell = {(r["release"], int(r["state"])): fp_to_id[r["fingerprint"]] for r in records}
+    gid_cols = {fp_to_id[fp]: len(fp_cols[fp]) for fp in fp_to_id}
+    legend = ", ".join(f"{g} ({gid_cols[g]} cols)" for g in sorted(gid_cols))
+    L += ["", "## 8. Schema-group matrix (state × release)", "",
+          "Each cell is the schema-group id of that state's file in that release "
+          "(blank = absent). Read **across a row** for a state's schema drift over time, "
+          "**down a column** to spot within-release disagreements (a column with more "
+          "than one id; see §6).", "",
+          f"Legend: {legend}.", "",
+          "| state | " + " | ".join(releases) + " |",
+          "|" + "---|" * (len(releases) + 1)]
+    for st in range(1, 33):
+        row = [f"{st:02d}"] + [cell.get((rel, st), "") for rel in releases]
+        L.append("| " + " | ".join(row) + " |")
+
     report_path.parent.mkdir(parents=True, exist_ok=True)
     report_path.write_text("\n".join(L) + "\n", encoding="utf-8")
     return fp_to_id
