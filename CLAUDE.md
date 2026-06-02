@@ -5,8 +5,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Commands
 
 ```bash
-# Install in editable mode with dev dependencies
-uv pip install -e ".[dev]"
+# Install in editable mode with dev dependencies (add ,notebook for Jupyter/Quarto)
+uv pip install -e ".[dev]"            # or: uv sync --extra dev --extra notebook
 
 # Run tests (NOTE: tests/ currently holds only an empty __init__.py — no test
 # suite exists yet, so `pytest` collects nothing. Add tests as tests/test_*.py.)

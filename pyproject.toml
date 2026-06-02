@@ -29,6 +29,9 @@ dev = [
     "pypdf>=5.0",        # build-only: parse 2010–2013 DENUE PDF data dictionaries
     "matplotlib>=3.8",   # build-only: schema-group heatmap in the inconsistency report
 ]
+notebook = [
+    "ipykernel>=6.29",   # run the notebooks/ and execute Quarto python cells
+]
 
 [build-system]
 requires = ["uv_build>=0.9.0"]
