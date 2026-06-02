@@ -184,6 +184,12 @@ def _read_part(
     # segment (e.g. "2013_OCTUBRE_denue_09_2013_csv.zip") to keep them distinct.
     folder, fname = entry.url.rstrip("/").rsplit("/", 2)[-2:]
     zip_name = f"{folder}_{fname}"
+    # The current (undated) edition lives at masiva/denue/denue_{state}_csv.zip — its
+    # folder segment is the generic "denue", so the filename is identical across
+    # editions. Qualify the cache key with the release id (from extract_dir =
+    # denue/<yyyymm>/<code>) so a future undated edition can't reuse this one's download.
+    if folder == "denue":
+        zip_name = f"{entry.extract_dir.parts[1]}_{fname}"
     extract_dir = raw_dir / entry.extract_dir
     extract_dir.mkdir(parents=True, exist_ok=True)
     zip_path = bc.fetch_zip_verified(entry.url, cache_dir, zip_name, retries)

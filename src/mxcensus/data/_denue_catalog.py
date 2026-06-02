@@ -13,11 +13,18 @@ Two release-specific quirks (verified against the live tree, see
   build concatenates them into one per-state parquet.
 - **State 18 in the 2015 release** uses date ``04062015`` instead of ``25022015``.
 
+**Latest-release naming.** INEGI does **not** date-stamp the current edition: it lives
+directly under ``masiva/denue/`` as ``denue_{state}_csv.zip`` (no dated folder, no MMYY
+token, e.g. ``.../masiva/denue/denue_19_csv.zip``). When a newer edition is published,
+the previous one is moved into a dated ``YYYY_MM/denue_{state}_MMYY_csv.zip`` path. So
+the newest entry here carries the undated template; once it is superseded, rewrite its
+``path_template`` to the dated form (as every prior release already has).
+
 Release ids (``yyyymm``): months are used where known; the 2010–2012 annual editions
 have no published month and use ``"00"`` (e.g. ``"201000"``).
 
 Templates were cross-checked with a known-good batch downloader and re-verified
-against the live tree on ``CATALOG_VERIFIED_DATE``. Releases run **2010 .. 2025-05**.
+against the live tree on ``CATALOG_VERIFIED_DATE``. Releases run **2010 .. 2026-05**.
 """
 from __future__ import annotations
 
@@ -29,7 +36,7 @@ from ._catalog import STATE_CODE_FMT, CatalogEntry
 _BASE = "https://www.inegi.org.mx/contenidos/masiva/denue/"
 
 # Date this catalog was last verified against the live INEGI masiva tree.
-CATALOG_VERIFIED_DATE = "2026-06-01"
+CATALOG_VERIFIED_DATE = "2026-06-02"
 
 
 @dataclass(frozen=True)
@@ -45,7 +52,7 @@ class DenueRelease:
     path_template: str
 
 
-# Verified release catalog (24 releases). Each template carries {state} and {part}.
+# Verified release catalog (25 releases). Each template carries {state} and {part}.
 RELEASES: list[DenueRelease] = [
     DenueRelease("201000", "datos de 2010", "2010/denue_{state}{part}_2010_csv.zip"),
     DenueRelease("201100", "datos de 2011", "2011/denue_{state}{part}_2011_csv.zip"),
@@ -71,6 +78,9 @@ RELEASES: list[DenueRelease] = [
     DenueRelease("202405", "datos a mayo de 2024", "2024_05/denue_{state}{part}_0524_csv.zip"),
     DenueRelease("202411", "datos a noviembre de 2024", "2024_11/denue_{state}{part}_1124_csv.zip"),
     DenueRelease("202505", "datos a mayo de 2025", "2025_05/denue_{state}{part}_0525_csv.zip"),
+    # Current edition — undated (see "Latest-release naming" above). Rewrite to the
+    # dated form "2026_05/denue_{state}{part}_0526_csv.zip" once INEGI supersedes it.
+    DenueRelease("202605", "datos a mayo de 2026", "denue_{state}{part}_csv.zip"),
 ]
 
 RELEASES_BY_YYYYMM: dict[str, DenueRelease] = {r.yyyymm: r for r in RELEASES}
