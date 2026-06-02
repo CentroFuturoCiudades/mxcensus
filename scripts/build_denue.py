@@ -301,6 +301,58 @@ def _build_denue_state(
     return info
 
 
+def _write_schema_matrix_png(cell: dict, releases: list, gid_cols: dict,
+                             png_path: Path) -> bool:
+    """Render the state × release schema-group matrix as a colour heatmap.
+
+    Rows = states 1–32, columns = releases (chronological), each cell coloured by its
+    schema-group id (white = file absent). Returns False if matplotlib is unavailable
+    (the text matrix in the report still covers the same information).
+    """
+    try:
+        import matplotlib
+        matplotlib.use("Agg")
+        import matplotlib.pyplot as plt
+        import numpy as np
+        from matplotlib.colors import ListedColormap
+        from matplotlib.patches import Patch
+    except ImportError:
+        return False
+
+    gids = sorted(gid_cols)
+    idx = {g: i for i, g in enumerate(gids)}
+    states = list(range(1, 33))
+    m = np.full((len(states), len(releases)), np.nan)
+    for j, rel in enumerate(releases):
+        for i, st in enumerate(states):
+            g = cell.get((rel, st))
+            if g is not None:
+                m[i, j] = idx[g]
+    cmap = ListedColormap(plt.cm.tab20(np.linspace(0, 1, len(gids))))
+    cmap.set_bad("white")
+
+    fig, ax = plt.subplots(figsize=(0.42 * len(releases) + 3, 0.34 * len(states) + 1.5))
+    ax.imshow(np.ma.masked_invalid(m), cmap=cmap, aspect="auto",
+              vmin=-0.5, vmax=len(gids) - 0.5)
+    ax.set_xticks(range(len(releases)))
+    ax.set_xticklabels(releases, rotation=90, fontsize=7)
+    ax.set_yticks(range(len(states)))
+    ax.set_yticklabels([f"{s:02d}" for s in states], fontsize=7)
+    ax.set_xlabel("release")
+    ax.set_ylabel("state code")
+    ax.set_title("DENUE schema group by state × release")
+    ax.set_xticks(np.arange(-.5, len(releases), 1), minor=True)
+    ax.set_yticks(np.arange(-.5, len(states), 1), minor=True)
+    ax.grid(which="minor", color="white", linewidth=0.5)
+    ax.tick_params(which="minor", length=0)
+    ax.legend(handles=[Patch(facecolor=cmap(idx[g]), label=f"{g} ({gid_cols[g]} cols)")
+                       for g in gids],
+              bbox_to_anchor=(1.01, 1), loc="upper left", fontsize=7, title="schema group")
+    fig.savefig(png_path, dpi=150, bbox_inches="tight")
+    plt.close(fig)
+    return True
+
+
 def _write_report(out_dir: Path, report_path: Path) -> dict:
     """Scan every mirrored DENUE parquet on disk and (re)write the markdown report.
 
@@ -443,12 +495,16 @@ def _write_report(out_dir: Path, report_path: Path) -> dict:
     cell = {(r["release"], int(r["state"])): fp_to_id[r["fingerprint"]] for r in records}
     gid_cols = {fp_to_id[fp]: len(fp_cols[fp]) for fp in fp_to_id}
     legend = ", ".join(f"{g} ({gid_cols[g]} cols)" for g in sorted(gid_cols))
+    png = report_path.parent / "schema_groups.png"
+    has_png = _write_schema_matrix_png(cell, releases, gid_cols, png)
     L += ["", "## 8. Schema-group matrix (state × release)", "",
           "Each cell is the schema-group id of that state's file in that release "
           "(blank = absent). Read **across a row** for a state's schema drift over time, "
           "**down a column** to spot within-release disagreements (a column with more "
-          "than one id; see §6).", "",
-          f"Legend: {legend}.", "",
+          "than one id; see §6).", ""]
+    if has_png:
+        L += [f"![Schema-group heatmap]({png.name})", ""]
+    L += [f"Legend: {legend}.", "",
           "| state | " + " | ".join(releases) + " |",
           "|" + "---|" * (len(releases) + 1)]
     for st in range(1, 33):

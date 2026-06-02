@@ -177,6 +177,8 @@ None.
 
 Each cell is the schema-group id of that state's file in that release (blank = absent). Read **across a row** for a state's schema drift over time, **down a column** to spot within-release disagreements (a column with more than one id; see §6).
 
+![Schema-group heatmap](schema_groups.png)
+
 Legend: g01 (24 cols), g02 (30 cols), g03 (47 cols), g04 (47 cols), g05 (28 cols), g06 (44 cols), g07 (41 cols), g08 (41 cols), g09 (41 cols), g10 (42 cols), g11 (42 cols).
 
 | state | 201000 | 201100 | 201200 | 201307 | 201310 | 201502 | 201601 | 201610 | 201703 | 201711 | 201803 | 201811 | 201904 | 201911 | 202004 | 202011 | 202105 | 202111 | 202205 | 202211 | 202311 | 202405 | 202411 | 202505 | 202605 |

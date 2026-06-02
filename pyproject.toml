@@ -26,7 +26,8 @@ mxcensus = "mxcensus._cli:main"
 [project.optional-dependencies]
 dev = [
     "pytest>=8.0",
-    "pypdf>=5.0",   # build-only: parse 2010–2013 DENUE PDF data dictionaries
+    "pypdf>=5.0",        # build-only: parse 2010–2013 DENUE PDF data dictionaries
+    "matplotlib>=3.8",   # build-only: schema-group heatmap in the inconsistency report
 ]
 
 [build-system]
