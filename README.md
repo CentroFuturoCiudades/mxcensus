@@ -147,8 +147,12 @@ before and during loading:
 - **DENUE harmonization** — DENUE CSVs are converted to point GeoParquet (geometry
   from `latitud`/`longitud`); by default `load_denue` further **harmonizes** older
   releases onto the latest release's schema (renaming columns, normalizing the
-  `per_ocu` strata across encodings, adding/dropping columns). Pass `harmonize=False`
-  for the raw release schema.
+  `per_ocu` and `tipoUniEco` strata across encodings, the `fecha_alta` date format,
+  and adding/dropping columns). Pass `harmonize=False` for the raw release schema.
+  A handful of undecodable bytes in one source file are replaced with U+FFFD (`�`)
+  during conversion; otherwise text is preserved as INEGI published it — including
+  the source data-entry errors the validation reports flag (e.g. non-numeric postal
+  codes), which are **not** corrected or imputed.
 
 **These transformations are performed by `mxcensus`, not by INEGI.** Any errors,
 imputations, or derived values are the responsibility of this package and must not

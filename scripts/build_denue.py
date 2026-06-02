@@ -17,7 +17,9 @@ Dry run (one release, one state):
 from __future__ import annotations
 
 import argparse
+import io
 import json
+import re
 import shutil
 import zipfile
 from collections import defaultdict
@@ -26,6 +28,7 @@ from pathlib import Path
 
 import geopandas as gpd
 import pandas as pd
+import pandera.pandas as pa
 import pooch
 import pyarrow.parquet as pq
 import yaml
@@ -36,6 +39,16 @@ from mxcensus.data._denue_catalog import (
     RELEASES,
     RELEASES_BY_YYYYMM,
     denue_zip_entry,
+)
+from mxcensus.denue import (
+    _CODE_OCU,
+    _OCU_ALLOWED,
+    _PER_OCU,
+    _TIPO_UNI,
+    _TIPO_UNI_ALLOWED,
+    _TIPO_UNI_LABEL,
+    _UPPER_OCU,
+    _mnemonic_of,
 )
 
 _REPO_ROOT = Path(__file__).resolve().parent.parent
@@ -108,27 +121,53 @@ def _locate_data_csv(extract_dir: Path) -> Path:
     return max(candidates, key=lambda p: p.stat().st_size)
 
 
-def _read_csv_robust(csv_path: Path) -> tuple[pd.DataFrame, str]:
-    """Read a DENUE CSV as utf-8, else cp1252 (the INEGI Windows encoding).
+def _sniff_encoding(csv_path: Path) -> str:
+    """Choose the decoding that preserves the most of a DENUE CSV's accented text.
 
-    chardet mis-guesses some files (cp850/cp1250 → mojibake), so we don't trust it:
-    try utf-8 first (rare), then cp1252, which decodes every DENUE byte cleanly.
+    DENUE files are a mix of clean UTF-8, UTF-8 with a few corrupt bytes, and Windows
+    single-byte (cp1252/latin-1). The old "utf-8 → else cp1252 → else latin-1" rule
+    mis-handled a UTF-8 file with even ONE invalid byte: utf-8 strict failed, so the
+    whole file was decoded as cp1252, turning every valid ``más`` into ``mÃ¡s``
+    (e.g. denue_201811_29 — 6 bad bytes corrupted ~104k cells).
+
+    Discriminator: in a real UTF-8 file the high bytes (≥0x80) form valid multi-byte
+    sequences, so utf-8/replace inserts almost no U+FFFD; in a single-byte file nearly
+    every high byte is invalid as UTF-8, so replacements ≈ high-byte count. Compare the
+    ratio. Returns one of ``"utf-8"`` (read strict) / ``"utf-8/replace"`` /
+    ``"cp1252"`` / ``"latin-1"``.
     """
-    # dtype=str: read every field as text. DENUE columns are categorical/text codes
-    # (codigo_act, per_ocu, cve_*, numero_ext "123"/"KM 5", …), not arithmetic, so
-    # this is faithful AND avoids mixed str/float object columns — both within a file
-    # and when concatenating multipart states — that pyarrow can't serialize.
-    # lat/lon are re-parsed to float in _df_to_geoparquet via pd.to_numeric.
-    for enc in ("utf-8", "cp1252"):
-        try:
-            return pd.read_csv(csv_path, encoding=enc, dtype=str, low_memory=False), enc
-        except UnicodeDecodeError:
-            continue
-    # latin-1 decodes any byte, so it never raises UnicodeDecodeError: a structurally
-    # malformed CSV slips through as garbage rows rather than failing here. Such a file
-    # gets an unrecognised column fingerprint and is rejected loudly at load_denue time
-    # (and flagged by the within-release disagreement check in the report).
-    return pd.read_csv(csv_path, encoding="latin-1", dtype=str, low_memory=False), "latin-1"
+    raw = csv_path.read_bytes()
+    try:
+        raw.decode("utf-8")
+        return "utf-8"
+    except UnicodeDecodeError:
+        pass
+    n_high = sum(b >= 0x80 for b in raw)
+    n_rep = raw.decode("utf-8", errors="replace").count("�")
+    if n_high and n_rep / n_high < 0.5:   # mostly-valid UTF-8 with rare bad bytes
+        return "utf-8/replace"
+    try:
+        raw.decode("cp1252")              # Windows single-byte
+        return "cp1252"
+    except UnicodeDecodeError:
+        return "latin-1"                  # has bytes undefined in cp1252 (e.g. 0x90)
+
+
+def _read_csv_robust(csv_path: Path) -> tuple[pd.DataFrame, str]:
+    """Read a DENUE CSV with the encoding chosen by ``_sniff_encoding``.
+
+    dtype=str: read every field as text. DENUE columns are categorical/text codes
+    (codigo_act, per_ocu, cve_*, numero_ext "123"/"KM 5", …), not arithmetic, so this is
+    faithful AND avoids mixed str/float object columns — within a file and across
+    multipart concats — that pyarrow can't serialize. lat/lon are re-parsed to float in
+    _df_to_geoparquet via pd.to_numeric. A structurally malformed CSV still slips through
+    as garbage rows (flagged later by the schema fingerprint / validation sweep).
+    """
+    enc = _sniff_encoding(csv_path)
+    read_enc, errors = (enc.split("/") + ["strict"])[:2]
+    df = pd.read_csv(csv_path, encoding=read_enc, encoding_errors=errors,
+                     dtype=str, low_memory=False)
+    return df, enc
 
 
 def _read_part(
@@ -378,98 +417,253 @@ def _write_report(out_dir: Path, report_path: Path) -> dict:
     return fp_to_id
 
 
-def _extract_dict_csv(zip_path: Path) -> dict:
-    """Parse a release's bundled data dictionary → {csv_col: {Tipo, Longitud, Descripción}}.
+def _decode(raw: bytes) -> str:
+    """Decode INEGI dictionary bytes (cp1252 → utf-8 → latin-1 fallback)."""
+    for enc in ("cp1252", "utf-8"):
+        try:
+            return raw.decode(enc)
+        except UnicodeDecodeError:
+            continue
+    return raw.decode("latin-1")
 
-    Returns {} when no parseable CSV dictionary is present (2010 ships a PDF).
+
+_CODE_RE = re.compile(r"(\d+)\s*=\s*([^\n;=]+?)(?=\s*\d+\s*=|\s*$)", re.MULTILINE)
+
+
+def _parse_codes(text: str) -> dict:
+    """Pull a ``code = label`` table out of a dictionary description cell / PDF window."""
+    return {m.group(1): " ".join(m.group(2).split()).rstrip(".")
+            for m in _CODE_RE.finditer(text)}
+
+
+def _parse_dict_csv(raw: bytes) -> dict:
+    """Parse a CSV data dictionary (2016+) → {'fields': {...}, 'codes': {field: {code:label}}}.
+
+    ``fields`` is keyed by attribute name verbatim AND lowercased (uppercase-era files
+    look up case-insensitively). ``codes`` holds any ``code = label`` table embedded in a
+    description (e.g. ``per_ocu`` "1 = 0 a 5 … 7 = 251 y más").
     """
-    import io
-    with zipfile.ZipFile(zip_path) as zf:
-        names = [n for n in zf.namelist()
-                 if "diccionario" in n.lower() and n.lower().endswith(".csv")]
-        if not names:
-            return {}
-        raw = zf.read(names[0])
-    text = next((raw.decode(e) for e in ("cp1252", "utf-8")
-                 if _safe_decode(raw, e)), raw.decode("latin-1"))
+    text = _decode(raw)
     lines = text.splitlines()
     hdr = next((i for i, ln in enumerate(lines) if "Atributo en csv" in ln), None)
     if hdr is None:
-        return {}
+        return {"fields": {}, "codes": {}}
     df = pd.read_csv(io.StringIO("\n".join(lines[hdr:])), dtype=str)
     cols = {c.strip(): c for c in df.columns}
     name_c = cols.get("Nombre del Atributo en csv")
     if not name_c:
-        return {}
-    out = {}
+        return {"fields": {}, "codes": {}}
+    fields, codes = {}, {}
     for _, r in df.iterrows():
         n = str(r[name_c]).strip()
         if not n or n == "nan":
             continue
-        out[n] = {
+        desc = " ".join(str(r.get(cols.get("Descripción", ""), "") or "").split())
+        meta = {
             "Tipo": str(r.get(cols.get("Tipo de dato", ""), "") or "").strip(),
             "Longitud": str(r.get(cols.get("Longitud", ""), "") or "").strip(),
-            "Descripción": " ".join(str(r.get(cols.get("Descripción", ""), "") or "").split()),
+            "Descripción": desc,
         }
-    return out
+        fields[n] = fields[n.lower()] = meta
+        ct = _parse_codes(desc)
+        if ct:
+            codes[n.lower()] = ct
+    return {"fields": fields, "codes": codes}
 
 
-def _safe_decode(raw: bytes, enc: str) -> bool:
-    try:
-        raw.decode(enc)
-        return True
-    except UnicodeDecodeError:
-        return False
+# PDF field row: "<Nombre> <mnemónico> <tipo> <longitud> <descripción…>" (run-together).
+_PDF_FIELD_RE = re.compile(
+    r"([A-Za-zÁÉÍÓÚÑ][\wÁÉÍÓÚÑáéíóúñ .,/()-]+?)\s+([a-z_][a-z0-9_]+)\s+"
+    r"(alfanumérico|numérico|fecha)\s+([\d/]+)\s+(.+?)"
+    r"(?=[A-Za-zÁÉÍÓÚÑ][\wÁÉÍÓÚÑáéíóúñ .,/()-]+?\s+[a-z_][a-z0-9_]+\s+"
+    r"(?:alfanumérico|numérico|fecha)\s+[\d/]+\s+|$)",
+    re.DOTALL,
+)
+
+
+def _parse_dict_pdf(raw: bytes) -> dict:
+    """Best-effort parse of a PDF data dictionary (2010–2013) → {'fields','codes'}.
+
+    Keys ``fields`` by both the display name and the mnemónico (lowercased). Descriptions
+    are noisy (PDF text is run-together) but usable; ``codes`` captures embedded
+    ``code = label`` tables (e.g. ``tipo_estab`` "1 y 3 = …fijo, 2 = …semifijo").
+    """
+    from pypdf import PdfReader
+    text = "\n".join(p.extract_text() or "" for p in PdfReader(io.BytesIO(raw)).pages)
+    text = re.sub(r"[ \t]+", " ", text)
+    fields, codes = {}, {}
+    for m in _PDF_FIELD_RE.finditer(text):
+        name, mnem, tipo, longitud, desc = (g.strip() for g in m.groups())
+        desc = " ".join(desc.split())
+        meta = {"Tipo": tipo, "Longitud": longitud, "Descripción": desc}
+        fields[name] = fields[name.lower()] = fields[mnem.lower()] = meta
+        ct = _parse_codes(desc)
+        if ct:
+            codes[mnem.lower()] = ct
+    return {"fields": fields, "codes": codes}
+
+
+def _extract_dictionary(zip_path: Path) -> dict:
+    """Return the bundled dictionary as {'fields','codes'}; CSV preferred, else PDF, else {}."""
+    if not zip_path.exists():
+        return {"fields": {}, "codes": {}}
+    with zipfile.ZipFile(zip_path) as zf:
+        names = zf.namelist()
+        csv = [n for n in names if "diccionario" in n.lower() and n.lower().endswith(".csv")]
+        if csv:
+            return _parse_dict_csv(zf.read(csv[0]))
+        pdf = [n for n in names if "diccionario" in n.lower() and n.lower().endswith(".pdf")]
+        if pdf:
+            return _parse_dict_pdf(zf.read(pdf[0]))
+    return {"fields": {}, "codes": {}}
+
+
+def _zip_name_for(rel: str, code: str) -> str:
+    """Release-qualified cache filename for a (release, state) dictionary zip."""
+    entry = denue_zip_entry(RELEASES_BY_YYYYMM[rel], int(code))[0]
+    folder, fname = entry.url.rstrip("/").rsplit("/", 2)[-2:]
+    return f"{folder}_{fname}"
+
+
+def _canonical_mnemonic_dict(cache_dir: Path) -> dict:
+    """`mnemonic → {Descripción,Tipo,Longitud}` from the latest release's CSV dictionary."""
+    latest = max(RELEASES, key=lambda r: r.yyyymm)
+    d = _extract_dictionary(cache_dir / _zip_name_for(latest.yyyymm, "01"))
+    return d["fields"]
+
+
+# Dictionary-grounded label maps (the catalogs in denue.py are themselves derived from the
+# INEGI dictionaries). per_ocu accepts UPPERCASE labels, numeric codes, or the labels
+# themselves; tipoUniEco accepts codes/UPPERCASE/labels.
+_LABELS_OCU = {**_UPPER_OCU, **_CODE_OCU, **{x: x for x in _OCU_ALLOWED}}
+_LABELS_TIPO = {**_TIPO_UNI_LABEL, **{x: x for x in _TIPO_UNI_ALLOWED}}
+
+# Mnemonics validated by regex/date/numeric in the schema → never enumerated as categories.
+_CAT_EXCLUDE = {"fecha_alta", "codigo_act", "cod_postal", "ageb", "manzana", "latitud",
+                "longitud", "id", "clee", "telefono", "correoelec", "www",
+                "numero_ext", "numero_int", "num_local"}
+
+
+def _build_categories(gid: str, paths: list[Path], threshold: int) -> tuple[dict, list]:
+    """Build `{column: {raw_value: label}}` for a group, cross-validated against data.
+
+    Distinct values are enumerated across ALL of the group's files (column-projected
+    reads; a column is dropped once it exceeds ``threshold``; high-cardinality / coded
+    columns are excluded up front). The per_ocu and tipoUniEco *source* columns are
+    labelled via the dictionary-grounded catalogs (``_LABELS_OCU`` / ``_LABELS_TIPO``) and
+    any observed value with no catalog entry is flagged; every other categorical maps to
+    itself (data is the only source). Returns (categorías, audit_rows).
+    """
+    cols = [c for c in pq.ParquetFile(paths[0]).schema_arrow.names if c != "geometry"]
+    candidates = {c for c in cols if _mnemonic_of(gid, c) not in _CAT_EXCLUDE}
+    seen: dict[str, set] = {c: set() for c in candidates}
+    for p in paths:
+        if not candidates:
+            break
+        present = [c for c in candidates if c in pq.ParquetFile(p).schema_arrow.names]
+        df = pd.read_parquet(p, columns=present)
+        for c in present:
+            seen[c].update(str(v) for v in df[c].dropna().unique())
+            if len(seen[c]) > threshold:
+                candidates.discard(c)
+                seen[c] = None  # high-cardinality → not a category column
+
+    per_ocu_src = _PER_OCU.get(gid, (None,))[0]
+    tipo_src, tipo_vmap = _TIPO_UNI.get(gid, (None, None))
+    cats, audit = {}, []
+    for col, values in seen.items():
+        if values is None:
+            continue
+        if col == per_ocu_src:
+            label_map, kind = _LABELS_OCU, "per_ocu"
+        elif col == tipo_src and tipo_vmap is not None:
+            label_map, kind = _LABELS_TIPO, "tipoUniEco"
+        else:
+            cats[col] = {v: v for v in sorted(values)}  # data-only categorical
+            continue
+        mapping, unmatched = {}, []
+        for v in sorted(values):
+            lbl = label_map.get(v)
+            mapping[v] = lbl if lbl is not None else v
+            if lbl is None:
+                unmatched.append(v)
+        cats[col] = mapping
+        # Only flag observed values with no catalog entry (real anomalies). "Catalog
+        # entries unseen" is uninformative here — the catalog unions all eras' encodings
+        # (codes + UPPERCASE + labels), so each single-era group legitimately uses one.
+        if unmatched:
+            audit.append((gid, col, kind, unmatched))
+    return cats, audit
 
 
 def _write_variables_yaml(out_dir: Path, cache_dir: Path, yaml_dir: Path,
-                          map_path: Path) -> int:
-    """Write one variables_denue_<gNN>.yaml per schema group.
+                          map_path: Path, threshold: int = 64) -> int:
+    """Write one variables_denue_<gNN>.yaml per schema group + a CATEGORY_AUDIT.md.
 
-    Seeds each variable's Tipo/Longitud/Descripción from the representative release's
-    bundled dictionary, and fills Categorías for the personnel-stratum column from the
-    actual data values (the dictionary lists 1–7 codes but the data stores the labels).
+    Descripción/Tipo/Longitud come from the group's own-era dictionary (CSV or PDF), then
+    the canonical latest dictionary keyed by mnemonic, then blank. Categorías come from the
+    dictionary code tables (per_ocu, tipoUniEco), cross-validated against the actual data;
+    catalog-less categoricals fall back to the distinct data values (≤ threshold).
     """
     schema_map = yaml.safe_load(map_path.read_text(encoding="utf-8"))
     fp_to_id = schema_map["fingerprints"]
-    # representative (earliest release, lowest state) file per group
+    # all files per group, and the representative (earliest release, lowest state)
+    paths_by_gid: dict[str, list[Path]] = defaultdict(list)
     rep: dict[str, dict] = {}
     for p in sorted(out_dir.glob("denue_*.parquet")):
         _, rel, code = p.stem.split("_")
         cols = [c for c in pq.ParquetFile(p).schema_arrow.names if c != "geometry"]
         gid = fp_to_id[_fingerprint_cols(cols)]
+        paths_by_gid[gid].append(p)
         if gid not in rep or (rel, code) < (rep[gid]["rel"], rep[gid]["code"]):
-            rep[gid] = {"rel": rel, "code": code, "cols": cols, "path": p}
+            rep[gid] = {"rel": rel, "code": code, "cols": cols}
 
+    canon = _canonical_mnemonic_dict(cache_dir)
     yaml_dir.mkdir(parents=True, exist_ok=True)
+    audit_all = []
     for gid, info in sorted(rep.items()):
-        entry = denue_zip_entry(RELEASES_BY_YYYYMM[info["rel"]], int(info["code"]))[0]
-        folder, fname = entry.url.rstrip("/").rsplit("/", 2)[-2:]
-        ddict = _extract_dict_csv(cache_dir / f"{folder}_{fname}")
-
-        # personnel-stratum column: mnemonic "per_ocu"/"PER_OCU" or descriptive
-        # "Personal ocupado (estrato)" / "Descripcion estrato personal ocupado".
-        ocu_col = next((c for c in info["cols"]
-                        if "per_ocu" in c.lower() or "ocup" in c.lower()), None)
-        ocu_cats: dict = {}
-        if ocu_col is not None:
-            vals = pd.read_parquet(info["path"], columns=[ocu_col])[ocu_col].dropna().unique()
-            ocu_cats = {str(v): str(v) for v in sorted(vals)}
+        own = _extract_dictionary(cache_dir / _zip_name_for(info["rel"], info["code"]))
+        ofields = own["fields"]
+        cats, audit = _build_categories(gid, paths_by_gid[gid], threshold)
+        audit_all += audit
 
         doc = {}
         for col in info["cols"]:
-            meta = ddict.get(col, {})
+            mn = _mnemonic_of(gid, col)
+            meta = ofields.get(col) or ofields.get(col.lower()) \
+                or canon.get(mn) or canon.get(mn.lower()) or {}
             doc[col] = {
                 "Descripción": meta.get("Descripción", ""),
                 "Tipo": meta.get("Tipo", ""),
                 "Longitud": meta.get("Longitud", ""),
-                "Categorías": ocu_cats if col == ocu_col else {},
+                "Categorías": cats.get(col, {}),
             }
         path = yaml_dir / f"variables_denue_{gid}.yaml"
         with open(path, "w", encoding="utf-8") as f:
             yaml.safe_dump(doc, f, sort_keys=False, allow_unicode=True,
                            default_flow_style=False)
+
+    _write_category_audit(audit_all, _REPO_ROOT / "docs" / "denue" / "CATEGORY_AUDIT.md")
     return len(rep)
+
+
+def _write_category_audit(rows: list, report_path: Path) -> None:
+    """Write the observed-vs-dictionary category discrepancy report.
+
+    Lists coded-field (`per_ocu`, `tipoUniEco`) data values that don't map to the
+    dictionary-grounded catalog — genuine anomalies (e.g. mojibake, a misaligned row).
+    """
+    L = ["# DENUE category audit", "",
+         "Coded-field values found in the data with no dictionary-catalog entry "
+         "(per_ocu, tipoUniEco). Empty = every observed value maps cleanly.", ""]
+    if not rows:
+        L.append("No discrepancies — every observed coded value maps to a catalog entry.")
+    for gid, col, kind, unmatched in sorted(rows):
+        L.append(f"## {gid} — `{col}` ({kind})")
+        L.append(f"- observed but not in catalog: {unmatched}")
+        L.append("")
+    report_path.parent.mkdir(parents=True, exist_ok=True)
+    report_path.write_text("\n".join(L) + "\n", encoding="utf-8")
 
 
 def _write_schema_map(out_dir: Path, map_path: Path) -> dict:
@@ -523,6 +717,54 @@ def _write_schema_map(out_dir: Path, map_path: Path) -> dict:
     return doc
 
 
+def _write_validation_report(out_dir: Path, report_path: Path) -> tuple[int, int]:
+    """Validate every mirrored parquet against its tight group schema; write a report.
+
+    Loads each file, resolves its group by fingerprint, validates the raw frame against
+    ``_group_schema(gid)`` with ``lazy=True`` (collect ALL failures), and writes per-file
+    PASS/FAIL with a (column, check) → count + example breakdown. This is the authoritative
+    sweep for current + future releases (the loader only warns). Returns (n_files, n_fail).
+    """
+    from mxcensus.denue import _fingerprint, _group_schema
+    schema_map = yaml.safe_load(_DEFAULT_SCHEMA_MAP.read_text(encoding="utf-8"))
+    fps = schema_map["fingerprints"]
+    files = sorted(out_dir.glob("denue_*.parquet"))
+    results = []
+    for p in files:
+        cols = [c for c in pq.ParquetFile(p).schema_arrow.names if c != "geometry"]
+        gid = fps.get(_fingerprint(cols))
+        if gid is None:
+            results.append((p.name, "?", "UNKNOWN-SCHEMA", []))
+            continue
+        gdf = gpd.read_parquet(p)
+        try:
+            _group_schema(gid).validate(gdf.drop(columns="geometry"), lazy=True)
+            results.append((p.name, gid, "PASS", []))
+        except pa.errors.SchemaErrors as exc:
+            fc = exc.failure_cases
+            grp = (fc.groupby(["column", "check"])
+                     .agg(count=("failure_case", "size"),
+                          example=("failure_case", "first"))
+                     .reset_index().sort_values("count", ascending=False))
+            results.append((p.name, gid, "FAIL", grp.to_dict("records")))
+
+    failed = [r for r in results if r[2] != "PASS"]
+    L = ["# DENUE validation report", "",
+         f"Each mirrored file validated against its group's tight schema "
+         f"(`_group_schema`). Files: {len(files)}. Failing: {len(failed)}.", ""]
+    if not failed:
+        L.append("All files pass their group schema.")
+    for name, gid, status, fails in failed:
+        L.append(f"## {name} ({gid}) — {status}")
+        for f in fails:
+            L.append(f"- `{f['column']}` / {f['check']}: {f['count']} row(s), "
+                     f"e.g. `{f['example']}`")
+        L.append("")
+    report_path.parent.mkdir(parents=True, exist_ok=True)
+    report_path.write_text("\n".join(L) + "\n", encoding="utf-8")
+    return len(files), len(failed)
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(
         description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter
@@ -547,7 +789,14 @@ def main() -> None:
     parser.add_argument("--schema-map-path", type=Path, default=_DEFAULT_SCHEMA_MAP, metavar="FILE")
     parser.add_argument("--variables", action="store_true",
                         help="Skip downloading; write per-group variables_denue_<gNN>.yaml")
+    parser.add_argument("--cat-threshold", type=int, default=64, metavar="N",
+                        help="Max distinct values for a column to be enumerated as a category")
     parser.add_argument("--yaml-dir", type=Path, default=_DEFAULT_SCHEMA_MAP.parent, metavar="DIR")
+    parser.add_argument("--validate", action="store_true",
+                        help="Skip downloading; validate every parquet against its group schema")
+    parser.add_argument("--validate-report", type=Path,
+                        default=_REPO_ROOT / "docs" / "denue" / "VALIDATION_REPORT.md",
+                        metavar="FILE")
     parser.add_argument("--update-registry", action="store_true",
                         help="Skip downloading; append denue_* hashes to registry.txt (preserving prior)")
     parser.add_argument("--registry", type=Path, default=_DEFAULT_REGISTRY, metavar="FILE")
@@ -575,8 +824,14 @@ def main() -> None:
 
     if args.variables:
         n = _write_variables_yaml(args.output, args.cache_dir, args.yaml_dir,
-                                  args.schema_map_path)
+                                  args.schema_map_path, args.cat_threshold)
         print(f"Wrote {n} variables_denue_<gNN>.yaml → {args.yaml_dir}")
+        return
+
+    if args.validate:
+        n_files, n_fail = _write_validation_report(args.output, args.validate_report)
+        print(f"Validation report → {args.validate_report}  "
+              f"({n_fail}/{n_files} file(s) failed their group schema)")
         return
 
     if args.update_registry:

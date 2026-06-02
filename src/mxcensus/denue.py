@@ -21,6 +21,7 @@ from __future__ import annotations
 
 import functools
 import json
+import re
 import warnings
 from hashlib import sha256
 from pathlib import Path
@@ -28,8 +29,9 @@ from pathlib import Path
 import geopandas as gpd
 import pandas as pd
 import pandera.pandas as pa
+from pandera.errors import SchemaErrors
 
-from mxcensus._resources import denue_schema_map
+from mxcensus._resources import denue_schema_map, variables_denue
 
 # --- Harmonization: explicit raw→latest column renames for the descriptive-name
 # groups (2010–2015). Mnemonic groups g08/g10 (identity) and the UPPERCASE groups
@@ -321,27 +323,177 @@ _PER_OCU: dict[str, tuple] = {
 # Allowed per_ocu values after harmonization: the 7 strata + the unspecified category.
 _OCU_ALLOWED = _OCU + ["No especificado"]
 
+# tipoUniEco (establishment type) drifts like per_ocu: 2010–2011 store UPPERCASE labels
+# (FIJO/SEMIFIJO); 2012–2013 store numeric codes in the *separate* "Tipo de
+# establecimiento" column (1/2/3 — the dict says "1 y 3 = fijo, 2 = semifijo"; code 3 is
+# the in-dwelling fixed subtype, labelled "Actividad en vivienda"); 2015+ store Fijo/
+# Semifijo. The 2012 "Tipo de unidad económica" column is unrelated (S/U/M), so the
+# general rename mapping it to tipoUniEco is wrong — `_TIPO_UNI` overrides the source.
+_TIPO_UNI_LABEL = {
+    "1": "Fijo", "2": "Semifijo", "3": "Actividad en vivienda",
+    "FIJO": "Fijo", "SEMIFIJO": "Semifijo",
+}
+_TIPO_UNI: dict[str, tuple] = {
+    "g01": ("Tipo de unidad económica", _TIPO_UNI_LABEL),
+    "g02": ("Tipo de unidad económica", _TIPO_UNI_LABEL),
+    "g03": ("Tipo de establecimiento", _TIPO_UNI_LABEL),
+    "g04": ("Tipo de establecimiento", _TIPO_UNI_LABEL),
+    "g05": ("Tipo de establecimiento", _TIPO_UNI_LABEL),
+    "g06": ("Tipo de establecimiento", _TIPO_UNI_LABEL),
+    "g07": ("Tipo de establecimiento", None),  # already Fijo/Semifijo
+    "g08": ("tipoUniEco", None), "g09": ("TIPOUNIECO", None),
+    "g10": ("tipoUniEco", None), "g11": ("TIPOUNIECO", None),
+}
+_TIPO_UNI_ALLOWED = ["Fijo", "Semifijo", "Actividad en vivienda"]
+
+# Coded columns validated by regex rather than enumeration (keyed by latest-schema
+# mnemonic; the raw per-group schema maps each raw column to its mnemonic via _mnemonic_of).
+# Patterns tolerate INEGI's surrounding whitespace and dropped leading zeros (codes are
+# stored as integer-like strings — "02000" → "2000", missing → "0") while still flagging
+# non-numeric / over-long garbage. codigo_act (SCIAN) is genuinely 4–6 digits, no padding.
+_CODED_REGEX = {
+    "codigo_act": r"^\s*\d{4,6}\s*$",   # SCIAN class code
+    "cod_postal": r"^\s*\d{1,5}\s*$",
+    "cve_ent": r"^\s*\d{1,2}\s*$",
+    "cve_mun": r"^\s*\d{1,3}\s*$",
+    "cve_loc": r"^\s*\d{1,4}\s*$",
+}
+# Numeric (type-only) columns. No bbox range check: out-of-bbox coordinates legitimately
+# occur in the source (their geometry is nulled at build time), so a range check would
+# false-fail on load; numeric-coercibility is the meaningful guarantee.
+_NUMERIC = {"latitud", "longitud"}
+_FECHA_RE = r"^\d{4}-\d{2}$"  # canonical fecha_alta after _normalize_fecha
+
+# Spanish month → MM, for normalizing fecha_alta across its many era formats.
+_MES = {"enero": "01", "febrero": "02", "marzo": "03", "abril": "04", "mayo": "05",
+        "junio": "06", "julio": "07", "agosto": "08", "septiembre": "09",
+        "setiembre": "09", "octubre": "10", "noviembre": "11", "diciembre": "12"}
+_MES_ABBR = {"ene": "01", "feb": "02", "mar": "03", "abr": "04", "may": "05", "jun": "06",
+             "jul": "07", "ago": "08", "sep": "09", "oct": "10", "nov": "11", "dic": "12"}
+
+
+def _latest_cols() -> list:
+    """Column list of the latest (harmonization-target) schema group."""
+    m = denue_schema_map()
+    return m["groups"][m["latest"]]["columns"]
+
+
+def _mnemonic_of(gid: str, raw_col: str) -> str:
+    """Resolve a group's raw column name to its canonical latest-schema mnemonic.
+
+    Descriptive groups (g01–g07) use the explicit ``_RENAME`` map; mnemonic (g08/g10)
+    and UPPERCASE (g09/g11) groups match case-insensitively against the latest columns;
+    anything unmapped (e.g. NIC/NOP, extra phones) returns itself. Importable by the
+    build script so descriptions and coded-regex checks key off one mnemonic per column.
+    """
+    explicit = _RENAME.get(gid, {})
+    if raw_col in explicit:
+        return explicit[raw_col]
+    by_lower = {c.lower(): c for c in _latest_cols()}
+    return by_lower.get(raw_col.lower(), raw_col)
+
+
+def _normalize_fecha(s: pd.Series) -> pd.Series:
+    """Normalize fecha_alta to ``YYYY-MM`` across eras; unparseable → NA.
+
+    Handles ``2010-07`` / ``2013 07`` (separator drift), Spanish full-month ``JULIO 2010``,
+    and abbreviated ``mar-11``. Unrecognized values become NA rather than raising, so a
+    normal load never fails on a stray date — the date-format check surfaces gaps instead.
+    """
+    def one(v):
+        if v is None or (isinstance(v, float) and pd.isna(v)):
+            return pd.NA
+        t = str(v).strip()
+        if not t or t.lower() == "nan":
+            return pd.NA
+        m = re.fullmatch(r"(\d{4})[-\s](\d{1,2})", t)
+        if m:
+            return f"{m.group(1)}-{int(m.group(2)):02d}"
+        m = re.fullmatch(r"([A-Za-zÁÉÍÓÚáéíóúñÑ]+)\s+(\d{4})", t)
+        if m and m.group(1).lower() in _MES:
+            return f"{m.group(2)}-{_MES[m.group(1).lower()]}"
+        m = re.fullmatch(r"([A-Za-z]{3})[-/](\d{2})", t)
+        if m and m.group(1).lower() in _MES_ABBR:
+            return f"20{m.group(2)}-{_MES_ABBR[m.group(1).lower()]}"
+        return pd.NA
+    return s.map(one)
+
 
 @functools.cache
 def _latest_schema() -> pa.DataFrameSchema:
-    """Pandera schema for the harmonized (latest-group) DENUE frame.
+    """Tight Pandera schema for the harmonized (latest-group) DENUE frame.
 
-    All attribute columns are nullable strings (DENUE fields are categorical text);
-    ``per_ocu`` is constrained to the canonical strata. ``strict=False`` ignores the
-    geometry column. Required-column presence is the main guarantee.
+    "Tight where safe": ``per_ocu`` and ``tipoUniEco`` are canonicalized by ``_harmonize``
+    across eras, so they get strict ``isin`` checks; ``fecha_alta`` is normalized to
+    ``YYYY-MM`` and date-checked; coded columns get regex and lat/lon a numeric type check.
+    Other categoricals (``tipo_asent``, ``tipo_vial``, ``tipoCenCom``, …) stay plain
+    strings here because harmonization renames columns but does NOT translate their label
+    spellings across eras — a strict ``isin`` would false-fail. Strict per-era ``isin`` on
+    those lives in ``_group_schema`` (the raw, single-era schema). ``strict=False`` ignores
+    the geometry column.
     """
-    cols = denue_schema_map()["groups"][denue_schema_map()["latest"]]["columns"]
     schema = {}
-    for c in cols:
+    for c in _latest_cols():
         if c == "per_ocu":
             schema[c] = pa.Column(str, pa.Check.isin(_OCU_ALLOWED), nullable=True, coerce=True)
-        elif c == "codigo_act":  # SCIAN class code: 4–6 digits (nulls tolerated)
-            schema[c] = pa.Column(
-                str, pa.Check.str_matches(r"^\d{4,6}$"), nullable=True, coerce=True
-            )
+        elif c == "tipoUniEco":
+            schema[c] = pa.Column(str, pa.Check.isin(_TIPO_UNI_ALLOWED), nullable=True, coerce=True)
+        elif c == "fecha_alta":
+            schema[c] = pa.Column(str, pa.Check.str_matches(_FECHA_RE), nullable=True, coerce=True)
+        elif c in _CODED_REGEX:
+            schema[c] = pa.Column(str, pa.Check.str_matches(_CODED_REGEX[c]), nullable=True, coerce=True)
+        elif c in _NUMERIC:
+            schema[c] = pa.Column(float, nullable=True, coerce=True)
         else:
             schema[c] = pa.Column(str, nullable=True, coerce=True)
     return pa.DataFrameSchema(schema, strict=False, coerce=True)
+
+
+@functools.cache
+def _group_schema(gid: str) -> pa.DataFrameSchema:
+    """Tight Pandera schema for a group's RAW (un-harmonized) frame.
+
+    Built from the group's bundled ``variables_denue_<gid>.yaml``: any column with a
+    non-empty ``Categorías`` map is constrained to those keys (``isin``) — the categories
+    are sourced from the release's data dictionary and cross-validated against the data at
+    build time, so a future file with a new/garbled value fails here. Coded columns
+    (by mnemonic) get regex; lat/lon a numeric type check; everything else a nullable
+    string. ``strict=False`` ignores geometry and any extra per_ocu source columns.
+    """
+    vars_ = variables_denue(gid)
+    cols = denue_schema_map()["groups"][gid]["columns"]
+    schema = {}
+    for col in cols:
+        cats = (vars_.get(col) or {}).get("Categorías") or {}
+        mn = _mnemonic_of(gid, col)
+        if cats:
+            schema[col] = pa.Column(str, pa.Check.isin(list(cats)), nullable=True, coerce=True)
+        elif mn in _CODED_REGEX:
+            schema[col] = pa.Column(str, pa.Check.str_matches(_CODED_REGEX[mn]), nullable=True, coerce=True)
+        elif mn in _NUMERIC:
+            schema[col] = pa.Column(float, nullable=True, coerce=True)
+        else:
+            schema[col] = pa.Column(str, nullable=True, coerce=True)
+    return pa.DataFrameSchema(schema, strict=False, coerce=True)
+
+
+def _validate(schema: pa.DataFrameSchema, frame: pd.DataFrame, label: str) -> None:
+    """Validate (lazy) and **warn** on value-level violations rather than raise.
+
+    A single malformed cell (DENUE has e.g. ``cod_postal="IT SU"`` from a misaligned row)
+    should surface a problem, not make a whole state unloadable — structural problems
+    (unknown schema) already raise earlier in ``load_denue`` via ``_group_of``. The
+    maintainer ``--validate`` sweep is the authoritative hard pass/fail report.
+    """
+    try:
+        schema.validate(frame, lazy=True)
+    except SchemaErrors as exc:
+        fc = exc.failure_cases
+        top = fc.groupby(["column", "check"]).size().sort_values(ascending=False).head(6)
+        detail = "; ".join(f"{col}/{chk}×{n}" for (col, chk), n in top.items())
+        warnings.warn(
+            f"DENUE {label}: {len(fc)} schema violation(s) [{detail}]", stacklevel=3
+        )
 
 
 def _fingerprint(columns) -> str:
@@ -358,14 +510,26 @@ def _group_of(gdf: gpd.GeoDataFrame, schema_map: dict) -> str:
     return gid
 
 
+def _capture(gdf: gpd.GeoDataFrame, spec: dict, gid: str):
+    """Capture a coded column from its era-specific source and canonicalize its values.
+
+    The general rename can pick the wrong column (tipoUniEco) or drop the populated one
+    (per_ocu), so these fields are captured from their designated source *before* the
+    rename and re-assigned after. Returns None if the source column is absent.
+    """
+    src, vmap = spec.get(gid, (None, None))
+    if not src or src not in gdf.columns:
+        return None
+    s = gdf[src]
+    return s.map(lambda v: vmap.get(v, v)) if vmap is not None else s
+
+
 def _harmonize(gdf: gpd.GeoDataFrame, gid: str, latest_cols: list) -> gpd.GeoDataFrame:
     """Map a group's GeoDataFrame onto the latest schema's columns + geometry."""
-    # per_ocu: pull from its designated raw source column (which the general rename may
-    # drop) and canonicalize, before the rename/drop pass.
-    src, vmap = _PER_OCU.get(gid, ("per_ocu", None))
-    per_ocu = gdf[src] if src in gdf.columns else None
-    if per_ocu is not None and vmap is not None:
-        per_ocu = per_ocu.map(lambda v: vmap.get(v, v))
+    # per_ocu and tipoUniEco: capture+canonicalize from their designated raw source
+    # columns (which the general rename may drop or mis-source) before the rename/drop.
+    per_ocu = _capture(gdf, _PER_OCU, gid)
+    tipo_uni = _capture(gdf, _TIPO_UNI, gid)
 
     by_lower = {c.lower(): c for c in latest_cols}
     explicit = _RENAME.get(gid, {})
@@ -396,10 +560,13 @@ def _harmonize(gdf: gpd.GeoDataFrame, gid: str, latest_cols: list) -> gpd.GeoDat
     gdf = gdf[[c for c in gdf.columns if c in latest_cols or c == "geometry"]]
 
     gdf["per_ocu"] = per_ocu.to_numpy() if per_ocu is not None else pd.NA
+    gdf["tipoUniEco"] = tipo_uni.to_numpy() if tipo_uni is not None else pd.NA
 
     for col in latest_cols:  # add latest-only columns absent here (e.g. clee)
         if col not in gdf.columns:
             gdf[col] = pd.NA
+    if "fecha_alta" in gdf.columns:  # unify the many era date formats → YYYY-MM
+        gdf["fecha_alta"] = _normalize_fecha(gdf["fecha_alta"])
     return gdf[latest_cols + ["geometry"]]
 
 
@@ -427,6 +594,10 @@ def load_denue(
         Map the file onto the latest release's 42-column schema for longitudinal
         comparability. If False, return the release's raw columns.
 
+    The frame is validated against the tight Pandera schema for its group (raw) or the
+    latest schema (harmonized); value-level violations emit a ``warnings.warn`` summary
+    (they do not raise — see ``_validate``). An unrecognized schema raises ``ValueError``.
+
     Returns
     -------
     geopandas.GeoDataFrame
@@ -448,9 +619,12 @@ def load_denue(
         raise ValueError(
             f"DENUE file {survey_path} is not EPSG:4326 (got {gdf.crs}); stale mirror?"
         )
+    gid = _group_of(gdf, schema_map)
     if harmonize:
-        gid = _group_of(gdf, schema_map)
         latest_cols = schema_map["groups"][schema_map["latest"]]["columns"]
         gdf = _harmonize(gdf, gid, latest_cols)
-        _latest_schema().validate(gdf.drop(columns="geometry"))  # raises on violation
+        _validate(_latest_schema(), gdf.drop(columns="geometry"), f"{gid} (harmonized)")
+    else:
+        # validate the raw frame against its own group's tight schema
+        _validate(_group_schema(gid), gdf.drop(columns="geometry"), f"{gid} (raw)")
     return gdf

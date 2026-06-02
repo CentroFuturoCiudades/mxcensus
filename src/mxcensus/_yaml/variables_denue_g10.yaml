@@ -6,9 +6,12 @@ id:
   Longitud: '10'
   Categorías: {}
 clee:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Es la llave única de identificación estadística, asignada exclusivamente
+    por el INEGI a cada uno de los establecimientos y empresas registrados en el RENEM,
+    cuya función es identificarlos unívocamente y vincular a los establecimientos
+    de una misma empresa.
+  Tipo: alfanumérico
+  Longitud: '40'
   Categorías: {}
 nom_estab:
   Descripción: 'Es el nombre comercial o nombre exterior con el que se identifica
@@ -78,7 +81,34 @@ tipo_vial:
     andador, etc.)
   Tipo: alfanumérico
   Longitud: '25'
-  Categorías: {}
+  Categorías:
+    AMPLIACION: AMPLIACION
+    ANDADOR: ANDADOR
+    AUTOPISTA: AUTOPISTA
+    AVENIDA: AVENIDA
+    BOULEVARD: BOULEVARD
+    CALLE: CALLE
+    CALLEJON: CALLEJON
+    CALZADA: CALZADA
+    CARRETERA: CARRETERA
+    CERRADA: CERRADA
+    CIRCUITO: CIRCUITO
+    CIRCUNVALACION: CIRCUNVALACION
+    CONTINUACION: CONTINUACION
+    CORREDOR: CORREDOR
+    DIAGONAL: DIAGONAL
+    EJE VIAL: EJE VIAL
+    NINGUNO: NINGUNO
+    OTRO (ESPECIFIQUE): OTRO (ESPECIFIQUE)
+    OTRO(ESPECIFIQUE): OTRO(ESPECIFIQUE)
+    PASAJE: PASAJE
+    PEATONAL: PEATONAL
+    PERIFERICO: PERIFERICO
+    PRIVADA: PRIVADA
+    PROLONGACION: PROLONGACION
+    RETORNO: RETORNO
+    TERRACERIA: TERRACERIA
+    VIADUCTO: VIADUCTO
 nom_vial:
   Descripción: Es el sustantivo propio con el cual se identifica la vialidad.
   Tipo: alfanumérico
@@ -90,7 +120,38 @@ tipo_v_e_1:
     andador, etc.)
   Tipo: alfanumérico
   Longitud: '40'
-  Categorías: {}
+  Categorías:
+    AMPLIACION: AMPLIACION
+    ANDADOR: ANDADOR
+    AUTOPISTA: AUTOPISTA
+    AVENIDA: AVENIDA
+    BOULEVARD: BOULEVARD
+    CALLE: CALLE
+    'CALLE ': 'CALLE '
+    CALLEJON: CALLEJON
+    CALZADA: CALZADA
+    CARRETERA: CARRETERA
+    CERRADA: CERRADA
+    CIRCUITO: CIRCUITO
+    CIRCUNVALACION: CIRCUNVALACION
+    CONTINUACION: CONTINUACION
+    CORREDOR: CORREDOR
+    DIAGONAL: DIAGONAL
+    EJE VIAL: EJE VIAL
+    EMBARCADERO: EMBARCADERO
+    MUELLE: MUELLE
+    NINGUNO: NINGUNO
+    OTRO (ESPECIFIQUE): OTRO (ESPECIFIQUE)
+    OTRO(ESPECIFIQUE): OTRO(ESPECIFIQUE)
+    PASAJE: PASAJE
+    PEATONAL: PEATONAL
+    PERIFERICO: PERIFERICO
+    PRIVADA: PRIVADA
+    PROLONGACION: PROLONGACION
+    RETORNO: RETORNO
+    RÍO: RÍO
+    TERRENOS: TERRENOS
+    VIADUCTO: VIADUCTO
 nom_v_e_1:
   Descripción: Es el sustantivo propio con el cual se identifica la vialidad.
   Tipo: alfanumérico
@@ -102,7 +163,37 @@ tipo_v_e_2:
     andador, etc.)
   Tipo: alfanumérico
   Longitud: '40'
-  Categorías: {}
+  Categorías:
+    AMPLIACION: AMPLIACION
+    ANDADOR: ANDADOR
+    AUTOPISTA: AUTOPISTA
+    AVENIDA: AVENIDA
+    BOULEVARD: BOULEVARD
+    CALLE: CALLE
+    CALLEJON: CALLEJON
+    CALZADA: CALZADA
+    CARRETERA: CARRETERA
+    CERRADA: CERRADA
+    CIRCUITO: CIRCUITO
+    CIRCUNVALACION: CIRCUNVALACION
+    CONTINUACION: CONTINUACION
+    CORREDOR: CORREDOR
+    DIAGONAL: DIAGONAL
+    EJE VIAL: EJE VIAL
+    EMBARCADERO: EMBARCADERO
+    NINGUNO: NINGUNO
+    OTRO (ESPECIFIQUE): OTRO (ESPECIFIQUE)
+    OTRO(ESPECIFIQUE): OTRO(ESPECIFIQUE)
+    PASAJE: PASAJE
+    PASEO DE LAS PALMAS: PASEO DE LAS PALMAS
+    PEATONAL: PEATONAL
+    PERIFERICO: PERIFERICO
+    PRIVADA: PRIVADA
+    PROLONGACION: PROLONGACION
+    RETORNO: RETORNO
+    RÍO: RÍO
+    TERRENOS: TERRENOS
+    VIADUCTO: VIADUCTO
 nom_v_e_2:
   Descripción: Es el sustantivo propio con el cual se identifica la vialidad.
   Tipo: alfanumérico
@@ -114,7 +205,38 @@ tipo_v_e_3:
     andador, etc.)
   Tipo: alfanumérico
   Longitud: '40'
-  Categorías: {}
+  Categorías:
+    AMPLIACION: AMPLIACION
+    ANDADOR: ANDADOR
+    AUTOPISTA: AUTOPISTA
+    AVENIDA: AVENIDA
+    BOULEVARD: BOULEVARD
+    CALLE: CALLE
+    CALLEJON: CALLEJON
+    CALZADA: CALZADA
+    CARRETERA: CARRETERA
+    CERRADA: CERRADA
+    CIRCUITO: CIRCUITO
+    CIRCUNVALACION: CIRCUNVALACION
+    CONTINUACION: CONTINUACION
+    CORREDOR: CORREDOR
+    DIAGONAL: DIAGONAL
+    EJE VIAL: EJE VIAL
+    EMBARCADERO: EMBARCADERO
+    MUELLE: MUELLE
+    NINGUNO: NINGUNO
+    OTRO (ESPECIFIQUE): OTRO (ESPECIFIQUE)
+    OTRO(ESPECIFIQUE): OTRO(ESPECIFIQUE)
+    PASAJE: PASAJE
+    PEATONAL: PEATONAL
+    PERIFERICO: PERIFERICO
+    PRIVADA: PRIVADA
+    PROLONGACION: PROLONGACION
+    PROLONGACIÓN: PROLONGACIÓN
+    RETORNO: RETORNO
+    RÍO: RÍO
+    TERRENOS: TERRENOS
+    VIADUCTO: VIADUCTO
 nom_v_e_3:
   Descripción: Es el sustantivo propio con el cual se identifica la vialidad.
   Tipo: alfanumérico
@@ -161,7 +283,54 @@ tipo_asent:
     su función (colonia, fraccionamiento, unidad habitacional, etc.)
   Tipo: alfanumérico
   Longitud: '25'
-  Categorías: {}
+  Categorías:
+    AEROPUERTO: AEROPUERTO
+    AMPLIACION: AMPLIACION
+    BARRIO: BARRIO
+    CANTON: CANTON
+    CIUDAD: CIUDAD
+    CIUDAD INDUSTRIAL: CIUDAD INDUSTRIAL
+    COLONIA: COLONIA
+    CONDOMINIO: CONDOMINIO
+    CONJUNTO HABITACIONAL: CONJUNTO HABITACIONAL
+    CORREDOR INDUSTRIAL: CORREDOR INDUSTRIAL
+    COTO: COTO
+    CUARTEL: CUARTEL
+    EJIDO: EJIDO
+    EXHACIENDA: EXHACIENDA
+    FRACCION: FRACCION
+    FRACCIONAMIENTO: FRACCIONAMIENTO
+    GRANJA: GRANJA
+    HACIENDA: HACIENDA
+    INGENIO: INGENIO
+    LOCALIDAD: LOCALIDAD
+    LOCALIDAD URBANA: LOCALIDAD URBANA
+    MANZANA: MANZANA
+    NINGUNO: NINGUNO
+    OTRO (ESPECIFIQUE): OTRO (ESPECIFIQUE)
+    PARAJE: PARAJE
+    PARQUE INDUSTRIAL: PARQUE INDUSTRIAL
+    PRIVADA: PRIVADA
+    PROLONGACION: PROLONGACION
+    PUEBLO: PUEBLO
+    PUERTO: PUERTO
+    RANCHERIA: RANCHERIA
+    RANCHO: RANCHO
+    REGION: REGION
+    RESIDENCIAL: RESIDENCIAL
+    RINCONADA: RINCONADA
+    SECCION: SECCION
+    SECTOR: SECTOR
+    SUPERMANZANA: SUPERMANZANA
+    UNIDAD: UNIDAD
+    UNIDAD HABITACIONAL: UNIDAD HABITACIONAL
+    VILLA: VILLA
+    ZONA COMERCIAL: ZONA COMERCIAL
+    ZONA FEDERAL: ZONA FEDERAL
+    ZONA INDUSTRIAL: ZONA INDUSTRIAL
+    ZONA MILITAR: ZONA MILITAR
+    ZONA NAVAL: ZONA NAVAL
+    ÁREA RURAL: ÁREA RURAL
 nomb_asent:
   Descripción: Es el sustantivo propio con el cual se identifica el asentamiento humano
     en el que se ubica la unidad económica.
@@ -173,7 +342,30 @@ tipoCenCom:
     económica.
   Tipo: alfanumérico
   Longitud: '30'
-  Categorías: {}
+  Categorías:
+    AEROPUERTO: AEROPUERTO
+    CENTRAL CAMIONERA: CENTRAL CAMIONERA
+    CENTRAL DE ABASTO: CENTRAL DE ABASTO
+    CENTRO Y PLAZA COMERCIAL: CENTRO Y PLAZA COMERCIAL
+    CIUDAD INDUSTRIAL: CIUDAD INDUSTRIAL
+    CORREDOR INDUSTRIAL: CORREDOR INDUSTRIAL
+    CORREDORES TURÍSTICOS: CORREDORES TURÍSTICOS
+    EDIFICIO COMERCIAL Y DE SERVIC: EDIFICIO COMERCIAL Y DE SERVIC
+    EDIFICIO COMERCIAL Y DE SERVICIOS: EDIFICIO COMERCIAL Y DE SERVICIOS
+    EDIFICIO HABITACIONAL Y MIXTO: EDIFICIO HABITACIONAL Y MIXTO
+    ESCUELAS: ESCUELAS
+    HOSPITAL, CENTRO MEDICO O CLIN: HOSPITAL, CENTRO MEDICO O CLIN
+    HOSPITAL, CENTRO MEDICO O CLINICA: HOSPITAL, CENTRO MEDICO O CLINICA
+    HOTELES: HOTELES
+    MERCADO PUBLICO: MERCADO PUBLICO
+    OTRO CONGLOMERADO: OTRO CONGLOMERADO
+    OTROS CONJUNTOS COMERCIALES: OTROS CONJUNTOS COMERCIALES
+    PARQUE INDUSTRIAL: PARQUE INDUSTRIAL
+    PARQUE RECREATIVO: PARQUE RECREATIVO
+    PASAJE Y ANDADOR COMERCIAL: PASAJE Y ANDADOR COMERCIAL
+    PLAZA COMERCIAL: PLAZA COMERCIAL
+    TIANGUIS, BAZAR O PULGA: TIANGUIS, BAZAR O PULGA
+    ZONA INDUSTRIAL: ZONA INDUSTRIAL
 nom_CenCom:
   Descripción: Nombre de la plaza, centro comercial, etcétera donde se encuentra la
     unidad económica.
@@ -196,7 +388,39 @@ cve_ent:
   Descripción: Clave que identifica a la entidad federativa estadística.
   Tipo: alfanumérico
   Longitud: '2'
-  Categorías: {}
+  Categorías:
+    '01': '01'
+    '02': '02'
+    '03': '03'
+    '04': '04'
+    '05': '05'
+    '06': '06'
+    '07': '07'
+    08: 08
+    09: 09
+    '10': '10'
+    '11': '11'
+    '12': '12'
+    '13': '13'
+    '14': '14'
+    '15': '15'
+    '16': '16'
+    '17': '17'
+    '18': '18'
+    '19': '19'
+    '20': '20'
+    '21': '21'
+    '22': '22'
+    '23': '23'
+    '24': '24'
+    '25': '25'
+    '26': '26'
+    '27': '27'
+    '28': '28'
+    '29': '29'
+    '30': '30'
+    '31': '31'
+    '32': '32'
 entidad:
   Descripción: Es el sustantivo propio que identifica a la entidad federativa.
   Tipo: alfanumérico
@@ -283,7 +507,9 @@ tipoUniEco:
     un periodo de por lo menos tres meses seguidos.'
   Tipo: alfanumérico
   Longitud: '8'
-  Categorías: {}
+  Categorías:
+    Fijo: Fijo
+    Semifijo: Semifijo
 latitud:
   Descripción: Es la distancia que existe entre la unidad económica y el ecuador,
     medida sobre el meridiano que pasa por dicho punto.

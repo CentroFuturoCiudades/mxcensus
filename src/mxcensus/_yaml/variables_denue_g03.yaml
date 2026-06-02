@@ -1,147 +1,441 @@
 Llave DENUE:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Número de identificación del DENUE, es una clave numérica única para
+    cada registro de la base de datos del Directorio Estadístico Nacional de Unidades
+    Económicas (DENUE).
+  Tipo: numérico
+  Longitud: '10'
   Categorías: {}
 NIC:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Número de identificación Censal.
+  Tipo: alfanumérico
+  Longitud: '9'
   Categorías: {}
 NOP:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Número operativo Censal.
+  Tipo: alfanumérico
+  Longitud: '11'
   Categorías: {}
 Clave entidad:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
-  Categorías: {}
+  Descripción: Clave que identifica a la entidad federativa.
+  Tipo: alfanumérico
+  Longitud: '2'
+  Categorías:
+    '01': '01'
+    '02': '02'
+    '03': '03'
+    '04': '04'
+    '05': '05'
+    '06': '06'
+    '07': '07'
+    08: 08
+    '10': '10'
+    '11': '11'
+    '13': '13'
+    '15': '15'
+    '16': '16'
+    '17': '17'
+    '18': '18'
+    '19': '19'
+    '20': '20'
+    '21': '21'
+    '22': '22'
+    '23': '23'
+    '24': '24'
+    '25': '25'
+    '26': '26'
+    '27': '27'
+    '28': '28'
+    '29': '29'
+    '30': '30'
+    '31': '31'
+    '32': '32'
+    '9': '9'
 Entidad federativa:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
-  Categorías: {}
+  Descripción: Es el sustantivo propio que identifica a la entidad federativa.
+  Tipo: alfanumérico
+  Longitud: '32'
+  Categorías:
+    AGUASCALIENTES: AGUASCALIENTES
+    BAJA CALIFORNIA: BAJA CALIFORNIA
+    BAJA CALIFORNIA SUR: BAJA CALIFORNIA SUR
+    CAMPECHE: CAMPECHE
+    CHIAPAS: CHIAPAS
+    CHIHUAHUA: CHIHUAHUA
+    COAHUILA DE ZARAGOZA: COAHUILA DE ZARAGOZA
+    COLIMA: COLIMA
+    DISTRITO FEDERAL: DISTRITO FEDERAL
+    DURANGO: DURANGO
+    ESTADO DE MEXICO: ESTADO DE MEXICO
+    GUANAJUATO: GUANAJUATO
+    HIDALGO: HIDALGO
+    MICHOACAN DE OCAMPO: MICHOACAN DE OCAMPO
+    MORELOS: MORELOS
+    NAYARIT: NAYARIT
+    NUEVO LEON: NUEVO LEON
+    OAXACA: OAXACA
+    PUEBLA: PUEBLA
+    QUERETARO: QUERETARO
+    QUINTANA ROO: QUINTANA ROO
+    SAN LUIS POTOSI: SAN LUIS POTOSI
+    SINALOA: SINALOA
+    SONORA: SONORA
+    TABASCO: TABASCO
+    TAMAULIPAS: TAMAULIPAS
+    TLAXCALA: TLAXCALA
+    VERACRUZ DE IGNACIO DE LA LLAVE: VERACRUZ DE IGNACIO DE LA LLAVE
+    YUCATAN: YUCATAN
+    ZACATECAS: ZACATECAS
 Clave municipio:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Clave que identifica al Municipio, y en el caso del Distrito Federal
+    los que identifican a las Delegaciones.
+  Tipo: alfanumérico
+  Longitud: '3'
   Categorías: {}
 Municipio:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Es el sustantivo propio que identifica al Municipio, y en el caso del
+    Distrito Federal los que identifican a las Delegaciones.
+  Tipo: alfanumérico
+  Longitud: '46'
   Categorías: {}
 Clave localidad:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Clave que identifica a la localidad. Esta es el lugar ocupado con una
+    o más edificaciones utilizadas como viviendas, las cuales pueden estar habitadas
+    o no, este lugar es reconocido por un nombre dado por alguna disposición legal
+    o la costumbre.
+  Tipo: alfanumérico
+  Longitud: '4'
   Categorías: {}
 Localidad:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Es el sustantivo propio que identifica a la localidad. Esta es el lugar
+    ocupado con una o más edificaciones utilizadas como viviendas, las cuales pueden
+    estar habitadas o no, este lugar es reconocido por un nombre dado por alguna disposición
+    legal o la costumbre. Área geoestadística
+  Tipo: alfanumérico
+  Longitud: '79'
   Categorías: {}
 'Área geoestadística básica ':
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Es la extensión territorial que corresponde a la subdivisión de las
+    AGEM. Constituye la unidad básica del Marco Geoestadístico Nacional y, dependiendo
+    de sus características, se clasifica en dos tipos, Áreas Geoestadísticas Básicas
+    Urbanas y Áreas Geoestadísticas Básicas Rurales.
+  Tipo: alfanumérico
+  Longitud: '4'
   Categorías: {}
 Manzana:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Clave geoestadística de la manzana, compuesta por tres dígitos, que
+    identifica a una extensión territorial que está constituida por un grupo de viviendas,
+    edificios, predios, lotes o terrenos de uso habitacional, comercial, industrial
+    o de servicios. Nombre de la
+  Tipo: alfanumérico
+  Longitud: '3'
   Categorías: {}
 Nombre de la Unidad Económica:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: 'Es el nombre comercial o nombre exterior con el que se identifica
+    o anuncia la unidad económica.Generalmente es fácil reconocerlo porque está visible
+    y escrito en rótulos, fachadas o anuncios luminosos. Ejemplo: ABARROTES LUPITA.Cuando
+    la unidad económica no tiene ningún apelativo comercial, entonces se registra
+    con el nombre genérico de la actividad o la descripción de la actividad económica,
+    ejemplo: ABARROTES o Comercio al por menor en tiendas de abarrotes, ultramarinos
+    y misceláneas.'
+  Tipo: alfanumérico
+  Longitud: '150'
   Categorías: {}
 Razón social:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: 'Es la forma con que está legalmente constituida y registrada la persona
+    moral, o la denominación de una sociedad legalmente constituida. Es importante
+    considerar que en algunas sociedades mercantiles, la razón social y el nombre
+    comercial pueden ser los mismos, ejemplo: GILSA, S.A. de C.V. Cuando la unidad
+    económica pertenece a una persona física, el dato no se incluye para proteger
+    la confidencialidad de la información.'
+  Tipo: alfanumérico
+  Longitud: '150'
   Categorías: {}
 Tipo de vialidad:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
-  Categorías: {}
+  Descripción: Es la superficie del terreno destinada para el tránsito vehicular y/o
+    peatonal, en la cual se encuentra ubicada la unidad económica (calle, avenida,
+    andador, etc.). Nombre de la
+  Tipo: alfanumérico
+  Longitud: '25'
+  Categorías:
+    '                         ': '                         '
+    AMPLIACIÓN: AMPLIACIÓN
+    ANDADOR: ANDADOR
+    'ANDADOR                  ': 'ANDADOR                  '
+    AUTOPISTA: AUTOPISTA
+    AVENIDA: AVENIDA
+    'AVENIDA                  ': 'AVENIDA                  '
+    BOULEVARD: BOULEVARD
+    'BOULEVARD                ': 'BOULEVARD                '
+    BRECHA: BRECHA
+    CALLE: CALLE
+    'CALLE                    ': 'CALLE                    '
+    CALLEJÓN: CALLEJÓN
+    'CALLEJÓN                 ': 'CALLEJÓN                 '
+    CALZADA: CALZADA
+    'CALZADA                  ': 'CALZADA                  '
+    CAMINO: CAMINO
+    CARRETERA: CARRETERA
+    'CARRETERA                ': 'CARRETERA                '
+    CERRADA: CERRADA
+    'CERRADA                  ': 'CERRADA                  '
+    CIRCUITO: CIRCUITO
+    'CIRCUITO                 ': 'CIRCUITO                 '
+    CIRCUNVALACIÓN: CIRCUNVALACIÓN
+    CONTINUACIÓN: CONTINUACIÓN
+    CORREDOR: CORREDOR
+    DIAGONAL: DIAGONAL
+    'DIAGONAL                 ': 'DIAGONAL                 '
+    EJE VIAL: EJE VIAL
+    NINGUNO: NINGUNO
+    'NINGUNO                  ': 'NINGUNO                  '
+    PASAJE: PASAJE
+    PEATONAL: PEATONAL
+    PERIFÉRICO: PERIFÉRICO
+    'PERIFÉRICO               ': 'PERIFÉRICO               '
+    PRIVADA: PRIVADA
+    'PRIVADA                  ': 'PRIVADA                  '
+    PROLONGACION: PROLONGACION
+    PROLONGACIÓN: PROLONGACIÓN
+    'PROLONGACIÓN             ': 'PROLONGACIÓN             '
+    RETORNO: RETORNO
+    'RETORNO                  ': 'RETORNO                  '
+    TERRACERÍA: TERRACERÍA
+    VEREDA: VEREDA
+    VIADUCTO: VIADUCTO
 Nombre de la vialidad:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Es el sustantivo propio con el cual se identifica la vialidad.
+  Tipo: alfanumérico
+  Longitud: '150'
   Categorías: {}
 Tipo entre vialidad 1:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
-  Categorías: {}
+  Descripción: Es la superficie del terreno destinada para el tránsito vehicular y/o
+    peatonal, en la cual se encuentra ubicada la unidad económica (calle, avenida,
+    andador, etc.). Nombre entre
+  Tipo: alfanumérico
+  Longitud: '25'
+  Categorías:
+    '                         ': '                         '
+    AMPLIACIÓN: AMPLIACIÓN
+    ANDADOR: ANDADOR
+    'ANDADOR                  ': 'ANDADOR                  '
+    AUTOPISTA: AUTOPISTA
+    AVENIDA: AVENIDA
+    'AVENIDA                  ': 'AVENIDA                  '
+    BOULEVARD: BOULEVARD
+    'BOULEVARD                ': 'BOULEVARD                '
+    BRECHA: BRECHA
+    CALLE: CALLE
+    'CALLE                    ': 'CALLE                    '
+    CALLEJON: CALLEJON
+    CALLEJÓN: CALLEJÓN
+    'CALLEJÓN                 ': 'CALLEJÓN                 '
+    CALZADA: CALZADA
+    'CALZADA                  ': 'CALZADA                  '
+    CAMINO: CAMINO
+    CARRETERA: CARRETERA
+    'CARRETERA                ': 'CARRETERA                '
+    CERRADA: CERRADA
+    'CERRADA                  ': 'CERRADA                  '
+    CIRCUITO: CIRCUITO
+    'CIRCUITO                 ': 'CIRCUITO                 '
+    CIRCUNVALACIÓN: CIRCUNVALACIÓN
+    CONTINUACIÓN: CONTINUACIÓN
+    CORREDOR: CORREDOR
+    DIAGONAL: DIAGONAL
+    'DIAGONAL                 ': 'DIAGONAL                 '
+    EJE VIAL: EJE VIAL
+    NINGUNO: NINGUNO
+    'NINGUNO                  ': 'NINGUNO                  '
+    PASAJE: PASAJE
+    PEATONAL: PEATONAL
+    'PEATONAL                 ': 'PEATONAL                 '
+    PERIFÉRICO: PERIFÉRICO
+    'PERIFÉRICO               ': 'PERIFÉRICO               '
+    PRIVADA: PRIVADA
+    'PRIVADA                  ': 'PRIVADA                  '
+    PROLONGACION: PROLONGACION
+    PROLONGACIÓN: PROLONGACIÓN
+    'PROLONGACIÓN             ': 'PROLONGACIÓN             '
+    RETORNO: RETORNO
+    'RETORNO                  ': 'RETORNO                  '
+    TERRACERÍA: TERRACERÍA
+    VEREDA: VEREDA
+    VIADUCTO: VIADUCTO
 Nombre entre vialidad 1:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Es el sustantivo propio con el cual se identifica la vialidad.
+  Tipo: alfanumérico
+  Longitud: '150'
   Categorías: {}
 Tipo entre vialidad 2:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
-  Categorías: {}
+  Descripción: Es la superficie del terreno destinada para el tránsito vehicular y/o
+    peatonal, en la cual se encuentra ubicada la unidad económica (calle, avenida,
+    andador, etc.). Nombre entre
+  Tipo: alfanumérico
+  Longitud: '25'
+  Categorías:
+    '                         ': '                         '
+    AMPLIACIÓN: AMPLIACIÓN
+    ANDADOR: ANDADOR
+    'ANDADOR                  ': 'ANDADOR                  '
+    AUTOPISTA: AUTOPISTA
+    AVENIDA: AVENIDA
+    'AVENIDA                  ': 'AVENIDA                  '
+    BOULEVARD: BOULEVARD
+    'BOULEVARD                ': 'BOULEVARD                '
+    BRECHA: BRECHA
+    CALLE: CALLE
+    'CALLE                    ': 'CALLE                    '
+    'CALLE                                   ': 'CALLE                                   '
+    CALLEJON: CALLEJON
+    CALLEJÓN: CALLEJÓN
+    'CALLEJÓN                 ': 'CALLEJÓN                 '
+    'CALLLE                   ': 'CALLLE                   '
+    CALZADA: CALZADA
+    'CALZADA                  ': 'CALZADA                  '
+    CAMINO: CAMINO
+    CARRETERA: CARRETERA
+    'CARRETERA                ': 'CARRETERA                '
+    CERRADA: CERRADA
+    'CERRADA                  ': 'CERRADA                  '
+    CIRCUITO: CIRCUITO
+    'CIRCUITO                 ': 'CIRCUITO                 '
+    CIRCUNVALACIÓN: CIRCUNVALACIÓN
+    CONTINUACIÓN: CONTINUACIÓN
+    CORREDOR: CORREDOR
+    DIAGONAL: DIAGONAL
+    'DIAGONAL                 ': 'DIAGONAL                 '
+    EJE VIAL: EJE VIAL
+    NINGUNO: NINGUNO
+    'NINGUNO                  ': 'NINGUNO                  '
+    PASAJE: PASAJE
+    'PASAJE                   ': 'PASAJE                   '
+    PEATONAL: PEATONAL
+    'PEATONAL                 ': 'PEATONAL                 '
+    PERIFÉRICO: PERIFÉRICO
+    PRIVADA: PRIVADA
+    'PRIVADA                  ': 'PRIVADA                  '
+    PROLONGACIÓN: PROLONGACIÓN
+    'PROLONGACIÓN             ': 'PROLONGACIÓN             '
+    RETORNO: RETORNO
+    'RETORNO                  ': 'RETORNO                  '
+    TERRACERÍA: TERRACERÍA
+    VIADUCTO: VIADUCTO
 Nombre entre vialidad 2:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Es el sustantivo propio con el cual se identifica la vialidad.
+  Tipo: alfanumérico
+  Longitud: '150'
   Categorías: {}
 Tipo vialidad posterior:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
-  Categorías: {}
+  Descripción: Es la superficie del terreno destinada para el tránsito vehicular y/o
+    peatonal, en la cual se encuentra ubicada la unidad económica (calle, avenida,
+    andador, etc.)
+  Tipo: alfanumérico
+  Longitud: '40'
+  Categorías:
+    '                         ': '                         '
+    AMPLIACION: AMPLIACION
+    AMPLIACIÓN: AMPLIACIÓN
+    'AMPLIACIÓN               ': 'AMPLIACIÓN               '
+    ANDADOR: ANDADOR
+    'ANDADOR                  ': 'ANDADOR                  '
+    AVENIDA: AVENIDA
+    'AVENIDA                  ': 'AVENIDA                  '
+    BOULEVARD: BOULEVARD
+    'BOULEVARD                ': 'BOULEVARD                '
+    BRECHA: BRECHA
+    CALLE: CALLE
+    'CALLE                    ': 'CALLE                    '
+    CALLEJÓN: CALLEJÓN
+    'CALLEJÓN                 ': 'CALLEJÓN                 '
+    CALZADA: CALZADA
+    'CALZADA                  ': 'CALZADA                  '
+    CAMINO: CAMINO
+    CARRETERA: CARRETERA
+    'CARRETERA                ': 'CARRETERA                '
+    CERRADA: CERRADA
+    'CERRADA                  ': 'CERRADA                  '
+    CIRCUITO: CIRCUITO
+    'CIRCUITO                 ': 'CIRCUITO                 '
+    CIRCUNVALACI: CIRCUNVALACI
+    CIRCUNVALACIÓN: CIRCUNVALACIÓN
+    CONTINUACIÓN: CONTINUACIÓN
+    CORREDOR: CORREDOR
+    DIAGONAL: DIAGONAL
+    EJE VIAL: EJE VIAL
+    'EJE VIAL                 ': 'EJE VIAL                 '
+    NINGUNO: NINGUNO
+    'NINGUNO                  ': 'NINGUNO                  '
+    PASAJE: PASAJE
+    PEATONAL: PEATONAL
+    'PEATONAL                 ': 'PEATONAL                 '
+    PERIFÉRICO: PERIFÉRICO
+    'PERIFÉRICO               ': 'PERIFÉRICO               '
+    PRIVADA: PRIVADA
+    'PRIVADA                  ': 'PRIVADA                  '
+    PROLONGACION: PROLONGACION
+    PROLONGACIÓN: PROLONGACIÓN
+    'PROLONGACIÓN             ': 'PROLONGACIÓN             '
+    RETORNO: RETORNO
+    'RETORNO                  ': 'RETORNO                  '
+    TERRACERÍA: TERRACERÍA
+    VEREDA: VEREDA
+    VIADUCTO: VIADUCTO
 Nombre vialidad posterior:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Es el sustantivo propio con el cual se identifica la vialidad.
+  Tipo: alfanumérico
+  Longitud: '150'
   Categorías: {}
 Número exterior o kilómetro:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Son los valores numéricos que identifican a uno o varios inmuebles
+    en una vialidad.
+  Tipo: alfanumérico
+  Longitud: '35'
   Categorías: {}
 Edificio, piso o nivel:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Es el sustantivo propio con el que se identifica el inmueble donde
+    está ubicada la unidad económica. Número o letra
+  Tipo: alfanumérico
+  Longitud: '35'
   Categorías: {}
 Número o letra interior:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Son los valores numéricos que identifican el domicilio de la unidad
+    económica al interior de un inmueble.
+  Tipo: alfanumérico
+  Longitud: '35'
   Categorías: {}
 Tipo de asentamiento humano:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Es la clasificación que se da al asentamiento humano de acuerdo con
+    su función (colonia, fraccionamiento, unidad habitacional, etc.)
+  Tipo: alfanumérico
+  Longitud: '25'
   Categorías: {}
 Nombre de asentamiento humano:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Es el sustantivo propio con el cual se identifica el asentamiento humano
+    en el que se ubica la unidad económica.
+  Tipo: alfanumérico
+  Longitud: '150'
   Categorías: {}
 Código Postal:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Clave numérica integrada por cinco dígitos establecido por el Servicio
+    Postal Mexicano. Número de teléfono 1 telefono1 alfanumérico 20 Primer número
+    telefónico, secuencia de dígitos que permite la comunicación vía telefónica con
+    la unidad económica. Número de teléfono 2 telefono2 alfanumérico 20 Segundo número
+    telefónico, secuencia de dígitos que permite la comunicación vía telefónica con
+    la unidad económica.
+  Tipo: alfanumérico
+  Longitud: '5'
   Categorías: {}
 Número de teléfono 1:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Número telefónico, secuencia de dígitos que permite la comunicación
+    vía telefónica con la unidad económica.
+  Tipo: alfanumérico
+  Longitud: '20'
   Categorías: {}
 Extensión 1:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Primera extensión, secuencia de dígitos que permite la comunicación
+    vía telefónica con la unidad económica mediante un conmutador.
+  Tipo: alfanumérico
+  Longitud: '6'
   Categorías: {}
 Número de teléfono 2:
   Descripción: ''
@@ -149,95 +443,162 @@ Número de teléfono 2:
   Longitud: ''
   Categorías: {}
 Extensión 2:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Segunda extensión, secuencia de dígitos que permite la comunicación
+    vía telefónica con la unidad económica mediante un conmutador.
+  Tipo: alfanumérico
+  Longitud: '6'
   Categorías: {}
 Número de FAX:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Secuencia de dígitos que permite la comunicación vía FAX. Junio 2012
+    Directorio Estadístico Nacional de Unidades Económicas DESCRIPCIÓN DE ARCHIVOS
+    Longitud Nombre de la columna en el archivo DBF DescripciónTipo de dato Nombre
+    de la columna en el archivo CSV Código de la clase de
+  Tipo: alfanumérico
+  Longitud: '20'
   Categorías: {}
 Código de la clase de actividad SCIAN:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: La clasificación de las actividades desarrolladas por las unidades
+    económicas debe hacerse utilizando el SCIAN y sus actualizaciones, con base en
+    lo dispuesto en el acuerdo para el uso del SCIAN y en la recopilación, análisis
+    y presentación de estadísticas económicas, publicado en el Diario Oficial de la
+    Federación del 10 de julio de 2009. El código está asignado con base en la actividad
+    principal que desarrolla la unidad económica y de acuerdo con el Sistema de Clasificación
+    Industrial para América del Norte, versión 2018. Para la asignación del código
+    de actividad correspondiente, según el SCIAN 2018, se consideraron tanto los productos
+    (bienes y servicios) desarrollados por el establecimiento como sus procesos de
+    producción.
+  Tipo: alfanumérico
+  Longitud: '6'
   Categorías: {}
 Nombre de clase de la actividad:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Nombre del código de actividad conforme al SCIAN 2018.
+  Tipo: alfanumérico
+  Longitud: '250'
   Categorías: {}
 Corredor industrial, centro comercial o mercado público:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Nombre de la plaza, centro comercial, etcétera donde se encuentra la
+    unidad económica.
+  Tipo: alfanumérico
+  Longitud: '150'
   Categorías: {}
 Número de local:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Dato alfanumérico que corresponde al local en donde se localizó la
+    unidad económica.
+  Tipo: alfanumérico
+  Longitud: '35'
   Categorías: {}
 Correo electrónico 1:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Primer correo electrónico, es la serie de caracteres cuya finalidad
+    es acceder a un servicio de red que posibilita a las unidades económicas el envío
+    y recepción de mensajes mediante sistemas de comunicación electrónicos.
+  Tipo: alfanumérico
+  Longitud: '75'
   Categorías: {}
 Sitio en Internet:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Son los datos que permiten el acceso a información de la unidad económica
+    en Internet.
+  Tipo: alfanumérico
+  Longitud: '75'
   Categorías: {}
 Correo electrónico 2:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Segundo correo electrónico, es la serie de caracteres cuya finalidad
+    es acceder a un servicio de red que posibilita a las unidades económicas el envío
+    y recepción de mensajes mediante sistemas de comunicación electrónicos. Tipo de
+  Tipo: alfanumérico
+  Longitud: '75'
   Categorías: {}
 Tipo de establecimiento:
   Descripción: ''
   Tipo: ''
   Longitud: ''
-  Categorías: {}
+  Categorías:
+    '1': Fijo
+    '2': Semifijo
+    '3': Actividad en vivienda
 Tipo de unidad económica:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
-  Categorías: {}
+  Descripción: 'Grupo de categorías que sirve para identificar si el establecimiento
+    es fijo o semifijo, bajo las siguientes definiciones: Establecimiento fijo: es
+    la unidad que en una sola ubicación física, asentada en un lugar de manera permanente
+    y delimitada por construcciones e instalaciones fijas, combina acciones y recursos
+    bajo el control de una sola entidad propietaria o controladora para realizar alguna
+    actividad económica con y sin fines de lucro, excepto las destinadas al autoconsumo.
+    En este tipo de establecimiento están comprendidas las viviendas cuando en algún
+    espacio de la casa-habitación, que también está destinado a otras actividades
+    cotidianas, se realiza alguna actividad económica. Establecimiento semifijo: establecimientos
+    que están fijos, enclavados en el suelo, y que permanecen de día y de noche en
+    el mismo sitio aunque sus instalaciones sean frágiles o rústicas. También aquellas
+    instalaciones que aun cuando no estén enclavadas al suelo no pueden ser removidas
+    de donde están, aunque lleven a cabo actividades que tienen carácter temporal
+    o estacional, siempre y cuando permanezcan activas y en un solo lugar durante
+    un periodo de por lo menos tres meses seguidos.'
+  Tipo: alfanumérico
+  Longitud: '8'
+  Categorías:
+    ' ': ' '
+    M: M
+    S: S
+    U: U
 Personal ocupado (estrato):
   Descripción: ''
   Tipo: ''
   Longitud: ''
   Categorías:
-    '1': '1'
-    '13': '13'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '5': '5'
-    '6': '6'
-    '7': '7'
+    '1': 0 a 5 personas
+    '13': No especificado
+    '2': 6 a 10 personas
+    '3': 11 a 30 personas
+    '4': 31 a 50 personas
+    '5': 51 a 100 personas
+    '6': 101 a 250 personas
+    '7': 251 y más personas
 Descripcion estrato personal ocupado:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
-  Categorías: {}
+  Descripción: Comprende al personal contratado directamente por la razón social y
+    al personal ajeno suministrado por otra razón social, que trabajó para la unidad
+    económica, sujeto a su dirección y control y que cubrió, como mínimo, una tercera
+    parte de la jornada laboral. Puede ser personal de planta, eventual remunerado
+    o no remunerado. Las unidades económicas se clasifican por rangos de personal
+    ocupado, que permiten identificar el tamaño de Unidades Económicas por el número
+    de personal que emplean; es decir, según su personal ocupado total. Para el Directorio
+    las Unidades Económicas están agrupadas en rangos o estratos de personal ocupado,
+    con base en el personal ocupado total reportado por éstas, como se indica en la
+    siguiente tabla. Personal Ocupado 1 = 0 a 5 2 = 6 a 10 3 = 11 a 30 4 = 31 a 50
+    5 = 51 a 100 6 = 101 a 250 7 = 251 y más
+  Tipo: alfanumérico
+  Longitud: '20'
+  Categorías:
+    0 a 5 personas: 0 a 5 personas
+    101 a 250 personas: 101 a 250 personas
+    11 a 30 personas: 11 a 30 personas
+    251 y más personas: 251 y más personas
+    31 a 50 personas: 31 a 50 personas
+    51 a 100 personas: 51 a 100 personas
+    6 a 10 personas: 6 a 10 personas
+    No especificado: No especificado
 Estatus de control de registros:
   Descripción: ''
   Tipo: ''
   Longitud: ''
-  Categorías: {}
+  Categorías:
+    '0': '0'
+    '1': '1'
+    '2': '2'
+    '3': '3'
 Fecha de incorporación al DENUE:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Fecha en la que la unidad económica se integró al Directorio Estadístico
+    Nacional de Unidades Económicas y al Registro Estadístico de Negocios de México
+    (RENEM).
+  Tipo: alfanumérico
+  Longitud: '15'
   Categorías: {}
 Latitud:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Es la distancia que existe entre la Unidad económica y el ecuador,
+    medida sobre el meridiano que pasa por dicho punto.
+  Tipo: numérico
+  Longitud: '19'
   Categorías: {}
 Longitud:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Es la distancia que existe entre la Unidad económica y el meridiano
+    de Greenwich, medida sobre el paralelo que pasa por dicho punto.
+  Tipo: numérico
+  Longitud: '19'
   Categorías: {}

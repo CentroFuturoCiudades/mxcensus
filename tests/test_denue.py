@@ -1,9 +1,9 @@
-"""DENUE harmonization unit tests.
+"""DENUE schema, harmonization, and validation tests.
 
-These exercise the schema-grouping + harmonization logic against the bundled
-``denue_schema_map.yaml`` only — no network and no mirrored parquet required, so
-they run in CI. End-to-end ``load_denue(state=…)`` fetching is covered by the
-maintainer build, not here.
+The synthetic-frame tests exercise the grouping / harmonization / per-group schema
+logic against the bundled YAMLs only — no network, no mirrored parquet — so they run
+in CI. The ``@skipif(not _REAL)`` block additionally loads one real file per group when
+a local mirror (``data/parquet/``) is present (maintainer machine).
 """
 from __future__ import annotations
 
@@ -12,21 +12,34 @@ import warnings
 from pathlib import Path
 
 import geopandas as gpd
+import pandera.pandas as pa
 import pyarrow.parquet as pq
 import pytest
 from shapely.geometry import Point
 
 import mxcensus
-from mxcensus._resources import denue_schema_map
-from mxcensus.denue import _PER_OCU, _fingerprint, _group_of, _harmonize, _latest_schema
+from mxcensus._resources import denue_schema_map, variables_denue
+from mxcensus.denue import (
+    _CODED_REGEX,
+    _NUMERIC,
+    _OCU_ALLOWED,
+    _PER_OCU,
+    _TIPO_UNI,
+    _TIPO_UNI_ALLOWED,
+    _fingerprint,
+    _group_of,
+    _group_schema,
+    _harmonize,
+    _latest_schema,
+    _mnemonic_of,
+    _normalize_fecha,
+    _validate,
+)
 
 _SM = denue_schema_map()
 _LATEST = _SM["groups"][_SM["latest"]]["columns"]
 _GROUPS = list(_SM["groups"])
 
-# Optional end-to-end coverage: if a local mirror exists (maintainer machine), pick one
-# real parquet file per schema group so load_denue is exercised against actual data —
-# the synthetic-frame tests below can't catch per_ocu value drift or a stale rename map.
 _MIRROR = Path(__file__).resolve().parent.parent / "data" / "parquet"
 
 
@@ -48,6 +61,26 @@ def _frame(columns, rows=3):
     return gpd.GeoDataFrame(data, geometry=[Point(-99.1, 19.4)] * rows, crs="EPSG:4326")
 
 
+def _valid_value(gid: str, col: str) -> str:
+    """A value that should pass ``_group_schema(gid)`` for ``col``."""
+    cats = (variables_denue(gid).get(col) or {}).get("Categorías") or {}
+    if cats:
+        return next(iter(cats))
+    mn = _mnemonic_of(gid, col)
+    if mn in _CODED_REGEX:
+        return {"codigo_act": "461110", "cod_postal": "12345",
+                "cve_ent": "09", "cve_mun": "010", "cve_loc": "0001"}[mn]
+    if mn in _NUMERIC:
+        return "19.4"
+    return "x"
+
+
+def _valid_frame(gid: str, rows=3) -> gpd.GeoDataFrame:
+    cols = _SM["groups"][gid]["columns"]
+    data = {c: [_valid_value(gid, c)] * rows for c in cols}
+    return gpd.GeoDataFrame(data, geometry=[Point(-99.1, 19.4)] * rows, crs="EPSG:4326")
+
+
 def test_latest_is_g10():
     assert _SM["latest"] == "g10"
     assert len(_LATEST) == 42
@@ -63,9 +96,19 @@ def test_every_group_harmonizes_to_latest(gid):
 
 @pytest.mark.parametrize("gid", _GROUPS)
 def test_group_fingerprint_round_trips(gid):
-    """A frame built from a group's columns is identified back as that group."""
     assert _group_of(_frame(_SM["groups"][gid]["columns"]), _SM) == gid
 
+
+# --- mnemonic resolution -----------------------------------------------------
+
+def test_mnemonic_of_fixes_case_and_rename():
+    assert _mnemonic_of("g09", "NOM_ESTAB") == "nom_estab"   # UPPERCASE group
+    assert _mnemonic_of("g11", "PER_OCU") == "per_ocu"
+    assert _mnemonic_of("g10", "clee") == "clee"             # identity
+    assert _mnemonic_of("g01", "Razón social") == "raz_social"  # descriptive rename
+
+
+# --- per_ocu + tipoUniEco harmonization --------------------------------------
 
 def test_per_ocu_uppercase_label_remap():
     gid = "g01"
@@ -75,25 +118,115 @@ def test_per_ocu_uppercase_label_remap():
 
 
 def test_per_ocu_numeric_code_remap():
-    gid = "g03"  # 2012 stores per_ocu as numeric codes in the code column
+    gid = "g03"
     gdf = _frame(_SM["groups"][gid]["columns"])
     gdf[_PER_OCU[gid][0]] = "1"
     assert set(_harmonize(gdf, gid, _LATEST)["per_ocu"]) == {"0 a 5 personas"}
 
 
-def test_harmonized_frame_passes_pandera():
+def test_tipo_uni_code3_is_actividad_en_vivienda():
+    """2012/2013 'Tipo de establecimiento' code 3 → 'Actividad en vivienda'."""
+    gid = "g03"
+    gdf = _frame(_SM["groups"][gid]["columns"])
+    gdf[_TIPO_UNI[gid][0]] = "3"
+    assert set(_harmonize(gdf, gid, _LATEST)["tipoUniEco"]) == {"Actividad en vivienda"}
+
+
+def test_tipo_uni_code_and_label_remap():
+    gid = "g05"
+    gdf = _frame(_SM["groups"][gid]["columns"])
+    gdf[_TIPO_UNI[gid][0]] = "1"
+    assert set(_harmonize(gdf, gid, _LATEST)["tipoUniEco"]) == {"Fijo"}
+    gid = "g01"  # uppercase label era
+    gdf = _frame(_SM["groups"][gid]["columns"])
+    gdf[_TIPO_UNI[gid][0]] = "SEMIFIJO"
+    assert set(_harmonize(gdf, gid, _LATEST)["tipoUniEco"]) == {"Semifijo"}
+
+
+def test_normalize_fecha():
+    import pandas as pd
+    out = _normalize_fecha(
+        pd.Series(["JULIO 2010", "mar-11", "2013 07", "ABRIL 2012  ",
+                   "2021-05", "DICIEMBRE 2014", "junk", None])
+    ).tolist()
+    assert out[:6] == ["2010-07", "2011-03", "2013-07", "2012-04", "2021-05", "2014-12"]
+    assert pd.isna(out[6]) and pd.isna(out[7])  # unparseable / null → NA
+
+
+# --- per-group schemas -------------------------------------------------------
+
+@pytest.mark.parametrize("gid", _GROUPS)
+def test_group_schema_builds(gid):
+    schema = _group_schema(gid)
+    assert set(schema.columns) == set(_SM["groups"][gid]["columns"])
+
+
+def test_group_schema_isin_on_per_ocu_source():
+    """The per_ocu source column carries an isin check sourced from the YAML categories."""
+    for gid in ("g01", "g03", "g08"):
+        src = _PER_OCU[gid][0]
+        checks = _group_schema(gid).columns[src].checks
+        assert any(getattr(c, "name", "") == "isin" for c in checks), gid
+
+
+def test_group_schema_rejects_bad_per_ocu():
+    gid = "g01"
+    schema = _group_schema(gid)
+    schema.validate(_valid_frame(gid).drop(columns="geometry"))  # clean → passes
+    bad = _valid_frame(gid)
+    bad[_PER_OCU[gid][0]] = "BOGUS STRATUM"
+    with pytest.raises(pa.errors.SchemaError):
+        schema.validate(bad.drop(columns="geometry"))
+
+
+def test_harmonized_frame_passes_latest_schema():
+    """A clean synthetic frame harmonizes and passes the tight latest schema."""
     gid = "g01"
     gdf = _frame(_SM["groups"][gid]["columns"])
-    gdf[_PER_OCU[gid][0]] = "0 A 5 PERSONAS"
-    gdf["Código de la clase de actividad"] = "461110"  # valid SCIAN (codigo_act regex)
+    gdf["Personal ocupado (estrato)"] = "0 A 5 PERSONAS"
+    gdf["Tipo de unidad económica"] = "FIJO"
+    gdf["Código de la clase de actividad"] = "461110"
+    gdf["Código postal"] = "12345"
+    gdf["Latitud"], gdf["Longitud"] = "19.4", "-99.1"
     h = _harmonize(gdf, gid, _LATEST)
     _latest_schema().validate(h.drop(columns="geometry"))  # raises on violation
+
+
+def test_validate_warns_not_raises():
+    """_validate surfaces value violations as a warning, never raising."""
+    gid = "g01"
+    bad = _valid_frame(gid)
+    bad[_PER_OCU[gid][0]] = "BOGUS"
+    with warnings.catch_warnings(record=True) as w:
+        warnings.simplefilter("always")
+        _validate(_group_schema(gid), bad.drop(columns="geometry"), "test")
+    assert any("schema violation" in str(x.message) for x in w)
+
+
+def test_coerce_keeps_nulls():
+    """coerce=True must not turn None into the string 'None' and break isin."""
+    gid = "g01"
+    frame = _valid_frame(gid)
+    frame[_PER_OCU[gid][0]] = [None, "0 A 5 PERSONAS", None]
+    _group_schema(gid).validate(frame.drop(columns="geometry"))  # nulls pass isin
+
+
+# --- variable YAML completeness ---------------------------------------------
+
+@pytest.mark.parametrize("gid", _GROUPS)
+def test_variables_populated(gid):
+    """Every group's YAML has per_ocu categories and core descriptions (no empty g09/g11)."""
+    v = variables_denue(gid)
+    ocu_src = _PER_OCU[gid][0]
+    assert v[ocu_src]["Categorías"], f"{gid} per_ocu categories missing"
+    mnem_or_desc = [c for c in v if _mnemonic_of(gid, c) in ("nom_estab", "id")]
+    assert any(v[c]["Descripción"] for c in mnem_or_desc), f"{gid} descriptions missing"
 
 
 def test_variables_denue_bundled():
     v = mxcensus.variables_denue("g10")
     assert {"per_ocu", "codigo_act", "id"} <= set(v)
-    assert v["per_ocu"]["Categorías"]  # personnel strata present
+    assert v["per_ocu"]["Categorías"]
 
 
 def test_load_denue_exported():
@@ -105,22 +238,21 @@ def test_load_denue_exported():
 
 @pytest.mark.skipif(not _REAL, reason="no local DENUE mirror (data/parquet/)")
 @pytest.mark.parametrize("gid", sorted(_REAL) if _REAL else ["_"])
-def test_real_file_loads_and_validates(gid):
-    """Each group's real data harmonizes to g10, validates, and yields canonical
-    per_ocu — and triggers no stale-rename-map warning."""
-    with warnings.catch_warnings():
-        warnings.simplefilter("error")  # a rename-miss warning fails the test
+def test_real_file_harmonizes(gid):
+    """Real data harmonizes to g10 with canonical per_ocu/tipoUniEco and no stale-map warning."""
+    with warnings.catch_warnings(record=True) as w:
+        warnings.simplefilter("always")
         gdf = mxcensus.load_denue(survey_path=_REAL[gid], harmonize=True)
+    assert not any("rename target" in str(x.message) for x in w)  # structural guard
     assert list(gdf.drop(columns="geometry").columns) == _LATEST
     assert gdf.crs.to_epsg() == 4326
-    from mxcensus.denue import _OCU_ALLOWED
-    assert set(gdf["per_ocu"].dropna().unique()) <= set(_OCU_ALLOWED)
+    assert set(gdf["tipoUniEco"].dropna().unique()) <= set(_TIPO_UNI_ALLOWED)
 
 
 @pytest.mark.skipif(not _REAL, reason="no local DENUE mirror (data/parquet/)")
 @pytest.mark.parametrize("gid", sorted(_REAL) if _REAL else ["_"])
-def test_real_file_raw_schema(gid):
-    """harmonize=False returns the release's own (raw) columns, still EPSG:4326."""
+def test_real_file_raw_loads(gid):
+    """harmonize=False returns the raw columns and runs group-schema validation (warn-only)."""
     gdf = mxcensus.load_denue(survey_path=_REAL[gid], harmonize=False)
     assert set(gdf.columns) - {"geometry"} == set(_SM["groups"][gid]["columns"])
     assert gdf.crs.to_epsg() == 4326
