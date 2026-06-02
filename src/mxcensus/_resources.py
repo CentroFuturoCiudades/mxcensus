@@ -34,6 +34,16 @@ def variables_resargebub() -> dict:
     return _load_yaml("variables_resargebub.yaml")
 
 
+def variables_denue(schema_id: str) -> dict:
+    """Variable dictionary for one DENUE schema group, e.g. ``variables_denue("g10")``."""
+    return _load_yaml(f"variables_denue_{schema_id}.yaml")
+
+
+def denue_schema_map() -> dict:
+    """DENUE schema map: fingerprints→group, group→columns, and the ``latest`` group."""
+    return _load_yaml("denue_schema_map.yaml")
+
+
 def constraints_personas() -> dict:
     return _load_yaml("constraints_personas.yaml")
 

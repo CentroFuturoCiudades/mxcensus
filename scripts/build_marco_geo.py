@@ -38,10 +38,10 @@ import argparse
 from pathlib import Path
 
 import geopandas as gpd
-import pooch
 import pyogrio
 from shapely.geometry import MultiPoint
 
+import _build_common as bc
 from mxcensus.data._catalog import STATE_CODE_FMT
 
 # ---------------------------------------------------------------------------
@@ -58,10 +58,6 @@ _ALL_SUFFIXES = [
     "a", "ar", "cd", "e", "ent", "fm", "l", "lpr", "m", "mun",
     "pe", "pem", "sia", "sil", "sip",
 ]
-
-# Prefixes of the census files already in the registry — used to guard against
-# accidentally dropping them when we rewrite registry.txt.
-_CENSUS_PREFIXES = ("iter_", "resargebub_", "personas_", "viviendas_")
 
 # ---------------------------------------------------------------------------
 # Helpers
@@ -108,37 +104,6 @@ def _build_marco_geo_state(
     return written
 
 
-def _update_registry(written: list[Path], registry_path: Path) -> None:
-    """Upsert geoparquet hashes into registry.txt, preserving existing entries."""
-    comments: list[str] = []
-    entries: dict[str, str] = {}
-    if registry_path.exists():
-        for line in registry_path.read_text(encoding="utf-8").splitlines():
-            stripped = line.strip()
-            if not stripped:
-                continue
-            if stripped.startswith("#"):
-                comments.append(line)
-                continue
-            fname, file_hash = stripped.split()
-            entries[fname] = file_hash
-
-    census_before = {k for k in entries if k.startswith(_CENSUS_PREFIXES)}
-    for path in written:
-        entries[path.name] = pooch.file_hash(str(path))
-
-    lines = comments + [f"{fname} {entries[fname]}" for fname in sorted(entries)]
-    registry_path.write_text("\n".join(lines) + "\n", encoding="utf-8")
-
-    census_after = {k for k in entries if k.startswith(_CENSUS_PREFIXES)}
-    lost = census_before - census_after
-    assert not lost, f"registry lost census entries: {sorted(lost)}"
-    print(
-        f"\nRegistry updated: {len(written)} geo entries upserted; "
-        f"{len(entries)} total ({len(census_after)} census)."
-    )
-
-
 # ---------------------------------------------------------------------------
 # CLI
 # ---------------------------------------------------------------------------
@@ -173,7 +138,7 @@ def main() -> None:
         written += _build_marco_geo_state(state, args.marco_geo_dir, args.output, args.layers)
 
     if args.registry_update:
-        _update_registry(written, args.registry)
+        bc.update_registry(written, args.registry)
 
     print("\nDone.")
     print(

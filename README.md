@@ -31,6 +31,11 @@ viviendas = mxcensus.load_extended_viviendas(state=9)
 
 # Geometries (Marco Geoestadístico) merged with census counts
 mg_aur, mg_loc_ageb = mxcensus.load_mg_census(state=9)
+
+# DENUE economic units — any release, harmonized to the latest schema by default
+denue = mxcensus.load_denue(state=9)                      # latest release
+denue_2010 = mxcensus.load_denue(state=9, release="201000")   # comparable to latest
+raw = mxcensus.load_denue(state=9, release="201000", harmonize=False)  # raw schema
 ```
 
 Pre-download a state's files (optional; loaders fetch on demand):
@@ -48,6 +53,18 @@ mxcensus info           # cache directory and mirror URL
 | **RESARGEBUB** | Urban block | AGEB (urban statistical areas) and MZA (city blocks) |
 | **Cuestionario Ampliado** | Microdata | Individual person and household records |
 | **Marco Geoestadístico** | Geometries | INEGI's 2020 geostatistical boundaries (15 layers/state) as GeoParquet |
+| **DENUE** | Establishments | Economic-units directory, 24 releases 2010–2025, as point GeoParquet |
+
+### DENUE (multi-temporal)
+
+DENUE (Directorio Estadístico Nacional de Unidades Económicas) is mirrored for all 24
+releases (2010–2025) × 32 states as point GeoParquet (`denue_{YYYYMM}_{NN}.parquet`,
+EPSG:4326). Its schema drifted substantially over time (column names, encodings, the
+`per_ocu` personnel strata), so `load_denue(state=N)` **harmonizes** each release to the
+latest schema by default for longitudinal analysis; pass `harmonize=False` for the raw
+release schema, or `release="YYYYMM"` for a specific edition. The schema groups and the
+documented inconsistencies (drift, duplicates, malformed/missing files) live in
+[docs/denue/](docs/denue/).
 
 ### Geometries (Marco Geoestadístico)
 
@@ -69,6 +86,8 @@ mxcensus.variables_iter()          # ITER indicators (name, description, range)
 mxcensus.variables_resargebub()    # RESARGEBUB indicators
 mxcensus.variables_personas()      # person microdata variables + category labels
 mxcensus.variables_viviendas()     # household microdata variables + category labels
+mxcensus.variables_denue("g10")    # DENUE variables for a schema group (g01..g11)
+mxcensus.denue_schema_map()        # DENUE schema groups + the latest (harmonization target)
 ```
 
 The ITER and RESARGEBUB dictionaries are national (identical across states), so a
@@ -85,6 +104,8 @@ All data originates from INEGI's open-data ("datos abiertos") releases:
   <https://www.inegi.org.mx/programas/ccpv/2020/>
 - Geometries — Marco Geoestadístico (Censo 2020):
   <https://www.inegi.org.mx/temas/mg/>
+- Economic units — Directorio Estadístico Nacional de Unidades Económicas (DENUE):
+  <https://www.inegi.org.mx/app/mapa/denue/>
 
 When you publish work that uses data obtained through `mxcensus`, INEGI's terms
 require you to credit INEGI as the author of the data. Use the citation(s):
@@ -92,6 +113,8 @@ require you to credit INEGI as the author of the data. Use the citation(s):
 > **Fuente: INEGI, Censo de Población y Vivienda 2020.**
 >
 > **Fuente: INEGI, Marco Geoestadístico, Censo de Población y Vivienda 2020.**
+>
+> **Fuente: INEGI, Directorio Estadístico Nacional de Unidades Económicas (DENUE).**
 
 The data is provided under INEGI's **Términos de Libre Uso de la Información del
 INEGI** (Terms of Free Use):
@@ -121,6 +144,11 @@ before and during loading:
 - **Derived columns** — the extended microdata loaders add summary flags (e.g.
   health-insurance, disability, transport, income bins) computed from the raw
   fields.
+- **DENUE harmonization** — DENUE CSVs are converted to point GeoParquet (geometry
+  from `latitud`/`longitud`); by default `load_denue` further **harmonizes** older
+  releases onto the latest release's schema (renaming columns, normalizing the
+  `per_ocu` strata across encodings, adding/dropping columns). Pass `harmonize=False`
+  for the raw release schema.
 
 **These transformations are performed by `mxcensus`, not by INEGI.** Any errors,
 imputations, or derived values are the responsibility of this package and must not

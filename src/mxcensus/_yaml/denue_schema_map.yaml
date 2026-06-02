@@ -1,0 +1,526 @@
+latest: g10
+fingerprints:
+  8160c3c6054113c8761b5f498e977c9024d4fdb12c2fd15b0a9e88f94d53f9cc: g01
+  f406fdcf04b3eb659f60e1ab15e1a427b2001e1089ebdc2ef3447915ef75359a: g02
+  0e2a046a859a79fff3e3493a319b25f441a4733823569b73709bcf525ef190f2: g03
+  b4868705e09291b8a6bb8ae0253fbb99be34626047d2dc8d6ddac6c5862227fe: g04
+  03cf261d2cb52c8a8074fb407ee4513009de298fe33a6a6916db6bd798329c66: g05
+  37c5bd66c05da3c239d9fcc6d0395d1e7e557f75dd1ddf93db7f27c503177f26: g06
+  9c623c8ef30bf61b08b3a871b130a5ee26c1ab3460918c4a01cad551979022fa: g07
+  91723d10ad88a57b8691d0487a00b7f9c5d8b98058a84fcb3c157f715bf937c9: g08
+  dc0f91a4822ed2bed01fdda27ab5370677c33273199cdabf5cace51fd3a89822: g09
+  b3d1e14d6c1dffa403c84857b934270b49469e8fbef45ef3e5b88d92b16070d0: g10
+  3ef6f8cac1a79e525ac8ecb30564a69da3f4927459d3ddfdeadc7ebfd72e1e74: g11
+groups:
+  g01:
+    n_columns: 24
+    files: 33
+    releases:
+    - '201000'
+    - '201100'
+    columns:
+    - Nombre de la unidad económica
+    - Razón social
+    - Código de la clase de actividad
+    - Nombre de la clase de actividad
+    - Personal ocupado (estrato)
+    - Calle, avenida, andador, carretera, manzana u otro
+    - Número exterior o km
+    - Edificio, piso o nivel
+    - Número o letra interior
+    - Colonia, fraccionamiento, unidad habitacional o barrio
+    - Corredor industrial, centro comercial o mercado público
+    - Número de local
+    - Código postal
+    - Entidad federativa
+    - Municipio
+    - Localidad
+    - Área geoestadística básica
+    - Manzana
+    - Número de teléfono
+    - Correo electrónico
+    - Sitio en Internet
+    - Tipo de unidad económica
+    - Latitud
+    - Longitud
+  g02:
+    n_columns: 30
+    files: 31
+    releases:
+    - '201100'
+    columns:
+    - Nombre de la unidad económica
+    - Razón social
+    - Código de la clase de actividad
+    - Nombre de la clase de actividad
+    - Personal ocupado (estrato)
+    - Tipo de vialidad
+    - Nombre de la vialidad
+    - Número exterior o km
+    - Edificio, piso o nivel
+    - Número o letra interior
+    - Tipo y nombre del asentamiento humano
+    - Corredor industrial, centro comercial o mercado público
+    - Número de local
+    - Código postal
+    - Clave entidad federativa
+    - Entidad federativa
+    - Clave municipio
+    - Municipio
+    - Clave localidad
+    - Localidad
+    - Área geoestadística básica
+    - Manzana
+    - Número de teléfono
+    - Correo electrónico
+    - Sitio en Internet
+    - Tipo de unidad económica
+    - Fecha de incorporación al DENUE
+    - Estatus de actualización
+    - Latitud
+    - Longitud
+  g03:
+    n_columns: 47
+    files: 30
+    releases:
+    - '201200'
+    columns:
+    - Llave DENUE
+    - NIC
+    - NOP
+    - Clave entidad
+    - Entidad federativa
+    - Clave municipio
+    - Municipio
+    - Clave localidad
+    - Localidad
+    - 'Área geoestadística básica '
+    - Manzana
+    - Nombre de la Unidad Económica
+    - Razón social
+    - Tipo de vialidad
+    - Nombre de la vialidad
+    - Tipo entre vialidad 1
+    - Nombre entre vialidad 1
+    - Tipo entre vialidad 2
+    - Nombre entre vialidad 2
+    - Tipo vialidad posterior
+    - Nombre vialidad posterior
+    - Número exterior o kilómetro
+    - Edificio, piso o nivel
+    - Número o letra interior
+    - Tipo de asentamiento humano
+    - Nombre de asentamiento humano
+    - Código Postal
+    - Número de teléfono 1
+    - Extensión 1
+    - Número de teléfono 2
+    - Extensión 2
+    - Número de FAX
+    - Código de la clase de actividad SCIAN
+    - Nombre de clase de la actividad
+    - Corredor industrial, centro comercial o mercado público
+    - Número de local
+    - Correo electrónico 1
+    - Sitio en Internet
+    - Correo electrónico 2
+    - Tipo de establecimiento
+    - Tipo de unidad económica
+    - Personal ocupado (estrato)
+    - Descripcion estrato personal ocupado
+    - Estatus de control de registros
+    - Fecha de incorporación al DENUE
+    - Latitud
+    - Longitud
+  g04:
+    n_columns: 47
+    files: 2
+    releases:
+    - '201200'
+    columns:
+    - Llave DENUE
+    - NIC
+    - NOP
+    - Clave entidad
+    - Entidad federativa
+    - Clave municipio
+    - Municipio
+    - Clave localidad
+    - Localidad
+    - Área geoestadística básica
+    - Manzana
+    - Nombre de la Unidad Económica
+    - Razón social
+    - Tipo de vialidad
+    - Nombre de la vialidad
+    - Tipo entre vialidad 1
+    - Nombre entre vialidad 1
+    - Tipo entre vialidad 2
+    - Nombre entre vialidad 2
+    - Tipo vialidad posterior
+    - Nombre vialidad posterior
+    - Número exterior o kilómetro
+    - Edificio, piso o nivel
+    - Número o letra interior
+    - Tipo de asentamiento humano
+    - Nombre de asentamiento humano
+    - Código Postal
+    - Número de teléfono 1
+    - Número de teléfono 2
+    - Extensión 1
+    - Extensión 2
+    - Número de FAX
+    - Código de la clase de actividad SCIAN
+    - Nombre de clase dela actividad
+    - Corredor industrial, centro comercial o mercado público
+    - Número de local
+    - Correo electrónico 1
+    - Sitio en Internet
+    - Correo electrónico 2
+    - Tipo de establecimiento
+    - Tipo de unidad económica
+    - Personal ocupado (estrato)
+    - Descripción de estrato de personal ocupado
+    - Estatus de control de registros
+    - Fecha de incorporación al DENUE
+    - Longitud
+    - Latitud
+  g05:
+    n_columns: 28
+    files: 32
+    releases:
+    - '201307'
+    columns:
+    - Llave DENUE
+    - Entidad federativa
+    - Municipio
+    - Localidad
+    - 'Área geoestadística básica '
+    - Manzana
+    - Nombre de la Unidad Económica
+    - Razón social
+    - Tipo de vialidad
+    - Nombre de la vialidad
+    - Número exterior o kilómetro
+    - Edificio, piso o nivel
+    - Número o letra interior
+    - Tipo de asentamiento humano
+    - Nombre de asentamiento humano
+    - Código Postal
+    - Número de teléfono 1
+    - Código de la clase de actividad SCIAN
+    - Nombre de clase de la actividad
+    - Corredor industrial, centro comercial o mercado público
+    - Número de local
+    - Correo electrónico 1
+    - Sitio en Internet
+    - Tipo de establecimiento
+    - Descripcion estrato personal ocupado
+    - Fecha de incorporación al DENUE
+    - Latitud
+    - Longitud
+  g06:
+    n_columns: 44
+    files: 32
+    releases:
+    - '201310'
+    columns:
+    - Llave DENUE
+    - Clave entidad
+    - Entidad federativa
+    - Clave municipio
+    - Municipio
+    - Clave localidad
+    - Localidad
+    - 'Área geoestadística básica '
+    - Manzana
+    - Nombre de la Unidad Económica
+    - Razón social
+    - Tipo de vialidad
+    - Nombre de la vialidad
+    - Tipo entre vialidad 1
+    - Nombre entre vialidad 1
+    - Tipo entre vialidad 2
+    - Nombre entre vialidad 2
+    - Tipo vialidad posterior
+    - Nombre vialidad posterior
+    - Número exterior o kilómetro
+    - Edificio, piso o nivel
+    - Número o letra interior
+    - Tipo de asentamiento humano
+    - Nombre de asentamiento humano
+    - Código Postal
+    - Número de teléfono 1
+    - Número de teléfono 2
+    - Extensión 1
+    - Extensión 2
+    - Número de FAX
+    - Código de la clase de actividad SCIAN
+    - Nombre de clase de la actividad
+    - Corredor industrial, centro comercial o mercado público
+    - Número de local
+    - Correo electrónico 1
+    - Sitio en Internet
+    - Correo electrónico 2
+    - Tipo de establecimiento
+    - Personal ocupado (estrato)
+    - Descripcion estrato personal ocupado
+    - Estatus de control de registros
+    - Fecha de incorporación al DENUE
+    - Latitud
+    - Longitud
+  g07:
+    n_columns: 41
+    files: 28
+    releases:
+    - '201502'
+    columns:
+    - ID
+    - Nombre de la Unidad Económica
+    - Razón social
+    - Código de la clase de actividad SCIAN
+    - Nombre de clase de la actividad
+    - Descripcion estrato personal ocupado
+    - Tipo de vialidad
+    - Nombre de la vialidad
+    - Tipo de entre vialidad 1
+    - Nombre de entre vialidad 1
+    - Tipo de entre vialidad 2
+    - Nombre de entre vialidad 2
+    - Tipo de entre vialidad 3
+    - Nombre de entre vialidad 3
+    - Número exterior o kilómetro
+    - Letra exterior
+    - Edificio
+    - Edificio Piso
+    - Número interior
+    - Letra interior
+    - Tipo de asentamiento humano
+    - Nombre de asentamiento humano
+    - Tipo centro comercial
+    - Corredor industrial, centro comercial o mercado público
+    - Número de local
+    - Código Postal
+    - Clave entidad
+    - Entidad federativa
+    - Clave municipio
+    - Municipio
+    - Clave localidad
+    - Localidad
+    - 'Área geoestadística básica '
+    - Manzana
+    - Número de teléfono
+    - Correo electrónico
+    - Sitio en Internet
+    - Tipo de establecimiento
+    - Latitud
+    - Longitud
+    - Fecha de incorporación al DENUE
+  g08:
+    n_columns: 41
+    files: 323
+    releases:
+    - '201502'
+    - '201601'
+    - '201610'
+    - '201703'
+    - '201711'
+    - '201803'
+    - '201811'
+    - '201904'
+    - '201911'
+    - '202004'
+    - '202011'
+    columns:
+    - id
+    - nom_estab
+    - raz_social
+    - codigo_act
+    - nombre_act
+    - per_ocu
+    - tipo_vial
+    - nom_vial
+    - tipo_v_e_1
+    - nom_v_e_1
+    - tipo_v_e_2
+    - nom_v_e_2
+    - tipo_v_e_3
+    - nom_v_e_3
+    - numero_ext
+    - letra_ext
+    - edificio
+    - edificio_e
+    - numero_int
+    - letra_int
+    - tipo_asent
+    - nomb_asent
+    - tipoCenCom
+    - nom_CenCom
+    - num_local
+    - cod_postal
+    - cve_ent
+    - entidad
+    - cve_mun
+    - municipio
+    - cve_loc
+    - localidad
+    - ageb
+    - manzana
+    - telefono
+    - correoelec
+    - www
+    - tipoUniEco
+    - latitud
+    - longitud
+    - fecha_alta
+  g09:
+    n_columns: 41
+    files: 1
+    releases:
+    - '201803'
+    columns:
+    - ID
+    - NOM_ESTAB
+    - RAZ_SOCIAL
+    - CODIGO_ACT
+    - NOMBRE_ACT
+    - PER_OCU
+    - TIPO_VIAL
+    - NOM_VIAL
+    - TIPO_V_E_1
+    - NOM_V_E_1
+    - TIPO_V_E_2
+    - NOM_V_E_2
+    - TIPO_V_E_3
+    - NOM_V_E_3
+    - NUMERO_EXT
+    - LETRA_EXT
+    - EDIFICIO
+    - EDIFICIO_E
+    - NUMERO_INT
+    - LETRA_INT
+    - TIPO_ASENT
+    - NOMB_ASENT
+    - TIPOCENCOM
+    - NOM_CENCOM
+    - NUM_LOCAL
+    - COD_POSTAL
+    - CVE_ENT
+    - ENTIDAD
+    - CVE_MUN
+    - MUNICIPIO
+    - CVE_LOC
+    - LOCALIDAD
+    - AGEB
+    - MANZANA
+    - TELEFONO
+    - CORREOELEC
+    - WWW
+    - TIPOUNIECO
+    - LATITUD
+    - LONGITUD
+    - FECHA_ALTA
+  g10:
+    n_columns: 42
+    files: 252
+    releases:
+    - '202105'
+    - '202111'
+    - '202205'
+    - '202211'
+    - '202311'
+    - '202405'
+    - '202411'
+    - '202505'
+    columns:
+    - id
+    - clee
+    - nom_estab
+    - raz_social
+    - codigo_act
+    - nombre_act
+    - per_ocu
+    - tipo_vial
+    - nom_vial
+    - tipo_v_e_1
+    - nom_v_e_1
+    - tipo_v_e_2
+    - nom_v_e_2
+    - tipo_v_e_3
+    - nom_v_e_3
+    - numero_ext
+    - letra_ext
+    - edificio
+    - edificio_e
+    - numero_int
+    - letra_int
+    - tipo_asent
+    - nomb_asent
+    - tipoCenCom
+    - nom_CenCom
+    - num_local
+    - cod_postal
+    - cve_ent
+    - entidad
+    - cve_mun
+    - municipio
+    - cve_loc
+    - localidad
+    - ageb
+    - manzana
+    - telefono
+    - correoelec
+    - www
+    - tipoUniEco
+    - latitud
+    - longitud
+    - fecha_alta
+  g11:
+    n_columns: 42
+    files: 4
+    releases:
+    - '202211'
+    - '202405'
+    columns:
+    - ID
+    - CLEE
+    - NOM_ESTAB
+    - RAZ_SOCIAL
+    - CODIGO_ACT
+    - NOMBRE_ACT
+    - PER_OCU
+    - TIPO_VIAL
+    - NOM_VIAL
+    - TIPO_V_E_1
+    - NOM_V_E_1
+    - TIPO_V_E_2
+    - NOM_V_E_2
+    - TIPO_V_E_3
+    - NOM_V_E_3
+    - NUMERO_EXT
+    - LETRA_EXT
+    - EDIFICIO
+    - EDIFICIO_E
+    - NUMERO_INT
+    - LETRA_INT
+    - TIPO_ASENT
+    - NOMB_ASENT
+    - TIPOCENCOM
+    - NOM_CENCOM
+    - NUM_LOCAL
+    - COD_POSTAL
+    - CVE_ENT
+    - ENTIDAD
+    - CVE_MUN
+    - MUNICIPIO
+    - CVE_LOC
+    - LOCALIDAD
+    - AGEB
+    - MANZANA
+    - TELEFONO
+    - CORREOELEC
+    - WWW
+    - TIPOUNIECO
+    - LATITUD
+    - LONGITUD
+    - FECHA_ALTA

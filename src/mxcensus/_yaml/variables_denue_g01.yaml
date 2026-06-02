@@ -1,0 +1,128 @@
+Nombre de la unidad económica:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+Razón social:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+Código de la clase de actividad:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+Nombre de la clase de actividad:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+Personal ocupado (estrato):
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    0 A 5 PERSONAS: 0 A 5 PERSONAS
+    101 A 250 PERSONAS: 101 A 250 PERSONAS
+    11 A 30 PERSONAS: 11 A 30 PERSONAS
+    251 Y MAS PERSONAS: 251 Y MAS PERSONAS
+    31 A 50 PERSONAS: 31 A 50 PERSONAS
+    51 A 100 PERSONAS: 51 A 100 PERSONAS
+    6 A 10 PERSONAS: 6 A 10 PERSONAS
+    NO ESPECIFICADO: NO ESPECIFICADO
+Calle, avenida, andador, carretera, manzana u otro:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+Número exterior o km:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+Edificio, piso o nivel:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+Número o letra interior:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+Colonia, fraccionamiento, unidad habitacional o barrio:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+Corredor industrial, centro comercial o mercado público:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+Número de local:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+Código postal:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+Entidad federativa:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+Municipio:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+Localidad:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+Área geoestadística básica:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+Manzana:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+Número de teléfono:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+Correo electrónico:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+Sitio en Internet:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+Tipo de unidad económica:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+Latitud:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+Longitud:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}

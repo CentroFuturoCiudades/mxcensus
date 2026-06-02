@@ -1,0 +1,243 @@
+Llave DENUE:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+NIC:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+NOP:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+Clave entidad:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+Entidad federativa:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+Clave municipio:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+Municipio:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+Clave localidad:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+Localidad:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+'Área geoestadística básica ':
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+Manzana:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+Nombre de la Unidad Económica:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+Razón social:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+Tipo de vialidad:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+Nombre de la vialidad:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+Tipo entre vialidad 1:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+Nombre entre vialidad 1:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+Tipo entre vialidad 2:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+Nombre entre vialidad 2:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+Tipo vialidad posterior:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+Nombre vialidad posterior:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+Número exterior o kilómetro:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+Edificio, piso o nivel:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+Número o letra interior:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+Tipo de asentamiento humano:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+Nombre de asentamiento humano:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+Código Postal:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+Número de teléfono 1:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+Extensión 1:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+Número de teléfono 2:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+Extensión 2:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+Número de FAX:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+Código de la clase de actividad SCIAN:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+Nombre de clase de la actividad:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+Corredor industrial, centro comercial o mercado público:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+Número de local:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+Correo electrónico 1:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+Sitio en Internet:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+Correo electrónico 2:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+Tipo de establecimiento:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+Tipo de unidad económica:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+Personal ocupado (estrato):
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '1': '1'
+    '13': '13'
+    '2': '2'
+    '3': '3'
+    '4': '4'
+    '5': '5'
+    '6': '6'
+    '7': '7'
+Descripcion estrato personal ocupado:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+Estatus de control de registros:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+Fecha de incorporación al DENUE:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+Latitud:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+Longitud:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}

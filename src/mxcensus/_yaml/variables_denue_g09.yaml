@@ -1,0 +1,212 @@
+ID:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+NOM_ESTAB:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+RAZ_SOCIAL:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+CODIGO_ACT:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+NOMBRE_ACT:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+PER_OCU:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    0 a 5 personas: 0 a 5 personas
+    101 a 250 personas: 101 a 250 personas
+    11 a 30 personas: 11 a 30 personas
+    251 y más personas: 251 y más personas
+    31 a 50 personas: 31 a 50 personas
+    51 a 100 personas: 51 a 100 personas
+    6 a 10 personas: 6 a 10 personas
+TIPO_VIAL:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+NOM_VIAL:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+TIPO_V_E_1:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+NOM_V_E_1:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+TIPO_V_E_2:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+NOM_V_E_2:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+TIPO_V_E_3:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+NOM_V_E_3:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+NUMERO_EXT:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+LETRA_EXT:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+EDIFICIO:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+EDIFICIO_E:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+NUMERO_INT:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+LETRA_INT:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+TIPO_ASENT:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+NOMB_ASENT:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+TIPOCENCOM:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+NOM_CENCOM:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+NUM_LOCAL:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+COD_POSTAL:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+CVE_ENT:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+ENTIDAD:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+CVE_MUN:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+MUNICIPIO:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+CVE_LOC:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+LOCALIDAD:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+AGEB:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+MANZANA:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+TELEFONO:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+CORREOELEC:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+WWW:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+TIPOUNIECO:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+LATITUD:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+LONGITUD:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+FECHA_ALTA:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}

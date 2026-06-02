@@ -18,9 +18,13 @@ def main() -> None:
     fetch_p.add_argument("state", type=int, metavar="STATE", help="State code (ENTIDAD), 1-32")
     fetch_p.add_argument(
         "--dataset",
-        choices=["iter", "resargebub", "personas", "viviendas", "all"],
+        choices=["iter", "resargebub", "personas", "viviendas", "denue", "all"],
         default="all",
-        help="Which dataset(s) to fetch (default: all)",
+        help="Which dataset(s) to fetch (default: all census tabular datasets)",
+    )
+    fetch_p.add_argument(
+        "--release", metavar="YYYYMM",
+        help="DENUE release id (e.g. 202011); defaults to the latest. Only for --dataset denue",
     )
 
     sub.add_parser("info", help="Show cache directory and mirror info")
@@ -32,16 +36,21 @@ def main() -> None:
         from mxcensus.data._catalog import STATE_CODE_FMT
 
         code = STATE_CODE_FMT(args.state)
-        datasets = (
-            ["iter", "resargebub", "personas", "viviendas"]
-            if args.dataset == "all"
-            else [args.dataset]
-        )
-        for ds in datasets:
-            fname = f"{ds}_{code}.parquet"
+        if args.dataset == "denue":
+            from mxcensus.data._denue_catalog import latest_release
+            rel = args.release or latest_release().yyyymm
+            fnames = [f"denue_{rel}_{code}.parquet"]
+        else:
+            datasets = (
+                ["iter", "resargebub", "personas", "viviendas"]
+                if args.dataset == "all"
+                else [args.dataset]
+            )
+            fnames = [f"{ds}_{code}.parquet" for ds in datasets]
+        for fname in fnames:
             path = POOCH.fetch(fname, progressbar=True)
             print(f"  {fname} → {path}")
-        print(f"\nFetched {len(datasets)} file(s).")
+        print(f"\nFetched {len(fnames)} file(s).")
 
     elif args.cmd == "info":
         from mxcensus.data._registry import POOCH, _BASE_URL
