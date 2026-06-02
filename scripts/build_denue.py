@@ -302,22 +302,24 @@ def _build_denue_state(
 
 
 def _write_schema_matrix_png(cell: dict, releases: list, gid_cols: dict,
-                             png_path: Path) -> bool:
+                             png_path: Path, dup_cells: set | None = None) -> bool:
     """Render the state × release schema-group matrix as a colour heatmap.
 
     Rows = states 1–32, columns = releases (chronological), each cell coloured by its
-    schema-group id (white = file absent). Returns False if matplotlib is unavailable
-    (the text matrix in the report still covers the same information).
+    schema-group id (white = file absent). Cells in ``dup_cells`` (byte-identical
+    duplicates, §4) are marked with an ×. Returns False if matplotlib is unavailable.
     """
     try:
         import matplotlib
         matplotlib.use("Agg")
+        import matplotlib.patheffects as pe
         import matplotlib.pyplot as plt
         import numpy as np
         from matplotlib.colors import ListedColormap
         from matplotlib.patches import Patch
     except ImportError:
         return False
+    dup_cells = dup_cells or set()
 
     gids = sorted(gid_cols)
     idx = {g: i for i, g in enumerate(gids)}
@@ -345,9 +347,17 @@ def _write_schema_matrix_png(cell: dict, releases: list, gid_cols: dict,
     ax.set_yticks(np.arange(-.5, len(states), 1), minor=True)
     ax.grid(which="minor", color="white", linewidth=0.5)
     ax.tick_params(which="minor", length=0)
-    ax.legend(handles=[Patch(facecolor=cmap(idx[g]), label=f"{g} ({gid_cols[g]} cols)")
-                       for g in gids],
-              bbox_to_anchor=(1.01, 1), loc="upper left", fontsize=7, title="schema group")
+    for j, rel in enumerate(releases):       # × on byte-identical duplicate cells (§4)
+        for i, st in enumerate(states):
+            if (rel, st) in dup_cells:
+                ax.text(j, i, "×", ha="center", va="center", fontsize=9, color="white",
+                        fontweight="bold",
+                        path_effects=[pe.withStroke(linewidth=1.6, foreground="black")])
+    handles = [Patch(facecolor=cmap(idx[g]), label=f"{g} ({gid_cols[g]} cols)") for g in gids]
+    if dup_cells:
+        handles.append(Patch(facecolor="none", label="×  byte-identical duplicate"))
+    ax.legend(handles=handles, bbox_to_anchor=(1.01, 1), loc="upper left", fontsize=7,
+              title="schema group")
     fig.savefig(png_path, dpi=150, bbox_inches="tight")
     plt.close(fig)
     return True
@@ -494,22 +504,17 @@ def _write_report(out_dir: Path, report_path: Path) -> dict:
     # group id is the key.
     cell = {(r["release"], int(r["state"])): fp_to_id[r["fingerprint"]] for r in records}
     gid_cols = {fp_to_id[fp]: len(fp_cols[fp]) for fp in fp_to_id}
-    legend = ", ".join(f"{g} ({gid_cols[g]} cols)" for g in sorted(gid_cols))
+    dup_cells = {(m.split("/")[0], int(m.split("/")[1]))
+                 for members in dups.values() for m in members}
     png = report_path.parent / "schema_groups.png"
-    has_png = _write_schema_matrix_png(cell, releases, gid_cols, png)
+    has_png = _write_schema_matrix_png(cell, releases, gid_cols, png, dup_cells)
     L += ["", "## 8. Schema-group matrix (state × release)", "",
-          "Each cell is the schema-group id of that state's file in that release "
-          "(blank = absent). Read **across a row** for a state's schema drift over time, "
-          "**down a column** to spot within-release disagreements (a column with more "
-          "than one id; see §6).", ""]
-    if has_png:
-        L += [f"![Schema-group heatmap]({png.name})", ""]
-    L += [f"Legend: {legend}.", "",
-          "| state | " + " | ".join(releases) + " |",
-          "|" + "---|" * (len(releases) + 1)]
-    for st in range(1, 33):
-        row = [f"{st:02d}"] + [cell.get((rel, st), "") for rel in releases]
-        L.append("| " + " | ".join(row) + " |")
+          "States (rows) × releases (columns), each cell coloured by schema-group id "
+          "(white = file absent). Read **across a row** for a state's schema drift over "
+          "time, **down a column** for within-release disagreements (§6). A **×** marks a "
+          "file that is a byte-identical duplicate of another (§4)."]
+    L += ["", f"![Schema-group heatmap]({png.name})"] if has_png \
+        else ["", "_(matplotlib unavailable — heatmap not generated.)_"]
 
     report_path.parent.mkdir(parents=True, exist_ok=True)
     report_path.write_text("\n".join(L) + "\n", encoding="utf-8")
