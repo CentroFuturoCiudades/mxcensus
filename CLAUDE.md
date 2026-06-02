@@ -72,7 +72,7 @@ GitHub Release (raw parquet mirror)
 | `scripts/_build_common.py` | **Maintainer-only** — shared build helpers: `fetch_zip_verified` (download+verify+retry), `detect_encoding`, `update_registry` (append/upsert preserving prior entries) |
 | `scripts/build_data.py` | **Maintainer-only** — downloads raw census ZIPs from INEGI, converts CSVs to parquet, regenerates `registry.txt` |
 | `scripts/build_marco_geo.py` | **Maintainer-only** — converts a local Marco Geoestadístico gpkg copy to geoparquet (15 layers/state, `mg_{suffix}_{NN}.parquet`); appends to `registry.txt` |
-| `scripts/build_denue.py` | **Maintainer-only** — downloads/converts DENUE to geoparquet (`denue_{YYYYMM}_{NN}.parquet`), detects inconsistencies (`docs/denue/INCONSISTENCY_REPORT.md`), extracts data dictionaries (CSV 2016+ / PDF 2010–2013 via `pypdf`) to fill `variables_denue_*.yaml` descriptions + categories (categories cross-validated against the data → `docs/denue/CATEGORY_AUDIT.md`), generates `denue_schema_map.yaml`, validates every file against its group schema (`docs/denue/VALIDATION_REPORT.md`), appends to `registry.txt`. Modes: `--schema-map`, `--variables` (`--cat-threshold`), `--validate`, `--report-only`, `--update-registry`, `--dry-run` |
+| `scripts/build_denue.py` | **Maintainer-only** — downloads/converts DENUE to geoparquet (`denue_{YYYYMM}_{NN}.parquet`), detects inconsistencies (`docs/denue/INCONSISTENCY_REPORT.md`), extracts data dictionaries (CSV 2016+ / PDF 2010–2013 via `pypdf`) to fill `variables_denue_*.yaml` descriptions + categories (categories cross-validated against the data → `docs/denue/CATEGORY_AUDIT.md`), generates `denue_schema_map.yaml`, validates every file against its group schema (`docs/denue/VALIDATION_REPORT.md`), derives/repairs point geometry against state boundaries (`docs/denue/GEOMETRY_REPORT.md`), appends to `registry.txt`. Modes: `--schema-map`, `--variables` (`--cat-threshold`), `--validate`, `--refilter-boundaries` (`--boundary-buffer-m`/`--boundaries-dir`/`--geometry-report`), `--report-only`, `--update-registry`, `--dry-run` |
 | `scripts/upload_release.py` | **Maintainer-only** — resumable batch upload of the parquet mirror to the GitHub Release. Source of truth for "already uploaded" is the release itself (queried live via `gh release view`), so it survives multi-day / partial uploads. Batches derived from `registry.txt`: `core` (latest DENUE + census + the 4 MG layers `load_mg_census` fetches), `mg-rest` (other 11 MG layers), one `denue-<id>` per older release. Subcommands: `status` (`--write-doc`), `list <batch>`, `upload <batch…>` or `--next` (`--clobber`/`--chunk N`/`--dry-run`) |
 
 ### YAML schemas (`_yaml/`)
@@ -140,10 +140,16 @@ python scripts/build_denue.py                       # all 24 releases × 32 stat
 python scripts/build_denue.py --schema-map          # regenerate denue_schema_map.yaml
 python scripts/build_denue.py --variables           # regenerate variables_denue_<gNN>.yaml (+ CATEGORY_AUDIT.md)
 python scripts/build_denue.py --validate            # validate all files vs group schemas → VALIDATION_REPORT.md
+python scripts/build_denue.py --refilter-boundaries # re-derive geometry vs state boundaries (recover/null) → GEOMETRY_REPORT.md
 python scripts/build_denue.py --report-only         # regenerate INCONSISTENCY_REPORT.md
 python scripts/build_denue.py --update-registry     # append denue_* hashes to registry.txt
 # then: gh release upload data-v0.1.0 data/parquet/denue_*.parquet --clobber
 ```
+
+`--refilter-boundaries` rewrites the parquet in place (no re-download) — afterward
+regenerate hashes (`--update-registry`) and re-upload the changed files. Requires the
+Marco Geoestadístico `mg_ent_*.parquet` boundaries to exist first (default in `--output`,
+override with `--boundaries-dir`).
 
 ### DENUE (multi-temporal economic units)
 
@@ -177,10 +183,20 @@ bytes is read utf-8-with-replace, **not** downgraded to cp1252 (the old bug that
 ~104k cells of `denue_201811_29`, since fixed and re-converted). The remaining `cod_postal`
 garbage and sparse per-cell mojibake are **verbatim in INEGI's source CSVs** — left intact
 (the mirror is faithful) and only flagged by the reports, never rewritten/imputed.
-`_df_to_geoparquet` additionally recovers **transposed coordinates** (INEGI swapped the
-Latitud/Longitud columns in `denue_201200_14` — all 307k rows): a row out-of-bbox as
-`(lon, lat)` but in-bbox as `(lat, lon)` is swapped before building the point. All 768 files
-carry a valid EPSG:4326 geometry column; only genuinely out-of-area coordinates stay null.
+**Geometry derivation & repair.** `_df_to_geoparquet` derives the EPSG:4326 point from the
+raw latitud/longitud and validates each point against its **own state's `mg_ent` polygon**
+(buffered 500 m, in the boundary's native metric CRS). Offending coordinates are
+**recovered** by `_recover_geometry`: a small ordered set of deterministic transforms
+(`swap`, `neg_lon`, `neg_lat`, `neg_both`, `swap_neg_*`) is tried and the first whose point
+lands back **inside the assigned state** wins — strong evidence the raw value was a mangled
+form (this subsumes the old national-bbox transposed-coord recovery, e.g. `denue_201200_14`,
+all 307k rows → `swap`). Points that no transform places in-state get **null** geometry
+(scattered out-of-state geocoding errors — ~62 across the latest release). The raw
+latitud/longitud columns are **kept verbatim**; only the derived geometry is corrected or
+nulled. Every fix and every null is itemized in `docs/denue/GEOMETRY_REPORT.md` (which also
+reports per-file **duplicate rows** / duplicate `id`/`clee` — reported, never removed); a
+file with >5% out-of-state points is flagged there for manual review. Requires the `mg_ent_*`
+layers to be built first (`scripts/build_marco_geo.py`).
 
 The harmonization spec (`_RENAME`, `_PER_OCU`, `_TIPO_UNI`) is hard-coded in `denue.py`,
 **pinned to `g10`'s mnemonic column names** — `_latest_schema`/`_group_schema` read columns

@@ -256,3 +256,94 @@ def test_real_file_raw_loads(gid):
     gdf = mxcensus.load_denue(survey_path=_REAL[gid], harmonize=False)
     assert set(gdf.columns) - {"geometry"} == set(_SM["groups"][gid]["columns"])
     assert gdf.crs.to_epsg() == 4326
+
+
+# --------------------------------------------------------------------------- #
+# Geometry recovery / out-of-state nulling / duplicates (scripts/build_denue.py)
+# --------------------------------------------------------------------------- #
+import sys  # noqa: E402
+
+import numpy as np  # noqa: E402
+import pandas as pd  # noqa: E402
+import shapely  # noqa: E402
+from shapely.geometry import box  # noqa: E402
+
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "scripts"))
+import build_denue as _bd  # noqa: E402
+
+# Synthetic "state": a 1°×1° square inside the Mexico bbox.
+_SQUARE = box(-100.0, 19.0, -99.0, 20.0)
+shapely.prepare(_SQUARE)
+
+
+def test_recover_identity_in_state():
+    lat, lon = pd.Series([19.5]), pd.Series([-99.5])
+    geom, c = _bd._recover_geometry(lat, lon, _SQUARE)
+    assert c["ok"] == 1 and c["n_resolved"] == 1
+    assert round(geom[0].x, 2) == -99.5 and round(geom[0].y, 2) == 19.5
+
+
+def test_recover_negated_longitude():
+    # Longitude stored without its minus sign → recovered by neg_lon.
+    lat, lon = pd.Series([19.5]), pd.Series([99.5])
+    geom, c = _bd._recover_geometry(lat, lon, _SQUARE)
+    assert c["neg_lon"] == 1
+    assert round(geom[0].x, 2) == -99.5 and round(geom[0].y, 2) == 19.5
+
+
+def test_recover_swapped():
+    # lat/lon transposed → recovered by swap.
+    lat, lon = pd.Series([-99.5]), pd.Series([19.5])
+    geom, c = _bd._recover_geometry(lat, lon, _SQUARE)
+    assert c["swap"] == 1
+    assert round(geom[0].x, 2) == -99.5 and round(geom[0].y, 2) == 19.5
+
+
+def test_recover_out_of_state_nulled():
+    # In the national bbox but outside the assigned state, no transform recovers → null.
+    lat, lon = pd.Series([25.0]), pd.Series([-105.0])
+    geom, c = _bd._recover_geometry(lat, lon, _SQUARE)
+    assert geom[0] is None and c["out_of_state"] == 1 and c["n_resolved"] == 0
+
+
+def test_recover_no_coords_nulled():
+    lat, lon = pd.Series([np.nan]), pd.Series([np.nan])
+    geom, c = _bd._recover_geometry(lat, lon, _SQUARE)
+    assert geom[0] is None and c["no_coords"] == 1
+
+
+def test_recover_leaves_raw_latlon_untouched():
+    lat = pd.Series([19.5, 25.0, 99.5])   # in-state, out-of-state, neg-lon-recoverable
+    lon = pd.Series([-99.5, -105.0, 99.5])
+    lat0, lon0 = lat.copy(), lon.copy()
+    _bd._recover_geometry(lat, lon, _SQUARE)
+    pd.testing.assert_series_equal(lat, lat0)
+    pd.testing.assert_series_equal(lon, lon0)
+
+
+def test_recover_buffer_rescues_near_border():
+    # A point just outside the square is out-of-state unbuffered, in-state once buffered.
+    lat, lon = pd.Series([19.5]), pd.Series([-98.995])  # ~ a few hundred m east of the edge
+    _, c_strict = _bd._recover_geometry(lat, lon, _SQUARE)
+    assert c_strict["out_of_state"] == 1
+    buffered = _SQUARE.buffer(0.01)  # ~1 km in degrees, ample for this test
+    shapely.prepare(buffered)
+    _, c_buf = _bd._recover_geometry(lat, lon, buffered)
+    assert c_buf["ok"] == 1
+
+
+def test_dup_counts():
+    df = pd.DataFrame({"id": ["a", "a", "b"], "x": [1, 1, 2]})
+    n_rows, n_ids = _bd._dup_counts(df)
+    assert n_rows == 1   # rows 0 and 1 identical
+    assert n_ids == 1    # id "a" repeated once
+
+
+@pytest.mark.skipif(not _REAL, reason="no local DENUE mirror (data/parquet/)")
+def test_load_state_boundary_real():
+    """A real mg_ent layer loads, buffers, and reprojects to a valid 4326 polygon."""
+    _bd._BOUNDARY_CACHE.clear()
+    boundary = _bd._load_state_boundary(9, _MIRROR, 500.0)
+    assert boundary.geom_type in ("Polygon", "MultiPolygon")
+    minx, miny, maxx, maxy = boundary.bounds
+    assert -120 < minx < -85 and 14 < miny < 33  # CDMX, lon/lat range

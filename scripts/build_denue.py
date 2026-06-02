@@ -27,10 +27,12 @@ from hashlib import sha256
 from pathlib import Path
 
 import geopandas as gpd
+import numpy as np
 import pandas as pd
 import pandera.pandas as pa
 import pooch
 import pyarrow.parquet as pq
+import shapely
 import yaml
 
 import _build_common as bc
@@ -207,35 +209,147 @@ def _read_part(
     return df, enc, extract_dir
 
 
-def _df_to_geoparquet(df: pd.DataFrame, parquet_path: Path) -> dict:
+# Cache of buffered, EPSG:4326 state-boundary polygons, keyed by (state, buffer_m).
+_BOUNDARY_CACHE: dict[tuple[int, float], object] = {}
+
+# Ordered, conservative coordinate-repair candidates. Each maps the raw (lat, lon)
+# numeric columns to a candidate (lon, lat) pair representing one plausible data-entry
+# error; tried in priority order and accepted only if the point lands inside the row's
+# own state (see _recover_geometry). `identity` = coordinates already correct.
+_COORD_TRANSFORMS: list[tuple[str, "callable"]] = [
+    ("identity",     lambda lat, lon: (lon, lat)),
+    ("swap",         lambda lat, lon: (lat, lon)),          # lat/lon transposed
+    ("neg_lon",      lambda lat, lon: (-lon, lat)),         # dropped minus on longitude
+    ("neg_lat",      lambda lat, lon: (lon, -lat)),         # dropped minus on latitude
+    ("neg_both",     lambda lat, lon: (-lon, -lat)),
+    ("swap_neg_lon", lambda lat, lon: (-lat, lon)),         # transposed + sign error
+    ("swap_neg_lat", lambda lat, lon: (lat, -lon)),
+]
+_RECOVERY_NAMES = [n for n, _ in _COORD_TRANSFORMS if n != "identity"]
+
+
+def _load_state_boundary(state: int, boundaries_dir: Path, buffer_m: float):
+    """Return the state's `mg_ent` polygon, buffered `buffer_m` metres, in EPSG:4326.
+
+    The Marco Geoestadístico entidad layer is stored in INEGI's metric LCC CRS, so the
+    buffer is applied there (true metres) before reprojecting to lon/lat. The result is
+    `shapely.prepare`d for fast point-in-polygon tests and cached per (state, buffer).
+    """
+    key = (int(state), float(buffer_m))
+    cached = _BOUNDARY_CACHE.get(key)
+    if cached is not None:
+        return cached
+    path = Path(boundaries_dir) / f"mg_ent_{state:02d}.parquet"
+    if not path.exists():
+        raise FileNotFoundError(
+            f"State boundary {path} not found — build the Marco Geoestadístico entidad "
+            f"layer first (scripts/build_marco_geo.py), or pass --boundaries-dir."
+        )
+    gdf = gpd.read_parquet(path)
+    gs = gpd.GeoSeries([gdf.geometry.union_all()], crs=gdf.crs)
+    if buffer_m:
+        gs = gs.buffer(buffer_m)
+    boundary = gs.to_crs(4326).iloc[0]
+    shapely.prepare(boundary)  # speeds up the repeated covers() calls below
+    _BOUNDARY_CACHE[key] = boundary
+    return boundary
+
+
+def _recover_geometry(lat: pd.Series, lon: pd.Series, boundary) -> tuple[np.ndarray, dict]:
+    """Build EPSG:4326 point geometry from raw lat/lon, repairing offending coordinates.
+
+    For each row the candidates in `_COORD_TRANSFORMS` are tried in priority order; the
+    first whose point falls inside the (buffered) assigned-state `boundary` wins — strong
+    evidence the raw value was a mangled form of the true location. Rows where no candidate
+    lands in-state get **null** geometry. The raw lat/lon Series are never modified.
+
+    Returns ``(geometry_array, counts)`` where counts has per-pattern tallies plus
+    ``out_of_state`` (real-looking coords, wrong state), ``out_of_bbox`` (coords outside
+    Mexico entirely), ``no_coords`` (missing/non-numeric), and ``ambiguous`` (>1 candidate
+    in-state — the priority pick is used).
+    """
+    lat_v = pd.to_numeric(lat, errors="coerce").to_numpy(dtype=float)
+    lon_v = pd.to_numeric(lon, errors="coerce").to_numpy(dtype=float)
+    n = len(lat_v)
+    geom = np.empty(n, dtype=object)
+    geom[:] = None
+    resolved = np.zeros(n, dtype=bool)
+    resolved_by = np.full(n, "", dtype=object)
+    hits = np.zeros(n, dtype=int)
+
+    for name, fn in _COORD_TRANSFORMS:
+        clon, clat = fn(lat_v, lon_v)
+        finite = np.isfinite(clon) & np.isfinite(clat)
+        inside = np.zeros(n, dtype=bool)
+        if finite.any():
+            pts = shapely.points(clon[finite], clat[finite])
+            inside[finite] = shapely.covers(boundary, pts)
+        hits += inside
+        newly = inside & ~resolved
+        if newly.any():
+            idx = np.nonzero(newly)[0]
+            geom[idx] = shapely.points(clon[idx], clat[idx])
+            resolved[idx] = True
+            resolved_by[idx] = name
+
+    counts = {"ok": int((resolved_by == "identity").sum())}
+    for name in _RECOVERY_NAMES:
+        counts[name] = int((resolved_by == name).sum())
+    counts["ambiguous"] = int(((hits >= 2) & (resolved_by != "identity") & resolved).sum())
+
+    # Classify the unresolved (null-geometry) rows.
+    minlon, minlat, maxlon, maxlat = _MX_BBOX
+    in_bbox = (
+        np.isfinite(lon_v) & np.isfinite(lat_v)
+        & (lon_v >= minlon) & (lon_v <= maxlon)
+        & (lat_v >= minlat) & (lat_v <= maxlat)
+    )
+    unresolved = ~resolved
+    no_coords = ~(np.isfinite(lon_v) & np.isfinite(lat_v))
+    counts["out_of_state"] = int((unresolved & in_bbox).sum())
+    counts["out_of_bbox"] = int((unresolved & ~in_bbox & ~no_coords).sum())
+    counts["no_coords"] = int((unresolved & no_coords).sum())
+    counts["n_resolved"] = int(resolved.sum())
+    counts["geom_null_frac"] = round(float(unresolved.mean()), 4) if n else 0.0
+    return geom, counts
+
+
+def _dup_counts(df: pd.DataFrame) -> tuple[int, int]:
+    """Full-row duplicate count and duplicate-key count (id/clee if present)."""
+    data = df.drop(columns="geometry") if "geometry" in df.columns else df
+    n_dup_rows = int(data.duplicated().sum())
+    colmap = {c.lower(): c for c in df.columns}
+    id_col = next((colmap[k] for k in ("id", "clee") if k in colmap), None)
+    n_dup_ids = int(df[id_col].duplicated().sum()) if id_col else 0
+    return n_dup_rows, n_dup_ids
+
+
+def _df_to_geoparquet(
+    df: pd.DataFrame, parquet_path: Path, *,
+    state: int, boundaries_dir: Path, buffer_m: float,
+) -> dict:
     """Write a DENUE DataFrame to GeoParquet (EPSG:4326); return diagnostics.
 
-    Invalid/out-of-Mexico-bbox coordinates become **null** geometry (not empty points).
-    Transposed coordinates are recovered: INEGI swapped the Latitud/Longitud columns in
-    some files (e.g. 2012 state 14 — all 307k rows), so when a row is out-of-bbox as
-    (lon, lat) but in-bbox as (lat, lon), the pair is swapped before building the point.
+    Geometry is derived from the raw latitud/longitud columns and repaired/validated
+    against the row's own state boundary (see :func:`_recover_geometry`): offending
+    coordinates are recovered by a deterministic transform when one lands the point back
+    inside the state, else the geometry is **null**. The raw latitud/longitud columns are
+    kept verbatim. Also reports duplicate rows (not removed — faithful mirror).
     """
     fingerprint = _schema_fingerprint(df)
-    n_swapped = 0
     # lat/lon column names vary by release era ("latitud" vs "Latitud"); match
     # case-insensitively and tolerate their absence (→ all-null geometry).
     colmap = {c.lower(): c for c in df.columns}
     lat_c, lon_c = colmap.get("latitud"), colmap.get("longitud")
     if lat_c is not None and lon_c is not None:
-        lon = pd.to_numeric(df[lon_c], errors="coerce")
-        lat = pd.to_numeric(df[lat_c], errors="coerce")
-        minlon, minlat, maxlon, maxlat = _MX_BBOX
-        direct = lon.between(minlon, maxlon) & lat.between(minlat, maxlat)
-        swapped = lat.between(minlon, maxlon) & lon.between(minlat, maxlat)
-        use_swap = ~direct & swapped  # the named lat is really a lon, and vice versa
-        n_swapped = int(use_swap.sum())
-        if n_swapped:
-            lon, lat = lon.where(~use_swap, lat), lat.where(~use_swap, lon)
-        valid = (direct | swapped).to_numpy()
-        geometry = gpd.points_from_xy(lon, lat, crs="EPSG:4326")
+        boundary = _load_state_boundary(state, boundaries_dir, buffer_m)
+        geometry, rec = _recover_geometry(df[lat_c], df[lon_c], boundary)
     else:
-        valid = pd.Series(False, index=df.index).to_numpy()
-        geometry = gpd.GeoSeries([None] * len(df), crs="EPSG:4326").values
+        geometry = np.full(len(df), None, dtype=object)
+        rec = {"ok": 0, "ambiguous": 0, "out_of_state": 0, "out_of_bbox": 0,
+               "no_coords": len(df), "n_resolved": 0,
+               "geom_null_frac": 1.0 if len(df) else 0.0,
+               **{n: 0 for n in _RECOVERY_NAMES}}
 
     # Multipart concat can leave an object column mixing str + float NaN (e.g.
     # numero_ext: text in one part, all-empty→float in another), which pyarrow
@@ -243,17 +357,26 @@ def _df_to_geoparquet(df: pd.DataFrame, parquet_path: Path) -> dict:
     for col in df.columns[df.dtypes == object]:
         df[col] = df[col].where(df[col].notna(), None)
 
-    gdf = gpd.GeoDataFrame(df, geometry=geometry, crs="EPSG:4326")
-    gdf.loc[~valid, "geometry"] = None  # invalid coords → null geometry
+    gdf = gpd.GeoDataFrame(
+        df, geometry=gpd.GeoSeries(geometry, index=df.index, crs="EPSG:4326"),
+        crs="EPSG:4326",
+    )
     gdf.to_parquet(parquet_path, compression="zstd")
+    n_dup_rows, n_dup_ids = _dup_counts(df)
+    n_recovered = sum(rec[n] for n in _RECOVERY_NAMES)
     return {
         "rows": len(gdf),
         "cols": df.shape[1],
         "columns": list(df.columns),
         "fingerprint": fingerprint,
         "has_coords": lat_c is not None and lon_c is not None,
-        "geom_null_frac": round(float((~valid).mean()), 4),
-        "n_swapped": n_swapped,
+        "geom_null_frac": rec["geom_null_frac"],
+        "n_swapped": rec.get("swap", 0),       # back-compat: recovered-by-transposition
+        "n_recovered": n_recovered,
+        "recovered": {n: rec[n] for n in _RECOVERY_NAMES if rec[n]},
+        "n_out_of_state": rec["out_of_state"],
+        "n_dup_rows": n_dup_rows,
+        "n_dup_ids": n_dup_ids,
         "size_kb": parquet_path.stat().st_size // 1024,
     }
 
@@ -261,6 +384,7 @@ def _df_to_geoparquet(df: pd.DataFrame, parquet_path: Path) -> dict:
 def _build_denue_state(
     yyyymm: str, state: int, raw_dir: Path, cache_dir: Path, out_dir: Path,
     retries: int, cleanup_raw: bool = True,
+    *, boundaries_dir: Path | None = None, buffer_m: float = 500.0,
 ) -> dict:
     """Download, verify, extract, concat parts and convert one release/state."""
     release = RELEASES_BY_YYYYMM[yyyymm]
@@ -287,7 +411,10 @@ def _build_denue_state(
 
     code = f"{state:02d}"
     out_path = out_dir / f"denue_{yyyymm}_{code}.parquet"
-    info = _df_to_geoparquet(df, out_path)
+    info = _df_to_geoparquet(
+        df, out_path, state=state,
+        boundaries_dir=boundaries_dir or out_dir, buffer_m=buffer_m,
+    )
     info["file"] = out_path.name
     info["release"] = yyyymm
     info["state"] = code
@@ -427,7 +554,10 @@ def _write_report(out_dir: Path, report_path: Path) -> dict:
     L = ["# DENUE inconsistency report", "",
          f"Generated by `scripts/build_denue.py` (catalog verified {CATALOG_VERIFIED_DATE}).",
          f"Releases: {len(releases)}. Files mirrored: {len(records)}. "
-         f"Missing (expected but absent): {n_missing}.", ""]
+         f"Missing (expected but absent): {n_missing}.", "",
+         "> See also `GEOMETRY_REPORT.md` (coordinate recovery, out-of-state geometry "
+         "nulling, duplicate rows) and `VALIDATION_REPORT.md` (per-file schema checks).",
+         ""]
 
     L += ["## 1. Release inventory", "",
           "| release | label | schema | states | rows | size (MB) |",
@@ -868,6 +998,132 @@ def _write_validation_report(out_dir: Path, report_path: Path) -> tuple[int, int
     return len(files), len(failed)
 
 
+def _refilter_state_boundaries(
+    out_dir: Path, boundaries_dir: Path, buffer_m: float,
+    releases: list[str] | None, states: list[int] | None,
+) -> list[dict]:
+    """Re-derive geometry for existing mirrored parquet using the state-boundary recovery.
+
+    Reads each file, rebuilds the point geometry from the raw latitud/longitud columns via
+    :func:`_recover_geometry` (repairing offending coordinates, nulling the unrecoverable),
+    counts duplicate rows, and rewrites the file in place. Raw lat/lon columns are untouched.
+    No re-download. Returns one findings dict per file.
+    """
+    rel_set = set(releases) if releases else None
+    st_set = set(states) if states else None
+    rows: list[dict] = []
+    for p in sorted(out_dir.glob("denue_*.parquet")):
+        _, yyyymm, code = p.stem.split("_")
+        if rel_set and yyyymm not in rel_set:
+            continue
+        if st_set and int(code) not in st_set:
+            continue
+        gdf = gpd.read_parquet(p)
+        colmap = {c.lower(): c for c in gdf.columns}
+        lat_c, lon_c = colmap.get("latitud"), colmap.get("longitud")
+        if lat_c is not None and lon_c is not None:
+            boundary = _load_state_boundary(int(code), boundaries_dir, buffer_m)
+            geometry, rec = _recover_geometry(gdf[lat_c], gdf[lon_c], boundary)
+        else:
+            geometry = np.full(len(gdf), None, dtype=object)
+            rec = {"ok": 0, "ambiguous": 0, "out_of_state": 0, "out_of_bbox": 0,
+                   "no_coords": len(gdf), "n_resolved": 0,
+                   "geom_null_frac": 1.0 if len(gdf) else 0.0,
+                   **{n: 0 for n in _RECOVERY_NAMES}}
+        gdf = gdf.set_geometry(
+            gpd.GeoSeries(geometry, index=gdf.index, crs="EPSG:4326")
+        )
+        gdf.to_parquet(p, compression="zstd")
+        n_dup_rows, n_dup_ids = _dup_counts(gdf)
+        rows.append({
+            "file": p.name, "release": yyyymm, "state": code, "rows": len(gdf),
+            "recovered": {n: rec[n] for n in _RECOVERY_NAMES if rec[n]},
+            "n_recovered": sum(rec[n] for n in _RECOVERY_NAMES),
+            "ambiguous": rec["ambiguous"], "out_of_state": rec["out_of_state"],
+            "out_of_bbox": rec["out_of_bbox"], "no_coords": rec["no_coords"],
+            "n_dup_rows": n_dup_rows, "n_dup_ids": n_dup_ids,
+        })
+    return rows
+
+
+def _write_geometry_report(rows: list[dict], report_path: Path, buffer_m: float) -> None:
+    """Write docs/denue/GEOMETRY_REPORT.md from the refilter findings (3 sections)."""
+    n_files = len(rows)
+    tot = lambda k: sum(r[k] for r in rows)  # noqa: E731
+    pat_tot: dict[str, int] = defaultdict(int)
+    for r in rows:
+        for name, c in r["recovered"].items():
+            pat_tot[name] += c
+
+    L = [
+        "# DENUE geometry & duplicate report", "",
+        f"Generated by `build_denue.py --refilter-boundaries` over {n_files} file(s) "
+        f"with a {buffer_m:g} m state-boundary buffer.", "",
+        "Geometry is derived from the raw `latitud`/`longitud` columns and validated "
+        "against each row's own state (`mg_ent`) polygon. Offending coordinates are "
+        "**recovered** by a deterministic transform when one lands the point back inside "
+        "the state, otherwise the geometry is **null**. The raw `latitud`/`longitud` "
+        "columns are kept verbatim; nothing is removed. Duplicate rows are **reported "
+        "only** (faithful mirror).", "",
+        "## 1. Coordinate recovery", "",
+        f"Total points recovered by a non-identity transform: **{tot('n_recovered')}** "
+        f"(ambiguous — >1 transform in-state, priority pick used: {tot('ambiguous')}).", "",
+    ]
+    if pat_tot:
+        L.append("| pattern | points |")
+        L.append("|---------|--------|")
+        for name in _RECOVERY_NAMES:
+            if pat_tot.get(name):
+                L.append(f"| `{name}` | {pat_tot[name]} |")
+        L.append("")
+        L.append("Per file:")
+        L.append("")
+        for r in sorted(rows, key=lambda r: r["n_recovered"], reverse=True):
+            if r["n_recovered"]:
+                pats = ", ".join(f"{n}={c}" for n, c in r["recovered"].items())
+                L.append(f"- `{r['file']}`: {r['n_recovered']} ({pats})")
+        L.append("")
+    else:
+        L.append("No coordinates required recovery.\n")
+
+    L += ["## 2. Out-of-state points (geometry nulled)", "",
+          f"Points whose coordinates look real but fall outside their state (and no "
+          f"transform recovers them): **{tot('out_of_state')}** across all files. "
+          f"Also nulled: {tot('out_of_bbox')} outside Mexico, {tot('no_coords')} "
+          f"missing/non-numeric.", ""]
+    flagged = [r for r in rows if r["rows"] and r["out_of_state"] / r["rows"] > 0.05]
+    oos = [r for r in rows if r["out_of_state"]]
+    if flagged:
+        L.append(f"**Flagged (>5% out-of-state — review for systematic issues):**")
+        for r in sorted(flagged, key=lambda r: r["out_of_state"] / r["rows"], reverse=True):
+            L.append(f"- ⚠️ `{r['file']}`: {r['out_of_state']}/{r['rows']} "
+                     f"({100 * r['out_of_state'] / r['rows']:.1f}%)")
+        L.append("")
+    if oos:
+        L.append("All files with out-of-state points:")
+        for r in sorted(oos, key=lambda r: r["out_of_state"], reverse=True):
+            L.append(f"- `{r['file']}`: {r['out_of_state']}/{r['rows']}")
+        L.append("")
+    else:
+        L.append("No out-of-state points.\n")
+
+    L += ["## 3. Duplicate rows", "",
+          f"Full-row duplicates: **{tot('n_dup_rows')}** total; duplicate id/clee keys: "
+          f"**{tot('n_dup_ids')}** total. (Reported, not removed.)", ""]
+    dups = [r for r in rows if r["n_dup_rows"] or r["n_dup_ids"]]
+    if dups:
+        L.append("| file | dup rows | dup ids |")
+        L.append("|------|----------|---------|")
+        for r in sorted(dups, key=lambda r: (r["n_dup_rows"], r["n_dup_ids"]), reverse=True):
+            L.append(f"| `{r['file']}` | {r['n_dup_rows']} | {r['n_dup_ids']} |")
+        L.append("")
+    else:
+        L.append("No duplicate rows.\n")
+
+    report_path.parent.mkdir(parents=True, exist_ok=True)
+    report_path.write_text("\n".join(L) + "\n", encoding="utf-8")
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(
         description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter
@@ -905,6 +1161,16 @@ def main() -> None:
     parser.add_argument("--registry", type=Path, default=_DEFAULT_REGISTRY, metavar="FILE")
     parser.add_argument("--dry-run", action="store_true",
                         help="Print per-file diagnostics only; skip the report")
+    parser.add_argument("--refilter-boundaries", action="store_true",
+                        help="Re-derive geometry of existing parquet against state "
+                             "boundaries (recover/null), report dups; no re-download")
+    parser.add_argument("--boundary-buffer-m", type=float, default=500.0, metavar="M",
+                        help="State-boundary buffer in metres (default 500)")
+    parser.add_argument("--boundaries-dir", type=Path, default=None, metavar="DIR",
+                        help="Where mg_ent_*.parquet live (default: --output)")
+    parser.add_argument("--geometry-report", type=Path,
+                        default=_REPO_ROOT / "docs" / "denue" / "GEOMETRY_REPORT.md",
+                        metavar="FILE")
     parser.set_defaults(cleanup_raw=True)
     args = parser.parse_args()
 
@@ -937,6 +1203,18 @@ def main() -> None:
               f"({n_fail}/{n_files} file(s) failed their group schema)")
         return
 
+    if args.refilter_boundaries:
+        bdir = args.boundaries_dir or args.output
+        rels = args.releases if args.releases != sorted(RELEASES_BY_YYYYMM) else None
+        sts = args.states if args.states != list(range(1, 33)) else None
+        rows = _refilter_state_boundaries(args.output, bdir, args.boundary_buffer_m, rels, sts)
+        _write_geometry_report(rows, args.geometry_report, args.boundary_buffer_m)
+        rec = sum(r["n_recovered"] for r in rows)
+        oos = sum(r["out_of_state"] for r in rows)
+        print(f"Refiltered {len(rows)} file(s): {rec} recovered, {oos} out-of-state nulled. "
+              f"Report → {args.geometry_report}")
+        return
+
     if args.update_registry:
         written = sorted(args.output.glob("denue_*.parquet"))
         bc.update_registry(written, args.registry)
@@ -951,11 +1229,14 @@ def main() -> None:
             try:
                 info = _build_denue_state(
                     yyyymm, state, args.raw_dir, args.cache_dir, args.output,
-                    args.retries, args.cleanup_raw
+                    args.retries, args.cleanup_raw,
+                    boundaries_dir=args.boundaries_dir or args.output,
+                    buffer_m=args.boundary_buffer_m,
                 )
                 print(f"  {tag}: {info['rows']:,} rows, {info['cols']} cols, "
                       f"fp={info['fingerprint'][:8]}, geomnull={info['geom_null_frac']}, "
-                      f"swapped={info['n_swapped']}, parts={info['parts']}")
+                      f"recovered={info['n_recovered']}, outstate={info['n_out_of_state']}, "
+                      f"dups={info['n_dup_rows']}, parts={info['parts']}")
             except Exception as exc:  # malformed: report, don't abort the sweep
                 failed += 1
                 print(f"  ! {tag}: MALFORMED — {type(exc).__name__}: {exc}")

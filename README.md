@@ -153,9 +153,13 @@ before and during loading:
   during conversion; otherwise text is preserved as INEGI published it — including
   the source data-entry errors the validation reports flag (e.g. non-numeric postal
   codes), which are **not** corrected or imputed. Point geometry is built from the
-  coordinates as published; where INEGI swapped the latitude/longitude columns (one
-  2012 file), the transposed pair is detected and corrected so the points land in
-  Mexico, and out-of-area coordinates become null geometry.
+  coordinates as published and validated against each row's own state boundary: where a
+  deterministic transform (a latitude/longitude swap or a dropped minus sign) places an
+  offending coordinate back inside its state, the geometry is corrected accordingly
+  (this covers the 2012 file where INEGI transposed the columns for all rows); points
+  that no transform can place inside the state — or that fall outside Mexico entirely —
+  get **null** geometry. In every case the raw `latitud`/`longitud` columns are kept
+  verbatim; only the derived geometry is corrected or nulled.
 
 **These transformations are performed by `mxcensus`, not by INEGI.** Any errors,
 imputations, or derived values are the responsibility of this package and must not
