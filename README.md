@@ -152,7 +152,10 @@ before and during loading:
   A handful of undecodable bytes in one source file are replaced with U+FFFD (`�`)
   during conversion; otherwise text is preserved as INEGI published it — including
   the source data-entry errors the validation reports flag (e.g. non-numeric postal
-  codes), which are **not** corrected or imputed.
+  codes), which are **not** corrected or imputed. Point geometry is built from the
+  coordinates as published; where INEGI swapped the latitude/longitude columns (one
+  2012 file), the transposed pair is detected and corrected so the points land in
+  Mexico, and out-of-area coordinates become null geometry.
 
 **These transformations are performed by `mxcensus`, not by INEGI.** Any errors,
 imputations, or derived values are the responsibility of this package and must not

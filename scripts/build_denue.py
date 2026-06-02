@@ -198,8 +198,12 @@ def _df_to_geoparquet(df: pd.DataFrame, parquet_path: Path) -> dict:
     """Write a DENUE DataFrame to GeoParquet (EPSG:4326); return diagnostics.
 
     Invalid/out-of-Mexico-bbox coordinates become **null** geometry (not empty points).
+    Transposed coordinates are recovered: INEGI swapped the Latitud/Longitud columns in
+    some files (e.g. 2012 state 14 — all 307k rows), so when a row is out-of-bbox as
+    (lon, lat) but in-bbox as (lat, lon), the pair is swapped before building the point.
     """
     fingerprint = _schema_fingerprint(df)
+    n_swapped = 0
     # lat/lon column names vary by release era ("latitud" vs "Latitud"); match
     # case-insensitively and tolerate their absence (→ all-null geometry).
     colmap = {c.lower(): c for c in df.columns}
@@ -208,7 +212,13 @@ def _df_to_geoparquet(df: pd.DataFrame, parquet_path: Path) -> dict:
         lon = pd.to_numeric(df[lon_c], errors="coerce")
         lat = pd.to_numeric(df[lat_c], errors="coerce")
         minlon, minlat, maxlon, maxlat = _MX_BBOX
-        valid = (lon.between(minlon, maxlon) & lat.between(minlat, maxlat)).to_numpy()
+        direct = lon.between(minlon, maxlon) & lat.between(minlat, maxlat)
+        swapped = lat.between(minlon, maxlon) & lon.between(minlat, maxlat)
+        use_swap = ~direct & swapped  # the named lat is really a lon, and vice versa
+        n_swapped = int(use_swap.sum())
+        if n_swapped:
+            lon, lat = lon.where(~use_swap, lat), lat.where(~use_swap, lon)
+        valid = (direct | swapped).to_numpy()
         geometry = gpd.points_from_xy(lon, lat, crs="EPSG:4326")
     else:
         valid = pd.Series(False, index=df.index).to_numpy()
@@ -230,6 +240,7 @@ def _df_to_geoparquet(df: pd.DataFrame, parquet_path: Path) -> dict:
         "fingerprint": fingerprint,
         "has_coords": lat_c is not None and lon_c is not None,
         "geom_null_frac": round(float((~valid).mean()), 4),
+        "n_swapped": n_swapped,
         "size_kb": parquet_path.stat().st_size // 1024,
     }
 
@@ -852,7 +863,7 @@ def main() -> None:
                 )
                 print(f"  {tag}: {info['rows']:,} rows, {info['cols']} cols, "
                       f"fp={info['fingerprint'][:8]}, geomnull={info['geom_null_frac']}, "
-                      f"parts={info['parts']}")
+                      f"swapped={info['n_swapped']}, parts={info['parts']}")
             except Exception as exc:  # malformed: report, don't abort the sweep
                 failed += 1
                 print(f"  ! {tag}: MALFORMED — {type(exc).__name__}: {exc}")

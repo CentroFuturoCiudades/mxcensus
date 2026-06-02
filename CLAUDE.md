@@ -176,6 +176,10 @@ bytes is read utf-8-with-replace, **not** downgraded to cp1252 (the old bug that
 ~104k cells of `denue_201811_29`, since fixed and re-converted). The remaining `cod_postal`
 garbage and sparse per-cell mojibake are **verbatim in INEGI's source CSVs** — left intact
 (the mirror is faithful) and only flagged by the reports, never rewritten/imputed.
+`_df_to_geoparquet` additionally recovers **transposed coordinates** (INEGI swapped the
+Latitud/Longitud columns in `denue_201200_14` — all 307k rows): a row out-of-bbox as
+`(lon, lat)` but in-bbox as `(lat, lon)` is swapped before building the point. All 768 files
+carry a valid EPSG:4326 geometry column; only genuinely out-of-area coordinates stay null.
 
 The harmonization spec (`_RENAME`, `_PER_OCU`, `_TIPO_UNI`) is hard-coded in `denue.py`,
 **pinned to `g10`'s mnemonic column names** — `_latest_schema`/`_group_schema` read columns
