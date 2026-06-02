@@ -279,6 +279,20 @@ def test_load_dedupe_drops_exact_duplicates():
     assert list(clean.index) == list(range(len(clean)))  # index reset
 
 
+@pytest.mark.skipif(not _REAL, reason="no local DENUE mirror (data/parquet/)")
+def test_load_dedupe_ids_drops_repeated_ids():
+    """dedupe_ids=True drops same-id near-duplicates that exact-dedupe leaves behind."""
+    target = _MIRROR / "denue_202311_15.parquet"  # 311 repeated ids, 0 exact dups
+    if not target.exists():
+        pytest.skip("denue_202311_15 not in local mirror")
+    # exact-only dedupe keeps the repeated-id rows; id dedupe removes them.
+    exact = mxcensus.load_denue(survey_path=target, harmonize=False,
+                                dedupe=True, dedupe_ids=False)
+    byid = mxcensus.load_denue(survey_path=target, harmonize=False, dedupe_ids=True)
+    assert byid["id"].duplicated().sum() == 0
+    assert len(exact) - len(byid) == int(exact["id"].duplicated().sum())
+
+
 # --------------------------------------------------------------------------- #
 # Geometry recovery / out-of-state nulling / duplicates (scripts/build_denue.py)
 # --------------------------------------------------------------------------- #
