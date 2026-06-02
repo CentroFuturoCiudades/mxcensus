@@ -258,6 +258,27 @@ def test_real_file_raw_loads(gid):
     assert gdf.crs.to_epsg() == 4326
 
 
+@pytest.mark.skipif(not _REAL, reason="no local DENUE mirror (data/parquet/)")
+def test_load_dedupe_drops_exact_duplicates():
+    """dedupe=True (default) drops exact full-row duplicates; dedupe=False keeps them."""
+    # A 2010/2011 file has many exact full-row duplicates; pick one if present.
+    import glob
+    cands = sorted(glob.glob(str(_MIRROR / "denue_2011*_*.parquet")))
+    target = None
+    for p in cands:
+        g = gpd.read_parquet(p).drop(columns="geometry")
+        if g.duplicated().any():
+            target, n_dups = Path(p), int(g.duplicated().sum())
+            break
+    if target is None:
+        pytest.skip("no file with exact full-row duplicates in local mirror")
+    raw = mxcensus.load_denue(survey_path=target, harmonize=False, dedupe=False)
+    clean = mxcensus.load_denue(survey_path=target, harmonize=False, dedupe=True)
+    assert len(raw) - len(clean) == n_dups
+    assert not clean.drop(columns="geometry").duplicated().any()
+    assert list(clean.index) == list(range(len(clean)))  # index reset
+
+
 # --------------------------------------------------------------------------- #
 # Geometry recovery / out-of-state nulling / duplicates (scripts/build_denue.py)
 # --------------------------------------------------------------------------- #

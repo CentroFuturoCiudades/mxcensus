@@ -576,6 +576,7 @@ def load_denue(
     state: int | None = None,
     release: str | None = None,
     harmonize: bool = True,
+    dedupe: bool = True,
 ) -> gpd.GeoDataFrame:
     """Load one DENUE release/state as a GeoDataFrame (points, EPSG:4326).
 
@@ -593,6 +594,14 @@ def load_denue(
     harmonize : bool, default True
         Map the file onto the latest release's 42-column schema for longitudinal
         comparability. If False, return the release's raw columns.
+    dedupe : bool, default True
+        Drop **exact full-row duplicates** (identical in every column), keeping the
+        first occurrence. These are byte-identical source rows that carry no extra
+        information — chiefly the 2010/2011 editions (tens of thousands of rows). The
+        mirror itself stays faithful (duplicates are reported, not removed, by
+        ``build_denue.py``); this only cleans the in-memory frame. Rows that merely
+        share an ``id`` but differ in other cells (coordinate precision, whitespace)
+        are *not* removed, since which to keep would be arbitrary.
 
     The frame is validated against the tight Pandera schema for its group (raw) or the
     latest schema (harmonized); value-level violations emit a ``warnings.warn`` summary
@@ -619,6 +628,12 @@ def load_denue(
         raise ValueError(
             f"DENUE file {survey_path} is not EPSG:4326 (got {gdf.crs}); stale mirror?"
         )
+    if dedupe:
+        # Exact full-row duplicates only (geometry is derived from lat/lon, so identical
+        # data rows have identical geometry); the duplicated() check ignores it for speed.
+        dups = gdf.drop(columns="geometry").duplicated()
+        if dups.any():
+            gdf = gdf.loc[~dups].reset_index(drop=True)
     gid = _group_of(gdf, schema_map)
     if harmonize:
         latest_cols = schema_map["groups"][schema_map["latest"]]["columns"]
