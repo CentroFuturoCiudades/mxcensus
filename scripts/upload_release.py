@@ -20,6 +20,7 @@ Usage (run from the repo root, where `gh` is on PATH and authenticated):
 
   python scripts/upload_release.py status               # live progress table
   python scripts/upload_release.py status --write-doc   # also write docs/UPLOAD_PROGRESS.md
+  python scripts/upload_release.py create-release       # create the Release (done once)
   python scripts/upload_release.py list core_denue      # files in a batch
   python scripts/upload_release.py upload core_denue    # upload remaining files in the batch
   python scripts/upload_release.py upload --next        # upload the next incomplete batch
@@ -27,6 +28,9 @@ Usage (run from the repo root, where `gh` is on PATH and authenticated):
   python scripts/upload_release.py upload core_mg --dry-run        # show, don't upload
 
 Notes
+- The GitHub Release must exist before assets can be uploaded; `upload` creates it
+  automatically on first run (or run `create-release`). `gh release upload` errors with
+  "release not found" if it is missing.
 - ``--clobber`` overwrites assets already on the release (use for the two corrected
   files denue_201811_29 / denue_201200_14); without it, present assets are skipped.
 - Uploads are chunked (``--chunk``, default 25) so each `gh` call is a commit point;
@@ -125,11 +129,45 @@ def uploaded_assets() -> set[str]:
     )
     if res.returncode != 0:
         err = res.stderr.strip()
-        if "release not found" in err.lower():
+        if "release not found" in err.lower() or "not found" in err.lower():
             return set()
         sys.exit(f"`gh release view` failed: {err}")
     data = json.loads(res.stdout or "{}")
     return {a["name"] for a in data.get("assets", [])}
+
+
+def release_exists() -> bool:
+    """True if the GitHub Release (and its tag) already exists."""
+    _require_gh()
+    res = subprocess.run(
+        ["gh", "release", "view", TAG, "--repo", REPO, "--json", "tagName"],
+        capture_output=True, text=True,
+    )
+    return res.returncode == 0
+
+
+def ensure_release(*, dry_run: bool = False) -> None:
+    """Create the data Release (and tag) if it does not exist — uploads need it first."""
+    if release_exists():
+        return
+    if dry_run:
+        print(f"[dry-run] release {TAG} does not exist; would create it on {REPO}.")
+        return
+    print(f"Release {TAG} not found — creating it on {REPO} …")
+    res = subprocess.run(
+        ["gh", "release", "create", TAG, "--repo", REPO, "--latest=false",
+         "--title", "Data mirror (parquet)",
+         "--notes", "Pre-converted INEGI parquet mirror for `mxcensus` "
+                    "(census, Marco Geoestadístico, DENUE). Assets are uploaded in "
+                    "batches by scripts/upload_release.py."],
+        capture_output=True, text=True,
+    )
+    if res.returncode != 0:
+        sys.exit(f"failed to create release {TAG}: {res.stderr.strip()}\n"
+                 f"Create it manually, e.g.:\n"
+                 f"  gh release create {TAG} --repo {REPO} --latest=false "
+                 f'--title "Data mirror (parquet)" --notes "mxcensus data mirror"')
+    print(f"Created release {TAG}.")
 
 
 # --------------------------------------------------------------------------- #
@@ -146,8 +184,12 @@ def cmd_status(args) -> None:
         rows.append((mark, key, up, len(files)))
 
     width = max(len(k) for _, k, _, _ in rows)
+    exists = release_exists()
     print(f"\nRelease {REPO} @ {TAG}  —  {tot_up}/{tot} files uploaded "
           f"({100 * tot_up // tot if tot else 0}%)\n")
+    if not exists:
+        print("  ⚠ release does not exist yet — `upload` will create it "
+              "(or run `create-release`).\n")
     for mark, key, up, n in rows:
         bar_done = up * 20 // n if n else 0
         bar = "█" * bar_done + "░" * (20 - bar_done)
@@ -210,11 +252,19 @@ def _resolve_batches(args, batches) -> list[str]:
     return args.batches
 
 
+def cmd_create_release(args) -> None:
+    if release_exists():
+        print(f"Release {TAG} already exists on {REPO}.")
+        return
+    ensure_release()
+
+
 def cmd_upload(args) -> None:
     batches = build_batches()
     keys = _resolve_batches(args, batches)
     if not keys:
         return
+    ensure_release(dry_run=args.dry_run)   # the release must exist before uploading
     present = uploaded_assets()
 
     for key in keys:
@@ -261,6 +311,9 @@ def main() -> None:
     pl = sub.add_parser("list", help="list the files in a batch")
     pl.add_argument("batch")
     pl.set_defaults(func=cmd_list)
+
+    pc = sub.add_parser("create-release", help="create the data Release if it doesn't exist")
+    pc.set_defaults(func=cmd_create_release)
 
     pu = sub.add_parser("upload", help="upload a batch (skips already-present assets)")
     pu.add_argument("batches", nargs="*", help="batch key(s); omit with --next")
