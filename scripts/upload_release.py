@@ -9,21 +9,22 @@ after a crashed or partial upload simply skips the assets already present.
 
 Batches (derived from the registry so they always match what exists on disk):
 
-  core         denue_202605 (latest) + census (iter/resargebub/personas/viviendas)
-               + the 4 Marco Geoestadístico layers load_mg_census actually fetches
-               (mg_a / mg_l / mg_lpr / mg_ar).                          [288 files]
+  core_denue   denue_202605 (latest release).                            [32 files]
+  core_census  census (iter/resargebub/personas/viviendas).             [128 files]
+  core_mg      the 4 Marco Geoestadístico layers load_mg_census fetches
+               (mg_a / mg_l / mg_lpr / mg_ar).                          [128 files]
   mg-rest      the other 11 MG layers (cd/e/ent/fm/m/mun/pe/pem/sia/sil/sip). [352]
   denue-<id>   one older DENUE release per batch, newest→oldest.    [32 files each]
 
 Usage (run from the repo root, where `gh` is on PATH and authenticated):
 
-  python scripts/upload_release.py status              # live progress table
-  python scripts/upload_release.py status --write-doc  # also write docs/UPLOAD_PROGRESS.md
-  python scripts/upload_release.py list core           # files in a batch
-  python scripts/upload_release.py upload core         # upload remaining files in `core`
-  python scripts/upload_release.py upload --next       # upload the next incomplete batch
+  python scripts/upload_release.py status               # live progress table
+  python scripts/upload_release.py status --write-doc   # also write docs/UPLOAD_PROGRESS.md
+  python scripts/upload_release.py list core_denue      # files in a batch
+  python scripts/upload_release.py upload core_denue    # upload remaining files in the batch
+  python scripts/upload_release.py upload --next        # upload the next incomplete batch
   python scripts/upload_release.py upload denue-201811 --clobber   # re-upload (overwrite)
-  python scripts/upload_release.py upload core --dry-run           # show, don't upload
+  python scripts/upload_release.py upload core_mg --dry-run        # show, don't upload
 
 Notes
 - ``--clobber`` overwrites assets already on the release (use for the two corrected
@@ -73,24 +74,29 @@ def _classify(name: str) -> str:
     """Map a registry filename to its batch key."""
     if name.startswith("denue_"):
         release = name.split("_")[1]              # denue_<YYYYMM>_<NN>.parquet
-        return "core" if release == LATEST_DENUE else f"denue-{release}"
+        return "core_denue" if release == LATEST_DENUE else f"denue-{release}"
     if name.startswith("mg_"):
         suffix = name[len("mg_"):].rsplit("_", 1)[0]   # mg_<suffix>_<NN>.parquet
-        return "core" if suffix in USED_MG else "mg-rest"
+        return "core_mg" if suffix in USED_MG else "mg-rest"
     if name.split("_")[0] in CENSUS:              # iter/resargebub/personas/viviendas
-        return "core"
+        return "core_census"
     return "other"
 
 
+# The three small first-upload batches (was the single `core`), in upload order.
+_CORE_BATCHES = ("core_denue", "core_census", "core_mg")
+
+
 def build_batches() -> "OrderedDict[str, list[str]]":
-    """Return ordered {batch_key: [filenames]} — core, mg-rest, then denue newest→oldest."""
+    """Return ordered {batch_key: [filenames]} — core_*, mg-rest, then denue newest→oldest."""
     groups: dict[str, list[str]] = {}
     for name in _registry_names():
         groups.setdefault(_classify(name), []).append(name)
 
     ordered: "OrderedDict[str, list[str]]" = OrderedDict()
-    if "core" in groups:
-        ordered["core"] = sorted(groups.pop("core"))
+    for k in _CORE_BATCHES:
+        if k in groups:
+            ordered[k] = sorted(groups.pop(k))
     if "mg-rest" in groups:
         ordered["mg-rest"] = sorted(groups.pop("mg-rest"))
     # remaining denue releases, newest first
