@@ -52,6 +52,57 @@ def STATE_CODE_FMT(state: int) -> str:
     return f"{state:02d}"
 
 
+# Two-digit state ENTIDAD code → lowercase name slug used in the Marco Geoestadístico
+# per-state download filename ({code}_{slug}.zip). The slug (not just the code) is
+# required by the URL; verified against the INEGI bvinegi tree (2026-06-03).
+STATE_SLUG_MG: dict[int, str] = {
+    1: "aguascalientes",
+    2: "bajacalifornia",
+    3: "bajacaliforniasur",
+    4: "campeche",
+    5: "coahuiladezaragoza",
+    6: "colima",
+    7: "chiapas",
+    8: "chihuahua",
+    9: "ciudaddemexico",
+    10: "durango",
+    11: "guanajuato",
+    12: "guerrero",
+    13: "hidalgo",
+    14: "jalisco",
+    15: "mexico",
+    16: "michoacandeocampo",
+    17: "morelos",
+    18: "nayarit",
+    19: "nuevoleon",
+    20: "oaxaca",
+    21: "puebla",
+    22: "queretaro",
+    23: "quintanaroo",
+    24: "sanluispotosi",
+    25: "sinaloa",
+    26: "sonora",
+    27: "tabasco",
+    28: "tamaulipas",
+    29: "tlaxcala",
+    30: "veracruzignaciodelallave",
+    31: "yucatan",
+    32: "zacatecas",
+}
+
+# Marco Geoestadístico, Censo de Población y Vivienda 2020 (UPC 889463807469).
+# Per-state shapefile ZIPs live directly under this folder as {code}_{slug}.zip.
+_MG_BASE = (
+    "https://www.inegi.org.mx/contenidos/productos/prod_serv/contenidos/espanol/"
+    "bvinegi/productos/geografia/marcogeo/889463807469"
+)
+
+
+def marco_geo_zip_url(state: int) -> str:
+    """Return the INEGI per-state Marco Geoestadístico 2020 shapefile ZIP URL."""
+    return f"{_MG_BASE}/{STATE_CODE_FMT(state)}_{STATE_SLUG_MG[state]}.zip"
+
+
 _BASE = "https://www.inegi.org.mx/contenidos/programas/ccpv/2020"
 
 # Date this catalog was last verified against the INEGI portal

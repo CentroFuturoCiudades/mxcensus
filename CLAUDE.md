@@ -71,7 +71,7 @@ GitHub Release (raw parquet mirror)
 | `data/_denue_catalog.py` | `DenueRelease`, `RELEASES` (24 verified release URL templates incl. state-15 multipart & per-release quirks), `denue_zip_entry`, `latest_release` |
 | `scripts/_build_common.py` | **Maintainer-only** — shared build helpers: `fetch_zip_verified` (download+verify+retry), `detect_encoding`, `update_registry` (append/upsert preserving prior entries) |
 | `scripts/build_data.py` | **Maintainer-only** — downloads raw census ZIPs from INEGI, converts CSVs to parquet, regenerates `registry.txt` |
-| `scripts/build_marco_geo.py` | **Maintainer-only** — converts a local Marco Geoestadístico gpkg copy to geoparquet (15 layers/state, `mg_{suffix}_{NN}.parquet`); appends to `registry.txt` |
+| `scripts/build_marco_geo.py` | **Maintainer-only** — downloads INEGI's Marco Geoestadístico 2020 per-state shapefile ZIPs (UPC 889463807469, via `marco_geo_zip_url`) and converts the 15 layers/state to geoparquet (`mg_{suffix}_{NN}.parquet`, single→Multi* geometry, int32 codes, source `.prj` CRS); appends to `registry.txt`. `--local-gpkg-dir DIR` uses a local gpkg copy instead of downloading |
 | `scripts/build_denue.py` | **Maintainer-only** — downloads/converts DENUE to geoparquet (`denue_{YYYYMM}_{NN}.parquet`), detects inconsistencies (`docs/denue/INCONSISTENCY_REPORT.md`), extracts data dictionaries (CSV 2016+ / PDF 2010–2013 via `pypdf`) to fill `variables_denue_*.yaml` descriptions + categories (categories cross-validated against the data → `docs/denue/CATEGORY_AUDIT.md`), generates `denue_schema_map.yaml`, validates every file against its group schema (`docs/denue/VALIDATION_REPORT.md`), derives/repairs point geometry against state boundaries (`docs/denue/GEOMETRY_REPORT.md`), appends to `registry.txt`. Modes: `--schema-map`, `--variables` (`--cat-threshold`), `--validate`, `--refilter-boundaries` (`--boundary-buffer-m`/`--boundaries-dir`/`--geometry-report`), `--report-only`, `--update-registry`, `--dry-run` |
 | `scripts/upload_release.py` | **Maintainer-only** — resumable batch upload of the parquet mirror to the GitHub Release. Source of truth for "already uploaded" is the release itself (queried live via `gh release view`), so it survives multi-day / partial uploads. Batches derived from `registry.txt`: `core_denue` (latest DENUE), `core_census` (iter/resargebub/personas/viviendas), `core_mg` (the 4 MG layers `load_mg_census` fetches), `mg-rest` (other 11 MG layers), one `denue-<id>` per older release. Subcommands: `status` (`--write-doc`), `list <batch>`, `upload <batch…>` or `--next` (`--clobber`/`--chunk N`/`--dry-run`) |
 
@@ -125,12 +125,13 @@ python scripts/build_data.py              # full build
 # Then upload data/parquet/ to the GitHub Release and commit registry.txt
 ```
 
-To (re)build the **Marco Geoestadístico** geoparquet from a local gpkg copy:
+To (re)build the **Marco Geoestadístico** geoparquet (downloads from INEGI):
 ```bash
-python scripts/build_marco_geo.py --states 1   # smoke test
+python scripts/build_marco_geo.py --states 1   # smoke test (downloads 01_aguascalientes.zip)
 python scripts/build_marco_geo.py              # all 32 states, all 15 layers
+python scripts/build_marco_geo.py --local-gpkg-dir DIR   # use a local gpkg copy instead
 # Appends mg_* entries to registry.txt (preserving census entries); then
-# gh release upload data-v0.1.0 data/parquet/mg_*.parquet --clobber
+# python scripts/upload_release.py upload core_mg --clobber   # then mg-rest
 ```
 
 To (re)build the **DENUE** mirror (downloads from INEGI):
