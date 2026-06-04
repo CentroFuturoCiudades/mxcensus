@@ -255,6 +255,27 @@ def _load_state_boundary(state: int, boundaries_dir: Path, buffer_m: float):
     return boundary
 
 
+def _parse_coords(values) -> np.ndarray:
+    """Parse coordinate strings to float64 with Python's **correctly-rounded** ``float()``.
+
+    INEGI stores lat/lon as full-precision decimal strings (e.g. ``-86.938750799999994``)
+    that sit on the midpoint between two adjacent doubles. numpy/pandas fast parsers are
+    not always correctly rounded there, so they can pick a 1-ULP-off neighbour — and which
+    neighbour depends on the build's libm/compiler/SIMD, i.e. it varies across library
+    versions *and CPU architectures*. CPython's ``float()`` (David Gay dtoa) is correctly
+    rounded and deterministic everywhere, so the derived geometry — and the file's hash —
+    is reproducible regardless of where the mirror is built. Missing/non-numeric → NaN.
+    """
+    arr = values.to_numpy() if hasattr(values, "to_numpy") else np.asarray(values, dtype=object)
+    out = np.empty(len(arr), dtype=float)
+    for i, v in enumerate(arr):
+        try:
+            out[i] = float(v)
+        except (TypeError, ValueError):
+            out[i] = np.nan
+    return out
+
+
 def _recover_geometry(lat: pd.Series, lon: pd.Series, boundary) -> tuple[np.ndarray, dict]:
     """Build EPSG:4326 point geometry from raw lat/lon, repairing offending coordinates.
 
@@ -268,8 +289,8 @@ def _recover_geometry(lat: pd.Series, lon: pd.Series, boundary) -> tuple[np.ndar
     Mexico entirely), ``no_coords`` (missing/non-numeric), and ``ambiguous`` (>1 candidate
     in-state — the priority pick is used).
     """
-    lat_v = pd.to_numeric(lat, errors="coerce").to_numpy(dtype=float)
-    lon_v = pd.to_numeric(lon, errors="coerce").to_numpy(dtype=float)
+    lat_v = _parse_coords(lat)
+    lon_v = _parse_coords(lon)
     n = len(lat_v)
     geom = np.empty(n, dtype=object)
     geom[:] = None

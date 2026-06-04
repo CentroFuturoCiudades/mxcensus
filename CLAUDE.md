@@ -199,6 +199,13 @@ reports per-file **duplicate rows** / duplicate `id`/`clee` — reported, never 
 file with >5% out-of-state points is flagged there for manual review. Requires the `mg_ent_*`
 layers to be built first (`scripts/build_marco_geo.py`).
 
+Coordinates are parsed with `_parse_coords` (CPython's correctly-rounded `float()`), **not**
+numpy/pandas fast parsers: INEGI's full-precision lat/lon strings sit on double midpoints
+where fast parsers can round 1 ULP differently across library versions *and CPU
+architectures*, which would make the derived geometry — and the parquet hashes in
+`registry.txt` — non-reproducible across build machines. `float()` is deterministic
+everywhere, so a build on any architecture yields identical geometry/hashes.
+
 The harmonization spec (`_RENAME`, `_PER_OCU`, `_TIPO_UNI`) is hard-coded in `denue.py`,
 **pinned to `g10`'s mnemonic column names** — `_latest_schema`/`_group_schema` read columns
 dynamically from the map, but the rename/value targets do not. If a future release introduces

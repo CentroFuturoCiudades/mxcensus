@@ -367,6 +367,19 @@ def test_recover_buffer_rescues_near_border():
     assert c_buf["ok"] == 1
 
 
+def test_parse_coords_correctly_rounded():
+    # Full-precision string on a double midpoint: must round to CPython float() (correctly
+    # rounded, arch-independent), not a 1-ULP-off neighbour from a fast parser.
+    out = _bd._parse_coords(pd.Series(["-86.938750799999994", "20.5"]))
+    assert out[0] == float("-86.938750799999994") == -86.9387508
+    assert out[1] == 20.5
+
+
+def test_parse_coords_bad_values_to_nan():
+    out = _bd._parse_coords(pd.Series(["", None, "abc", np.nan, "19.4"]))
+    assert np.isnan(out[:4]).all() and out[4] == 19.4
+
+
 def test_dup_counts():
     df = pd.DataFrame({"id": ["a", "a", "b"], "x": [1, 1, 2]})
     n_rows, n_ids = _bd._dup_counts(df)
