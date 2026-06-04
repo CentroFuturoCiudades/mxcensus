@@ -26,8 +26,14 @@ Usage (run from the repo root, where `gh` is on PATH and authenticated):
   python scripts/upload_release.py upload --next        # upload the next incomplete batch
   python scripts/upload_release.py upload denue-201811 --clobber   # re-upload (overwrite)
   python scripts/upload_release.py upload core_mg --dry-run        # show, don't upload
+  python scripts/upload_release.py verify               # check SHA-256/size vs registry
+  python scripts/upload_release.py verify core_denue    # verify one batch
 
 Notes
+- `verify` compares each uploaded asset's GitHub-computed SHA-256 digest to registry.txt
+  WITHOUT downloading (via `gh api`). GitHub computes digests asynchronously, so a just-
+  uploaded asset may show `digest-pending` — it then falls back to a size check against
+  the local file, or re-run later once the digest is available.
 - The GitHub Release must exist before assets can be uploaded; `upload` creates it
   automatically on first run (or run `create-release`). `gh release upload` errors with
   "release not found" if it is missing.
@@ -134,6 +140,45 @@ def uploaded_assets() -> set[str]:
         sys.exit(f"`gh release view` failed: {err}")
     data = json.loads(res.stdout or "{}")
     return {a["name"] for a in data.get("assets", [])}
+
+
+def asset_details() -> dict[str, dict]:
+    """{asset_name: {'sha256': hex|None, 'size': int}} from the release (no download).
+
+    Uses the raw API (not `gh release view --json`, which omits the digest). GitHub
+    computes a SHA-256 ``digest`` per asset asynchronously, so it can be null right
+    after upload or for assets predating the feature — callers fall back to size then.
+    """
+    _require_gh()
+    res = subprocess.run(
+        ["gh", "api", f"repos/{REPO}/releases/tags/{TAG}"],
+        capture_output=True, text=True,
+    )
+    if res.returncode != 0:
+        err = res.stderr.strip()
+        if "not found" in err.lower() or "404" in err:
+            return {}
+        sys.exit(f"`gh api` failed: {err}")
+    out: dict[str, dict] = {}
+    for a in json.loads(res.stdout or "{}").get("assets", []):
+        digest = a.get("digest") or ""
+        out[a["name"]] = {
+            "sha256": digest.split(":", 1)[1] if digest.startswith("sha256:") else None,
+            "size": a.get("size"),
+        }
+    return out
+
+
+def _registry_hashes() -> dict[str, str]:
+    """{filename: sha256hex} from registry.txt."""
+    out: dict[str, str] = {}
+    for line in REGISTRY.read_text().splitlines():
+        line = line.strip()
+        if line and not line.startswith("#"):
+            parts = line.split()
+            if len(parts) >= 2:
+                out[parts[0]] = parts[1]
+    return out
 
 
 def release_exists() -> bool:
@@ -252,6 +297,59 @@ def _resolve_batches(args, batches) -> list[str]:
     return args.batches
 
 
+def cmd_verify(args) -> None:
+    """Compare release assets' SHA-256 digests (and size) to registry.txt — no download."""
+    batches = build_batches()
+    unknown = [b for b in args.batches if b not in batches]
+    if unknown:
+        sys.exit(f"unknown batch(es): {', '.join(unknown)}. Known: {', '.join(batches)}")
+    keys = args.batches or list(batches)
+    remote = asset_details()
+    reg = _registry_hashes()
+    if not remote:
+        print(f"Release {TAG} has no assets (or does not exist) — nothing to verify.")
+        return
+
+    totals: dict[str, int] = {}
+    any_bad = False
+    for key in keys:
+        counts: dict[str, int] = {}
+        bad: list[tuple[str, str]] = []
+        for f in batches[key]:
+            info = remote.get(f)
+            if info is None:
+                st = "missing"
+            elif info["sha256"] is not None:
+                st = "ok" if info["sha256"] == reg.get(f) else "MISMATCH"
+            else:  # digest not yet computed by GitHub — fall back to size vs local file
+                local = PARQUET_DIR / f
+                if not local.exists():
+                    st = "digest-pending"
+                else:
+                    st = "size-ok" if local.stat().st_size == info["size"] else "size-MISMATCH"
+            counts[st] = counts.get(st, 0) + 1
+            totals[st] = totals.get(st, 0) + 1
+            if st not in ("ok", "size-ok"):
+                bad.append((f, st))
+                if st in ("MISMATCH", "size-MISMATCH", "missing"):
+                    any_bad = True
+        summary = ", ".join(f"{k}={v}" for k, v in sorted(counts.items()))
+        mark = "✓" if all(s in ("ok", "size-ok") for s in counts) else "✗"
+        print(f"  {mark} {key:<13} {len(batches[key]):>4} files — {summary}")
+        for f, st in bad[:20]:
+            print(f"        {st:<14} {f}")
+        if len(bad) > 20:
+            print(f"        … and {len(bad) - 20} more")
+
+    print(f"\n  totals: " + ", ".join(f"{k}={v}" for k, v in sorted(totals.items())))
+    pending = totals.get("digest-pending", 0)
+    if pending:
+        print(f"  note: {pending} asset(s) have no digest yet (GitHub computes it "
+              f"asynchronously) and no local file to size-check; re-run later.")
+    if any_bad:
+        sys.exit("  verification found mismatches/missing assets.")
+
+
 def cmd_create_release(args) -> None:
     if release_exists():
         print(f"Release {TAG} already exists on {REPO}.")
@@ -314,6 +412,10 @@ def main() -> None:
 
     pc = sub.add_parser("create-release", help="create the data Release if it doesn't exist")
     pc.set_defaults(func=cmd_create_release)
+
+    pv = sub.add_parser("verify", help="check release asset SHA-256/size vs registry (no download)")
+    pv.add_argument("batches", nargs="*", help="batch key(s) to verify (default: all)")
+    pv.set_defaults(func=cmd_verify)
 
     pu = sub.add_parser("upload", help="upload a batch (skips already-present assets)")
     pu.add_argument("batches", nargs="*", help="batch key(s); omit with --next")
