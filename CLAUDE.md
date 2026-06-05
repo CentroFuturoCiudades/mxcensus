@@ -24,7 +24,7 @@ declares `>=3.13`; the active venv runs 3.14).
 
 ## What this project does
 
-`mxcensus` is a data loader and preprocessor for Mexico's 2020 Census (CPV 2020) published by INEGI. It fetches pre-converted parquet files from a curated mirror hosted on GitHub Releases, parses them (handling censored values and missing data conventions), and returns clean pandas DataFrames ready for analysis.
+`mxcensus` is a data loader and preprocessor for Mexico's 2020 Census (CPV 2020) published by INEGI. It fetches pre-converted parquet files from a curated mirror hosted in a Hugging Face Storage Bucket, parses them (handling censored values and missing data conventions), and returns clean pandas DataFrames ready for analysis.
 
 Three dataset types are supported:
 
@@ -46,7 +46,7 @@ Lower-level building blocks (`load_iter`, `load_resargebub`, `merge_*`,
 ### Data flow
 
 ```
-GitHub Release (raw parquet mirror)
+Hugging Face Storage Bucket (raw parquet mirror)
   → Pooch fetches & caches locally (data/_registry.py)
   → parse & process (aggregate.py, or extended_personas.py / extended_viviendas.py)
   → validate via Pandera schemas (_yaml/ bundled files)
@@ -73,7 +73,8 @@ GitHub Release (raw parquet mirror)
 | `scripts/build_data.py` | **Maintainer-only** — downloads raw census ZIPs from INEGI, converts CSVs to parquet, regenerates `registry.txt` |
 | `scripts/build_marco_geo.py` | **Maintainer-only** — downloads INEGI's Marco Geoestadístico 2020 per-state shapefile ZIPs (UPC 889463807469, via `marco_geo_zip_url`) and converts the 15 layers/state to geoparquet (`mg_{suffix}_{NN}.parquet`, single→Multi* geometry, int32 codes, source `.prj` CRS); appends to `registry.txt`. `--local-gpkg-dir DIR` uses a local gpkg copy instead of downloading |
 | `scripts/build_denue.py` | **Maintainer-only** — downloads/converts DENUE to geoparquet (`denue_{YYYYMM}_{NN}.parquet`), detects inconsistencies (`docs/denue/INCONSISTENCY_REPORT.md`), extracts data dictionaries (CSV 2016+ / PDF 2010–2013 via `pypdf`) to fill `variables_denue_*.yaml` descriptions + categories (categories cross-validated against the data → `docs/denue/CATEGORY_AUDIT.md`), generates `denue_schema_map.yaml`, validates every file against its group schema (`docs/denue/VALIDATION_REPORT.md`), derives/repairs point geometry against state boundaries (`docs/denue/GEOMETRY_REPORT.md`), appends to `registry.txt`. Modes: `--schema-map`, `--variables` (`--cat-threshold`), `--validate`, `--refilter-boundaries` (`--boundary-buffer-m`/`--boundaries-dir`/`--geometry-report`), `--report-only`, `--update-registry`, `--dry-run` |
-| `scripts/upload_release.py` | **Maintainer-only** — resumable batch upload of the parquet mirror to the GitHub Release. Source of truth for "already uploaded" is the release itself (queried live via `gh release view`), so it survives multi-day / partial uploads. Batches derived from `registry.txt`: `core_denue` (latest DENUE), `core_census` (iter/resargebub/personas/viviendas), `core_mg` (the 4 MG layers `load_mg_census` fetches), `mg-rest` (other 11 MG layers), one `denue-<id>` per older release. Subcommands: `status` (`--write-doc`), `list <batch>`, `create-release`, `verify <batch…>` (compares each asset's GitHub SHA-256 digest + size to `registry.txt` via `gh api`, no download), `upload <batch…>` or `--next` (`--clobber`/`--chunk N`/`--dry-run`; auto-creates the release if missing) |
+| `scripts/upload_hf.py` | **Maintainer-only** — host the parquet mirror in the Hugging Face Storage Bucket (`mxcensus.data._registry.HF_BUCKET`), the package's **current** data source. Subcommands: `create` (make the bucket), `upload` (`hf buckets sync` of `data/parquet/*.parquet` to the bucket root + the provenance `docs/hf_bucket_readme.md` as `README.md`; `--delete`/`--dry-run`), `verify` (HEAD each `…/resolve/<file>` URL vs local size, no download). Buckets are mutable (overwrite-in-place), so re-uploading after a rebuild just syncs changed files |
+| `scripts/upload_release.py` | **Maintainer-only** (legacy GitHub-Release alternative; superseded by `upload_hf.py`) — resumable batch upload of the parquet mirror to a GitHub Release. Source of truth for "already uploaded" is the release itself (queried live via `gh release view`), so it survives multi-day / partial uploads. Batches derived from `registry.txt`: `core_denue` (latest DENUE), `core_census` (iter/resargebub/personas/viviendas), `core_mg` (the 4 MG layers `load_mg_census` fetches), `mg-rest` (other 11 MG layers), one `denue-<id>` per older release. Subcommands: `status` (`--write-doc`), `list <batch>`, `create-release`, `verify <batch…>` (compares each asset's GitHub SHA-256 digest + size to `registry.txt` via `gh api`, no download), `upload <batch…>` or `--next` (`--clobber`/`--chunk N`/`--dry-run`; auto-creates the release if missing) |
 
 ### YAML schemas (`_yaml/`)
 
@@ -98,9 +99,9 @@ Multi-response fields (health insurance categories, transport modes) are expande
 
 ### Parquet mirror and registry
 
-Raw INEGI data is pre-converted to parquet and hosted on a GitHub Release (`data-v0.1.0` under `CentroFuturoCiudades/mxcensus`, see `data/_registry.py`). The registry file (`src/mxcensus/data/registry.txt`) maps filenames to SHA256 hashes and is committed to the repo after each data release.
+Raw INEGI data is pre-converted to parquet and hosted in a **Hugging Face Storage Bucket** (`HF_BUCKET` in `data/_registry.py`, default `gperaza/mxcensus`). Public bucket objects are served anonymously over plain HTTPS at `https://huggingface.co/buckets/<bucket>/resolve/<filename>` (a 302 to the Xet CDN), so Pooch fetches them as `base_url + filename` — no auth, no `hf://` client. `$MXCENSUS_BASE_URL` overrides the base URL (e.g. to a fork or a GitHub-Release mirror). The registry file (`src/mxcensus/data/registry.txt`) maps filenames to SHA256 hashes and is committed after each data build; Pooch verifies every download against it. Upload via `scripts/upload_hf.py upload`.
 
-> **Pending:** fetches resolve to the release URL, but the assets must actually be uploaded there (`gh release upload data-v0.1.0 …`). Until then `POOCH.fetch` / `load_census(state=…)` return 404.
+> **Pending:** the bucket must actually hold the files (`python scripts/upload_hf.py upload`). Until a given file is uploaded, `POOCH.fetch` / `load_*(state=…)` for it 404s.
 
 File naming convention:
 ```

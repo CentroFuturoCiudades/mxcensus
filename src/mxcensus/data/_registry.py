@@ -5,14 +5,21 @@ first ``POOCH.fetch()`` call for each file.
 """
 from __future__ import annotations
 
+import os
 from importlib import resources
 
 import pooch
 
 from ._paths import get_pooch_cache_dir
 
-_DATA_RELEASE_TAG = "data-v0.1.0"
-_BASE_URL = f"https://github.com/CentroFuturoCiudades/mxcensus/releases/download/{_DATA_RELEASE_TAG}/"
+# The parquet mirror is hosted in a Hugging Face Storage Bucket. Public bucket objects are
+# served anonymously over plain HTTPS at ``<bucket>/resolve/<filename>`` (a 302 redirect to
+# the Xet CDN), so Pooch fetches them as base_url + filename — registry keys are bare
+# filenames. Override with $MXCENSUS_BASE_URL to point at a fork/mirror (keep trailing "/").
+HF_BUCKET = "gperaza/mxcensus"
+_BASE_URL = os.environ.get(
+    "MXCENSUS_BASE_URL", f"https://huggingface.co/buckets/{HF_BUCKET}/resolve/"
+)
 
 POOCH = pooch.create(
     path=get_pooch_cache_dir(),
