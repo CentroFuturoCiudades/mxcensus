@@ -8,10 +8,9 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 # Install in editable mode with dev dependencies (add ,notebook for Jupyter/Quarto)
 uv pip install -e ".[dev]"            # or: uv sync --extra dev --extra notebook
 
-# Run tests (NOTE: tests/ currently holds only an empty __init__.py — no test
-# suite exists yet, so `pytest` collects nothing. Add tests as tests/test_*.py.)
+# Run tests (DENUE schema/harmonization suite, tests/test_denue.py — ~93 tests)
 pytest
-pytest tests/test_foo.py          # single file, once tests exist
+pytest tests/test_denue.py        # single file
 
 # CLI — pre-download parquet files for a state, show cache info
 mxcensus fetch 9                  # all 4 datasets for state 9
@@ -101,7 +100,7 @@ Multi-response fields (health insurance categories, transport modes) are expande
 
 Raw INEGI data is pre-converted to parquet and hosted in a **Hugging Face Storage Bucket** (`HF_BUCKET` in `data/_registry.py`, default `gperaza/mxcensus`). Public bucket objects are served anonymously over plain HTTPS at `https://huggingface.co/buckets/<bucket>/resolve/<filename>` (a 302 to the Xet CDN), so Pooch fetches them as `base_url + filename` — no auth, no `hf://` client. `$MXCENSUS_BASE_URL` overrides the base URL (e.g. to a fork or a GitHub-Release mirror). The registry file (`src/mxcensus/data/registry.txt`) maps filenames to SHA256 hashes and is committed after each data build; Pooch verifies every download against it. Upload via `scripts/upload_hf.py upload`.
 
-> **Pending:** the bucket must actually hold the files (`python scripts/upload_hf.py upload`). Until a given file is uploaded, `POOCH.fetch` / `load_*(state=…)` for it 404s.
+The bucket is live and holds the full mirror (all 1376 registry entries), so `POOCH.fetch` / `load_*(state=…)` resolve anonymously. After a rebuild, re-sync changed files with `python scripts/upload_hf.py upload`; until a newly built file is uploaded, fetching it 404s.
 
 File naming convention:
 ```

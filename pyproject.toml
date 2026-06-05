@@ -17,8 +17,13 @@ dependencies = [
     "pooch>=1.8",
     "pyarrow>=18.0",
     "pyyaml>=6.0.3",
-    "tqdm>=4.67.3",
+    "tqdm>=4.67.3",          # pooch download progress bars (data/_registry.py)
 ]
+
+[project.urls]
+Homepage = "https://github.com/CentroFuturoCiudades/mxcensus"
+Repository = "https://github.com/CentroFuturoCiudades/mxcensus"
+Issues = "https://github.com/CentroFuturoCiudades/mxcensus/issues"
 
 [project.scripts]
 mxcensus = "mxcensus._cli:main"

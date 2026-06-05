@@ -28,6 +28,18 @@ POOCH = pooch.create(
     env="MXCENSUS_CACHE_DIR",
 )
 
+# Show a tqdm download progress bar by default on every fetch (mirror files run from a
+# few MB up to hundreds of MB). Pooch only draws the bar when actually downloading, so
+# cache hits stay silent. Callers can still pass progressbar=False to opt out.
+_pooch_fetch = POOCH.fetch
+
+
+def _fetch_with_progress(fname, *args, progressbar=True, **kwargs):
+    return _pooch_fetch(fname, *args, progressbar=progressbar, **kwargs)
+
+
+POOCH.fetch = _fetch_with_progress
+
 _reg = resources.files("mxcensus.data") / "registry.txt"
 with resources.as_file(_reg) as _p:
     POOCH.load_registry(_p)

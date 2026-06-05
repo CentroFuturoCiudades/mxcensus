@@ -1,4 +1,11 @@
 """mxcensus — Mexico Census 2020 (CPV 2020) data loader and preprocessor."""
+from importlib.metadata import PackageNotFoundError, version
+
+try:
+    __version__ = version("mxcensus")
+except PackageNotFoundError:  # running from a source tree without an install
+    __version__ = "0.0.0+unknown"
+
 from mxcensus.aggregate import (
     load_census,
     load_iter,
@@ -31,6 +38,7 @@ from mxcensus._resources import (
 from mxcensus import data
 
 __all__ = [
+    "__version__",
     # Aggregate census
     "load_census",
     "load_iter",

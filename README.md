@@ -13,8 +13,31 @@ analysis-ready pandas DataFrames.
 
 ## Installation
 
+Requires **Python 3.13+**. Install the latest release straight from GitHub:
+
 ```bash
-uv pip install -e ".[dev]"   # Python 3.13+
+uv pip install "git+https://github.com/CentroFuturoCiudades/mxcensus.git"
+# or pin to a released tag:
+uv pip install "git+https://github.com/CentroFuturoCiudades/mxcensus.git@v0.1.0"
+# or add it to a project:
+uv add "git+https://github.com/CentroFuturoCiudades/mxcensus.git@v0.1.0"
+```
+
+Plain `pip` works too:
+
+```bash
+pip install "git+https://github.com/CentroFuturoCiudades/mxcensus.git@v0.1.0"
+```
+
+No data ships with the package — DataFrames are fetched on first use from the
+public mirror and cached locally (run `mxcensus info` to see where).
+
+### Development install
+
+```bash
+git clone https://github.com/CentroFuturoCiudades/mxcensus.git
+cd mxcensus
+uv pip install -e ".[dev]"   # editable, with build/test tooling
 ```
 
 ## Quick start
