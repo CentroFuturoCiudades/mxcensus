@@ -1,6 +1,6 @@
 [project]
 name = "mxcensus"
-version = "0.1.0"
+version = "0.1.1"
 description = "Mexico Census 2020 (CPV 2020) data loader and preprocessor"
 readme = "README.md"
 authors = [{ name = "Gonzalo Peraza", email = "ggperaza@gmail.com" }]
@@ -44,3 +44,8 @@ build-backend = "uv_build"
 
 [tool.uv]
 package = true
+
+[dependency-groups]
+dev = [
+    "ipython>=9.14.0",
+]

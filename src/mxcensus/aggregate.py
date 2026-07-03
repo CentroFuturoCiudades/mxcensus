@@ -398,15 +398,13 @@ def add_derived_cols(df_state, df_mun, df_loc, df_ageb):
     df_loc = df_loc.copy()
     df_ageb = df_ageb.copy()
 
-    for df in (df_state, df_mun, df_loc, df_ageb):
-        df["PAFIL_PUB"] = (
-            df.PDER_IMSS
-            + df.PDER_ISTE
-            + df.PDER_ISTEE
-            + df.PAFIL_PDOM
-            + df.PDER_SEGP
-            + df.PDER_IMSSB
-        )
+    # NOTE: the derived ``PAFIL_PUB`` control (a plain sum of the individual
+    # PDER_*/PAFIL_PDOM categories) was removed here — a person may hold more
+    # than one affiliation, so the sum double-counts the multiply-affiliated and
+    # could exceed the deduplicated official total PDER_SS (structurally
+    # impossible for a genuine subset). Control health status on the published,
+    # deduplicated columns instead (PDER_SS / PSINDER, and single-category
+    # subsets such as PAFIL_IPRIV).
 
     return df_state, df_mun, df_loc, df_ageb
 

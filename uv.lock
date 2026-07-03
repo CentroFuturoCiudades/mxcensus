@@ -585,7 +585,7 @@ wheels = [
 
 [[package]]
 name = "mxcensus"
-version = "0.1.0"
+version = "0.1.1"
 source = { editable = "." }
 dependencies = [
     { name = "chardet" },
@@ -610,6 +610,11 @@ notebook = [
     { name = "ipykernel" },
 ]
 
+[package.dev-dependencies]
+dev = [
+    { name = "ipython" },
+]
+
 [package.metadata]
 requires-dist = [
     { name = "chardet", specifier = ">=7.2.0" },
@@ -628,6 +633,9 @@ requires-dist = [
     { name = "tqdm", specifier = ">=4.67.3" },
 ]
 provides-extras = ["dev", "notebook"]
+
+[package.metadata.requires-dev]
+dev = [{ name = "ipython", specifier = ">=9.14.0" }]
 
 [[package]]
 name = "mypy-extensions"
