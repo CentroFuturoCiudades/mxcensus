@@ -23,6 +23,7 @@ from mxcensus.aggregate import (
 from mxcensus.extended_personas import load_extended_personas
 from mxcensus.extended_viviendas import load_extended_viviendas
 from mxcensus.denue import load_denue
+from mxcensus.enoe import load_enoe, load_enoe_persons
 from mxcensus.crosstabs import create_cont_table, get_tables_dict
 from mxcensus.utils import expand_cat_map, get_cats_from_excel, get_vars_from_indicator_csv
 from mxcensus._resources import (
@@ -34,6 +35,9 @@ from mxcensus._resources import (
     variables_resargebub,
     variables_denue,
     denue_schema_map,
+    variables_enoe,
+    variables_enoe_core,
+    enoe_schema_map,
 )
 from mxcensus import data
 
@@ -57,6 +61,9 @@ __all__ = [
     "load_extended_viviendas",
     # DENUE (economic units, multi-temporal)
     "load_denue",
+    # ENOE (labor-force survey, multi-temporal, national)
+    "load_enoe",
+    "load_enoe_persons",
     # Crosstabs / constraints
     "create_cont_table",
     "get_tables_dict",
@@ -69,6 +76,9 @@ __all__ = [
     "variables_resargebub",
     "variables_denue",
     "denue_schema_map",
+    "variables_enoe",
+    "variables_enoe_core",
+    "enoe_schema_map",
     # Utilities
     "expand_cat_map",
     "get_cats_from_excel",

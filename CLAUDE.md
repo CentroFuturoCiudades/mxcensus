@@ -8,7 +8,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 # Install in editable mode with dev dependencies (add ,notebook for Jupyter/Quarto)
 uv pip install -e ".[dev]"            # or: uv sync --extra dev --extra notebook
 
-# Run tests (DENUE schema/harmonization suite, tests/test_denue.py — ~93 tests)
+# Run tests (DENUE suite tests/test_denue.py ~93 tests; ENOE suite tests/test_enoe.py)
 pytest
 pytest tests/test_denue.py        # single file
 
@@ -60,18 +60,21 @@ Hugging Face Storage Bucket (raw parquet mirror)
 | `extended_personas.py` | Preprocesses person microdata; derives health insurance flags, disability indicators, transport modes; Pandera validation |
 | `extended_viviendas.py` | Preprocesses household microdata; derives income bins, financing modes; Pandera validation |
 | `denue.py` | `load_denue(state=N, release=…, harmonize=, dedupe=, dedupe_ids=)` — fetches a DENUE release/state geoparquet, optionally **harmonizes** it to the latest schema (g10) via per-group rename + `per_ocu`/`tipoUniEco`/`fecha_alta` canonicalization, then validates: raw frames against the tight per-group schema `_group_schema(gid)`, harmonized frames against `_latest_schema()`. `dedupe=True` (default) drops exact full-row duplicates; `dedupe_ids=True` (default) drops rows sharing an `id`/`clee` (collapses near-duplicates that differ only in coordinate precision/whitespace). Both clean only the loaded frame — the mirror stays faithful (duplicates are reported, not removed, by the build). Validation **warns** on value-level violations (it does not raise — `_validate`); an unknown schema raises. Multi-temporal economic-units directory (catalog: 25 releases 2010–2026; the mirror holds 24 until the latest **2026-05** — undated `denue_{state}_csv.zip` on INEGI's tree — is built and uploaded). |
+| `enoe.py` | `load_enoe(table=, period=…, harmonize=, ent=)` — fetches one raw ENOE table (`viv`/`hog`/`sdem`/`coe1`/`coe2`) for one quarter as a faithful `dtype=str` frame, resolves its **per-table** schema group by column fingerprint (`_group_of`, raises on unknown), and validates against the tight per-group Pandera schema `_group_schema(table, gid)` (value-level violations **warn**, don't raise — `_validate`); `harmonize=True` is deferred (raises `NotImplementedError`). `load_enoe_persons(period=…, ent=, canonical_filter=)` — the analytical person frame: SDEM left-joined with COE1/COE2 on the era-appropriate person key (`_person_key`, handling the `ent`→`cve_ent` rename + panel-era `tipo`/`mes_cal`/`ca` widening), filtered to the canonical universe `R_DEF==0 & C_RES∈{1,3} & EDA∈[15,98]`, with a numeric canonical `fac_tri` weight and `is_pea`/`is_ocupado`/`is_informal` flags. National (no per-state split); `ent` is a post-load row filter |
 | `crosstabs.py` | Builds contingency tables from the constraint YAML specs |
 | `utils.py` | `expand_cat_map` (expands `"1..5"` range keys into per-int label maps) and `get_cats_from_excel` (generates the `_yaml/` category files from INEGI Excel data dictionaries) |
-| `_resources.py` | Lazy, cached loader for the bundled YAML (`variables_*`, `constraints_*`, `denue_schema_map`, `variables_denue_<gNN>`) |
-| `_cli.py` | Two subcommands: `fetch` (pre-download a state; `--dataset denue --release` for DENUE) and `info` |
+| `_resources.py` | Lazy, cached loader for the bundled YAML (`variables_*`, `constraints_*`, `denue_schema_map`, `variables_denue_<gNN>`, `enoe_schema_map`, `variables_enoe_<table>_<gNN>`, `variables_enoe_core`) |
+| `_cli.py` | Two subcommands: `fetch` (pre-download a state; `--dataset denue --release` for DENUE; `--dataset enoe --period` for the five national ENOE tables — `state` positional is N/A/ignored) and `info` |
 | `data/_registry.py` | Global `POOCH` instance; loads `registry.txt` at import time; no network traffic until `.fetch()` is called |
 | `data/_paths.py` | Cache-dir resolution via `platformdirs`; respects `$MXCENSUS_CACHE_DIR` |
 | `data/_catalog.py` | `STATE_ABBR`, `STATE_CODE_FMT`, INEGI census URL builders, and the `CatalogEntry` dataclass |
 | `data/_denue_catalog.py` | `DenueRelease`, `RELEASES` (24 verified release URL templates incl. state-15 multipart & per-release quirks), `denue_zip_entry`, `latest_release` |
+| `data/_enoe_catalog.py` | ENOE bulk-download catalog: `EnoeQuarter`, `QUARTERS` (84 quarters 2005-T1…2026-T1, 2020-T2 ETOE gap excluded), `QUARTERS_BY_PERIOD`, `latest_quarter`, `TABLES`, three filename regimes (`enoe_old`/`enoen`/`enoe_new`) + `find_member`. National (one ZIP per quarter, five tables) |
 | `scripts/_build_common.py` | **Maintainer-only** — shared build helpers: `fetch_zip_verified` (download+verify+retry), `detect_encoding`, `update_registry` (append/upsert preserving prior entries) |
 | `scripts/build_data.py` | **Maintainer-only** — downloads raw census ZIPs from INEGI, converts CSVs to parquet, regenerates `registry.txt` |
 | `scripts/build_marco_geo.py` | **Maintainer-only** — downloads INEGI's Marco Geoestadístico 2020 per-state shapefile ZIPs (UPC 889463807469, via `marco_geo_zip_url`) and converts the 15 layers/state to geoparquet (`mg_{suffix}_{NN}.parquet`, single→Multi* geometry, int32 codes, source `.prj` CRS); appends to `registry.txt`. `--local-gpkg-dir DIR` uses a local gpkg copy instead of downloading |
 | `scripts/build_denue.py` | **Maintainer-only** — downloads/converts DENUE to geoparquet (`denue_{YYYYMM}_{NN}.parquet`), detects inconsistencies (`docs/denue/INCONSISTENCY_REPORT.md`), extracts data dictionaries (CSV 2016+ / PDF 2010–2013 via `pypdf`) to fill `variables_denue_*.yaml` descriptions + categories (categories cross-validated against the data → `docs/denue/CATEGORY_AUDIT.md`), generates `denue_schema_map.yaml`, validates every file against its group schema (`docs/denue/VALIDATION_REPORT.md`), derives/repairs point geometry against state boundaries (`docs/denue/GEOMETRY_REPORT.md`), appends to `registry.txt`. Modes: `--schema-map`, `--variables` (`--cat-threshold`), `--validate`, `--refilter-boundaries` (`--boundary-buffer-m`/`--boundaries-dir`/`--geometry-report`), `--report-only`, `--update-registry`, `--dry-run` |
+| `scripts/build_enoe.py` | **Maintainer-only** — downloads each ENOE quarter's CSV ZIP from INEGI and converts the five tables to faithful-raw parquet (`enoe_{table}_{period}.parquet`, every column `dtype=str`, no geometry). Fingerprints each file into a **per-table** schema group (`enoe_schema_map.yaml`), extracts per-group variable dictionaries (`variables_enoe_{table}_{gNN}.yaml`; categories data-derived, overlaid with the hand-curated `variables_enoe_core.yaml`), validates each file against its group schema, and appends to `registry.txt`. Modes: (build) `--periods`/`--tables`/`--dry-run`/`--keep-raw`, then `--schema-map`, `--variables` (`--cat-threshold`), `--report-only` (`docs/enoe/INCONSISTENCY_REPORT.md`), `--validate` (`docs/enoe/VALIDATION_REPORT.md`), `--update-registry`. See `docs/enoe/HANDOFF.md` + `STEP_*.md` |
 | `scripts/upload_hf.py` | **Maintainer-only** — host the parquet mirror in the Hugging Face Storage Bucket (`mxcensus.data._registry.HF_BUCKET`), the package's **current** data source. Subcommands: `create` (make the bucket), `upload` (`hf buckets sync` of `data/parquet/*.parquet` to the bucket root + the provenance `docs/hf_bucket_readme.md` as `README.md`; `--delete`/`--dry-run`), `verify` (HEAD each `…/resolve/<file>` URL vs local size, no download). Buckets are mutable (overwrite-in-place), so re-uploading after a rebuild just syncs changed files |
 | `scripts/upload_release.py` | **Maintainer-only** (legacy GitHub-Release alternative; superseded by `upload_hf.py`) — resumable batch upload of the parquet mirror to a GitHub Release. Source of truth for "already uploaded" is the release itself (queried live via `gh release view`), so it survives multi-day / partial uploads. Batches derived from `registry.txt`: `core_denue` (latest DENUE), `core_census` (iter/resargebub/personas/viviendas), `core_mg` (the 4 MG layers `load_mg_census` fetches), `mg-rest` (other 11 MG layers), one `denue-<id>` per older release. Subcommands: `status` (`--write-doc`), `list <batch>`, `create-release`, `verify <batch…>` (compares each asset's GitHub SHA-256 digest + size to `registry.txt` via `gh api`, no download), `upload <batch…>` or `--next` (`--clobber`/`--chunk N`/`--dry-run`; auto-creates the release if missing) |
 
@@ -81,8 +84,9 @@ Hugging Face Storage Bucket (raw parquet mirror)
 - `variables_iter.yaml` / `variables_resargebub.yaml` – aggregate-dataset indicator dictionaries: `Indicador`/`Descripción`/`Rangos`/`Longitud` per mnemonic, no category maps (generated by `utils.get_vars_from_indicator_csv` from the `diccionario_datos_*.csv` inside the INEGI ZIPs; national, one copy per dataset)
 - `constraints_personas.yaml` / `constraints_viviendas.yaml` – valid variable combinations for crosstab generation
 - `denue_schema_map.yaml` – DENUE column-fingerprint → schema group (g01..g11), group→columns, and `latest` (harmonization target); `variables_denue_<gNN>.yaml` – per-group DENUE variable dictionaries (`Descripción`/`Tipo`/`Longitud` from the release dictionaries; `Categorías` code→label maps for coded fields + data-enumerated categoricals — drives `_group_schema`; generated by `scripts/build_denue.py`)
+- `enoe_schema_map.yaml` – **per-table** ENOE column-fingerprint → schema group map (one section per table `viv`/`hog`/`sdem`/`coe1`/`coe2`, each with `fingerprints`, `groups` gNN→columns, and `latest`); `variables_enoe_<table>_<gNN>.yaml` – per-(table, group) variable dictionaries (`Categorías` data-enumerated + core overlay — drives `_group_schema(table, gid)`; generated by `scripts/build_enoe.py`); `variables_enoe_core.yaml` – **hand-curated** analytical-core dictionary (FD-sourced labelled categories for `clase1`/`clase2`/`pos_ocu`/… — overlaid by `--variables`, **never** regenerated)
 
-`_resources.py` loads these once via `@functools.cache` and exposes them as `variables_*()` / `constraints_*()` / `variables_denue(gid)` / `denue_schema_map()`.
+`_resources.py` loads these once via `@functools.cache` and exposes them as `variables_*()` / `constraints_*()` / `variables_denue(gid)` / `denue_schema_map()` / `variables_enoe(table, gid)` / `enoe_schema_map()` / `variables_enoe_core()`.
 
 ### Census data hierarchy
 
@@ -113,10 +117,13 @@ viviendas_{NN}.parquet     # raw Viviendas for state NN
 # Marco Geoestadístico geometries (15 layers × 32 states = 480 geoparquet) — scripts/build_marco_geo.py
 mg_{suffix}_{NN}.parquet   # suffix ∈ {a,ar,cd,e,ent,fm,l,lpr,m,mun,pe,pem,sia,sil,sip}
 
-# DENUE economic units (24 releases × 32 states = 768 geoparquet, points) — scripts/build_denue.py
+# DENUE economic units (25 releases × 32 states = 800 geoparquet, points) — scripts/build_denue.py
 denue_{YYYYMM}_{NN}.parquet   # YYYYMM = release id (e.g. 202505); EPSG:4326
+
+# ENOE labor-force survey (84 quarters × 5 tables = 420 parquet, national, no geometry) — scripts/build_enoe.py
+enoe_{table}_{period}.parquet   # table ∈ {viv,hog,sdem,coe1,coe2}; period = {year}t{quarter} (e.g. 2023t1)
 ```
-Registry totals: 128 census + 480 geo + 768 DENUE = **1376** entries.
+Registry totals: 128 census + 480 geo + 800 DENUE + 420 ENOE = **1828** entries.
 
 To rebuild the **census** mirror after an INEGI data update:
 ```bash
@@ -151,6 +158,21 @@ python scripts/build_denue.py --update-registry     # append denue_* hashes to r
 regenerate hashes (`--update-registry`) and re-upload the changed files. Requires the
 Marco Geoestadístico `mg_ent_*.parquet` boundaries to exist first (default in `--output`,
 override with `--boundaries-dir`).
+
+To (re)build the **ENOE** mirror (downloads from INEGI; national, no geometry). The full
+build + upload procedure is in `docs/enoe/HANDOFF.md`; order matters (metadata is derived
+from the built parquet):
+```bash
+python scripts/build_enoe.py --dry-run --periods 2023t1   # smoke test (prints URLs/members)
+python scripts/build_enoe.py --periods 2023t1             # one quarter (5 tables)
+python scripts/build_enoe.py                              # all 84 quarters × 5 tables (~2.5 GB); resumable
+python scripts/build_enoe.py --schema-map                 # regenerate enoe_schema_map.yaml
+python scripts/build_enoe.py --variables                  # regenerate variables_enoe_<table>_<gNN>.yaml (core overlay)
+python scripts/build_enoe.py --report-only                # regenerate INCONSISTENCY_REPORT.md
+python scripts/build_enoe.py --validate                   # validate all files vs group schemas → VALIDATION_REPORT.md
+python scripts/build_enoe.py --update-registry            # append enoe_* hashes to registry.txt
+# then upload with scripts/upload_hf.py upload (syncs data/parquet/*.parquet to the HF bucket)
+```
 
 ### DENUE (multi-temporal economic units)
 
@@ -216,6 +238,39 @@ económica` (S/U/M) the general rename would pick. The report's §7 lists each g
 columns (e.g. g04's empty `entidad`/`municipio` names in 2012 states 12/14 — faithful to
 source, codes-only); an all-null column is data quality, whereas a *stale* rename map emits a
 `warnings.warn` at load time.
+
+### ENOE (multi-temporal labor-force survey)
+
+ENOE is INEGI's quarterly labor-force survey — the fourth data family, modelled on the DENUE
+machinery (per-period, faithful-raw `dtype=str` parquet + fingerprint schema-groups +
+warn-not-raise validation → HF-bucket mirror → release-qualified loader) **minus geometry**.
+Unlike census/DENUE it is **national** (one file set per quarter, no per-state split), with
+**five tables** per quarter (`viv`/`hog`/`sdem`/`coe1`/`coe2`) across **84 quarters**
+2005-T1…2026-T1 (2020-T2 is the ETOE COVID gap, excluded — see `data/_enoe_catalog.py`).
+
+It drifts across eras — three ZIP-filename regimes (`enoe_old`/`enoen`/`enoe_new`), the
+`FAC`→`FAC_TRI` weight rename (2020-T3), the `ENOEN`→`ENOE` member rename (2023), and the
+`ent`→`cve_ent` geographic-key rename (2026-T1) — plus the COE ampliado/básico alternation
+that changes the COE1/COE2 column sets by quarter. This is captured empirically: every file
+is fingerprinted into a **per-table** schema group (`enoe_schema_map.yaml`), and
+`load_enoe(table=, period=)` validates it against `_group_schema(table, gid)` (value-level
+violations **warn**). Cross-era **harmonization** (`harmonize=True`) is deferred to a later
+work unit; only the raw per-era schema is currently loadable.
+
+`load_enoe_persons(period=)` builds the analytical person frame — SDEM left-joined with
+COE1/COE2 on the era-appropriate person key (`_person_key`: base seven `cd_a`/`ent`/`con`/
+`v_sel`/`n_hog`/`h_mud`/`n_ren`, widened by `tipo`/`mes_cal` from 2020-T3 and `ca` for
+2020-T3…2021-T2, since the base seven are **not** unique in the panel/CATI era), filtered to
+the canonical universe `R_DEF==0 & C_RES∈{1,3} & EDA∈[15,98]` (padding-robust — the CSV emits
+un-padded codes, e.g. `r_def='0'`), with a numeric canonical `fac_tri` weight coalescing
+`fac_tri`/`fac`, and `is_pea`/`is_ocupado`/`is_informal` flags. A **fan-out guard** warns if
+the person key isn't unique in SDEM (e.g. an unhandled future key rename) rather than silently
+inflating weighted totals. Faithful-raw policy applies: some SDEM files carry an unrecoverable
+INEGI encoding defect (bytes `0xCB`/`0xD0`) in the open-text `cs_p21_des`/`cs_p23_des` fields
+only — preserved losslessly (value-level, never fails schema validation), not a build bug
+(`docs/enoe/STEP_2.md`). `variables_enoe_core.yaml` is **hand-curated** and never regenerated;
+`--variables` overlays it onto the data-derived per-group dictionaries. Full build/upload
+procedure and gotchas: `docs/enoe/HANDOFF.md` + `STEP_*.md`.
 
 ### Cache directory
 
