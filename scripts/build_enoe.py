@@ -12,10 +12,10 @@ table, reads it robustly (faithful raw, ``dtype=str``), and writes one parquet p
 (table, quarter): ``enoe_{table}_{period}.parquet`` (e.g. ``enoe_sdem_2023t1.parquet``).
 No geometry — ENOE has no coordinates — so conversion is a plain zstd ``to_parquet``.
 
-The registry append is added in a later work unit (mirroring the ``build_denue.py``
-machinery). Schema fingerprinting/grouping, the inconsistency report, the variable
-dictionaries and the per-file validation sweep are the ``--schema-map`` / ``--report-only``
-/ ``--variables`` / ``--validate`` modes below.
+Schema fingerprinting/grouping, the inconsistency report, the variable dictionaries, the
+per-file validation sweep and the registry append are the ``--schema-map`` / ``--report-only``
+/ ``--variables`` / ``--validate`` / ``--update-registry`` modes below. See
+``docs/enoe/HANDOFF.md`` for the full-mirror build + upload runbook.
 
 Dry run (preview one quarter's plan, no download):
     uv run python scripts/build_enoe.py --dry-run --periods 2023t1
@@ -24,10 +24,11 @@ Real build (one quarter, all five tables):
     uv run python scripts/build_enoe.py --periods 2023t1
 
 Metadata modes (from parquet already on disk, no download):
-    uv run python scripts/build_enoe.py --schema-map   # → src/mxcensus/_yaml/enoe_schema_map.yaml
-    uv run python scripts/build_enoe.py --report-only  # → docs/enoe/INCONSISTENCY_REPORT.md
-    uv run python scripts/build_enoe.py --variables    # → src/mxcensus/_yaml/variables_enoe_{table}_{gNN}.yaml
-    uv run python scripts/build_enoe.py --validate     # → docs/enoe/VALIDATION_REPORT.md
+    uv run python scripts/build_enoe.py --schema-map      # → src/mxcensus/_yaml/enoe_schema_map.yaml
+    uv run python scripts/build_enoe.py --report-only     # → docs/enoe/INCONSISTENCY_REPORT.md
+    uv run python scripts/build_enoe.py --variables       # → src/mxcensus/_yaml/variables_enoe_{table}_{gNN}.yaml
+    uv run python scripts/build_enoe.py --validate        # → docs/enoe/VALIDATION_REPORT.md
+    uv run python scripts/build_enoe.py --update-registry # → append enoe_* hashes to registry.txt
 """
 from __future__ import annotations
 
@@ -63,6 +64,7 @@ _DEFAULT_REPORT = _REPO_ROOT / "docs" / "enoe" / "INCONSISTENCY_REPORT.md"
 _DEFAULT_YAML_DIR = _DEFAULT_SCHEMA_MAP.parent
 _CORE_PATH = _DEFAULT_YAML_DIR / "variables_enoe_core.yaml"
 _DEFAULT_VALIDATE_REPORT = _REPO_ROOT / "docs" / "enoe" / "VALIDATION_REPORT.md"
+_DEFAULT_REGISTRY = _REPO_ROOT / "src" / "mxcensus" / "data" / "registry.txt"
 
 
 # --- CSV reading (copied verbatim from build_denue.py; see its docstrings) ------------
@@ -493,6 +495,9 @@ def main() -> None:
                         help="Skip downloading; validate every parquet against its group schema")
     parser.add_argument("--validate-report", type=Path, default=_DEFAULT_VALIDATE_REPORT,
                         metavar="FILE")
+    parser.add_argument("--update-registry", action="store_true",
+                        help="Skip downloading; append enoe_* hashes to registry.txt (preserving prior)")
+    parser.add_argument("--registry", type=Path, default=_DEFAULT_REGISTRY, metavar="FILE")
     parser.add_argument("--dry-run", action="store_true",
                         help="Print the planned (quarter, table) → file plan; no download")
     parser.set_defaults(cleanup_raw=True)
@@ -530,6 +535,11 @@ def main() -> None:
                                                    args.validate_report)
         print(f"Validation report → {args.validate_report}  "
               f"({n_fail}/{n_files} file(s) failed their group schema)")
+        return
+
+    if args.update_registry:
+        written = sorted(args.output.glob("enoe_*.parquet"))
+        bc.update_registry(written, args.registry)
         return
 
     quarters = [QUARTERS_BY_PERIOD[p] for p in args.periods]
