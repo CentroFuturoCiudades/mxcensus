@@ -12,25 +12,33 @@ table, reads it robustly (faithful raw, ``dtype=str``), and writes one parquet p
 (table, quarter): ``enoe_{table}_{period}.parquet`` (e.g. ``enoe_sdem_2023t1.parquet``).
 No geometry — ENOE has no coordinates — so conversion is a plain zstd ``to_parquet``.
 
-Schema fingerprinting / grouping, the inconsistency report, variable dictionaries,
-validation and the registry append are added in later work units (mirroring the
-``build_denue.py`` machinery); this unit is download → convert only.
+Variable dictionaries, validation schemas and the registry append are added in later work
+units (mirroring the ``build_denue.py`` machinery). Schema fingerprinting/grouping and the
+inconsistency report are the ``--schema-map`` / ``--report-only`` modes below.
 
 Dry run (preview one quarter's plan, no download):
     uv run python scripts/build_enoe.py --dry-run --periods 2023t1
 
 Real build (one quarter, all five tables):
     uv run python scripts/build_enoe.py --periods 2023t1
+
+Schema map + inconsistency report (from parquet already on disk, no download):
+    uv run python scripts/build_enoe.py --schema-map     # → src/mxcensus/_yaml/enoe_schema_map.yaml
+    uv run python scripts/build_enoe.py --report-only    # → docs/enoe/INCONSISTENCY_REPORT.md
 """
 from __future__ import annotations
 
 import argparse
+import json
 import shutil
 import zipfile
+from collections import defaultdict
+from hashlib import sha256
 from pathlib import Path
 
 import pandas as pd
 import pyarrow.parquet as pq
+import yaml
 
 import _build_common as bc
 from mxcensus.data._enoe_catalog import (
@@ -47,6 +55,8 @@ _REPO_ROOT = Path(__file__).resolve().parent.parent
 _DEFAULT_OUT = _REPO_ROOT / "data" / "parquet"
 _DEFAULT_RAW = _REPO_ROOT / "data" / "raw"
 _DEFAULT_CACHE = _REPO_ROOT / "data" / "cache"
+_DEFAULT_SCHEMA_MAP = _REPO_ROOT / "src" / "mxcensus" / "_yaml" / "enoe_schema_map.yaml"
+_DEFAULT_REPORT = _REPO_ROOT / "docs" / "enoe" / "INCONSISTENCY_REPORT.md"
 
 
 # --- CSV reading (copied verbatim from build_denue.py; see its docstrings) ------------
@@ -151,18 +161,168 @@ def _build_quarter(
     return infos
 
 
-def _print_inventory(out_dir: Path) -> int:
-    """Print an on-disk inventory of mirrored ENOE parquet (period × table → rows, cols)."""
-    files = sorted(out_dir.glob("enoe_*.parquet"))
-    if not files:
-        print("No enoe_*.parquet found on disk.")
-        return 0
-    print(f"{'file':40s} {'rows':>10s} {'cols':>5s} {'size (MB)':>10s}")
-    for p in files:
-        pf = pq.ParquetFile(p)
-        print(f"{p.name:40s} {pf.metadata.num_rows:>10,} "
-              f"{len(pf.schema_arrow.names):>5} {p.stat().st_size / 1e6:>10.1f}")
-    return len(files)
+# --- schema fingerprinting + report (per table; the 5 tables drift independently) ----
+
+def _fingerprint_cols(cols) -> str:
+    """sha256 over the ordered column names — identifies a table's schema for a period.
+
+    Column names (not dtypes) define the ENOE schema: dtypes are uniform (``dtype=str``),
+    whereas the column set/order is the era-drift signal. Same recipe as the loader's
+    ``mxcensus.enoe._fingerprint`` will use, so a mirrored file matches its map entry.
+    """
+    return sha256(json.dumps(list(cols)).encode()).hexdigest()
+
+
+def _period_key(period: str) -> tuple[int, int]:
+    """Sort key ``(year, quarter)`` for a ``"2023t1"``-style period id."""
+    year, quarter = period.split("t")
+    return int(year), int(quarter)
+
+
+def _scan_enoe_parquet(path: Path) -> dict:
+    """Read one mirrored ENOE parquet's schema/metadata for the map/report (no full load)."""
+    _, table, period = path.stem.split("_")  # enoe_{table}_{period}
+    pf = pq.ParquetFile(path)
+    cols = list(pf.schema_arrow.names)  # ENOE has no geometry column
+    return {
+        "table": table,
+        "period": period,
+        "columns": cols,
+        "fingerprint": _fingerprint_cols(cols),
+        "rows": pf.metadata.num_rows,
+        "size_kb": path.stat().st_size // 1024,
+    }
+
+
+def _group_schemas(records: list[dict]) -> dict:
+    """Assign stable per-table schema groups (g01.. in period order) from scan records.
+
+    Returns ``{table: {"latest", "fingerprints", "groups"}}`` — the shape written to
+    ``enoe_schema_map.yaml``, namespaced by table since the five tables have independent
+    schema histories. Group ids restart at g01 within each table; ``latest`` is the group
+    of that table's most recent period.
+    """
+    doc: dict[str, dict] = {}
+    for table in TABLES:
+        recs = [r for r in records if r["table"] == table]
+        if not recs:
+            continue
+        fp_to_id: dict[str, str] = {}
+        fp_cols: dict[str, list] = {}
+        for r in sorted(recs, key=lambda r: _period_key(r["period"])):
+            if r["fingerprint"] not in fp_to_id:
+                fp_to_id[r["fingerprint"]] = f"g{len(fp_to_id) + 1:02d}"
+                fp_cols[r["fingerprint"]] = r["columns"]
+        files_per_fp: dict[str, int] = defaultdict(int)
+        periods_per_fp: dict[str, list] = defaultdict(list)
+        for r in recs:
+            files_per_fp[r["fingerprint"]] += 1
+            periods_per_fp[r["fingerprint"]].append(r["period"])
+        latest = max(recs, key=lambda r: _period_key(r["period"]))
+        groups = {
+            fp_to_id[fp]: {
+                "n_columns": len(fp_cols[fp]),
+                "files": files_per_fp[fp],
+                "periods": sorted(periods_per_fp[fp], key=_period_key),
+                "columns": fp_cols[fp],
+            }
+            for fp in fp_to_id
+        }
+        doc[table] = {
+            "latest": fp_to_id[latest["fingerprint"]],
+            "fingerprints": dict(fp_to_id),
+            "groups": dict(sorted(groups.items())),
+        }
+    return doc
+
+
+def _write_schema_map(out_dir: Path, map_path: Path) -> dict:
+    """Group every mirrored ENOE file by its exact schema and write enoe_schema_map.yaml.
+
+    Namespaced per table (top-level keys ``sdem``/``coe1``/…); each table gets its own
+    ``latest``/``fingerprints``/``groups`` (see :func:`_group_schemas`). The loader matches
+    a file by recomputing the same fingerprint, so no per-file table is stored.
+    """
+    records = [_scan_enoe_parquet(p) for p in sorted(out_dir.glob("enoe_*.parquet"))]
+    doc = _group_schemas(records)
+    map_path.parent.mkdir(parents=True, exist_ok=True)
+    with open(map_path, "w", encoding="utf-8") as f:
+        yaml.safe_dump(doc, f, sort_keys=False, allow_unicode=True, default_flow_style=False)
+    return doc
+
+
+def _write_report(out_dir: Path, report_path: Path) -> dict:
+    """Scan every mirrored ENOE parquet and (re)write the schema inconsistency report.
+
+    Per table: an inventory (period → group), the distinct schema groups (columns),
+    period-to-period schema drift (added/removed columns), and the catalog quarters still
+    missing from the mirror. Returns the per-table group doc (same as the schema map).
+    """
+    records = [_scan_enoe_parquet(p) for p in sorted(out_dir.glob("enoe_*.parquet"))]
+    doc = _group_schemas(records)
+    present_periods = sorted({r["period"] for r in records}, key=_period_key)
+
+    L = ["# ENOE inconsistency report", "",
+         f"Generated by `scripts/build_enoe.py` (catalog verified {CATALOG_VERIFIED_DATE}).",
+         f"Tables mirrored: {sorted(doc)}. Periods on disk: {len(present_periods)} "
+         f"({present_periods[0] if present_periods else '—'}"
+         f"…{present_periods[-1] if present_periods else '—'}).", "",
+         "Schema groups are assigned **per table** (the five tables drift independently); "
+         "group ids restart at `g01` within each table. See also `STEP_*.md` for the era "
+         "narrative and `docs/enoe/STEP_0_probe.md` for the download layout.", ""]
+
+    for table in TABLES:
+        if table not in doc:
+            continue
+        recs = {r["period"]: r for r in records if r["table"] == table}
+        fps = doc[table]["fingerprints"]
+        periods = sorted(recs, key=_period_key)
+        L += [f"## {table}", "",
+              f"Groups: {len(doc[table]['groups'])}. Latest: `{doc[table]['latest']}`. "
+              f"Periods: {len(periods)}.", "",
+              "| period | group | cols | rows |", "|---|---|---|---|"]
+        for p in periods:
+            r = recs[p]
+            L.append(f"| {p} | {fps[r['fingerprint']]} | {len(r['columns'])} | "
+                     f"{r['rows']:,} |")
+        L.append("")
+        L.append("### Schema groups")
+        for gid, g in doc[table]["groups"].items():
+            L.append(f"- **{gid}** — {g['n_columns']} cols, {g['files']} file(s), "
+                     f"periods {g['periods']}")
+        L.append("")
+        # Period-to-period drift (added/removed columns between consecutive periods).
+        drift = []
+        for prev, cur in zip(periods, periods[1:]):
+            a = set(recs[prev]["columns"])
+            b = set(recs[cur]["columns"])
+            added, removed = sorted(b - a), sorted(a - b)
+            if added or removed:
+                drift.append(f"- **{prev} → {cur}**: "
+                             + (f"added {added}" if added else "")
+                             + ("; " if added and removed else "")
+                             + (f"removed {removed}" if removed else ""))
+        if drift:
+            L.append("### Schema drift (consecutive periods on disk)")
+            L += drift
+            L.append("")
+
+    # Missing quarters: catalog vs on-disk, per table.
+    L += ["## Missing quarters (catalog vs mirror)", ""]
+    on_disk = {(r["table"], r["period"]) for r in records}
+    any_missing = False
+    for table in TABLES:
+        missing = [q.period for q in QUARTERS if (table, q.period) not in on_disk]
+        if missing:
+            any_missing = True
+            L.append(f"- **{table}**: {len(missing)} missing "
+                     f"({missing[0]}…{missing[-1]})")
+    if not any_missing:
+        L.append("None — every catalog quarter present for every table.")
+
+    report_path.parent.mkdir(parents=True, exist_ok=True)
+    report_path.write_text("\n".join(L) + "\n", encoding="utf-8")
+    return doc
 
 
 def main() -> None:
@@ -179,8 +339,13 @@ def main() -> None:
     parser.add_argument("--retries", type=int, default=2, metavar="N")
     parser.add_argument("--keep-raw", dest="cleanup_raw", action="store_false",
                         help="Keep extracted CSVs (default: delete after conversion)")
+    parser.add_argument("--schema-map", action="store_true",
+                        help="Skip downloading; (re)write enoe_schema_map.yaml from parquet on disk")
+    parser.add_argument("--schema-map-path", type=Path, default=_DEFAULT_SCHEMA_MAP,
+                        metavar="FILE")
     parser.add_argument("--report-only", action="store_true",
-                        help="Skip downloading; print an inventory of parquet on disk")
+                        help="Skip downloading; (re)write the inconsistency report from parquet on disk")
+    parser.add_argument("--report", type=Path, default=_DEFAULT_REPORT, metavar="FILE")
     parser.add_argument("--dry-run", action="store_true",
                         help="Print the planned (quarter, table) → file plan; no download")
     parser.set_defaults(cleanup_raw=True)
@@ -195,9 +360,16 @@ def main() -> None:
 
     args.output.mkdir(parents=True, exist_ok=True)
 
+    if args.schema_map:
+        doc = _write_schema_map(args.output, args.schema_map_path)
+        ng = sum(len(t["groups"]) for t in doc.values())
+        print(f"Schema map → {args.schema_map_path}  "
+              f"({len(doc)} table(s), {ng} group(s) total)")
+        return
+
     if args.report_only:
-        n = _print_inventory(args.output)
-        print(f"\n{n} file(s) on disk.")
+        doc = _write_report(args.output, args.report)
+        print(f"Report → {args.report}  ({len(doc)} table(s))")
         return
 
     quarters = [QUARTERS_BY_PERIOD[p] for p in args.periods]
