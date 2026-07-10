@@ -1084,22 +1084,28 @@ tipo:
     '2': ENOE-CATI
 mes_cal:
   Descripción: Mes calendario — clasificación mensual del registro; base del ponderador
-    mensual FAC_MEN (presente desde 2020-T3). Códigos especiales 96-99 (no enumerados).
+    mensual FAC_MEN (presente desde 2020-T3). Los códigos de mes se emiten sin cero
+    a la izquierda en el CSV (1-12). Códigos especiales 96-99 por trimestre (Q1=96,
+    Q2=97, Q3=98, Q4=99) — registros sin mes calendario específico.
   Tipo: Carácter
   Longitud: '2'
   Categorías:
-    '01': Enero
-    '02': Febrero
-    '03': Marzo
-    '04': Abril
-    '05': Mayo
-    '06': Junio
-    '07': Julio
-    08: Agosto
-    09: Septiembre
+    '1': Enero
+    '2': Febrero
+    '3': Marzo
+    '4': Abril
+    '5': Mayo
+    '6': Junio
+    '7': Julio
+    '8': Agosto
+    '9': Septiembre
     '10': Octubre
     '11': Noviembre
     '12': Diciembre
+    '96': Sin mes calendario específico (trimestre 1)
+    '97': Sin mes calendario específico (trimestre 2)
+    '98': Sin mes calendario específico (trimestre 3)
+    '99': Sin mes calendario específico (trimestre 4)
 fac_tri:
   Descripción: Ponderador trimestral — permite obtener los resultados trimestrales
     (desde 2020-T3)
