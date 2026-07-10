@@ -9,3 +9,5 @@ dist/
 /.quarto/
 **/*.quarto_ipynb
 /_site/
+notebooks/__marimo__/
+notebooks/

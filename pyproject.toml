@@ -36,6 +36,7 @@ dev = [
 ]
 notebook = [
     "ipykernel>=6.29",   # run the notebooks/ and execute Quarto python cells
+    "marimo>=0.16",      # run notebooks/accessibility_demo.py (reactive notebook)
 ]
 
 [build-system]
