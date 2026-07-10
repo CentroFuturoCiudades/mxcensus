@@ -1,18 +1,75 @@
 viv:
-  latest: g04
+  latest: g05
   fingerprints:
     9f551f366aec9194e246b01d05a0482c29a81ee9e1474b0bb2d200ba5bc2b5c0: g01
-    788fcacf0b41118494582e0a702a0e7445ca4a72edfdb8bd0e9d8791e72befd1: g02
-    ecefcdf1dc24905d1f308d753c48a7a02f11e194acb13ee1f343af70b6635493: g03
-    3fda9919e3dde494fb450111190ff3a6437695adbea144c1d67c3917cbeca354: g04
+    e23bdc9aa8382116e66ea7933a97aaa77433f7536377d634903518fd0a323642: g02
+    788fcacf0b41118494582e0a702a0e7445ca4a72edfdb8bd0e9d8791e72befd1: g03
+    ecefcdf1dc24905d1f308d753c48a7a02f11e194acb13ee1f343af70b6635493: g04
+    3fda9919e3dde494fb450111190ff3a6437695adbea144c1d67c3917cbeca354: g05
   groups:
     g01:
       n_columns: 20
-      files: 3
+      files: 59
       periods:
       - 2005t1
+      - 2005t2
+      - 2005t3
+      - 2005t4
+      - 2006t1
+      - 2006t2
+      - 2006t3
+      - 2006t4
+      - 2007t1
+      - 2007t2
+      - 2007t3
+      - 2007t4
+      - 2008t1
+      - 2008t2
+      - 2008t3
+      - 2008t4
+      - 2009t1
+      - 2009t2
+      - 2009t3
+      - 2009t4
+      - 2010t1
+      - 2010t2
+      - 2010t3
+      - 2010t4
+      - 2011t1
+      - 2011t2
+      - 2011t3
+      - 2011t4
+      - 2012t1
+      - 2012t2
+      - 2012t3
+      - 2012t4
+      - 2013t1
+      - 2013t2
+      - 2013t3
+      - 2013t4
+      - 2014t1
+      - 2014t2
+      - 2014t3
+      - 2014t4
+      - 2015t1
+      - 2015t2
+      - 2015t3
+      - 2015t4
+      - 2016t1
+      - 2016t2
+      - 2016t3
+      - 2016t4
+      - 2017t1
+      - 2017t2
+      - 2017t3
+      - 2017t4
+      - 2018t1
+      - 2018t2
+      - 2018t3
+      - 2018t4
       - 2019t1
       - 2019t2
+      - 2020t1
       columns:
       - loc
       - mun
@@ -35,10 +92,40 @@ viv:
       - ur
       - fac
     g02:
+      n_columns: 20
+      files: 2
+      periods:
+      - 2019t3
+      - 2019t4
+      columns:
+      - LOC
+      - MUN
+      - EST
+      - EST_D
+      - AGEB
+      - T_LOC
+      - CD_A
+      - ENT
+      - CON
+      - UPM
+      - D_SEM
+      - N_PRO_VIV
+      - V_SEL
+      - N_ENT
+      - PER
+      - P1
+      - P2
+      - P3
+      - UR
+      - FAC
+    g03:
       n_columns: 26
-      files: 1
+      files: 4
       periods:
       - 2020t3
+      - 2020t4
+      - 2021t1
+      - 2021t2
       columns:
       - loc
       - mun
@@ -66,13 +153,26 @@ viv:
       - ca
       - fac_tri
       - fac_men
-    g03:
+    g04:
       n_columns: 25
-      files: 3
+      files: 16
       periods:
       - 2021t3
+      - 2021t4
+      - 2022t1
+      - 2022t2
+      - 2022t3
+      - 2022t4
       - 2023t1
       - 2023t2
+      - 2023t3
+      - 2023t4
+      - 2024t1
+      - 2024t2
+      - 2024t3
+      - 2024t4
+      - 2025t1
+      - 2025t2
       columns:
       - loc
       - mun
@@ -99,10 +199,12 @@ viv:
       - mes_cal
       - fac_tri
       - fac_men
-    g04:
+    g05:
       n_columns: 26
-      files: 1
+      files: 3
       periods:
+      - 2025t3
+      - 2025t4
       - 2026t1
       columns:
       - cve_loc
@@ -132,21 +234,78 @@ viv:
       - fac_men
       - cvegeo
 hog:
-  latest: g05
+  latest: g06
   fingerprints:
     361a923a61750f6974aeb52f8067566525619a604a34d6b656f33f717100185e: g01
-    f0d3eff142eb2130520b40b4fb37b435136ac7b715d21cce68c702eb3f6b1455: g02
-    6189539a36fd869b93c13590728431a10fdeb69b33d2044f46e89bc43c034000: g03
-    e1e736885e1b9ddc001e2b208ba15db1d0ebd293944b6cea50680f2cf36f8248: g04
-    6d7e68086a56458f5d0bf10163ba5641f2dde1d4cd328e3495d9e858660af5a4: g05
+    e3d57f7d65d6e70e900b34975995758ed48149235303cd8d4835ab43c1ff6cce: g02
+    f0d3eff142eb2130520b40b4fb37b435136ac7b715d21cce68c702eb3f6b1455: g03
+    6189539a36fd869b93c13590728431a10fdeb69b33d2044f46e89bc43c034000: g04
+    e1e736885e1b9ddc001e2b208ba15db1d0ebd293944b6cea50680f2cf36f8248: g05
+    6d7e68086a56458f5d0bf10163ba5641f2dde1d4cd328e3495d9e858660af5a4: g06
   groups:
     g01:
       n_columns: 31
-      files: 3
+      files: 59
       periods:
       - 2005t1
+      - 2005t2
+      - 2005t3
+      - 2005t4
+      - 2006t1
+      - 2006t2
+      - 2006t3
+      - 2006t4
+      - 2007t1
+      - 2007t2
+      - 2007t3
+      - 2007t4
+      - 2008t1
+      - 2008t2
+      - 2008t3
+      - 2008t4
+      - 2009t1
+      - 2009t2
+      - 2009t3
+      - 2009t4
+      - 2010t1
+      - 2010t2
+      - 2010t3
+      - 2010t4
+      - 2011t1
+      - 2011t2
+      - 2011t3
+      - 2011t4
+      - 2012t1
+      - 2012t2
+      - 2012t3
+      - 2012t4
+      - 2013t1
+      - 2013t2
+      - 2013t3
+      - 2013t4
+      - 2014t1
+      - 2014t2
+      - 2014t3
+      - 2014t4
+      - 2015t1
+      - 2015t2
+      - 2015t3
+      - 2015t4
+      - 2016t1
+      - 2016t2
+      - 2016t3
+      - 2016t4
+      - 2017t1
+      - 2017t2
+      - 2017t3
+      - 2017t4
+      - 2018t1
+      - 2018t2
+      - 2018t3
+      - 2018t4
       - 2019t1
       - 2019t2
+      - 2020t1
       columns:
       - loc
       - mun
@@ -180,10 +339,51 @@ hog:
       - ur
       - fac
     g02:
+      n_columns: 31
+      files: 2
+      periods:
+      - 2019t3
+      - 2019t4
+      columns:
+      - LOC
+      - MUN
+      - EST
+      - EST_D
+      - AGEB
+      - T_LOC
+      - CD_A
+      - ENT
+      - CON
+      - UPM
+      - D_SEM
+      - N_PRO_VIV
+      - V_SEL
+      - N_HOG
+      - H_MUD
+      - N_ENT
+      - PER
+      - R_PRE
+      - P_DIA
+      - P_MES
+      - P_ANIO
+      - R_DEF
+      - D_DIA
+      - D_MES
+      - D_ANIO
+      - E_OBS
+      - P4_1
+      - P4_2
+      - INF
+      - UR
+      - FAC
+    g03:
       n_columns: 37
-      files: 1
+      files: 4
       periods:
       - 2020t3
+      - 2020t4
+      - 2021t1
+      - 2021t2
       columns:
       - loc
       - mun
@@ -222,11 +422,16 @@ hog:
       - ca
       - fac_tri
       - fac_men
-    g03:
+    g04:
       n_columns: 36
-      files: 1
+      files: 6
       periods:
       - 2021t3
+      - 2021t4
+      - 2022t1
+      - 2022t2
+      - 2022t3
+      - 2022t4
       columns:
       - loc
       - mun
@@ -264,12 +469,20 @@ hog:
       - mes_cal
       - fac_tri
       - fac_men
-    g04:
+    g05:
       n_columns: 37
-      files: 2
+      files: 10
       periods:
       - 2023t1
       - 2023t2
+      - 2023t3
+      - 2023t4
+      - 2024t1
+      - 2024t2
+      - 2024t3
+      - 2024t4
+      - 2025t1
+      - 2025t2
       columns:
       - loc
       - mun
@@ -308,10 +521,12 @@ hog:
       - tipolev
       - fac_tri
       - fac_men
-    g05:
+    g06:
       n_columns: 38
-      files: 1
+      files: 3
       periods:
+      - 2025t3
+      - 2025t4
       - 2026t1
       columns:
       - cve_loc
@@ -362,11 +577,69 @@ sdem:
   groups:
     g01:
       n_columns: 104
-      files: 3
+      files: 61
       periods:
       - 2005t1
+      - 2005t2
+      - 2005t3
+      - 2005t4
+      - 2006t1
+      - 2006t2
+      - 2006t3
+      - 2006t4
+      - 2007t1
+      - 2007t2
+      - 2007t3
+      - 2007t4
+      - 2008t1
+      - 2008t2
+      - 2008t3
+      - 2008t4
+      - 2009t1
+      - 2009t2
+      - 2009t3
+      - 2009t4
+      - 2010t1
+      - 2010t2
+      - 2010t3
+      - 2010t4
+      - 2011t1
+      - 2011t2
+      - 2011t3
+      - 2011t4
+      - 2012t1
+      - 2012t2
+      - 2012t3
+      - 2012t4
+      - 2013t1
+      - 2013t2
+      - 2013t3
+      - 2013t4
+      - 2014t1
+      - 2014t2
+      - 2014t3
+      - 2014t4
+      - 2015t1
+      - 2015t2
+      - 2015t3
+      - 2015t4
+      - 2016t1
+      - 2016t2
+      - 2016t3
+      - 2016t4
+      - 2017t1
+      - 2017t2
+      - 2017t3
+      - 2017t4
+      - 2018t1
+      - 2018t2
+      - 2018t3
+      - 2018t4
       - 2019t1
       - 2019t2
+      - 2019t3
+      - 2019t4
+      - 2020t1
       columns:
       - r_def
       - loc
@@ -474,9 +747,12 @@ sdem:
       - sec_ins
     g02:
       n_columns: 110
-      files: 1
+      files: 4
       periods:
       - 2020t3
+      - 2020t4
+      - 2021t1
+      - 2021t2
       columns:
       - r_def
       - loc
@@ -590,11 +866,24 @@ sdem:
       - ca
     g03:
       n_columns: 114
-      files: 3
+      files: 16
       periods:
       - 2021t3
+      - 2021t4
+      - 2022t1
+      - 2022t2
+      - 2022t3
+      - 2022t4
       - 2023t1
       - 2023t2
+      - 2023t3
+      - 2023t4
+      - 2024t1
+      - 2024t2
+      - 2024t3
+      - 2024t4
+      - 2025t1
+      - 2025t2
       columns:
       - r_def
       - loc
@@ -712,8 +1001,10 @@ sdem:
       - mes_cal
     g04:
       n_columns: 115
-      files: 1
+      files: 3
       periods:
+      - 2025t3
+      - 2025t4
       - 2026t1
       columns:
       - r_def
@@ -832,21 +1123,42 @@ sdem:
       - mes_cal
       - cvegeo
 coe1:
-  latest: g06
+  latest: g09
   fingerprints:
     402e8149d73172f77e46d5004a45981f09969794702e4b563550c717bc1fbaca: g01
     af1b8b9fcc3dbd96f2d53bdbc996d48f62d991c3c7039af5832d99505b7babb1: g02
-    64f5a8c5c0566770d8de46b0a1b4165b6ff44ce077d9a602d37dc01b40646b93: g03
-    3ea77a875175bbf9d6046846127e157c7482097d63375678dfeeb6534e4279ac: g04
-    69dafd37d92effef22ab9c652cff138fe0ca1fe5b0e5aa9da971dd7c4caca2dc: g05
-    cc1dd896a0ab0d2f24d470598dd611aa82575ae7fe47febca56de8565f172bdc: g06
+    652588dfe9a91ccebdd74a3a02e312335329b25737572c1dcfb4677cad6f4eaa: g03
+    64f5a8c5c0566770d8de46b0a1b4165b6ff44ce077d9a602d37dc01b40646b93: g04
+    75839f0ffed730a33b1498fc754d1d060250fb17d5412ad10161b9053ce2c100: g05
+    3ea77a875175bbf9d6046846127e157c7482097d63375678dfeeb6534e4279ac: g06
+    69dafd37d92effef22ab9c652cff138fe0ca1fe5b0e5aa9da971dd7c4caca2dc: g07
+    17b48a45250667ec5e8dc3a5e8ec86fae6627cd571a70bea69f37db7f020a379: g08
+    cc1dd896a0ab0d2f24d470598dd611aa82575ae7fe47febca56de8565f172bdc: g09
   groups:
     g01:
       n_columns: 186
-      files: 2
+      files: 20
       periods:
       - 2005t1
+      - 2005t2
+      - 2005t3
+      - 2005t4
+      - 2006t1
+      - 2006t2
+      - 2007t2
+      - 2008t2
+      - 2009t1
+      - 2010t1
+      - 2011t1
+      - 2012t1
+      - 2013t1
+      - 2014t1
+      - 2015t1
+      - 2016t1
+      - 2017t1
+      - 2018t1
       - 2019t1
+      - 2020t1
       columns:
       - r_def
       - cd_a
@@ -1036,8 +1348,46 @@ coe1:
       - fac
     g02:
       n_columns: 169
-      files: 1
+      files: 39
       periods:
+      - 2006t3
+      - 2006t4
+      - 2007t1
+      - 2007t3
+      - 2007t4
+      - 2008t1
+      - 2008t3
+      - 2008t4
+      - 2009t2
+      - 2009t3
+      - 2009t4
+      - 2010t2
+      - 2010t3
+      - 2010t4
+      - 2011t2
+      - 2011t3
+      - 2011t4
+      - 2012t2
+      - 2012t3
+      - 2012t4
+      - 2013t2
+      - 2013t3
+      - 2013t4
+      - 2014t2
+      - 2014t3
+      - 2014t4
+      - 2015t2
+      - 2015t3
+      - 2015t4
+      - 2016t2
+      - 2016t3
+      - 2016t4
+      - 2017t2
+      - 2017t3
+      - 2017t4
+      - 2018t2
+      - 2018t3
+      - 2018t4
       - 2019t2
       columns:
       - r_def
@@ -1210,10 +1560,188 @@ coe1:
       - ur
       - fac
     g03:
+      n_columns: 169
+      files: 2
+      periods:
+      - 2019t3
+      - 2019t4
+      columns:
+      - R_DEF
+      - CD_A
+      - ENT
+      - CON
+      - UPM
+      - D_SEM
+      - N_PRO_VIV
+      - V_SEL
+      - N_HOG
+      - H_MUD
+      - N_ENT
+      - PER
+      - N_REN
+      - EDA
+      - N_INF
+      - P1
+      - P1A1
+      - P1A2
+      - P1A3
+      - P1B
+      - P1C
+      - P1D
+      - P1E
+      - P2_1
+      - P2_2
+      - P2_3
+      - P2_4
+      - P2_9
+      - P2A_DIA
+      - P2A_SEM
+      - P2A_MES
+      - P2A_ANIO
+      - P2B_DIA
+      - P2B_SEM
+      - P2B_MES
+      - P2B_ANIO
+      - P2B
+      - P2C
+      - P2D1
+      - P2D2
+      - P2D3
+      - P2D4
+      - P2D5
+      - P2D6
+      - P2D7
+      - P2D8
+      - P2D9
+      - P2D10
+      - P2D11
+      - P2D99
+      - P2E
+      - P2F
+      - P2G1
+      - P2G2
+      - P2H1
+      - P2H2
+      - P2H3
+      - P2H4
+      - P2H9
+      - P2I
+      - P2J
+      - P2K_ANIO
+      - P2K_MES
+      - P2K
+      - P3
+      - P3A
+      - P3B
+      - P3C1
+      - P3C2
+      - P3C3
+      - P3C4
+      - P3C9
+      - P3D
+      - P3E
+      - P3F1
+      - P3F2
+      - P3G1_1
+      - P3G1_2
+      - P3G2_1
+      - P3G2_2
+      - P3G3_1
+      - P3G3_2
+      - P3G4_1
+      - P3G4_2
+      - P3G9
+      - P3G_TOT
+      - P3H
+      - P3I
+      - P3J1
+      - P3J2
+      - P3K1
+      - P3K2
+      - P3K3
+      - P3K4
+      - P3K5
+      - P3K9
+      - P3L
+      - P4
+      - P4_1
+      - P4_2
+      - P4_3
+      - P4A
+      - P4A_1
+      - P4B
+      - P4C
+      - P4D1
+      - P4D2
+      - P4D3
+      - P4E
+      - P4F
+      - P4G
+      - P4H
+      - P4I
+      - P4I_1
+      - P5
+      - P5A
+      - P5B_HLU
+      - P5B_MLU
+      - P5B_HMA
+      - P5B_MMA
+      - P5B_HMI
+      - P5B_MMI
+      - P5B_HJU
+      - P5B_MJU
+      - P5B_HVI
+      - P5B_MVI
+      - P5B_HSA
+      - P5B_MSA
+      - P5B_HDO
+      - P5B_MDO
+      - P5B_THRS
+      - P5B_TDIA
+      - P5C
+      - P5D1
+      - P5D_HLU
+      - P5D_MLU
+      - P5D_HMA
+      - P5D_MMA
+      - P5D_HMI
+      - P5D_MMI
+      - P5D_HJU
+      - P5D_MJU
+      - P5D_HVI
+      - P5D_MVI
+      - P5D_HSA
+      - P5D_MSA
+      - P5D_HDO
+      - P5D_MDO
+      - P5D_THRS
+      - P5D_TDIA
+      - P5E
+      - P5F1
+      - P5F2
+      - P5F3
+      - P5F4
+      - P5F5
+      - P5F6
+      - P5F7
+      - P5F8
+      - P5F9
+      - P5F10
+      - P5F11
+      - P5F12
+      - P5F13
+      - P5F14
+      - P5F15
+      - P5F99
+      - UR
+      - FAC
+    g04:
       n_columns: 173
-      files: 1
+      files: 3
       periods:
       - 2020t3
+      - 2020t4
+      - 2021t2
       columns:
       - r_def
       - cd_a
@@ -1388,12 +1916,218 @@ coe1:
       - ca
       - fac_tri
       - fac_men
-    g04:
+    g05:
+      n_columns: 190
+      files: 1
+      periods:
+      - 2021t1
+      columns:
+      - r_def
+      - cd_a
+      - ent
+      - con
+      - upm
+      - d_sem
+      - n_pro_viv
+      - v_sel
+      - n_hog
+      - h_mud
+      - n_ent
+      - per
+      - n_ren
+      - eda
+      - n_inf
+      - p1
+      - p1a1
+      - p1a2
+      - p1a3
+      - p1b
+      - p1c
+      - p1d
+      - p1e
+      - p2_1
+      - p2_2
+      - p2_3
+      - p2_4
+      - p2_9
+      - p2a_dia
+      - p2a_sem
+      - p2a_mes
+      - p2a_anio
+      - p2b_dia
+      - p2b_sem
+      - p2b_mes
+      - p2b_anio
+      - p2b
+      - p2c
+      - p2d1
+      - p2d2
+      - p2d3
+      - p2d4
+      - p2d5
+      - p2d6
+      - p2d7
+      - p2d8
+      - p2d9
+      - p2d10
+      - p2d11
+      - p2d99
+      - p2e
+      - p2f
+      - p2g1
+      - p2g2
+      - p2h1
+      - p2h2
+      - p2h3
+      - p2h4
+      - p2h9
+      - p3
+      - p3a
+      - p3b
+      - p3c1
+      - p3c2
+      - p3c3
+      - p3c4
+      - p3c9
+      - p3d
+      - p3e
+      - p3f1
+      - p3f2
+      - p3g1_1
+      - p3g1_2
+      - p3g2_1
+      - p3g2_2
+      - p3g3_1
+      - p3g3_2
+      - p3g4_1
+      - p3g4_2
+      - p3g9
+      - p3g_tot
+      - p3h
+      - p3i
+      - p3j
+      - p3k1
+      - p3k2
+      - p3l1
+      - p3l2
+      - p3l3
+      - p3l4
+      - p3l5
+      - p3l9
+      - p3m1
+      - p3m2
+      - p3m3
+      - p3m4
+      - p3m5
+      - p3m6
+      - p3m7
+      - p3m8
+      - p3m9
+      - p3n
+      - p3o
+      - p3p1
+      - p3p2
+      - p3q
+      - p3r_anio
+      - p3r_mes
+      - p3r
+      - p3s
+      - p3t_anio
+      - p3t_mes
+      - p4
+      - p4_1
+      - p4_2
+      - p4_3
+      - p4a
+      - p4a_1
+      - p4b
+      - p4c
+      - p4d1
+      - p4d2
+      - p4d3
+      - p4e
+      - p4f
+      - p4g
+      - p4h
+      - p4i
+      - p4i_1
+      - p5
+      - p5a
+      - p5b
+      - p5c_hlu
+      - p5c_mlu
+      - p5c_hma
+      - p5c_mma
+      - p5c_hmi
+      - p5c_mmi
+      - p5c_hju
+      - p5c_mju
+      - p5c_hvi
+      - p5c_mvi
+      - p5c_hsa
+      - p5c_msa
+      - p5c_hdo
+      - p5c_mdo
+      - p5c_thrs
+      - p5c_tdia
+      - p5d
+      - p5e1
+      - p5e_hlu
+      - p5e_mlu
+      - p5e_hma
+      - p5e_mma
+      - p5e_hmi
+      - p5e_mmi
+      - p5e_hju
+      - p5e_mju
+      - p5e_hvi
+      - p5e_mvi
+      - p5e_hsa
+      - p5e_msa
+      - p5e_hdo
+      - p5e_mdo
+      - p5e_thrs
+      - p5e_tdia
+      - p5f
+      - p5g1
+      - p5g2
+      - p5g3
+      - p5g4
+      - p5g5
+      - p5g6
+      - p5g7
+      - p5g8
+      - p5g9
+      - p5g10
+      - p5g11
+      - p5g12
+      - p5g13
+      - p5g14
+      - p5g15
+      - p5g99
+      - p5h
+      - ur
+      - tipo
+      - mes_cal
+      - ca
+      - fac_tri
+      - fac_men
+    g06:
       n_columns: 172
-      files: 2
+      files: 12
       periods:
       - 2021t3
+      - 2021t4
+      - 2022t2
+      - 2022t3
+      - 2022t4
       - 2023t2
+      - 2023t3
+      - 2023t4
+      - 2024t2
+      - 2024t3
+      - 2024t4
+      - 2025t2
       columns:
       - r_def
       - cd_a
@@ -1567,11 +2301,14 @@ coe1:
       - mes_cal
       - fac_tri
       - fac_men
-    g05:
+    g07:
       n_columns: 189
-      files: 1
+      files: 4
       periods:
+      - 2022t1
       - 2023t1
+      - 2024t1
+      - 2025t1
       columns:
       - r_def
       - cd_a
@@ -1762,7 +2499,188 @@ coe1:
       - mes_cal
       - fac_tri
       - fac_men
-    g06:
+    g08:
+      n_columns: 174
+      files: 2
+      periods:
+      - 2025t3
+      - 2025t4
+      columns:
+      - r_def
+      - cd_a
+      - cve_ent
+      - con
+      - upm
+      - d_sem
+      - n_pro_viv
+      - v_sel
+      - n_hog
+      - h_mud
+      - n_ent
+      - per
+      - n_ren
+      - eda
+      - n_inf
+      - p1
+      - p1a1
+      - p1a2
+      - p1a3
+      - p1b
+      - p1c
+      - p1d
+      - p1e
+      - p2_1
+      - p2_2
+      - p2_3
+      - p2_4
+      - p2_9
+      - p2a_dia
+      - p2a_sem
+      - p2a_mes
+      - p2a_anio
+      - p2b_dia
+      - p2b_sem
+      - p2b_mes
+      - p2b_anio
+      - p2b
+      - p2c
+      - p2d1
+      - p2d2
+      - p2d3
+      - p2d4
+      - p2d5
+      - p2d6
+      - p2d7
+      - p2d8
+      - p2d9
+      - p2d10
+      - p2d11
+      - p2d99
+      - p2e
+      - p2f
+      - p2g1
+      - p2g2
+      - p2h1
+      - p2h2
+      - p2h3
+      - p2h4
+      - p2h9
+      - p2i
+      - p2j
+      - p2k_anio
+      - p2k_mes
+      - p2k
+      - p3
+      - p3a
+      - p3b
+      - p3c1
+      - p3c2
+      - p3c3
+      - p3c4
+      - p3c9
+      - p3d
+      - p3e
+      - p3f1
+      - p3f2
+      - p3g1_1
+      - p3g1_2
+      - p3g2_1
+      - p3g2_2
+      - p3g3_1
+      - p3g3_2
+      - p3g4_1
+      - p3g4_2
+      - p3g9
+      - p3g_tot
+      - p3h
+      - p3i
+      - p3j1
+      - p3j2
+      - p3k1
+      - p3k2
+      - p3k3
+      - p3k4
+      - p3k5
+      - p3k9
+      - p3l
+      - p4
+      - p4_1
+      - p4_2
+      - p4_3
+      - p4a
+      - p4a_1
+      - p4b
+      - p4c
+      - p4d1
+      - p4d2
+      - p4d3
+      - p4e
+      - p4f
+      - p4g
+      - p4h
+      - p4i
+      - p4i_1
+      - p5
+      - p5a
+      - p5b_hlu
+      - p5b_mlu
+      - p5b_hma
+      - p5b_mma
+      - p5b_hmi
+      - p5b_mmi
+      - p5b_hju
+      - p5b_mju
+      - p5b_hvi
+      - p5b_mvi
+      - p5b_hsa
+      - p5b_msa
+      - p5b_hdo
+      - p5b_mdo
+      - p5b_thrs
+      - p5b_tdia
+      - p5c
+      - p5d1
+      - p5d_hlu
+      - p5d_mlu
+      - p5d_hma
+      - p5d_mma
+      - p5d_hmi
+      - p5d_mmi
+      - p5d_hju
+      - p5d_mju
+      - p5d_hvi
+      - p5d_mvi
+      - p5d_hsa
+      - p5d_msa
+      - p5d_hdo
+      - p5d_mdo
+      - p5d_thrs
+      - p5d_tdia
+      - p5e
+      - p5f1
+      - p5f2
+      - p5f3
+      - p5f4
+      - p5f5
+      - p5f6
+      - p5f7
+      - p5f8
+      - p5f9
+      - p5f10
+      - p5f11
+      - p5f12
+      - p5f13
+      - p5f14
+      - p5f15
+      - p5f99
+      - ur
+      - tipo
+      - mes_cal
+      - fac_tri
+      - fac_men
+      - cve_mun
+      - cvegeo
+    g09:
       n_columns: 191
       files: 1
       periods:
@@ -1960,21 +2878,42 @@ coe1:
       - cve_mun
       - cvegeo
 coe2:
-  latest: g06
+  latest: g09
   fingerprints:
     c392da59b46f90b95883daf7c9b1a0291b6e8d951d46f226f8ee597170f6be7a: g01
     bb2917595654386c4b229a83a752fae243bc5883741b6a0633629afb62808189: g02
-    a47959f90db5cc34b5c7204bda9c16d4509935a45050897be99595c65ee72466: g03
-    a8ea7e84fd94c1cb3867bff4b466bee1a682abbb179c976bae694f3f51e93d3a: g04
-    56a80a05a0e97d0704ca2082986e1df4a8964ac332efb174eadc87b16606fac1: g05
-    b77fc8b84b6010d290eb7fdcd5f198251325614c42f873dd25666f3c4015894d: g06
+    994452cf081386deaeb41d91da5a5a407731e4e5e7a6436a2508002afdd40bde: g03
+    a47959f90db5cc34b5c7204bda9c16d4509935a45050897be99595c65ee72466: g04
+    38c3f97e6991e3ee86c399282de5fe56b179667aa97ea3516e6c0fe33a66ecab: g05
+    a8ea7e84fd94c1cb3867bff4b466bee1a682abbb179c976bae694f3f51e93d3a: g06
+    56a80a05a0e97d0704ca2082986e1df4a8964ac332efb174eadc87b16606fac1: g07
+    dc44fad9ce0fd6b3521873a9f942ff883b9700c17618122d9acbe8fe503a8998: g08
+    b77fc8b84b6010d290eb7fdcd5f198251325614c42f873dd25666f3c4015894d: g09
   groups:
     g01:
       n_columns: 125
-      files: 2
+      files: 20
       periods:
       - 2005t1
+      - 2005t2
+      - 2005t3
+      - 2005t4
+      - 2006t1
+      - 2006t2
+      - 2007t2
+      - 2008t2
+      - 2009t1
+      - 2010t1
+      - 2011t1
+      - 2012t1
+      - 2013t1
+      - 2014t1
+      - 2015t1
+      - 2016t1
+      - 2017t1
+      - 2018t1
       - 2019t1
+      - 2020t1
       columns:
       - cd_a
       - ent
@@ -2103,8 +3042,46 @@ coe2:
       - fac
     g02:
       n_columns: 70
-      files: 1
+      files: 39
       periods:
+      - 2006t3
+      - 2006t4
+      - 2007t1
+      - 2007t3
+      - 2007t4
+      - 2008t1
+      - 2008t3
+      - 2008t4
+      - 2009t2
+      - 2009t3
+      - 2009t4
+      - 2010t2
+      - 2010t3
+      - 2010t4
+      - 2011t2
+      - 2011t3
+      - 2011t4
+      - 2012t2
+      - 2012t3
+      - 2012t4
+      - 2013t2
+      - 2013t3
+      - 2013t4
+      - 2014t2
+      - 2014t3
+      - 2014t4
+      - 2015t2
+      - 2015t3
+      - 2015t4
+      - 2016t2
+      - 2016t3
+      - 2016t4
+      - 2017t2
+      - 2017t3
+      - 2017t4
+      - 2018t2
+      - 2018t3
+      - 2018t4
       - 2019t2
       columns:
       - cd_a
@@ -2178,10 +3155,89 @@ coe2:
       - ur
       - fac
     g03:
+      n_columns: 70
+      files: 2
+      periods:
+      - 2019t3
+      - 2019t4
+      columns:
+      - CD_A
+      - ENT
+      - CON
+      - UPM
+      - D_SEM
+      - N_PRO_VIV
+      - V_SEL
+      - N_HOG
+      - H_MUD
+      - N_ENT
+      - PER
+      - N_REN
+      - EDA
+      - N_INF
+      - P6_1
+      - P6_2
+      - P6_3
+      - P6_4
+      - P6_5
+      - P6_6
+      - P6_7
+      - P6_8
+      - P6_9
+      - P6_10
+      - P6_99
+      - P6A1
+      - P6A2
+      - P6A3
+      - P6A4
+      - P6A9
+      - P6B1
+      - P6B2
+      - P6C
+      - P6D
+      - P7
+      - P7A
+      - P7B
+      - P7C
+      - P8_1
+      - P8_2
+      - P8_3
+      - P8_4
+      - P8_9
+      - P8A
+      - P9_1
+      - P9_H1
+      - P9_M1
+      - P9_2
+      - P9_H2
+      - P9_M2
+      - P9_3
+      - P9_H3
+      - P9_M3
+      - P9_4
+      - P9_H4
+      - P9_M4
+      - P9_5
+      - P9_H5
+      - P9_M5
+      - P9_6
+      - P9_H6
+      - P9_M6
+      - P9_7
+      - P9_H7
+      - P9_M7
+      - P9_8
+      - P9_H8
+      - P9_M8
+      - UR
+      - FAC
+    g04:
       n_columns: 74
-      files: 1
+      files: 3
       periods:
       - 2020t3
+      - 2020t4
+      - 2021t2
       columns:
       - cd_a
       - ent
@@ -2257,12 +3313,157 @@ coe2:
       - ca
       - fac_tri
       - fac_men
-    g04:
+    g05:
+      n_columns: 129
+      files: 1
+      periods:
+      - 2021t1
+      columns:
+      - cd_a
+      - ent
+      - con
+      - upm
+      - d_sem
+      - n_pro_viv
+      - v_sel
+      - n_hog
+      - h_mud
+      - n_ent
+      - per
+      - n_ren
+      - eda
+      - n_inf
+      - p6_1
+      - p6_2
+      - p6_3
+      - p6_4
+      - p6_5
+      - p6_6
+      - p6_7
+      - p6_8
+      - p6_9
+      - p6_10
+      - p6_99
+      - p6a1
+      - p6a2
+      - p6a3
+      - p6a4
+      - p6a9
+      - p6b1
+      - p6b2
+      - p6c
+      - p6d
+      - p7
+      - p7a
+      - p7b
+      - p7c
+      - p7d
+      - p7e
+      - p7f
+      - p7f_dias
+      - p7f_horas
+      - p7g1
+      - p7g2
+      - p7g3
+      - p7g9
+      - p7gcan
+      - p8_1
+      - p8_2
+      - p8_3
+      - p8_4
+      - p8_9
+      - p8a
+      - p8b
+      - p9
+      - p9a
+      - p9b
+      - p9c
+      - p9d
+      - p9e
+      - p9f_anio
+      - p9f_mes
+      - p9f
+      - p9g
+      - p9h
+      - p9h_1
+      - p9i
+      - p9j
+      - p9k
+      - p9l1
+      - p9l2
+      - p9l3
+      - p9l4
+      - p9l5
+      - p9l9
+      - p9m1
+      - p9m2
+      - p9m3
+      - p9m9
+      - p9mcan
+      - p9n1
+      - p9n2
+      - p9n3
+      - p9n4
+      - p9n5
+      - p9n6
+      - p9n9
+      - p10_1
+      - p10_2
+      - p10_3
+      - p10_4
+      - p10_9
+      - p10a1
+      - p10a2
+      - p10a3
+      - p10a4
+      - p10a9
+      - p10b
+      - p11_1
+      - p11_h1
+      - p11_m1
+      - p11_2
+      - p11_h2
+      - p11_m2
+      - p11_3
+      - p11_h3
+      - p11_m3
+      - p11_4
+      - p11_h4
+      - p11_m4
+      - p11_5
+      - p11_h5
+      - p11_m5
+      - p11_6
+      - p11_h6
+      - p11_m6
+      - p11_7
+      - p11_h7
+      - p11_m7
+      - p11_8
+      - p11_h8
+      - p11_m8
+      - ur
+      - tipo
+      - mes_cal
+      - ca
+      - fac_tri
+      - fac_men
+    g06:
       n_columns: 82
-      files: 2
+      files: 12
       periods:
       - 2021t3
+      - 2021t4
+      - 2022t2
+      - 2022t3
+      - 2022t4
       - 2023t2
+      - 2023t3
+      - 2023t4
+      - 2024t2
+      - 2024t3
+      - 2024t4
+      - 2025t2
       columns:
       - cd_a
       - ent
@@ -2346,11 +3547,14 @@ coe2:
       - mes_cal
       - fac_tri
       - fac_men
-    g05:
+    g07:
       n_columns: 137
-      files: 1
+      files: 4
       periods:
+      - 2022t1
       - 2023t1
+      - 2024t1
+      - 2025t1
       columns:
       - cd_a
       - ent
@@ -2489,7 +3693,98 @@ coe2:
       - mes_cal
       - fac_tri
       - fac_men
-    g06:
+    g08:
+      n_columns: 84
+      files: 2
+      periods:
+      - 2025t3
+      - 2025t4
+      columns:
+      - cd_a
+      - cve_ent
+      - con
+      - upm
+      - d_sem
+      - n_pro_viv
+      - v_sel
+      - n_hog
+      - h_mud
+      - n_ent
+      - per
+      - n_ren
+      - eda
+      - n_inf
+      - p6_1
+      - p6_2
+      - p6_3
+      - p6_4
+      - p6_5
+      - p6_6
+      - p6_7
+      - p6_8
+      - p6_9
+      - p6_10
+      - p6_99
+      - p6a1
+      - p6a2
+      - p6a3
+      - p6a4
+      - p6a9
+      - p6b1
+      - p6b2
+      - p6c
+      - p6d
+      - p6e
+      - p6e_c
+      - p6f
+      - p6f_c
+      - p6g
+      - p6h
+      - p6h_c
+      - p6i
+      - p6i_c
+      - p7
+      - p7a
+      - p7b
+      - p7c
+      - p8_1
+      - p8_2
+      - p8_3
+      - p8_4
+      - p8_9
+      - p8a
+      - p9_1
+      - p9_h1
+      - p9_m1
+      - p9_2
+      - p9_h2
+      - p9_m2
+      - p9_3
+      - p9_h3
+      - p9_m3
+      - p9_4
+      - p9_h4
+      - p9_m4
+      - p9_5
+      - p9_h5
+      - p9_m5
+      - p9_6
+      - p9_h6
+      - p9_m6
+      - p9_7
+      - p9_h7
+      - p9_m7
+      - p9_8
+      - p9_h8
+      - p9_m8
+      - ur
+      - tipo
+      - mes_cal
+      - fac_tri
+      - fac_men
+      - cve_mun
+      - cvegeo
+    g09:
       n_columns: 139
       files: 1
       periods:

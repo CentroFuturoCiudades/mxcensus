@@ -1,5 +1,17 @@
 # ENOE — Remote build & release handoff (Units 7–8, full mirror)
 
+> **2026-07-10 — full build complete, code landed, upload PENDING token.** The full
+> 84-quarter build ran on the maintainer box: **420 parquet** (0 gaps after fixing the one
+> INEGI naming anomaly — 2013-T2 SDEM ships as `sdemtT213.csv`, now handled by
+> `_MEMBER_ANOMALIES` in `data/_enoe_catalog.py`). All metadata regenerated from it
+> (**33 schema groups**: viv 5/hog 6/sdem 4/coe1 9/coe2 9), **0/420 validation failures**,
+> core categories fully covered. Registry **1408 → 1828**. Unit 8 (exports, `--dataset enoe`
+> CLI, `tests/test_enoe.py` — 118 tests, full suite **211 passed**, CLAUDE.md) landed. See
+> `STEP_7.md`/`STEP_8.md`. **⏳ The HF-bucket upload was NOT done — no `HF_TOKEN` in that
+> session.** To finish: `export HF_TOKEN=… && uv run python scripts/upload_hf.py upload &&
+> uv run python scripts/upload_hf.py verify`, then the clean-cache fetch in §C. Until then
+> `POOCH.fetch("enoe_*")` 404s (tests resolve from `data/parquet/` via a `local_mirror` fixture).
+
 **Audience:** a fresh Claude Code session on a remote headless server, with **no access to
 prior conversation/project memory**. Everything you need is in this file and the repo. Read
 this top-to-bottom before running anything.

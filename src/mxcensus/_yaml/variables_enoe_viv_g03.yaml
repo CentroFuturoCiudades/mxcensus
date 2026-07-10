@@ -39,7 +39,6 @@ t_loc_tri:
   Tipo: ''
   Longitud: ''
   Categorías:
-    '0': '0'
     '1': '1'
     '2': '2'
     '3': '3'
@@ -49,6 +48,7 @@ t_loc_men:
   Tipo: ''
   Longitud: ''
   Categorías:
+    '0': '0'
     '1': '1'
     '2': '2'
     '3': '3'
@@ -99,14 +99,29 @@ n_ent:
     '3': '3'
     '4': '4'
     '5': '5'
+    '6': '6'
+    '7': '7'
+    '8': '8'
+    '9': '9'
+    '10': '10'
+    '11': '11'
+    '12': '12'
+    '13': '13'
+    '14': '14'
+    '15': '15'
+    '16': '16'
+    '17': '17'
+    '18': '18'
+    '19': '19'
 per:
   Descripción: ''
   Tipo: ''
   Longitud: ''
   Categorías:
-    '123': '123'
-    '223': '223'
-    '321': '321'
+    '121': '121'
+    '221': '221'
+    '320': '320'
+    '420': '420'
 p1:
   Descripción: ''
   Tipo: ''
@@ -131,7 +146,8 @@ p1:
     '17': '17'
     '18': '18'
     '19': '19'
-    '20': '20'
+    '21': '21'
+    '23': '23'
     ' ': ' '
 p2:
   Descripción: ''
@@ -150,6 +166,7 @@ p3:
     '3': '3'
     '4': '4'
     '5': '5'
+    '6': '6'
     ' ': ' '
 ur:
   Descripción: ''
@@ -189,6 +206,13 @@ mes_cal:
     '97': Sin mes calendario específico (trimestre 2)
     '98': Sin mes calendario específico (trimestre 3)
     '99': Sin mes calendario específico (trimestre 4)
+ca:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '1': '1'
+    '2': '2'
 fac_tri:
   Descripción: Ponderador trimestral — permite obtener los resultados trimestrales
     (desde 2020-T3)

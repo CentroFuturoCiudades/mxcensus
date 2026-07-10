@@ -111,6 +111,16 @@ class EnoeQuarter:
         return _BASE + self.zip_filename
 
 
+# INEGI in-ZIP naming anomalies: a handful of members deviate from the canonical
+# ``{table}t{q}{yy}`` core. Keyed by (period, table) → the actual member basename, matched
+# case-insensitively as a fallback in ``find_member``. 2013-T2's SDEM ships as
+# ``sdemtT213.csv`` (a stray extra ``T``) rather than ``sdemt213.csv`` — verified in the
+# source ZIP; every other quarter/table follows the canonical core.
+_MEMBER_ANOMALIES: dict[tuple[str, str], str] = {
+    ("2013t2", "sdem"): "sdemtT213.csv",
+}
+
+
 def _member_core(quarter: EnoeQuarter, table: str) -> str:
     """In-ZIP member core ``{table}t{q}{yy}`` (e.g. ``sdemt119``), lowercase."""
     return f"{table}t{quarter.quarter}{quarter.year % 100:02d}"
@@ -141,6 +151,12 @@ def find_member(names: list[str], quarter: EnoeQuarter, table: str) -> str | Non
     for n in names:
         if pat.match(n.rsplit("/", 1)[-1]):
             return n
+    # Fall back to a known INEGI naming anomaly for this (period, table), if any.
+    anomaly = _MEMBER_ANOMALIES.get((quarter.period, table))
+    if anomaly is not None:
+        for n in names:
+            if n.rsplit("/", 1)[-1].lower() == anomaly.lower():
+                return n
     return None
 
 

@@ -1,10 +1,10 @@
-loc:
+cve_loc:
   Descripción: ''
   Tipo: ''
   Longitud: ''
   Categorías:
     ' ': ' '
-mun:
+cve_mun:
   Descripción: ''
   Tipo: ''
   Longitud: ''
@@ -28,18 +28,18 @@ est_d_men:
   Tipo: ''
   Longitud: ''
   Categorías: {}
-ageb:
+cve_ageb:
   Descripción: ''
   Tipo: ''
   Longitud: ''
   Categorías:
     '0': '0'
+    '00000': '00000'
 t_loc_tri:
   Descripción: ''
   Tipo: ''
   Longitud: ''
   Categorías:
-    '0': '0'
     '1': '1'
     '2': '2'
     '3': '3'
@@ -59,11 +59,52 @@ cd_a:
   Tipo: Carácter
   Longitud: '2'
   Categorías: {}
-ent:
-  Descripción: Entidad federativa (01-32)
-  Tipo: Carácter
-  Longitud: '2'
-  Categorías: {}
+cve_ent:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '1': '1'
+    '01': '01'
+    '2': '2'
+    '02': '02'
+    '03': '03'
+    '3': '3'
+    '04': '04'
+    '4': '4'
+    '5': '5'
+    '05': '05'
+    '6': '6'
+    '06': '06'
+    '07': '07'
+    '7': '7'
+    '8': '8'
+    08: 08
+    '9': '9'
+    09: 09
+    '10': '10'
+    '11': '11'
+    '12': '12'
+    '13': '13'
+    '14': '14'
+    '15': '15'
+    '16': '16'
+    '17': '17'
+    '18': '18'
+    '19': '19'
+    '20': '20'
+    '21': '21'
+    '22': '22'
+    '23': '23'
+    '24': '24'
+    '25': '25'
+    '26': '26'
+    '27': '27'
+    '28': '28'
+    '29': '29'
+    '30': '30'
+    '31': '31'
+    '32': '32'
 con:
   Descripción: Número de control de la vivienda
   Tipo: Carácter
@@ -89,6 +130,16 @@ v_sel:
   Tipo: Carácter
   Longitud: '2'
   Categorías: {}
+n_hog:
+  Descripción: Número de hogar
+  Tipo: Carácter
+  Longitud: '1'
+  Categorías: {}
+h_mud:
+  Descripción: Hogar mudado (número de veces que el hogar se ha mudado)
+  Tipo: Carácter
+  Longitud: '1'
+  Categorías: {}
 n_ent:
   Descripción: ''
   Tipo: ''
@@ -104,23 +155,33 @@ per:
   Tipo: ''
   Longitud: ''
   Categorías:
-    '122': '122'
-    '123': '123'
-    '124': '124'
-    '125': '125'
-    '222': '222'
-    '223': '223'
-    '224': '224'
-    '225': '225'
-    '321': '321'
-    '322': '322'
-    '323': '323'
-    '324': '324'
-    '421': '421'
-    '422': '422'
-    '423': '423'
-    '424': '424'
-p1:
+    '126': '126'
+    '325': '325'
+    '425': '425'
+r_pre:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '0': '0'
+    '1': '1'
+    '2': '2'
+    '3': '3'
+    '4': '4'
+    '5': '5'
+    '6': '6'
+    '7': '7'
+    '8': '8'
+    '9': '9'
+    '10': '10'
+    '11': '11'
+    '12': '12'
+    '13': '13'
+    '14': '14'
+    '15': '15'
+    '17': '17'
+    '18': '18'
+p_dia:
   Descripción: ''
   Tipo: ''
   Longitud: ''
@@ -148,8 +209,103 @@ p1:
     '21': '21'
     '22': '22'
     '23': '23'
-    ' ': ' '
-p2:
+    '24': '24'
+    '25': '25'
+    '26': '26'
+    '27': '27'
+    '28': '28'
+    '29': '29'
+    '30': '30'
+    '31': '31'
+p_mes:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '1': '1'
+    '2': '2'
+    '3': '3'
+    '4': '4'
+    '6': '6'
+    '7': '7'
+    '8': '8'
+    '9': '9'
+    '10': '10'
+    '11': '11'
+    '12': '12'
+p_anio:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '25': '25'
+    '26': '26'
+r_def:
+  Descripción: Resultado definitivo de la entrevista (filtro analítico R_DEF == '00');
+    códigos 00-15, etiquetas en la tabla de vivienda/hogar
+  Tipo: Carácter
+  Longitud: '2'
+  Categorías: {}
+d_dia:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '1': '1'
+    '2': '2'
+    '3': '3'
+    '4': '4'
+    '5': '5'
+    '6': '6'
+    '7': '7'
+    '8': '8'
+    '9': '9'
+    '10': '10'
+    '11': '11'
+    '12': '12'
+    '13': '13'
+    '14': '14'
+    '15': '15'
+    '16': '16'
+    '17': '17'
+    '18': '18'
+    '19': '19'
+    '20': '20'
+    '21': '21'
+    '22': '22'
+    '23': '23'
+    '24': '24'
+    '25': '25'
+    '26': '26'
+    '27': '27'
+    '28': '28'
+    '29': '29'
+    '30': '30'
+    '31': '31'
+d_mes:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '1': '1'
+    '2': '2'
+    '3': '3'
+    '4': '4'
+    '6': '6'
+    '7': '7'
+    '8': '8'
+    '9': '9'
+    '10': '10'
+    '11': '11'
+    '12': '12'
+d_anio:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '25': '25'
+    '26': '26'
+e_obs:
   Descripción: ''
   Tipo: ''
   Longitud: ''
@@ -157,17 +313,54 @@ p2:
     '1': '1'
     '2': '2'
     ' ': ' '
-p3:
+p4_1:
   Descripción: ''
   Tipo: ''
   Longitud: ''
   Categorías:
+    '1': '1'
+    '2': '2'
+    '3': '3'
+    '4': '4'
+    ' ': ' '
+p4_2:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '1': '1'
     '2': '2'
     '3': '3'
     '4': '4'
     '5': '5'
     '6': '6'
     ' ': ' '
+inf:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '0': '0'
+    '1': '1'
+    '2': '2'
+    '3': '3'
+    '4': '4'
+    '5': '5'
+    '6': '6'
+    '7': '7'
+    '8': '8'
+    '9': '9'
+    '10': '10'
+    '11': '11'
+    '12': '12'
+    '13': '13'
+    '14': '14'
+    '15': '15'
+    '16': '16'
+    '17': '17'
+    '18': '18'
+    '97': '97'
+    '99': '99'
 ur:
   Descripción: ''
   Tipo: ''
@@ -206,6 +399,13 @@ mes_cal:
     '97': Sin mes calendario específico (trimestre 2)
     '98': Sin mes calendario específico (trimestre 3)
     '99': Sin mes calendario específico (trimestre 4)
+tipolev:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '1': '1'
+    '2': '2'
 fac_tri:
   Descripción: Ponderador trimestral — permite obtener los resultados trimestrales
     (desde 2020-T3)
@@ -217,4 +417,9 @@ fac_men:
     (desde 2020-T3)
   Tipo: Numérico
   Longitud: '6'
+  Categorías: {}
+cvegeo:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
   Categorías: {}

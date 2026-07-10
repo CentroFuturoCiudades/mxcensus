@@ -1,10 +1,10 @@
-cve_loc:
+loc:
   Descripción: ''
   Tipo: ''
   Longitud: ''
   Categorías:
     ' ': ' '
-cve_mun:
+mun:
   Descripción: ''
   Tipo: ''
   Longitud: ''
@@ -28,12 +28,12 @@ est_d_men:
   Tipo: ''
   Longitud: ''
   Categorías: {}
-cve_ageb:
+ageb:
   Descripción: ''
   Tipo: ''
   Longitud: ''
   Categorías:
-    '00000': '00000'
+    '0': '0'
 t_loc_tri:
   Descripción: ''
   Tipo: ''
@@ -58,43 +58,11 @@ cd_a:
   Tipo: Carácter
   Longitud: '2'
   Categorías: {}
-cve_ent:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
-  Categorías:
-    '01': '01'
-    '02': '02'
-    '03': '03'
-    '04': '04'
-    '05': '05'
-    '06': '06'
-    '07': '07'
-    08: 08
-    09: 09
-    '10': '10'
-    '11': '11'
-    '12': '12'
-    '13': '13'
-    '14': '14'
-    '15': '15'
-    '16': '16'
-    '17': '17'
-    '18': '18'
-    '19': '19'
-    '20': '20'
-    '21': '21'
-    '22': '22'
-    '23': '23'
-    '24': '24'
-    '25': '25'
-    '26': '26'
-    '27': '27'
-    '28': '28'
-    '29': '29'
-    '30': '30'
-    '31': '31'
-    '32': '32'
+ent:
+  Descripción: Entidad federativa (01-32)
+  Tipo: Carácter
+  Longitud: '2'
+  Categorías: {}
 con:
   Descripción: Número de control de la vivienda
   Tipo: Carácter
@@ -145,7 +113,16 @@ per:
   Tipo: ''
   Longitud: ''
   Categorías:
-    '126': '126'
+    '123': '123'
+    '124': '124'
+    '125': '125'
+    '223': '223'
+    '224': '224'
+    '225': '225'
+    '323': '323'
+    '324': '324'
+    '423': '423'
+    '424': '424'
 r_pre:
   Descripción: ''
   Tipo: ''
@@ -214,14 +191,22 @@ p_mes:
     '2': '2'
     '3': '3'
     '4': '4'
+    '5': '5'
+    '6': '6'
+    '7': '7'
+    '8': '8'
+    '9': '9'
+    '10': '10'
+    '11': '11'
     '12': '12'
 p_anio:
   Descripción: ''
   Tipo: ''
   Longitud: ''
   Categorías:
+    '23': '23'
+    '24': '24'
     '25': '25'
-    '26': '26'
 r_def:
   Descripción: Resultado definitivo de la entrevista (filtro analítico R_DEF == '00');
     códigos 00-15, etiquetas en la tabla de vivienda/hogar
@@ -273,20 +258,28 @@ d_mes:
     '2': '2'
     '3': '3'
     '4': '4'
+    '5': '5'
+    '6': '6'
+    '7': '7'
     '8': '8'
+    '9': '9'
+    '10': '10'
+    '11': '11'
     '12': '12'
 d_anio:
   Descripción: ''
   Tipo: ''
   Longitud: ''
   Categorías:
+    '23': '23'
+    '24': '24'
     '25': '25'
-    '26': '26'
 e_obs:
   Descripción: ''
   Tipo: ''
   Longitud: ''
   Categorías:
+    '1': '1'
     '2': '2'
     ' ': ' '
 p4_1:
@@ -310,6 +303,7 @@ p4_2:
     '4': '4'
     '5': '5'
     '6': '6'
+    '10': '10'
     ' ': ' '
 inf:
   Descripción: ''
@@ -333,6 +327,8 @@ inf:
     '14': '14'
     '15': '15'
     '16': '16'
+    '17': '17'
+    '19': '19'
     '97': '97'
     '99': '99'
 ur:
@@ -391,9 +387,4 @@ fac_men:
     (desde 2020-T3)
   Tipo: Numérico
   Longitud: '6'
-  Categorías: {}
-cvegeo:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
   Categorías: {}

@@ -1,55 +1,10 @@
-r_def:
-  Descripción: Resultado definitivo de la entrevista (filtro analítico R_DEF == '00');
-    códigos 00-15, etiquetas en la tabla de vivienda/hogar
-  Tipo: Carácter
-  Longitud: '2'
-  Categorías: {}
-cd_a:
-  Descripción: Ciudad autorrepresentada (agrupación de áreas de la muestra)
-  Tipo: Carácter
-  Longitud: '2'
-  Categorías: {}
-ent:
-  Descripción: Entidad federativa (01-32)
-  Tipo: Carácter
-  Longitud: '2'
-  Categorías: {}
-con:
-  Descripción: Número de control de la vivienda
-  Tipo: Carácter
-  Longitud: '5'
-  Categorías: {}
-upm:
+R_DEF:
   Descripción: ''
   Tipo: ''
   Longitud: ''
-  Categorías: {}
-d_sem:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
-  Categorías: {}
-n_pro_viv:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
-  Categorías: {}
-v_sel:
-  Descripción: Vivienda seleccionada
-  Tipo: Carácter
-  Longitud: '2'
-  Categorías: {}
-n_hog:
-  Descripción: Número de hogar
-  Tipo: Carácter
-  Longitud: '1'
-  Categorías: {}
-h_mud:
-  Descripción: Hogar mudado (número de veces que el hogar se ha mudado)
-  Tipo: Carácter
-  Longitud: '1'
-  Categorías: {}
-n_ent:
+  Categorías:
+    '0': '0'
+CD_A:
   Descripción: ''
   Tipo: ''
   Longitud: ''
@@ -64,26 +19,39 @@ n_ent:
     '8': '8'
     '9': '9'
     '10': '10'
-    '11': '11'
-per:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
-  Categorías:
-    '320': '320'
-n_ren:
-  Descripción: Número de renglón del integrante del hogar
-  Tipo: Carácter
-  Longitud: '2'
-  Categorías: {}
-eda:
-  Descripción: Edad en años cumplidos (filtro analítico EDA in [15, 98]). Códigos
-    especiales — 00 menores de 1 año, 97 = 97 años y más, 98 = no especificada (12
-    años y más), 99 = no especificada (menores de 0 a 11 años)
-  Tipo: Carácter
-  Longitud: '2'
-  Categorías: {}
-n_inf:
+    '12': '12'
+    '13': '13'
+    '14': '14'
+    '15': '15'
+    '16': '16'
+    '17': '17'
+    '18': '18'
+    '19': '19'
+    '20': '20'
+    '21': '21'
+    '24': '24'
+    '25': '25'
+    '26': '26'
+    '27': '27'
+    '28': '28'
+    '29': '29'
+    '31': '31'
+    '32': '32'
+    '33': '33'
+    '36': '36'
+    '39': '39'
+    '40': '40'
+    '41': '41'
+    '43': '43'
+    '44': '44'
+    '46': '46'
+    '81': '81'
+    '82': '82'
+    '83': '83'
+    '84': '84'
+    '85': '85'
+    '86': '86'
+ENT:
   Descripción: ''
   Tipo: ''
   Longitud: ''
@@ -100,38 +68,202 @@ n_inf:
     '10': '10'
     '11': '11'
     '12': '12'
+    '13': '13'
     '14': '14'
+    '15': '15'
+    '16': '16'
+    '17': '17'
+    '18': '18'
+    '19': '19'
+    '20': '20'
+    '21': '21'
+    '22': '22'
+    '23': '23'
+    '24': '24'
+    '25': '25'
+    '26': '26'
+    '27': '27'
+    '28': '28'
+    '29': '29'
+    '30': '30'
+    '31': '31'
+    '32': '32'
+CON:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+UPM:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+D_SEM:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+N_PRO_VIV:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+V_SEL:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '1': '1'
+    '2': '2'
+    '3': '3'
+    '4': '4'
+    '5': '5'
+    '6': '6'
+    '7': '7'
+    '8': '8'
+    '9': '9'
+    '10': '10'
+    '11': '11'
+    '12': '12'
+    '13': '13'
+    '14': '14'
+    '15': '15'
+    '16': '16'
+    '17': '17'
+    '18': '18'
+    '19': '19'
+    '20': '20'
+    '21': '21'
+    '22': '22'
+    '23': '23'
+    '24': '24'
+N_HOG:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '1': '1'
+    '2': '2'
+    '3': '3'
+    '4': '4'
+    '5': '5'
+H_MUD:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '0': '0'
+    '1': '1'
+    '2': '2'
+    '3': '3'
+    '4': '4'
+N_ENT:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '1': '1'
+    '2': '2'
+    '3': '3'
+    '4': '4'
+    '5': '5'
+PER:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '319': '319'
+    '419': '419'
+N_REN:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '1': '1'
+    '2': '2'
+    '3': '3'
+    '4': '4'
+    '5': '5'
+    '6': '6'
+    '7': '7'
+    '8': '8'
+    '9': '9'
+    '10': '10'
+    '11': '11'
+    '12': '12'
+    '13': '13'
+    '14': '14'
+    '15': '15'
+    '16': '16'
+    '17': '17'
+    '18': '18'
+    '19': '19'
+    '20': '20'
+    '21': '21'
+    '22': '22'
+    '23': '23'
+    '26': '26'
+    '27': '27'
+    '30': '30'
+EDA:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+N_INF:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '1': '1'
+    '2': '2'
+    '3': '3'
+    '4': '4'
+    '5': '5'
+    '6': '6'
+    '7': '7'
+    '8': '8'
+    '9': '9'
+    '10': '10'
+    '11': '11'
+    '12': '12'
+    '13': '13'
+    '14': '14'
+    '15': '15'
+    '16': '16'
+    '18': '18'
+    '21': '21'
     '97': '97'
     '99': '99'
-p1:
+P1:
   Descripción: ''
   Tipo: ''
   Longitud: ''
   Categorías:
     '1': '1'
     '2': '2'
-p1a1:
+P1A1:
   Descripción: ''
   Tipo: ''
   Longitud: ''
   Categorías:
     '1': '1'
     ' ': ' '
-p1a2:
+P1A2:
   Descripción: ''
   Tipo: ''
   Longitud: ''
   Categorías:
     '2': '2'
     ' ': ' '
-p1a3:
+P1A3:
   Descripción: ''
   Tipo: ''
   Longitud: ''
   Categorías:
     '3': '3'
     ' ': ' '
-p1b:
+P1B:
   Descripción: ''
   Tipo: ''
   Longitud: ''
@@ -139,7 +271,7 @@ p1b:
     '1': '1'
     '2': '2'
     ' ': ' '
-p1c:
+P1C:
   Descripción: ''
   Tipo: ''
   Longitud: ''
@@ -158,7 +290,7 @@ p1c:
     '12': '12'
     '99': '99'
     ' ': ' '
-p1d:
+P1D:
   Descripción: ''
   Tipo: ''
   Longitud: ''
@@ -167,7 +299,7 @@ p1d:
     '2': '2'
     '9': '9'
     ' ': ' '
-p1e:
+P1E:
   Descripción: ''
   Tipo: ''
   Longitud: ''
@@ -179,42 +311,42 @@ p1e:
     '5': '5'
     '9': '9'
     ' ': ' '
-p2_1:
+P2_1:
   Descripción: ''
   Tipo: ''
   Longitud: ''
   Categorías:
     '1': '1'
     ' ': ' '
-p2_2:
+P2_2:
   Descripción: ''
   Tipo: ''
   Longitud: ''
   Categorías:
     '2': '2'
     ' ': ' '
-p2_3:
+P2_3:
   Descripción: ''
   Tipo: ''
   Longitud: ''
   Categorías:
     '3': '3'
     ' ': ' '
-p2_4:
+P2_4:
   Descripción: ''
   Tipo: ''
   Longitud: ''
   Categorías:
     '4': '4'
     ' ': ' '
-p2_9:
+P2_9:
   Descripción: ''
   Tipo: ''
   Longitud: ''
   Categorías:
     '9': '9'
     ' ': ' '
-p2a_dia:
+P2A_DIA:
   Descripción: ''
   Tipo: ''
   Longitud: ''
@@ -252,7 +384,7 @@ p2a_dia:
     '31': '31'
     '99': '99'
     ' ': ' '
-p2a_sem:
+P2A_SEM:
   Descripción: ''
   Tipo: ''
   Longitud: ''
@@ -263,7 +395,7 @@ p2a_sem:
     '4': '4'
     '9': '9'
     ' ': ' '
-p2a_mes:
+P2A_MES:
   Descripción: ''
   Tipo: ''
   Longitud: ''
@@ -282,22 +414,473 @@ p2a_mes:
     '12': '12'
     '99': '99'
     ' ': ' '
-p2a_anio:
+P2A_ANIO:
   Descripción: ''
   Tipo: ''
   Longitud: ''
   Categorías:
-    '2000': '2000'
+    '2001': '2001'
+    '2009': '2009'
     '2010': '2010'
+    '2011': '2011'
+    '2012': '2012'
+    '2013': '2013'
+    '2014': '2014'
+    '2015': '2015'
+    '2016': '2016'
+    '2017': '2017'
+    '2018': '2018'
+    '2019': '2019'
+    '9999': '9999'
+    ' ': ' '
+P2B_DIA:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '1': '1'
+    '2': '2'
+    '3': '3'
+    '4': '4'
+    '5': '5'
+    '6': '6'
+    '7': '7'
+    '8': '8'
+    '9': '9'
+    '10': '10'
+    '11': '11'
+    '12': '12'
+    '13': '13'
+    '14': '14'
+    '15': '15'
+    '16': '16'
+    '17': '17'
+    '18': '18'
+    '19': '19'
+    '20': '20'
+    '21': '21'
+    '22': '22'
+    '23': '23'
+    '24': '24'
+    '25': '25'
+    '26': '26'
+    '27': '27'
+    '28': '28'
+    '29': '29'
+    '30': '30'
+    '31': '31'
+    '99': '99'
+    ' ': ' '
+P2B_SEM:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '1': '1'
+    '2': '2'
+    '3': '3'
+    '4': '4'
+    '9': '9'
+    ' ': ' '
+P2B_MES:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '1': '1'
+    '2': '2'
+    '3': '3'
+    '4': '4'
+    '5': '5'
+    '6': '6'
+    '7': '7'
+    '8': '8'
+    '9': '9'
+    '10': '10'
+    '11': '11'
+    '12': '12'
+    '99': '99'
+    ' ': ' '
+P2B_ANIO:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '2011': '2011'
     '2015': '2015'
     '2016': '2016'
     '2017': '2017'
     '2018': '2018'
     '2019': '2019'
     '2020': '2020'
-    '9999': '9999'
     ' ': ' '
-p2b_dia:
+P2B:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '1': '1'
+    '2': '2'
+    '3': '3'
+    '4': '4'
+    '9': '9'
+    ' ': ' '
+P2C:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '1': '1'
+    '2': '2'
+    '9': '9'
+    ' ': ' '
+P2D1:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '1': '1'
+    ' ': ' '
+P2D2:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '2': '2'
+    ' ': ' '
+P2D3:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '3': '3'
+    ' ': ' '
+P2D4:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '4': '4'
+    ' ': ' '
+P2D5:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '5': '5'
+    ' ': ' '
+P2D6:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '6': '6'
+    ' ': ' '
+P2D7:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '7': '7'
+    ' ': ' '
+P2D8:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '8': '8'
+    ' ': ' '
+P2D9:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '9': '9'
+    ' ': ' '
+P2D10:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '10': '10'
+    ' ': ' '
+P2D11:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '11': '11'
+    ' ': ' '
+P2D99:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '99': '99'
+    ' ': ' '
+P2E:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '1': '1'
+    '2': '2'
+    '3': '3'
+    '4': '4'
+    '5': '5'
+    '6': '6'
+    '9': '9'
+    ' ': ' '
+P2F:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '1': '1'
+    '2': '2'
+    '3': '3'
+    '9': '9'
+    ' ': ' '
+P2G1:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '1': '1'
+    '2': '2'
+    '9': '9'
+    ' ': ' '
+P2G2:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '1': '1'
+    '2': '2'
+    '3': '3'
+    '4': '4'
+    '5': '5'
+    '6': '6'
+    '7': '7'
+    '8': '8'
+    '9': '9'
+    '10': '10'
+    '11': '11'
+    '12': '12'
+    ' ': ' '
+P2H1:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '1': '1'
+    ' ': ' '
+P2H2:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '2': '2'
+    ' ': ' '
+P2H3:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '3': '3'
+    ' ': ' '
+P2H4:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '4': '4'
+    ' ': ' '
+P2H9:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '9': '9'
+    ' ': ' '
+P2I:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '1': '1'
+    '2': '2'
+    '3': '3'
+    '4': '4'
+    '5': '5'
+    '6': '6'
+    '7': '7'
+    '8': '8'
+    '9': '9'
+    ' ': ' '
+P2J:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '1': '1'
+    '2': '2'
+    '3': '3'
+    '4': '4'
+    '5': '5'
+    '6': '6'
+    '7': '7'
+    '9': '9'
+    ' ': ' '
+P2K_ANIO:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+P2K_MES:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '1': '1'
+    '2': '2'
+    '3': '3'
+    '4': '4'
+    '5': '5'
+    '6': '6'
+    '7': '7'
+    '8': '8'
+    '9': '9'
+    '10': '10'
+    '11': '11'
+    '12': '12'
+    '99': '99'
+    ' ': ' '
+P2K:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '1': '1'
+    '2': '2'
+    '3': '3'
+    '9': '9'
+    ' ': ' '
+P3:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+P3A:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '1': '1'
+    '2': '2'
+    ' ': ' '
+P3B:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '1': '1'
+    '2': '2'
+    ' ': ' '
+P3C1:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '1': '1'
+    ' ': ' '
+P3C2:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '2': '2'
+    ' ': ' '
+P3C3:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '3': '3'
+    ' ': ' '
+P3C4:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '4': '4'
+    ' ': ' '
+P3C9:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '9': '9'
+    ' ': ' '
+P3D:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '1': '1'
+    '2': '2'
+    '9': '9'
+    ' ': ' '
+P3E:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '1': '1'
+    '2': '2'
+    ' ': ' '
+P3F1:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '1': '1'
+    '2': '2'
+    '3': '3'
+    '9': '9'
+    ' ': ' '
+P3F2:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '2': '2'
+    '3': '3'
+    '4': '4'
+    '5': '5'
+    '6': '6'
+    '7': '7'
+    '8': '8'
+    '9': '9'
+    '10': '10'
+    '11': '11'
+    '15': '15'
+    '20': '20'
+    '22': '22'
+    '30': '30'
+    '40': '40'
+    '45': '45'
+    '50': '50'
+    '99': '99'
+    ' ': ' '
+P3G1_1:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '1': '1'
+    ' ': ' '
+P3G1_2:
   Descripción: ''
   Tipo: ''
   Longitud: ''
@@ -333,653 +916,46 @@ p2b_dia:
     '29': '29'
     '30': '30'
     '31': '31'
-    '99': '99'
-    ' ': ' '
-p2b_sem:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
-  Categorías:
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '9': '9'
-    ' ': ' '
-p2b_mes:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
-  Categorías:
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '5': '5'
-    '6': '6'
-    '7': '7'
-    '8': '8'
-    '9': '9'
-    '10': '10'
-    '11': '11'
-    '12': '12'
-    '99': '99'
-    ' ': ' '
-p2b_anio:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
-  Categorías:
-    '2000': '2000'
-    '2015': '2015'
-    '2018': '2018'
-    '2019': '2019'
-    '2020': '2020'
-    '9999': '9999'
-    ' ': ' '
-p2b:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
-  Categorías:
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '9': '9'
-    ' ': ' '
-p2c:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
-  Categorías:
-    '1': '1'
-    '2': '2'
-    '9': '9'
-    ' ': ' '
-p2d1:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
-  Categorías:
-    '1': '1'
-    ' ': ' '
-p2d2:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
-  Categorías:
-    '2': '2'
-    ' ': ' '
-p2d3:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
-  Categorías:
-    '3': '3'
-    ' ': ' '
-p2d4:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
-  Categorías:
-    '4': '4'
-    ' ': ' '
-p2d5:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
-  Categorías:
-    '5': '5'
-    ' ': ' '
-p2d6:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
-  Categorías:
-    '6': '6'
-    ' ': ' '
-p2d7:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
-  Categorías:
-    '7': '7'
-    ' ': ' '
-p2d8:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
-  Categorías:
-    '8': '8'
-    ' ': ' '
-p2d9:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
-  Categorías:
-    '9': '9'
-    ' ': ' '
-p2d10:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
-  Categorías:
-    '10': '10'
-    ' ': ' '
-p2d11:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
-  Categorías:
-    '11': '11'
-    ' ': ' '
-p2d99:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
-  Categorías:
-    '99': '99'
-    ' ': ' '
-p2e:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
-  Categorías:
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '5': '5'
-    '6': '6'
-    '9': '9'
-    ' ': ' '
-p2f:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
-  Categorías:
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '9': '9'
-    ' ': ' '
-p2g1:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
-  Categorías:
-    '1': '1'
-    '2': '2'
-    '9': '9'
-    ' ': ' '
-p2g2:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
-  Categorías:
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '5': '5'
-    '6': '6'
-    '7': '7'
-    '8': '8'
-    '9': '9'
-    '10': '10'
-    '11': '11'
-    '12': '12'
-    ' ': ' '
-p2h1:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
-  Categorías:
-    '1': '1'
-    ' ': ' '
-p2h2:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
-  Categorías:
-    '2': '2'
-    ' ': ' '
-p2h3:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
-  Categorías:
-    '3': '3'
-    ' ': ' '
-p2h4:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
-  Categorías:
-    '4': '4'
-    ' ': ' '
-p2h9:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
-  Categorías:
-    '9': '9'
-    ' ': ' '
-p2i:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
-  Categorías:
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '5': '5'
-    '6': '6'
-    '7': '7'
-    '8': '8'
-    '9': '9'
-    ' ': ' '
-p2j:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
-  Categorías:
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '5': '5'
-    '6': '6'
-    '7': '7'
-    '9': '9'
-    ' ': ' '
-p2k_anio:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
-  Categorías: {}
-p2k_mes:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
-  Categorías:
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '5': '5'
-    '6': '6'
-    '7': '7'
-    '8': '8'
-    '9': '9'
-    '10': '10'
-    '11': '11'
-    '12': '12'
-    '99': '99'
-    ' ': ' '
-p2k:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
-  Categorías:
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '9': '9'
-    ' ': ' '
-p3:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
-  Categorías: {}
-p3a:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
-  Categorías:
-    '1': '1'
-    '2': '2'
-    ' ': ' '
-p3b:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
-  Categorías:
-    '1': '1'
-    '2': '2'
-    ' ': ' '
-p3c1:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
-  Categorías:
-    '1': '1'
-    ' ': ' '
-p3c2:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
-  Categorías:
-    '2': '2'
-    ' ': ' '
-p3c3:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
-  Categorías:
-    '3': '3'
-    ' ': ' '
-p3c4:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
-  Categorías:
-    '4': '4'
-    ' ': ' '
-p3c9:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
-  Categorías:
-    '9': '9'
-    ' ': ' '
-p3d:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
-  Categorías:
-    '1': '1'
-    '2': '2'
-    '9': '9'
-    ' ': ' '
-p3e:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
-  Categorías:
-    '1': '1'
-    '2': '2'
-    ' ': ' '
-p3f1:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
-  Categorías:
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '9': '9'
-    ' ': ' '
-p3f2:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
-  Categorías:
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '5': '5'
-    '6': '6'
-    '7': '7'
-    '8': '8'
-    '10': '10'
-    '20': '20'
-    '25': '25'
-    ' ': ' '
-p3g1_1:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
-  Categorías:
-    '1': '1'
-    ' ': ' '
-p3g1_2:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
-  Categorías:
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '5': '5'
-    '6': '6'
-    '7': '7'
-    '8': '8'
-    '9': '9'
-    '10': '10'
-    '11': '11'
-    '12': '12'
-    '13': '13'
-    '14': '14'
-    '15': '15'
-    '16': '16'
-    '17': '17'
-    '18': '18'
-    '20': '20'
-    '21': '21'
-    '22': '22'
-    '25': '25'
-    '30': '30'
-    '40': '40'
-    '45': '45'
-    '50': '50'
-    '60': '60'
-    '70': '70'
-    '80': '80'
-    '100': '100'
-    '200': '200'
-    '260': '260'
-    '344': '344'
-    '999': '999'
-    ' ': ' '
-p3g2_1:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
-  Categorías:
-    '2': '2'
-    ' ': ' '
-p3g2_2:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
-  Categorías:
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '5': '5'
-    '6': '6'
-    '7': '7'
-    '8': '8'
-    '10': '10'
-    '12': '12'
-    '18': '18'
-    '35': '35'
-    '40': '40'
-    '109': '109'
-    '115': '115'
-    '999': '999'
-    ' ': ' '
-p3g3_1:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
-  Categorías:
-    '3': '3'
-    ' ': ' '
-p3g3_2:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
-  Categorías:
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '5': '5'
-    '6': '6'
-    '7': '7'
-    ' ': ' '
-p3g4_1:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
-  Categorías:
-    '4': '4'
-    ' ': ' '
-p3g4_2:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
-  Categorías:
-    '1': '1'
-    '2': '2'
-    '4': '4'
-    '5': '5'
-    '999': '999'
-    ' ': ' '
-p3g9:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
-  Categorías:
-    '9': '9'
-    ' ': ' '
-p3g_tot:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
-  Categorías:
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '5': '5'
-    '6': '6'
-    '7': '7'
-    '8': '8'
-    '9': '9'
-    '10': '10'
-    '11': '11'
-    '12': '12'
-    '13': '13'
-    '14': '14'
-    '15': '15'
-    '16': '16'
-    '17': '17'
-    '18': '18'
-    '19': '19'
-    '20': '20'
-    '21': '21'
-    '22': '22'
-    '23': '23'
-    '25': '25'
-    '27': '27'
-    '30': '30'
-    '31': '31'
     '32': '32'
+    '35': '35'
+    '36': '36'
     '40': '40'
-    '42': '42'
-    '43': '43'
-    '49': '49'
+    '48': '48'
     '50': '50'
+    '54': '54'
     '55': '55'
     '60': '60'
-    '73': '73'
+    '66': '66'
+    '70': '70'
+    '72': '72'
+    '75': '75'
     '80': '80'
-    '81': '81'
+    '90': '90'
+    '98': '98'
+    '99': '99'
     '100': '100'
-    '102': '102'
-    '165': '165'
-    '203': '203'
-    '262': '262'
-    '346': '346'
+    '110': '110'
+    '120': '120'
+    '145': '145'
+    '180': '180'
+    '198': '198'
+    '200': '200'
+    '286': '286'
+    '300': '300'
+    '400': '400'
+    '450': '450'
+    '500': '500'
+    '600': '600'
     '999': '999'
     ' ': ' '
-p3h:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
-  Categorías:
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    ' ': ' '
-p3i:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
-  Categorías:
-    '1': '1'
-    '2': '2'
-    '9': '9'
-    ' ': ' '
-p3j1:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
-  Categorías:
-    '1': '1'
-    '2': '2'
-    '9': '9'
-    ' ': ' '
-p3j2:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
-  Categorías:
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    ' ': ' '
-p3k1:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
-  Categorías:
-    '1': '1'
-    ' ': ' '
-p3k2:
+P3G2_1:
   Descripción: ''
   Tipo: ''
   Longitud: ''
   Categorías:
     '2': '2'
     ' ': ' '
-p3k3:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
-  Categorías:
-    '3': '3'
-    ' ': ' '
-p3k4:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
-  Categorías:
-    '4': '4'
-    ' ': ' '
-p3k5:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
-  Categorías:
-    '5': '5'
-    ' ': ' '
-p3k9:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
-  Categorías:
-    '9': '9'
-    ' ': ' '
-p3l:
+P3G2_2:
   Descripción: ''
   Tipo: ''
   Longitud: ''
@@ -995,29 +971,41 @@ p3l:
     '9': '9'
     '10': '10'
     '11': '11'
-    '99': '99'
+    '12': '12'
+    '13': '13'
+    '15': '15'
+    '16': '16'
+    '18': '18'
+    '20': '20'
+    '23': '23'
+    '24': '24'
+    '26': '26'
+    '30': '30'
+    '34': '34'
+    '39': '39'
+    '41': '41'
+    '42': '42'
+    '70': '70'
+    '88': '88'
+    '105': '105'
+    '110': '110'
+    '120': '120'
+    '140': '140'
+    '142': '142'
+    '150': '150'
+    '200': '200'
+    '220': '220'
+    '250': '250'
+    '999': '999'
     ' ': ' '
-p4:
+P3G3_1:
   Descripción: ''
   Tipo: ''
   Longitud: ''
   Categorías:
-    '1': '1'
-    '2': '2'
     '3': '3'
-    '4': '4'
-    '9': '9'
     ' ': ' '
-p4_1:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
-  Categorías:
-    '1': '1'
-    '2': '2'
-    '9': '9'
-    ' ': ' '
-p4_2:
+P3G3_2:
   Descripción: ''
   Tipo: ''
   Longitud: ''
@@ -1030,30 +1018,66 @@ p4_2:
     '6': '6'
     '7': '7'
     '8': '8'
-    '9': '9'
+    '10': '10'
+    '999': '999'
     ' ': ' '
-p4_3:
+P3G4_1:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '4': '4'
+    ' ': ' '
+P3G4_2:
   Descripción: ''
   Tipo: ''
   Longitud: ''
   Categorías:
     '1': '1'
-    '2': '2'
+    '3': '3'
+    '10': '10'
+    '999': '999'
     ' ': ' '
-p4a:
+P3G9:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '9': '9'
+    ' ': ' '
+P3G_TOT:
   Descripción: ''
   Tipo: ''
   Longitud: ''
   Categorías: {}
-p4a_1:
+P3H:
   Descripción: ''
   Tipo: ''
   Longitud: ''
   Categorías:
     '1': '1'
     '2': '2'
+    '3': '3'
     ' ': ' '
-p4b:
+P3I:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '1': '1'
+    '2': '2'
+    '9': '9'
+    ' ': ' '
+P3J1:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '1': '1'
+    '2': '2'
+    '9': '9'
+    ' ': ' '
+P3J2:
   Descripción: ''
   Tipo: ''
   Longitud: ''
@@ -1062,61 +1086,50 @@ p4b:
     '2': '2'
     '3': '3'
     '4': '4'
+    ' ': ' '
+P3K1:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '1': '1'
+    ' ': ' '
+P3K2:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '2': '2'
+    ' ': ' '
+P3K3:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '3': '3'
+    ' ': ' '
+P3K4:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '4': '4'
+    ' ': ' '
+P3K5:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
     '5': '5'
     ' ': ' '
-p4c:
+P3K9:
   Descripción: ''
   Tipo: ''
   Longitud: ''
   Categorías:
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    ' ': ' '
-p4d1:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
-  Categorías:
-    '1': '1'
-    '2': '2'
     '9': '9'
     ' ': ' '
-p4d2:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
-  Categorías:
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '5': '5'
-    '6': '6'
-    '7': '7'
-    '9': '9'
-    ' ': ' '
-p4d3:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
-  Categorías:
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    ' ': ' '
-p4e:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
-  Categorías:
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '9': '9'
-    ' ': ' '
-p4f:
+P3L:
   Descripción: ''
   Tipo: ''
   Longitud: ''
@@ -1134,7 +1147,7 @@ p4f:
     '11': '11'
     '99': '99'
     ' ': ' '
-p4g:
+P4:
   Descripción: ''
   Tipo: ''
   Longitud: ''
@@ -1145,7 +1158,144 @@ p4g:
     '4': '4'
     '9': '9'
     ' ': ' '
-p4h:
+P4_1:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '1': '1'
+    '2': '2'
+    '9': '9'
+    ' ': ' '
+P4_2:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '1': '1'
+    '2': '2'
+    '3': '3'
+    '4': '4'
+    '5': '5'
+    '6': '6'
+    '7': '7'
+    '8': '8'
+    '9': '9'
+    ' ': ' '
+P4_3:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '1': '1'
+    '2': '2'
+    ' ': ' '
+P4A:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+P4A_1:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '1': '1'
+    '2': '2'
+    ' ': ' '
+P4B:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '1': '1'
+    '2': '2'
+    '3': '3'
+    '4': '4'
+    '5': '5'
+    ' ': ' '
+P4C:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '1': '1'
+    '2': '2'
+    '3': '3'
+    ' ': ' '
+P4D1:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '1': '1'
+    '2': '2'
+    '9': '9'
+    ' ': ' '
+P4D2:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '1': '1'
+    '2': '2'
+    '3': '3'
+    '4': '4'
+    '5': '5'
+    '6': '6'
+    '7': '7'
+    '9': '9'
+    ' ': ' '
+P4D3:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '1': '1'
+    '2': '2'
+    '3': '3'
+    ' ': ' '
+P4E:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '1': '1'
+    '2': '2'
+    '3': '3'
+    '4': '4'
+    '9': '9'
+    ' ': ' '
+P4F:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '1': '1'
+    '2': '2'
+    '3': '3'
+    '4': '4'
+    '5': '5'
+    '6': '6'
+    '7': '7'
+    '8': '8'
+    '9': '9'
+    '10': '10'
+    '11': '11'
+    '99': '99'
+    ' ': ' '
+P4G:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '1': '1'
+    '2': '2'
+    '3': '3'
+    '4': '4'
+    '9': '9'
+    ' ': ' '
+P4H:
   Descripción: ''
   Tipo: ''
   Longitud: ''
@@ -1157,7 +1307,7 @@ p4h:
     '5': '5'
     '9': '9'
     ' ': ' '
-p4i:
+P4I:
   Descripción: ''
   Tipo: ''
   Longitud: ''
@@ -1168,7 +1318,7 @@ p4i:
     '4': '4'
     '9': '9'
     ' ': ' '
-p4i_1:
+P4I_1:
   Descripción: ''
   Tipo: ''
   Longitud: ''
@@ -1177,7 +1327,7 @@ p4i_1:
     '2': '2'
     '3': '3'
     ' ': ' '
-p5:
+P5:
   Descripción: ''
   Tipo: ''
   Longitud: ''
@@ -1187,7 +1337,7 @@ p5:
     '3': '3'
     '9': '9'
     ' ': ' '
-p5a:
+P5A:
   Descripción: ''
   Tipo: ''
   Longitud: ''
@@ -1200,7 +1350,7 @@ p5a:
     '6': '6'
     '9': '9'
     ' ': ' '
-p5b_hlu:
+P5B_HLU:
   Descripción: ''
   Tipo: ''
   Longitud: ''
@@ -1232,68 +1382,7 @@ p5b_hlu:
     '98': '98'
     '99': '99'
     ' ': ' '
-p5b_mlu:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
-  Categorías:
-    '0': '0'
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '5': '5'
-    '6': '6'
-    '7': '7'
-    '8': '8'
-    '9': '9'
-    '10': '10'
-    '11': '11'
-    '12': '12'
-    '14': '14'
-    '15': '15'
-    '17': '17'
-    '20': '20'
-    '22': '22'
-    '25': '25'
-    '30': '30'
-    '36': '36'
-    '37': '37'
-    '40': '40'
-    '45': '45'
-    '50': '50'
-    '56': '56'
-    ' ': ' '
-p5b_hma:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
-  Categorías:
-    '0': '0'
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '5': '5'
-    '6': '6'
-    '7': '7'
-    '8': '8'
-    '9': '9'
-    '10': '10'
-    '11': '11'
-    '12': '12'
-    '13': '13'
-    '14': '14'
-    '15': '15'
-    '16': '16'
-    '17': '17'
-    '18': '18'
-    '19': '19'
-    '20': '20'
-    '24': '24'
-    '98': '98'
-    '99': '99'
-    ' ': ' '
-p5b_mma:
+P5B_MLU:
   Descripción: ''
   Tipo: ''
   Longitud: ''
@@ -1312,80 +1401,23 @@ p5b_mma:
     '11': '11'
     '12': '12'
     '15': '15'
-    '17': '17'
-    '20': '20'
-    '22': '22'
-    '25': '25'
-    '30': '30'
-    '36': '36'
-    '37': '37'
-    '40': '40'
-    '45': '45'
-    '50': '50'
-    '56': '56'
-    ' ': ' '
-p5b_hmi:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
-  Categorías:
-    '0': '0'
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '5': '5'
-    '6': '6'
-    '7': '7'
-    '8': '8'
-    '9': '9'
-    '10': '10'
-    '11': '11'
-    '12': '12'
-    '13': '13'
-    '14': '14'
-    '15': '15'
-    '16': '16'
-    '17': '17'
-    '18': '18'
-    '19': '19'
     '20': '20'
     '21': '21'
-    '24': '24'
-    '98': '98'
-    '99': '99'
-    ' ': ' '
-p5b_mmi:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
-  Categorías:
-    '0': '0'
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '6': '6'
-    '7': '7'
-    '8': '8'
-    '9': '9'
-    '10': '10'
-    '11': '11'
-    '12': '12'
-    '15': '15'
-    '17': '17'
-    '20': '20'
-    '22': '22'
     '25': '25'
+    '26': '26'
     '30': '30'
     '33': '33'
+    '35': '35'
     '36': '36'
-    '37': '37'
+    '39': '39'
     '40': '40'
     '45': '45'
     '50': '50'
-    '56': '56'
+    '53': '53'
+    '54': '54'
+    '57': '57'
     ' ': ' '
-p5b_hju:
+P5B_HMA:
   Descripción: ''
   Tipo: ''
   Longitud: ''
@@ -1412,11 +1444,12 @@ p5b_hju:
     '19': '19'
     '20': '20'
     '21': '21'
+    '22': '22'
     '24': '24'
     '98': '98'
     '99': '99'
     ' ': ' '
-p5b_mju:
+P5B_MMA:
   Descripción: ''
   Tipo: ''
   Longitud: ''
@@ -1427,6 +1460,7 @@ p5b_mju:
     '3': '3'
     '5': '5'
     '6': '6'
+    '7': '7'
     '8': '8'
     '9': '9'
     '10': '10'
@@ -1435,18 +1469,23 @@ p5b_mju:
     '15': '15'
     '17': '17'
     '20': '20'
-    '23': '23'
+    '21': '21'
     '25': '25'
+    '26': '26'
     '30': '30'
-    '32': '32'
+    '33': '33'
+    '35': '35'
     '36': '36'
-    '37': '37'
+    '39': '39'
     '40': '40'
+    '42': '42'
     '45': '45'
+    '48': '48'
     '50': '50'
-    '56': '56'
+    '53': '53'
+    '54': '54'
     ' ': ' '
-p5b_hvi:
+P5B_HMI:
   Descripción: ''
   Tipo: ''
   Longitud: ''
@@ -1472,12 +1511,14 @@ p5b_hvi:
     '18': '18'
     '19': '19'
     '20': '20'
+    '21': '21'
+    '22': '22'
     '23': '23'
     '24': '24'
     '98': '98'
     '99': '99'
     ' ': ' '
-p5b_mvi:
+P5B_MMI:
   Descripción: ''
   Tipo: ''
   Longitud: ''
@@ -1486,6 +1527,8 @@ p5b_mvi:
     '1': '1'
     '2': '2'
     '3': '3'
+    '4': '4'
+    '5': '5'
     '6': '6'
     '7': '7'
     '8': '8'
@@ -1496,18 +1539,25 @@ p5b_mvi:
     '15': '15'
     '17': '17'
     '20': '20'
+    '21': '21'
     '25': '25'
+    '26': '26'
     '30': '30'
     '32': '32'
     '33': '33'
+    '35': '35'
     '36': '36'
-    '37': '37'
+    '39': '39'
     '40': '40'
+    '42': '42'
     '45': '45'
+    '48': '48'
     '50': '50'
-    '56': '56'
+    '53': '53'
+    '54': '54'
+    '59': '59'
     ' ': ' '
-p5b_hsa:
+P5B_HJU:
   Descripción: ''
   Tipo: ''
   Longitud: ''
@@ -1533,13 +1583,153 @@ p5b_hsa:
     '18': '18'
     '19': '19'
     '20': '20'
+    '21': '21'
+    '22': '22'
+    '24': '24'
+    '98': '98'
+    '99': '99'
+    ' ': ' '
+P5B_MJU:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '0': '0'
+    '1': '1'
+    '2': '2'
+    '3': '3'
+    '4': '4'
+    '5': '5'
+    '6': '6'
+    '7': '7'
+    '8': '8'
+    '9': '9'
+    '10': '10'
+    '11': '11'
+    '12': '12'
+    '15': '15'
+    '20': '20'
+    '21': '21'
+    '22': '22'
+    '25': '25'
+    '26': '26'
+    '30': '30'
+    '33': '33'
+    '35': '35'
+    '36': '36'
+    '39': '39'
+    '40': '40'
+    '42': '42'
+    '45': '45'
+    '48': '48'
+    '50': '50'
+    '52': '52'
+    '53': '53'
+    '54': '54'
+    ' ': ' '
+P5B_HVI:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '0': '0'
+    '1': '1'
+    '2': '2'
+    '3': '3'
+    '4': '4'
+    '5': '5'
+    '6': '6'
+    '7': '7'
+    '8': '8'
+    '9': '9'
+    '10': '10'
+    '11': '11'
+    '12': '12'
+    '13': '13'
+    '14': '14'
+    '15': '15'
+    '16': '16'
+    '17': '17'
+    '18': '18'
+    '19': '19'
+    '20': '20'
+    '21': '21'
+    '22': '22'
+    '24': '24'
+    '98': '98'
+    '99': '99'
+    ' ': ' '
+P5B_MVI:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '0': '0'
+    '1': '1'
+    '2': '2'
+    '3': '3'
+    '4': '4'
+    '5': '5'
+    '6': '6'
+    '7': '7'
+    '8': '8'
+    '9': '9'
+    '10': '10'
+    '11': '11'
+    '12': '12'
+    '15': '15'
+    '20': '20'
+    '21': '21'
+    '24': '24'
+    '25': '25'
+    '26': '26'
+    '30': '30'
+    '32': '32'
+    '35': '35'
+    '36': '36'
+    '39': '39'
+    '40': '40'
+    '42': '42'
+    '45': '45'
+    '48': '48'
+    '50': '50'
+    '53': '53'
+    '54': '54'
+    ' ': ' '
+P5B_HSA:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '0': '0'
+    '1': '1'
+    '2': '2'
+    '3': '3'
+    '4': '4'
+    '5': '5'
+    '6': '6'
+    '7': '7'
+    '8': '8'
+    '9': '9'
+    '10': '10'
+    '11': '11'
+    '12': '12'
+    '13': '13'
+    '14': '14'
+    '15': '15'
+    '16': '16'
+    '17': '17'
+    '18': '18'
+    '19': '19'
+    '20': '20'
+    '21': '21'
     '22': '22'
     '23': '23'
     '24': '24'
     '98': '98'
     '99': '99'
     ' ': ' '
-p5b_msa:
+P5B_MSA:
   Descripción: ''
   Tipo: ''
   Longitud: ''
@@ -1548,9 +1738,9 @@ p5b_msa:
     '1': '1'
     '2': '2'
     '3': '3'
-    '4': '4'
     '5': '5'
     '6': '6'
+    '7': '7'
     '8': '8'
     '9': '9'
     '10': '10'
@@ -1558,12 +1748,19 @@ p5b_msa:
     '12': '12'
     '15': '15'
     '20': '20'
+    '22': '22'
+    '25': '25'
     '30': '30'
+    '36': '36'
+    '39': '39'
     '40': '40'
+    '44': '44'
     '45': '45'
     '50': '50'
+    '54': '54'
+    '59': '59'
     ' ': ' '
-p5b_hdo:
+P5B_HDO:
   Descripción: ''
   Tipo: ''
   Longitud: ''
@@ -1595,7 +1792,7 @@ p5b_hdo:
     '98': '98'
     '99': '99'
     ' ': ' '
-p5b_mdo:
+P5B_MDO:
   Descripción: ''
   Tipo: ''
   Longitud: ''
@@ -1604,6 +1801,7 @@ p5b_mdo:
     '1': '1'
     '2': '2'
     '3': '3'
+    '5': '5'
     '6': '6'
     '8': '8'
     '9': '9'
@@ -1615,17 +1813,21 @@ p5b_mdo:
     '20': '20'
     '21': '21'
     '22': '22'
+    '24': '24'
+    '25': '25'
     '30': '30'
+    '36': '36'
+    '39': '39'
     '40': '40'
     '45': '45'
     '50': '50'
     ' ': ' '
-p5b_thrs:
+P5B_THRS:
   Descripción: ''
   Tipo: ''
   Longitud: ''
   Categorías: {}
-p5b_tdia:
+P5B_TDIA:
   Descripción: ''
   Tipo: ''
   Longitud: ''
@@ -1639,7 +1841,7 @@ p5b_tdia:
     '7': '7'
     '9': '9'
     ' ': ' '
-p5c:
+P5C:
   Descripción: ''
   Tipo: ''
   Longitud: ''
@@ -1648,7 +1850,7 @@ p5c:
     '2': '2'
     '9': '9'
     ' ': ' '
-p5d1:
+P5D1:
   Descripción: ''
   Tipo: ''
   Longitud: ''
@@ -1656,7 +1858,7 @@ p5d1:
     '1': '1'
     '2': '2'
     ' ': ' '
-p5d_hlu:
+P5D_HLU:
   Descripción: ''
   Tipo: ''
   Longitud: ''
@@ -1683,27 +1885,31 @@ p5d_hlu:
     '20': '20'
     '24': '24'
     '98': '98'
+    '99': '99'
     ' ': ' '
-p5d_mlu:
+P5D_MLU:
   Descripción: ''
   Tipo: ''
   Longitud: ''
   Categorías:
     '0': '0'
     '1': '1'
-    '2': '2'
+    '3': '3'
+    '5': '5'
     '6': '6'
-    '8': '8'
     '10': '10'
     '12': '12'
     '15': '15'
     '20': '20'
+    '25': '25'
     '30': '30'
+    '36': '36'
+    '39': '39'
     '40': '40'
     '45': '45'
     '50': '50'
     ' ': ' '
-p5d_hma:
+P5D_HMA:
   Descripción: ''
   Tipo: ''
   Longitud: ''
@@ -1727,29 +1933,36 @@ p5d_hma:
     '16': '16'
     '17': '17'
     '18': '18'
+    '19': '19'
     '20': '20'
     '24': '24'
     '98': '98'
+    '99': '99'
     ' ': ' '
-p5d_mma:
+P5D_MMA:
   Descripción: ''
   Tipo: ''
   Longitud: ''
   Categorías:
     '0': '0'
     '1': '1'
+    '5': '5'
     '6': '6'
     '8': '8'
     '10': '10'
+    '11': '11'
     '12': '12'
     '15': '15'
     '20': '20'
+    '25': '25'
     '30': '30'
+    '36': '36'
+    '39': '39'
     '40': '40'
     '45': '45'
     '50': '50'
     ' ': ' '
-p5d_hmi:
+P5D_HMI:
   Descripción: ''
   Tipo: ''
   Longitud: ''
@@ -1773,30 +1986,36 @@ p5d_hmi:
     '16': '16'
     '17': '17'
     '18': '18'
+    '19': '19'
     '20': '20'
     '24': '24'
     '98': '98'
+    '99': '99'
     ' ': ' '
-p5d_mmi:
+P5D_MMI:
   Descripción: ''
   Tipo: ''
   Longitud: ''
   Categorías:
     '0': '0'
     '1': '1'
-    '3': '3'
+    '5': '5'
     '6': '6'
     '8': '8'
     '10': '10'
     '12': '12'
     '15': '15'
     '20': '20'
+    '23': '23'
+    '25': '25'
     '30': '30'
+    '36': '36'
+    '39': '39'
     '40': '40'
     '45': '45'
     '50': '50'
     ' ': ' '
-p5d_hju:
+P5D_HJU:
   Descripción: ''
   Tipo: ''
   Longitud: ''
@@ -1820,29 +2039,38 @@ p5d_hju:
     '16': '16'
     '17': '17'
     '18': '18'
+    '19': '19'
     '20': '20'
     '24': '24'
     '98': '98'
+    '99': '99'
     ' ': ' '
-p5d_mju:
+P5D_MJU:
   Descripción: ''
   Tipo: ''
   Longitud: ''
   Categorías:
     '0': '0'
     '1': '1'
-    '6': '6'
+    '2': '2'
+    '3': '3'
+    '5': '5'
+    '7': '7'
     '8': '8'
+    '9': '9'
     '10': '10'
     '12': '12'
     '15': '15'
     '20': '20'
+    '25': '25'
     '30': '30'
+    '36': '36'
+    '39': '39'
     '40': '40'
     '45': '45'
     '50': '50'
     ' ': ' '
-p5d_hvi:
+P5D_HVI:
   Descripción: ''
   Tipo: ''
   Longitud: ''
@@ -1866,69 +2094,35 @@ p5d_hvi:
     '16': '16'
     '17': '17'
     '18': '18'
-    '20': '20'
+    '19': '19'
     '24': '24'
     '98': '98'
+    '99': '99'
     ' ': ' '
-p5d_mvi:
+P5D_MVI:
   Descripción: ''
   Tipo: ''
   Longitud: ''
   Categorías:
     '0': '0'
     '1': '1'
+    '5': '5'
     '6': '6'
     '8': '8'
+    '9': '9'
     '10': '10'
     '12': '12'
     '15': '15'
     '20': '20'
+    '25': '25'
     '30': '30'
+    '36': '36'
+    '39': '39'
     '40': '40'
     '45': '45'
     '50': '50'
     ' ': ' '
-p5d_hsa:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
-  Categorías:
-    '0': '0'
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '5': '5'
-    '6': '6'
-    '7': '7'
-    '8': '8'
-    '9': '9'
-    '10': '10'
-    '11': '11'
-    '12': '12'
-    '13': '13'
-    '14': '14'
-    '15': '15'
-    '16': '16'
-    '17': '17'
-    '18': '18'
-    '20': '20'
-    '24': '24'
-    '98': '98'
-    ' ': ' '
-p5d_msa:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
-  Categorías:
-    '0': '0'
-    '9': '9'
-    '12': '12'
-    '20': '20'
-    '30': '30'
-    '40': '40'
-    ' ': ' '
-p5d_hdo:
+P5D_HSA:
   Descripción: ''
   Tipo: ''
   Longitud: ''
@@ -1957,25 +2151,74 @@ p5d_hdo:
     '24': '24'
     '98': '98'
     ' ': ' '
-p5d_mdo:
+P5D_MSA:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '0': '0'
+    '2': '2'
+    '5': '5'
+    '10': '10'
+    '12': '12'
+    '15': '15'
+    '20': '20'
+    '30': '30'
+    '40': '40'
+    '45': '45'
+    '50': '50'
+    ' ': ' '
+P5D_HDO:
   Descripción: ''
   Tipo: ''
   Longitud: ''
   Categorías:
     '0': '0'
     '1': '1'
+    '2': '2'
+    '3': '3'
+    '4': '4'
     '5': '5'
+    '6': '6'
+    '7': '7'
+    '8': '8'
+    '9': '9'
+    '10': '10'
+    '11': '11'
+    '12': '12'
+    '13': '13'
+    '14': '14'
+    '15': '15'
+    '16': '16'
+    '17': '17'
+    '18': '18'
+    '19': '19'
+    '20': '20'
+    '24': '24'
+    '98': '98'
+    ' ': ' '
+P5D_MDO:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '0': '0'
+    '1': '1'
+    '2': '2'
+    '8': '8'
+    '10': '10'
+    '11': '11'
     '12': '12'
     '14': '14'
-    '20': '20'
+    '15': '15'
     '30': '30'
     ' ': ' '
-p5d_thrs:
+P5D_THRS:
   Descripción: ''
   Tipo: ''
   Longitud: ''
   Categorías: {}
-p5d_tdia:
+P5D_TDIA:
   Descripción: ''
   Tipo: ''
   Longitud: ''
@@ -1987,8 +2230,9 @@ p5d_tdia:
     '5': '5'
     '6': '6'
     '7': '7'
+    '9': '9'
     ' ': ' '
-p5e:
+P5E:
   Descripción: ''
   Tipo: ''
   Longitud: ''
@@ -2007,172 +2251,127 @@ p5e:
     '12': '12'
     '99': '99'
     ' ': ' '
-p5f1:
+P5F1:
   Descripción: ''
   Tipo: ''
   Longitud: ''
   Categorías:
     '1': '1'
     ' ': ' '
-p5f2:
+P5F2:
   Descripción: ''
   Tipo: ''
   Longitud: ''
   Categorías:
     '2': '2'
     ' ': ' '
-p5f3:
+P5F3:
   Descripción: ''
   Tipo: ''
   Longitud: ''
   Categorías:
     '3': '3'
     ' ': ' '
-p5f4:
+P5F4:
   Descripción: ''
   Tipo: ''
   Longitud: ''
   Categorías:
     '4': '4'
     ' ': ' '
-p5f5:
+P5F5:
   Descripción: ''
   Tipo: ''
   Longitud: ''
   Categorías:
     '5': '5'
     ' ': ' '
-p5f6:
+P5F6:
   Descripción: ''
   Tipo: ''
   Longitud: ''
   Categorías:
     '6': '6'
     ' ': ' '
-p5f7:
+P5F7:
   Descripción: ''
   Tipo: ''
   Longitud: ''
   Categorías:
     '7': '7'
     ' ': ' '
-p5f8:
+P5F8:
   Descripción: ''
   Tipo: ''
   Longitud: ''
   Categorías:
     '8': '8'
     ' ': ' '
-p5f9:
+P5F9:
   Descripción: ''
   Tipo: ''
   Longitud: ''
   Categorías:
     '9': '9'
     ' ': ' '
-p5f10:
+P5F10:
   Descripción: ''
   Tipo: ''
   Longitud: ''
   Categorías:
     '10': '10'
     ' ': ' '
-p5f11:
+P5F11:
   Descripción: ''
   Tipo: ''
   Longitud: ''
   Categorías:
     '11': '11'
     ' ': ' '
-p5f12:
+P5F12:
   Descripción: ''
   Tipo: ''
   Longitud: ''
   Categorías:
     '12': '12'
     ' ': ' '
-p5f13:
+P5F13:
   Descripción: ''
   Tipo: ''
   Longitud: ''
   Categorías:
     '13': '13'
     ' ': ' '
-p5f14:
+P5F14:
   Descripción: ''
   Tipo: ''
   Longitud: ''
   Categorías:
     '14': '14'
     ' ': ' '
-p5f15:
+P5F15:
   Descripción: ''
   Tipo: ''
   Longitud: ''
   Categorías:
     '15': '15'
     ' ': ' '
-p5f99:
+P5F99:
   Descripción: ''
   Tipo: ''
   Longitud: ''
   Categorías:
     '99': '99'
     ' ': ' '
-ur:
+UR:
   Descripción: ''
   Tipo: ''
   Longitud: ''
   Categorías:
     '1': '1'
     '2': '2'
-tipo:
-  Descripción: Tipo de muestra (presente desde 2020-T3)
-  Tipo: Carácter
-  Longitud: '1'
-  Categorías:
-    '1': ENOE
-    '2': ENOE-CATI
-mes_cal:
-  Descripción: Mes calendario — clasificación mensual del registro; base del ponderador
-    mensual FAC_MEN (presente desde 2020-T3). Los códigos de mes se emiten sin cero
-    a la izquierda en el CSV (1-12). Códigos especiales 96-99 por trimestre (Q1=96,
-    Q2=97, Q3=98, Q4=99) — registros sin mes calendario específico.
-  Tipo: Carácter
-  Longitud: '2'
-  Categorías:
-    '1': Enero
-    '2': Febrero
-    '3': Marzo
-    '4': Abril
-    '5': Mayo
-    '6': Junio
-    '7': Julio
-    '8': Agosto
-    '9': Septiembre
-    '10': Octubre
-    '11': Noviembre
-    '12': Diciembre
-    '96': Sin mes calendario específico (trimestre 1)
-    '97': Sin mes calendario específico (trimestre 2)
-    '98': Sin mes calendario específico (trimestre 3)
-    '99': Sin mes calendario específico (trimestre 4)
-ca:
+FAC:
   Descripción: ''
   Tipo: ''
   Longitud: ''
-  Categorías:
-    '1': '1'
-    '2': '2'
-fac_tri:
-  Descripción: Ponderador trimestral — permite obtener los resultados trimestrales
-    (desde 2020-T3)
-  Tipo: Numérico
-  Longitud: '6'
-  Categorías: {}
-fac_men:
-  Descripción: Ponderador mensual — resultados mensuales con base en el campo MES_CAL
-    (desde 2020-T3)
-  Tipo: Numérico
-  Longitud: '6'
   Categorías: {}
