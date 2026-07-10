@@ -1,0 +1,197 @@
+loc:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    ' ': ' '
+mun:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+est:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '10': '10'
+    '20': '20'
+    '30': '30'
+    '40': '40'
+est_d_tri:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+est_d_men:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+ageb:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '0': '0'
+t_loc_tri:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '0': '0'
+    '1': '1'
+    '2': '2'
+    '3': '3'
+    '4': '4'
+t_loc_men:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '1': '1'
+    '2': '2'
+    '3': '3'
+    '4': '4'
+    ' ': ' '
+cd_a:
+  Descripción: Ciudad autorrepresentada (agrupación de áreas de la muestra)
+  Tipo: Carácter
+  Longitud: '2'
+  Categorías: {}
+ent:
+  Descripción: Entidad federativa (01-32)
+  Tipo: Carácter
+  Longitud: '2'
+  Categorías: {}
+con:
+  Descripción: Número de control de la vivienda
+  Tipo: Carácter
+  Longitud: '5'
+  Categorías: {}
+upm:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+d_sem:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+n_pro_viv:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+v_sel:
+  Descripción: Vivienda seleccionada
+  Tipo: Carácter
+  Longitud: '2'
+  Categorías: {}
+n_ent:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '1': '1'
+    '2': '2'
+    '3': '3'
+    '4': '4'
+    '5': '5'
+per:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '123': '123'
+    '223': '223'
+    '321': '321'
+p1:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '1': '1'
+    '2': '2'
+    '3': '3'
+    '4': '4'
+    '5': '5'
+    '6': '6'
+    '7': '7'
+    '8': '8'
+    '9': '9'
+    '10': '10'
+    '11': '11'
+    '12': '12'
+    '13': '13'
+    '14': '14'
+    '15': '15'
+    '16': '16'
+    '17': '17'
+    '18': '18'
+    '19': '19'
+    '20': '20'
+    ' ': ' '
+p2:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '1': '1'
+    '2': '2'
+    ' ': ' '
+p3:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '2': '2'
+    '3': '3'
+    '4': '4'
+    '5': '5'
+    ' ': ' '
+ur:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '1': '1'
+    '2': '2'
+tipo:
+  Descripción: Tipo de muestra (presente desde 2020-T3)
+  Tipo: Carácter
+  Longitud: '1'
+  Categorías:
+    '1': ENOE
+    '2': ENOE-CATI
+mes_cal:
+  Descripción: Mes calendario — clasificación mensual del registro; base del ponderador
+    mensual FAC_MEN (presente desde 2020-T3). Códigos especiales 96-99 (no enumerados).
+  Tipo: Carácter
+  Longitud: '2'
+  Categorías:
+    '01': Enero
+    '02': Febrero
+    '03': Marzo
+    '04': Abril
+    '05': Mayo
+    '06': Junio
+    '07': Julio
+    08: Agosto
+    09: Septiembre
+    '10': Octubre
+    '11': Noviembre
+    '12': Diciembre
+fac_tri:
+  Descripción: Ponderador trimestral — permite obtener los resultados trimestrales
+    (desde 2020-T3)
+  Tipo: Numérico
+  Longitud: '6'
+  Categorías: {}
+fac_men:
+  Descripción: Ponderador mensual — resultados mensuales con base en el campo MES_CAL
+    (desde 2020-T3)
+  Tipo: Numérico
+  Longitud: '6'
+  Categorías: {}

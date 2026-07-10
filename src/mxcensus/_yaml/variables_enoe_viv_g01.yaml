@@ -1,0 +1,167 @@
+loc:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    ' ': ' '
+mun:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+est:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '10': '10'
+    '11': '11'
+    '12': '12'
+    '13': '13'
+    '14': '14'
+    '20': '20'
+    '21': '21'
+    '22': '22'
+    '23': '23'
+    '24': '24'
+    '30': '30'
+    '31': '31'
+    '32': '32'
+    '33': '33'
+    '40': '40'
+    '41': '41'
+    '42': '42'
+    '43': '43'
+est_d:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+ageb:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '0': '0'
+t_loc:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '1': '1'
+    '2': '2'
+    '3': '3'
+    '4': '4'
+cd_a:
+  Descripción: Ciudad autorrepresentada (agrupación de áreas de la muestra)
+  Tipo: Carácter
+  Longitud: '2'
+  Categorías: {}
+ent:
+  Descripción: Entidad federativa (01-32)
+  Tipo: Carácter
+  Longitud: '2'
+  Categorías: {}
+con:
+  Descripción: Número de control de la vivienda
+  Tipo: Carácter
+  Longitud: '5'
+  Categorías: {}
+upm:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+d_sem:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+n_pro_viv:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+v_sel:
+  Descripción: Vivienda seleccionada
+  Tipo: Carácter
+  Longitud: '2'
+  Categorías: {}
+n_ent:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '1': '1'
+    '2': '2'
+    '3': '3'
+    '4': '4'
+    '5': '5'
+per:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '105': '105'
+    '119': '119'
+    '219': '219'
+p1:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '1': '1'
+    '2': '2'
+    '3': '3'
+    '4': '4'
+    '5': '5'
+    '6': '6'
+    '7': '7'
+    '8': '8'
+    '9': '9'
+    '10': '10'
+    '11': '11'
+    '12': '12'
+    '13': '13'
+    '14': '14'
+    '15': '15'
+    '16': '16'
+    '17': '17'
+    '18': '18'
+    '19': '19'
+    '20': '20'
+    '21': '21'
+    '22': '22'
+    '29': '29'
+    ' ': ' '
+p2:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '1': '1'
+    '2': '2'
+    ' ': ' '
+p3:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '2': '2'
+    '3': '3'
+    '4': '4'
+    '5': '5'
+    '6': '6'
+    ' ': ' '
+ur:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '1': '1'
+    '2': '2'
+fac:
+  Descripción: Factor de expansión (ponderador; ediciones anteriores a 2020-T3)
+  Tipo: Numérico
+  Longitud: '6'
+  Categorías: {}

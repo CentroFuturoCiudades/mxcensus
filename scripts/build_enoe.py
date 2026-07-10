@@ -12,9 +12,10 @@ table, reads it robustly (faithful raw, ``dtype=str``), and writes one parquet p
 (table, quarter): ``enoe_{table}_{period}.parquet`` (e.g. ``enoe_sdem_2023t1.parquet``).
 No geometry — ENOE has no coordinates — so conversion is a plain zstd ``to_parquet``.
 
-Variable dictionaries, validation schemas and the registry append are added in later work
-units (mirroring the ``build_denue.py`` machinery). Schema fingerprinting/grouping and the
-inconsistency report are the ``--schema-map`` / ``--report-only`` modes below.
+Validation schemas and the registry append are added in later work units (mirroring the
+``build_denue.py`` machinery). Schema fingerprinting/grouping, the inconsistency report and
+the variable dictionaries are the ``--schema-map`` / ``--report-only`` / ``--variables``
+modes below.
 
 Dry run (preview one quarter's plan, no download):
     uv run python scripts/build_enoe.py --dry-run --periods 2023t1
@@ -22,9 +23,10 @@ Dry run (preview one quarter's plan, no download):
 Real build (one quarter, all five tables):
     uv run python scripts/build_enoe.py --periods 2023t1
 
-Schema map + inconsistency report (from parquet already on disk, no download):
-    uv run python scripts/build_enoe.py --schema-map     # → src/mxcensus/_yaml/enoe_schema_map.yaml
-    uv run python scripts/build_enoe.py --report-only    # → docs/enoe/INCONSISTENCY_REPORT.md
+Metadata modes (from parquet already on disk, no download):
+    uv run python scripts/build_enoe.py --schema-map   # → src/mxcensus/_yaml/enoe_schema_map.yaml
+    uv run python scripts/build_enoe.py --report-only  # → docs/enoe/INCONSISTENCY_REPORT.md
+    uv run python scripts/build_enoe.py --variables    # → src/mxcensus/_yaml/variables_enoe_{table}_{gNN}.yaml
 """
 from __future__ import annotations
 
@@ -57,6 +59,8 @@ _DEFAULT_RAW = _REPO_ROOT / "data" / "raw"
 _DEFAULT_CACHE = _REPO_ROOT / "data" / "cache"
 _DEFAULT_SCHEMA_MAP = _REPO_ROOT / "src" / "mxcensus" / "_yaml" / "enoe_schema_map.yaml"
 _DEFAULT_REPORT = _REPO_ROOT / "docs" / "enoe" / "INCONSISTENCY_REPORT.md"
+_DEFAULT_YAML_DIR = _DEFAULT_SCHEMA_MAP.parent
+_CORE_PATH = _DEFAULT_YAML_DIR / "variables_enoe_core.yaml"
 
 
 # --- CSV reading (copied verbatim from build_denue.py; see its docstrings) ------------
@@ -325,6 +329,82 @@ def _write_report(out_dir: Path, report_path: Path) -> dict:
     return doc
 
 
+# --- variable dictionaries (data-derived categories + hand-curated core descriptions) --
+
+def _code_sort_key(v: str):
+    """Sort category keys numerically when they look like codes, else lexically."""
+    s = v.lstrip("-")
+    return (0, int(v)) if s.isdigit() else (1, v)
+
+
+def _build_categories(paths: list[Path], threshold: int) -> dict:
+    """`{column: {value: value}}` for a group — distinct values enumerated across its files.
+
+    A column with more than ``threshold`` distinct values is dropped (high-cardinality /
+    continuous / free-text — e.g. weights, ids, the ``*_des`` open-text fields), so what
+    remains is the genuinely categorical columns. Data is the only source (ENOE ZIPs bundle
+    no dictionary); values map to themselves.
+    """
+    if not paths:
+        return {}
+    cols = list(pq.ParquetFile(paths[0]).schema_arrow.names)
+    seen: dict[str, set | None] = {c: set() for c in cols}
+    alive = set(cols)
+    for p in paths:
+        present = [c for c in alive if c in pq.ParquetFile(p).schema_arrow.names]
+        df = pd.read_parquet(p, columns=present)
+        for c in present:
+            seen[c].update(str(v) for v in df[c].dropna().unique())
+            if len(seen[c]) > threshold:
+                alive.discard(c)
+                seen[c] = None  # high-cardinality → not a category column
+    return {c: {v: v for v in sorted(seen[c], key=_code_sort_key)}
+            for c in cols if seen[c] is not None}
+
+
+def _write_variables_yaml(out_dir: Path, map_path: Path, yaml_dir: Path,
+                          threshold: int = 64) -> int:
+    """Write one variables_enoe_{table}_{gNN}.yaml per (table, schema group).
+
+    Categorías are data-derived (distinct values ≤ threshold). Descripción/Tipo/Longitud
+    are filled from the hand-curated ``variables_enoe_core.yaml`` for the ~24 analytical-core
+    variables and left blank otherwise (ENOE ZIPs carry no per-file dictionary). Returns the
+    number of files written.
+    """
+    schema_map = yaml.safe_load(map_path.read_text(encoding="utf-8"))
+    core = yaml.safe_load(_CORE_PATH.read_text(encoding="utf-8")) if _CORE_PATH.exists() else {}
+    yaml_dir.mkdir(parents=True, exist_ok=True)
+    n = 0
+    for table, td in schema_map.items():
+        for gid, g in td["groups"].items():
+            paths = [out_dir / f"enoe_{table}_{p}.parquet" for p in g["periods"]]
+            paths = [p for p in paths if p.exists()]
+            cats = _build_categories(paths, threshold)
+            doc = {}
+            for col in g["columns"]:
+                if col in core:
+                    # Analytical-core var: take the hand-curated entry verbatim — its
+                    # categories are the complete, FD-sourced, labelled value-set, so the
+                    # isin check stays robust despite a partial build and flags out-of-
+                    # catalog anomalies (mirrors DENUE labelling coded fields from its catalog).
+                    m = core[col]
+                    doc[col] = {
+                        "Descripción": m.get("Descripción", ""),
+                        "Tipo": m.get("Tipo", ""),
+                        "Longitud": m.get("Longitud", ""),
+                        "Categorías": m.get("Categorías", {}),
+                    }
+                else:
+                    doc[col] = {"Descripción": "", "Tipo": "", "Longitud": "",
+                                "Categorías": cats.get(col, {})}
+            path = yaml_dir / f"variables_enoe_{table}_{gid}.yaml"
+            with open(path, "w", encoding="utf-8") as f:
+                yaml.safe_dump(doc, f, sort_keys=False, allow_unicode=True,
+                               default_flow_style=False)
+            n += 1
+    return n
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(
         description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter
@@ -346,6 +426,11 @@ def main() -> None:
     parser.add_argument("--report-only", action="store_true",
                         help="Skip downloading; (re)write the inconsistency report from parquet on disk")
     parser.add_argument("--report", type=Path, default=_DEFAULT_REPORT, metavar="FILE")
+    parser.add_argument("--variables", action="store_true",
+                        help="Skip downloading; write per-group variables_enoe_{table}_{gNN}.yaml")
+    parser.add_argument("--cat-threshold", type=int, default=64, metavar="N",
+                        help="Max distinct values for a column to be enumerated as a category")
+    parser.add_argument("--yaml-dir", type=Path, default=_DEFAULT_YAML_DIR, metavar="DIR")
     parser.add_argument("--dry-run", action="store_true",
                         help="Print the planned (quarter, table) → file plan; no download")
     parser.set_defaults(cleanup_raw=True)
@@ -370,6 +455,12 @@ def main() -> None:
     if args.report_only:
         doc = _write_report(args.output, args.report)
         print(f"Report → {args.report}  ({len(doc)} table(s))")
+        return
+
+    if args.variables:
+        n = _write_variables_yaml(args.output, args.schema_map_path, args.yaml_dir,
+                                  args.cat_threshold)
+        print(f"Wrote {n} variables_enoe_<table>_<gNN>.yaml → {args.yaml_dir}")
         return
 
     quarters = [QUARTERS_BY_PERIOD[p] for p in args.periods]

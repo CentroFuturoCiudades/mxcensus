@@ -1,0 +1,1215 @@
+r_def:
+  Descripción: Resultado definitivo de la entrevista (filtro analítico R_DEF == '00');
+    códigos 00-15, etiquetas en la tabla de vivienda/hogar
+  Tipo: Carácter
+  Longitud: '2'
+  Categorías: {}
+loc:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    ' ': ' '
+mun:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+est:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '10': '10'
+    '20': '20'
+    '30': '30'
+    '40': '40'
+est_d_tri:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+est_d_men:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+ageb:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '0': '0'
+t_loc_tri:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '1': '1'
+    '2': '2'
+    '3': '3'
+    '4': '4'
+t_loc_men:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '1': '1'
+    '2': '2'
+    '3': '3'
+    '4': '4'
+    ' ': ' '
+cd_a:
+  Descripción: Ciudad autorrepresentada (agrupación de áreas de la muestra)
+  Tipo: Carácter
+  Longitud: '2'
+  Categorías: {}
+ent:
+  Descripción: Entidad federativa (01-32)
+  Tipo: Carácter
+  Longitud: '2'
+  Categorías: {}
+con:
+  Descripción: Número de control de la vivienda
+  Tipo: Carácter
+  Longitud: '5'
+  Categorías: {}
+upm:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+d_sem:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+n_pro_viv:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+v_sel:
+  Descripción: Vivienda seleccionada
+  Tipo: Carácter
+  Longitud: '2'
+  Categorías: {}
+n_hog:
+  Descripción: Número de hogar
+  Tipo: Carácter
+  Longitud: '1'
+  Categorías: {}
+h_mud:
+  Descripción: Hogar mudado (número de veces que el hogar se ha mudado)
+  Tipo: Carácter
+  Longitud: '1'
+  Categorías: {}
+n_ent:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '1': '1'
+    '2': '2'
+    '3': '3'
+    '4': '4'
+    '5': '5'
+    '6': '6'
+    '7': '7'
+    '8': '8'
+    '9': '9'
+    '10': '10'
+    '11': '11'
+per:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '320': '320'
+n_ren:
+  Descripción: Número de renglón del integrante del hogar
+  Tipo: Carácter
+  Longitud: '2'
+  Categorías: {}
+c_res:
+  Descripción: Condición de residencia (filtro analítico C_RES in {1, 3})
+  Tipo: Carácter
+  Longitud: '1'
+  Categorías:
+    '1': Residente habitual
+    '2': Ausente definitivo
+    '3': Nuevo residente
+par_c:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '101': '101'
+    '201': '201'
+    '202': '202'
+    '301': '301'
+    '302': '302'
+    '303': '303'
+    '401': '401'
+    '402': '402'
+    '403': '403'
+    '404': '404'
+    '406': '406'
+    '409': '409'
+    '410': '410'
+    '412': '412'
+    '413': '413'
+    '414': '414'
+    '415': '415'
+    '416': '416'
+    '417': '417'
+    '418': '418'
+    '419': '419'
+    '420': '420'
+    '421': '421'
+    '422': '422'
+    '423': '423'
+    '501': '501'
+    '601': '601'
+    '612': '612'
+    '701': '701'
+    ' ': ' '
+sex:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '1': '1'
+    '2': '2'
+    ' ': ' '
+eda:
+  Descripción: Edad en años cumplidos (filtro analítico EDA in [15, 98]). Códigos
+    especiales — 00 menores de 1 año, 97 = 97 años y más, 98 = no especificada (12
+    años y más), 99 = no especificada (menores de 0 a 11 años)
+  Tipo: Carácter
+  Longitud: '2'
+  Categorías: {}
+nac_dia:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '1': '1'
+    '2': '2'
+    '3': '3'
+    '4': '4'
+    '5': '5'
+    '6': '6'
+    '7': '7'
+    '8': '8'
+    '9': '9'
+    '10': '10'
+    '11': '11'
+    '12': '12'
+    '13': '13'
+    '14': '14'
+    '15': '15'
+    '16': '16'
+    '17': '17'
+    '18': '18'
+    '19': '19'
+    '20': '20'
+    '21': '21'
+    '22': '22'
+    '23': '23'
+    '24': '24'
+    '25': '25'
+    '26': '26'
+    '27': '27'
+    '28': '28'
+    '29': '29'
+    '30': '30'
+    '31': '31'
+    '99': '99'
+    ' ': ' '
+nac_mes:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '1': '1'
+    '2': '2'
+    '3': '3'
+    '4': '4'
+    '5': '5'
+    '6': '6'
+    '7': '7'
+    '8': '8'
+    '9': '9'
+    '10': '10'
+    '11': '11'
+    '12': '12'
+    '99': '99'
+    ' ': ' '
+nac_anio:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+l_nac_c:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '1': '1'
+    '2': '2'
+    '3': '3'
+    '4': '4'
+    '5': '5'
+    '6': '6'
+    '7': '7'
+    '8': '8'
+    '9': '9'
+    '10': '10'
+    '11': '11'
+    '12': '12'
+    '13': '13'
+    '14': '14'
+    '15': '15'
+    '16': '16'
+    '17': '17'
+    '18': '18'
+    '19': '19'
+    '20': '20'
+    '21': '21'
+    '22': '22'
+    '23': '23'
+    '24': '24'
+    '25': '25'
+    '26': '26'
+    '27': '27'
+    '28': '28'
+    '29': '29'
+    '30': '30'
+    '31': '31'
+    '32': '32'
+    '33': '33'
+    '100': '100'
+    '200': '200'
+    '221': '221'
+    '225': '225'
+    '300': '300'
+    '400': '400'
+    '415': '415'
+    '600': '600'
+    ' ': ' '
+cs_p12:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '1': '1'
+    '2': '2'
+    '9': '9'
+    ' ': ' '
+cs_p13_1:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '0': '0'
+    '1': '1'
+    '2': '2'
+    '3': '3'
+    '4': '4'
+    '5': '5'
+    '6': '6'
+    '7': '7'
+    '8': '8'
+    '9': '9'
+    '99': '99'
+    ' ': ' '
+cs_p13_2:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '0': '0'
+    '1': '1'
+    '2': '2'
+    '3': '3'
+    '4': '4'
+    '5': '5'
+    '6': '6'
+    '7': '7'
+    '8': '8'
+    '9': '9'
+    ' ': ' '
+cs_p14_c:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+cs_p15:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '1': '1'
+    '2': '2'
+    '3': '3'
+    '9': '9'
+    ' ': ' '
+cs_p16:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '1': '1'
+    '2': '2'
+    '9': '9'
+    ' ': ' '
+cs_p17:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '1': '1'
+    '2': '2'
+    '9': '9'
+    ' ': ' '
+n_hij:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '0': '0'
+    '1': '1'
+    '2': '2'
+    '3': '3'
+    '4': '4'
+    '5': '5'
+    '6': '6'
+    '7': '7'
+    '8': '8'
+    '9': '9'
+    '10': '10'
+    '11': '11'
+    '12': '12'
+    '13': '13'
+    '14': '14'
+    '15': '15'
+    '16': '16'
+    '17': '17'
+    '18': '18'
+    '19': '19'
+    '20': '20'
+    '25': '25'
+    '99': '99'
+    ' ': ' '
+e_con:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '1': '1'
+    '2': '2'
+    '3': '3'
+    '4': '4'
+    '5': '5'
+    '6': '6'
+    '9': '9'
+    ' ': ' '
+cs_ad_mot:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '1': '1'
+    '2': '2'
+    '3': '3'
+    '4': '4'
+    '5': '5'
+    '6': '6'
+    '7': '7'
+    '8': '8'
+    '9': '9'
+    '10': '10'
+    '99': '99'
+    ' ': ' '
+cs_p20_des:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+cs_ad_des:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '1': '1'
+    '2': '2'
+    '3': '3'
+    '9': '9'
+    ' ': ' '
+cs_nr_mot:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '1': '1'
+    '2': '2'
+    '3': '3'
+    '4': '4'
+    '5': '5'
+    '6': '6'
+    '7': '7'
+    '8': '8'
+    '9': '9'
+    '10': '10'
+    '99': '99'
+    ' ': ' '
+cs_p22_des:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+cs_nr_ori:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '1': '1'
+    '2': '2'
+    '3': '3'
+    '9': '9'
+    ' ': ' '
+ur:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '1': '1'
+    '2': '2'
+zona:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '1': '1'
+    '2': '2'
+salario:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '3697': '3697'
+    '5567': '5567'
+fac_tri:
+  Descripción: Ponderador trimestral — permite obtener los resultados trimestrales
+    (desde 2020-T3)
+  Tipo: Numérico
+  Longitud: '6'
+  Categorías: {}
+fac_men:
+  Descripción: Ponderador mensual — resultados mensuales con base en el campo MES_CAL
+    (desde 2020-T3)
+  Tipo: Numérico
+  Longitud: '6'
+  Categorías: {}
+clase1:
+  Descripción: Clasificación de la población en PEA y PNEA
+  Tipo: Numérico
+  Longitud: '1'
+  Categorías:
+    '0': No aplica (fuera del universo analítico)
+    '1': Población económicamente activa (PEA)
+    '2': Población no económicamente activa (PNEA)
+clase2:
+  Descripción: Clasificación de la población ocupada y desocupada; disponible y no
+    disponible
+  Tipo: Numérico
+  Longitud: '1'
+  Categorías:
+    '0': No aplica (fuera del universo analítico)
+    '1': Población ocupada
+    '2': Población desocupada
+    '3': Disponible
+    '4': No disponible
+clase3:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '0': '0'
+    '1': '1'
+    '2': '2'
+    '3': '3'
+    '4': '4'
+    '5': '5'
+    '6': '6'
+    '7': '7'
+pos_ocu:
+  Descripción: Clasificación de la población ocupada por posición en la ocupación
+  Tipo: Numérico
+  Longitud: '1'
+  Categorías:
+    '0': No aplica (fuera del universo analítico)
+    '1': Trabajadores subordinados y remunerados
+    '2': Empleadores
+    '3': Trabajadores por cuenta propia
+    '4': Trabajadores sin pago
+    '5': No especificado
+seg_soc:
+  Descripción: Clasificación de la población ocupada por condición de acceso a instituciones
+    de salud
+  Tipo: Numérico
+  Longitud: '1'
+  Categorías:
+    '0': No aplica (fuera del universo analítico)
+    '1': Con acceso
+    '2': Sin acceso
+    '3': No especificado
+rama:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '0': '0'
+    '1': '1'
+    '2': '2'
+    '3': '3'
+    '4': '4'
+    '5': '5'
+    '6': '6'
+    '7': '7'
+c_ocu11c:
+  Descripción: Clasificación de la población ocupada por condición de ocupación
+  Tipo: Numérico
+  Longitud: '2'
+  Categorías:
+    '0': No aplica (fuera del universo analítico)
+    '1': Profesionales, técnicos y trabajadores del arte
+    '2': Trabajadores de la educación
+    '3': Funcionarios y directivos
+    '4': Oficinistas
+    '5': Trabajadores industriales, artesanos y ayudantes
+    '6': Comerciantes
+    '7': Operadores de transporte
+    '8': Trabajadores en servicios personales
+    '9': Trabajadores en protección y vigilancia
+    '10': Trabajadores agropecuarios
+    '11': No especificado
+ing7c:
+  Descripción: Clasificación de la población ocupada por nivel de ingreso
+  Tipo: Numérico
+  Longitud: '1'
+  Categorías:
+    '0': No aplica (fuera del universo analítico)
+    '1': Hasta un salario mínimo
+    '2': Más de 1 hasta 2 salarios mínimos
+    '3': Más de 2 hasta 3 salarios mínimos
+    '4': Más de 3 hasta 5 salarios mínimos
+    '5': Más de 5 salarios mínimos
+    '6': No recibe ingresos
+    '7': No especificado
+dur9c:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '0': '0'
+    '1': '1'
+    '2': '2'
+    '3': '3'
+    '4': '4'
+    '5': '5'
+    '6': '6'
+    '7': '7'
+    '8': '8'
+    '9': '9'
+emple7c:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '0': '0'
+    '1': '1'
+    '2': '2'
+    '3': '3'
+    '4': '4'
+    '5': '5'
+    '6': '6'
+    '7': '7'
+medica5c:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '0': '0'
+    '1': '1'
+    '2': '2'
+    '3': '3'
+    '4': '4'
+    '5': '5'
+buscar5c:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '0': '0'
+    '1': '1'
+    '2': '2'
+    '3': '3'
+    '4': '4'
+    '5': '5'
+rama_est1:
+  Descripción: Clasificación de la población ocupada según sector de actividad (totales)
+  Tipo: Numérico
+  Longitud: '1'
+  Categorías:
+    '0': No aplica (fuera del universo analítico)
+    '1': Primario
+    '2': Secundario
+    '3': Terciario
+    '4': No especificado
+rama_est2:
+  Descripción: Clasificación de la población ocupada según sector de actividad (subtotales)
+  Tipo: Numérico
+  Longitud: '2'
+  Categorías:
+    '0': No aplica (fuera del universo analítico)
+    '1': Agricultura, ganadería, silvicultura, caza y pesca
+    '2': Industria extractiva y de la electricidad
+    '3': Industria manufacturera
+    '4': Construcción
+    '5': Comercio
+    '6': Restaurantes y servicios de alojamiento
+    '7': Transportes, comunicaciones, correo y almacenamiento
+    '8': Servicios profesionales, financieros y corporativos
+    '9': Servicios sociales
+    '10': Servicios diversos
+    '11': Gobierno y organismos internacionales
+dur_est:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '0': '0'
+    '1': '1'
+    '2': '2'
+    '3': '3'
+    '4': '4'
+    '5': '5'
+    '6': '6'
+ambito1:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '0': '0'
+    '1': '1'
+    '2': '2'
+    '3': '3'
+ambito2:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '0': '0'
+    '2': '2'
+    '3': '3'
+    '4': '4'
+    '5': '5'
+    '6': '6'
+    '7': '7'
+    '8': '8'
+tue1:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '0': '0'
+    '1': '1'
+    '2': '2'
+    '3': '3'
+    '4': '4'
+tue2:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '0': '0'
+    '1': '1'
+    '2': '2'
+    '3': '3'
+    '4': '4'
+    '5': '5'
+    '6': '6'
+    '7': '7'
+tue3:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '0': '0'
+    '1': '1'
+    '2': '2'
+busqueda:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '0': '0'
+    '1': '1'
+    '2': '2'
+d_ant_lab:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '0': '0'
+    '1': '1'
+    '2': '2'
+d_cexp_est:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '0': '0'
+    '1': '1'
+    '2': '2'
+    '3': '3'
+    '4': '4'
+dur_des:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '0': '0'
+    '1': '1'
+    '2': '2'
+    '3': '3'
+    '4': '4'
+    '5': '5'
+    '6': '6'
+sub_o:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '0': '0'
+    '1': '1'
+s_clasifi:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '0': '0'
+    '1': '1'
+    '2': '2'
+    '3': '3'
+    '4': '4'
+    '5': '5'
+    '6': '6'
+remune2c:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '0': '0'
+    '1': '1'
+    '2': '2'
+pre_asa:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '0': '0'
+    '1': '1'
+    '2': '2'
+    '3': '3'
+tip_con:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '0': '0'
+    '2': '2'
+    '3': '3'
+    '4': '4'
+    '5': '5'
+    '6': '6'
+dispo:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '0': '0'
+    '1': '1'
+    '2': '2'
+    '4': '4'
+    '5': '5'
+    '6': '6'
+    '7': '7'
+nodispo:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '0': '0'
+    '1': '1'
+    '2': '2'
+    '3': '3'
+    '4': '4'
+    '5': '5'
+    '8': '8'
+    '9': '9'
+c_inac5c:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '0': '0'
+    '1': '1'
+    '2': '2'
+    '3': '3'
+    '4': '4'
+    '5': '5'
+pnea_est:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '0': '0'
+    '1': '1'
+    '2': '2'
+    '3': '3'
+    '4': '4'
+    '5': '5'
+    '6': '6'
+niv_ins:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '0': '0'
+    '1': '1'
+    '2': '2'
+    '3': '3'
+    '4': '4'
+    '5': '5'
+eda5c:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '0': '0'
+    '1': '1'
+    '2': '2'
+    '3': '3'
+    '4': '4'
+    '5': '5'
+eda7c:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '0': '0'
+    '1': '1'
+    '2': '2'
+    '3': '3'
+    '4': '4'
+    '5': '5'
+    '6': '6'
+    '7': '7'
+eda12c:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '0': '0'
+    '1': '1'
+    '2': '2'
+    '3': '3'
+    '4': '4'
+    '5': '5'
+    '6': '6'
+    '7': '7'
+    '8': '8'
+    '9': '9'
+    '10': '10'
+    '11': '11'
+    '12': '12'
+eda19c:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '0': '0'
+    '1': '1'
+    '2': '2'
+    '3': '3'
+    '4': '4'
+    '5': '5'
+    '6': '6'
+    '7': '7'
+    '8': '8'
+    '9': '9'
+    '10': '10'
+    '11': '11'
+    '12': '12'
+    '13': '13'
+    '14': '14'
+    '15': '15'
+    '16': '16'
+    '17': '17'
+    '18': '18'
+    '19': '19'
+hij5c:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '0': '0'
+    '1': '1'
+    '2': '2'
+    '3': '3'
+    '4': '4'
+    '5': '5'
+domestico:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '0': '0'
+    '1': '1'
+    '2': '2'
+    '3': '3'
+    '4': '4'
+    '5': '5'
+    '6': '6'
+    '7': '7'
+    '8': '8'
+    '9': '9'
+    '10': '10'
+anios_esc:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '0': '0'
+    '1': '1'
+    '2': '2'
+    '3': '3'
+    '4': '4'
+    '5': '5'
+    '6': '6'
+    '7': '7'
+    '8': '8'
+    '9': '9'
+    '10': '10'
+    '11': '11'
+    '12': '12'
+    '13': '13'
+    '14': '14'
+    '15': '15'
+    '16': '16'
+    '17': '17'
+    '18': '18'
+    '19': '19'
+    '20': '20'
+    '21': '21'
+    '22': '22'
+    '23': '23'
+    '24': '24'
+    '99': '99'
+hrsocup:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+ingocup:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+ing_x_hrs:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+tpg_p8a:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '0': '0'
+    '1': '1'
+tcco:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '0': '0'
+    '1': '1'
+    '2': '2'
+    '3': '3'
+cp_anoc:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '0': '0'
+    '1': '1'
+imssissste:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '0': '0'
+    '1': '1'
+    '2': '2'
+    '3': '3'
+    '4': '4'
+    '5': '5'
+ma48me1sm:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '0': '0'
+    '1': '1'
+p14apoyos:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '0': '0'
+scian:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '0': '0'
+    '1': '1'
+    '2': '2'
+    '3': '3'
+    '4': '4'
+    '5': '5'
+    '6': '6'
+    '7': '7'
+    '8': '8'
+    '9': '9'
+    '10': '10'
+    '11': '11'
+    '12': '12'
+    '13': '13'
+    '14': '14'
+    '15': '15'
+    '16': '16'
+    '17': '17'
+    '18': '18'
+    '19': '19'
+    '20': '20'
+    '21': '21'
+t_tra:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '0': '0'
+    '1': '1'
+    '2': '2'
+emp_ppal:
+  Descripción: Clasificación de empleos formales e informales de la primera actividad
+  Tipo: Numérico
+  Longitud: '1'
+  Categorías:
+    '0': No aplica (fuera del universo analítico)
+    '1': Empleo informal
+    '2': Empleo formal
+tue_ppal:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '0': '0'
+    '1': '1'
+    '2': '2'
+trans_ppal:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '0': '0'
+    '1': '1'
+mh_fil2:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '0': '0'
+    '1': '1'
+    '2': '2'
+    '3': '3'
+    '4': '4'
+mh_col:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '0': '0'
+    '1': '1'
+    '2': '2'
+    '3': '3'
+    '4': '4'
+    '5': '5'
+    '6': '6'
+    '7': '7'
+    '8': '8'
+    '9': '9'
+sec_ins:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '0': '0'
+    '1': '1'
+    '2': '2'
+    '3': '3'
+    '4': '4'
+    '5': '5'
+    '6': '6'
+    '7': '7'
+    '8': '8'
+    '9': '9'
+    '10': '10'
+    '11': '11'
+tipo:
+  Descripción: Tipo de muestra (presente desde 2020-T3)
+  Tipo: Carácter
+  Longitud: '1'
+  Categorías:
+    '1': ENOE
+    '2': ENOE-CATI
+mes_cal:
+  Descripción: Mes calendario — clasificación mensual del registro; base del ponderador
+    mensual FAC_MEN (presente desde 2020-T3). Códigos especiales 96-99 (no enumerados).
+  Tipo: Carácter
+  Longitud: '2'
+  Categorías:
+    '01': Enero
+    '02': Febrero
+    '03': Marzo
+    '04': Abril
+    '05': Mayo
+    '06': Junio
+    '07': Julio
+    08: Agosto
+    09: Septiembre
+    '10': Octubre
+    '11': Noviembre
+    '12': Diciembre
+ca:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '1': '1'
+    '2': '2'
