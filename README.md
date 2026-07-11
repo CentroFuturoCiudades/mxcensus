@@ -83,13 +83,13 @@ mxcensus info           # cache directory and mirror URL
 | **RESARGEBUB** | Urban block | AGEB (urban statistical areas) and MZA (city blocks) |
 | **Cuestionario Ampliado** | Microdata | Individual person and household records |
 | **Marco Geoestadístico** | Geometries | INEGI's 2020 geostatistical boundaries (15 layers/state) as GeoParquet |
-| **DENUE** | Establishments | Economic-units directory, 24 releases 2010–2025, as point GeoParquet |
+| **DENUE** | Establishments | Economic-units directory, 25 releases 2010–2026, as point GeoParquet |
 | **ENOE** | Labor force | Quarterly employment-survey microdata, 84 quarters 2005–2026, national (5 tables/quarter) |
 
 ### DENUE (multi-temporal)
 
-DENUE (Directorio Estadístico Nacional de Unidades Económicas) is mirrored for all 24
-releases (2010–2025) × 32 states as point GeoParquet (`denue_{YYYYMM}_{NN}.parquet`,
+DENUE (Directorio Estadístico Nacional de Unidades Económicas) is mirrored for all 25
+releases (2010–2026) × 32 states as point GeoParquet (`denue_{YYYYMM}_{NN}.parquet`,
 EPSG:4326). Its schema drifted substantially over time (column names, encodings, the
 `per_ocu` personnel strata), so `load_denue(state=N)` **harmonizes** each release to the
 latest schema by default for longitudinal analysis; pass `harmonize=False` for the raw

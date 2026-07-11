@@ -59,7 +59,7 @@ Hugging Face Storage Bucket (raw parquet mirror)
 | `aggregate.py` | `load_iter` / `load_resargebub` — split raw data into level-specific DataFrames, handle `*` censoring, imputation; `load_census(state=N)` — orchestrates the full pipeline; `merge_mg_census` / `mg_agebs_ur` — merge Marco Geoestadístico geometries with census; `load_mg_census(state=N)` — fetches the 4 MGN layers (`mg_a/l/lpr/ar`) and runs the geometry pipeline |
 | `extended_personas.py` | Preprocesses person microdata; derives health insurance flags, disability indicators, transport modes; Pandera validation |
 | `extended_viviendas.py` | Preprocesses household microdata; derives income bins, financing modes; Pandera validation |
-| `denue.py` | `load_denue(state=N, release=…, harmonize=, dedupe=, dedupe_ids=)` — fetches a DENUE release/state geoparquet, optionally **harmonizes** it to the latest schema (g10) via per-group rename + `per_ocu`/`tipoUniEco`/`fecha_alta` canonicalization, then validates: raw frames against the tight per-group schema `_group_schema(gid)`, harmonized frames against `_latest_schema()`. `dedupe=True` (default) drops exact full-row duplicates; `dedupe_ids=True` (default) drops rows sharing an `id`/`clee` (collapses near-duplicates that differ only in coordinate precision/whitespace). Both clean only the loaded frame — the mirror stays faithful (duplicates are reported, not removed, by the build). Validation **warns** on value-level violations (it does not raise — `_validate`); an unknown schema raises. Multi-temporal economic-units directory (catalog: 25 releases 2010–2026; the mirror holds 24 until the latest **2026-05** — undated `denue_{state}_csv.zip` on INEGI's tree — is built and uploaded). |
+| `denue.py` | `load_denue(state=N, release=…, harmonize=, dedupe=, dedupe_ids=)` — fetches a DENUE release/state geoparquet, optionally **harmonizes** it to the latest schema (g10) via per-group rename + `per_ocu`/`tipoUniEco`/`fecha_alta` canonicalization, then validates: raw frames against the tight per-group schema `_group_schema(gid)`, harmonized frames against `_latest_schema()`. `dedupe=True` (default) drops exact full-row duplicates; `dedupe_ids=True` (default) drops rows sharing an `id`/`clee` (collapses near-duplicates that differ only in coordinate precision/whitespace). Both clean only the loaded frame — the mirror stays faithful (duplicates are reported, not removed, by the build). Validation **warns** on value-level violations (it does not raise — `_validate`); an unknown schema raises. Multi-temporal economic-units directory (25 releases 2010–2026, all built + mirrored; the latest **2026-05** came from the undated `denue_{state}_csv.zip` on INEGI's tree). |
 | `enoe.py` | `load_enoe(table=, period=…, harmonize=, ent=)` — fetches one raw ENOE table (`viv`/`hog`/`sdem`/`coe1`/`coe2`) for one quarter as a faithful `dtype=str` frame, resolves its **per-table** schema group by column fingerprint (`_group_of`, raises on unknown), and validates against the tight per-group Pandera schema `_group_schema(table, gid)` (value-level violations **warn**, don't raise — `_validate`); `harmonize=True` is deferred (raises `NotImplementedError`). `load_enoe_persons(period=…, ent=, canonical_filter=)` — the analytical person frame: SDEM left-joined with COE1/COE2 on the era-appropriate person key (`_person_key`, handling the `ent`→`cve_ent` rename + panel-era `tipo`/`mes_cal`/`ca` widening), filtered to the canonical universe `R_DEF==0 & C_RES∈{1,3} & EDA∈[15,98]`, with a numeric canonical `fac_tri` weight and `is_pea`/`is_ocupado`/`is_informal` flags. National (no per-state split); `ent` is a post-load row filter |
 | `crosstabs.py` | Builds contingency tables from the constraint YAML specs |
 | `utils.py` | `expand_cat_map` (expands `"1..5"` range keys into per-int label maps) and `get_cats_from_excel` (generates the `_yaml/` category files from INEGI Excel data dictionaries) |
@@ -68,7 +68,7 @@ Hugging Face Storage Bucket (raw parquet mirror)
 | `data/_registry.py` | Global `POOCH` instance; loads `registry.txt` at import time; no network traffic until `.fetch()` is called |
 | `data/_paths.py` | Cache-dir resolution via `platformdirs`; respects `$MXCENSUS_CACHE_DIR` |
 | `data/_catalog.py` | `STATE_ABBR`, `STATE_CODE_FMT`, INEGI census URL builders, and the `CatalogEntry` dataclass |
-| `data/_denue_catalog.py` | `DenueRelease`, `RELEASES` (24 verified release URL templates incl. state-15 multipart & per-release quirks), `denue_zip_entry`, `latest_release` |
+| `data/_denue_catalog.py` | `DenueRelease`, `RELEASES` (25 verified release URL templates incl. state-15 multipart & per-release quirks), `denue_zip_entry`, `latest_release` |
 | `data/_enoe_catalog.py` | ENOE bulk-download catalog: `EnoeQuarter`, `QUARTERS` (84 quarters 2005-T1…2026-T1, 2020-T2 ETOE gap excluded), `QUARTERS_BY_PERIOD`, `latest_quarter`, `TABLES`, three filename regimes (`enoe_old`/`enoen`/`enoe_new`) + `find_member`. National (one ZIP per quarter, five tables) |
 | `scripts/_build_common.py` | **Maintainer-only** — shared build helpers: `fetch_zip_verified` (download+verify+retry), `detect_encoding`, `update_registry` (append/upsert preserving prior entries) |
 | `scripts/build_data.py` | **Maintainer-only** — downloads raw census ZIPs from INEGI, converts CSVs to parquet, regenerates `registry.txt` |
@@ -144,7 +144,7 @@ python scripts/build_marco_geo.py --local-gpkg-dir DIR   # use a local gpkg copy
 To (re)build the **DENUE** mirror (downloads from INEGI):
 ```bash
 python scripts/build_denue.py --dry-run --release 202505 --states 9   # smoke test
-python scripts/build_denue.py                       # all 24 releases × 32 states (~11 GB)
+python scripts/build_denue.py                       # all 25 releases × 32 states (~11 GB)
 python scripts/build_denue.py --schema-map          # regenerate denue_schema_map.yaml
 python scripts/build_denue.py --variables           # regenerate variables_denue_<gNN>.yaml (+ CATEGORY_AUDIT.md)
 python scripts/build_denue.py --validate            # validate all files vs group schemas → VALIDATION_REPORT.md
@@ -176,7 +176,7 @@ python scripts/build_enoe.py --update-registry            # append enoe_* hashes
 
 ### DENUE (multi-temporal economic units)
 
-DENUE drifts across its 24 releases (2010–2025): schemas change, files can be malformed
+DENUE drifts across its 25 releases (2010–2026): schemas change, files can be malformed
 or byte-duplicates, and `per_ocu` is encoded 4 different ways. `build_denue.py` detects and
 reports all of this (`docs/denue/INCONSISTENCY_REPORT.md`); the implementation history is in
 `docs/denue/STEP_*.md`. Every file is fingerprinted into one of **11 schema groups**
