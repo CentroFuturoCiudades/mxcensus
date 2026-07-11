@@ -107,7 +107,7 @@ parts). All **84 quarters** from 2005-T1 to 2026-T1 are mirrored (2020-T2 is exc
 operations were suspended for COVID and replaced by the telephone survey ETOE), as faithful
 `str`-typed parquet named `enoe_{table}_{period}.parquet` (e.g. `enoe_sdem_2023t1.parquet`).
 
-Two loaders:
+Loaders:
 
 ```python
 # One raw table for one quarter (period defaults to the latest quarter)
@@ -133,6 +133,33 @@ fingerprinted into a **per-table schema group** and validated on load; cross-era
 harmonization of the raw tables is not yet implemented (`harmonize=True` raises). The schema
 groups, per-quarter inconsistency report, and validation report live in
 [docs/enoe/](docs/enoe/).
+
+#### Dwelling / household / combined loaders
+
+The dwelling (`viv`) and household (`hog`) tables have their own analysis-ready loaders
+(numeric weights + a hierarchical index), and `load_enoe_survey` loads all three household-survey
+levels at once with a **shared, nested `MultiIndex`** — the way the extended-census microdata
+shares `ID_VIV` / `[ID_VIV, ID_PERSONA]`:
+
+```python
+viviendas = mxcensus.load_enoe_viviendas(period="2023t1")   # one row per dwelling
+hogares   = mxcensus.load_enoe_hogares(period="2023t1")     # one row per household
+viviendas["fac_tri"].sum()   # ≈ 37.3 M dwellings
+
+# All three levels together, indices nesting dwelling ⊂ household ⊂ person
+viv, hog, per = mxcensus.load_enoe_survey(period="2023t1")
+# the person index carries the household levels as a prefix, so persons group by household:
+household_size = per.groupby(level=list(hog.index.names)).size()   # persons per household
+```
+
+Each frame is indexed by its level's key (`viviendas` by the dwelling key, `hogares` by the
+household key = dwelling key + `n_hog`, `h_mud`, `personas` by the person key = household key +
+`n_ren`), so the indices are clean prefixes and the levels align/join naturally (the keys adapt
+per era — pre-2020-T3 quarters have no `tipo`/`mes_cal`; 2026-T1 uses `cve_ent`). By default
+`load_enoe_survey` returns **all** household members as `personas` (full `sdem`, so households
+fully decompose); pass `persons="labor"` for the working-age labor-force analytical frame
+instead (`is_pea`/… flags, but only interviewed 15+ members). All take an optional `ent=` state
+filter.
 
 ### Geometries (Marco Geoestadístico)
 

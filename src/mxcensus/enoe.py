@@ -40,17 +40,24 @@ from mxcensus.data._enoe_catalog import QUARTERS_BY_PERIOD, TABLES, latest_quart
 # the pre-2020-T3 factor; ``fac_tri``/``fac_men`` the quarterly/monthly factors after.
 _WEIGHTS = {"fac", "fac_tri", "fac_men"}
 
-# Person key as ordered logical components, each resolved to the first *alias* present in
-# every joined table. In the panel/CATI era the base identifiers are NOT unique within a
-# quarter file (the same person recurs across ``tipo``/``mes_cal``), so the key is taken as
-# wide as the present columns allow. The entity code was renamed ``ent`` → ``cve_ent`` in
-# 2026-T1 (the ``cve_*`` geographic-key rename); ``tipo``/``mes_cal`` appear from 2020-T3 and
-# ``ca`` only for 2020-T3…2021-T2.
+# Survey keys as ordered logical components, each resolved to the first *alias* present in
+# every joined frame. ENOE's household survey nests **dwelling ⊂ household ⊂ person**, and the
+# three natural keys are clean *prefixes* of one another — so they double as the hierarchical
+# index levels for the ``load_enoe_{viviendas,hogares}`` / ``load_enoe_survey`` loaders.
+#
+# The panel identifiers ``tipo``/``mes_cal``/``ca`` sit in the **dwelling** portion: they
+# distinguish the same physical dwelling across panel visits (in the panel/CATI era the base
+# identifiers are NOT unique within a quarter file — a dwelling/person recurs across
+# ``tipo``/``mes_cal``), so the household/person keys must extend them. They appear from
+# 2020-T3 (``ca`` only for 2020-T3…2021-T2); pre-2020-T3 files simply lack them and the base
+# key is used. The entity code was renamed ``ent`` → ``cve_ent`` in 2026-T1 (the ``cve_*``
+# geographic-key rename), so it resolves across both names.
 _ENT_ALIASES = ("ent", "cve_ent")
-_KEY_SPEC: list[tuple[str, ...]] = [
-    ("cd_a",), _ENT_ALIASES, ("con",), ("v_sel",), ("n_hog",), ("h_mud",), ("n_ren",),
-    ("tipo",), ("mes_cal",), ("ca",),
+_DWELLING_KEY_SPEC: list[tuple[str, ...]] = [
+    ("cd_a",), _ENT_ALIASES, ("con",), ("v_sel",), ("tipo",), ("mes_cal",), ("ca",),
 ]
+_HOUSEHOLD_KEY_SPEC: list[tuple[str, ...]] = _DWELLING_KEY_SPEC + [("n_hog",), ("h_mud",)]
+_PERSON_KEY_SPEC: list[tuple[str, ...]] = _HOUSEHOLD_KEY_SPEC + [("n_ren",)]
 
 
 def _fingerprint(columns) -> str:
@@ -197,20 +204,26 @@ def load_enoe(
     return df
 
 
-def _person_key(*frames: pd.DataFrame) -> list[str]:
-    """Person-key columns present in **every** given frame.
+def _level_key(spec: list[tuple[str, ...]], *frames: pd.DataFrame) -> list[str]:
+    """Resolve a key ``spec`` to the columns present in **every** given frame.
 
-    Each logical component (:data:`_KEY_SPEC`) resolves to the first of its aliases present in
-    all frames, so the ``ent``/``cve_ent`` rename and the era-specific ``tipo``/``mes_cal``/
-    ``ca`` additions are all handled.
+    Each logical component (a tuple of aliases) resolves to the first alias present in all
+    frames, so the ``ent``/``cve_ent`` rename and the era-specific ``tipo``/``mes_cal``/``ca``
+    additions are all handled. Because :data:`_DWELLING_KEY_SPEC` ⊂ :data:`_HOUSEHOLD_KEY_SPEC`
+    ⊂ :data:`_PERSON_KEY_SPEC`, the resolved keys are clean prefixes of one another.
     """
     common = set.intersection(*(set(f.columns) for f in frames))
     key = []
-    for spec in _KEY_SPEC:
-        col = next((c for c in spec if c in common), None)
+    for aliases in spec:
+        col = next((c for c in aliases if c in common), None)
         if col is not None:
             key.append(col)
     return key
+
+
+def _person_key(*frames: pd.DataFrame) -> list[str]:
+    """Person-key columns present in every given frame (see :func:`_level_key`)."""
+    return _level_key(_PERSON_KEY_SPEC, *frames)
 
 
 def load_enoe_persons(
@@ -282,3 +295,112 @@ def load_enoe_persons(
                            ("is_informal", "emp_ppal", "1")):
         merged[name] = merged[col].eq(val) if col in merged.columns else pd.NA
     return merged
+
+
+def _coalesce_fac_tri(df: pd.DataFrame) -> pd.DataFrame:
+    """Make the expansion weights numeric in place.
+
+    Adds a canonical numeric ``fac_tri`` coalescing the raw ``fac_tri`` (2020-T3+) or ``fac``
+    (earlier), and coerces ``fac_men`` when present — so the raw ``dtype=str`` weight columns
+    become usable for weighted sums. Same recipe as :func:`load_enoe_persons`.
+    """
+    wcol = next((c for c in ("fac_tri", "fac") if c in df.columns), None)
+    if wcol is not None:
+        df["fac_tri"] = pd.to_numeric(df[wcol], errors="coerce")
+    if "fac_men" in df.columns:
+        df["fac_men"] = pd.to_numeric(df["fac_men"], errors="coerce")
+    return df
+
+
+def _index_level(df: pd.DataFrame, spec: list[tuple[str, ...]]) -> pd.DataFrame:
+    """Set the era-appropriate hierarchical key (``spec``) as a sorted ``MultiIndex``.
+
+    The key columns move into the index (as the extended-census loaders do with
+    ``ID_VIV``/``ID_PERSONA``). Warns if the key is not unique in this frame (it should be —
+    the dwelling/household/person keys are verified unique at their level), so a future era
+    that breaks uniqueness surfaces rather than silently producing a non-unique index.
+    """
+    key = _level_key(spec, df)
+    if df.duplicated(subset=key).any():
+        warnings.warn(
+            f"ENOE level key {key} is not unique in this frame; the index will be non-unique "
+            f"(a key column may be renamed/missing in this era).", stacklevel=3,
+        )
+    return df.set_index(key).sort_index()
+
+
+def load_enoe_viviendas(period: str | None = None, *, ent: int | None = None) -> pd.DataFrame:
+    """Load the ENOE **dwelling** (``viv``) table for one quarter, analysis-ready.
+
+    Like :func:`load_enoe_persons` but at the dwelling level: fetches/validates the raw ``viv``
+    table (via :func:`load_enoe`), makes the expansion weights numeric (``fac_tri``/``fac_men``,
+    coalescing the pre-2020-T3 ``fac``), and returns it indexed by the era-appropriate
+    **dwelling key** ``MultiIndex`` (``cd_a, ent|cve_ent, con, v_sel`` + ``tipo, mes_cal[, ca]``
+    from 2020-T3). The index is a clean prefix of the household/person index, so frames from
+    :func:`load_enoe_hogares` / :func:`load_enoe_survey` align on it.
+
+    Parameters
+    ----------
+    period : str, optional
+        Quarter id (e.g. ``"2023t1"``); defaults to the latest quarter.
+    ent : int, optional
+        Keep only rows for INEGI state code ``ent`` (1–32). ENOE is national, so this is a
+        post-load row filter.
+    """
+    period = period or latest_quarter().period
+    viv = load_enoe(table="viv", period=period, ent=ent)
+    return _index_level(_coalesce_fac_tri(viv), _DWELLING_KEY_SPEC)
+
+
+def load_enoe_hogares(period: str | None = None, *, ent: int | None = None) -> pd.DataFrame:
+    """Load the ENOE **household** (``hog``) table for one quarter, analysis-ready.
+
+    As :func:`load_enoe_viviendas`, but at the household level: numeric weights and a
+    **household key** ``MultiIndex`` (the dwelling key + ``n_hog, h_mud``). Its index extends
+    the dwelling index and is itself a prefix of the person index.
+
+    Parameters mirror :func:`load_enoe_viviendas` (``period`` default latest; ``ent`` row filter).
+    """
+    period = period or latest_quarter().period
+    hog = load_enoe(table="hog", period=period, ent=ent)
+    return _index_level(_coalesce_fac_tri(hog), _HOUSEHOLD_KEY_SPEC)
+
+
+def load_enoe_survey(
+    period: str | None = None, *, ent: int | None = None, persons: str = "all"
+) -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
+    """Load all three ENOE household-survey levels with a **shared, nested** ``MultiIndex``.
+
+    Returns ``(viviendas, hogares, personas)`` — dwelling, household, and person frames whose
+    key indices are clean prefixes of one another (dwelling ⊂ household ⊂ person), the way the
+    extended-census microdata shares ``ID_VIV`` / ``[ID_VIV, ID_PERSONA]``. Because the indices
+    nest, the levels align and join naturally (e.g. ``personas.join(hogares, on=<hog levels>)``).
+
+    Parameters
+    ----------
+    period : str, optional
+        Quarter id (e.g. ``"2023t1"``); defaults to the latest quarter.
+    ent : int, optional
+        Restrict all three frames to INEGI state code ``ent`` (1–32).
+    persons : {"all", "labor"}, default "all"
+        Which person frame to return, indexed by the person key:
+
+        - ``"all"`` — the full ``sdem`` table (every household member, demographics, numeric
+          weight), so each household/dwelling **fully decomposes** into its members.
+        - ``"labor"`` — the working-age labor-force analytical frame from
+          :func:`load_enoe_persons` (SDEM⋈COE, canonical universe filter, ``is_pea`` /
+          ``is_ocupado`` / ``is_informal`` flags). Note this keeps only interviewed 15+ members,
+          so per-household person sums do **not** reconstruct full household size.
+    """
+    if persons not in ("all", "labor"):
+        raise ValueError(f"persons must be 'all' or 'labor', got {persons!r}")
+    period = period or latest_quarter().period
+    viviendas = load_enoe_viviendas(period=period, ent=ent)
+    hogares = load_enoe_hogares(period=period, ent=ent)
+    if persons == "all":
+        sdem = load_enoe(table="sdem", period=period, ent=ent)
+        personas = _index_level(_coalesce_fac_tri(sdem), _PERSON_KEY_SPEC)
+    else:  # "labor"
+        frame = load_enoe_persons(period=period, ent=ent, canonical_filter=True)
+        personas = _index_level(frame, _PERSON_KEY_SPEC)
+    return viviendas, hogares, personas
