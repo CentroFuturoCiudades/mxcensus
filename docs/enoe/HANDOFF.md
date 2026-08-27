@@ -1,5 +1,10 @@
 # ENOE — Remote build & release handoff (Units 7–8, full mirror)
 
+> **✅ 2026-08-27 — 2026-T2 added.** Catalog extended to **85 quarters**; 5 new parquet built,
+> metadata regenerated (still 33 groups, 0/425 validation failures), registry **1833**, uploaded
+> + verified on the bucket. Incremental recipe in `STEP_10.md`. Harmonization (`harmonize=True`)
+> landed as Unit 11 (`STEP_11.md`).
+
 > **✅ 2026-07-10 — full build uploaded; ENOE mirror is LIVE.** The full 84-quarter build ran
 > on the maintainer box: **420 parquet** (0 gaps after fixing the one INEGI naming anomaly —
 > 2013-T2 SDEM ships as `sdemtT213.csv`, now handled by `_MEMBER_ANOMALIES` in

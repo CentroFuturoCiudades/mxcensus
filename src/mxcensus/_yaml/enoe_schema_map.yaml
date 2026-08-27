@@ -201,11 +201,12 @@ viv:
       - fac_men
     g05:
       n_columns: 26
-      files: 3
+      files: 4
       periods:
       - 2025t3
       - 2025t4
       - 2026t1
+      - 2026t2
       columns:
       - cve_loc
       - cve_mun
@@ -523,11 +524,12 @@ hog:
       - fac_men
     g06:
       n_columns: 38
-      files: 3
+      files: 4
       periods:
       - 2025t3
       - 2025t4
       - 2026t1
+      - 2026t2
       columns:
       - cve_loc
       - cve_mun
@@ -1001,11 +1003,12 @@ sdem:
       - mes_cal
     g04:
       n_columns: 115
-      files: 3
+      files: 4
       periods:
       - 2025t3
       - 2025t4
       - 2026t1
+      - 2026t2
       columns:
       - r_def
       - cve_loc
@@ -1123,7 +1126,7 @@ sdem:
       - mes_cal
       - cvegeo
 coe1:
-  latest: g09
+  latest: g08
   fingerprints:
     402e8149d73172f77e46d5004a45981f09969794702e4b563550c717bc1fbaca: g01
     af1b8b9fcc3dbd96f2d53bdbc996d48f62d991c3c7039af5832d99505b7babb1: g02
@@ -2501,10 +2504,11 @@ coe1:
       - fac_men
     g08:
       n_columns: 174
-      files: 2
+      files: 3
       periods:
       - 2025t3
       - 2025t4
+      - 2026t2
       columns:
       - r_def
       - cd_a
@@ -2878,7 +2882,7 @@ coe1:
       - cve_mun
       - cvegeo
 coe2:
-  latest: g09
+  latest: g08
   fingerprints:
     c392da59b46f90b95883daf7c9b1a0291b6e8d951d46f226f8ee597170f6be7a: g01
     bb2917595654386c4b229a83a752fae243bc5883741b6a0633629afb62808189: g02
@@ -3695,10 +3699,11 @@ coe2:
       - fac_men
     g08:
       n_columns: 84
-      files: 2
+      files: 3
       periods:
       - 2025t3
       - 2025t4
+      - 2026t2
       columns:
       - cd_a
       - cve_ent
