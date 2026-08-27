@@ -59,12 +59,19 @@ mg_aur, mg_loc_ageb = mxcensus.load_mg_census(state=9)
 denue = mxcensus.load_denue(state=9)                      # latest release
 denue_2010 = mxcensus.load_denue(state=9, release="201000")   # comparable to latest
 raw = mxcensus.load_denue(state=9, release="201000", harmonize=False)  # raw schema
+
+# ENOE labor-force survey — national quarterly microdata (no per-state split)
+persons = mxcensus.load_enoe_persons(period="2023t1")     # analysis-ready person frame
+persons = mxcensus.load_enoe_persons()                    # defaults to the latest quarter
+sdem = mxcensus.load_enoe(table="sdem", period="2023t1")  # one raw table for one quarter
 ```
 
 Pre-download a state's files (optional; loaders fetch on demand):
 
 ```bash
-mxcensus fetch 9        # all four datasets for state 9
+mxcensus fetch 9        # all four census datasets for state 9
+mxcensus fetch 9 --dataset denue                  # DENUE (latest release) for state 9
+mxcensus fetch 9 --dataset enoe --period 2023t1   # the five ENOE tables (national — 9 is ignored)
 mxcensus info           # cache directory and mirror URL
 ```
 
@@ -76,18 +83,97 @@ mxcensus info           # cache directory and mirror URL
 | **RESARGEBUB** | Urban block | AGEB (urban statistical areas) and MZA (city blocks) |
 | **Cuestionario Ampliado** | Microdata | Individual person and household records |
 | **Marco Geoestadístico** | Geometries | INEGI's 2020 geostatistical boundaries (15 layers/state) as GeoParquet |
-| **DENUE** | Establishments | Economic-units directory, 24 releases 2010–2025, as point GeoParquet |
+| **DENUE** | Establishments | Economic-units directory, 25 releases 2010–2026, as point GeoParquet |
+| **ENOE** | Labor force | Quarterly employment-survey microdata, 85 quarters 2005–2026, national (5 tables/quarter) |
 
 ### DENUE (multi-temporal)
 
-DENUE (Directorio Estadístico Nacional de Unidades Económicas) is mirrored for all 24
-releases (2010–2025) × 32 states as point GeoParquet (`denue_{YYYYMM}_{NN}.parquet`,
+DENUE (Directorio Estadístico Nacional de Unidades Económicas) is mirrored for all 25
+releases (2010–2026) × 32 states as point GeoParquet (`denue_{YYYYMM}_{NN}.parquet`,
 EPSG:4326). Its schema drifted substantially over time (column names, encodings, the
 `per_ocu` personnel strata), so `load_denue(state=N)` **harmonizes** each release to the
 latest schema by default for longitudinal analysis; pass `harmonize=False` for the raw
 release schema, or `release="YYYYMM"` for a specific edition. The schema groups and the
 documented inconsistencies (drift, duplicates, malformed/missing files) live in
 [docs/denue/](docs/denue/).
+
+### ENOE (labor-force survey, multi-temporal)
+
+ENOE (Encuesta Nacional de Ocupación y Empleo) is INEGI's quarterly labor-force survey.
+Unlike the other datasets it is **national** — one file set per quarter, not per state — and
+each quarter bundles **five tables**: `viv` (dwelling), `hog` (household), `sdem`
+(sociodemographic, the main person table), and `coe1`/`coe2` (the two employment-questionnaire
+parts). All **85 quarters** from 2005-T1 to 2026-T2 are mirrored (2020-T2 is excluded — field
+operations were suspended for COVID and replaced by the telephone survey ETOE), as faithful
+`str`-typed parquet named `enoe_{table}_{period}.parquet` (e.g. `enoe_sdem_2023t1.parquet`).
+
+Loaders:
+
+```python
+# One raw table for one quarter (period defaults to the latest quarter)
+sdem = mxcensus.load_enoe(table="sdem", period="2023t1")
+sdem_jal = mxcensus.load_enoe(table="sdem", period="2023t1", ent=14)   # filter to a state
+
+# The analysis-ready person frame: SDEM joined with COE1/COE2, filtered to the canonical
+# working-age universe, with a numeric `fac_tri` weight and labour-force flags
+persons = mxcensus.load_enoe_persons(period="2023t1")
+
+pop_15plus = persons["fac_tri"].sum()                              # ~99.7 M
+pea        = persons.loc[persons["is_pea"], "fac_tri"].sum()       # economically active
+participation = pea / pop_15plus                                   # ~0.602
+informal   = persons.loc[persons["is_informal"], "fac_tri"].sum()
+```
+
+`load_enoe_persons` adds `is_pea` / `is_ocupado` / `is_informal` boolean flags and a canonical
+numeric `fac_tri` expansion weight (coalescing the pre-2020 `fac` and later `fac_tri` columns),
+and handles the survey's cross-era drift automatically — the `ent`→`cve_ent` geographic-key
+rename (2025-T3), the `FAC`→`FAC_TRI` weight rename (2020-T3), and the panel-era person key.
+Every column is otherwise the faithful raw value. ENOE's schema drifts across eras, so each
+file is fingerprinted into a **per-table schema group** and validated on load. The schema
+groups, per-quarter inconsistency report, and validation report live in
+[docs/enoe/](docs/enoe/).
+
+Pass `harmonize=True` to any ENOE loader to canonicalize the **analytical core** across eras
+so quarters stack for longitudinal analysis: column names lowercased, `fac`→`fac_tri`
+(+ `fac_men`), `ent`/`mun`→zero-padded `cve_ent`/`cve_mun` plus a derived `cvegeo`,
+`tipo`/`mes_cal` added (empty) before 2020-T3. Unlike DENUE, every other column is kept
+verbatim — the COE alternates an *ampliado* (Q1) and a *básico* (Q2–Q4) questionnaire with
+different item sets, so no era is projected onto another's column list:
+
+```python
+panel = pd.concat(
+    mxcensus.load_enoe_persons(period=p, harmonize=True).assign(period=p)
+    for p in ["2019t1", "2020t3", "2023t1", "2026t1"]
+)
+panel.groupby(["period", "cve_ent"])["fac_tri"].sum()   # same key/weight names in every era
+```
+
+#### Dwelling / household / combined loaders
+
+The dwelling (`viv`) and household (`hog`) tables have their own analysis-ready loaders
+(numeric weights + a hierarchical index), and `load_enoe_survey` loads all three household-survey
+levels at once with a **shared, nested `MultiIndex`** — the way the extended-census microdata
+shares `ID_VIV` / `[ID_VIV, ID_PERSONA]`:
+
+```python
+viviendas = mxcensus.load_enoe_viviendas(period="2023t1")   # one row per dwelling
+hogares   = mxcensus.load_enoe_hogares(period="2023t1")     # one row per household
+viviendas["fac_tri"].sum()   # ≈ 37.3 M dwellings
+
+# All three levels together, indices nesting dwelling ⊂ household ⊂ person
+viv, hog, per = mxcensus.load_enoe_survey(period="2023t1")
+# the person index carries the household levels as a prefix, so persons group by household:
+household_size = per.groupby(level=list(hog.index.names)).size()   # persons per household
+```
+
+Each frame is indexed by its level's key (`viviendas` by the dwelling key, `hogares` by the
+household key = dwelling key + `n_hog`, `h_mud`, `personas` by the person key = household key +
+`n_ren`), so the indices are clean prefixes and the levels align/join naturally (the keys adapt
+per era — pre-2020-T3 quarters have no `tipo`/`mes_cal`; 2025-T3+ uses `cve_ent`). By default
+`load_enoe_survey` returns **all** household members as `personas` (full `sdem`, so households
+fully decompose); pass `persons="labor"` for the working-age labor-force analytical frame
+instead (`is_pea`/… flags, but only interviewed 15+ members). All take an optional `ent=` state
+filter.
 
 ### Geometries (Marco Geoestadístico)
 
@@ -111,6 +197,9 @@ mxcensus.variables_personas()      # person microdata variables + category label
 mxcensus.variables_viviendas()     # household microdata variables + category labels
 mxcensus.variables_denue("g10")    # DENUE variables for a schema group (g01..g11)
 mxcensus.denue_schema_map()        # DENUE schema groups + the latest (harmonization target)
+mxcensus.enoe_schema_map()         # ENOE per-table schema groups (viv/hog/sdem/coe1/coe2)
+mxcensus.variables_enoe("sdem", "g04")   # ENOE variables for a (table, schema group)
+mxcensus.variables_enoe_core()     # ENOE analytical-core labels (clase1, pos_ocu, …)
 ```
 
 The ITER and RESARGEBUB dictionaries are national (identical across states), so a
@@ -129,6 +218,8 @@ All data originates from INEGI's open-data ("datos abiertos") releases:
   <https://www.inegi.org.mx/temas/mg/>
 - Economic units — Directorio Estadístico Nacional de Unidades Económicas (DENUE):
   <https://www.inegi.org.mx/app/mapa/denue/>
+- Labor-force survey — Encuesta Nacional de Ocupación y Empleo (ENOE):
+  <https://www.inegi.org.mx/programas/enoe/15ymas/>
 
 When you publish work that uses data obtained through `mxcensus`, INEGI's terms
 require you to credit INEGI as the author of the data. Use the citation(s):
@@ -138,6 +229,8 @@ require you to credit INEGI as the author of the data. Use the citation(s):
 > **Fuente: INEGI, Marco Geoestadístico, Censo de Población y Vivienda 2020.**
 >
 > **Fuente: INEGI, Directorio Estadístico Nacional de Unidades Económicas (DENUE).**
+>
+> **Fuente: INEGI, Encuesta Nacional de Ocupación y Empleo (ENOE).**
 
 The data is provided under INEGI's **Términos de Libre Uso de la Información del
 INEGI** (Terms of Free Use):
@@ -183,6 +276,14 @@ before and during loading:
   that no transform can place inside the state — or that fall outside Mexico entirely —
   get **null** geometry. In every case the raw `latitud`/`longitud` columns are kept
   verbatim; only the derived geometry is corrected or nulled.
+- **ENOE** — the quarterly CSVs are converted to parquet as **faithful raw**: every column
+  is kept as the text INEGI published, with no harmonization, imputation, or correction of
+  values. The convenience loader `load_enoe_persons` **derives** an analysis frame from these
+  raw tables (joining SDEM with the employment questionnaire, filtering to the canonical
+  working-age universe, and adding a numeric `fac_tri` weight and `is_pea`/`is_ocupado`/
+  `is_informal` flags), but leaves the underlying values untouched. One source-side encoding
+  defect — a few mangled accented characters in two open-text SDEM fields
+  (`cs_p21_des`/`cs_p23_des`) — is preserved as published, **not** corrected.
 
 **These transformations are performed by `mxcensus`, not by INEGI.** Any errors,
 imputations, or derived values are the responsibility of this package and must not

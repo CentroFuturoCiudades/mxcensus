@@ -20,6 +20,7 @@ PRESERVE_PREFIXES = (
     "iter_", "resargebub_", "personas_", "viviendas_",  # census
     "mg_",       # Marco Geoestadístico
     "denue_",    # DENUE
+    "enoe_",     # ENOE (multi-temporal employment survey)
 )
 
 

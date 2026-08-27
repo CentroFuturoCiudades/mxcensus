@@ -44,6 +44,26 @@ def denue_schema_map() -> dict:
     return _load_yaml("denue_schema_map.yaml")
 
 
+def variables_enoe(table: str, schema_id: str) -> dict:
+    """Variable dictionary for one ENOE (table, schema group), e.g.
+    ``variables_enoe("sdem", "g03")``. Categorías are data-derived except for the
+    analytical-core variables, which carry the hand-curated labels (see
+    :func:`variables_enoe_core`)."""
+    return _load_yaml(f"variables_enoe_{table}_{schema_id}.yaml")
+
+
+def enoe_schema_map() -> dict:
+    """ENOE schema map, namespaced per table (``sdem``/``coe1``/…); each table maps
+    fingerprints→group, group→columns, and its own ``latest`` group."""
+    return _load_yaml("enoe_schema_map.yaml")
+
+
+def variables_enoe_core() -> dict:
+    """Hand-curated ENOE analytical-core dictionary: the person key, canonical-universe
+    filter columns, expansion weights, and precodificado variables with FD-sourced labels."""
+    return _load_yaml("variables_enoe_core.yaml")
+
+
 def constraints_personas() -> dict:
     return _load_yaml("constraints_personas.yaml")
 

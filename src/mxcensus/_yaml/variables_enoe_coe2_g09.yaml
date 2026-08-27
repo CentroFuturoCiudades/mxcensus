@@ -1,0 +1,1621 @@
+cd_a:
+  Descripción: Ciudad autorrepresentada (agrupación de áreas de la muestra)
+  Tipo: Carácter
+  Longitud: '2'
+  Categorías: {}
+cve_ent:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '01': '01'
+    '02': '02'
+    '03': '03'
+    '04': '04'
+    '05': '05'
+    '06': '06'
+    '07': '07'
+    08: 08
+    09: 09
+    '10': '10'
+    '11': '11'
+    '12': '12'
+    '13': '13'
+    '14': '14'
+    '15': '15'
+    '16': '16'
+    '17': '17'
+    '18': '18'
+    '19': '19'
+    '20': '20'
+    '21': '21'
+    '22': '22'
+    '23': '23'
+    '24': '24'
+    '25': '25'
+    '26': '26'
+    '27': '27'
+    '28': '28'
+    '29': '29'
+    '30': '30'
+    '31': '31'
+    '32': '32'
+con:
+  Descripción: Número de control de la vivienda
+  Tipo: Carácter
+  Longitud: '5'
+  Categorías: {}
+upm:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+d_sem:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+n_pro_viv:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+v_sel:
+  Descripción: Vivienda seleccionada
+  Tipo: Carácter
+  Longitud: '2'
+  Categorías: {}
+n_hog:
+  Descripción: Número de hogar
+  Tipo: Carácter
+  Longitud: '1'
+  Categorías: {}
+h_mud:
+  Descripción: Hogar mudado (número de veces que el hogar se ha mudado)
+  Tipo: Carácter
+  Longitud: '1'
+  Categorías: {}
+n_ent:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '1': '1'
+    '2': '2'
+    '3': '3'
+    '4': '4'
+    '5': '5'
+per:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '126': '126'
+n_ren:
+  Descripción: Número de renglón del integrante del hogar
+  Tipo: Carácter
+  Longitud: '2'
+  Categorías: {}
+eda:
+  Descripción: Edad en años cumplidos (filtro analítico EDA in [15, 98]). Códigos
+    especiales — 00 menores de 1 año, 97 = 97 años y más, 98 = no especificada (12
+    años y más), 99 = no especificada (menores de 0 a 11 años)
+  Tipo: Carácter
+  Longitud: '2'
+  Categorías: {}
+n_inf:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '1': '1'
+    '2': '2'
+    '3': '3'
+    '4': '4'
+    '5': '5'
+    '6': '6'
+    '7': '7'
+    '8': '8'
+    '9': '9'
+    '10': '10'
+    '11': '11'
+    '12': '12'
+    '13': '13'
+    '14': '14'
+    '15': '15'
+    '16': '16'
+    '17': '17'
+    '97': '97'
+    '99': '99'
+p6_1:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '1': '1'
+    ' ': ' '
+p6_2:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '2': '2'
+    ' ': ' '
+p6_3:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '3': '3'
+    ' ': ' '
+p6_4:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '4': '4'
+    ' ': ' '
+p6_5:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '5': '5'
+    ' ': ' '
+p6_6:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '6': '6'
+    ' ': ' '
+p6_7:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '7': '7'
+    ' ': ' '
+p6_8:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '8': '8'
+    ' ': ' '
+p6_9:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '9': '9'
+    ' ': ' '
+p6_10:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '10': '10'
+    ' ': ' '
+p6_99:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '99': '99'
+    ' ': ' '
+p6a1:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '1': '1'
+    ' ': ' '
+p6a2:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '2': '2'
+    ' ': ' '
+p6a3:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '3': '3'
+    ' ': ' '
+p6a4:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '4': '4'
+    ' ': ' '
+p6a9:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '9': '9'
+    ' ': ' '
+p6b1:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '1': '1'
+    '2': '2'
+    '3': '3'
+    '4': '4'
+    '5': '5'
+    '6': '6'
+    '7': '7'
+    '8': '8'
+    ' ': ' '
+p6b2:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+p6c:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '1': '1'
+    '2': '2'
+    '3': '3'
+    '4': '4'
+    '5': '5'
+    '6': '6'
+    '7': '7'
+    '8': '8'
+    '9': '9'
+    ' ': ' '
+p6d:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '1': '1'
+    '2': '2'
+    '3': '3'
+    '4': '4'
+    '5': '5'
+    '6': '6'
+    '9': '9'
+    ' ': ' '
+p6e:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '1': '1'
+    '2': '2'
+    '3': '3'
+    ' ': ' '
+p6e_c:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+p6f:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '1': '1'
+    '2': '2'
+    '3': '3'
+    '4': '4'
+    ' ': ' '
+p6f_c:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '1': '1'
+    '2': '2'
+    '3': '3'
+    '4': '4'
+    '5': '5'
+    '6': '6'
+    '7': '7'
+    '8': '8'
+    '9': '9'
+    '10': '10'
+    '11': '11'
+    '12': '12'
+    '13': '13'
+    '14': '14'
+    '15': '15'
+    '16': '16'
+    '17': '17'
+    '18': '18'
+    '19': '19'
+    '20': '20'
+    '21': '21'
+    '22': '22'
+    '23': '23'
+    '24': '24'
+    '25': '25'
+    '26': '26'
+    '27': '27'
+    '28': '28'
+    '29': '29'
+    '30': '30'
+    '31': '31'
+    '32': '32'
+    '142': '142'
+    '207': '207'
+    '211': '211'
+    '213': '213'
+    '219': '219'
+    '221': '221'
+    '230': '230'
+    '419': '419'
+    '425': '425'
+    '436': '436'
+    '800': '800'
+    '999': '999'
+    ' ': ' '
+p6g:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '1': '1'
+    '2': '2'
+    '3': '3'
+    ' ': ' '
+p6h:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '1': '1'
+    '2': '2'
+    '3': '3'
+    ' ': ' '
+p6h_c:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+p6i:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '1': '1'
+    '2': '2'
+    '3': '3'
+    '4': '4'
+    ' ': ' '
+p6i_c:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '1': '1'
+    '2': '2'
+    '3': '3'
+    '4': '4'
+    '5': '5'
+    '6': '6'
+    '7': '7'
+    '8': '8'
+    '9': '9'
+    '10': '10'
+    '11': '11'
+    '12': '12'
+    '13': '13'
+    '14': '14'
+    '15': '15'
+    '16': '16'
+    '17': '17'
+    '18': '18'
+    '19': '19'
+    '20': '20'
+    '21': '21'
+    '22': '22'
+    '23': '23'
+    '24': '24'
+    '25': '25'
+    '26': '26'
+    '27': '27'
+    '28': '28'
+    '29': '29'
+    '30': '30'
+    '31': '31'
+    '32': '32'
+    '204': '204'
+    '211': '211'
+    '213': '213'
+    '214': '214'
+    '221': '221'
+    '237': '237'
+    '302': '302'
+    '322': '322'
+    '325': '325'
+    '402': '402'
+    '415': '415'
+    '425': '425'
+    '447': '447'
+    '800': '800'
+    '999': '999'
+    ' ': ' '
+p7:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '1': '1'
+    '2': '2'
+    '3': '3'
+    '4': '4'
+    '5': '5'
+    '6': '6'
+    '7': '7'
+    '9': '9'
+    ' ': ' '
+p7a:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+p7b:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '1': '1'
+    '2': '2'
+    '3': '3'
+    '4': '4'
+    '9': '9'
+    ' ': ' '
+p7c:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+p7d:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '1': '1'
+    '2': '2'
+    '3': '3'
+    '4': '4'
+    '9': '9'
+    ' ': ' '
+p7e:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '1': '1'
+    '2': '2'
+    '3': '3'
+    '4': '4'
+    '5': '5'
+    '6': '6'
+    '7': '7'
+    '8': '8'
+    '9': '9'
+    '10': '10'
+    '11': '11'
+    '99': '99'
+    ' ': ' '
+p7f:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '1': '1'
+    '2': '2'
+    ' ': ' '
+p7f_dias:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '1': '1'
+    '2': '2'
+    '3': '3'
+    '4': '4'
+    '5': '5'
+    '6': '6'
+    '7': '7'
+    '9': '9'
+    ' ': ' '
+p7f_horas:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+p7g1:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '1': '1'
+    ' ': ' '
+p7g2:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '2': '2'
+    ' ': ' '
+p7g3:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '3': '3'
+    ' ': ' '
+p7g9:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '9': '9'
+    ' ': ' '
+p7gcan:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+p8_1:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '1': '1'
+    ' ': ' '
+p8_2:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '2': '2'
+    ' ': ' '
+p8_3:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '3': '3'
+    ' ': ' '
+p8_4:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '4': '4'
+    ' ': ' '
+p8_9:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '9': '9'
+    ' ': ' '
+p8a:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '1': '1'
+    '2': '2'
+    '3': '3'
+    '4': '4'
+    '9': '9'
+    ' ': ' '
+p8b:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '1': '1'
+    '2': '2'
+    '3': '3'
+    '4': '4'
+    '5': '5'
+    '6': '6'
+    '7': '7'
+    '8': '8'
+    '9': '9'
+    ' ': ' '
+p9:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '1': '1'
+    '2': '2'
+    '9': '9'
+    ' ': ' '
+p9a:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '1': '1'
+    '2': '2'
+    '3': '3'
+    '4': '4'
+    '5': '5'
+    '6': '6'
+    '7': '7'
+    '8': '8'
+    '9': '9'
+    ' ': ' '
+p9b:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '1': '1'
+    '2': '2'
+    '3': '3'
+    '4': '4'
+    '5': '5'
+    '6': '6'
+    '7': '7'
+    '9': '9'
+    ' ': ' '
+p9c:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '1': '1'
+    '2': '2'
+    '3': '3'
+    '4': '4'
+    '5': '5'
+    '6': '6'
+    '7': '7'
+    '8': '8'
+    '9': '9'
+    '10': '10'
+    '99': '99'
+    ' ': ' '
+p9d:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '1': '1'
+    '2': '2'
+    '3': '3'
+    '4': '4'
+    '5': '5'
+    '6': '6'
+    '7': '7'
+    '8': '8'
+    '9': '9'
+    '10': '10'
+    '11': '11'
+    '12': '12'
+    '99': '99'
+    ' ': ' '
+p9e:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '1': '1'
+    '2': '2'
+    '3': '3'
+    '4': '4'
+    '5': '5'
+    '6': '6'
+    '7': '7'
+    '8': '8'
+    '9': '9'
+    '10': '10'
+    '11': '11'
+    '12': '12'
+    '13': '13'
+    '14': '14'
+    '99': '99'
+    ' ': ' '
+p9f_anio:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+p9f_mes:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '1': '1'
+    '2': '2'
+    '3': '3'
+    '4': '4'
+    '5': '5'
+    '6': '6'
+    '7': '7'
+    '8': '8'
+    '9': '9'
+    '10': '10'
+    '11': '11'
+    '12': '12'
+    '99': '99'
+    ' ': ' '
+p9f:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '1': '1'
+    '2': '2'
+    '3': '3'
+    '9': '9'
+    ' ': ' '
+p9g:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+p9h:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '1': '1'
+    '2': '2'
+    '3': '3'
+    '4': '4'
+    '9': '9'
+    ' ': ' '
+p9h_1:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '2': '2'
+    ' ': ' '
+p9i:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+p9j:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '1': '1'
+    '2': '2'
+    '9': '9'
+    ' ': ' '
+p9k:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '1': '1'
+    '2': '2'
+    '3': '3'
+    '4': '4'
+    '5': '5'
+    '6': '6'
+    '9': '9'
+    ' ': ' '
+p9l1:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '1': '1'
+    ' ': ' '
+p9l2:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '2': '2'
+    ' ': ' '
+p9l3:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '3': '3'
+    ' ': ' '
+p9l4:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '4': '4'
+    ' ': ' '
+p9l5:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '5': '5'
+    ' ': ' '
+p9l9:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '9': '9'
+    ' ': ' '
+p9m1:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '1': '1'
+    ' ': ' '
+p9m2:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '2': '2'
+    ' ': ' '
+p9m3:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '3': '3'
+    ' ': ' '
+p9m9:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '9': '9'
+    ' ': ' '
+p9mcan:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+p9n1:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '1': '1'
+    ' ': ' '
+p9n2:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '2': '2'
+    ' ': ' '
+p9n3:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '3': '3'
+    ' ': ' '
+p9n4:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '4': '4'
+    ' ': ' '
+p9n5:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '5': '5'
+    ' ': ' '
+p9n6:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '6': '6'
+    ' ': ' '
+p9n9:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '9': '9'
+    ' ': ' '
+p10_1:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '1': '1'
+    ' ': ' '
+p10_2:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '2': '2'
+    ' ': ' '
+p10_3:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '3': '3'
+    ' ': ' '
+p10_4:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '4': '4'
+    ' ': ' '
+p10_9:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '9': '9'
+    ' ': ' '
+p10a1:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '1': '1'
+    ' ': ' '
+p10a2:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '2': '2'
+    ' ': ' '
+p10a3:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '3': '3'
+    ' ': ' '
+p10a4:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '4': '4'
+    ' ': ' '
+p10a9:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '9': '9'
+    ' ': ' '
+p10b:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '1': '1'
+    '2': '2'
+    '9': '9'
+p11_1:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '1': '1'
+    ' ': ' '
+p11_h1:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+p11_m1:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '0': '0'
+    '2': '2'
+    '3': '3'
+    '5': '5'
+    '6': '6'
+    '8': '8'
+    '9': '9'
+    '11': '11'
+    '15': '15'
+    '20': '20'
+    '30': '30'
+    '38': '38'
+    '40': '40'
+    '45': '45'
+    '50': '50'
+    ' ': ' '
+p11_2:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '2': '2'
+    ' ': ' '
+p11_h2:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+p11_m2:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '0': '0'
+    '1': '1'
+    '2': '2'
+    '3': '3'
+    '5': '5'
+    '6': '6'
+    '8': '8'
+    '9': '9'
+    '10': '10'
+    '11': '11'
+    '12': '12'
+    '15': '15'
+    '20': '20'
+    '21': '21'
+    '25': '25'
+    '30': '30'
+    '35': '35'
+    '38': '38'
+    '40': '40'
+    '45': '45'
+    '50': '50'
+    ' ': ' '
+p11_3:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '3': '3'
+    ' ': ' '
+p11_h3:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '0': '0'
+    '1': '1'
+    '2': '2'
+    '3': '3'
+    '4': '4'
+    '5': '5'
+    '6': '6'
+    '7': '7'
+    '8': '8'
+    '9': '9'
+    '10': '10'
+    '11': '11'
+    '12': '12'
+    '13': '13'
+    '14': '14'
+    '15': '15'
+    '16': '16'
+    '17': '17'
+    '18': '18'
+    '19': '19'
+    '20': '20'
+    '21': '21'
+    '22': '22'
+    '23': '23'
+    '24': '24'
+    '25': '25'
+    '26': '26'
+    '28': '28'
+    '30': '30'
+    '32': '32'
+    '33': '33'
+    '34': '34'
+    '35': '35'
+    '36': '36'
+    '38': '38'
+    '40': '40'
+    '42': '42'
+    '45': '45'
+    '48': '48'
+    '50': '50'
+    '54': '54'
+    '55': '55'
+    '56': '56'
+    '60': '60'
+    '72': '72'
+    '81': '81'
+    '83': '83'
+    '84': '84'
+    '90': '90'
+    '92': '92'
+    '95': '95'
+    '98': '98'
+    '99': '99'
+    ' ': ' '
+p11_m3:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '0': '0'
+    '1': '1'
+    '2': '2'
+    '3': '3'
+    '4': '4'
+    '5': '5'
+    '6': '6'
+    '7': '7'
+    '8': '8'
+    '9': '9'
+    '10': '10'
+    '14': '14'
+    '15': '15'
+    '17': '17'
+    '18': '18'
+    '20': '20'
+    '21': '21'
+    '24': '24'
+    '25': '25'
+    '28': '28'
+    '30': '30'
+    '32': '32'
+    '33': '33'
+    '35': '35'
+    '36': '36'
+    '38': '38'
+    '40': '40'
+    '45': '45'
+    '46': '46'
+    '48': '48'
+    '50': '50'
+    '55': '55'
+    ' ': ' '
+p11_4:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '4': '4'
+    ' ': ' '
+p11_h4:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '0': '0'
+    '1': '1'
+    '2': '2'
+    '3': '3'
+    '4': '4'
+    '5': '5'
+    '6': '6'
+    '7': '7'
+    '8': '8'
+    '9': '9'
+    '10': '10'
+    '11': '11'
+    '12': '12'
+    '13': '13'
+    '14': '14'
+    '15': '15'
+    '16': '16'
+    '17': '17'
+    '18': '18'
+    '19': '19'
+    '20': '20'
+    '21': '21'
+    '22': '22'
+    '24': '24'
+    '25': '25'
+    '26': '26'
+    '27': '27'
+    '28': '28'
+    '30': '30'
+    '35': '35'
+    '36': '36'
+    '38': '38'
+    '40': '40'
+    '42': '42'
+    '44': '44'
+    '45': '45'
+    '47': '47'
+    '48': '48'
+    '49': '49'
+    '50': '50'
+    '53': '53'
+    '55': '55'
+    '56': '56'
+    '60': '60'
+    '80': '80'
+    '95': '95'
+    '98': '98'
+    '99': '99'
+    ' ': ' '
+p11_m4:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '0': '0'
+    '1': '1'
+    '2': '2'
+    '3': '3'
+    '4': '4'
+    '5': '5'
+    '6': '6'
+    '7': '7'
+    '8': '8'
+    '9': '9'
+    '10': '10'
+    '12': '12'
+    '15': '15'
+    '20': '20'
+    '25': '25'
+    '28': '28'
+    '30': '30'
+    '35': '35'
+    '38': '38'
+    '40': '40'
+    '42': '42'
+    '45': '45'
+    '48': '48'
+    '50': '50'
+    '55': '55'
+    ' ': ' '
+p11_5:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '5': '5'
+    ' ': ' '
+p11_h5:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '0': '0'
+    '1': '1'
+    '2': '2'
+    '3': '3'
+    '4': '4'
+    '5': '5'
+    '6': '6'
+    '7': '7'
+    '8': '8'
+    '9': '9'
+    '10': '10'
+    '12': '12'
+    '13': '13'
+    '14': '14'
+    '15': '15'
+    '16': '16'
+    '17': '17'
+    '18': '18'
+    '19': '19'
+    '20': '20'
+    '21': '21'
+    '24': '24'
+    '25': '25'
+    '28': '28'
+    '30': '30'
+    '32': '32'
+    '35': '35'
+    '36': '36'
+    '40': '40'
+    '42': '42'
+    '45': '45'
+    '48': '48'
+    '50': '50'
+    '56': '56'
+    '60': '60'
+    '70': '70'
+    '84': '84'
+    '86': '86'
+    '98': '98'
+    '99': '99'
+    ' ': ' '
+p11_m5:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '0': '0'
+    '3': '3'
+    '6': '6'
+    '8': '8'
+    '20': '20'
+    '30': '30'
+    '40': '40'
+    '50': '50'
+    ' ': ' '
+p11_6:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '6': '6'
+    ' ': ' '
+p11_h6:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '0': '0'
+    '1': '1'
+    '2': '2'
+    '3': '3'
+    '4': '4'
+    '5': '5'
+    '6': '6'
+    '7': '7'
+    '8': '8'
+    '9': '9'
+    '10': '10'
+    '11': '11'
+    '12': '12'
+    '13': '13'
+    '14': '14'
+    '15': '15'
+    '16': '16'
+    '17': '17'
+    '18': '18'
+    '19': '19'
+    '20': '20'
+    '21': '21'
+    '22': '22'
+    '23': '23'
+    '24': '24'
+    '25': '25'
+    '26': '26'
+    '27': '27'
+    '28': '28'
+    '30': '30'
+    '32': '32'
+    '35': '35'
+    '36': '36'
+    '40': '40'
+    '42': '42'
+    '48': '48'
+    '50': '50'
+    '56': '56'
+    '60': '60'
+    '70': '70'
+    '72': '72'
+    '98': '98'
+    '99': '99'
+    ' ': ' '
+p11_m6:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '0': '0'
+    '1': '1'
+    '2': '2'
+    '3': '3'
+    '5': '5'
+    '6': '6'
+    '8': '8'
+    '9': '9'
+    '10': '10'
+    '15': '15'
+    '20': '20'
+    '25': '25'
+    '30': '30'
+    '35': '35'
+    '38': '38'
+    '40': '40'
+    '45': '45'
+    '50': '50'
+    '55': '55'
+    ' ': ' '
+p11_7:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '7': '7'
+    ' ': ' '
+p11_h7:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+p11_m7:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '0': '0'
+    '1': '1'
+    '2': '2'
+    '3': '3'
+    '4': '4'
+    '5': '5'
+    '6': '6'
+    '7': '7'
+    '8': '8'
+    '9': '9'
+    '10': '10'
+    '11': '11'
+    '12': '12'
+    '14': '14'
+    '15': '15'
+    '18': '18'
+    '20': '20'
+    '21': '21'
+    '25': '25'
+    '30': '30'
+    '32': '32'
+    '33': '33'
+    '35': '35'
+    '38': '38'
+    '40': '40'
+    '45': '45'
+    '50': '50'
+    ' ': ' '
+p11_8:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '8': '8'
+    ' ': ' '
+p11_h8:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '0': '0'
+    '1': '1'
+    '2': '2'
+    '3': '3'
+    '4': '4'
+    '5': '5'
+    '6': '6'
+    '7': '7'
+    '8': '8'
+    '9': '9'
+    '10': '10'
+    '11': '11'
+    '12': '12'
+    '13': '13'
+    '14': '14'
+    '15': '15'
+    '16': '16'
+    '17': '17'
+    '18': '18'
+    '19': '19'
+    '20': '20'
+    '21': '21'
+    '22': '22'
+    '24': '24'
+    '25': '25'
+    '26': '26'
+    '27': '27'
+    '28': '28'
+    '30': '30'
+    '32': '32'
+    '34': '34'
+    '35': '35'
+    '36': '36'
+    '40': '40'
+    '42': '42'
+    '44': '44'
+    '45': '45'
+    '48': '48'
+    '50': '50'
+    '56': '56'
+    '57': '57'
+    '60': '60'
+    '63': '63'
+    '68': '68'
+    '70': '70'
+    '84': '84'
+    '90': '90'
+    '95': '95'
+    '98': '98'
+    '99': '99'
+    ' ': ' '
+p11_m8:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '0': '0'
+    '2': '2'
+    '3': '3'
+    '4': '4'
+    '5': '5'
+    '6': '6'
+    '8': '8'
+    '10': '10'
+    '15': '15'
+    '20': '20'
+    '25': '25'
+    '30': '30'
+    '35': '35'
+    '38': '38'
+    '40': '40'
+    '45': '45'
+    '50': '50'
+    ' ': ' '
+ur:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '1': '1'
+    '2': '2'
+tipo:
+  Descripción: Tipo de muestra (presente desde 2020-T3)
+  Tipo: Carácter
+  Longitud: '1'
+  Categorías:
+    '1': ENOE
+    '2': ENOE-CATI
+mes_cal:
+  Descripción: Mes calendario — clasificación mensual del registro; base del ponderador
+    mensual FAC_MEN (presente desde 2020-T3). Los códigos de mes se emiten sin cero
+    a la izquierda en el CSV (1-12). Códigos especiales 96-99 por trimestre (Q1=96,
+    Q2=97, Q3=98, Q4=99) — registros sin mes calendario específico.
+  Tipo: Carácter
+  Longitud: '2'
+  Categorías:
+    '1': Enero
+    '2': Febrero
+    '3': Marzo
+    '4': Abril
+    '5': Mayo
+    '6': Junio
+    '7': Julio
+    '8': Agosto
+    '9': Septiembre
+    '10': Octubre
+    '11': Noviembre
+    '12': Diciembre
+    '96': Sin mes calendario específico (trimestre 1)
+    '97': Sin mes calendario específico (trimestre 2)
+    '98': Sin mes calendario específico (trimestre 3)
+    '99': Sin mes calendario específico (trimestre 4)
+fac_tri:
+  Descripción: Ponderador trimestral — permite obtener los resultados trimestrales
+    (desde 2020-T3)
+  Tipo: Numérico
+  Longitud: '6'
+  Categorías: {}
+fac_men:
+  Descripción: Ponderador mensual — resultados mensuales con base en el campo MES_CAL
+    (desde 2020-T3)
+  Tipo: Numérico
+  Longitud: '6'
+  Categorías: {}
+cve_mun:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+cvegeo:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
