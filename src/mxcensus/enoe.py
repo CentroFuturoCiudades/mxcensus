@@ -50,7 +50,7 @@ _WEIGHTS = {"fac", "fac_tri", "fac_men"}
 # identifiers are NOT unique within a quarter file — a dwelling/person recurs across
 # ``tipo``/``mes_cal``), so the household/person keys must extend them. They appear from
 # 2020-T3 (``ca`` only for 2020-T3…2021-T2); pre-2020-T3 files simply lack them and the base
-# key is used. The entity code was renamed ``ent`` → ``cve_ent`` in 2026-T1 (the ``cve_*``
+# key is used. The entity code was renamed ``ent`` → ``cve_ent`` in 2025-T3 (the ``cve_*``
 # geographic-key rename), so it resolves across both names.
 _ENT_ALIASES = ("ent", "cve_ent")
 _DWELLING_KEY_SPEC: list[tuple[str, ...]] = [
@@ -267,7 +267,7 @@ def load_enoe_persons(
 
     key = _person_key(sdem, coe1, coe2)
     # Guard against a silent fan-out: if the key isn't unique in SDEM (e.g. a future era
-    # renames a key column so it drops out of the join, as 2026-T1 did with ent→cve_ent),
+    # renames a key column so it drops out of the join, as 2025-T3 did with ent→cve_ent),
     # the left-join inflates rows and weighted totals. Warn loudly rather than mislead.
     if sdem.duplicated(subset=key).any():
         warnings.warn(

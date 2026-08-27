@@ -49,7 +49,7 @@ from ._catalog import CatalogEntry
 _BASE = "https://www.inegi.org.mx/contenidos/programas/enoe/15ymas/microdatos/"
 
 # Date this catalog was last verified against the live INEGI tree.
-CATALOG_VERIFIED_DATE = "2026-07-10"
+CATALOG_VERIFIED_DATE = "2026-08-27"
 
 # The five data tables in every quarter's ZIP (dwelling, household, sociodemographic,
 # and the two employment-questionnaire parts). SDEM is the main person-level table.
@@ -57,7 +57,7 @@ TABLES: tuple[str, ...] = ("viv", "hog", "sdem", "coe1", "coe2")
 
 # First and latest available quarters, and the face-to-face gap (see module docstring).
 _EARLIEST = (2005, 1)
-_LATEST = (2026, 1)
+_LATEST = (2026, 2)
 _GAPS: set[tuple[int, int]] = {(2020, 2)}
 
 # regime → (member-name prefix, uppercase?) for the in-ZIP CSV member name.
@@ -188,7 +188,7 @@ def _generate_quarters() -> list[EnoeQuarter]:
     return quarters
 
 
-# Chronological catalog of available quarters (2005-Q1 … 2026-Q1, excluding 2020-Q2).
+# Chronological catalog of available quarters (2005-Q1 … 2026-Q2, excluding 2020-Q2).
 QUARTERS: list[EnoeQuarter] = _generate_quarters()
 
 QUARTERS_BY_PERIOD: dict[str, EnoeQuarter] = {q.period: q for q in QUARTERS}

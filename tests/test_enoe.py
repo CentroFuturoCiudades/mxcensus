@@ -180,7 +180,7 @@ def test_person_key_uses_ent_alias():
 
 
 def test_person_key_uses_cve_ent_alias():
-    """2026-T1 renamed ``ent`` → ``cve_ent``; the entity component resolves to the new name."""
+    """2025-T3 renamed ``ent`` → ``cve_ent``; the entity component resolves to the new name."""
     frame = pd.DataFrame(
         {c: ["1"] for c in ("cd_a", "cve_ent", "con", "v_sel", "n_hog", "h_mud", "n_ren")}
     )

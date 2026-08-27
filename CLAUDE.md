@@ -69,7 +69,7 @@ Hugging Face Storage Bucket (raw parquet mirror)
 | `data/_paths.py` | Cache-dir resolution via `platformdirs`; respects `$MXCENSUS_CACHE_DIR` |
 | `data/_catalog.py` | `STATE_ABBR`, `STATE_CODE_FMT`, INEGI census URL builders, and the `CatalogEntry` dataclass |
 | `data/_denue_catalog.py` | `DenueRelease`, `RELEASES` (25 verified release URL templates incl. state-15 multipart & per-release quirks), `denue_zip_entry`, `latest_release` |
-| `data/_enoe_catalog.py` | ENOE bulk-download catalog: `EnoeQuarter`, `QUARTERS` (84 quarters 2005-T1…2026-T1, 2020-T2 ETOE gap excluded), `QUARTERS_BY_PERIOD`, `latest_quarter`, `TABLES`, three filename regimes (`enoe_old`/`enoen`/`enoe_new`) + `find_member`. National (one ZIP per quarter, five tables) |
+| `data/_enoe_catalog.py` | ENOE bulk-download catalog: `EnoeQuarter`, `QUARTERS` (85 quarters 2005-T1…2026-T2, 2020-T2 ETOE gap excluded), `QUARTERS_BY_PERIOD`, `latest_quarter`, `TABLES`, three filename regimes (`enoe_old`/`enoen`/`enoe_new`) + `find_member`. National (one ZIP per quarter, five tables) |
 | `scripts/_build_common.py` | **Maintainer-only** — shared build helpers: `fetch_zip_verified` (download+verify+retry), `detect_encoding`, `update_registry` (append/upsert preserving prior entries) |
 | `scripts/build_data.py` | **Maintainer-only** — downloads raw census ZIPs from INEGI, converts CSVs to parquet, regenerates `registry.txt` |
 | `scripts/build_marco_geo.py` | **Maintainer-only** — downloads INEGI's Marco Geoestadístico 2020 per-state shapefile ZIPs (UPC 889463807469, via `marco_geo_zip_url`) and converts the 15 layers/state to geoparquet (`mg_{suffix}_{NN}.parquet`, single→Multi* geometry, int32 codes, source `.prj` CRS); appends to `registry.txt`. `--local-gpkg-dir DIR` uses a local gpkg copy instead of downloading |
@@ -120,10 +120,10 @@ mg_{suffix}_{NN}.parquet   # suffix ∈ {a,ar,cd,e,ent,fm,l,lpr,m,mun,pe,pem,sia
 # DENUE economic units (25 releases × 32 states = 800 geoparquet, points) — scripts/build_denue.py
 denue_{YYYYMM}_{NN}.parquet   # YYYYMM = release id (e.g. 202505); EPSG:4326
 
-# ENOE labor-force survey (84 quarters × 5 tables = 420 parquet, national, no geometry) — scripts/build_enoe.py
+# ENOE labor-force survey (85 quarters × 5 tables = 425 parquet, national, no geometry) — scripts/build_enoe.py
 enoe_{table}_{period}.parquet   # table ∈ {viv,hog,sdem,coe1,coe2}; period = {year}t{quarter} (e.g. 2023t1)
 ```
-Registry totals: 128 census + 480 geo + 800 DENUE + 420 ENOE = **1828** entries.
+Registry totals: 128 census + 480 geo + 800 DENUE + 425 ENOE = **1833** entries.
 
 To rebuild the **census** mirror after an INEGI data update:
 ```bash
@@ -165,7 +165,7 @@ from the built parquet):
 ```bash
 python scripts/build_enoe.py --dry-run --periods 2023t1   # smoke test (prints URLs/members)
 python scripts/build_enoe.py --periods 2023t1             # one quarter (5 tables)
-python scripts/build_enoe.py                              # all 84 quarters × 5 tables (~2.5 GB); resumable
+python scripts/build_enoe.py                              # all 85 quarters × 5 tables (~2.5 GB); resumable
 python scripts/build_enoe.py --schema-map                 # regenerate enoe_schema_map.yaml
 python scripts/build_enoe.py --variables                  # regenerate variables_enoe_<table>_<gNN>.yaml (core overlay)
 python scripts/build_enoe.py --report-only                # regenerate INCONSISTENCY_REPORT.md
@@ -245,12 +245,12 @@ ENOE is INEGI's quarterly labor-force survey — the fourth data family, modelle
 machinery (per-period, faithful-raw `dtype=str` parquet + fingerprint schema-groups +
 warn-not-raise validation → HF-bucket mirror → release-qualified loader) **minus geometry**.
 Unlike census/DENUE it is **national** (one file set per quarter, no per-state split), with
-**five tables** per quarter (`viv`/`hog`/`sdem`/`coe1`/`coe2`) across **84 quarters**
-2005-T1…2026-T1 (2020-T2 is the ETOE COVID gap, excluded — see `data/_enoe_catalog.py`).
+**five tables** per quarter (`viv`/`hog`/`sdem`/`coe1`/`coe2`) across **85 quarters**
+2005-T1…2026-T2 (2020-T2 is the ETOE COVID gap, excluded — see `data/_enoe_catalog.py`).
 
 It drifts across eras — three ZIP-filename regimes (`enoe_old`/`enoen`/`enoe_new`), the
 `FAC`→`FAC_TRI` weight rename (2020-T3), the `ENOEN`→`ENOE` member rename (2023), and the
-`ent`→`cve_ent` geographic-key rename (2026-T1) — plus the COE ampliado/básico alternation
+`ent`→`cve_ent` geographic-key rename (2025-T3) — plus the COE ampliado/básico alternation
 that changes the COE1/COE2 column sets by quarter. This is captured empirically: every file
 is fingerprinted into a **per-table** schema group (`enoe_schema_map.yaml`), and
 `load_enoe(table=, period=)` validates it against `_group_schema(table, gid)` (value-level

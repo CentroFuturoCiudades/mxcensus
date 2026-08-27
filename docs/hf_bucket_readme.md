@@ -14,10 +14,10 @@ maintained by INEGI.**
 | Census tabular (`iter_*`, `resargebub_*`, `personas_*`, `viviendas_*`) | 128 | Censo de Población y Vivienda 2020 (ITER, RESAGEBURB, Cuestionario Ampliado) |
 | Marco Geoestadístico (`mg_*`, 15 layers × 32 states) | 480 | Marco Geoestadístico, Censo de Población y Vivienda 2020 (UPC 889463807469) |
 | DENUE economic units (`denue_{YYYYMM}_*`, 25 releases 2010–2026) | 800 | Directorio Estadístico Nacional de Unidades Económicas (DENUE) |
-| ENOE labor-force survey (`enoe_{table}_{period}`, 84 quarters 2005–2026 × 5 tables) | 420 | Encuesta Nacional de Ocupación y Empleo (ENOE) |
+| ENOE labor-force survey (`enoe_{table}_{period}`, 85 quarters 2005–2026 × 5 tables) | 425 | Encuesta Nacional de Ocupación y Empleo (ENOE) |
 
 Files are stored flat at the bucket root as `<name>.parquet`; the full naming scheme and
-schema are documented in the package repository. **Total: 1828 files.**
+schema are documented in the package repository. **Total: 1833 files.**
 
 ## Source & attribution
 
