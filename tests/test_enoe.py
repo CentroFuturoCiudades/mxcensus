@@ -26,10 +26,15 @@ from mxcensus.enoe import (
     _HOUSEHOLD_KEY_SPEC,
     _PERSON_KEY_SPEC,
     _WEIGHTS,
+    _CORE_ADD,
+    _RENAME_CORE,
+    _core_order,
     _filter_ent,
     _fingerprint,
     _group_of,
     _group_schema,
+    _harmonize,
+    _latest_schema,
     _level_key,
     _person_key,
 )
@@ -271,10 +276,91 @@ def test_enoe_resources_exported():
     assert callable(mxcensus.variables_enoe_core)
 
 
-def test_harmonize_not_implemented():
-    # harmonize=True short-circuits (raises) before any file access, so this needs no mirror.
-    with pytest.raises(NotImplementedError):
-        mxcensus.load_enoe(table="sdem", harmonize=True)
+# --- harmonization (synthetic frames; no mirror needed) ---------------------------
+
+def _old_era_frame() -> pd.DataFrame:
+    """A pre-2020-T3-style SDEM slice: un-padded codes, ``fac``, no ``tipo``/``mes_cal``."""
+    return pd.DataFrame({
+        "cd_a": ["01"], "ent": ["9"], "con": ["1"], "v_sel": ["1"], "n_hog": ["1"],
+        "h_mud": ["0"], "n_ren": ["1"], "mun": ["7"], "loc": [" "], "ageb": ["0"],
+        "fac": ["770"], "est_d": ["1"], "t_loc": ["1"], "clase1": ["1"], "cs_p20_des": ["x"],
+    }, dtype=str)
+
+
+def test_harmonize_renames_core_and_pads_codes():
+    h = _harmonize(_old_era_frame(), "sdem")
+    for src, tgt in _RENAME_CORE.items():
+        assert src not in h.columns and tgt in h.columns
+    assert h["cve_ent"].iloc[0] == "09" and h["cve_mun"].iloc[0] == "007"
+    assert h["cvegeo"].iloc[0] == "09007"
+    assert h["fac_tri"].iloc[0] == "770"
+    for col in _CORE_ADD:
+        assert col in h.columns
+    assert h["fac_men"].isna().all() and h["tipo"].isna().all() and h["mes_cal"].isna().all()
+    # non-core, era-only columns survive verbatim (no DENUE-style projection)
+    assert h["cs_p20_des"].iloc[0] == "x"
+    # core columns lead, in dictionary order
+    lead = [c for c in _core_order() if c in h.columns]
+    assert list(h.columns[: len(lead)]) == lead
+
+
+def test_harmonize_lowercases_2019_uppercase_files():
+    up = _old_era_frame().rename(columns=str.upper)
+    h = _harmonize(up, "coe1")
+    assert all(c == c.lower() for c in h.columns)
+    assert "cve_ent" in h.columns and "fac_tri" in h.columns
+
+
+def test_harmonize_cvegeo_unspecified_municipality():
+    f = _old_era_frame()
+    f["mun"] = [" "]
+    assert _harmonize(f, "sdem")["cvegeo"].iloc[0] == "09999"
+
+
+def test_harmonize_is_idempotent_on_modern_frame():
+    modern = _harmonize(_old_era_frame(), "sdem")
+    again = _harmonize(modern, "sdem")
+    pd.testing.assert_frame_equal(modern, again)
+
+
+def test_harmonize_refuses_mixed_era_frame():
+    f = _old_era_frame()
+    f["cve_ent"] = ["09"]
+    with pytest.raises(ValueError, match="both a legacy column and its target"):
+        _harmonize(f, "sdem")
+
+
+def test_harmonize_warns_when_core_source_missing():
+    f = _old_era_frame().drop(columns=["fac"])
+    with pytest.warns(UserWarning, match="_RENAME_CORE may be stale"):
+        _harmonize(f, "sdem")
+
+
+def test_core_order_has_no_duplicates():
+    order = _core_order()
+    assert len(order) == len(set(order))
+    assert "fac" not in order and "ent" not in order
+
+
+@pytest.mark.parametrize("table", TABLES)
+def test_latest_schema_builds_and_accepts_harmonized(table):
+    schema = _latest_schema(table)
+    h = _harmonize(_old_era_frame(), table)
+    schema.validate(h, lazy=True)
+
+
+def test_latest_schema_rejects_out_of_catalog_core_value():
+    f = _old_era_frame()
+    f["clase1"] = ["7"]  # not an FD code (0/1/2)
+    with pytest.raises(pa.errors.SchemaErrors):
+        _latest_schema("sdem").validate(_harmonize(f, "sdem"), lazy=True)
+
+
+def test_latest_schema_rejects_unpadded_ent():
+    h = _harmonize(_old_era_frame(), "sdem")
+    h["cve_ent"] = ["9"]
+    with pytest.raises(pa.errors.SchemaErrors):
+        _latest_schema("sdem").validate(h, lazy=True)
 
 
 def test_load_enoe_unknown_table():
@@ -402,3 +488,70 @@ def test_load_enoe_survey_ent_filter_real(local_mirror):
     for lvl in (viv, hog, per):
         ent_vals = pd.to_numeric(lvl.index.get_level_values("ent"))
         assert set(ent_vals) == {9}
+
+
+# --- harmonization against real quarters (one per era) -----------------------------
+
+_ERA_PERIODS = ["2005t1", "2019t1", "2020t3", "2021t3", "2023t1", "2026t1"]
+
+
+@pytest.mark.skipif(not _REAL, reason="no local ENOE mirror (data/parquet/)")
+@pytest.mark.parametrize("period", _ERA_PERIODS)
+@pytest.mark.parametrize("table", ["sdem", "coe1", "viv"])
+def test_harmonized_real_validates_clean(local_mirror, table, period):
+    if not (_MIRROR / f"enoe_{table}_{period}.parquet").exists():
+        pytest.skip(f"{table} {period} not built locally")
+    with warnings.catch_warnings(record=True) as w:
+        warnings.simplefilter("always")
+        h = mxcensus.load_enoe(table=table, period=period, harmonize=True)
+    assert not [x for x in w if "schema violation" in str(x.message) or "stale" in str(x.message)]
+    assert {"cve_ent", "fac_tri", *_CORE_ADD} <= set(h.columns)
+    assert h["cve_ent"].str.fullmatch(r"\d{2}").all()
+    assert h["cvegeo"].dropna().str.fullmatch(r"\d{5}").all()
+    raw = mxcensus.load_enoe(table=table, period=period)
+    assert len(h) == len(raw)
+    # nothing but the core renames/additions changed the column set
+    assert set(raw.columns.str.lower()) - set(h.columns) <= set(_RENAME_CORE)
+
+
+@pytest.mark.skipif(not _REAL, reason="no local ENOE mirror (data/parquet/)")
+def test_harmonized_cvegeo_matches_inegi(local_mirror):
+    """Our derived cvegeo equals INEGI's own in an era that ships it."""
+    raw = mxcensus.load_enoe(table="sdem", period="2026t1")
+    derived = _harmonize(raw.drop(columns=["cvegeo"]), "sdem")["cvegeo"]
+    assert derived.equals(raw["cvegeo"])
+
+
+# Weighted totals must be identical with and without harmonization on both sides of each
+# rename boundary (fac→fac_tri in 2020-T3, ca dropped in 2021-T3, ent→cve_ent in 2025-T3).
+_BOUNDARIES = [("2020t1", "2020t3"), ("2021t2", "2021t3"), ("2025t2", "2025t3")]
+
+
+@pytest.mark.skipif(not _REAL, reason="no local ENOE mirror (data/parquet/)")
+@pytest.mark.parametrize("before,after", _BOUNDARIES)
+def test_harmonized_persons_continuity(local_mirror, before, after):
+    for per in (before, after):
+        if not (_MIRROR / f"enoe_coe2_{per}.parquet").exists():
+            pytest.skip(f"{per} not built locally")
+    totals = {}
+    for per in (before, after):
+        raw = mxcensus.load_enoe_persons(period=per)
+        with warnings.catch_warnings(record=True) as w:
+            warnings.simplefilter("always")
+            harm = mxcensus.load_enoe_persons(period=per, harmonize=True)
+        assert not [x for x in w if "not unique" in str(x.message)]   # no fan-out
+        assert len(harm) == len(raw)
+        assert harm["fac_tri"].sum() == raw["fac_tri"].sum()
+        assert harm.loc[harm["is_pea"], "fac_tri"].sum() == raw.loc[raw["is_pea"], "fac_tri"].sum()
+        assert "cve_ent" in harm.columns and "ent" not in harm.columns
+        totals[per] = harm.loc[harm["is_pea"], "fac_tri"].sum()
+    # adjacent quarters: PEA moves by well under 10 % (2020-T1→T3 is the COVID trough)
+    assert abs(totals[after] / totals[before] - 1) < 0.10
+
+
+@pytest.mark.skipif(not _REAL, reason="no local ENOE mirror (data/parquet/)")
+def test_harmonized_survey_shared_index_names(local_mirror):
+    viv, hog, per = mxcensus.load_enoe_survey(period="2005t1", harmonize=True)
+    assert viv.index.names[1] == "cve_ent"
+    assert list(viv.index.names) == list(hog.index.names[: viv.index.nlevels])
+    assert list(hog.index.names) == list(per.index.names[: hog.index.nlevels])

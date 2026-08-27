@@ -127,12 +127,26 @@ informal   = persons.loc[persons["is_informal"], "fac_tri"].sum()
 `load_enoe_persons` adds `is_pea` / `is_ocupado` / `is_informal` boolean flags and a canonical
 numeric `fac_tri` expansion weight (coalescing the pre-2020 `fac` and later `fac_tri` columns),
 and handles the survey's cross-era drift automatically — the `ent`→`cve_ent` geographic-key
-rename (2026), the `FAC`→`FAC_TRI` weight rename (2020-T3), and the panel-era person key. Every
-column is otherwise the faithful raw value. ENOE's schema drifts across eras, so each file is
-fingerprinted into a **per-table schema group** and validated on load; cross-era
-harmonization of the raw tables is not yet implemented (`harmonize=True` raises). The schema
+rename (2025-T3), the `FAC`→`FAC_TRI` weight rename (2020-T3), and the panel-era person key.
+Every column is otherwise the faithful raw value. ENOE's schema drifts across eras, so each
+file is fingerprinted into a **per-table schema group** and validated on load. The schema
 groups, per-quarter inconsistency report, and validation report live in
 [docs/enoe/](docs/enoe/).
+
+Pass `harmonize=True` to any ENOE loader to canonicalize the **analytical core** across eras
+so quarters stack for longitudinal analysis: column names lowercased, `fac`→`fac_tri`
+(+ `fac_men`), `ent`/`mun`→zero-padded `cve_ent`/`cve_mun` plus a derived `cvegeo`,
+`tipo`/`mes_cal` added (empty) before 2020-T3. Unlike DENUE, every other column is kept
+verbatim — the COE alternates an *ampliado* (Q1) and a *básico* (Q2–Q4) questionnaire with
+different item sets, so no era is projected onto another's column list:
+
+```python
+panel = pd.concat(
+    mxcensus.load_enoe_persons(period=p, harmonize=True).assign(period=p)
+    for p in ["2019t1", "2020t3", "2023t1", "2026t1"]
+)
+panel.groupby(["period", "cve_ent"])["fac_tri"].sum()   # same key/weight names in every era
+```
 
 #### Dwelling / household / combined loaders
 
