@@ -64,6 +64,26 @@ def variables_enoe_core() -> dict:
     return _load_yaml("variables_enoe_core.yaml")
 
 
+def variables_enigh(table: str, schema_id: str) -> dict:
+    """Variable dictionary for one ENIGH (table, schema group), e.g.
+    ``variables_enigh("concentradohogar", "g02")``. Categorías are data-derived except for
+    the analytical-core variables, which carry the hand-curated labels (see
+    :func:`variables_enigh_core`)."""
+    return _load_yaml(f"variables_enigh_{table}_{schema_id}.yaml")
+
+
+def enigh_schema_map() -> dict:
+    """ENIGH schema map, namespaced per table (``concentradohogar``/``poblacion``/…); each
+    table maps fingerprints→group, group→columns, and its own ``latest`` group."""
+    return _load_yaml("enigh_schema_map.yaml")
+
+
+def variables_enigh_core() -> dict:
+    """Hand-curated ENIGH analytical-core dictionary: the survey keys, expansion factor,
+    geography, and the main income/expenditure aggregates and household-head variables."""
+    return _load_yaml("variables_enigh_core.yaml")
+
+
 def constraints_personas() -> dict:
     return _load_yaml("constraints_personas.yaml")
 
