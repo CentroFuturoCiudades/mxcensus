@@ -1,0 +1,145 @@
+folioviv:
+  Descripción: Identificador de la vivienda (folio). Los dos primeros caracteres son
+    la clave de la entidad federativa.
+  Tipo: str
+  Longitud: 6 (2008–2012) / 10 (2014+)
+  Categorías: {}
+foliohog:
+  Descripción: Identificador del hogar dentro de la vivienda.
+  Tipo: str
+  Longitud: '1'
+  Categorías: {}
+numren:
+  Descripción: Número de renglón (identificador de la persona dentro del hogar).
+  Tipo: str
+  Longitud: '2'
+  Categorías: {}
+clave:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+mes_1:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '7': '7'
+    '07': '07'
+    08: 08
+    '8': '8'
+    09: 09
+    '9': '9'
+    '10': '10'
+    '11': '11'
+    ' ': ' '
+mes_2:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '06': '06'
+    '6': '6'
+    '7': '7'
+    '07': '07'
+    08: 08
+    '8': '8'
+    09: 09
+    '9': '9'
+    '10': '10'
+    ' ': ' '
+mes_3:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '5': '5'
+    '05': '05'
+    '06': '06'
+    '6': '6'
+    '7': '7'
+    '07': '07'
+    08: 08
+    '8': '8'
+    09: 09
+    ' ': ' '
+mes_4:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '4': '4'
+    '04': '04'
+    '5': '5'
+    '05': '05'
+    '06': '06'
+    '6': '6'
+    '7': '7'
+    '07': '07'
+    08: 08
+    ' ': ' '
+mes_5:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '03': '03'
+    '3': '3'
+    '4': '4'
+    '04': '04'
+    '5': '5'
+    '05': '05'
+    '06': '06'
+    '6': '6'
+    '07': '07'
+    ' ': ' '
+mes_6:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '02': '02'
+    '2': '2'
+    '03': '03'
+    '3': '3'
+    '4': '4'
+    '04': '04'
+    '5': '5'
+    '05': '05'
+    '06': '06'
+    ' ': ' '
+ing_1:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+ing_2:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+ing_3:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+ing_4:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+ing_5:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+ing_6:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+ing_tri:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}

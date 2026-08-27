@@ -1,0 +1,144 @@
+folioviv:
+  Descripción: Identificador de la vivienda (folio). Los dos primeros caracteres son
+    la clave de la entidad federativa.
+  Tipo: str
+  Longitud: 6 (2008–2012) / 10 (2014+)
+  Categorías: {}
+foliohog:
+  Descripción: Identificador del hogar dentro de la vivienda.
+  Tipo: str
+  Longitud: '1'
+  Categorías: {}
+clave:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    Q001: Q001
+    Q002: Q002
+    Q003: Q003
+    Q004: Q004
+    Q005: Q005
+    Q006: Q006
+    Q007: Q007
+    Q008: Q008
+    Q009: Q009
+    Q010: Q010
+    Q011: Q011
+    Q012: Q012
+    Q013: Q013
+    Q014: Q014
+    Q015: Q015
+    Q016: Q016
+mes1:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '7': '7'
+    '07': '07'
+    08: 08
+    '8': '8'
+    09: 09
+    '9': '9'
+    '10': '10'
+mes2:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '06': '06'
+    '6': '6'
+    '7': '7'
+    '07': '07'
+    08: 08
+    '8': '8'
+    09: 09
+    '9': '9'
+mes3:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '5': '5'
+    '05': '05'
+    '06': '06'
+    '6': '6'
+    '7': '7'
+    '07': '07'
+    08: 08
+    '8': '8'
+mes4:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '4': '4'
+    '04': '04'
+    '5': '5'
+    '05': '05'
+    '06': '06'
+    '6': '6'
+    '7': '7'
+    '07': '07'
+mes5:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '03': '03'
+    '3': '3'
+    '4': '4'
+    '04': '04'
+    '5': '5'
+    '05': '05'
+    '06': '06'
+    '6': '6'
+mes6:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '02': '02'
+    '2': '2'
+    '03': '03'
+    '3': '3'
+    '4': '4'
+    '04': '04'
+    '5': '5'
+    '05': '05'
+ero_1:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+ero_2:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+ero_3:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+ero_4:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+ero_5:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+ero_6:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+ero_tri:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}

@@ -1,0 +1,58 @@
+folioviv:
+  Descripción: Identificador de la vivienda (folio). Los dos primeros caracteres son
+    la clave de la entidad federativa.
+  Tipo: str
+  Longitud: 6 (2008–2012) / 10 (2014+)
+  Categorías: {}
+foliohog:
+  Descripción: Identificador del hogar dentro de la vivienda.
+  Tipo: str
+  Longitud: '1'
+  Categorías: {}
+clave:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    TB01: TB01
+    TB02: TB02
+    TB03: TB03
+    TB04: TB04
+    TB05: TB05
+    TB06: TB06
+    TB07: TB07
+    TB08: TB08
+    TB09: TB09
+    TB10: TB10
+    TB11: TB11
+    TB12: TB12
+    TB13: TB13
+    TB14: TB14
+    TB15: TB15
+    TR01: TR01
+    TR02: TR02
+    TR03: TR03
+    TR04: TR04
+    TR07: TR07
+    TR08: TR08
+    TR09: TR09
+    TR10: TR10
+    TR11: TR11
+    TR12: TR12
+    TR13: TR13
+    TR14: TR14
+gasto:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+pago_mp:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+gasto_tri:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}

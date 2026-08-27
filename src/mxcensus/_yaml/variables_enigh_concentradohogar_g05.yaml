@@ -1,0 +1,747 @@
+folioviv:
+  Descripción: Identificador de la vivienda (folio). Los dos primeros caracteres son
+    la clave de la entidad federativa.
+  Tipo: str
+  Longitud: 6 (2008–2012) / 10 (2014+)
+  Categorías: {}
+foliohog:
+  Descripción: Identificador del hogar dentro de la vivienda.
+  Tipo: str
+  Longitud: '1'
+  Categorías: {}
+ubica_geo:
+  Descripción: Ubicación geográfica — clave de entidad (2) + municipio (3) [+ localidad
+    (4) en 2012–2022].
+  Tipo: str
+  Longitud: 5 / 9
+  Categorías: {}
+tam_loc:
+  Descripción: Tamaño de localidad.
+  Tipo: str
+  Longitud: '1'
+  Categorías:
+    '1': Localidades con 100 000 y más habitantes
+    '2': Localidades con 15 000 a 99 999 habitantes
+    '3': Localidades con 2 500 a 14 999 habitantes
+    '4': Localidades con menos de 2 500 habitantes
+est_socio:
+  Descripción: Estrato socioeconómico (2012+).
+  Tipo: str
+  Longitud: '1'
+  Categorías:
+    '1': Bajo
+    '2': Medio bajo
+    '3': Medio alto
+    '4': Alto
+est_dis:
+  Descripción: Estrato de diseño muestral.
+  Tipo: str
+  Longitud: '3'
+  Categorías: {}
+upm:
+  Descripción: Unidad primaria de muestreo.
+  Tipo: str
+  Longitud: '4'
+  Categorías: {}
+factor:
+  Descripción: Factor de expansión (de vivienda/hogar según la tabla; `factor_hog`/`factor_viv`
+    en 2012–2014).
+  Tipo: int
+  Longitud: ''
+  Categorías: {}
+clase_hog:
+  Descripción: Clase de hogar.
+  Tipo: str
+  Longitud: '1'
+  Categorías:
+    '1': Unipersonal
+    '2': Nuclear
+    '3': Ampliado
+    '4': Compuesto
+    '5': De corresidentes
+sexo_jefe:
+  Descripción: Sexo de la jefa o jefe del hogar.
+  Tipo: str
+  Longitud: '1'
+  Categorías:
+    '1': Hombre
+    '2': Mujer
+edad_jefe:
+  Descripción: Edad de la jefa o jefe del hogar.
+  Tipo: int
+  Longitud: ''
+  Categorías: {}
+educa_jefe:
+  Descripción: Nivel de escolaridad de la jefa o jefe del hogar.
+  Tipo: str
+  Longitud: '2'
+  Categorías:
+    '01': Sin instrucción
+    '02': Preescolar
+    '03': Primaria incompleta
+    '04': Primaria completa
+    '05': Secundaria incompleta
+    '06': Secundaria completa
+    '07': Preparatoria incompleta
+    08: Preparatoria completa
+    09: Profesional incompleta
+    '10': Profesional completa
+    '11': Posgrado
+    '1': Sin instrucción (sin cero a la izquierda, 2012)
+    '2': Preescolar (sin cero a la izquierda, 2012)
+    '3': Primaria incompleta (sin cero a la izquierda, 2012)
+    '4': Primaria completa (sin cero a la izquierda, 2012)
+    '5': Secundaria incompleta (sin cero a la izquierda, 2012)
+    '6': Secundaria completa (sin cero a la izquierda, 2012)
+    '7': Preparatoria incompleta (sin cero a la izquierda, 2012)
+    '8': Preparatoria completa (sin cero a la izquierda, 2012)
+    '9': Profesional incompleta (sin cero a la izquierda, 2012)
+tot_integ:
+  Descripción: Total de integrantes del hogar.
+  Tipo: int
+  Longitud: ''
+  Categorías: {}
+hombres:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '0': '0'
+    '1': '1'
+    '2': '2'
+    '3': '3'
+    '4': '4'
+    '5': '5'
+    '6': '6'
+    '7': '7'
+    '8': '8'
+    '9': '9'
+    '10': '10'
+    '11': '11'
+    '12': '12'
+    '13': '13'
+mujeres:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '0': '0'
+    '1': '1'
+    '2': '2'
+    '3': '3'
+    '4': '4'
+    '5': '5'
+    '6': '6'
+    '7': '7'
+    '8': '8'
+    '9': '9'
+    '10': '10'
+    '11': '11'
+    '12': '12'
+mayores:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '1': '1'
+    '2': '2'
+    '3': '3'
+    '4': '4'
+    '5': '5'
+    '6': '6'
+    '7': '7'
+    '8': '8'
+    '9': '9'
+    '10': '10'
+    '11': '11'
+    '12': '12'
+    '13': '13'
+    '14': '14'
+    '15': '15'
+menores:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '0': '0'
+    '1': '1'
+    '2': '2'
+    '3': '3'
+    '4': '4'
+    '5': '5'
+    '6': '6'
+    '7': '7'
+    '8': '8'
+    '9': '9'
+    '11': '11'
+    '14': '14'
+p12_64:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '0': '0'
+    '1': '1'
+    '2': '2'
+    '3': '3'
+    '4': '4'
+    '5': '5'
+    '6': '6'
+    '7': '7'
+    '8': '8'
+    '9': '9'
+    '10': '10'
+    '11': '11'
+    '12': '12'
+    '13': '13'
+    '14': '14'
+    '15': '15'
+p65mas:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '0': '0'
+    '1': '1'
+    '2': '2'
+    '3': '3'
+    '4': '4'
+    '5': '5'
+ocupados:
+  Descripción: Integrantes ocupados del hogar.
+  Tipo: int
+  Longitud: ''
+  Categorías: {}
+percep_ing:
+  Descripción: Perceptores de ingreso en el hogar.
+  Tipo: int
+  Longitud: ''
+  Categorías: {}
+perc_ocupa:
+  Descripción: Perceptores de ingreso ocupados en el hogar.
+  Tipo: int
+  Longitud: ''
+  Categorías: {}
+ing_cor:
+  Descripción: Ingreso corriente total trimestral del hogar (monetario + no monetario).
+  Tipo: float
+  Longitud: ''
+  Categorías: {}
+ingtrab:
+  Descripción: Ingreso trimestral por trabajo.
+  Tipo: float
+  Longitud: ''
+  Categorías: {}
+trabajo:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+sueldos:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+horas_extr:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+comisiones:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+aguinaldo:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+indemtrab:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+otra_rem:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+remu_espec:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+negocio:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+noagrop:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+industria:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+comercio:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+servicios:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+agrope:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+agricolas:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+pecuarios:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+reproducc:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+pesca:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+otros_trab:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+rentas:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+utilidad:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+arrenda:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+transfer:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+jubilacion:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+becas:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+donativos:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+remesas:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+bene_gob:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+transf_hog:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+trans_inst:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+estim_alqu:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+otros_ing:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+gasto_mon:
+  Descripción: Gasto corriente monetario trimestral del hogar.
+  Tipo: float
+  Longitud: ''
+  Categorías: {}
+alimentos:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+ali_dentro:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+cereales:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+carnes:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+pescado:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+leche:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+huevo:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+aceites:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+tuberculo:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+verduras:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+frutas:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+azucar:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+cafe:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+especias:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+otros_alim:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+bebidas:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+ali_fuera:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+tabaco:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+vesti_calz:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+vestido:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+calzado:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+vivienda:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+alquiler:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+pred_cons:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+agua:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+energia:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+limpieza:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+cuidados:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+utensilios:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+enseres:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+salud:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+atenc_ambu:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+hospital:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+medicinas:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+transporte:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+publico:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+foraneo:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+adqui_vehi:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+mantenim:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+refaccion:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+combus:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+comunica:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+educa_espa:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+educacion:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+esparci:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+paq_turist:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+personales:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+cuida_pers:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+acces_pers:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+otros_gas:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+transf_gas:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+percep_tot:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+retiro_inv:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+prestamos:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+otras_perc:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+ero_nm_viv:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+ero_nm_hog:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+erogac_tot:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+cuota_viv:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+mater_serv:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+material:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+servicio:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+deposito:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+prest_terc:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+pago_tarje:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+deudas:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+balance:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+otras_erog:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+smg:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '11089.8': '11089.8'
+    '15558.3': '15558.3'
+    '7952.4': '7952.4'

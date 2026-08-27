@@ -1,0 +1,913 @@
+folioviv:
+  Descripción: Identificador de la vivienda (folio). Los dos primeros caracteres son
+    la clave de la entidad federativa.
+  Tipo: str
+  Longitud: 6 (2008–2012) / 10 (2014+)
+  Categorías: {}
+foliohog:
+  Descripción: Identificador del hogar dentro de la vivienda.
+  Tipo: str
+  Longitud: '1'
+  Categorías: {}
+factor:
+  Descripción: Factor de expansión (de vivienda/hogar según la tabla; `factor_hog`/`factor_viv`
+    en 2012–2014).
+  Tipo: int
+  Longitud: ''
+  Categorías: {}
+tam_loc:
+  Descripción: Tamaño de localidad.
+  Tipo: str
+  Longitud: '1'
+  Categorías:
+    '1': Localidades con 100 000 y más habitantes
+    '2': Localidades con 15 000 a 99 999 habitantes
+    '3': Localidades con 2 500 a 14 999 habitantes
+    '4': Localidades con menos de 2 500 habitantes
+ubica_geo:
+  Descripción: Ubicación geográfica — clave de entidad (2) + municipio (3) [+ localidad
+    (4) en 2012–2022].
+  Tipo: str
+  Longitud: 5 / 9
+  Categorías: {}
+conapo:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '1': '1'
+    '2': '2'
+    '3': '3'
+    '4': '4'
+    '5': '5'
+tenencia:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '1': '1'
+    '2': '2'
+    '3': '3'
+    '4': '4'
+    '5': '5'
+    '6': '6'
+    ' ': ' '
+clase_hog:
+  Descripción: Clase de hogar.
+  Tipo: str
+  Longitud: '1'
+  Categorías:
+    '1': Unipersonal
+    '2': Nuclear
+    '3': Ampliado
+    '4': Compuesto
+    '5': De corresidentes
+sexo:
+  Descripción: Sexo (tabla poblacion).
+  Tipo: str
+  Longitud: '1'
+  Categorías:
+    '1': Hombre
+    '2': Mujer
+edad:
+  Descripción: Edad en años cumplidos (tabla poblacion).
+  Tipo: int
+  Longitud: ''
+  Categorías: {}
+ed_formal:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '1': '1'
+    '2': '2'
+    '3': '3'
+    '4': '4'
+    '5': '5'
+    '6': '6'
+    '7': '7'
+    '8': '8'
+    '9': '9'
+    '10': '10'
+    '11': '11'
+tam_hog:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '1': '1'
+    '2': '2'
+    '3': '3'
+    '4': '4'
+    '5': '5'
+    '6': '6'
+    '7': '7'
+    '8': '8'
+    '9': '9'
+    '10': '10'
+    '11': '11'
+    '12': '12'
+    '13': '13'
+    '14': '14'
+    '15': '15'
+    '16': '16'
+    '20': '20'
+    '21': '21'
+hombres:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '0': '0'
+    '1': '1'
+    '2': '2'
+    '3': '3'
+    '4': '4'
+    '5': '5'
+    '6': '6'
+    '7': '7'
+    '8': '8'
+    '9': '9'
+    '12': '12'
+mujeres:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '0': '0'
+    '1': '1'
+    '2': '2'
+    '3': '3'
+    '4': '4'
+    '5': '5'
+    '6': '6'
+    '7': '7'
+    '8': '8'
+    '9': '9'
+    '10': '10'
+    '11': '11'
+    '12': '12'
+    '14': '14'
+tot_resi:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '1': '1'
+    '2': '2'
+    '3': '3'
+    '4': '4'
+    '5': '5'
+    '6': '6'
+    '7': '7'
+    '8': '8'
+    '9': '9'
+    '10': '10'
+    '11': '11'
+    '12': '12'
+    '13': '13'
+    '14': '14'
+    '15': '15'
+    '16': '16'
+    '20': '20'
+    '21': '21'
+tot_hom:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '0': '0'
+    '1': '1'
+    '2': '2'
+    '3': '3'
+    '4': '4'
+    '5': '5'
+    '6': '6'
+    '7': '7'
+    '8': '8'
+    '9': '9'
+    '12': '12'
+tot_muj:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '0': '0'
+    '1': '1'
+    '2': '2'
+    '3': '3'
+    '4': '4'
+    '5': '5'
+    '6': '6'
+    '7': '7'
+    '8': '8'
+    '9': '9'
+    '10': '10'
+    '11': '11'
+    '12': '12'
+    '14': '14'
+mayores:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '1': '1'
+    '2': '2'
+    '3': '3'
+    '4': '4'
+    '5': '5'
+    '6': '6'
+    '7': '7'
+    '8': '8'
+    '9': '9'
+    '10': '10'
+    '11': '11'
+    '12': '12'
+    '13': '13'
+menores:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '0': '0'
+    '1': '1'
+    '2': '2'
+    '3': '3'
+    '4': '4'
+    '5': '5'
+    '6': '6'
+    '7': '7'
+    '8': '8'
+    '9': '9'
+p12_64:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '0': '0'
+    '1': '1'
+    '2': '2'
+    '3': '3'
+    '4': '4'
+    '5': '5'
+    '6': '6'
+    '7': '7'
+    '8': '8'
+    '9': '9'
+    '10': '10'
+    '11': '11'
+    '12': '12'
+    '13': '13'
+p65mas:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '0': '0'
+    '1': '1'
+    '2': '2'
+    '3': '3'
+    '4': '4'
+n_ocup:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '0': '0'
+    '1': '1'
+    '2': '2'
+    '3': '3'
+    '4': '4'
+    '5': '5'
+    '6': '6'
+    '7': '7'
+    '8': '8'
+    '9': '9'
+    '10': '10'
+pering:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '0': '0'
+    '1': '1'
+    '2': '2'
+    '3': '3'
+    '4': '4'
+    '5': '5'
+    '6': '6'
+    '7': '7'
+    '8': '8'
+    '9': '9'
+    '10': '10'
+    '11': '11'
+    '12': '12'
+    '13': '13'
+perocu:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '0': '0'
+    '1': '1'
+    '2': '2'
+    '3': '3'
+    '4': '4'
+    '5': '5'
+    '6': '6'
+    '7': '7'
+    '8': '8'
+    '9': '9'
+    '10': '10'
+ingcor:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+ingtrab:
+  Descripción: Ingreso trimestral por trabajo.
+  Tipo: float
+  Longitud: ''
+  Categorías: {}
+trabajo:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+sueldos:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+horext:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+comis:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+agui:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+indemtrab:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+otra_rem:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+rem_esp:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+negocio:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+noagrop:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+industria:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+comercio:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+servicios:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+agrope:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+agricolas:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+pecuarios:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+reproducc:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+pesca:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '0': '0'
+    '10271.54': '10271.54'
+    '10586.1': '10586.1'
+    '11232.47': '11232.47'
+    '1196.71': '1196.71'
+    '12264.27': '12264.27'
+    '12826.79': '12826.79'
+    '12830.35': '12830.35'
+    '1336.87': '1336.87'
+    '1339.9': '1339.9'
+    '1367.12': '1367.12'
+    '14315.43': '14315.43'
+    '145.18': '145.18'
+    '14688.85': '14688.85'
+    '15274.23': '15274.23'
+    '154.25': '154.25'
+    '16078.62': '16078.62'
+    '1717.66': '1717.66'
+    '17282.56': '17282.56'
+    '1805.69': '1805.69'
+    '19423.69': '19423.69'
+    '19507.92': '19507.92'
+    '2217.03': '2217.03'
+    '226.85': '226.85'
+    '251.04': '251.04'
+    '2830.22': '2830.22'
+    '28428.22': '28428.22'
+    '2911.9': '2911.9'
+    '30630.12': '30630.12'
+    '31310.66': '31310.66'
+    '314.56': '314.56'
+    '3164.58': '3164.58'
+    '3190.95': '3190.95'
+    '3327.06': '3327.06'
+    '3705.14': '3705.14'
+    '4068.09': '4068.09'
+    '4235.49': '4235.49'
+    '4809.11': '4809.11'
+    '505.11': '505.11'
+    '51.42': '51.42'
+    '535.45': '535.45'
+    '592.82': '592.82'
+    '6012.9': '6012.9'
+    '6481.72': '6481.72'
+    '6542.21': '6542.21'
+    '6617.82': '6617.82'
+    '6759.98': '6759.98'
+    '6802.33': '6802.33'
+    '695.66': '695.66'
+    '697.89': '697.89'
+    '72741.63': '72741.63'
+    '7310.46': '7310.46'
+    '7454.22': '7454.22'
+    '839.28': '839.28'
+    '84.23': '84.23'
+    '8510.08': '8510.08'
+    '8792.51': '8792.51'
+    '895.28': '895.28'
+    '9285.52': '9285.52'
+otros_trab:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+rentas:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+utilidad:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+arrenda:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+transfer:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+jubila:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+beca:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+donativo:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+remesa:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+bene_gob:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+esp_hog:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+esp_inst:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+esti:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+otros:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+gasmon:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+alimentos:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+ali_dent:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+cereales:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+carnes:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+pescado:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+leche:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+huevo:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+aceites:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+tuberculo:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+verduras:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+frutas:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+azucar:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+cafe:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+especias:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+otro_ali:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+bebidas:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+fuera_hog:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+tabaco:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+vestido_c:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+vestido:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+calzado:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+vivienda:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+alquiler:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+pred_cons:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+agua:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+energia:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+limpieza:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+cuidados:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+utensilios:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+enseres:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+salud:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+aten_pri:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+hospital:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+medica:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+transporte:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+publico:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+foraneo:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+adqui:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+mante:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+refa:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+combus:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+comunica:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+educacion:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+educa:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+esparci:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+paquete:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+personal:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+cuidado:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+accesorio:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+otros_gas:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+transfe:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+pertot:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+retiro:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+prestamo:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+otras_pr:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+enomonviv:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+enomonhog:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+erotot:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+cuota:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+mat_serv:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+material:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+servicio:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+deposito:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+terceros:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+pago_tar:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+deudas:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+balance:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+otra_ero:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+smg:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '4902.3': '4902.3'
+    '5025.6': '5025.6'
+    '5171.4': '5171.4'
+est_dis:
+  Descripción: Estrato de diseño muestral.
+  Tipo: str
+  Longitud: '3'
+  Categorías: {}
+upm:
+  Descripción: Unidad primaria de muestreo.
+  Tipo: str
+  Longitud: '4'
+  Categorías: {}

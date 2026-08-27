@@ -1,0 +1,244 @@
+folioviv:
+  Descripción: Identificador de la vivienda (folio). Los dos primeros caracteres son
+    la clave de la entidad federativa.
+  Tipo: str
+  Longitud: 6 (2008–2012) / 10 (2014+)
+  Categorías: {}
+foliohog:
+  Descripción: Identificador del hogar dentro de la vivienda.
+  Tipo: str
+  Longitud: '1'
+  Categorías: {}
+numren:
+  Descripción: Número de renglón (identificador de la persona dentro del hogar).
+  Tipo: str
+  Longitud: '2'
+  Categorías: {}
+clave:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+tipo_gasto:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    G1: G1
+    G4: G4
+mes_dia:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '0000': '0000'
+    0820: 0820
+    0821: 0821
+    0822: 0822
+    0823: 0823
+    0824: 0824
+    0825: 0825
+    0826: 0826
+    0830: 0830
+    0831: 0831
+    0901: 0901
+    0902: 0902
+    0903: 0903
+    0904: 0904
+    0905: 0905
+    0909: 0909
+    0910: 0910
+    0911: 0911
+    0912: 0912
+    0913: 0913
+    0914: 0914
+    0915: 0915
+    0919: 0919
+    0920: 0920
+    0921: 0921
+    0922: 0922
+    0923: 0923
+    0924: 0924
+    0925: 0925
+    0929: 0929
+    0930: 0930
+    '1001': '1001'
+    '1002': '1002'
+    '1003': '1003'
+    '1004': '1004'
+    '1005': '1005'
+    '1009': '1009'
+    '1010': '1010'
+    '1011': '1011'
+    '1012': '1012'
+    '1013': '1013'
+    '1014': '1014'
+    '1015': '1015'
+    '1019': '1019'
+    '1020': '1020'
+    '1021': '1021'
+    '1022': '1022'
+    '1023': '1023'
+    '1024': '1024'
+    '1025': '1025'
+    '1029': '1029'
+    '1030': '1030'
+    '1031': '1031'
+    '1101': '1101'
+    '1102': '1102'
+    '1103': '1103'
+    '1104': '1104'
+    '1108': '1108'
+    '1109': '1109'
+    '1110': '1110'
+    '1111': '1111'
+    '1112': '1112'
+    '1113': '1113'
+    '1114': '1114'
+frec_rem:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '1': '1'
+    '2': '2'
+    '3': '3'
+    '4': '4'
+    '5': '5'
+    '6': '6'
+    '7': '7'
+    '8': '8'
+    '9': '9'
+    ' ': ' '
+inst:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '01': '01'
+    '02': '02'
+    '03': '03'
+    '05': '05'
+    '06': '06'
+    '10': '10'
+    ' ': ' '
+forma_pag1:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '00': '00'
+    '01': '01'
+    '03': '03'
+    '04': '04'
+    '05': '05'
+    '06': '06'
+    '07': '07'
+    08: 08
+    09: 09
+    '10': '10'
+forma_pag2:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '00': '00'
+forma_pag3:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '00': '00'
+inscrip:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+colegia:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+cantidad:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+gasto:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+costo:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+gasto_tri:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+gasto_nm:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+gas_nm_tri:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+entidad:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '01': '01'
+    '02': '02'
+    '03': '03'
+    '04': '04'
+    '05': '05'
+    '06': '06'
+    '07': '07'
+    08: 08
+    09: 09
+    '10': '10'
+    '11': '11'
+    '12': '12'
+    '13': '13'
+    '14': '14'
+    '15': '15'
+    '16': '16'
+    '17': '17'
+    '18': '18'
+    '19': '19'
+    '20': '20'
+    '21': '21'
+    '22': '22'
+    '23': '23'
+    '24': '24'
+    '25': '25'
+    '26': '26'
+    '27': '27'
+    '28': '28'
+    '29': '29'
+    '30': '30'
+    '31': '31'
+    '32': '32'
+est_dis:
+  Descripción: Estrato de diseño muestral.
+  Tipo: str
+  Longitud: '3'
+  Categorías: {}
+upm:
+  Descripción: Unidad primaria de muestreo.
+  Tipo: str
+  Longitud: '4'
+  Categorías: {}
+factor:
+  Descripción: Factor de expansión (de vivienda/hogar según la tabla; `factor_hog`/`factor_viv`
+    en 2012–2014).
+  Tipo: int
+  Longitud: ''
+  Categorías: {}
