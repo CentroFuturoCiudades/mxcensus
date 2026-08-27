@@ -1,6 +1,6 @@
 [project]
 name = "mxcensus"
-version = "0.1.1"
+version = "0.2.0"
 description = "Mexico Census 2020 (CPV 2020) data loader and preprocessor"
 readme = "README.md"
 authors = [{ name = "Gonzalo Peraza", email = "ggperaza@gmail.com" }]
