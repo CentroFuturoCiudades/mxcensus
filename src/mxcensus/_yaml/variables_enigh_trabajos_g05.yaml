@@ -1,0 +1,448 @@
+folioviv:
+  Descripción: Identificador de la vivienda (folio). Los dos primeros caracteres son
+    la clave de la entidad federativa.
+  Tipo: str
+  Longitud: 6 (2008–2012) / 10 (2014+)
+  Categorías: {}
+foliohog:
+  Descripción: Identificador del hogar dentro de la vivienda.
+  Tipo: str
+  Longitud: '1'
+  Categorías: {}
+numren:
+  Descripción: Número de renglón (identificador de la persona dentro del hogar).
+  Tipo: str
+  Longitud: '2'
+  Categorías: {}
+id_trabajo:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '1': '1'
+    '2': '2'
+trapais:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '1': '1'
+    '2': '2'
+subor:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '1': '1'
+    '2': '2'
+indep:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '1': '1'
+    '2': '2'
+    ' ': ' '
+personal:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '1': '1'
+    '2': '2'
+    ' ': ' '
+pago:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '1': '1'
+    '2': '2'
+    '3': '3'
+    ' ': ' '
+contrato:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '1': '1'
+    '2': '2'
+    ' ': ' '
+tipocontr:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '1': '1'
+    '2': '2'
+    ' ': ' '
+pres_1:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '01': '01'
+    ' ': ' '
+pres_2:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '02': '02'
+    ' ': ' '
+pres_3:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '03': '03'
+    ' ': ' '
+pres_4:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '04': '04'
+    ' ': ' '
+pres_5:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '05': '05'
+    ' ': ' '
+pres_6:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '06': '06'
+    ' ': ' '
+pres_7:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '07': '07'
+    ' ': ' '
+pres_8:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    08: 08
+    ' ': ' '
+pres_9:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    09: 09
+    ' ': ' '
+pres_10:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '10': '10'
+    ' ': ' '
+pres_11:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '11': '11'
+    ' ': ' '
+pres_12:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '12': '12'
+    ' ': ' '
+pres_13:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '13': '13'
+    ' ': ' '
+pres_14:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '14': '14'
+    ' ': ' '
+pres_15:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '15': '15'
+    ' ': ' '
+pres_16:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '16': '16'
+    ' ': ' '
+pres_17:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '17': '17'
+    ' ': ' '
+pres_18:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '18': '18'
+    ' ': ' '
+pres_19:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '19': '19'
+    ' ': ' '
+pres_20:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '20': '20'
+    ' ': ' '
+pres_21:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '21': '21'
+    ' ': ' '
+pres_22:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '22': '22'
+    ' ': ' '
+pres_23:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '23': '23'
+    ' ': ' '
+pres_24:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '24': '24'
+    ' ': ' '
+pres_25:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '25': '25'
+    ' ': ' '
+pres_26:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '26': '26'
+    ' ': ' '
+htrab:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+sinco:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+scian:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+clas_emp:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '1': '1'
+    '2': '2'
+    '3': '3'
+    '4': '4'
+    ' ': ' '
+tam_emp:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '01': '01'
+    '02': '02'
+    '03': '03'
+    '04': '04'
+    '05': '05'
+    '06': '06'
+    '07': '07'
+    08: 08
+    09: 09
+    '10': '10'
+    '11': '11'
+    '12': '12'
+no_ing:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '01': '01'
+    '02': '02'
+    '03': '03'
+    '04': '04'
+    '05': '05'
+    '06': '06'
+    '07': '07'
+    '12': '12'
+    '13': '13'
+    '99': '99'
+    ' ': ' '
+tiene_suel:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '1': '1'
+    '2': '2'
+    ' ': ' '
+tipoact:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '1': '1'
+    '2': '2'
+    '3': '3'
+    '4': '4'
+    '5': '5'
+    '6': '6'
+    '7': '7'
+    '8': '8'
+    '9': '9'
+    ' ': ' '
+socios:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '1': '1'
+    '2': '2'
+    ' ': ' '
+soc_nr1:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '01': '01'
+    '02': '02'
+    '03': '03'
+    '04': '04'
+    '05': '05'
+    '06': '06'
+    '07': '07'
+    08: 08
+    '12': '12'
+    '13': '13'
+    ' ': ' '
+soc_nr2:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '01': '01'
+    '02': '02'
+    '03': '03'
+    '04': '04'
+    '05': '05'
+    08: 08
+    ' ': ' '
+soc_resp:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '01': '01'
+    '02': '02'
+    '03': '03'
+    '04': '04'
+    '05': '05'
+    '06': '06'
+    '13': '13'
+    ' ': ' '
+otra_act:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '1': '1'
+    '2': '2'
+    ' ': ' '
+tipoact2:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '1': '1'
+    '2': '2'
+    '3': '3'
+    '4': '4'
+    '5': '5'
+    '6': '6'
+    '7': '7'
+    ' ': ' '
+tipoact3:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '1': '1'
+    '2': '2'
+    '3': '3'
+    '4': '4'
+    '5': '5'
+    '6': '6'
+    '7': '7'
+    '9': '9'
+    ' ': ' '
+tipoact4:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '3': '3'
+    ' ': ' '
+lugar:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '1': '1'
+    '2': '2'
+    ' ': ' '
+conf_pers:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '1': '1'
+    '2': '2'
+    ' ': ' '

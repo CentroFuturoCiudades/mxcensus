@@ -1,0 +1,116 @@
+folioviv:
+  Descripción: Identificador de la vivienda (folio). Los dos primeros caracteres son
+    la clave de la entidad federativa.
+  Tipo: str
+  Longitud: 6 (2008–2012) / 10 (2014+)
+  Categorías: {}
+foliohog:
+  Descripción: Identificador del hogar dentro de la vivienda.
+  Tipo: str
+  Longitud: '1'
+  Categorías: {}
+numren:
+  Descripción: Número de renglón (identificador de la persona dentro del hogar).
+  Tipo: str
+  Longitud: '2'
+  Categorías: {}
+clave:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+tipo_gasto:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    G1: G1
+    G4: G4
+mes_dia:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+frec_rem:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '1': '1'
+    '2': '2'
+    '3': '3'
+    '4': '4'
+    '5': '5'
+    '6': '6'
+    '7': '7'
+    '8': '8'
+    '9': '9'
+    ' ': ' '
+inst:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '01': '01'
+    '02': '02'
+    '03': '03'
+    '06': '06'
+    '11': '11'
+    ' ': ' '
+forma_pago:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '001': '001'
+    '002': '002'
+    '003': '003'
+    '021': '021'
+    '031': '031'
+    '032': '032'
+    ' ': ' '
+inscrip:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+colegia:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+material:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+cantidad:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+gasto:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+costo:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+gasto_tri:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+gasto_nm:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+gas_nm_tri:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}

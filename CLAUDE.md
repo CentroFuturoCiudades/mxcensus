@@ -8,7 +8,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 # Install in editable mode with dev dependencies (add ,notebook for Jupyter/Quarto)
 uv pip install -e ".[dev]"            # or: uv sync --extra dev --extra notebook
 
-# Run tests (DENUE suite tests/test_denue.py ~93 tests; ENOE suite tests/test_enoe.py)
+# Run tests (DENUE suite tests/test_denue.py ~93 tests; ENOE tests/test_enoe.py; ENIGH tests/test_enigh.py)
 pytest
 pytest tests/test_denue.py        # single file
 
@@ -69,12 +69,15 @@ Hugging Face Storage Bucket (raw parquet mirror)
 | `data/_paths.py` | Cache-dir resolution via `platformdirs`; respects `$MXCENSUS_CACHE_DIR` |
 | `data/_catalog.py` | `STATE_ABBR`, `STATE_CODE_FMT`, INEGI census URL builders, and the `CatalogEntry` dataclass |
 | `data/_denue_catalog.py` | `DenueRelease`, `RELEASES` (25 verified release URL templates incl. state-15 multipart & per-release quirks), `denue_zip_entry`, `latest_release` |
+| `enigh.py` | `load_enigh(table=, period=…, harmonize=, ent=)` — one raw ENIGH table (13 canonical names; `gastotarjetas`/`gastos` are 2008–2014-only) for one edition year as a faithful `dtype=str` frame, per-table fingerprint group (`_group_of` raises on unknown) + tight `_group_schema(table, gid)` validation (warns). `harmonize=True` → `_harmonize`: lowercase, `factor_hog`/`factor_viv`→`factor` (all tables), the 2008/2010 `concentradohogar` spellings (`_RENAME_TABLE`: `ingcor`→`ing_cor`, `tam_hog`→`tot_integ`, `n_ocup`/`pering`/`perocu`→`ocupados`/`percep_ing`/`perc_ocupa`, head `sexo`/`edad`/`ed_formal`→`*_jefe` — table-scoped because `poblacion` has person-level `sexo`/`edad`), zero-padded `educa_jefe`, derived `cve_ent`/`cve_mun`/`cve_loc`/`cvegeo` from `ubica_geo` (9 chars 2012–2022, 5 chars 2008/2010/2024; `cve_ent` from `folioviv[:2]` when `ubica_geo` is absent); non-core columns verbatim; validated by `_latest_schema(table)`. Analysis-ready: `load_enigh_hogares` (= `concentradohogar`, numeric `factor`/`ing_cor`/…, household `MultiIndex`), `load_enigh_viviendas` (2012+), `load_enigh_personas` (`poblacion` + `factor` joined from `concentradohogar` via `_attach_factor` when the raw table has no weight), `load_enigh_survey` → `(viviendas, hogares, personas)` with the shared nested index (`_DWELLING_KEY_SPEC` ⊂ `_HOUSEHOLD_KEY_SPEC` ⊂ `_PERSON_KEY_SPEC` = `folioviv` ⊂ `+foliohog` ⊂ `+numren`, unique at each level in every edition). `ent` filters on `folioviv[:2]` |
 | `data/_enoe_catalog.py` | ENOE bulk-download catalog: `EnoeQuarter`, `QUARTERS` (85 quarters 2005-T1…2026-T2, 2020-T2 ETOE gap excluded), `QUARTERS_BY_PERIOD`, `latest_quarter`, `TABLES`, three filename regimes (`enoe_old`/`enoen`/`enoe_new`) + `find_member`. National (one ZIP per quarter, five tables) |
 | `scripts/_build_common.py` | **Maintainer-only** — shared build helpers: `fetch_zip_verified` (download+verify+retry), `detect_encoding`, `update_registry` (append/upsert preserving prior entries) |
 | `scripts/build_data.py` | **Maintainer-only** — downloads raw census ZIPs from INEGI, converts CSVs to parquet, regenerates `registry.txt` |
 | `scripts/build_marco_geo.py` | **Maintainer-only** — downloads INEGI's Marco Geoestadístico 2020 per-state shapefile ZIPs (UPC 889463807469, via `marco_geo_zip_url`) and converts the 15 layers/state to geoparquet (`mg_{suffix}_{NN}.parquet`, single→Multi* geometry, int32 codes, source `.prj` CRS); appends to `registry.txt`. `--local-gpkg-dir DIR` uses a local gpkg copy instead of downloading |
 | `scripts/build_denue.py` | **Maintainer-only** — downloads/converts DENUE to geoparquet (`denue_{YYYYMM}_{NN}.parquet`), detects inconsistencies (`docs/denue/INCONSISTENCY_REPORT.md`), extracts data dictionaries (CSV 2016+ / PDF 2010–2013 via `pypdf`) to fill `variables_denue_*.yaml` descriptions + categories (categories cross-validated against the data → `docs/denue/CATEGORY_AUDIT.md`), generates `denue_schema_map.yaml`, validates every file against its group schema (`docs/denue/VALIDATION_REPORT.md`), derives/repairs point geometry against state boundaries (`docs/denue/GEOMETRY_REPORT.md`), appends to `registry.txt`. Modes: `--schema-map`, `--variables` (`--cat-threshold`), `--validate`, `--refilter-boundaries` (`--boundary-buffer-m`/`--boundaries-dir`/`--geometry-report`), `--report-only`, `--update-registry`, `--dry-run` |
+| `data/_enigh_catalog.py` | ENIGH bulk-download catalog: `EnighEdition`, `EDITIONS` (2008–2024 biennial), `EDITIONS_BY_PERIOD`, `latest_edition`, `TABLES`/`NS_TABLES`, two regimes under one tree (`ns` `enigh{year}_ns_{table}_csv.zip`; `ncv` `NCV_{Stem}_{year}_concil_2010_csv.zip` with per-year stems via `ncv_stem`), `edition.tables` (per-year set), `find_member` (sole-CSV fallback), `enigh_zip_entry(edition, table)` — one ZIP per (edition, table) |
 | `scripts/build_enoe.py` | **Maintainer-only** — downloads each ENOE quarter's CSV ZIP from INEGI and converts the five tables to faithful-raw parquet (`enoe_{table}_{period}.parquet`, every column `dtype=str`, no geometry). Fingerprints each file into a **per-table** schema group (`enoe_schema_map.yaml`), extracts per-group variable dictionaries (`variables_enoe_{table}_{gNN}.yaml`; categories data-derived, overlaid with the hand-curated `variables_enoe_core.yaml`), validates each file against its group schema, and appends to `registry.txt`. Modes: (build) `--periods`/`--tables`/`--dry-run`/`--keep-raw`, then `--schema-map`, `--variables` (`--cat-threshold`), `--report-only` (`docs/enoe/INCONSISTENCY_REPORT.md`), `--validate` (`docs/enoe/VALIDATION_REPORT.md`), `--update-registry`. See `docs/enoe/HANDOFF.md` + `STEP_*.md` |
+| `scripts/build_enigh.py` | **Maintainer-only** — downloads each ENIGH (edition, table) CSV ZIP and converts it to faithful-raw parquet (`enigh_{table}_{year}.parquet`). Same mode set as `build_enoe.py` (`--periods`/`--tables`/`--dry-run`, `--schema-map`, `--variables`, `--report-only`, `--validate`, `--update-registry`); per-table schema groups in `enigh_schema_map.yaml`, per-group `variables_enigh_{table}_{gNN}.yaml` overlaid with the hand-curated `variables_enigh_core.yaml`; reports in `docs/enigh/`. Filenames are parsed with `_FILE_RE` (not `split("_")`). See `docs/enigh/HANDOFF.md` |
 | `scripts/upload_hf.py` | **Maintainer-only** — host the parquet mirror in the Hugging Face Storage Bucket (`mxcensus.data._registry.HF_BUCKET`), the package's **current** data source. Subcommands: `create` (make the bucket), `upload` (`hf buckets sync` of `data/parquet/*.parquet` to the bucket root + the provenance `docs/hf_bucket_readme.md` as `README.md`; `--delete`/`--dry-run`), `verify` (HEAD each `…/resolve/<file>` URL vs local size, no download). Buckets are mutable (overwrite-in-place), so re-uploading after a rebuild just syncs changed files |
 | `scripts/upload_release.py` | **Maintainer-only** (legacy GitHub-Release alternative; superseded by `upload_hf.py`) — resumable batch upload of the parquet mirror to a GitHub Release. Source of truth for "already uploaded" is the release itself (queried live via `gh release view`), so it survives multi-day / partial uploads. Batches derived from `registry.txt`: `core_denue` (latest DENUE), `core_census` (iter/resargebub/personas/viviendas), `core_mg` (the 4 MG layers `load_mg_census` fetches), `mg-rest` (other 11 MG layers), one `denue-<id>` per older release. Subcommands: `status` (`--write-doc`), `list <batch>`, `create-release`, `verify <batch…>` (compares each asset's GitHub SHA-256 digest + size to `registry.txt` via `gh api`, no download), `upload <batch…>` or `--next` (`--clobber`/`--chunk N`/`--dry-run`; auto-creates the release if missing) |
 
@@ -85,8 +88,9 @@ Hugging Face Storage Bucket (raw parquet mirror)
 - `constraints_personas.yaml` / `constraints_viviendas.yaml` – valid variable combinations for crosstab generation
 - `denue_schema_map.yaml` – DENUE column-fingerprint → schema group (g01..g11), group→columns, and `latest` (harmonization target); `variables_denue_<gNN>.yaml` – per-group DENUE variable dictionaries (`Descripción`/`Tipo`/`Longitud` from the release dictionaries; `Categorías` code→label maps for coded fields + data-enumerated categoricals — drives `_group_schema`; generated by `scripts/build_denue.py`)
 - `enoe_schema_map.yaml` – **per-table** ENOE column-fingerprint → schema group map (one section per table `viv`/`hog`/`sdem`/`coe1`/`coe2`, each with `fingerprints`, `groups` gNN→columns, and `latest`); `variables_enoe_<table>_<gNN>.yaml` – per-(table, group) variable dictionaries (`Categorías` data-enumerated + core overlay — drives `_group_schema(table, gid)`; generated by `scripts/build_enoe.py`); `variables_enoe_core.yaml` – **hand-curated** analytical-core dictionary (FD-sourced labelled categories for `clase1`/`clase2`/`pos_ocu`/… — overlaid by `--variables`, **never** regenerated)
+- `enigh_schema_map.yaml` / `variables_enigh_<table>_<gNN>.yaml` / `variables_enigh_core.yaml` – the same trio for ENIGH (13 tables; core = keys, `factor`, `ubica_geo`, `tam_loc`/`est_socio`, `clase_hog`, head variables, `ing_cor`/`ingtrab`/`gasto_mon`, `sexo`/`edad`/`parentesco`; `educa_jefe` lists both padded and un-padded codes because 2012 is un-padded)
 
-`_resources.py` loads these once via `@functools.cache` and exposes them as `variables_*()` / `constraints_*()` / `variables_denue(gid)` / `denue_schema_map()` / `variables_enoe(table, gid)` / `enoe_schema_map()` / `variables_enoe_core()`.
+`_resources.py` loads these once via `@functools.cache` and exposes them as `variables_*()` / `constraints_*()` / `variables_denue(gid)` / `denue_schema_map()` / `variables_enoe(table, gid)` / `enoe_schema_map()` / `variables_enoe_core()` / `variables_enigh(table, gid)` / `enigh_schema_map()` / `variables_enigh_core()`.
 
 ### Census data hierarchy
 
@@ -104,7 +108,7 @@ Multi-response fields (health insurance categories, transport modes) are expande
 
 Raw INEGI data is pre-converted to parquet and hosted in a **Hugging Face Storage Bucket** (`HF_BUCKET` in `data/_registry.py`, default `gperaza/mxcensus`). Public bucket objects are served anonymously over plain HTTPS at `https://huggingface.co/buckets/<bucket>/resolve/<filename>` (a 302 to the Xet CDN), so Pooch fetches them as `base_url + filename` — no auth, no `hf://` client. `$MXCENSUS_BASE_URL` overrides the base URL (e.g. to a fork or a GitHub-Release mirror). The registry file (`src/mxcensus/data/registry.txt`) maps filenames to SHA256 hashes and is committed after each data build; Pooch verifies every download against it. Upload via `scripts/upload_hf.py upload`.
 
-The bucket is live and holds the full mirror (all 1376 registry entries), so `POOCH.fetch` / `load_*(state=…)` resolve anonymously. After a rebuild, re-sync changed files with `python scripts/upload_hf.py upload`; until a newly built file is uploaded, fetching it 404s.
+The bucket is live and holds the full mirror (all registry entries; see the totals below), so `POOCH.fetch` / `load_*(state=…)` resolve anonymously. After a rebuild, re-sync changed files with `python scripts/upload_hf.py upload`; until a newly built file is uploaded, fetching it 404s.
 
 File naming convention:
 ```
@@ -122,8 +126,11 @@ denue_{YYYYMM}_{NN}.parquet   # YYYYMM = release id (e.g. 202505); EPSG:4326
 
 # ENOE labor-force survey (85 quarters × 5 tables = 425 parquet, national, no geometry) — scripts/build_enoe.py
 enoe_{table}_{period}.parquet   # table ∈ {viv,hog,sdem,coe1,coe2}; period = {year}t{quarter} (e.g. 2023t1)
+
+# ENIGH income/expenditure survey (9 editions × 10–12 tables = 99 parquet, national) — scripts/build_enigh.py
+enigh_{table}_{year}.parquet    # table ∈ concentradohogar,viviendas,hogares,poblacion,ingresos,gastoshogar,gastospersona,trabajos,agro,noagro,erogaciones[,gastotarjetas,gastos]; year ∈ 2008…2024 biennial
 ```
-Registry totals: 128 census + 480 geo + 800 DENUE + 425 ENOE = **1833** entries.
+Registry totals: 128 census + 480 geo + 800 DENUE + 425 ENOE + 99 ENIGH = **1932** entries.
 
 To rebuild the **census** mirror after an INEGI data update:
 ```bash
@@ -238,6 +245,33 @@ económica` (S/U/M) the general rename would pick. The report's §7 lists each g
 columns (e.g. g04's empty `entidad`/`municipio` names in 2012 states 12/14 — faithful to
 source, codes-only); an all-null column is data quality, whereas a *stale* rename map emits a
 `warnings.warn` at load time.
+
+To (re)build the **ENIGH** mirror (downloads from INEGI; national; ~500 MB, minutes):
+```bash
+python scripts/build_enigh.py --dry-run --periods 2022        # smoke test (prints URLs)
+python scripts/build_enigh.py                                 # all 9 editions (99 files); resumable
+python scripts/build_enigh.py --schema-map / --variables / --report-only / --validate / --update-registry
+```
+Same ordering rules as ENOE (delete stale `variables_enigh_*_g*.yaml` first; never regenerate
+`variables_enigh_core.yaml`); runbook in `docs/enigh/HANDOFF.md`.
+
+### ENIGH (biennial household income/expenditure survey)
+
+Fifth data family, built on the ENOE machinery. Two regimes under one INEGI tree
+(`data/_enigh_catalog.py`): the **nueva serie** (2016–2024, 11 tables) and INEGI's conciliated
+**Nueva Construcción de Variables** (2008–2014; 10–12 tables, per-year filename stems, no
+dwelling table and a combined `gastos` table in 2008/2010). One ZIP per (edition, table),
+single CSV member, no bundled dictionary. **2014 → 2016 is a methodological break** (MCS
+merger, sample redesign, income capture) and **2024 updated the questionnaires/classifiers**
+(CCIF-2018 expenditure codes) — both surface as schema groups (`enigh_schema_map.yaml`, 61
+groups over 13 tables; `docs/enigh/INCONSISTENCY_REPORT.md` lists the column drift) and are
+documented, not modelled: `harmonize=True` is **core-only** (see the `enigh.py` row) and the
+expenditure `clave` catalogs are not bridged. Keys `folioviv` ⊂ `foliohog` ⊂ `numren` are
+unique per level in every edition; `folioviv[:2]` is the state code. Weights: `factor`
+(`factor_hog`/`factor_viv` in 2012–2014) live in `concentradohogar`/`viviendas` and, from 2022,
+in every table; the analysis-ready loaders join `factor` from `concentradohogar` otherwise.
+Published checks: Σ `factor` = 31,671,002 (2014), 37,560,123 (2022), 38,830,230 (2024)
+households; 2024 mean quarterly `ing_cor` ≈ $77,864. `--validate` → 0/99 failures.
 
 ### ENOE (multi-temporal labor-force survey)
 

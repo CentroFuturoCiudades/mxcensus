@@ -85,6 +85,7 @@ mxcensus info           # cache directory and mirror URL
 | **Marco Geoestadístico** | Geometries | INEGI's 2020 geostatistical boundaries (15 layers/state) as GeoParquet |
 | **DENUE** | Establishments | Economic-units directory, 25 releases 2010–2026, as point GeoParquet |
 | **ENOE** | Labor force | Quarterly employment-survey microdata, 85 quarters 2005–2026, national (5 tables/quarter) |
+| **ENIGH** | Income & expenditure | Biennial household income/expenditure microdata, 9 editions 2008–2024 (nueva serie 2016+ and the conciliated NCV 2008–2014), national (10–12 tables/edition) |
 
 ### DENUE (multi-temporal)
 
@@ -175,6 +176,45 @@ fully decompose); pass `persons="labor"` for the working-age labor-force analyti
 instead (`is_pea`/… flags, but only interviewed 15+ members). All take an optional `ent=` state
 filter.
 
+### ENIGH (household income and expenditure survey, biennial)
+
+ENIGH (Encuesta Nacional de Ingresos y Gastos de los Hogares) is INEGI's biennial household
+income/expenditure survey — the source for poverty measurement, income deciles and household
+expenditure structure. It is **national**, and each edition publishes **10–12 tables**
+(`concentradohogar` — the per-household summary — plus `viviendas`, `hogares`, `poblacion`,
+`ingresos`, `trabajos`, `agro`, `noagro`, `gastoshogar`, `gastospersona`, `erogaciones`, and
+the 2008–2014-only `gastotarjetas`/`gastos`). Nine editions are mirrored as faithful
+`str`-typed parquet `enigh_{table}_{year}.parquet`:
+
+- **Nueva serie — 2016, 2018, 2020, 2022, 2024.** In 2016 INEGI merged the MCS into ENIGH,
+  enlarged the sample (81.5 k → 105.5 k dwellings, state × urban/rural representativeness) and
+  revised income capture: **a new statistical series**. ENIGH 2024 also updated questionnaires
+  (housing items homologated to the 2020 census, new sociodemographic items, CCIF-2018
+  expenditure codes) while keeping series comparability.
+- **Nueva Construcción de Variables — 2008, 2010, 2012, 2014.** INEGI's re-expression of the
+  traditional series with the MCS variable construction, conciliated to the 2010 census frame:
+  the closest pre-break data. Estimates are **not directly comparable** with 2016+.
+
+```python
+# Analysis-ready household frame = INEGI's `concentradohogar` summary, numeric weight/income
+hog = mxcensus.load_enigh_hogares(period="2024")          # indexed by (folioviv, foliohog)
+hog["factor"].sum()                                       # 38,830,230 households
+(hog["ing_cor"] * hog["factor"]).sum() / hog["factor"].sum()   # mean quarterly income
+
+per = mxcensus.load_enigh_personas(period="2024")         # poblacion + numeric factor
+viv, hog, per = mxcensus.load_enigh_survey(period="2022") # shared nested MultiIndex (2012+)
+raw = mxcensus.load_enigh(table="gastoshogar", period="2022")   # any raw table, any edition
+```
+
+Each file is fingerprinted into a **per-table schema group** and validated on load. Pass
+`harmonize=True` to canonicalize the **analytical core** across editions so they stack
+(`factor_hog`/`factor_viv` → `factor`; the 2008/2010 `ingcor`/`tam_hog`/head `sexo`/`edad`/
+`ed_formal` → `ing_cor`/`tot_integ`/`sexo_jefe`/`edad_jefe`/`educa_jefe`; derived `cve_ent`/
+`cve_mun`/`cve_loc`/`cvegeo` from `ubica_geo`, which is 9 characters in 2012–2022 and 5 in
+2008/2010/2024). Every other column — including the expenditure/income `clave` codes, whose
+catalog changed in 2024 — is kept verbatim. The 2016 series break is documented, not
+modelled. Schema groups and reports live in [docs/enigh/](docs/enigh/).
+
 ### Geometries (Marco Geoestadístico)
 
 All 15 INEGI Marco Geoestadístico 2020 layers per state are mirrored as GeoParquet,
@@ -200,6 +240,9 @@ mxcensus.denue_schema_map()        # DENUE schema groups + the latest (harmoniza
 mxcensus.enoe_schema_map()         # ENOE per-table schema groups (viv/hog/sdem/coe1/coe2)
 mxcensus.variables_enoe("sdem", "g04")   # ENOE variables for a (table, schema group)
 mxcensus.variables_enoe_core()     # ENOE analytical-core labels (clase1, pos_ocu, …)
+mxcensus.enigh_schema_map()        # ENIGH per-table schema groups (concentradohogar/poblacion/…)
+mxcensus.variables_enigh("concentradohogar", "g06")   # ENIGH variables for a (table, schema group)
+mxcensus.variables_enigh_core()    # ENIGH analytical-core labels (clase_hog, educa_jefe, …)
 ```
 
 The ITER and RESARGEBUB dictionaries are national (identical across states), so a
@@ -220,6 +263,8 @@ All data originates from INEGI's open-data ("datos abiertos") releases:
   <https://www.inegi.org.mx/app/mapa/denue/>
 - Labor-force survey — Encuesta Nacional de Ocupación y Empleo (ENOE):
   <https://www.inegi.org.mx/programas/enoe/15ymas/>
+- Household income/expenditure survey — Encuesta Nacional de Ingresos y Gastos de los Hogares (ENIGH):
+  <https://www.inegi.org.mx/programas/enigh/nc/2024/>
 
 When you publish work that uses data obtained through `mxcensus`, INEGI's terms
 require you to credit INEGI as the author of the data. Use the citation(s):
@@ -231,6 +276,8 @@ require you to credit INEGI as the author of the data. Use the citation(s):
 > **Fuente: INEGI, Directorio Estadístico Nacional de Unidades Económicas (DENUE).**
 >
 > **Fuente: INEGI, Encuesta Nacional de Ocupación y Empleo (ENOE).**
+>
+> **Fuente: INEGI, Encuesta Nacional de Ingresos y Gastos de los Hogares (ENIGH).**
 
 The data is provided under INEGI's **Términos de Libre Uso de la Información del
 INEGI** (Terms of Free Use):
@@ -284,6 +331,7 @@ before and during loading:
   `is_informal` flags), but leaves the underlying values untouched. One source-side encoding
   defect — a few mangled accented characters in two open-text SDEM fields
   (`cs_p21_des`/`cs_p23_des`) — is preserved as published, **not** corrected.
+- **ENIGH** — every edition's CSV tables are converted to parquet as **faithful raw** text. The `load_enigh_*` loaders only **derive** analysis frames (numeric weights joined from `concentradohogar` where a table carries none, a hierarchical index, and — with `harmonize=True` — canonical names for the analytical core plus geography derived from `ubica_geo`); no value is imputed or corrected.
 
 **These transformations are performed by `mxcensus`, not by INEGI.** Any errors,
 imputations, or derived values are the responsibility of this package and must not

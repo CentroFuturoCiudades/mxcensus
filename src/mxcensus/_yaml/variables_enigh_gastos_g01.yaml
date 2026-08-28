@@ -1,0 +1,110 @@
+folioviv:
+  Descripción: Identificador de la vivienda (folio). Los dos primeros caracteres son
+    la clave de la entidad federativa.
+  Tipo: str
+  Longitud: 6 (2008–2012) / 10 (2014+)
+  Categorías: {}
+foliohog:
+  Descripción: Identificador del hogar dentro de la vivienda.
+  Tipo: str
+  Longitud: '1'
+  Categorías: {}
+clave:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+costo:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+lug_com:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '1': '1'
+    '2': '2'
+    '3': '3'
+    '4': '4'
+    '5': '5'
+    '6': '6'
+    '7': '7'
+    '8': '8'
+    '9': '9'
+    '10': '10'
+    '15': '15'
+    ' ': ' '
+inst1:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '0': '0'
+    '1': '1'
+    '2': '2'
+    '7': '7'
+    '8': '8'
+    '9': '9'
+    '10': '10'
+    ' ': ' '
+inst2:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '0': '0'
+    '1': '1'
+    '2': '2'
+    '7': '7'
+    '8': '8'
+    '9': '9'
+    '10': '10'
+    ' ': ' '
+fpago:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '1': '1'
+    '2': '2'
+    '3': '3'
+    '12': '12'
+    '13': '13'
+    '21': '21'
+    '23': '23'
+    '31': '31'
+    '32': '32'
+    '132': '132'
+    ' ': ' '
+enganche:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+contado:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+gasto:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+pago_mp:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+inmujer:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+gas_tri:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}

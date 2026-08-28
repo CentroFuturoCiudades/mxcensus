@@ -21,6 +21,7 @@ PRESERVE_PREFIXES = (
     "mg_",       # Marco Geoestadístico
     "denue_",    # DENUE
     "enoe_",     # ENOE (multi-temporal employment survey)
+    "enigh_",    # ENIGH (biennial household income/expenditure survey)
 )
 
 

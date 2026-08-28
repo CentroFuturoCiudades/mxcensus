@@ -1,4 +1,4 @@
-# Mexico Census 2020 / Marco Geoestadístico / DENUE / ENOE — parquet mirror (mxcensus)
+# Mexico Census 2020 / Marco Geoestadístico / DENUE / ENOE / ENIGH — parquet mirror (mxcensus)
 
 A pre-converted **parquet/geoparquet mirror of public [INEGI](https://www.inegi.org.mx)
 open data**, hosted as the data backend for the
@@ -15,9 +15,10 @@ maintained by INEGI.**
 | Marco Geoestadístico (`mg_*`, 15 layers × 32 states) | 480 | Marco Geoestadístico, Censo de Población y Vivienda 2020 (UPC 889463807469) |
 | DENUE economic units (`denue_{YYYYMM}_*`, 25 releases 2010–2026) | 800 | Directorio Estadístico Nacional de Unidades Económicas (DENUE) |
 | ENOE labor-force survey (`enoe_{table}_{period}`, 85 quarters 2005–2026 × 5 tables) | 425 | Encuesta Nacional de Ocupación y Empleo (ENOE) |
+| ENIGH income/expenditure survey (`enigh_{table}_{year}`, 9 editions 2008–2024 × 10–12 tables) | 99 | Encuesta Nacional de Ingresos y Gastos de los Hogares (ENIGH) |
 
 Files are stored flat at the bucket root as `<name>.parquet`; the full naming scheme and
-schema are documented in the package repository. **Total: 1833 files.**
+schema are documented in the package repository. **Total: 1932 files.**
 
 ## Source & attribution
 
@@ -28,7 +29,8 @@ endorsement. Please cite the original source:
 
 > Fuente: INEGI. Censo de Población y Vivienda 2020; Marco Geoestadístico 2020; Directorio
 > Estadístico Nacional de Unidades Económicas (DENUE); Encuesta Nacional de Ocupación y
-> Empleo (ENOE). https://www.inegi.org.mx
+> Empleo (ENOE); Encuesta Nacional de Ingresos y Gastos de los Hogares (ENIGH).
+> https://www.inegi.org.mx
 
 ## License
 
@@ -54,7 +56,7 @@ with the [Hugging Face Content Policy](https://huggingface.co/content-policy). T
 concern or request removal, open an issue in the
 [package repository](https://github.com/CentroFuturoCiudades/mxcensus/issues).
 
-**ENOE** is **de-identified public survey microdata** — individual person and household
+**ENOE** and **ENIGH** are **de-identified public survey microdata** — individual person and household
 records with no direct identifiers (no names, addresses, or contact details); geography is
 published only down to the AGEB level. INEGI releases it openly as a public statistical
 product; it is mirrored here unmodified.
@@ -66,7 +68,7 @@ includes parquet conversion, DENUE longitudinal **harmonization** to a common sc
 point-geometry derivation with **state-boundary validation/recovery** (offending
 coordinates corrected or nulled; raw lat/lon retained), and **reporting** (not removal) of
 duplicate rows. Coordinates are parsed with a correctly-rounded float conversion so builds
-are reproducible across machines. **ENOE** parquet are faithful-raw text (no harmonization
+are reproducible across machines. **ENOE**/**ENIGH** parquet are faithful-raw text (no harmonization
 or imputation); its per-table schema groups and per-quarter reports are documented
 alongside DENUE's. Full details and per-file reports are in the package repository
 (`docs/denue/`, `docs/enoe/`).
@@ -82,6 +84,7 @@ df_state, df_mun, df_loc, df_ageb = m.load_census(state=9)   # CDMX
 denue = m.load_denue(state=9)                                # latest DENUE, harmonized
 mg_aur, mg_loc_ageb = m.load_mg_census(state=9)
 persons = m.load_enoe_persons(period="2023t1")              # ENOE labor-force person frame (national)
+hog = m.load_enigh_hogares(period="2024")                    # ENIGH household summary (national)
 ```
 `mxcensus` downloads only the files it needs from this bucket and caches them locally.
 

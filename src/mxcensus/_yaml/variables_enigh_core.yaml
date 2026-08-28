@@ -1,0 +1,167 @@
+# Hand-curated ENIGH analytical-core dictionary (canonical / nueva-serie names).
+#
+# Read (never written) by `scripts/build_enigh.py --variables`, which overlays these entries
+# onto the per-group `variables_enigh_{table}_{gNN}.yaml`, and by `mxcensus.enigh` for the
+# harmonized schema (`_latest_schema`) and the core column order. Labels from INEGI's
+# "Descripción de la base de datos" (ENIGH 2022/2024 nueva serie) and the NCV descriptions.
+#
+# `Categorías` here are the COMPLETE value-sets observed across all editions 2008–2024
+# (raw spellings: `educa_jefe` is zero-padded in most editions and un-padded in 2012, so both
+# forms are listed; harmonization pads it). Non-categorical fields have an empty map.
+#
+# 2008/2010 (NCV) spell several of these differently in `concentradohogar` (`ingcor`,
+# `tam_hog`, `sexo`/`edad`/`ed_formal` for the head, `n_ocup`/`pering`/`perocu`); the
+# harmonization rename map in `enigh.py` folds them onto the names below.
+
+folioviv:
+  Descripción: Identificador de la vivienda (folio). Los dos primeros caracteres son la clave de la entidad federativa.
+  Tipo: str
+  Longitud: "6 (2008–2012) / 10 (2014+)"
+  Categorías: {}
+foliohog:
+  Descripción: Identificador del hogar dentro de la vivienda.
+  Tipo: str
+  Longitud: "1"
+  Categorías: {}
+numren:
+  Descripción: Número de renglón (identificador de la persona dentro del hogar).
+  Tipo: str
+  Longitud: "2"
+  Categorías: {}
+ubica_geo:
+  Descripción: Ubicación geográfica — clave de entidad (2) + municipio (3) [+ localidad (4) en 2012–2022].
+  Tipo: str
+  Longitud: "5 / 9"
+  Categorías: {}
+tam_loc:
+  Descripción: Tamaño de localidad.
+  Tipo: str
+  Longitud: "1"
+  Categorías:
+    '1': Localidades con 100 000 y más habitantes
+    '2': Localidades con 15 000 a 99 999 habitantes
+    '3': Localidades con 2 500 a 14 999 habitantes
+    '4': Localidades con menos de 2 500 habitantes
+est_socio:
+  Descripción: Estrato socioeconómico (2012+).
+  Tipo: str
+  Longitud: "1"
+  Categorías:
+    '1': Bajo
+    '2': Medio bajo
+    '3': Medio alto
+    '4': Alto
+est_dis:
+  Descripción: Estrato de diseño muestral.
+  Tipo: str
+  Longitud: "3"
+  Categorías: {}
+upm:
+  Descripción: Unidad primaria de muestreo.
+  Tipo: str
+  Longitud: "4"
+  Categorías: {}
+factor:
+  Descripción: Factor de expansión (de vivienda/hogar según la tabla; `factor_hog`/`factor_viv` en 2012–2014).
+  Tipo: int
+  Longitud: ""
+  Categorías: {}
+clase_hog:
+  Descripción: Clase de hogar.
+  Tipo: str
+  Longitud: "1"
+  Categorías:
+    '1': Unipersonal
+    '2': Nuclear
+    '3': Ampliado
+    '4': Compuesto
+    '5': De corresidentes
+sexo_jefe:
+  Descripción: Sexo de la jefa o jefe del hogar.
+  Tipo: str
+  Longitud: "1"
+  Categorías:
+    '1': Hombre
+    '2': Mujer
+edad_jefe:
+  Descripción: Edad de la jefa o jefe del hogar.
+  Tipo: int
+  Longitud: ""
+  Categorías: {}
+educa_jefe:
+  Descripción: Nivel de escolaridad de la jefa o jefe del hogar.
+  Tipo: str
+  Longitud: "2"
+  Categorías:
+    '01': Sin instrucción
+    '02': Preescolar
+    '03': Primaria incompleta
+    '04': Primaria completa
+    '05': Secundaria incompleta
+    '06': Secundaria completa
+    '07': Preparatoria incompleta
+    '08': Preparatoria completa
+    '09': Profesional incompleta
+    '10': Profesional completa
+    '11': Posgrado
+    '1': Sin instrucción (sin cero a la izquierda, 2012)
+    '2': Preescolar (sin cero a la izquierda, 2012)
+    '3': Primaria incompleta (sin cero a la izquierda, 2012)
+    '4': Primaria completa (sin cero a la izquierda, 2012)
+    '5': Secundaria incompleta (sin cero a la izquierda, 2012)
+    '6': Secundaria completa (sin cero a la izquierda, 2012)
+    '7': Preparatoria incompleta (sin cero a la izquierda, 2012)
+    '8': Preparatoria completa (sin cero a la izquierda, 2012)
+    '9': Profesional incompleta (sin cero a la izquierda, 2012)
+tot_integ:
+  Descripción: Total de integrantes del hogar.
+  Tipo: int
+  Longitud: ""
+  Categorías: {}
+ocupados:
+  Descripción: Integrantes ocupados del hogar.
+  Tipo: int
+  Longitud: ""
+  Categorías: {}
+percep_ing:
+  Descripción: Perceptores de ingreso en el hogar.
+  Tipo: int
+  Longitud: ""
+  Categorías: {}
+perc_ocupa:
+  Descripción: Perceptores de ingreso ocupados en el hogar.
+  Tipo: int
+  Longitud: ""
+  Categorías: {}
+ing_cor:
+  Descripción: Ingreso corriente total trimestral del hogar (monetario + no monetario).
+  Tipo: float
+  Longitud: ""
+  Categorías: {}
+ingtrab:
+  Descripción: Ingreso trimestral por trabajo.
+  Tipo: float
+  Longitud: ""
+  Categorías: {}
+gasto_mon:
+  Descripción: Gasto corriente monetario trimestral del hogar.
+  Tipo: float
+  Longitud: ""
+  Categorías: {}
+sexo:
+  Descripción: Sexo (tabla poblacion).
+  Tipo: str
+  Longitud: "1"
+  Categorías:
+    '1': Hombre
+    '2': Mujer
+edad:
+  Descripción: Edad en años cumplidos (tabla poblacion).
+  Tipo: int
+  Longitud: ""
+  Categorías: {}
+parentesco:
+  Descripción: Parentesco con la jefa o jefe del hogar (código de 3 dígitos; clasificador INEGI).
+  Tipo: str
+  Longitud: "3"
+  Categorías: {}

@@ -1,0 +1,875 @@
+folioviv:
+  Descripción: Identificador de la vivienda (folio). Los dos primeros caracteres son
+    la clave de la entidad federativa.
+  Tipo: str
+  Longitud: 6 (2008–2012) / 10 (2014+)
+  Categorías: {}
+foliohog:
+  Descripción: Identificador del hogar dentro de la vivienda.
+  Tipo: str
+  Longitud: '1'
+  Categorías: {}
+numren:
+  Descripción: Número de renglón (identificador de la persona dentro del hogar).
+  Tipo: str
+  Longitud: '2'
+  Categorías: {}
+numtrab:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '1': '1'
+    '2': '2'
+tipoact:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '1': '1'
+    '2': '2'
+    '3': '3'
+numesta:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '1': '1'
+    '2': '2'
+    '3': '3'
+totesta:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '1': '1'
+    '2': '2'
+    '3': '3'
+    '4': '4'
+    '5': '5'
+    '7': '7'
+    ' ': ' '
+lugact:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '1': '1'
+    '2': '2'
+    '3': '3'
+    '4': '4'
+    '5': '5'
+    '6': '6'
+    '7': '7'
+    '8': '8'
+    '9': '9'
+    ' ': ' '
+socios:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '1': '1'
+    '2': '2'
+numsocio:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '1': '1'
+    '2': '2'
+    '3': '3'
+    '4': '4'
+    '5': '5'
+    '6': '6'
+    '13': '13'
+    '16': '16'
+    ' ': ' '
+mismop:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '1': '1'
+    '2': '2'
+    ' ': ' '
+mes_2:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '06': '06'
+    '07': '07'
+    08: 08
+    09: 09
+    ' ': ' '
+mes_3:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '05': '05'
+    '06': '06'
+    '07': '07'
+    08: 08
+    ' ': ' '
+mes_4:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '04': '04'
+    '05': '05'
+    '06': '06'
+    '07': '07'
+    ' ': ' '
+mes_5:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '03': '03'
+    '04': '04'
+    '05': '05'
+    '06': '06'
+    ' ': ' '
+mes_6:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '02': '02'
+    '03': '03'
+    '04': '04'
+    '05': '05'
+    ' ': ' '
+phogar1:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '1': '1'
+    '3': '3'
+    '5': '5'
+    '7': '7'
+    '10': '10'
+    '15': '15'
+    '16': '16'
+    '17': '17'
+    '18': '18'
+    '20': '20'
+    '25': '25'
+    '30': '30'
+    '33': '33'
+    '35': '35'
+    '40': '40'
+    '45': '45'
+    '50': '50'
+    '60': '60'
+    '70': '70'
+    '80': '80'
+    ' ': ' '
+phogar2:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '0': '0'
+    '7': '7'
+    '16': '16'
+    '17': '17'
+    '20': '20'
+    '25': '25'
+    '30': '30'
+    '40': '40'
+    '45': '45'
+    '50': '50'
+    '70': '70'
+    '75': '75'
+    '80': '80'
+    '85': '85'
+    ' ': ' '
+phogar3:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '0': '0'
+    '13': '13'
+    '15': '15'
+    '20': '20'
+    '25': '25'
+    '30': '30'
+    '35': '35'
+    '40': '40'
+    '50': '50'
+    '70': '70'
+    '75': '75'
+    ' ': ' '
+phogar4:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '0': '0'
+    '10': '10'
+    '14': '14'
+    '16': '16'
+    '20': '20'
+    '25': '25'
+    '30': '30'
+    '50': '50'
+    '70': '70'
+    '75': '75'
+    '80': '80'
+    ' ': ' '
+phogar5:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '0': '0'
+    '17': '17'
+    '20': '20'
+    '25': '25'
+    '30': '30'
+    '40': '40'
+    '50': '50'
+    '75': '75'
+    '80': '80'
+    ' ': ' '
+phogar6:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '0': '0'
+    '10': '10'
+    '13': '13'
+    '17': '17'
+    '20': '20'
+    '25': '25'
+    '30': '30'
+    '40': '40'
+    '75': '75'
+    '80': '80'
+    ' ': ' '
+autocons:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '1': '1'
+    '2': '2'
+mes:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '07': '07'
+    08: 08
+    09: 09
+    '10': '10'
+    ' ': ' '
+enproduc:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+novend:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+consinter:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '-1': '-1'
+    '1': '1'
+    '18': '18'
+    '20': '20'
+    '25': '25'
+    '30': '30'
+    '50': '50'
+    '80': '80'
+    '90': '90'
+    '100': '100'
+    '150': '150'
+    '200': '200'
+    '250': '250'
+    '300': '300'
+    '320': '320'
+    '350': '350'
+    '360': '360'
+    '400': '400'
+    '500': '500'
+    '600': '600'
+    '800': '800'
+    '850': '850'
+    '900': '900'
+    '1000': '1000'
+    '1200': '1200'
+    '1400': '1400'
+    '1500': '1500'
+    '1600': '1600'
+    '1800': '1800'
+    '2000': '2000'
+    '3000': '3000'
+    '4000': '4000'
+    '5000': '5000'
+    '6000': '6000'
+    '6500': '6500'
+    '6600': '6600'
+    '10000': '10000'
+    '11000': '11000'
+    '18000': '18000'
+    '30000': '30000'
+    '60000': '60000'
+    '999999999': '999999999'
+    ' ': ' '
+peract:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '1': '1'
+    '2': '2'
+    '3': '3'
+mesact_1:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '01': '01'
+    ' ': ' '
+mesact_2:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '02': '02'
+    ' ': ' '
+mesact_3:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '03': '03'
+    ' ': ' '
+mesact_4:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '04': '04'
+    ' ': ' '
+mesact_5:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '05': '05'
+    ' ': ' '
+mesact_6:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '06': '06'
+    ' ': ' '
+mesact_7:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '07': '07'
+    ' ': ' '
+mesact_8:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    08: 08
+    ' ': ' '
+mesact_9:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    09: 09
+    ' ': ' '
+mesact_10:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '10': '10'
+    ' ': ' '
+mesact_11:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '11': '11'
+    ' ': ' '
+mesact_12:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '12': '12'
+    ' ': ' '
+t_emp:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '0': '0'
+    '1': '1'
+    '2': '2'
+    '3': '3'
+    '4': '4'
+    '5': '5'
+    '6': '6'
+    '7': '7'
+    '8': '8'
+    '9': '9'
+    '10': '10'
+    '11': '11'
+    '12': '12'
+    '13': '13'
+    '14': '14'
+    '16': '16'
+    '17': '17'
+    '18': '18'
+    '19': '19'
+    '23': '23'
+    '24': '24'
+    '25': '25'
+    '47': '47'
+h_emp:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '0': '0'
+    '1': '1'
+    '2': '2'
+    '3': '3'
+    '4': '4'
+    '5': '5'
+    '6': '6'
+    '7': '7'
+    '8': '8'
+    '9': '9'
+    '10': '10'
+    '11': '11'
+    '12': '12'
+    '13': '13'
+    '14': '14'
+    '16': '16'
+    '18': '18'
+    '19': '19'
+    '23': '23'
+    '25': '25'
+    '47': '47'
+    ' ': ' '
+m_emp:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '0': '0'
+    '1': '1'
+    '2': '2'
+    '3': '3'
+    '4': '4'
+    '5': '5'
+    '6': '6'
+    '7': '7'
+    '9': '9'
+    '10': '10'
+    '13': '13'
+    '17': '17'
+    ' ': ' '
+t_cpago:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '0': '0'
+    '1': '1'
+    '2': '2'
+    '3': '3'
+    '4': '4'
+    '5': '5'
+    '6': '6'
+    '7': '7'
+    '8': '8'
+    '9': '9'
+    '10': '10'
+    '11': '11'
+    '12': '12'
+    '13': '13'
+    '14': '14'
+    '15': '15'
+    '17': '17'
+    '18': '18'
+    '19': '19'
+    '22': '22'
+    '23': '23'
+    '25': '25'
+    '47': '47'
+    ' ': ' '
+h_cpago:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '0': '0'
+    '1': '1'
+    '2': '2'
+    '3': '3'
+    '4': '4'
+    '5': '5'
+    '6': '6'
+    '7': '7'
+    '8': '8'
+    '9': '9'
+    '10': '10'
+    '11': '11'
+    '12': '12'
+    '13': '13'
+    '14': '14'
+    '15': '15'
+    '18': '18'
+    '19': '19'
+    '23': '23'
+    '25': '25'
+    '47': '47'
+    ' ': ' '
+m_cpago:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '0': '0'
+    '1': '1'
+    '2': '2'
+    '3': '3'
+    '4': '4'
+    '5': '5'
+    '6': '6'
+    '7': '7'
+    '10': '10'
+    '13': '13'
+    '17': '17'
+    ' ': ' '
+t_ispago:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '0': '0'
+    '1': '1'
+    '2': '2'
+    '3': '3'
+    '4': '4'
+    '5': '5'
+    '6': '6'
+    '7': '7'
+    ' ': ' '
+h_ispago:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '0': '0'
+    '1': '1'
+    '2': '2'
+    '3': '3'
+    '4': '4'
+    '5': '5'
+    ' ': ' '
+m_ispago:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '0': '0'
+    '1': '1'
+    '2': '2'
+    '3': '3'
+    '4': '4'
+    '5': '5'
+    ' ': ' '
+t_nispago:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '0': '0'
+    '1': '1'
+    '2': '2'
+    '3': '3'
+    '4': '4'
+    '6': '6'
+    '13': '13'
+    ' ': ' '
+h_nispago:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '0': '0'
+    '1': '1'
+    '2': '2'
+    '3': '3'
+    '4': '4'
+    '5': '5'
+    '13': '13'
+    ' ': ' '
+m_nispago:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '0': '0'
+    '1': '1'
+    '2': '2'
+    ' ': ' '
+reg_not:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '2': '2'
+    ' ': ' '
+reg_cont:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '1': '1'
+    '2': '2'
+    ' ': ' '
+com_fis:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías:
+    '2': '2'
+    '3': '3'
+    ' ': ' '
+ventas1:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+ventas2:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+ventas3:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+ventas4:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+ventas5:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+ventas6:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+autocons1:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+autocons2:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+autocons3:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+autocons4:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+autocons5:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+autocons6:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+otrosnom1:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+otrosnom2:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+otrosnom3:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+otrosnom4:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+otrosnom5:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+otrosnom6:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+gasneg1:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+gasneg2:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+gasneg3:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+gasneg4:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+gasneg5:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+gasneg6:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+ing1:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+ing2:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+ing3:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+ing4:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+ing5:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+ing6:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+ero1:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+ero2:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+ero3:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+ero4:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+ero5:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+ero6:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+ing_tri:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+ero_tri:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+ventas_tri:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+auto_tri:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+otros_tri:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}
+gasto_tri:
+  Descripción: ''
+  Tipo: ''
+  Longitud: ''
+  Categorías: {}

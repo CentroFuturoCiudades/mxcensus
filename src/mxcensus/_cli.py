@@ -17,11 +17,11 @@ def main() -> None:
     )
     fetch_p.add_argument(
         "state", type=int, metavar="STATE",
-        help="State code (ENTIDAD), 1-32. Ignored (N/A) for --dataset enoe (ENOE is national)",
+        help="State code (ENTIDAD), 1-32. Ignored (N/A) for --dataset enoe/enigh (national surveys)",
     )
     fetch_p.add_argument(
         "--dataset",
-        choices=["iter", "resargebub", "personas", "viviendas", "denue", "enoe", "all"],
+        choices=["iter", "resargebub", "personas", "viviendas", "denue", "enoe", "enigh", "all"],
         default="all",
         help="Which dataset(s) to fetch (default: all census tabular datasets)",
     )
@@ -33,6 +33,10 @@ def main() -> None:
         "--period", metavar="YYYYtQ",
         help="ENOE quarter id (e.g. 2023t1); defaults to the latest. Only for --dataset enoe",
     )
+    fetch_p.add_argument(
+        "--edition", metavar="YYYY",
+        help="ENIGH edition year (e.g. 2022); defaults to the latest. Only for --dataset enigh",
+    )
 
     sub.add_parser("info", help="Show cache directory and mirror info")
 
@@ -43,11 +47,20 @@ def main() -> None:
         from mxcensus.data._catalog import STATE_CODE_FMT
 
         code = STATE_CODE_FMT(args.state)
-        if args.release and args.dataset != "denue":
-            parser.error("--release only applies to --dataset denue")
-        if args.period and args.dataset != "enoe":
-            parser.error("--period only applies to --dataset enoe")
-        if args.dataset == "enoe":
+        # Each multi-temporal family has its own selector flag; reject a flag used with
+        # another family.
+        for flag, family in (("release", "denue"), ("period", "enoe"), ("edition", "enigh")):
+            if getattr(args, flag) and args.dataset != family:
+                parser.error(f"--{flag} only applies to --dataset {family}")
+        if args.dataset == "enigh":
+            # ENIGH is national — one file per (edition, table); `state` is ignored.
+            from mxcensus.data._enigh_catalog import EDITIONS_BY_PERIOD, latest_edition
+            period = args.edition or latest_edition().period
+            if period not in EDITIONS_BY_PERIOD:
+                parser.error(f"unknown ENIGH edition {period!r}; known: {list(EDITIONS_BY_PERIOD)}")
+            fnames = [f"enigh_{table}_{period}.parquet"
+                      for table in EDITIONS_BY_PERIOD[period].tables]
+        elif args.dataset == "enoe":
             # ENOE is national — one file set per quarter, no per-state split. The `state`
             # positional is ignored; fetch the five tables for the requested (or latest) quarter.
             from mxcensus.data._enoe_catalog import TABLES, latest_quarter
