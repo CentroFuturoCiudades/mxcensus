@@ -33,12 +33,10 @@ Metadata modes (from parquet already on disk, no download):
 from __future__ import annotations
 
 import argparse
-import json
 import re
 import shutil
 import zipfile
 from collections import defaultdict
-from hashlib import sha256
 from pathlib import Path
 
 import pandas as pd
@@ -46,6 +44,7 @@ import pyarrow.parquet as pq
 import yaml
 
 import _build_common as bc
+from mxcensus._schema_groups import fingerprint
 from mxcensus.data._enigh_catalog import (
     CATALOG_VERIFIED_DATE,
     EDITIONS,
@@ -175,12 +174,9 @@ def _build_edition(
 # --- schema fingerprinting + report (per table; tables drift independently) -----------
 
 def _fingerprint_cols(cols) -> str:
-    """sha256 over the ordered column names — identifies a table's schema for an edition.
-
-    Same recipe as ``mxcensus.enigh._fingerprint`` so the loader resolves a mirrored file to
-    the group recorded here.
-    """
-    return sha256(json.dumps(list(cols)).encode()).hexdigest()
+    """Schema-group fingerprint — the shared recipe the loader resolves against
+    (``mxcensus._schema_groups.fingerprint``), so map and loader can never drift."""
+    return fingerprint(cols)
 
 
 def _period_key(period: str) -> int:

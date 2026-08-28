@@ -18,12 +18,10 @@ from __future__ import annotations
 
 import argparse
 import io
-import json
 import re
 import shutil
 import zipfile
 from collections import defaultdict
-from hashlib import sha256
 from pathlib import Path
 
 import geopandas as gpd
@@ -36,6 +34,7 @@ import shapely
 import yaml
 
 import _build_common as bc
+from mxcensus._schema_groups import fingerprint
 from mxcensus.data._denue_catalog import (
     CATALOG_VERIFIED_DATE,
     RELEASES,
@@ -66,13 +65,9 @@ _MX_BBOX = (-118.5, 14.3, -86.6, 32.8)  # minlon, minlat, maxlon, maxlat
 
 
 def _fingerprint_cols(cols) -> str:
-    """sha256 over the ordered column names — identifies a release schema.
-
-    Column names (not dtypes) define the DENUE schema: dtypes are noisy across
-    states (an all-empty column reads as float in one state, object in another),
-    whereas the column set/order is the meaningful drift signal.
-    """
-    return sha256(json.dumps(list(cols)).encode()).hexdigest()
+    """Schema-group fingerprint — the shared recipe the loader resolves against
+    (``mxcensus._schema_groups.fingerprint``), so map and loader can never drift."""
+    return fingerprint(cols)
 
 
 def _schema_fingerprint(df: pd.DataFrame) -> str:

@@ -20,17 +20,15 @@ from the map, so only the rename/per_ocu spec is era-pinned.
 from __future__ import annotations
 
 import functools
-import json
 import re
 import warnings
-from hashlib import sha256
 from pathlib import Path
 
 import geopandas as gpd
 import pandas as pd
 import pandera.pandas as pa
-from pandera.errors import SchemaErrors
 
+from mxcensus import _schema_groups as _sg
 from mxcensus._resources import denue_schema_map, variables_denue
 
 # --- Harmonization: explicit raw→latest column renames for the descriptive-name
@@ -453,61 +451,41 @@ def _latest_schema() -> pa.DataFrameSchema:
 def _group_schema(gid: str) -> pa.DataFrameSchema:
     """Tight Pandera schema for a group's RAW (un-harmonized) frame.
 
-    Built from the group's bundled ``variables_denue_<gid>.yaml``: any column with a
-    non-empty ``Categorías`` map is constrained to those keys (``isin``) — the categories
-    are sourced from the release's data dictionary and cross-validated against the data at
-    build time, so a future file with a new/garbled value fails here. Coded columns
+    Built from ``variables_denue_<gid>.yaml`` by :func:`_schema_groups.build_group_schema`:
+    any column with a non-empty ``Categorías`` map is constrained to those keys (``isin`` —
+    dictionary-sourced and cross-validated against the data at build time); coded columns
     (by mnemonic) get regex; lat/lon a numeric type check; everything else a nullable
     string. ``strict=False`` ignores geometry and any extra per_ocu source columns.
     """
-    vars_ = variables_denue(gid)
-    cols = denue_schema_map()["groups"][gid]["columns"]
-    schema = {}
-    for col in cols:
-        cats = (vars_.get(col) or {}).get("Categorías") or {}
+    def rule(col: str) -> pa.Column | None:
         mn = _mnemonic_of(gid, col)
-        if cats:
-            schema[col] = pa.Column(str, pa.Check.isin(list(cats)), nullable=True, coerce=True)
-        elif mn in _CODED_REGEX:
-            schema[col] = pa.Column(str, pa.Check.str_matches(_CODED_REGEX[mn]), nullable=True, coerce=True)
-        elif mn in _NUMERIC:
-            schema[col] = pa.Column(float, nullable=True, coerce=True)
-        else:
-            schema[col] = pa.Column(str, nullable=True, coerce=True)
-    return pa.DataFrameSchema(schema, strict=False, coerce=True)
+        if mn in _CODED_REGEX:
+            return pa.Column(str, pa.Check.str_matches(_CODED_REGEX[mn]), nullable=True, coerce=True)
+        if mn in _NUMERIC:
+            return pa.Column(float, nullable=True, coerce=True)
+        return None
+
+    cols = denue_schema_map()["groups"][gid]["columns"]
+    return _sg.build_group_schema(cols, variables_denue(gid), column_rule=rule)
 
 
 def _validate(schema: pa.DataFrameSchema, frame: pd.DataFrame, label: str) -> None:
     """Validate (lazy) and **warn** on value-level violations rather than raise.
 
-    A single malformed cell (DENUE has e.g. ``cod_postal="IT SU"`` from a misaligned row)
+    A single malformed cell (e.g. ``cod_postal="IT SU"`` from a misaligned source row)
     should surface a problem, not make a whole state unloadable — structural problems
-    (unknown schema) already raise earlier in ``load_denue`` via ``_group_of``. The
-    maintainer ``--validate`` sweep is the authoritative hard pass/fail report.
+    (unknown schema) already raise earlier via ``_group_of``.
     """
-    try:
-        schema.validate(frame, lazy=True)
-    except SchemaErrors as exc:
-        fc = exc.failure_cases
-        top = fc.groupby(["column", "check"]).size().sort_values(ascending=False).head(6)
-        detail = "; ".join(f"{col}/{chk}×{n}" for (col, chk), n in top.items())
-        warnings.warn(
-            f"DENUE {label}: {len(fc)} schema violation(s) [{detail}]", stacklevel=3
-        )
+    _sg.validate_warn("DENUE", schema, frame, label)
 
 
 def _fingerprint(columns) -> str:
-    return sha256(json.dumps(list(columns)).encode()).hexdigest()
+    return _sg.fingerprint(columns)
 
 
 def _group_of(gdf: gpd.GeoDataFrame, schema_map: dict) -> str:
     cols = [c for c in gdf.columns if c != "geometry"]
-    fp = _fingerprint(cols)
-    gid = schema_map["fingerprints"].get(fp)
-    if gid is None:
-        raise ValueError("DENUE file schema not found in denue_schema_map.yaml "
-                         "(stale mirror or map?)")
-    return gid
+    return _sg.group_of("DENUE", schema_map, cols, map_name="denue_schema_map.yaml")
 
 
 def _capture(gdf: gpd.GeoDataFrame, spec: dict, gid: str):

@@ -35,15 +35,13 @@ NOT bridged across the 2024 CCIF re-basing.
 from __future__ import annotations
 
 import functools
-import json
 import warnings
-from hashlib import sha256
 from pathlib import Path
 
 import pandas as pd
 import pandera.pandas as pa
-from pandera.errors import SchemaErrors
 
+from mxcensus import _schema_groups as _sg
 from mxcensus._resources import enigh_schema_map, variables_enigh, variables_enigh_core
 from mxcensus.data._enigh_catalog import EDITIONS_BY_PERIOD, TABLES, latest_edition
 
@@ -59,53 +57,27 @@ _PERSON_KEY_SPEC: list[tuple[str, ...]] = _HOUSEHOLD_KEY_SPEC + [("numren",)]
 
 
 def _fingerprint(columns) -> str:
-    """sha256 over the ordered column names — same recipe as ``scripts/build_enigh.py``."""
-    return sha256(json.dumps(list(columns)).encode()).hexdigest()
+    """Schema-group fingerprint (shared recipe, see :mod:`mxcensus._schema_groups`)."""
+    return _sg.fingerprint(columns)
 
 
 @functools.cache
 def _group_schema(table: str, gid: str) -> pa.DataFrameSchema:
-    """Tight Pandera schema for one ENIGH ``(table, schema group)``'s raw frame.
-
-    Weights → numeric (coercible); any column with a non-empty ``Categorías`` map → strict
-    ``isin`` on its keys (complete, hand-curated value-sets for the analytical core;
-    data-enumerated otherwise); everything else → nullable string. ``strict=False``.
-    """
-    vars_ = variables_enigh(table, gid)
+    """Tight Pandera schema for one ENIGH ``(table, schema group)``'s raw frame
+    (weights → numeric, ``Categorías`` → strict ``isin``, else nullable string)."""
     cols = enigh_schema_map()[table]["groups"][gid]["columns"]
-    schema = {}
-    for col in cols:
-        cats = (vars_.get(col) or {}).get("Categorías") or {}
-        if col in _WEIGHTS:
-            schema[col] = pa.Column(float, nullable=True, coerce=True)
-        elif cats:
-            schema[col] = pa.Column(str, pa.Check.isin(list(cats)), nullable=True, coerce=True)
-        else:
-            schema[col] = pa.Column(str, nullable=True, coerce=True)
-    return pa.DataFrameSchema(schema, strict=False, coerce=True)
+    return _sg.build_group_schema(cols, variables_enigh(table, gid), weights=_WEIGHTS)
 
 
 def _group_of(table: str, df: pd.DataFrame) -> str:
     """Resolve a loaded frame to its per-table schema group id (raises if unknown)."""
-    fp = _fingerprint(list(df.columns))
-    gid = enigh_schema_map().get(table, {}).get("fingerprints", {}).get(fp)
-    if gid is None:
-        raise ValueError(
-            f"ENIGH {table} file schema not found in enigh_schema_map.yaml (stale mirror or "
-            f"map, or an edition not covered by the current build?)."
-        )
-    return gid
+    return _sg.group_of("ENIGH", enigh_schema_map().get(table), df.columns,
+                        map_name="enigh_schema_map.yaml", unit="edition")
 
 
 def _validate(schema: pa.DataFrameSchema, frame: pd.DataFrame, label: str) -> None:
     """Validate (lazy) and **warn** on value-level violations rather than raise."""
-    try:
-        schema.validate(frame, lazy=True)
-    except SchemaErrors as exc:
-        fc = exc.failure_cases
-        top = fc.groupby(["column", "check"]).size().sort_values(ascending=False).head(6)
-        detail = "; ".join(f"{col}/{chk}×{n}" for (col, chk), n in top.items())
-        warnings.warn(f"ENIGH {label}: {len(fc)} schema violation(s) [{detail}]", stacklevel=3)
+    _sg.validate_warn("ENIGH", schema, frame, label)
 
 
 def _filter_ent(df: pd.DataFrame, ent: int) -> pd.DataFrame:
@@ -278,13 +250,7 @@ def load_enigh(
 # --- analysis-ready loaders -------------------------------------------------------------
 
 def _level_key(spec: list[tuple[str, ...]], *frames: pd.DataFrame) -> list[str]:
-    common = set.intersection(*(set(f.columns) for f in frames))
-    key = []
-    for aliases in spec:
-        col = next((c for c in aliases if c in common), None)
-        if col is not None:
-            key.append(col)
-    return key
+    return _sg.level_key(spec, *frames)
 
 
 def _weight_col(df: pd.DataFrame) -> str | None:
@@ -299,11 +265,7 @@ def _numeric(df: pd.DataFrame, cols) -> pd.DataFrame:
 
 
 def _index_level(df: pd.DataFrame, spec: list[tuple[str, ...]]) -> pd.DataFrame:
-    key = _level_key(spec, df)
-    if df.duplicated(subset=key).any():
-        warnings.warn(f"ENIGH level key {key} is not unique in this frame; the index will be "
-                      f"non-unique.", stacklevel=3)
-    return df.set_index(key).sort_index()
+    return _sg.index_level("ENIGH", df, spec)
 
 
 def _attach_factor(df: pd.DataFrame, period: str, ent: int | None, harmonize: bool,
