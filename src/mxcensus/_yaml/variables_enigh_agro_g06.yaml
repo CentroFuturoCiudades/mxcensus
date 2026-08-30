@@ -465,16 +465,10 @@ nvo_cant3:
   Descripción: Cantidad recibida del nuevo programa social, tercer apoyo
   Pregunta: Entre _______ del año pasado y ______ de este año, ¿recibió apoyo para su negocio del programa…
     Monto o valor
-  Tipo: categorical
+  Tipo: numeric
   Longitud: '9'
-  Categorías:
-    '2500': '2500'
-    '3000': '3000'
-    '4200': '4200'
-    '6400': '6400'
-    '15000': '15000'
-    '8000': '8000'
-  Nota: 'códigos observados sin etiqueta en el DDI: [''8000'']'
+  Categorías: {}
+  Nota: 'numérica: el DDI sólo enumera códigos especiales'
 reg_not:
   Descripción: Registro ante notario
   Pregunta: ¿Su negocio cuenta con un registro ante notario como sociedad o cooperativa o cuenta con un

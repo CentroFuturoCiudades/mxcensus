@@ -27,50 +27,131 @@ mes_1:
   Tipo: categorical
   Longitud: '2'
   Categorías:
+    '01': Enero
+    '02': Febrero
+    '03': Marzo
+    '04': Abril
+    '05': Mayo
+    '06': Junio
     '07': Julio
     08: Agosto
     09: Septiembre
     '10': Octubre
-    '11': '11'
-    '7': '7'
-    '8': '8'
-    '9': '9'
-  Nota: 'códigos observados sin etiqueta en el DDI: [''11'', ''7'', ''8'', ''9'']'
+    '11': Noviembre
+    '12': Diciembre
+    '7': Julio
+    '8': Agosto
+    '9': Septiembre
 mes_2:
   Descripción: Segundo mes
   Pregunta: 2do. mes pasado
-  Tipo: numeric
+  Tipo: categorical
   Longitud: '2'
-  Categorías: {}
-  Nota: 'numérica: el DDI sólo enumera códigos especiales'
+  Categorías:
+    '01': Enero
+    '02': Febrero
+    '03': Marzo
+    '04': Abril
+    '05': Mayo
+    '06': Junio
+    '07': Julio
+    08: Agosto
+    09: Septiembre
+    '10': Octubre
+    '11': Noviembre
+    '12': Diciembre
+    '6': Junio
+    '7': Julio
+    '8': Agosto
+    '9': Septiembre
 mes_3:
   Descripción: Tercer mes
   Pregunta: 3er. mes pasado
-  Tipo: numeric
+  Tipo: categorical
   Longitud: '2'
-  Categorías: {}
-  Nota: 'numérica: el DDI sólo enumera códigos especiales'
+  Categorías:
+    '01': Enero
+    '02': Febrero
+    '03': Marzo
+    '04': Abril
+    '05': Mayo
+    '06': Junio
+    '07': Julio
+    08: Agosto
+    09: Septiembre
+    '10': Octubre
+    '11': Noviembre
+    '12': Diciembre
+    '5': Mayo
+    '6': Junio
+    '7': Julio
+    '8': Agosto
 mes_4:
   Descripción: Cuarto mes
   Pregunta: 4to. mes pasado
-  Tipo: numeric
+  Tipo: categorical
   Longitud: '2'
-  Categorías: {}
-  Nota: 'numérica: el DDI sólo enumera códigos especiales'
+  Categorías:
+    '01': Enero
+    '02': Febrero
+    '03': Marzo
+    '04': Abril
+    '05': Mayo
+    '06': Junio
+    '07': Julio
+    08: Agosto
+    09: Septiembre
+    '10': Octubre
+    '11': Noviembre
+    '12': Diciembre
+    '4': Abril
+    '5': Mayo
+    '6': Junio
+    '7': Julio
 mes_5:
   Descripción: Quinto mes
   Pregunta: 5to. mes pasado
-  Tipo: numeric
+  Tipo: categorical
   Longitud: '2'
-  Categorías: {}
-  Nota: 'numérica: el DDI sólo enumera códigos especiales'
+  Categorías:
+    '01': Enero
+    '02': Febrero
+    '03': Marzo
+    '04': Abril
+    '05': Mayo
+    '06': Junio
+    '07': Julio
+    08: Agosto
+    09: Septiembre
+    '10': Octubre
+    '11': Noviembre
+    '12': Diciembre
+    '3': Marzo
+    '4': Abril
+    '5': Mayo
+    '6': Junio
 mes_6:
   Descripción: Sexto mes
   Pregunta: 6to. mes pasado
-  Tipo: numeric
+  Tipo: categorical
   Longitud: '2'
-  Categorías: {}
-  Nota: 'numérica: el DDI sólo enumera códigos especiales'
+  Categorías:
+    '01': Enero
+    '02': Febrero
+    '03': Marzo
+    '04': Abril
+    '05': Mayo
+    '06': Junio
+    '07': Julio
+    08: Agosto
+    09: Septiembre
+    '10': Octubre
+    '11': Noviembre
+    '12': Diciembre
+    '2': Febrero
+    '3': Marzo
+    '4': Abril
+    '5': Mayo
 ing_1:
   Descripción: Ingresos del primer mes
   Pregunta: ¿Cuánto dinero recibió Por ..............?

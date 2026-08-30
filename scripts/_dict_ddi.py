@@ -140,6 +140,9 @@ def _respell(codes: dict[str, str], observed: set[str]) -> dict[str, str] | None
     padded = {(k.zfill(width) if k.isdigit() else k): v for k, v in codes.items()}
     if observed <= set(padded):
         return padded
+    both = {**padded, **stripped}  # editions of one group may mix both spellings
+    if observed <= set(both):
+        return {k: v for k, v in both.items() if k in observed or k in padded}
     return None
 
 
@@ -153,6 +156,31 @@ def _is_number(v: str) -> bool:
 
 def _fmt_num(x: float) -> str:
     return str(int(x)) if float(x).is_integer() else str(x)
+
+
+_MONTHS = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto",
+           "Septiembre", "Octubre", "Noviembre", "Diciembre"]
+
+
+def _complete_months(cats: dict[str, str]) -> dict[str, str] | None:
+    """A code→month-name map the DDI lists only partially (the months a table happened to
+    cover) → the full 1–12 map in the DDI's padding; ``None`` if not a month variable."""
+    if not cats or not all(v.strip().capitalize() in _MONTHS for v in cats.values()):
+        return None
+    width = max(len(k) for k in cats)
+    return {str(i).zfill(width): m for i, m in enumerate(_MONTHS, 1)}
+
+
+def _labels_are_numeric(cats: dict[str, str]) -> bool:
+    """True when every label repeats its code (``'01': '1 Años cumplidos'``, ``'5': '5'``):
+    an enumeration that documents a quantity, not categories."""
+    if not cats:
+        return False
+    for code, label in cats.items():
+        head = (label or "").strip().split(" ")[0].lstrip("0") or "0"
+        if head != (code.lstrip("0") or "0"):
+            return False
+    return True
 
 
 def dictionary_entry(col: str, observed: set[str] | None, core: dict | None,
@@ -205,12 +233,20 @@ def dictionary_entry(col: str, observed: set[str] | None, core: dict | None,
         return entry, "ddi"
     allowed = {**cats, **special}
     respelled = _respell(allowed, observed) if allowed else None
+    if respelled is None and observed and (months := _complete_months(cats)):
+        cats, allowed = months, {**months, **special}
+        respelled = _respell(allowed, observed)
+    if respelled is None and observed and "&" in observed - set(allowed):
+        # INEGI's "no especificado" glyph (ENIGH): a sentinel, whichever variable carries it.
+        special = {**special, "&": "No especificado"}
+        allowed = {**cats, **special}
+        respelled = _respell(allowed, observed)
     if respelled is None and observed and all(_is_number(v) for v in observed - set(special)
                                               - {k.lstrip("0") or "0" for k in special}):
         # An all-numeric observed set the DDI only partially enumerates (hours, years,
         # amounts, counts documented by a few labelled codes) is a number, not a category.
         covered = len(observed & set(allowed)) / len(observed)
-        if covered < 0.5:
+        if covered < 0.5 or _labels_are_numeric(cats):
             nums = sorted(float(v) for v in observed
                           if v not in special and (v.lstrip("0") or "0") not in special)
             entry["Tipo"] = "numeric"

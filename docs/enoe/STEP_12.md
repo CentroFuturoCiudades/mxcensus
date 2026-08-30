@@ -34,7 +34,12 @@ structured.
   `_dict_ddi.dictionary_entry`: a DDI enumeration wider than `--cat-threshold` whose codes are
   all integers (the DDI lists every age) → `Tipo: numeric` with the `missing` codes as
   `Especiales`; an all-numeric observed set the DDI covers < 50 % (hours, years, amounts
-  documented by a few special codes) → numeric; only sentinel codes documented → numeric.
+  documented by a few special codes) → numeric; only sentinel codes documented → numeric;
+  an enumeration whose labels merely repeat the code (`'01': '1 Años cumplidos'`) → numeric;
+  partial month-name maps are completed to 1–12; INEGI's `&` glyph → `Especiales`; a group
+  whose editions mix padded and un-padded spellings gets both keys. After these rules the
+  full-mirror regeneration leaves 36 ENOE entries (26 variables — odd stray codes such as
+  `t_loc_tri='0'`, `cs_p12='0'`) with an identity-labelled extra code flagged in `Nota`.
   **No `Rango` is taken from the DDI** — its `valrng` is the edition's observed min/max, not
   the questionnaire's bounds (a group spans editions). Bounds live in the core.
 - Provenance is printed per group (`core=…, ddi=…, ddi+data=…, data=…`).

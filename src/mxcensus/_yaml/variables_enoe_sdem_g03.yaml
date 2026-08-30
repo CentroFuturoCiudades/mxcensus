@@ -468,17 +468,15 @@ cs_p20c_1:
     09: Por desastres naturales
     '10': Lo deportaron (regresaron)
     '11': Otra causa (Especifica)
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '5': '5'
-    '6': '6'
-    '7': '7'
-    '8': '8'
-    '9': '9'
-  Nota: 'códigos observados sin etiqueta en el DDI: [''1'', ''2'', ''3'', ''4'', ''5'', ''6'', ''7'',
-    ''8'', ''9'']'
+    '1': Buscar trabajo
+    '2': Cambio u oferta de trabajo
+    '3': Reunirse con la familia
+    '4': Se casó o unió
+    '5': Estudiar
+    '6': Por inseguridad o delincuencia (asaltos, extorsiones, homicidios)
+    '7': Por violencia (entre vecinos, comunidad, intrafamiliar)
+    '8': Por sus creencias religiosas
+    '9': Por desastres naturales
 cs_ad_mot:
   Descripción: Ausentes definitivos motivo
   Pregunta: ¿Cuál es el motivo principal por el que... se fue?

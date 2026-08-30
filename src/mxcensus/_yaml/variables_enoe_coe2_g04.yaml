@@ -453,51 +453,10 @@ p9_m2:
   Descripción: Minutos dedicados a cuidar o atender sin pago, de manera exclusiva a niños, ancianos, enfermos
     o discapacitados
   Pregunta: Durante la semana pasada ¿cuánto tiempo dedicó ... a
-  Tipo: categorical
+  Tipo: numeric
   Longitud: '2'
-  Categorías:
-    '00': 0 minutos dedicados
-    '01': 1 minuto dedicado
-    '02': 2 minutos dedicados
-    '03': 3 minutos dedicados
-    '05': 5 minutos dedicados
-    '06': 6 minutos dedicados
-    '07': 7 minutos dedicados
-    08: 8 minutos dedicados
-    '10': 10 minutos dedicados
-    '11': 11 minutos dedicados
-    '15': 15 minutos dedicados
-    '20': 20 minutos dedicados
-    '21': 21 minutos dedicados
-    '22': 22 minutos dedicados
-    '23': 23 minutos dedicados
-    '24': 24 minutos dedicados
-    '25': 25 minutos dedicados
-    '27': 27 minutos dedicados
-    '30': 30 minutos dedicados
-    '33': 33 minutos dedicados
-    '35': 35 minutos dedicados
-    '36': 36 minutos dedicados
-    '40': 40 minutos dedicados
-    '41': 41 minutos dedicados
-    '45': 45 minutos dedicados
-    '50': 50 minutos dedicados
-    '55': 55 minutos dedicados
-    '0': '0'
-    '1': '1'
-    '17': '17'
-    '2': '2'
-    '3': '3'
-    '37': '37'
-    '38': '38'
-    '4': '4'
-    '42': '42'
-    '6': '6'
-    '7': '7'
-    '8': '8'
-    '9': '9'
-  Nota: 'códigos observados sin etiqueta en el DDI: [''0'', ''1'', ''17'', ''2'', ''3'', ''37'', ''38'',
-    ''4'', ''42'', ''6'', ''7'', ''8'', ''9'']'
+  Categorías: {}
+  Nota: 'numérica: el DDI sólo enumera códigos especiales'
 p9_3:
   Descripción: Tiempo dedicado a realizar compras, llevar cuentas o realizar trámites para el hogar o
     encargarse de la seguridad
@@ -518,73 +477,10 @@ p9_m3:
   Descripción: Minutos dedicados a realizar compras, llevar cuentas o realizar trámites para el hogar
     o encargarse de la seguridad
   Pregunta: Durante la semana pasada ¿cuánto tiempo dedicó ... a
-  Tipo: categorical
+  Tipo: numeric
   Longitud: '2'
-  Categorías:
-    '00': 0 minutos dedicados
-    '01': 1 minuto dedicado
-    '02': 2 minutos dedicados
-    '03': 3 minutos dedicados
-    '04': 4 minutos dedicados
-    '05': 5 minutos dedicados
-    '06': 6 minutos dedicados
-    '07': 7 minutos dedicados
-    08: 8 minutos dedicados
-    09: 9 minutos dedicados
-    '10': 10 minutos dedicados
-    '11': 11 minutos dedicados
-    '13': 13 minutos dedicados
-    '14': 14 minutos dedicados
-    '15': 15 minutos dedicados
-    '17': 17 minutos dedicados
-    '18': 18 minutos dedicados
-    '20': 20 minutos dedicados
-    '21': 21 minutos dedicados
-    '22': 22 minutos dedicados
-    '23': 23 minutos dedicados
-    '24': 24 minutos dedicados
-    '25': 25 minutos dedicados
-    '27': 27 minutos dedicados
-    '28': 28 minutos dedicados
-    '30': 30 minutos dedicados
-    '31': 31 minutos dedicados
-    '32': 32 minutos dedicados
-    '33': 33 minutos dedicados
-    '35': 35 minutos dedicados
-    '36': 36 minutos dedicados
-    '37': 37 minutos dedicados
-    '38': 38 minutos dedicados
-    '40': 40 minutos dedicados
-    '41': 41 minutos dedicados
-    '42': 42 minutos dedicados
-    '43': 43 minutos dedicados
-    '45': 45 minutos dedicados
-    '47': 47 minutos dedicados
-    '49': 49 minutos dedicados
-    '50': 50 minutos dedicados
-    '55': 55 minutos dedicados
-    '56': 56 minutos dedicados
-    '57': 57 minutos dedicados
-    '0': '0'
-    '1': '1'
-    '12': '12'
-    '2': '2'
-    '26': '26'
-    '3': '3'
-    '34': '34'
-    '4': '4'
-    '44': '44'
-    '46': '46'
-    '48': '48'
-    '5': '5'
-    '51': '51'
-    '53': '53'
-    '6': '6'
-    '7': '7'
-    '8': '8'
-    '9': '9'
-  Nota: 'códigos observados sin etiqueta en el DDI: [''0'', ''1'', ''12'', ''2'', ''26'', ''3'', ''34'',
-    ''4'', ''44'', ''46'', ''48'', ''5'', ''51'', ''53'', ''6'', ''7'', ''8'', ''9'']'
+  Categorías: {}
+  Nota: 'numérica: el DDI sólo enumera códigos especiales'
 p9_4:
   Descripción: Tiempo dedicado a llevar a algún miembro del hogar a la escuela, cita médica u otra actividad
   Pregunta: Durante la semana pasada ¿cuánto tiempo dedicó ... a
@@ -601,65 +497,10 @@ p9_h4:
 p9_m4:
   Descripción: Minutos dedicados a llevar a algún miembro del hogar a la escuela, cita médica u otra actividad
   Pregunta: Durante la semana pasada ¿cuánto tiempo dedicó ... a
-  Tipo: categorical
+  Tipo: numeric
   Longitud: '2'
-  Categorías:
-    '00': 0 minutos dedicados
-    '01': 1 minuto dedicado
-    '02': 2 minutos dedicados
-    '03': 3 minutos dedicados
-    '04': 4 minutos dedicados
-    '05': 5 minutos dedicados
-    '06': 6 minutos dedicados
-    '07': 7 minutos dedicados
-    08: 8 minutos dedicados
-    09: 9 minutos dedicados
-    '10': 10 minutos dedicados
-    '11': 11 minutos dedicados
-    '12': 12 minutos dedicados
-    '13': 13 minutos dedicados
-    '14': 14 minutos dedicados
-    '15': 15 minutos dedicados
-    '17': 17 minutos dedicados
-    '18': 18 minutos dedicados
-    '20': 20 minutos dedicados
-    '21': 21 minutos dedicados
-    '22': 22 minutos dedicados
-    '23': 23 minutos dedicados
-    '24': 24 minutos dedicados
-    '25': 25 minutos dedicados
-    '27': 27 minutos dedicados
-    '28': 28 minutos dedicados
-    '30': 30 minutos dedicados
-    '31': 31 minutos dedicados
-    '32': 32 minutos dedicados
-    '33': 33 minutos dedicados
-    '35': 35 minutos dedicados
-    '36': 36 minutos dedicados
-    '37': 37 minutos dedicados
-    '38': 38 minutos dedicados
-    '40': 40 minutos dedicados
-    '41': 41 minutos dedicados
-    '42': 42 minutos dedicados
-    '43': 43 minutos dedicados
-    '45': 45 minutos dedicados
-    '47': 47 minutos dedicados
-    '49': 49 minutos dedicados
-    '50': 50 minutos dedicados
-    '55': 55 minutos dedicados
-    '56': 56 minutos dedicados
-    '57': 57 minutos dedicados
-    '0': '0'
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '44': '44'
-    '5': '5'
-    '6': '6'
-    '7': '7'
-    '8': '8'
-  Nota: 'códigos observados sin etiqueta en el DDI: [''0'', ''1'', ''2'', ''3'', ''44'', ''5'', ''6'',
-    ''7'', ''8'']'
+  Categorías: {}
+  Nota: 'numérica: el DDI sólo enumera códigos especiales'
 p9_5:
   Descripción: Tiempo dedicado a construir o ampliar su vivienda
   Pregunta: Durante la semana pasada ¿cuánto tiempo dedicó ... a
@@ -807,68 +648,10 @@ p9_h7:
 p9_m7:
   Descripción: Minutos dedicados a realizar los quehaceres de su hogar
   Pregunta: Durante la semana pasada ¿cuánto tiempo dedicó ... a
-  Tipo: categorical
+  Tipo: numeric
   Longitud: '2'
-  Categorías:
-    '00': 0 minutos dedicados
-    '01': 1 minuto dedicado
-    '02': 2 minutos dedicados
-    '03': 3 minutos dedicados
-    '04': 4 minutos dedicados
-    '05': 5 minutos dedicados
-    '06': 6 minutos dedicados
-    '07': 7 minutos dedicados
-    08: 8 minutos dedicados
-    09: 9 minutos dedicados
-    '10': 10 minutos dedicados
-    '11': 11 minutos dedicados
-    '12': 12 minutos dedicados
-    '13': 13 minutos dedicados
-    '14': 14 minutos dedicados
-    '15': 15 minutos dedicados
-    '17': 17 minutos dedicados
-    '18': 18 minutos dedicados
-    '20': 20 minutos dedicados
-    '21': 21 minutos dedicados
-    '22': 22 minutos dedicados
-    '23': 23 minutos dedicados
-    '24': 24 minutos dedicados
-    '25': 25 minutos dedicados
-    '27': 27 minutos dedicados
-    '28': 28 minutos dedicados
-    '30': 30 minutos dedicados
-    '31': 31 minutos dedicados
-    '32': 32 minutos dedicados
-    '33': 33 minutos dedicados
-    '35': 35 minutos dedicados
-    '36': 36 minutos dedicados
-    '37': 37 minutos dedicados
-    '38': 38 minutos dedicados
-    '40': 40 minutos dedicados
-    '41': 41 minutos dedicados
-    '42': 42 minutos dedicados
-    '43': 43 minutos dedicados
-    '45': 45 minutos dedicados
-    '47': 47 minutos dedicados
-    '49': 49 minutos dedicados
-    '50': 50 minutos dedicados
-    '55': 55 minutos dedicados
-    '56': 56 minutos dedicados
-    '57': 57 minutos dedicados
-    '0': '0'
-    '1': '1'
-    '19': '19'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '44': '44'
-    '5': '5'
-    '6': '6'
-    '7': '7'
-    '8': '8'
-    '9': '9'
-  Nota: 'códigos observados sin etiqueta en el DDI: [''0'', ''1'', ''19'', ''2'', ''3'', ''4'', ''44'',
-    ''5'', ''6'', ''7'', ''8'', ''9'']'
+  Categorías: {}
+  Nota: 'numérica: el DDI sólo enumera códigos especiales'
 p9_8:
   Descripción: Tiempo dedicado a prestar servicios gratuitos a su comunidad
   Pregunta: Durante la semana pasada ¿cuánto tiempo dedicó ... a

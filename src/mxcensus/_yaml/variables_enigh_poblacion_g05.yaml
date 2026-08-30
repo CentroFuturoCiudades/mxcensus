@@ -46,31 +46,12 @@ madre_hog:
 madre_id:
   Descripción: Número de renglón de la madre
   Pregunta: ¿Quién es?
-  Tipo: categorical
+  Tipo: numeric
   Longitud: '2'
-  Categorías:
-    '01': '01'
-    '02': '02'
-    '03': '03'
-    '04': '04'
-    '05': '05'
-    '06': '06'
-    '07': '07'
-    08: 08
-    09: 09
-    '10': '10'
-    '11': '11'
-    '12': '12'
-    '13': '13'
-    '14': '14'
-    '15': '15'
-    '16': '16'
-    '17': '17'
-    '18': '18'
-    '19': '19'
-  Nota: 'códigos observados sin etiqueta en el DDI: [''19'']'
+  Categorías: {}
   Especiales:
     '&': No especificado
+  Nota: 'numérica: el DDI sólo enumera códigos especiales'
 padre_hog:
   Descripción: Identificador del padre
   Pregunta: En este hogar, ¿vive el padre de (NOMBRE)?
@@ -82,29 +63,12 @@ padre_hog:
 padre_id:
   Descripción: Número de renglón del padre
   Pregunta: ¿Quién es?
-  Tipo: categorical
+  Tipo: numeric
   Longitud: '2'
-  Categorías:
-    '01': '01'
-    '02': '02'
-    '03': '03'
-    '04': '04'
-    '05': '05'
-    '06': '06'
-    '07': '07'
-    08: 08
-    09: 09
-    '10': '10'
-    '11': '11'
-    '12': '12'
-    '13': '13'
-    '14': '14'
-    '15': '15'
-    '17': '17'
-    '19': '19'
-  Nota: 'códigos observados sin etiqueta en el DDI: [''19'']'
+  Categorías: {}
   Especiales:
     '&': No especificado
+  Nota: 'numérica: el DDI sólo enumera códigos especiales'
 disc1:
   Descripción: Discapacidad 1
   Pregunta: 'En su vida diaria ¿(NOMBRE) tiene alguna dificultad para:'
@@ -511,31 +475,12 @@ pareja_hog:
 conyuge_id:
   Descripción: Número de renglón del cónyuge
   Pregunta: ¿Quién es?
-  Tipo: categorical
+  Tipo: numeric
   Longitud: '2'
-  Categorías:
-    '01': '01'
-    '02': '02'
-    '03': '03'
-    '04': '04'
-    '05': '05'
-    '06': '06'
-    '07': '07'
-    08: 08
-    09: 09
-    '10': '10'
-    '11': '11'
-    '12': '12'
-    '13': '13'
-    '14': '14'
-    '15': '15'
-    '17': '17'
-    '18': '18'
-    '16': '16'
-    '19': '19'
-  Nota: 'códigos observados sin etiqueta en el DDI: [''16'', ''19'']'
+  Categorías: {}
   Especiales:
     '&': No especificado
+  Nota: 'numérica: el DDI sólo enumera códigos especiales'
 segsoc:
   Descripción: Contribución a la seguridad social
   Pregunta: ¿Alguna vez ha contribuido o cotizado para alguna institución de seguridad social?
@@ -792,50 +737,10 @@ min_8:
   Descripción: Minutos de actividades personales
   Pregunta: Durante la semana pasada ¿Cuánto tiempo le quedó para realizar actividades que a usted le
     gustan?
-  Tipo: categorical
+  Tipo: numeric
   Longitud: '2'
-  Categorías:
-    '00': '00'
-    '01': '01'
-    '02': '02'
-    '03': '03'
-    '05': '05'
-    '06': '06'
-    '07': '07'
-    08: 08
-    '10': '10'
-    '14': '14'
-    '15': '15'
-    '18': '18'
-    '20': '20'
-    '21': '21'
-    '25': '25'
-    '28': '28'
-    '30': '30'
-    '31': '31'
-    '35': '35'
-    '39': '39'
-    '40': '40'
-    '42': '42'
-    '45': '45'
-    '50': '50'
-    '55': '55'
-    '59': '59'
-    '04': '04'
-    '11': '11'
-    '12': '12'
-    '17': '17'
-    '19': '19'
-    '22': '22'
-    '23': '23'
-    '24': '24'
-    '26': '26'
-    '32': '32'
-    '33': '33'
-    '36': '36'
-    '54': '54'
-  Nota: 'códigos observados sin etiqueta en el DDI: [''04'', ''11'', ''12'', ''17'', ''19'', ''22'', ''23'',
-    ''24'', ''26'', ''32'', ''33'', ''36'', ''54'']'
+  Categorías: {}
+  Nota: 'numérica: el DDI sólo enumera códigos especiales'
 usotiempo8:
   Descripción: Tiempo para realizar actividades
   Pregunta: Durante la semana pasada ¿Cuánto tiempo le quedó para realizar actividades que a usted le
@@ -1084,237 +989,39 @@ servmed_11:
 hh_lug:
   Descripción: Horas de traslado
   Pregunta: ¿Cuánto tiempo tardó en llegar al lugar donde se atendió?
-  Tipo: categorical
+  Tipo: numeric
   Longitud: '2'
-  Categorías:
-    '0': '0'
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '5': '5'
-    '6': '6'
-    '7': '7'
-    '8': '8'
-    '9': '9'
-    '10': '10'
-    '11': '11'
-    '12': '12'
-    '13': '13'
-    '14': '14'
-    '15': '15'
-    '16': '16'
-    '17': '17'
-    '18': '18'
-    '20': '20'
-    '23': '23'
-    '24': '24'
-    '25': '25'
-    '26': '26'
-    '28': '28'
-    '30': '30'
-    '32': '32'
-    '36': '36'
-    '40': '40'
-    '42': '42'
-    '45': '45'
-    '48': '48'
-    '50': '50'
-    '60': '60'
-    '72': '72'
-    '21': '21'
-    '35': '35'
-    '49': '49'
-    '52': '52'
-    '95': '95'
-  Nota: 'códigos observados sin etiqueta en el DDI: [''21'', ''35'', ''49'', ''52'', ''95'']'
+  Categorías: {}
   Especiales:
     '-1': No especificado
+  Nota: 'numérica: el DDI sólo enumera códigos especiales'
 mm_lug:
   Descripción: Minutos de traslado
   Pregunta: ¿Cuánto tiempo tardó en llegar al lugar donde se atendió?
-  Tipo: categorical
+  Tipo: numeric
   Longitud: '2'
-  Categorías:
-    '0': '0'
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '5': '5'
-    '6': '6'
-    '7': '7'
-    '8': '8'
-    '9': '9'
-    '10': '10'
-    '11': '11'
-    '12': '12'
-    '13': '13'
-    '14': '14'
-    '15': '15'
-    '16': '16'
-    '17': '17'
-    '18': '18'
-    '19': '19'
-    '20': '20'
-    '21': '21'
-    '22': '22'
-    '23': '23'
-    '24': '24'
-    '25': '25'
-    '26': '26'
-    '27': '27'
-    '28': '28'
-    '29': '29'
-    '30': '30'
-    '31': '31'
-    '32': '32'
-    '33': '33'
-    '35': '35'
-    '36': '36'
-    '37': '37'
-    '38': '38'
-    '39': '39'
-    '40': '40'
-    '41': '41'
-    '42': '42'
-    '43': '43'
-    '44': '44'
-    '45': '45'
-    '46': '46'
-    '47': '47'
-    '48': '48'
-    '49': '49'
-    '50': '50'
-    '54': '54'
-    '55': '55'
-    '58': '58'
-    '59': '59'
-    '52': '52'
-    '56': '56'
-  Nota: 'códigos observados sin etiqueta en el DDI: [''52'', ''56'']'
+  Categorías: {}
   Especiales:
     '-1': No especificado
+  Nota: 'numérica: el DDI sólo enumera códigos especiales'
 hh_esp:
   Descripción: Hora de espera
   Pregunta: Cuando llegó al lugar, ¿cuánto tiempo tuvo que esperar para ser atendido?
-  Tipo: categorical
+  Tipo: numeric
   Longitud: '2'
-  Categorías:
-    '0': '0'
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '5': '5'
-    '6': '6'
-    '7': '7'
-    '8': '8'
-    '9': '9'
-    '10': '10'
-    '11': '11'
-    '12': '12'
-    '13': '13'
-    '14': '14'
-    '15': '15'
-    '16': '16'
-    '17': '17'
-    '18': '18'
-    '20': '20'
-    '23': '23'
-    '24': '24'
-    '25': '25'
-    '26': '26'
-    '28': '28'
-    '30': '30'
-    '35': '35'
-    '36': '36'
-    '40': '40'
-    '41': '41'
-    '45': '45'
-    '48': '48'
-    '50': '50'
-    '52': '52'
-    '70': '70'
-    '72': '72'
-    '85': '85'
-    '19': '19'
-    '21': '21'
-    '22': '22'
-    '32': '32'
-    '60': '60'
-    '96': '96'
-  Nota: 'códigos observados sin etiqueta en el DDI: [''19'', ''21'', ''22'', ''32'', ''60'', ''96'']'
+  Categorías: {}
   Especiales:
     '-1': No especificado
+  Nota: 'numérica: el DDI sólo enumera códigos especiales'
 mm_esp:
   Descripción: Minutos de espera
   Pregunta: Cuando llegó al lugar, ¿cuánto tiempo tuvo que esperar para ser atendido?
-  Tipo: categorical
+  Tipo: numeric
   Longitud: '2'
-  Categorías:
-    '0': '0'
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '5': '5'
-    '6': '6'
-    '7': '7'
-    '8': '8'
-    '9': '9'
-    '10': '10'
-    '11': '11'
-    '12': '12'
-    '13': '13'
-    '14': '14'
-    '15': '15'
-    '16': '16'
-    '17': '17'
-    '18': '18'
-    '19': '19'
-    '20': '20'
-    '21': '21'
-    '22': '22'
-    '23': '23'
-    '24': '24'
-    '25': '25'
-    '26': '26'
-    '27': '27'
-    '28': '28'
-    '29': '29'
-    '30': '30'
-    '31': '31'
-    '32': '32'
-    '33': '33'
-    '34': '34'
-    '35': '35'
-    '36': '36'
-    '37': '37'
-    '38': '38'
-    '39': '39'
-    '40': '40'
-    '41': '41'
-    '42': '42'
-    '43': '43'
-    '45': '45'
-    '46': '46'
-    '47': '47'
-    '48': '48'
-    '49': '49'
-    '50': '50'
-    '52': '52'
-    '53': '53'
-    '55': '55'
-    '56': '56'
-    '57': '57'
-    '58': '58'
-    '59': '59'
-    '44': '44'
-    '54': '54'
-  Nota: 'códigos observados sin etiqueta en el DDI: [''44'', ''54'']'
+  Categorías: {}
   Especiales:
     '-1': No especificado
+  Nota: 'numérica: el DDI sólo enumera códigos especiales'
 pagoaten_1:
   Descripción: Pago por consulta
   Pregunta: En aquella ocasión, ¿tuvo que pagar por algunos de los siguientes rubros?

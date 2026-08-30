@@ -266,49 +266,12 @@ cs_p17:
 n_hij:
   Descripción: En total cuantas hijas e hijos nacidos vivos ha vivos tenido
   Pregunta: ¿En total cuántas hijas e hijos que nacieron vivos ha tenido ...?
-  Tipo: categorical
+  Tipo: numeric
   Longitud: '2'
-  Categorías:
-    '00': 0 hijos
-    '01': 1 hijo
-    '02': 2 hijos
-    '03': 3 hijos
-    '04': 4 hijos
-    '05': 5 hijos
-    '06': 6 hijos
-    '07': 7 hijos
-    08: 8 hijos
-    09: 9 hijos
-    '10': 10 hijos
-    '11': 11 hijos
-    '12': 12 hijos
-    '13': 13 hijos
-    '14': 14 hijos
-    '15': 15 hijos
-    '16': 16 hijos
-    '17': 17 hijos
-    '18': 18 hijos
-    '19': 19 hijos
-    '20': 20 hijos
-    '21': 21 hijos
-    '22': 22 hijos
-    '24': 24 hijos
-    '25': 25 hijos
-    '0': '0'
-    '1': '1'
-    '2': '2'
-    '23': '23'
-    '3': '3'
-    '4': '4'
-    '5': '5'
-    '6': '6'
-    '7': '7'
-    '8': '8'
-    '9': '9'
-  Nota: 'códigos observados sin etiqueta en el DDI: [''0'', ''1'', ''2'', ''23'', ''3'', ''4'', ''5'',
-    ''6'', ''7'', ''8'', ''9'']'
+  Categorías: {}
   Especiales:
     '99': Número de hijos no especificados
+  Nota: 'numérica: el DDI sólo enumera códigos especiales'
 e_con:
   Descripción: Estado conyugal
   Tipo: categorical

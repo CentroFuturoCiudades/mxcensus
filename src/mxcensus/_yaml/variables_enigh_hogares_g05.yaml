@@ -983,14 +983,10 @@ nr_viv:
   Descripción: Numero de renglón de vivienda
   Pregunta: Asignar el número de renglón que corresponda según el cuestionario de Hogares y Viviendas
     Sección III
-  Tipo: categorical
+  Tipo: numeric
   Longitud: '2'
-  Categorías:
-    '01': '01'
-    '02': '02'
-    '03': '03'
-    '04': '04'
-  Nota: 'códigos observados sin etiqueta en el DDI: [''04'']'
+  Categorías: {}
+  Nota: 'numérica: el DDI sólo enumera códigos especiales'
 tarjeta:
   Descripción: Tarjeta
   Pregunta: ¿Alguna de las personas que conforman su hogar ... con tarjeta de crédito bancaria o comercial?

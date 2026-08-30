@@ -321,33 +321,17 @@ socios:
 soc_nr1:
   Descripción: Primer socio del negocio
   Pregunta: ¿Quiénes son?
-  Tipo: categorical
+  Tipo: numeric
   Longitud: '2'
-  Categorías:
-    '01': '01'
-    '02': '02'
-    '03': '03'
-    '04': '04'
-    '05': '05'
-    '06': '06'
-    '07': '07'
-    08: 08
-    09: 09
-  Nota: 'códigos observados sin etiqueta en el DDI: [''09'']'
+  Categorías: {}
+  Nota: 'numérica: el DDI sólo enumera códigos especiales'
 soc_nr2:
   Descripción: Segundo socio del negocio
   Pregunta: ¿Quiénes son?
-  Tipo: categorical
+  Tipo: numeric
   Longitud: '2'
-  Categorías:
-    '01': '01'
-    '02': '02'
-    '03': '03'
-    '04': '04'
-    '05': '05'
-    '06': '06'
-    '07': '07'
-  Nota: 'códigos observados sin etiqueta en el DDI: [''07'']'
+  Categorías: {}
+  Nota: 'numérica: el DDI sólo enumera códigos especiales'
 soc_resp:
   Descripción: Responsable del negocio
   Pregunta: ¿Quién de estas personas, incluyéndose usted, podría proporcionar información sobre este negocio?

@@ -849,56 +849,10 @@ p9_h8:
 p9_m8:
   Descripción: Minutos dedicados a prestar servicios gratuitos a su comunidad
   Pregunta: Durante la semana pasada ¿cuánto tiempo dedicó ... a
-  Tipo: categorical
+  Tipo: numeric
   Longitud: '8'
-  Categorías:
-    '00': 0 Número de minutos dedicados a servicios
-    '01': 1 Número de minutos dedicados a servicios
-    '02': 2 Número de minutos dedicados a servicios
-    '03': 3 Número de minutos dedicados a servicios
-    '04': 4 Número de minutos dedicados a servicios
-    '05': 5 Número de minutos dedicados a servicios
-    '06': 6 Número de minutos dedicados a servicios
-    '07': 7 Número de minutos dedicados a servicios
-    08: 8 Número de minutos dedicados a servicios
-    09: 9 Número de minutos dedicados a servicios
-    '10': 10 Número de minutos dedicados a servicios
-    '11': 11 Número de minutos dedicados a servicios
-    '12': 12 Número de minutos dedicados a servicios
-    '13': 13 Número de minutos dedicados a servicios
-    '14': 14 Número de minutos dedicados a servicios
-    '15': 15 Número de minutos dedicados a servicios
-    '16': 16 Número de minutos dedicados a servicios
-    '17': 17 Número de minutos dedicados a servicios
-    '18': 18 Número de minutos dedicados a servicios
-    '19': 19 Número de minutos dedicados a servicios
-    '20': 20 Número de minutos dedicados a servicios
-    '21': 21 Número de minutos dedicados a servicios
-    '22': 22 Número de minutos dedicados a servicios
-    '23': 23 Número de minutos dedicados a servicios
-    '24': 24 Número de minutos dedicados a servicios
-    '25': 25 Número de minutos dedicados a servicios
-    '26': 26 Número de minutos dedicados a servicios
-    '27': 27 Número de minutos dedicados a servicios
-    '28': 28 Número de minutos dedicados a servicios
-    '29': 29 Número de minutos dedicados a servicios
-    '30': 30 Número de minutos dedicados a servicios
-    '40': 40 Número de minutos dedicados a servicios
-    '45': 45 Número de minutos dedicados a servicios
-    '50': 50 Número de minutos dedicados a servicios
-    '0': '0'
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '35': '35'
-    '36': '36'
-    '5': '5'
-    '6': '6'
-    '7': '7'
-    '8': '8'
-    '9': '9'
-  Nota: 'códigos observados sin etiqueta en el DDI: [''0'', ''1'', ''2'', ''3'', ''35'', ''36'', ''5'',
-    ''6'', ''7'', ''8'', ''9'']'
+  Categorías: {}
+  Nota: 'numérica: el DDI sólo enumera códigos especiales'
 ur:
   Descripción: Variable de apoyo
   Pregunta: Variable de apoyo del sistema de captura.

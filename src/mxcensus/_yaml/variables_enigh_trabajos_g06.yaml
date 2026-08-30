@@ -357,20 +357,10 @@ soc_nr2:
 soc_resp:
   Descripción: Responsable del negocio
   Pregunta: ¿Quién de estas personas, incluyéndose usted, podría proporcionar información sobre este negocio?
-  Tipo: categorical
+  Tipo: numeric
   Longitud: '2'
-  Categorías:
-    '01': '01'
-    '02': '02'
-    '03': '03'
-    '04': '04'
-    '05': '05'
-    '06': '06'
-    08: 08
-    09: 09
-    '10': '10'
-    '07': '07'
-  Nota: 'códigos observados sin etiqueta en el DDI: [''07'']'
+  Categorías: {}
+  Nota: 'numérica: el DDI sólo enumera códigos especiales'
 otra_act:
   Descripción: Otras actividades del negocio
   Pregunta: Además de la actividad mencionada, el mes pasado, ¿realizó alguna otra actividad en su negocio?

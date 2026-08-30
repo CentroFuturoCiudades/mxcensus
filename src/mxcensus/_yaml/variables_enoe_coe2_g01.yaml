@@ -922,77 +922,10 @@ p11_m3:
   Descripción: ¿cuántos minutos dedicó a realizar compras, llevar cuentas o realizar trámites para el
     hogar o encargarse de la seguridad? (como guardar el automóvil)
   Pregunta: Pregunta 11. Durante la semana pasada ¿cuánto tiempo dedicó ... a
-  Tipo: categorical
+  Tipo: numeric
   Longitud: '2'
-  Categorías:
-    '00': 0 Minutos a realizar compras, llevar cuentas
-    '01': 1 Minutos a realizar compras, llevar cuentas
-    '02': 2 Minutos a realizar compras, llevar cuentas
-    '03': 3 Minutos a realizar compras, llevar cuentas
-    '04': 4 Minutos a realizar compras, llevar cuentas
-    '05': 5 Minutos a realizar compras, llevar cuentas
-    '06': 6 Minutos a realizar compras, llevar cuentas
-    '07': 7 Minutos a realizar compras, llevar cuentas
-    08: 8 Minutos a realizar compras, llevar cuentas
-    09: 9 Minutos a realizar compras, llevar cuentas
-    '10': 10 Minutos a realizar compras, llevar cuentas
-    '11': 11 Minutos a realizar compras, llevar cuentas
-    '12': 12 Minutos a realizar compras, llevar cuentas
-    '14': 14 Minutos a realizar compras, llevar cuentas
-    '15': 15 Minutos a realizar compras, llevar cuentas
-    '16': 16 Minutos a realizar compras, llevar cuentas
-    '18': 18 Minutos a realizar compras, llevar cuentas
-    '20': 20 Minutos a realizar compras, llevar cuentas
-    '21': 21 Minutos a realizar compras, llevar cuentas
-    '22': 22 Minutos a realizar compras, llevar cuentas
-    '24': 24 Minutos a realizar compras, llevar cuentas
-    '25': 25 Minutos a realizar compras, llevar cuentas
-    '28': 28 Minutos a realizar compras, llevar cuentas
-    '30': 30 Minutos a realizar compras, llevar cuentas
-    '31': 31 Minutos a realizar compras, llevar cuentas
-    '33': 33 Minutos a realizar compras, llevar cuentas
-    '34': 34 Minutos a realizar compras, llevar cuentas
-    '35': 35 Minutos a realizar compras, llevar cuentas
-    '36': 36 Minutos a realizar compras, llevar cuentas
-    '37': 37 Minutos a realizar compras, llevar cuentas
-    '38': 38 Minutos a realizar compras, llevar cuentas
-    '40': 40 Minutos a realizar compras, llevar cuentas
-    '43': 43 Minutos a realizar compras, llevar cuentas
-    '45': 45 Minutos a realizar compras, llevar cuentas
-    '47': 47 Minutos a realizar compras, llevar cuentas
-    '48': 48 Minutos a realizar compras, llevar cuentas
-    '50': 50 Minutos a realizar compras, llevar cuentas
-    '51': 51 Minutos a realizar compras, llevar cuentas
-    '55': 55 Minutos a realizar compras, llevar cuentas
-    '56': 56 Minutos a realizar compras, llevar cuentas
-    '0': '0'
-    '1': '1'
-    '13': '13'
-    '17': '17'
-    '2': '2'
-    '23': '23'
-    '26': '26'
-    '27': '27'
-    '29': '29'
-    '3': '3'
-    '32': '32'
-    '4': '4'
-    '41': '41'
-    '42': '42'
-    '44': '44'
-    '46': '46'
-    '49': '49'
-    '5': '5'
-    '52': '52'
-    '54': '54'
-    '57': '57'
-    '6': '6'
-    '7': '7'
-    '8': '8'
-    '9': '9'
-  Nota: 'códigos observados sin etiqueta en el DDI: [''0'', ''1'', ''13'', ''17'', ''2'', ''23'', ''26'',
-    ''27'', ''29'', ''3'', ''32'', ''4'', ''41'', ''42'', ''44'', ''46'', ''49'', ''5'', ''52'', ''54'',
-    ''57'', ''6'', ''7'', ''8'', ''9'']'
+  Categorías: {}
+  Nota: 'numérica: el DDI sólo enumera códigos especiales'
 p11_4:
   Descripción: Durante la semana pasada ¿cuánto tiempo dedicado a
   Pregunta: Pregunta 11. Durante la semana pasada ¿cuánto tiempo dedicó ... a

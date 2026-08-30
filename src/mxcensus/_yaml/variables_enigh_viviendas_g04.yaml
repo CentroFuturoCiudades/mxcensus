@@ -252,8 +252,8 @@ combustible:
     '4': Gas natural o de tubería
     '5': Electricidad
     '6': Otro combustible
-    '&': '&'
-  Nota: 'códigos observados sin etiqueta en el DDI: [''&'']'
+  Especiales:
+    '&': No especificado
 estufa_chi:
   Descripción: Estufa con chimenea
   Pregunta: Presencia de chimenea para desalojar el humo al cocinar.
@@ -348,50 +348,24 @@ tipo_finan:
 num_dueno1:
   Descripción: Identificador del primer dueño
   Pregunta: ¿Quién de las personas que viven aquí es el dueño o dueña de esta vivienda?
-  Tipo: categorical
+  Tipo: numeric
   Longitud: '2'
-  Categorías:
-    '01': '01'
-    '02': '02'
-    '03': '03'
-    '04': '04'
-    '05': '05'
-    '06': '06'
-    '07': '07'
-    08: 08
-    09: 09
-    '10': '10'
-    '17': '17'
-    '11': '11'
-    '14': '14'
-  Nota: 'códigos observados sin etiqueta en el DDI: [''11'', ''14'']'
+  Categorías: {}
+  Nota: 'numérica: el DDI sólo enumera códigos especiales'
 hog_dueno1:
   Descripción: Hogar del primer dueño
   Pregunta: ¿Quién de las personas que viven aquí es el dueño o dueña de esta vivienda?
-  Tipo: categorical
+  Tipo: numeric
   Longitud: '1'
-  Categorías:
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-  Nota: 'códigos observados sin etiqueta en el DDI: [''4'']'
+  Categorías: {}
+  Nota: 'numérica: el DDI sólo enumera códigos especiales'
 num_dueno2:
   Descripción: Identificador del segundo dueño
   Pregunta: ¿Quién de las personas que viven aquí es el dueño o dueña de esta vivienda?
-  Tipo: categorical
+  Tipo: numeric
   Longitud: '2'
-  Categorías:
-    '01': '01'
-    '02': '02'
-    '03': '03'
-    '04': '04'
-    '05': '05'
-    '06': '06'
-    '07': '07'
-    '10': '10'
-    08: 08
-  Nota: 'códigos observados sin etiqueta en el DDI: [''08'']'
+  Categorías: {}
+  Nota: 'numérica: el DDI sólo enumera códigos especiales'
 hog_dueno2:
   Descripción: Hogar del segundo dueño
   Pregunta: ¿Quién de las personas que viven aquí es el dueño o dueña de esta vivienda?

@@ -108,17 +108,15 @@ cve_ent:
     '30': Veracruz
     '31': Yucatán
     '32': Zacatecas
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '5': '5'
-    '6': '6'
-    '7': '7'
-    '8': '8'
-    '9': '9'
-  Nota: 'códigos observados sin etiqueta en el DDI: [''1'', ''2'', ''3'', ''4'', ''5'', ''6'', ''7'',
-    ''8'', ''9'']'
+    '1': Aguascalientes
+    '2': Baja California
+    '3': Baja California Sur
+    '4': Campeche
+    '5': Coahuila
+    '6': Colima
+    '7': Chiapas
+    '8': Chihuahua
+    '9': Ciudad de México
 con:
   Descripción: Número de control de la vivienda
   Tipo: string

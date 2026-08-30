@@ -226,43 +226,13 @@ EDA:
 N_INF:
   Descripción: Renglón del informante
   Pregunta: Dato extraído de la tabla de la primera parte de las preguntas del cuestionario básico (COE1T214).
-  Tipo: categorical
+  Tipo: numeric
   Longitud: '2'
-  Categorías:
-    '01': 01 Renglón del informante
-    '02': 02 Renglón del informante
-    '03': 03 Renglón del informante
-    '04': 04 Renglón del informante
-    '05': 05 Renglón del informante
-    '06': 06 Renglón del informante
-    '07': 07 Renglón del informante
-    08: 08 Renglón del informante
-    09: 09 Renglón del informante
-    '10': 10 Renglón del informante
-    '11': 11 Renglón del informante
-    '12': 12 Renglón del informante
-    '13': 13 Renglón del informante
-    '14': 14 Renglón del informante
-    '15': 15 Renglón del informante
-    '16': 16 Renglón del informante
-    '17': 17 Renglón del informante
-    '18': 18 Renglón del informante
-    '19': 19 Renglón del informante
-    '1': '1'
-    '2': '2'
-    '21': '21'
-    '3': '3'
-    '4': '4'
-    '5': '5'
-    '6': '6'
-    '7': '7'
-    '8': '8'
-    '9': '9'
-  Nota: 'códigos observados sin etiqueta en el DDI: [''1'', ''2'', ''21'', ''3'', ''4'', ''5'', ''6'',
-    ''7'', ''8'', ''9'']'
+  Categorías: {}
   Especiales:
     '97': Más de un informante
     '99': Informante autorizado
+  Nota: 'numérica: el DDI sólo enumera códigos especiales'
 P6_1:
   Descripción: Recibe o le pagan por comisión
   Pregunta: ¿... recibe o le pagan por comisión?
@@ -548,42 +518,10 @@ P9_H1:
 P9_M1:
   Descripción: Minutos dedicados a estudiar o tomar cursos de capacitación
   Pregunta: Durante la semana pasada ¿cuánto tiempo dedicó ... a
-  Tipo: categorical
+  Tipo: numeric
   Longitud: '2'
-  Categorías:
-    '00': 0 minutos a estudiar o tomar cursos de capacitación
-    '01': 1 minuto a estudiar o tomar cursos de capacitación
-    '02': 2 minutos a estudiar o tomar cursos de capacitación
-    '03': 3 minutos a estudiar o tomar cursos de capacitación
-    '04': 4 minutos a estudiar o tomar cursos de capacitación
-    '06': 6 minutos a estudiar o tomar cursos de capacitación
-    '07': 7 minutos a estudiar o tomar cursos de capacitación
-    08: 8 minutos a estudiar o tomar cursos de capacitación
-    '10': 10 minutos a estudiar o tomar cursos de capacitación
-    '11': 11 minutos a estudiar o tomar cursos de capacitación
-    '15': 15 minutos a estudiar o tomar cursos de capacitación
-    '20': 20 minutos a estudiar o tomar cursos de capacitación
-    '22': 22 minutos a estudiar o tomar cursos de capacitación
-    '23': 23 minutos a estudiar o tomar cursos de capacitación
-    '27': 27 minutos a estudiar o tomar cursos de capacitación
-    '30': 30 minutos a estudiar o tomar cursos de capacitación
-    '32': 32 minutos a estudiar o tomar cursos de capacitación
-    '33': 33 minutos a estudiar o tomar cursos de capacitación
-    '40': 40 minutos a estudiar o tomar cursos de capacitación
-    '45': 45 minutos a estudiar o tomar cursos de capacitación
-    '50': 50 minutos a estudiar o tomar cursos de capacitación
-    '55': 55 minutos a estudiar o tomar cursos de capacitación
-    '0': '0'
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '5': '5'
-    '6': '6'
-    '7': '7'
-    '8': '8'
-  Nota: 'códigos observados sin etiqueta en el DDI: [''0'', ''1'', ''2'', ''3'', ''4'', ''5'', ''6'',
-    ''7'', ''8'']'
+  Categorías: {}
+  Nota: 'numérica: el DDI sólo enumera códigos especiales'
 P9_2:
   Descripción: Tiempo que dedicó a cuidar o atender sin pago, de manera exclusiva a niños, ancianos, enfermos
     o discapacitados
@@ -1077,49 +1015,10 @@ P9_H8:
 P9_M8:
   Descripción: Minutos dedicados a prestar servicios gratuitos a su comunidad
   Pregunta: Durante la semana pasada ¿cuánto tiempo dedicó ... a
-  Tipo: categorical
+  Tipo: numeric
   Longitud: '8'
-  Categorías:
-    '00': 0 Número de minutos dedicados a servicios
-    '01': 1 Número de minutos dedicados a servicios
-    '02': 2 Número de minutos dedicados a servicios
-    '03': 3 Número de minutos dedicados a servicios
-    '04': 4 Número de minutos dedicados a servicios
-    '05': 5 Número de minutos dedicados a servicios
-    '06': 6 Número de minutos dedicados a servicios
-    '07': 7 Número de minutos dedicados a servicios
-    08: 8 Número de minutos dedicados a servicios
-    09: 9 Número de minutos dedicados a servicios
-    '10': 10 Número de minutos dedicados a servicios
-    '11': 11 Número de minutos dedicados a servicios
-    '12': 12 Número de minutos dedicados a servicios
-    '13': 13 Número de minutos dedicados a servicios
-    '14': 14 Número de minutos dedicados a servicios
-    '15': 15 Número de minutos dedicados a servicios
-    '16': 16 Número de minutos dedicados a servicios
-    '17': 17 Número de minutos dedicados a servicios
-    '18': 18 Número de minutos dedicados a servicios
-    '19': 19 Número de minutos dedicados a servicios
-    '20': 20 Número de minutos dedicados a servicios
-    '21': 21 Número de minutos dedicados a servicios
-    '22': 22 Número de minutos dedicados a servicios
-    '23': 23 Número de minutos dedicados a servicios
-    '24': 24 Número de minutos dedicados a servicios
-    '25': 25 Número de minutos dedicados a servicios
-    '26': 26 Número de minutos dedicados a servicios
-    '27': 27 Número de minutos dedicados a servicios
-    '28': 28 Número de minutos dedicados a servicios
-    '29': 29 Número de minutos dedicados a servicios
-    '30': 30 Número de minutos dedicados a servicios
-    '40': 40 Número de minutos dedicados a servicios
-    '45': 45 Número de minutos dedicados a servicios
-    '50': 50 Número de minutos dedicados a servicios
-    '0': '0'
-    '3': '3'
-    '35': '35'
-    '4': '4'
-    '5': '5'
-  Nota: 'códigos observados sin etiqueta en el DDI: [''0'', ''3'', ''35'', ''4'', ''5'']'
+  Categorías: {}
+  Nota: 'numérica: el DDI sólo enumera códigos especiales'
 UR:
   Descripción: Variable de apoyo
   Pregunta: Variable de apoyo del sistema de captura.

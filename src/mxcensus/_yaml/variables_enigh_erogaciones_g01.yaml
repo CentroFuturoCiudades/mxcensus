@@ -43,10 +43,9 @@ mes1:
     08: agosto
     09: septiembre
     '10': octubre
-    '7': '7'
-    '8': '8'
-    '9': '9'
-  Nota: 'códigos observados sin etiqueta en el DDI: [''7'', ''8'', ''9'']'
+    '7': julio
+    '8': agosto
+    '9': septiembre
 mes2:
   Descripción: Mes 2
   Pregunta: ¿Cuáles fueron sus gastos durante los meses de…?
@@ -57,11 +56,10 @@ mes2:
     '07': julio
     08: agosto
     09: septiembre
-    '6': '6'
-    '7': '7'
-    '8': '8'
-    '9': '9'
-  Nota: 'códigos observados sin etiqueta en el DDI: [''6'', ''7'', ''8'', ''9'']'
+    '6': junio
+    '7': julio
+    '8': agosto
+    '9': septiembre
 mes3:
   Descripción: Mes 3
   Pregunta: ''
@@ -72,11 +70,10 @@ mes3:
     '06': junio
     '07': julio
     08: agosto
-    '5': '5'
-    '6': '6'
-    '7': '7'
-    '8': '8'
-  Nota: 'códigos observados sin etiqueta en el DDI: [''5'', ''6'', ''7'', ''8'']'
+    '5': mayo
+    '6': junio
+    '7': julio
+    '8': agosto
 mes4:
   Descripción: Mes 4
   Pregunta: ¿Cuáles fueron sus gastos durante los meses de…?
@@ -87,11 +84,10 @@ mes4:
     '05': mayo
     '06': junio
     '07': julio
-    '4': '4'
-    '5': '5'
-    '6': '6'
-    '7': '7'
-  Nota: 'códigos observados sin etiqueta en el DDI: [''4'', ''5'', ''6'', ''7'']'
+    '4': abril
+    '5': mayo
+    '6': junio
+    '7': julio
 mes5:
   Descripción: Mes 5
   Pregunta: ¿Cuáles fueron sus gastos durante los meses de…?
@@ -102,11 +98,10 @@ mes5:
     '04': abril
     '05': mayo
     '06': junio
-    '3': '3'
-    '4': '4'
-    '5': '5'
-    '6': '6'
-  Nota: 'códigos observados sin etiqueta en el DDI: [''3'', ''4'', ''5'', ''6'']'
+    '3': marzo
+    '4': abril
+    '5': mayo
+    '6': junio
 mes6:
   Descripción: Mes 6
   Pregunta: ¿Cuáles fueron sus gastos durante los meses de…?
@@ -117,11 +112,10 @@ mes6:
     '03': marzo
     '04': abril
     '05': mayo
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '5': '5'
-  Nota: 'códigos observados sin etiqueta en el DDI: [''2'', ''3'', ''4'', ''5'']'
+    '2': febrero
+    '3': marzo
+    '4': abril
+    '5': mayo
 ero_1:
   Descripción: Erogación 1
   Pregunta: El mes pasado, ¿Cuánto gasto por?

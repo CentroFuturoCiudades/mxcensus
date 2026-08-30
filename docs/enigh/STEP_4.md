@@ -9,9 +9,11 @@ One RNM codebook per edition (`scripts/_dict_ddi.py::ENIGH_DDI`): 2008 = 7, 2010
 2022 = 901, 2024 = 1116. Data-file stems match the canonical table names; the 2008/2010
 NCV codebooks call `concentradohogar` `concentrado` (`build_enigh._DDI_STEM_ALIASES`).
 **Every column of every table in every edition is documented** (checked 2026-08-29); 3,948 /
-3,968 categorical columns have every observed code labelled. The residue is `&` (INEGI's
-"no especificado" glyph — the DDI flags it `missing`), the `ubica_geo` catalog and the
-expenditure `clave` catalogs (not enumerated; `Nota` records them).
+3,968 categorical columns have every observed code labelled. `&` (INEGI's "no
+especificado" glyph) becomes `Especiales`, partial month maps are completed, mixed padding
+across the editions of one group is accepted; the residue after regeneration is 7 entries
+(`clave` catalog in `erogaciones`, `inst_1/2='08'`, the off-by-one `noatenc_*` codes),
+identity-labelled and flagged in `Nota`.
 
 ## Regeneration (local mirror is complete, 99 files)
 

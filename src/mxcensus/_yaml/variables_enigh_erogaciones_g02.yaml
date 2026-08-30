@@ -61,72 +61,108 @@ mes_1:
   Tipo: categorical
   Longitud: '2'
   Categorías:
+    '01': Enero
+    '02': Febrero
+    '03': Marzo
+    '04': Abril
+    '05': Mayo
+    '06': Junio
     '07': Julio
     08: Agosto
     09: Septiembre
     '10': Octubre
-    '11': '11'
-  Nota: 'códigos observados sin etiqueta en el DDI: [''11'']'
+    '11': Noviembre
+    '12': Diciembre
 mes_2:
   Descripción: Mes 2
   Pregunta: ¿Cuáles fueron sus gastos durante los meses de…?
   Tipo: categorical
   Longitud: '2'
   Categorías:
+    '01': Enero
+    '02': Febrero
+    '03': Marzo
+    '04': Abril
+    '05': Mayo
     '06': Junio
     '07': Julio
     08: Agosto
     09: Septiembre
-    '10': '10'
-  Nota: 'códigos observados sin etiqueta en el DDI: [''10'']'
+    '10': Octubre
+    '11': Noviembre
+    '12': Diciembre
 mes_3:
   Descripción: Mes 3
   Pregunta: ¿Cuáles fueron sus gastos durante los meses de…?
   Tipo: categorical
   Longitud: '2'
   Categorías:
+    '01': Enero
+    '02': Febrero
+    '03': Marzo
+    '04': Abril
     '05': Mayo
     '06': Junio
     '07': Julio
     08: Agosto
-    09: 09
-  Nota: 'códigos observados sin etiqueta en el DDI: [''09'']'
+    09: Septiembre
+    '10': Octubre
+    '11': Noviembre
+    '12': Diciembre
 mes_4:
   Descripción: Mes 4
   Pregunta: ¿Cuáles fueron sus gastos durante los meses de…?
   Tipo: categorical
   Longitud: '2'
   Categorías:
+    '01': Enero
+    '02': Febrero
+    '03': Marzo
     '04': Abril
     '05': Mayo
     '06': Junio
     '07': Julio
-    08: 08
-  Nota: 'códigos observados sin etiqueta en el DDI: [''08'']'
+    08: Agosto
+    09: Septiembre
+    '10': Octubre
+    '11': Noviembre
+    '12': Diciembre
 mes_5:
   Descripción: Mes 5
   Pregunta: ¿Cuáles fueron sus gastos durante los meses de…?
   Tipo: categorical
   Longitud: '2'
   Categorías:
+    '01': Enero
+    '02': Febrero
     '03': Marzo
     '04': Abril
     '05': Mayo
     '06': Junio
-    '07': '07'
-  Nota: 'códigos observados sin etiqueta en el DDI: [''07'']'
+    '07': Julio
+    08: Agosto
+    09: Septiembre
+    '10': Octubre
+    '11': Noviembre
+    '12': Diciembre
 mes_6:
   Descripción: Mes 6
   Pregunta: ¿Cuáles fueron sus gastos durante los meses de…?
   Tipo: categorical
   Longitud: '2'
   Categorías:
+    '01': Enero
     '02': Febrero
     '03': Marzo
     '04': Abril
     '05': Mayo
-    '06': '06'
-  Nota: 'códigos observados sin etiqueta en el DDI: [''06'']'
+    '06': Junio
+    '07': Julio
+    08: Agosto
+    09: Septiembre
+    '10': Octubre
+    '11': Noviembre
+    '12': Diciembre
 ero_1:
   Descripción: Erogación en el mes de referencia 1
   Pregunta: El mes pasado, ¿Cuánto gasto por?

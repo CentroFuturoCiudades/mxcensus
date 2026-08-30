@@ -8,38 +8,38 @@ cve_ent:
   Tipo: ''
   Longitud: ''
   Categorías:
-    '27': '27'
-    '03': '03'
-    '07': '07'
-    08: 08
-    '21': '21'
-    '04': '04'
-    '16': '16'
-    '14': '14'
-    '23': '23'
-    '01': '01'
-    '32': '32'
-    '05': '05'
-    '29': '29'
-    '25': '25'
-    '18': '18'
-    '26': '26'
-    '22': '22'
-    '02': '02'
-    '24': '24'
     '30': '30'
-    '12': '12'
-    '15': '15'
-    '11': '11'
+    '01': '01'
     '20': '20'
-    '31': '31'
-    '06': '06'
-    '28': '28'
-    '17': '17'
+    '25': '25'
+    '27': '27'
+    '16': '16'
     09: 09
-    '10': '10'
-    '13': '13'
+    '24': '24'
+    '02': '02'
+    '04': '04'
     '19': '19'
+    '22': '22'
+    '18': '18'
+    '10': '10'
+    '26': '26'
+    '03': '03'
+    '05': '05'
+    '12': '12'
+    '29': '29'
+    '07': '07'
+    '28': '28'
+    08: 08
+    '31': '31'
+    '17': '17'
+    '32': '32'
+    '14': '14'
+    '06': '06'
+    '23': '23'
+    '21': '21'
+    '15': '15'
+    '13': '13'
+    '11': '11'
 con:
   Descripción: Número de control de la vivienda
   Tipo: string
@@ -1218,84 +1218,10 @@ p11_h4:
   Descripción: ¿cuántas horas dedicó a llevar a algún miembro del hogar a la escuela, cita médica u otra
     actividad?
   Pregunta: Pregunta 11. Durante la semana pasada ¿cuánto tiempo dedicó ... a
-  Tipo: categorical
+  Tipo: numeric
   Longitud: '2'
-  Categorías:
-    '00': 0 Número de horas dedicadas a llevar
-    '01': 1 Número de horas dedicadas a llevar
-    '02': 2 Número de horas dedicadas a llevar
-    '03': 3 Número de horas dedicadas a llevar
-    '04': 4 Número de horas dedicadas a llevar
-    '05': 5 Número de horas dedicadas a llevar
-    '06': 6 Número de horas dedicadas a llevar
-    '07': 7 Número de horas dedicadas a llevar
-    08: 8 Número de horas dedicadas a llevar
-    09: 9 Número de horas dedicadas a llevar
-    '10': 10 Número de horas dedicadas a llevar
-    '11': 11 Número de horas dedicadas a llevar
-    '12': 12 Número de horas dedicadas a llevar
-    '13': 13 Número de horas dedicadas a llevar
-    '14': 14 Número de horas dedicadas a llevar
-    '15': 15 Número de horas dedicadas a llevar
-    '16': 16 Número de horas dedicadas a llevar
-    '17': 17 Número de horas dedicadas a llevar
-    '18': 18 Número de horas dedicadas a llevar
-    '19': 19 Número de horas dedicadas a llevar
-    '20': 20 Número de horas dedicadas a llevar
-    '21': 21 Número de horas dedicadas a llevar
-    '22': 22 Número de horas dedicadas a llevar
-    '23': 23 Número de horas dedicadas a llevar
-    '24': 24 Número de horas dedicadas a llevar
-    '25': 25 Número de horas dedicadas a llevar
-    '26': 26 Número de horas dedicadas a llevar
-    '27': 27 Número de horas dedicadas a llevar
-    '28': 28 Número de horas dedicadas a llevar
-    '29': 29 Número de horas dedicadas a llevar
-    '30': 30 Número de horas dedicadas a llevar
-    '31': 31 Número de horas dedicadas a llevar
-    '32': 32 Número de horas dedicadas a llevar
-    '33': 33 Número de horas dedicadas a llevar
-    '34': 34 Número de horas dedicadas a llevar
-    '35': 35 Número de horas dedicadas a llevar
-    '36': 36 Número de horas dedicadas a llevar
-    '38': 38 Número de horas dedicadas a llevar
-    '39': 39 Número de horas dedicadas a llevar
-    '40': 40 Número de horas dedicadas a llevar
-    '41': 41 Número de horas dedicadas a llevar
-    '42': 42 Número de horas dedicadas a llevar
-    '43': 43 Número de horas dedicadas a llevar
-    '44': 44 Número de horas dedicadas a llevar
-    '45': 45 Número de horas dedicadas a llevar
-    '48': 48 Número de horas dedicadas a llevar
-    '49': 49 Número de horas dedicadas a llevar
-    '50': 50 Número de horas dedicadas a llevar
-    '53': 53 Número de horas dedicadas a llevar
-    '56': 56 Número de horas dedicadas a llevar
-    '66': 66 Número de horas dedicadas a llevar
-    '70': 70 Número de horas dedicadas a llevar
-    '72': 72 Número de horas dedicadas a llevar
-    '73': 73 Número de horas dedicadas a llevar
-    '80': 80 Número de horas dedicadas a llevar
-    '85': 85 Número de horas dedicadas a llevar
-    '95': 95 Número de horas dedicadas a llevar
-    '96': 96 Número de horas dedicadas a llevar
-    '98': 98 Realizó la actividad,pero no sabe cuánto tiempo le dedicó.
-    '99': 99 No sabe si realizó la actividad.
-    '0': '0'
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '47': '47'
-    '5': '5'
-    '55': '55'
-    '6': '6'
-    '60': '60'
-    '7': '7'
-    '8': '8'
-    '9': '9'
-  Nota: 'códigos observados sin etiqueta en el DDI: [''0'', ''1'', ''2'', ''3'', ''4'', ''47'', ''5'',
-    ''55'', ''6'', ''60'', ''7'', ''8'', ''9'']'
+  Categorías: {}
+  Nota: 'numérica: el DDI sólo enumera códigos especiales'
 p11_m4:
   Descripción: ¿cuántos minutos dedicó a llevar a algún miembro del hogar a la escuela, cita médica u
     otra actividad?
@@ -1508,42 +1434,10 @@ p11_m6:
   Descripción: ¿cuántos minutos dedicó a reparar o dar mantenimiento a su vivienda, muebles, aparatos
     electrodomésticos o vehículos?
   Pregunta: Pregunta 11. Durante la semana pasada ¿cuánto tiempo dedicó ... a
-  Tipo: categorical
+  Tipo: numeric
   Longitud: '2'
-  Categorías:
-    '00': 0 Número de minutos dedicados a reparar
-    '02': 2 Número de minutos dedicados a reparar
-    '03': 3 Número de minutos dedicados a reparar
-    '05': 5 Número de minutos dedicados a reparar
-    '06': 6 Número de minutos dedicados a reparar
-    08: 8 Número de minutos dedicados a reparar
-    09: 09 Número de minutos dedicados a reparar
-    '10': 10 Número de minutos dedicados a reparar
-    '15': 15 Número de minutos dedicados a reparar
-    '20': 20 Número de minutos dedicados a reparar
-    '25': 25 Número de minutos dedicados a reparar
-    '28': 28 Número de minutos dedicados a reparar
-    '30': 30 Número de minutos dedicados a reparar
-    '33': 33 Número de minutos dedicados a reparar
-    '35': 35 Número de minutos dedicados a reparar
-    '38': 38 Número de minutos dedicados a reparar
-    '40': 40 Número de minutos dedicados a reparar
-    '45': 45 Número de minutos dedicados a reparar
-    '48': 48 Número de minutos dedicados a reparar
-    '50': 50 Número de minutos dedicados a reparar
-    '56': 56 Número de minutos dedicados a reparar
-    '57': 57 Número de minutos dedicados a reparar
-    '0': '0'
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '5': '5'
-    '55': '55'
-    '6': '6'
-    '8': '8'
-    '9': '9'
-  Nota: 'códigos observados sin etiqueta en el DDI: [''0'', ''1'', ''2'', ''3'', ''5'', ''55'', ''6'',
-    ''8'', ''9'']'
+  Categorías: {}
+  Nota: 'numérica: el DDI sólo enumera códigos especiales'
 p11_7:
   Descripción: Durante la semana pasada ¿cuánto tiempo dedicado a
   Pregunta: Pregunta 11. Durante la semana pasada ¿cuánto tiempo dedicó ... a
@@ -1564,56 +1458,10 @@ p11_m7:
   Descripción: ¿cuántos minutos dedicó a realizar los quehaceres de su hogar? (lavar, planchar, preparar
     y servir alimentos, barrer)
   Pregunta: Pregunta 11. Durante la semana pasada ¿cuánto tiempo dedicó ... a
-  Tipo: categorical
+  Tipo: numeric
   Longitud: '2'
-  Categorías:
-    '00': 0 Número de minutos dedicados a quehaceres
-    '01': 1 Número de minutos dedicados a quehaceres
-    '02': 2 Número de minutos dedicados a quehaceres
-    '03': 3 Número de minutos dedicados a quehaceres
-    '04': 4 Número de minutos dedicados a quehaceres
-    '05': 5 Número de minutos dedicados a quehaceres
-    '06': 6 Número de minutos dedicados a quehaceres
-    '07': 7 Número de minutos dedicados a quehaceres
-    08: 8 Número de minutos dedicados a quehaceres
-    09: 9 Número de minutos dedicados a quehaceres
-    '10': 10 Número de minutos dedicados a quehaceres
-    '15': 15 Número de minutos dedicados a quehaceres
-    '16': 16 Número de minutos dedicados a quehaceres
-    '18': 18 Número de minutos dedicados a quehaceres
-    '20': 20 Número de minutos dedicados a quehaceres
-    '21': 21 Número de minutos dedicados a quehaceres
-    '24': 24 Número de minutos dedicados a quehaceres
-    '25': 25 Número de minutos dedicados a quehaceres
-    '28': 28 Número de minutos dedicados a quehaceres
-    '29': 29 Número de minutos dedicados a quehaceres
-    '30': 30 Número de minutos dedicados a quehaceres
-    '31': 31 Número de minutos dedicados a quehaceres
-    '32': 32 Número de minutos dedicados a quehaceres
-    '33': 33 Número de minutos dedicados a quehaceres
-    '34': 34 Número de minutos dedicados a quehaceres
-    '35': 35 Número de minutos dedicados a quehaceres
-    '38': 38 Número de minutos dedicados a quehaceres
-    '40': 40 Número de minutos dedicados a quehaceres
-    '42': 42 Número de minutos dedicados a quehaceres
-    '45': 45 Número de minutos dedicados a quehaceres
-    '50': 50 Número de minutos dedicados a quehaceres
-    '56': 56 Número de minutos dedicados a quehaceres
-    '0': '0'
-    '1': '1'
-    '11': '11'
-    '12': '12'
-    '14': '14'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '5': '5'
-    '6': '6'
-    '7': '7'
-    '8': '8'
-    '9': '9'
-  Nota: 'códigos observados sin etiqueta en el DDI: [''0'', ''1'', ''11'', ''12'', ''14'', ''2'', ''3'',
-    ''4'', ''5'', ''6'', ''7'', ''8'', ''9'']'
+  Categorías: {}
+  Nota: 'numérica: el DDI sólo enumera códigos especiales'
 p11_8:
   Descripción: Durante la semana pasada ¿cuánto tiempo dedicado a
   Pregunta: Pregunta 11. Durante la semana pasada ¿cuánto tiempo dedicó ... a
@@ -1625,113 +1473,20 @@ p11_h8:
   Descripción: ¿cuántas horas dedicó a prestar servicios gratuitos a su comunidad?(conseguir despensas,
     cuidar personas en un hospital)
   Pregunta: Pregunta 11. Durante la semana pasada ¿cuánto tiempo dedicó ... a
-  Tipo: categorical
+  Tipo: numeric
   Longitud: '2'
-  Categorías:
-    '00': 0 Número de horas dedicadas a servicios
-    '01': 1 Número de horas dedicadas a servicios
-    '02': 2 Número de horas dedicadas a servicios
-    '03': 3 Número de horas dedicadas a servicios
-    '04': 4 Número de horas dedicadas a servicios
-    '05': 5 Número de horas dedicadas a servicios
-    '06': 6 Número de horas dedicadas a servicios
-    '07': 7 Número de horas dedicadas a servicios
-    08: 8 Número de horas dedicadas a servicios
-    09: 9 Número de horas dedicadas a servicios
-    '10': 10 Número de horas dedicadas a servicios
-    '11': 11 Número de horas dedicadas a servicios
-    '12': 12 Número de horas dedicadas a servicios
-    '13': 13 Número de horas dedicadas a servicios
-    '14': 14 Número de horas dedicadas a servicios
-    '15': 15 Número de horas dedicadas a servicios
-    '16': 16 Número de horas dedicadas a servicios
-    '17': 17 Número de horas dedicadas a servicios
-    '18': 18 Número de horas dedicadas a servicios
-    '19': 19 Número de horas dedicadas a servicios
-    '20': 20 Número de horas dedicadas a servicios
-    '21': 21 Número de horas dedicadas a servicios
-    '22': 22 Número de horas dedicadas a servicios
-    '23': 23 Número de horas dedicadas a servicios
-    '24': 24 Número de horas dedicadas a servicios
-    '25': 25 Número de horas dedicadas a servicios
-    '27': 27 Número de horas dedicadas a servicios
-    '28': 28 Número de horas dedicadas a servicios
-    '30': 30 Número de horas dedicadas a servicios
-    '31': 31 Número de horas dedicadas a servicios
-    '32': 32 Número de horas dedicadas a servicios
-    '33': 33 Número de horas dedicadas a servicios
-    '35': 35 Número de horas dedicadas a servicios
-    '36': 36 Número de horas dedicadas a servicios
-    '37': 37 Número de horas dedicadas a servicios
-    '40': 40 Número de horas dedicadas a servicios
-    '42': 42 Número de horas dedicadas a servicios
-    '45': 45 Número de horas dedicadas a servicios
-    '46': 46 Número de horas dedicadas a servicios
-    '48': 48 Número de horas dedicadas a servicios
-    '49': 49 Número de horas dedicadas a servicios
-    '50': 50 Número de horas dedicadas a servicios
-    '52': 52 Número de horas dedicadas a servicios
-    '56': 56 Número de horas dedicadas a servicios
-    '63': 63 Número de horas dedicadas a servicios
-    '70': 70 Número de horas dedicadas a servicios
-    '72': 72 Número de horas dedicadas a servicios
-    '84': 84 Número de horas dedicadas a servicios
-    '93': 93 Número de horas dedicadas a servicios
-    '97': 97 Número de horas dedicadas a servicios
-    '98': 98 Realizó la actividad pero no sabe cuanto
-    '0': '0'
-    '1': '1'
-    '2': '2'
-    '26': '26'
-    '3': '3'
-    '34': '34'
-    '4': '4'
-    '44': '44'
-    '5': '5'
-    '57': '57'
-    '6': '6'
-    '60': '60'
-    '68': '68'
-    '7': '7'
-    '8': '8'
-    '9': '9'
-    '90': '90'
-    '95': '95'
-  Nota: 'códigos observados sin etiqueta en el DDI: [''0'', ''1'', ''2'', ''26'', ''3'', ''34'', ''4'',
-    ''44'', ''5'', ''57'', ''6'', ''60'', ''68'', ''7'', ''8'', ''9'', ''90'', ''95'']'
+  Categorías: {}
   Especiales:
     '99': 99 No sabe si realizó la actividad
+  Nota: 'numérica: el DDI sólo enumera códigos especiales'
 p11_m8:
   Descripción: ¿cuántos minutos dedicó a prestar servicios gratuitos a su comunidad?(conseguir despensas,
     cuidar personas en un hospital)
   Pregunta: Pregunta 11. Durante la semana pasada ¿cuánto tiempo dedicó ... a
-  Tipo: categorical
+  Tipo: numeric
   Longitud: '2'
-  Categorías:
-    '00': 0 Número de minutos dedicados a servicios
-    '02': 02 Número de minutos dedicados a servicios
-    '03': 3 Número de minutos dedicados a servicios
-    '05': 5 Número de minutos dedicados a servicios
-    '07': 7 Número de minutos dedicados a servicios
-    08: 8 Número de minutos dedicados a servicios
-    '10': 10 Número de minutos dedicados a servicios
-    '15': 15 Número de minutos dedicados a servicios
-    '20': 20 Número de minutos dedicados a servicios
-    '25': 25 Número de minutos dedicados a servicios
-    '30': 30 Número de minutos dedicados a servicios
-    '35': 35 Número de horas dedicadas a servicios
-    '38': 38 Número de minutos dedicados a servicios
-    '40': 40 Número de minutos dedicados a servicios
-    '45': 45 Número de horas dedicadas a servicios
-    '50': 50 Número de minutos dedicados a servicios
-    '0': '0'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '5': '5'
-    '6': '6'
-    '8': '8'
-  Nota: 'códigos observados sin etiqueta en el DDI: [''0'', ''2'', ''3'', ''4'', ''5'', ''6'', ''8'']'
+  Categorías: {}
+  Nota: 'numérica: el DDI sólo enumera códigos especiales'
 ur:
   Descripción: Variable de apoyo
   Pregunta: Variable de apoyo del sistema de captura.
