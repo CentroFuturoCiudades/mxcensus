@@ -53,23 +53,19 @@ h_mud:
   Longitud: '1'
   Categorías: {}
 n_ent:
-  Descripción: Número de entrevista
-  Pregunta: No existe pregunta, es un identificador de la vivienda.
-  Tipo: categorical
-  Longitud: '1'
-  Categorías:
-    '1': Entrevista 1
-    '2': Entrevista 2
-    '3': Entrevista 3
-    '4': Entrevista 4
-    '5': Entrevista 5
-per:
-  Descripción: Periodo
-  Pregunta: No existe pregunta, es un identificador de la vivienda.
+  Descripción: Número de entrevista o visita a la vivienda (1-5 en el panel de cinco visitas; valores
+    mayores — hasta 17 y más — en la ENOE-N/CATI de 2020-T3 a 2021-T2, no documentados en la FD)
   Tipo: numeric
+  Longitud: '2'
+  Rango:
+  - 1
+  - 99
+  Categorías: {}
+per:
+  Descripción: Periodo — trimestre (primer dígito 1-4) y año (dos dígitos), p. ej. '123' = 2023-T1
+  Tipo: string
   Longitud: '3'
   Categorías: {}
-  Nota: 'numérica: el DDI sólo enumera códigos especiales'
 n_ren:
   Descripción: Número de renglón del integrante del hogar
   Tipo: string
@@ -1992,46 +1988,13 @@ p5e_mvi:
 p5e_hsa:
   Descripción: Horas habituales de sábado
   Pregunta: ¿Qué días y cuántas horas le dedica habitualmente... a su trabajo?
-  Tipo: categorical
+  Tipo: numeric
   Longitud: '2'
-  Categorías:
-    '00': 0 horas habituales que trabaja sábado
-    '01': 1 horas habituales que trabaja sábado
-    '02': 2 horas habituales que trabaja sábado
-    '03': 3 horas habituales que trabaja sábado
-    '04': 4 horas habituales que trabaja sábado
-    '05': 5 horas habituales que trabaja sábado
-    '06': 6 horas habituales que trabaja sábado
-    '07': 7 horas habituales que trabaja sábado
-    08: 8 horas habituales que trabaja sábado
-    09: 9 horas habituales que trabaja sábado
-    '10': 10 horas habituales que trabaja sábado
-    '11': 11 horas habituales que trabaja sábado
-    '12': 12 horas habituales que trabaja sábado
-    '13': 13 horas habituales que trabaja sábado
-    '14': 14 horas habituales que trabaja sábado
-    '15': 15 horas habituales que trabaja sábado
-    '16': 16 horas habituales que trabaja sábado
-    '17': 17 horas habituales que trabaja sábado
-    '18': 18 horas habituales que trabaja sábado
-    '20': 20 horas habituales que trabaja sábado
-    '24': 24 horas habituales que trabaja sábado
-    '99': No sabe si trabajo ese día
-    '0': '0'
-    '1': '1'
-    '19': '19'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '5': '5'
-    '6': '6'
-    '7': '7'
-    '8': '8'
-    '9': '9'
-  Nota: 'códigos observados sin etiqueta en el DDI: [''0'', ''1'', ''19'', ''2'', ''3'', ''4'', ''5'',
-    ''6'', ''7'', ''8'', ''9'']'
+  Categorías: {}
   Especiales:
     '98': Trabajó ese día, pero no sabe cuanto tiempo
+    '99': No sabe si trabajo ese día
+  Nota: 'numérica: el DDI sólo enumera códigos especiales'
 p5e_msa:
   Descripción: Minutos habituales de sábado
   Pregunta: ¿Qué días y cuántas horas le dedica habitualmente... a su trabajo?
@@ -2113,9 +2076,8 @@ p5g1:
   Tipo: categorical
   Longitud: '1'
   Categorías:
+    '01': Trabaja en enero
     '1': Trabaja en enero
-    '01': '01'
-  Nota: 'códigos observados sin etiqueta en el DDI: [''01'']'
 p5g2:
   Descripción: Realiza el trabajo en Febrero
   Pregunta: ¿En qué meses del año ... realiza este trabajo?

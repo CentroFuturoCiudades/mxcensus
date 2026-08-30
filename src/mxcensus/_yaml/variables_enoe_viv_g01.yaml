@@ -30,15 +30,17 @@ ageb:
   Categorías:
     '0': '00000'
 t_loc:
-  Descripción: Tamaño de localidad
-  Pregunta: No existe pregunta, es un identificador de la vivienda.
+  Descripción: Tamaño de localidad (ediciones anteriores a 2020-T3)
   Tipo: categorical
   Longitud: '1'
+  Ordenada: true
   Categorías:
-    '1': Áreas más urbanizadas
-    '2': Urbano medio
-    '3': Urbano bajo
-    '4': Rural
+    '4': Localidades menores de 2 500 habitantes
+    '3': Localidades de 2 500 a 14 999 habitantes
+    '2': Localidades de 15 000 a 99 999 habitantes
+    '1': Localidades mayores de 100 000 habitantes
+  Especiales:
+    '0': No especificado (código no documentado en la FD)
 cd_a:
   Descripción: Ciudad autorrepresentada (agrupación de áreas de la muestra)
   Tipo: string
@@ -78,23 +80,19 @@ v_sel:
   Longitud: '2'
   Categorías: {}
 n_ent:
-  Descripción: Número de entrevista
-  Pregunta: No existe pregunta, es un identificador de la vivienda.
-  Tipo: categorical
-  Longitud: '1'
-  Categorías:
-    '1': Entrevista uno
-    '2': Entrevista dos
-    '3': Entrevista tres
-    '4': Entrevista cuatro
-    '5': Entrevista cinco
-per:
-  Descripción: Periodo
-  Pregunta: No existe pregunta, es un identificador de la vivienda.
+  Descripción: Número de entrevista o visita a la vivienda (1-5 en el panel de cinco visitas; valores
+    mayores — hasta 17 y más — en la ENOE-N/CATI de 2020-T3 a 2021-T2, no documentados en la FD)
   Tipo: numeric
+  Longitud: '2'
+  Rango:
+  - 1
+  - 99
+  Categorías: {}
+per:
+  Descripción: Periodo — trimestre (primer dígito 1-4) y año (dos dígitos), p. ej. '123' = 2023-T1
+  Tipo: string
   Longitud: '3'
   Categorías: {}
-  Nota: 'numérica: el DDI sólo enumera códigos especiales'
 p1:
   Descripción: Personas que viven en la vivienda
   Pregunta: ¿Cuántas personas viven normalmente en esta vivienda contando a los niños chiquitos y a los

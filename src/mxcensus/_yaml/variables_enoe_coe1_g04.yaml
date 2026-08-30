@@ -53,37 +53,19 @@ h_mud:
   Longitud: '1'
   Categorías: {}
 n_ent:
-  Descripción: Número de entrevista
-  Pregunta: No existe pregunta, es un identificador de la vivienda.
-  Tipo: categorical
-  Longitud: '2'
-  Categorías:
-    '1': Entrevista uno
-    '2': Entrevista dos
-    '3': Entrevista tres
-    '4': Entrevista cuatro
-    '5': Entrevista cinco
-    '6': Entrevista seis
-    '7': Entrevista siete
-    '8': Entrevista ocho
-    '9': Entrevista nueve
-    '10': Entrevista diez
-    '11': Entrevista once
-    '12': Entrevista doce
-    '13': Entrevista trece
-    '14': Entrevista catorce
-    '15': Entrevista quince
-    '16': Entrevista dieciséis
-    '17': Entrevista diecisiete
-    '18': Entrevista dieciocho
-    '19': Entrevista diecinueve
-per:
-  Descripción: Periodo
-  Pregunta: No existe pregunta, es un identificador de la vivienda.
+  Descripción: Número de entrevista o visita a la vivienda (1-5 en el panel de cinco visitas; valores
+    mayores — hasta 17 y más — en la ENOE-N/CATI de 2020-T3 a 2021-T2, no documentados en la FD)
   Tipo: numeric
+  Longitud: '2'
+  Rango:
+  - 1
+  - 99
+  Categorías: {}
+per:
+  Descripción: Periodo — trimestre (primer dígito 1-4) y año (dos dígitos), p. ej. '123' = 2023-T1
+  Tipo: string
   Longitud: '3'
   Categorías: {}
-  Nota: 'numérica: el DDI sólo enumera códigos especiales'
 n_ren:
   Descripción: Número de renglón del integrante del hogar
   Tipo: string
@@ -1488,47 +1470,13 @@ p5d_mlu:
 p5d_hma:
   Descripción: Horas que le dedica habitualmente a su trabajo el martes
   Pregunta: ¿Qué días y cuántas horas le dedica habitualmente... a su trabajo?.
-  Tipo: categorical
+  Tipo: numeric
   Longitud: '2'
-  Categorías:
-    '00': 00 horas trabajadas el martes
-    '01': 01 hora trabajada el martes
-    '02': 02 horas trabajadas el martes
-    '03': 03 horas trabajadas el martes
-    '04': 04 horas trabajadas el martes
-    '05': 05 horas trabajadas el martes
-    '06': 06 horas trabajadas el martes
-    '07': 07 horas trabajadas el martes
-    08: 08 horas trabajadas el martes
-    09: 09 horas trabajadas el martes
-    '10': 10 horas trabajadas el martes
-    '11': 11 horas trabajadas el martes
-    '12': 12 horas trabajadas el martes
-    '13': 13 horas trabajadas el martes
-    '14': 14 horas trabajadas el martes
-    '15': 15 horas trabajadas el martes
-    '16': 16 horas trabajadas el martes
-    '17': 17 horas trabajadas el martes
-    '18': 18 horas trabajadas el martes
-    '20': 20 horas trabajadas el martes
-    '21': 21 horas trabajadas el martes
-    '24': 24 horas trabajadas el martes
-    '99': No sabe si trabajó ese día
-    '0': '0'
-    '1': '1'
-    '19': '19'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '5': '5'
-    '6': '6'
-    '7': '7'
-    '8': '8'
-    '9': '9'
-  Nota: 'códigos observados sin etiqueta en el DDI: [''0'', ''1'', ''19'', ''2'', ''3'', ''4'', ''5'',
-    ''6'', ''7'', ''8'', ''9'']'
+  Categorías: {}
   Especiales:
     '98': Trabajó ese día, pero no sabe cuanto tiempo
+    '99': No sabe si trabajó ese día
+  Nota: 'numérica: el DDI sólo enumera códigos especiales'
 p5d_mma:
   Descripción: Minutos que le dedica habitualmente a su trabajo el martes
   Pregunta: ¿Qué días y cuántas horas le dedica habitualmente... a su trabajo?.
@@ -1696,48 +1644,13 @@ p5d_msa:
 p5d_hdo:
   Descripción: Horas que le dedica habitualmente a su trabajo el domingo
   Pregunta: ¿Qué días y cuántas horas le dedica habitualmente... a su trabajo?.
-  Tipo: categorical
+  Tipo: numeric
   Longitud: '2'
-  Categorías:
-    '00': 00 horas trabajadas el domingo
-    '01': 01 hora trabajada el domingo
-    '02': 02 horas trabajadas el domingo
-    '03': 03 horas trabajadas el domingo
-    '04': 04 horas trabajadas el domingo
-    '05': 05 horas trabajadas el domingo
-    '06': 06 horas trabajadas el domingo
-    '07': 07 horas trabajadas el domingo
-    08: 08 horas trabajadas el domingo
-    09: 09 horas trabajadas el domingo
-    '10': 10 horas trabajadas el domingo
-    '11': 11 horas trabajadas el domingo
-    '12': 12 horas trabajadas el domingo
-    '13': 13 horas trabajadas el domingo
-    '14': 14 horas trabajadas el domingo
-    '15': 15 horas trabajadas el domingo
-    '16': 16 horas trabajadas el domingo
-    '17': 17 horas trabajadas el domingo
-    '18': 18 horas trabajadas el domingo
-    '19': 19 horas trabajadas el domingo
-    '21': 21 horas trabajadas el domingo
-    '23': 23 horas trabajadas el domingo
-    '24': 24 horas trabajadas el domingo
-    '99': No sabe si trabajó ese día
-    '0': '0'
-    '1': '1'
-    '2': '2'
-    '20': '20'
-    '3': '3'
-    '4': '4'
-    '5': '5'
-    '6': '6'
-    '7': '7'
-    '8': '8'
-    '9': '9'
-  Nota: 'códigos observados sin etiqueta en el DDI: [''0'', ''1'', ''2'', ''20'', ''3'', ''4'', ''5'',
-    ''6'', ''7'', ''8'', ''9'']'
+  Categorías: {}
   Especiales:
     '98': Trabajó ese día, pero no sabe cuanto tiempo
+    '99': No sabe si trabajó ese día
+  Nota: 'numérica: el DDI sólo enumera códigos especiales'
 p5d_mdo:
   Descripción: Minutos que le dedica habitualmente a su trabajo el domingo
   Pregunta: ¿Qué días y cuántas horas le dedica habitualmente... a su trabajo?.

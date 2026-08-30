@@ -37,9 +37,21 @@ structured.
   documented by a few special codes) → numeric; only sentinel codes documented → numeric;
   an enumeration whose labels merely repeat the code (`'01': '1 Años cumplidos'`) → numeric;
   partial month-name maps are completed to 1–12; INEGI's `&` glyph → `Especiales`; a group
-  whose editions mix padded and un-padded spellings gets both keys. After these rules the
-  full-mirror regeneration leaves 36 ENOE entries (26 variables — odd stray codes such as
-  `t_loc_tri='0'`, `cs_p12='0'`) with an identity-labelled extra code flagged in `Nota`.
+  whose editions mix padded and un-padded spellings gets both keys; a quantity enumeration
+  may carry up to two unflagged sentinel rows (`'98': 'Trabajó ese día, pero no sabe cuánto
+  tiempo'`), moved to `Especiales`; codes are also re-padded to the *data's* width (the DDI
+  wrote `p5g1='1'` for `'01'`).
+
+  **PDF cross-check of the residue** (the FD "Estructura de la base de datos" PDFs of every
+  era): `t_loc*='0'` and `cs_p12='0'` are undocumented fill codes; `zona='3'` is the pre-2012
+  third minimum-wage zone (A/B/C regime) later FDs dropped; `dispo` has seven documented
+  options the DDI only partly lists; `p9h_1` is "campo exclusivo del sistema" (1-2); `n_ent`
+  runs past the documented 1-5 in the CATI era; `PER`/`p_anio`/`d_anio`/`salario` are
+  identifiers or amounts the DDI mis-types. These are now hand entries in
+  `variables_enoe_core.yaml` (with the FD's own labels, and "código no documentado" where the
+  FD is silent). The full-mirror regeneration then leaves **9 entries** with an
+  identity-labelled extra code flagged in `Nota` (`PER='319'`, `p9h_1`, and two minute/hour
+  items whose DDI enumeration is idiosyncratic).
   **No `Rango` is taken from the DDI** — its `valrng` is the edition's observed min/max, not
   the questionnaire's bounds (a group spans editions). Bounds live in the core.
 - Provenance is printed per group (`core=…, ddi=…, ddi+data=…, data=…`).

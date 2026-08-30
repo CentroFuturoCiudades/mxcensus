@@ -53,29 +53,19 @@ h_mud:
   Longitud: '1'
   Categorías: {}
 n_ent:
-  Descripción: Número de entrevista
-  Pregunta: No existe pregunta, es un identificador de la vivienda.
-  Tipo: categorical
+  Descripción: Número de entrevista o visita a la vivienda (1-5 en el panel de cinco visitas; valores
+    mayores — hasta 17 y más — en la ENOE-N/CATI de 2020-T3 a 2021-T2, no documentados en la FD)
+  Tipo: numeric
   Longitud: '2'
-  Categorías:
-    '1': Entrevista 1
-    '2': Entrevista 2
-    '3': Entrevista 3
-    '4': Entrevista 4
-    '5': Entrevista 5
-    '11': Entrevista 11
-    '12': Entrevista 12
-    '13': Entrevista 13
-    '14': Entrevista 14
-    '15': Entrevista 15
-    '16': Entrevista 16
+  Rango:
+  - 1
+  - 99
+  Categorías: {}
 per:
-  Descripción: Periodo
-  Pregunta: No existe pregunta, es un identificador de la vivienda.
-  Tipo: categorical
+  Descripción: Periodo — trimestre (primer dígito 1-4) y año (dos dígitos), p. ej. '123' = 2023-T1
+  Tipo: string
   Longitud: '3'
-  Categorías:
-    '121': Enero-Marzo 2021
+  Categorías: {}
 n_ren:
   Descripción: Número de renglón del integrante del hogar
   Tipo: string

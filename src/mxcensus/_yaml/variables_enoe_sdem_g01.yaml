@@ -36,15 +36,17 @@ ageb:
   Categorías: {}
   Nota: 'numérica: el DDI sólo enumera códigos especiales'
 t_loc:
-  Descripción: Tamaño de localidad
-  Pregunta: No existe pregunta, es un identificador de la vivienda.
+  Descripción: Tamaño de localidad (ediciones anteriores a 2020-T3)
   Tipo: categorical
   Longitud: '1'
+  Ordenada: true
   Categorías:
-    '1': Áreas más urbanizadas
-    '2': Urbano medio
-    '3': Urbano bajo
-    '4': Rural
+    '4': Localidades menores de 2 500 habitantes
+    '3': Localidades de 2 500 a 14 999 habitantes
+    '2': Localidades de 15 000 a 99 999 habitantes
+    '1': Localidades mayores de 100 000 habitantes
+  Especiales:
+    '0': No especificado (código no documentado en la FD)
 cd_a:
   Descripción: Ciudad autorrepresentada (agrupación de áreas de la muestra)
   Tipo: string
@@ -94,23 +96,19 @@ h_mud:
   Longitud: '1'
   Categorías: {}
 n_ent:
-  Descripción: Número de entrevista
-  Pregunta: No existe pregunta, es un identificador de la vivienda.
-  Tipo: categorical
-  Longitud: '1'
-  Categorías:
-    '1': Entrevista 1
-    '2': Entrevista 2
-    '3': Entrevista 3
-    '4': Entrevista 4
-    '5': Entrevista 5
-per:
-  Descripción: Periodo
-  Pregunta: No existe pregunta, es un identificador de la vivienda.
+  Descripción: Número de entrevista o visita a la vivienda (1-5 en el panel de cinco visitas; valores
+    mayores — hasta 17 y más — en la ENOE-N/CATI de 2020-T3 a 2021-T2, no documentados en la FD)
   Tipo: numeric
+  Longitud: '2'
+  Rango:
+  - 1
+  - 99
+  Categorías: {}
+per:
+  Descripción: Periodo — trimestre (primer dígito 1-4) y año (dos dígitos), p. ej. '123' = 2023-T1
+  Tipo: string
   Longitud: '3'
   Categorías: {}
-  Nota: 'numérica: el DDI sólo enumera códigos especiales'
 n_ren:
   Descripción: Número de renglón del integrante del hogar
   Tipo: string
@@ -180,17 +178,15 @@ l_nac_c:
   Categorías: {}
   Nota: 'numérica: el DDI sólo enumera códigos especiales'
 cs_p12:
-  Descripción: Alfabetismo
-  Pregunta: ¿... sabe leer y escribir un recado?
+  Descripción: ¿Sabe leer y escribir un recado? (población de 5 años y más)
   Tipo: categorical
   Longitud: '1'
   Categorías:
     '1': Sí
     '2': 'No'
-    '0': '0'
-  Nota: 'códigos observados sin etiqueta en el DDI: [''0'']'
   Especiales:
     '9': No sabe
+    '0': No aplica (código no documentado en la FD)
 cs_p13_1:
   Descripción: Nivel de instrucción
   Pregunta: ¿Hasta qué año o grado aprobó ... en la escuela?
@@ -345,22 +341,21 @@ ur:
     '1': Urbano
     '2': Rural
 zona:
-  Descripción: Zona salarial
-  Pregunta: Variable de apoyo.
+  Descripción: Zona salarial (zonas A/B/C hasta 2012; Frontera Norte / Resto del país desde 2019)
   Tipo: categorical
   Longitud: '1'
   Categorías:
-    '1': Salario mínimo Zona A
-    '2': Salario mínimo Zona B
-    '3': '3'
-  Nota: 'códigos observados sin etiqueta en el DDI: [''3'']'
+    '1': Zona 1 (Frontera Norte; Zona A hasta 2012)
+    '2': Zona 2 (Resto del país; Zona B hasta 2012)
+    '3': Zona 3 (Zona C, hasta 2012; código no documentado en la FD vigente)
 salario:
-  Descripción: Salario
-  Pregunta: Variable de apoyo.
+  Descripción: Salario mínimo mensual correspondiente a la zona salarial (pesos corrientes)
   Tipo: numeric
-  Longitud: '4'
+  Longitud: '5'
+  Rango:
+  - 0
+  - 99999
   Categorías: {}
-  Nota: 'numérica: el DDI sólo enumera códigos especiales'
 fac:
   Descripción: Factor de expansión (ponderador; ediciones anteriores a 2020-T3)
   Tipo: numeric
@@ -725,20 +720,18 @@ tip_con:
   Especiales:
     '6': No especificado
 dispo:
-  Descripción: Población disponible
-  Pregunta: Variable precodificada (creada).
+  Descripción: Población no económicamente activa disponible — opción declarada
   Tipo: categorical
   Longitud: '1'
   Categorías:
-    '0': No aplica
+    '0': No aplica (fuera del universo analítico)
     '1': Primera opción
+    '2': Segunda opción
     '3': Tercera opción
     '4': Cuarta opción
+    '5': Quinta opción
     '6': Sexta opción
     '7': Séptima opción
-    '2': '2'
-    '5': '5'
-  Nota: 'códigos observados sin etiqueta en el DDI: [''2'', ''5'']'
 nodispo:
   Descripción: Población no disponible
   Pregunta: Variable precodificada (creada).

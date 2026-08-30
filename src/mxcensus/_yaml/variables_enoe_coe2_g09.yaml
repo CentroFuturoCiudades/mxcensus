@@ -8,38 +8,38 @@ cve_ent:
   Tipo: ''
   Longitud: ''
   Categorías:
-    '30': '30'
     '01': '01'
-    '20': '20'
-    '25': '25'
-    '27': '27'
-    '16': '16'
-    09: 09
-    '24': '24'
-    '02': '02'
-    '04': '04'
-    '19': '19'
+    '14': '14'
     '22': '22'
-    '18': '18'
-    '10': '10'
-    '26': '26'
-    '03': '03'
-    '05': '05'
-    '12': '12'
-    '29': '29'
-    '07': '07'
-    '28': '28'
+    '19': '19'
+    '13': '13'
     08: 08
     '31': '31'
-    '17': '17'
-    '32': '32'
-    '14': '14'
+    '12': '12'
+    '28': '28'
+    '25': '25'
+    '07': '07'
+    '04': '04'
     '06': '06'
-    '23': '23'
-    '21': '21'
+    '10': '10'
     '15': '15'
-    '13': '13'
+    '30': '30'
+    09: 09
+    '02': '02'
+    '20': '20'
+    '18': '18'
+    '03': '03'
+    '27': '27'
+    '17': '17'
+    '21': '21'
     '11': '11'
+    '16': '16'
+    '23': '23'
+    '24': '24'
+    '32': '32'
+    '29': '29'
+    '26': '26'
+    '05': '05'
 con:
   Descripción: Número de control de la vivienda
   Tipo: string
@@ -79,23 +79,19 @@ h_mud:
   Longitud: '1'
   Categorías: {}
 n_ent:
-  Descripción: Número de entrevista
-  Pregunta: No existe pregunta, es un identificador de la vivienda.
-  Tipo: categorical
-  Longitud: '1'
-  Categorías:
-    '1': Entrevista 1
-    '2': Entrevista 2
-    '3': Entrevista 3
-    '4': Entrevista 4
-    '5': Entrevista 5
-per:
-  Descripción: Periodo
-  Pregunta: No existe pregunta, es un identificador de la vivienda.
+  Descripción: Número de entrevista o visita a la vivienda (1-5 en el panel de cinco visitas; valores
+    mayores — hasta 17 y más — en la ENOE-N/CATI de 2020-T3 a 2021-T2, no documentados en la FD)
   Tipo: numeric
+  Longitud: '2'
+  Rango:
+  - 1
+  - 99
+  Categorías: {}
+per:
+  Descripción: Periodo — trimestre (primer dígito 1-4) y año (dos dígitos), p. ej. '123' = 2023-T1
+  Tipo: string
   Longitud: '3'
   Categorías: {}
-  Nota: 'numérica: el DDI sólo enumera códigos especiales'
 n_ren:
   Descripción: Número de renglón del integrante del hogar
   Tipo: string

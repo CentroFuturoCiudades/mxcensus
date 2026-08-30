@@ -46,25 +46,29 @@ cve_ageb:
   Categorías: {}
   Nota: 'numérica: el DDI sólo enumera códigos especiales'
 t_loc_tri:
-  Descripción: Tamaño de localidad trimestral
-  Pregunta: No existe pregunta, es un identificador de la vivienda.
+  Descripción: Tamaño de localidad trimestral (desde 2020-T3)
   Tipo: categorical
   Longitud: '1'
+  Ordenada: true
   Categorías:
-    '1': Localidades mayores de 100,000 habitantes
-    '2': Localidades de 15,000 a 99,999 habitantes
-    '3': Localidades de 2,500 a 14,999 habitantes
-    '4': Localidades menores de 2,500 habitantes
+    '4': Localidades menores de 2 500 habitantes
+    '3': Localidades de 2 500 a 14 999 habitantes
+    '2': Localidades de 15 000 a 99 999 habitantes
+    '1': Localidades mayores de 100 000 habitantes
+  Especiales:
+    '0': No especificado (código no documentado en la FD)
 t_loc_men:
-  Descripción: Tamaño de localidad mensual
-  Pregunta: No existe pregunta, es un identificador de la vivienda.
+  Descripción: Tamaño de localidad mensual (desde 2020-T3)
   Tipo: categorical
   Longitud: '1'
+  Ordenada: true
   Categorías:
-    '1': Localidades mayores de 100,000 habitantes
-    '2': Localidades de 15,000 a 99,999 habitantes
-    '3': Localidades de 2,500 a 14,999 habitantes
-    '4': Localidades menores de 2,500 habitantes
+    '4': Localidades menores de 2 500 habitantes
+    '3': Localidades de 2 500 a 14 999 habitantes
+    '2': Localidades de 15 000 a 99 999 habitantes
+    '1': Localidades mayores de 100 000 habitantes
+  Especiales:
+    '0': No especificado (código no documentado en la FD)
 cd_a:
   Descripción: Ciudad autorrepresentada (agrupación de áreas de la muestra)
   Tipo: string
@@ -156,23 +160,19 @@ h_mud:
   Longitud: '1'
   Categorías: {}
 n_ent:
-  Descripción: Número de entrevista
-  Pregunta: No existe pregunta, es un identificador de la vivienda.
-  Tipo: categorical
-  Longitud: '1'
-  Categorías:
-    '1': Entrevista 1
-    '2': Entrevista 2
-    '3': Entrevista 3
-    '4': Entrevista 4
-    '5': Entrevista 5
-per:
-  Descripción: Periodo
-  Pregunta: No existe pregunta, es un identificador de la vivienda.
+  Descripción: Número de entrevista o visita a la vivienda (1-5 en el panel de cinco visitas; valores
+    mayores — hasta 17 y más — en la ENOE-N/CATI de 2020-T3 a 2021-T2, no documentados en la FD)
   Tipo: numeric
+  Longitud: '2'
+  Rango:
+  - 1
+  - 99
+  Categorías: {}
+per:
+  Descripción: Periodo — trimestre (primer dígito 1-4) y año (dos dígitos), p. ej. '123' = 2023-T1
+  Tipo: string
   Longitud: '3'
   Categorías: {}
-  Nota: 'numérica: el DDI sólo enumera códigos especiales'
 n_ren:
   Descripción: Número de renglón del integrante del hogar
   Tipo: string
@@ -331,8 +331,7 @@ l_nac_c:
     '800': no es posible diferenciar entre Ciudad
     '999': Usada cuando no es posible asignar alguna clave a una descripción
 cs_p12:
-  Descripción: Alfabetismo
-  Pregunta: ¿... sabe leer y escribir un recado?
+  Descripción: ¿Sabe leer y escribir un recado? (población de 5 años y más)
   Tipo: categorical
   Longitud: '1'
   Categorías:
@@ -340,6 +339,7 @@ cs_p12:
     '2': 'No'
   Especiales:
     '9': No sabe
+    '0': No aplica (código no documentado en la FD)
 cs_p13_1:
   Descripción: Nivel de instrucción
   Pregunta: ¿Hasta qué año o grado aprobó ... en la escuela?
@@ -590,24 +590,21 @@ ur:
     '1': Urbano
     '2': Rural
 zona:
-  Descripción: Zona salarial
-  Pregunta: Variable de apoyo.
+  Descripción: Zona salarial (zonas A/B/C hasta 2012; Frontera Norte / Resto del país desde 2019)
   Tipo: categorical
   Longitud: '1'
   Categorías:
-    '1': Zona 1 Frontera Norte
-    '2': Zona 2 Resto del país
+    '1': Zona 1 (Frontera Norte; Zona A hasta 2012)
+    '2': Zona 2 (Resto del país; Zona B hasta 2012)
+    '3': Zona 3 (Zona C, hasta 2012; código no documentado en la FD vigente)
 salario:
-  Descripción: Salario
-  Pregunta: Variable de apoyo.
-  Tipo: categorical
+  Descripción: Salario mínimo mensual correspondiente a la zona salarial (pesos corrientes)
+  Tipo: numeric
   Longitud: '5'
-  Categorías:
-    '8364': Zona 2 Resto
-    '12596': Zona 1 Frontera
-    '13410': '13410'
-    '9582': '9582'
-  Nota: 'códigos observados sin etiqueta en el DDI: [''13410'', ''9582'']'
+  Rango:
+  - 0
+  - 99999
+  Categorías: {}
 fac_tri:
   Descripción: Ponderador trimestral — permite obtener los resultados trimestrales (desde 2020-T3)
   Tipo: numeric
@@ -980,12 +977,11 @@ tip_con:
   Especiales:
     '6': No especificado
 dispo:
-  Descripción: Población disponible
-  Pregunta: Variable precodificada (creada).
+  Descripción: Población no económicamente activa disponible — opción declarada
   Tipo: categorical
   Longitud: '1'
   Categorías:
-    '0': No aplica
+    '0': No aplica (fuera del universo analítico)
     '1': Primera opción
     '2': Segunda opción
     '3': Tercera opción

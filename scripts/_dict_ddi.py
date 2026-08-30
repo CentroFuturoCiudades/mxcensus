@@ -136,10 +136,12 @@ def _respell(codes: dict[str, str], observed: set[str]) -> dict[str, str] | None
         stripped.setdefault(key, v)
     if observed <= set(stripped):
         return stripped
-    width = max((len(k) for k in codes), default=0)
-    padded = {(k.zfill(width) if k.isdigit() else k): v for k, v in codes.items()}
-    if observed <= set(padded):
-        return padded
+    # pad to the DDI's own width, else to the data's width (the DDI wrote '1' for '01')
+    for width in sorted({max((len(k) for k in codes), default=0),
+                         max((len(o) for o in observed if o.isdigit()), default=0)}):
+        padded = {(k.zfill(width) if k.isdigit() else k): v for k, v in codes.items()}
+        if observed <= set(padded):
+            return padded
     both = {**padded, **stripped}  # editions of one group may mix both spellings
     if observed <= set(both):
         return {k: v for k, v in both.items() if k in observed or k in padded}
@@ -163,24 +165,46 @@ _MONTHS = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agos
 
 
 def _complete_months(cats: dict[str, str]) -> dict[str, str] | None:
-    """A code→month-name map the DDI lists only partially (the months a table happened to
-    cover) → the full 1–12 map in the DDI's padding; ``None`` if not a month variable."""
-    if not cats or not all(v.strip().capitalize() in _MONTHS for v in cats.values()):
-        return None
-    width = max(len(k) for k in cats)
-    return {str(i).zfill(width): m for i, m in enumerate(_MONTHS, 1)}
-
-
-def _labels_are_numeric(cats: dict[str, str]) -> bool:
-    """True when every label repeats its code (``'01': '1 Años cumplidos'``, ``'5': '5'``):
-    an enumeration that documents a quantity, not categories."""
+    """A code→month map the DDI lists only partially (the months a table happened to cover)
+    → the full 1–12 map in the DDI's padding, keeping any common label suffix
+    (``'Enero mes definitivo de entrev.'``); ``None`` if not a month variable."""
     if not cats:
-        return False
+        return None
+    suffixes = set()
+    for code, label in cats.items():
+        head, _, rest = label.strip().partition(" ")
+        if head.capitalize() not in _MONTHS or not code.isdigit() or \
+                _MONTHS.index(head.capitalize()) + 1 != int(code):
+            return None
+        suffixes.add(rest.strip())
+    suffix = suffixes.pop() if len(suffixes) == 1 else ""
+    width = max(len(k) for k in cats)
+    return {str(i).zfill(width): (f"{m} {suffix}".strip() if suffix else m)
+            for i, m in enumerate(_MONTHS, 1)}
+
+
+def _split_quantity(cats: dict[str, str]) -> dict[str, str] | None:
+    """For an enumeration that documents a quantity — every label repeats its code
+    (``'01': '1 hora trabajada'``) except for at most two *sentinel* rows (``'98': 'no sabe
+    cuánto'``) whose codes are the largest — return those sentinel rows (possibly empty);
+    ``None`` when the enumeration is genuinely categorical."""
+    if not cats:
+        return None
+    odd = {}
     for code, label in cats.items():
         head = (label or "").strip().split(" ")[0].lstrip("0") or "0"
         if head != (code.lstrip("0") or "0"):
-            return False
-    return True
+            odd[code] = label
+    if len(odd) > 2 or len(odd) >= len(cats) / 2:
+        return None
+    if odd and not all(k.isdigit() and int(k) > max(int(c) for c in cats if c.isdigit() and c not in odd)
+                       for k in odd):
+        return None
+    return odd
+
+
+def _labels_are_numeric(cats: dict[str, str]) -> bool:
+    return _split_quantity(cats) is not None
 
 
 def dictionary_entry(col: str, observed: set[str] | None, core: dict | None,
@@ -246,7 +270,10 @@ def dictionary_entry(col: str, observed: set[str] | None, core: dict | None,
         # An all-numeric observed set the DDI only partially enumerates (hours, years,
         # amounts, counts documented by a few labelled codes) is a number, not a category.
         covered = len(observed & set(allowed)) / len(observed)
-        if covered < 0.5 or _labels_are_numeric(cats):
+        quantity = _split_quantity(cats)
+        if quantity:  # unflagged sentinel rows of a quantity → Especiales
+            special = {**special, **quantity}
+        if covered < 0.5 or quantity is not None:
             nums = sorted(float(v) for v in observed
                           if v not in special and (v.lstrip("0") or "0") not in special)
             entry["Tipo"] = "numeric"

@@ -292,14 +292,18 @@ P_MES:
   Tipo: categorical
   Longitud: '2'
   Categorías:
-    09: Septiembre mes preliminar de entrev.
+    '1': Enero mes preliminar de entrev.
+    '2': Febrero mes preliminar de entrev.
+    '3': Marzo mes preliminar de entrev.
+    '4': Abril mes preliminar de entrev.
+    '5': Mayo mes preliminar de entrev.
+    '6': Junio mes preliminar de entrev.
+    '7': Julio mes preliminar de entrev.
+    '8': Agosto mes preliminar de entrev.
+    '9': Septiembre mes preliminar de entrev.
     '10': Octubre mes preliminar de entrev.
     '11': Noviembre mes preliminar de entrev.
     '12': Diciembre mes preliminar de entrev.
-    '7': '7'
-    '8': '8'
-    '9': '9'
-  Nota: 'códigos observados sin etiqueta en el DDI: [''7'', ''8'', ''9'']'
 P_ANIO:
   Descripción: Año preliminar
   Pregunta: No se pregunta.
@@ -369,10 +373,21 @@ D_DIA:
 D_MES:
   Descripción: Mes definitivo
   Pregunta: No se pregunta.
-  Tipo: numeric
+  Tipo: categorical
   Longitud: '2'
-  Categorías: {}
-  Nota: 'numérica: el DDI sólo enumera códigos especiales'
+  Categorías:
+    '1': Enero mes definitivo de entrev.
+    '2': Febrero mes definitivo de entrev.
+    '3': Marzo mes definitivo de entrev.
+    '4': Abril mes definitivo de entrev.
+    '5': Mayo mes definitivo de entrev.
+    '6': Junio mes definitivo de entrev.
+    '7': Julio mes definitivo de entrev.
+    '8': Agosto mes definitivo de entrev.
+    '9': Septiembre mes definitivo de entrev.
+    '10': Octubre mes definitivo de entrev.
+    '11': Noviembre mes definitivo de entrev.
+    '12': Diciembre mes definitivo de entrev.
 D_ANIO:
   Descripción: Año definitivo
   Pregunta: No se pregunta.

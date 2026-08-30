@@ -13,7 +13,10 @@ NCV codebooks call `concentradohogar` `concentrado` (`build_enigh._DDI_STEM_ALIA
 especificado" glyph) becomes `Especiales`, partial month maps are completed, mixed padding
 across the editions of one group is accepted; the residue after regeneration is 7 entries
 (`clave` catalog in `erogaciones`, `inst_1/2='08'`, the off-by-one `noatenc_*` codes),
-identity-labelled and flagged in `Nota`.
+identity-labelled and flagged in `Nota`. Cross-checked against the "Descripción de la base de
+datos" PDFs: the 2024 DBD's range for `inst_1/2` explicitly skips `08` yet the data carries it,
+and the 2008 `noatenc_N` columns hold code N-1 while the codebook documents N — INEGI
+codebook gaps, left as identity codes.
 
 ## Regeneration (local mirror is complete, 99 files)
 

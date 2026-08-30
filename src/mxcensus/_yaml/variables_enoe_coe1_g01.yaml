@@ -53,23 +53,19 @@ h_mud:
   Longitud: '1'
   Categorías: {}
 n_ent:
-  Descripción: Número de entrevista
-  Pregunta: No existe pregunta, es un identificador de la vivienda.
-  Tipo: categorical
-  Longitud: '1'
-  Categorías:
-    '1': Entrevista 1
-    '2': Entrevista 2
-    '3': Entrevista 3
-    '4': Entrevista 4
-    '5': Entrevista 5
-per:
-  Descripción: Periodo
-  Pregunta: No existe pregunta, es un identificador de la vivienda.
+  Descripción: Número de entrevista o visita a la vivienda (1-5 en el panel de cinco visitas; valores
+    mayores — hasta 17 y más — en la ENOE-N/CATI de 2020-T3 a 2021-T2, no documentados en la FD)
   Tipo: numeric
+  Longitud: '2'
+  Rango:
+  - 1
+  - 99
+  Categorías: {}
+per:
+  Descripción: Periodo — trimestre (primer dígito 1-4) y año (dos dígitos), p. ej. '123' = 2023-T1
+  Tipo: string
   Longitud: '3'
   Categorías: {}
-  Nota: 'numérica: el DDI sólo enumera códigos especiales'
 n_ren:
   Descripción: Número de renglón del integrante del hogar
   Tipo: string
@@ -93,6 +89,9 @@ n_inf:
   Tipo: numeric
   Longitud: '2'
   Categorías: {}
+  Especiales:
+    '97': Más de un informante
+    '99': Informante autorizado
   Nota: 'numérica: el DDI sólo enumera códigos especiales'
 p1:
   Descripción: Trabajo de la semana pasada por lo menos una hora?
@@ -1249,49 +1248,13 @@ p5b:
 p5c_hlu:
   Descripción: Horas de lunes de la semana pasada
   Pregunta: ¿Qué días y cuántas horas le dedicó ... a su trabajo la semana pasada?
-  Tipo: categorical
+  Tipo: numeric
   Longitud: '2'
-  Categorías:
-    '00': 0 horas trabajadas el lunes
-    '01': 1 hora trabajada el lunes
-    '02': 2 horas trabajadas el lunes
-    '03': 3 horas trabajadas el lunes
-    '04': 4 horas trabajadas el lunes
-    '05': 5 horas trabajadas el lunes
-    '06': 6 horas trabajadas el lunes
-    '07': 7 horas trabajadas el lunes
-    08: 8 horas trabajadas el lunes
-    09: 9 horas trabajadas el lunes
-    '10': 10 horas trabajadas el lunes
-    '11': 11 horas trabajadas el lunes
-    '12': 12 horas trabajadas el lunes
-    '13': 13 horas trabajadas el lunes
-    '14': 14 horas trabajadas el lunes
-    '15': 15 horas trabajadas el lunes
-    '16': 16 horas trabajadas el lunes
-    '17': 17 horas trabajadas el lunes
-    '18': 18 horas trabajadas el lunes
-    '19': 19 horas trabajadas el lunes
-    '20': 20 horas trabajadas el lunes
-    '23': 23 horas trabajadas el lunes
-    '24': 24 horas trabajadas el lunes
-    '98': Trabajó ese día, pero no sabe cuanto tiempo
-    '0': '0'
-    '1': '1'
-    '2': '2'
-    '21': '21'
-    '22': '22'
-    '3': '3'
-    '4': '4'
-    '5': '5'
-    '6': '6'
-    '7': '7'
-    '8': '8'
-    '9': '9'
-  Nota: 'códigos observados sin etiqueta en el DDI: [''0'', ''1'', ''2'', ''21'', ''22'', ''3'', ''4'',
-    ''5'', ''6'', ''7'', ''8'', ''9'']'
+  Categorías: {}
   Especiales:
     '99': No sabe si trabajó ese día
+    '98': Trabajó ese día, pero no sabe cuanto tiempo
+  Nota: 'numérica: el DDI sólo enumera códigos especiales'
 p5c_mlu:
   Descripción: Minutos de lunes de la semana pasada
   Pregunta: ¿Qué días y cuántas horas le dedicó ... a su trabajo la semana pasada?
@@ -1302,49 +1265,13 @@ p5c_mlu:
 p5c_hma:
   Descripción: Horas de martes de la semana pasada
   Pregunta: ¿Qué días y cuántas horas le dedicó ... a su trabajo la semana pasada?
-  Tipo: categorical
+  Tipo: numeric
   Longitud: '2'
-  Categorías:
-    '00': 0 horas trabajadas el martes
-    '01': 1 hora trabajada el martes
-    '02': 2 horas trabajadas el martes
-    '03': 3 horas trabajadas el martes
-    '04': 4 horas trabajadas el martes
-    '05': 5 horas trabajadas el martes
-    '06': 6 horas trabajadas el martes
-    '07': 7 horas trabajadas el martes
-    08: 8 horas trabajadas el martes
-    09: 9 horas trabajadas el martes
-    '10': 10 horas trabajadas el martes
-    '11': 11 horas trabajadas el martes
-    '12': 12 horas trabajadas el martes
-    '13': 13 horas trabajadas el martes
-    '14': 14 horas trabajadas el martes
-    '15': 15 horas trabajadas el martes
-    '16': 16 horas trabajadas el martes
-    '17': 17 horas trabajadas el martes
-    '18': 18 horas trabajadas el martes
-    '19': 19 horas trabajadas el martes
-    '20': 20 horas trabajadas el martes
-    '21': 21 horas trabajadas el martes
-    '24': 24 horas trabajadas el martes
-    '98': Trabajó ese día, pero no sabe cuanto tiempo
-    '0': '0'
-    '1': '1'
-    '2': '2'
-    '22': '22'
-    '23': '23'
-    '3': '3'
-    '4': '4'
-    '5': '5'
-    '6': '6'
-    '7': '7'
-    '8': '8'
-    '9': '9'
-  Nota: 'códigos observados sin etiqueta en el DDI: [''0'', ''1'', ''2'', ''22'', ''23'', ''3'', ''4'',
-    ''5'', ''6'', ''7'', ''8'', ''9'']'
+  Categorías: {}
   Especiales:
     '99': No sabe si trabajó ese día
+    '98': Trabajó ese día, pero no sabe cuanto tiempo
+  Nota: 'numérica: el DDI sólo enumera códigos especiales'
 p5c_mma:
   Descripción: Minutos de martes de la semana pasada
   Pregunta: ¿Qué días y cuántas horas le dedicó ... a su trabajo la semana pasada?
@@ -1355,49 +1282,13 @@ p5c_mma:
 p5c_hmi:
   Descripción: Horas de miércoles de la semana pasada
   Pregunta: ¿Qué días y cuántas horas le dedicó ... a su trabajo la semana pasada?
-  Tipo: categorical
+  Tipo: numeric
   Longitud: '2'
-  Categorías:
-    '00': 0 horas trabajadas el miércoles
-    '01': 1 hora trabajada el miércoles
-    '02': 2 horas trabajadas el miércoles
-    '03': 3 horas trabajadas el miércoles
-    '04': 4 horas trabajadas el miércoles
-    '05': 5 horas trabajadas el miércoles
-    '06': 6 horas trabajadas el miércoles
-    '07': 7 horas trabajadas el miércoles
-    08: 8 horas trabajadas el miércoles
-    09: 9 horas trabajadas el miércoles
-    '10': 10 horas trabajadas el miércoles
-    '11': 11 horas trabajadas el miércoles
-    '12': 12 horas trabajadas el miércoles
-    '13': 13 horas trabajadas el miércoles
-    '14': 14 horas trabajadas el miércoles
-    '15': 15 horas trabajadas el miércoles
-    '16': 16 horas trabajadas el miércoles
-    '17': 17 horas trabajadas el miércoles
-    '18': 18 horas trabajadas el miércoles
-    '19': 19 horas trabajadas el miércoles
-    '20': 20 horas trabajadas el miércoles
-    '24': 24 horas trabajadas el miércoles
-    '98': Trabajó ese día, pero no sabe cuanto tiempo
-    '0': '0'
-    '1': '1'
-    '2': '2'
-    '21': '21'
-    '22': '22'
-    '23': '23'
-    '3': '3'
-    '4': '4'
-    '5': '5'
-    '6': '6'
-    '7': '7'
-    '8': '8'
-    '9': '9'
-  Nota: 'códigos observados sin etiqueta en el DDI: [''0'', ''1'', ''2'', ''21'', ''22'', ''23'', ''3'',
-    ''4'', ''5'', ''6'', ''7'', ''8'', ''9'']'
+  Categorías: {}
   Especiales:
     '99': No sabe si trabajó ese día
+    '98': Trabajó ese día, pero no sabe cuanto tiempo
+  Nota: 'numérica: el DDI sólo enumera códigos especiales'
 p5c_mmi:
   Descripción: Minutos de miércoles de la semana pasada
   Pregunta: ¿Qué días y cuántas horas le dedicó ... a su trabajo la semana pasada?
@@ -1408,49 +1299,13 @@ p5c_mmi:
 p5c_hju:
   Descripción: Horas de jueves de la semana pasada
   Pregunta: ¿Qué días y cuántas horas le dedicó ... a su trabajo la semana pasada?
-  Tipo: categorical
+  Tipo: numeric
   Longitud: '2'
-  Categorías:
-    '00': 0 horas trabajadas el jueves
-    '01': 1 hora trabajada el jueves
-    '02': 2 horas trabajadas el jueves
-    '03': 3 horas trabajadas el jueves
-    '04': 4 horas trabajadas el jueves
-    '05': 5 horas trabajadas el jueves
-    '06': 6 horas trabajadas el jueves
-    '07': 7 horas trabajadas el jueves
-    08: 8 horas trabajadas el jueves
-    09: 9 horas trabajadas el jueves
-    '10': 10 horas trabajadas el jueves
-    '11': 11 horas trabajadas el jueves
-    '12': 12 horas trabajadas el jueves
-    '13': 13 horas trabajadas el jueves
-    '14': 14 horas trabajadas el jueves
-    '15': 15 horas trabajadas el jueves
-    '16': 16 horas trabajadas el jueves
-    '17': 17 horas trabajadas el jueves
-    '18': 18 horas trabajadas el jueves
-    '19': 19 horas trabajadas el jueves
-    '20': 20 horas trabajadas el jueves
-    '21': 21 horas trabajadas el jueves
-    '24': 24 horas trabajadas el jueves
-    '98': Trabajó ese día, pero no sabe cuanto tiempo
-    '0': '0'
-    '1': '1'
-    '2': '2'
-    '22': '22'
-    '23': '23'
-    '3': '3'
-    '4': '4'
-    '5': '5'
-    '6': '6'
-    '7': '7'
-    '8': '8'
-    '9': '9'
-  Nota: 'códigos observados sin etiqueta en el DDI: [''0'', ''1'', ''2'', ''22'', ''23'', ''3'', ''4'',
-    ''5'', ''6'', ''7'', ''8'', ''9'']'
+  Categorías: {}
   Especiales:
     '99': No sabe si trabajó ese día
+    '98': Trabajó ese día, pero no sabe cuanto tiempo
+  Nota: 'numérica: el DDI sólo enumera códigos especiales'
 p5c_mju:
   Descripción: Minutos de jueves de la semana pasada
   Pregunta: ¿Qué días y cuántas horas le dedicó ... a su trabajo la semana pasada?
@@ -1461,49 +1316,13 @@ p5c_mju:
 p5c_hvi:
   Descripción: Horas de viernes de la semana pasada
   Pregunta: ¿Qué días y cuántas horas le dedicó ... a su trabajo la semana pasada?
-  Tipo: categorical
+  Tipo: numeric
   Longitud: '2'
-  Categorías:
-    '00': 0 horas trabajadas el viernes
-    '01': 1 hora trabajada el viernes
-    '02': 2 horas trabajadas el viernes
-    '03': 3 horas trabajadas el viernes
-    '04': 4 horas trabajadas el viernes
-    '05': 5 horas trabajadas el viernes
-    '06': 6 horas trabajadas el viernes
-    '07': 7 horas trabajadas el viernes
-    08: 8 horas trabajadas el viernes
-    09: 9 horas trabajadas el viernes
-    '10': 10 horas trabajadas el viernes
-    '11': 11 horas trabajadas el viernes
-    '12': 12 horas trabajadas el viernes
-    '13': 13 horas trabajadas el viernes
-    '14': 14 horas trabajadas el viernes
-    '15': 15 horas trabajadas el viernes
-    '16': 16 horas trabajadas el viernes
-    '17': 17 horas trabajadas el viernes
-    '18': 18 horas trabajadas el viernes
-    '19': 19 horas trabajadas el viernes
-    '20': 20 horas trabajadas el viernes
-    '21': 21 horas trabajadas el viernes
-    '24': 24 horas trabajadas el viernes
-    '98': Trabajó ese día, pero no sabe cuanto tiempo
-    '0': '0'
-    '1': '1'
-    '2': '2'
-    '22': '22'
-    '23': '23'
-    '3': '3'
-    '4': '4'
-    '5': '5'
-    '6': '6'
-    '7': '7'
-    '8': '8'
-    '9': '9'
-  Nota: 'códigos observados sin etiqueta en el DDI: [''0'', ''1'', ''2'', ''22'', ''23'', ''3'', ''4'',
-    ''5'', ''6'', ''7'', ''8'', ''9'']'
+  Categorías: {}
   Especiales:
     '99': No sabe si trabajó ese día
+    '98': Trabajó ese día, pero no sabe cuanto tiempo
+  Nota: 'numérica: el DDI sólo enumera códigos especiales'
 p5c_mvi:
   Descripción: Minutos de viernes de la semana pasada
   Pregunta: ¿Qué días y cuántas horas le dedicó ... a su trabajo la semana pasada?
@@ -1514,49 +1333,13 @@ p5c_mvi:
 p5c_hsa:
   Descripción: Horas de sábado de la semana pasada
   Pregunta: ¿Qué días y cuántas horas le dedicó ... a su trabajo la semana pasada?
-  Tipo: categorical
+  Tipo: numeric
   Longitud: '2'
-  Categorías:
-    '00': 0 horas trabajadas el sábado
-    '01': 1 hora trabajada el sábado
-    '02': 2 horas trabajadas el sábado
-    '03': 3 horas trabajadas el sábado
-    '04': 4 horas trabajadas el sábado
-    '05': 5 horas trabajadas el sábado
-    '06': 6 horas trabajadas el sábado
-    '07': 7 horas trabajadas el sábado
-    08: 8 horas trabajadas el sábado
-    09: 9 horas trabajadas el sábado
-    '10': 10 horas trabajadas el sábado
-    '11': 11 horas trabajadas el sábado
-    '12': 12 horas trabajadas el sábado
-    '13': 13 horas trabajadas el sábado
-    '14': 14 horas trabajadas el sábado
-    '15': 15 horas trabajadas el sábado
-    '16': 16 horas trabajadas el sábado
-    '17': 17 horas trabajadas el sábado
-    '18': 18 horas trabajadas el sábado
-    '19': 19 horas trabajadas el sábado
-    '20': 20 horas trabajadas el sábado
-    '21': 21 horas trabajadas el sábado
-    '22': 22 horas trabajadas el sábado
-    '24': 24 horas trabajadas el sábado
-    '98': Trabajó ese día, pero no sabe cuanto tiempo
-    '0': '0'
-    '1': '1'
-    '2': '2'
-    '23': '23'
-    '3': '3'
-    '4': '4'
-    '5': '5'
-    '6': '6'
-    '7': '7'
-    '8': '8'
-    '9': '9'
-  Nota: 'códigos observados sin etiqueta en el DDI: [''0'', ''1'', ''2'', ''23'', ''3'', ''4'', ''5'',
-    ''6'', ''7'', ''8'', ''9'']'
+  Categorías: {}
   Especiales:
     '99': No sabe si trabajó ese día
+    '98': Trabajó ese día, pero no sabe cuanto tiempo
+  Nota: 'numérica: el DDI sólo enumera códigos especiales'
 p5c_msa:
   Descripción: Minutos de sábado de la semana pasada
   Pregunta: ¿Qué días y cuántas horas le dedicó ... a su trabajo la semana pasada?
@@ -1567,49 +1350,13 @@ p5c_msa:
 p5c_hdo:
   Descripción: Horas de domingo de la semana pasada
   Pregunta: ¿Qué días y cuántas horas le dedicó ... a su trabajo la semana pasada?
-  Tipo: categorical
+  Tipo: numeric
   Longitud: '2'
-  Categorías:
-    '00': 0 horas trabajadas el domingo
-    '01': 1 hora trabajada el domingo
-    '02': 2 horas trabajadas el domingo
-    '03': 3 horas trabajadas el domingo
-    '04': 4 horas trabajadas el domingo
-    '05': 5 horas trabajadas el domingo
-    '06': 6 horas trabajadas el domingo
-    '07': 7 horas trabajadas el domingo
-    08: 8 horas trabajadas el domingo
-    09: 9 horas trabajadas el domingo
-    '10': 10 horas trabajadas el domingo
-    '11': 11 horas trabajadas el domingo
-    '12': 12 horas trabajadas el domingo
-    '13': 13 horas trabajadas el domingo
-    '14': 14 horas trabajadas el domingo
-    '15': 15 horas trabajadas el domingo
-    '16': 16 horas trabajadas el domingo
-    '17': 17 horas trabajadas el domingo
-    '18': 18 horas trabajadas el domingo
-    '19': 19 horas trabajadas el domingo
-    '20': 20 horas trabajadas el domingo
-    '21': 21 horas trabajadas el domingo
-    '22': 22 horas trabajadas el domingo
-    '24': 24 horas trabajadas el domingo
-    '98': Trabajó ese día, pero no sabe cuanto tiempo
-    '0': '0'
-    '1': '1'
-    '2': '2'
-    '23': '23'
-    '3': '3'
-    '4': '4'
-    '5': '5'
-    '6': '6'
-    '7': '7'
-    '8': '8'
-    '9': '9'
-  Nota: 'códigos observados sin etiqueta en el DDI: [''0'', ''1'', ''2'', ''23'', ''3'', ''4'', ''5'',
-    ''6'', ''7'', ''8'', ''9'']'
+  Categorías: {}
   Especiales:
     '99': No sabe si trabajó ese día
+    '98': Trabajó ese día, pero no sabe cuanto tiempo
+  Nota: 'numérica: el DDI sólo enumera códigos especiales'
 p5c_mdo:
   Descripción: Minutos de domingo de la semana pasada
   Pregunta: ¿Qué días y cuántas horas le dedicó ... a su trabajo la semana pasada?
@@ -1657,6 +1404,7 @@ p5e_hlu:
   Categorías: {}
   Especiales:
     '99': No sabe
+    '98': Trabajó ese día, pero no sabe cuanto tiempo
   Nota: 'numérica: el DDI sólo enumera códigos especiales'
 p5e_mlu:
   Descripción: Minutos habituales de lunes
@@ -1673,6 +1421,7 @@ p5e_hma:
   Categorías: {}
   Especiales:
     '99': No sabe
+    '98': Trabajó ese día, pero no sabe cuanto tiempo
   Nota: 'numérica: el DDI sólo enumera códigos especiales'
 p5e_mma:
   Descripción: Minutos habituales de martes
@@ -1689,6 +1438,7 @@ p5e_hmi:
   Categorías: {}
   Especiales:
     '99': No sabe
+    '98': Trabajó ese día, pero no sabe cuanto tiempo
   Nota: 'numérica: el DDI sólo enumera códigos especiales'
 p5e_mmi:
   Descripción: Minutos habituales de miércoles
@@ -1700,47 +1450,13 @@ p5e_mmi:
 p5e_hju:
   Descripción: Horas habituales de jueves
   Pregunta: ¿Qué días y cuántas horas le dedica habitualmente... a su trabajo?
-  Tipo: categorical
+  Tipo: numeric
   Longitud: '2'
-  Categorías:
-    '00': 0 horas habituales que trabaja jueves
-    '01': 1 horas habituales que trabaja jueves
-    '02': 2 horas habituales que trabaja jueves
-    '03': 3 horas habituales que trabaja jueves
-    '04': 4 horas habituales que trabaja jueves
-    '05': 5 horas habituales que trabaja jueves
-    '06': 6 horas habituales que trabaja jueves
-    '07': 7 horas habituales que trabaja jueves
-    08: 8 horas habituales que trabaja jueves
-    09: 9 horas habituales que trabaja jueves
-    '10': 10 horas habituales que trabaja jueves
-    '11': 11 horas habituales que trabaja jueves
-    '12': 12 horas habituales que trabaja jueves
-    '13': 13 horas habituales que trabaja jueves
-    '14': 14 horas habituales que trabaja jueves
-    '15': 15 horas habituales que trabaja jueves
-    '16': 16 horas habituales que trabaja jueves
-    '17': 17 horas habituales que trabaja jueves
-    '18': 18 horas habituales que trabaja jueves
-    '20': 20 horas habituales que trabaja jueves
-    '24': 24 horas habituales que trabaja jueves
-    '98': Trabajó ese día, pero no sabe cuanto tiempo
-    '0': '0'
-    '1': '1'
-    '19': '19'
-    '2': '2'
-    '22': '22'
-    '3': '3'
-    '4': '4'
-    '5': '5'
-    '6': '6'
-    '7': '7'
-    '8': '8'
-    '9': '9'
-  Nota: 'códigos observados sin etiqueta en el DDI: [''0'', ''1'', ''19'', ''2'', ''22'', ''3'', ''4'',
-    ''5'', ''6'', ''7'', ''8'', ''9'']'
+  Categorías: {}
   Especiales:
     '99': No sabe
+    '98': Trabajó ese día, pero no sabe cuanto tiempo
+  Nota: 'numérica: el DDI sólo enumera códigos especiales'
 p5e_mju:
   Descripción: Minutos habituales de jueves
   Pregunta: ¿Qué días y cuántas horas le dedica habitualmente... a su trabajo?
@@ -1751,48 +1467,13 @@ p5e_mju:
 p5e_hvi:
   Descripción: Horas habituales de viernes
   Pregunta: ¿Qué días y cuántas horas le dedica habitualmente... a su trabajo?
-  Tipo: categorical
+  Tipo: numeric
   Longitud: '2'
-  Categorías:
-    '00': 0 horas habituales que trabaja viernes
-    '01': 1 horas habituales que trabaja viernes
-    '02': 2 horas habituales que trabaja viernes
-    '03': 3 horas habituales que trabaja viernes
-    '04': 4 horas habituales que trabaja viernes
-    '05': 5 horas habituales que trabaja viernes
-    '06': 6 horas habituales que trabaja viernes
-    '07': 7 horas habituales que trabaja viernes
-    08: 8 horas habituales que trabaja viernes
-    09: 9 horas habituales que trabaja viernes
-    '10': 10 horas habituales que trabaja viernes
-    '11': 11 horas habituales que trabaja viernes
-    '12': 12 horas habituales que trabaja viernes
-    '13': 13 horas habituales que trabaja viernes
-    '14': 14 horas habituales que trabaja viernes
-    '15': 15 horas habituales que trabaja viernes
-    '16': 16 horas habituales que trabaja viernes
-    '17': 17 horas habituales que trabaja viernes
-    '18': 18 horas habituales que trabaja viernes
-    '20': 20 horas habituales que trabaja viernes
-    '24': 24 horas habituales que trabaja viernes
-    '98': Trabajó ese día, pero no sabe cuanto tiempo
-    '0': '0'
-    '1': '1'
-    '19': '19'
-    '2': '2'
-    '22': '22'
-    '23': '23'
-    '3': '3'
-    '4': '4'
-    '5': '5'
-    '6': '6'
-    '7': '7'
-    '8': '8'
-    '9': '9'
-  Nota: 'códigos observados sin etiqueta en el DDI: [''0'', ''1'', ''19'', ''2'', ''22'', ''23'', ''3'',
-    ''4'', ''5'', ''6'', ''7'', ''8'', ''9'']'
+  Categorías: {}
   Especiales:
     '99': No sabe
+    '98': Trabajó ese día, pero no sabe cuanto tiempo
+  Nota: 'numérica: el DDI sólo enumera códigos especiales'
 p5e_mvi:
   Descripción: Minutos habituales de viernes
   Pregunta: ¿Qué días y cuántas horas le dedica habitualmente... a su trabajo?
@@ -1808,6 +1489,7 @@ p5e_hsa:
   Categorías: {}
   Especiales:
     '99': No sabe
+    '98': Trabajó ese día, pero no sabe cuanto tiempo
   Nota: 'numérica: el DDI sólo enumera códigos especiales'
 p5e_msa:
   Descripción: Minutos habituales de sábado
@@ -1824,6 +1506,7 @@ p5e_hdo:
   Categorías: {}
   Especiales:
     '99': No sabe
+    '98': Trabajó ese día, pero no sabe cuanto tiempo
   Nota: 'numérica: el DDI sólo enumera códigos especiales'
 p5e_mdo:
   Descripción: Minutos habituales de domingo
