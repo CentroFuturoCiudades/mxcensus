@@ -1,574 +1,599 @@
 r_def:
-  Descripción: Resultado definitivo de la entrevista (filtro analítico R_DEF == '00');
-    códigos 00-15, etiquetas en la tabla de vivienda/hogar
-  Tipo: Carácter
+  Descripción: Resultado definitivo de la entrevista (filtro analítico R_DEF == '00'; códigos 00-15, sin
+    cero a la izquierda en el CSV)
+  Tipo: string
   Longitud: '2'
   Categorías: {}
 loc:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
-  Categorías:
-    ' ': ' '
+  Descripción: Localidad
+  Pregunta: No existe pregunta, es un identificador de la vivienda.
+  Tipo: string
+  Longitud: '4'
+  Categorías: {}
 mun:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Municipio
+  Pregunta: No existe pregunta, es un identificador de la vivienda.
+  Tipo: string
+  Longitud: '3'
   Categorías: {}
 est:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Estrato
+  Pregunta: No existe pregunta, es un identificador de la vivienda.
+  Tipo: categorical
+  Longitud: '2'
   Categorías:
-    '10': '10'
-    '20': '20'
-    '30': '30'
-    '40': '40'
+    '10': Estrato bajo
+    '20': Estrato medio bajo
+    '30': Estrato medio alto
+    '40': Estrato alto
 est_d_tri:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Estrato de diseño trimestral
+  Pregunta: No existe pregunta, es un identificador de la vivienda.
+  Tipo: string
+  Longitud: '4'
   Categorías: {}
 est_d_men:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Estrato de diseño mensual
+  Pregunta: No se pregunta
+  Tipo: string
+  Longitud: '4'
   Categorías: {}
 ageb:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
-  Categorías:
-    '0': '0'
+  Descripción: Área geoestadística básica
+  Pregunta: No existe pregunta, es un identificador de la vivienda.
+  Tipo: numeric
+  Longitud: '5'
+  Categorías: {}
+  Nota: 'numérica: el DDI sólo enumera códigos especiales'
 t_loc_tri:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Tamaño de localidad trimestral
+  Pregunta: No existe pregunta, es un identificador de la vivienda.
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
+    '1': Localidades mayores de 100,000 habitantes
+    '2': Localidades de 15,000 a 99,999 habitantes
+    '3': Localidades de 2,500 a 14,999 habitantes
+    '4': Localidades menores de 2,500 habitantes
 t_loc_men:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Tamaño de localidad mensual
+  Pregunta: No existe pregunta, es un identificador de la vivienda.
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    ' ': ' '
+    '1': Localidades mayores de 100,000 habitantes
+    '2': Localidades de 15,000 a 99,999 habitantes
+    '3': Localidades de 2,500 a 14,999 habitantes
+    '4': Localidades menores de 2,500 habitantes
 cd_a:
   Descripción: Ciudad autorrepresentada (agrupación de áreas de la muestra)
-  Tipo: Carácter
+  Tipo: string
   Longitud: '2'
   Categorías: {}
 ent:
   Descripción: Entidad federativa (01-32)
-  Tipo: Carácter
+  Tipo: string
   Longitud: '2'
   Categorías: {}
 con:
   Descripción: Número de control de la vivienda
-  Tipo: Carácter
+  Tipo: string
   Longitud: '5'
   Categorías: {}
 upm:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Unidad primaria de muestreo
+  Pregunta: No existe pregunta, es un identificador de la vivienda.
+  Tipo: string
+  Longitud: '7'
   Categorías: {}
 d_sem:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Distribución semanal
+  Pregunta: No existe pregunta, es un identificador de la vivienda.
+  Tipo: numeric
+  Longitud: '3'
   Categorías: {}
 n_pro_viv:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Número progresivo de la vivienda
+  Pregunta: No existe pregunta, es un identificador de la vivienda.
+  Tipo: string
+  Longitud: '4'
   Categorías: {}
 v_sel:
   Descripción: Vivienda seleccionada
-  Tipo: Carácter
+  Tipo: string
   Longitud: '2'
   Categorías: {}
 n_hog:
   Descripción: Número de hogar
-  Tipo: Carácter
+  Tipo: string
   Longitud: '1'
   Categorías: {}
 h_mud:
   Descripción: Hogar mudado (número de veces que el hogar se ha mudado)
-  Tipo: Carácter
+  Tipo: string
   Longitud: '1'
   Categorías: {}
 n_ent:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Número de entrevista
+  Pregunta: No existe pregunta, es un identificador de la vivienda.
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '5': '5'
+    '1': Entrevista 1
+    '2': Entrevista 2
+    '3': Entrevista 3
+    '4': Entrevista 4
+    '5': Entrevista 5
 per:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
-  Categorías:
-    '122': '122'
-    '123': '123'
-    '124': '124'
-    '125': '125'
-    '222': '222'
-    '223': '223'
-    '224': '224'
-    '225': '225'
-    '321': '321'
-    '322': '322'
-    '323': '323'
-    '324': '324'
-    '421': '421'
-    '422': '422'
-    '423': '423'
-    '424': '424'
+  Descripción: Periodo
+  Pregunta: No existe pregunta, es un identificador de la vivienda.
+  Tipo: numeric
+  Longitud: '3'
+  Categorías: {}
+  Nota: 'numérica: el DDI sólo enumera códigos especiales'
 n_ren:
   Descripción: Número de renglón del integrante del hogar
-  Tipo: Carácter
+  Tipo: string
   Longitud: '2'
   Categorías: {}
 c_res:
   Descripción: Condición de residencia (filtro analítico C_RES in {1, 3})
-  Tipo: Carácter
+  Tipo: categorical
   Longitud: '1'
   Categorías:
     '1': Residente habitual
     '2': Ausente definitivo
     '3': Nuevo residente
 par_c:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Código del parentesco
+  Pregunta: Código de parentesco.
+  Tipo: categorical
+  Longitud: '3'
   Categorías:
-    '101': '101'
-    '201': '201'
-    '202': '202'
-    '203': '203'
-    '301': '301'
-    '302': '302'
-    '303': '303'
-    '304': '304'
-    '401': '401'
-    '402': '402'
-    '403': '403'
-    '404': '404'
-    '405': '405'
-    '406': '406'
-    '407': '407'
-    '408': '408'
-    '409': '409'
-    '410': '410'
-    '411': '411'
-    '412': '412'
-    '413': '413'
-    '414': '414'
-    '415': '415'
-    '416': '416'
-    '417': '417'
-    '418': '418'
-    '419': '419'
-    '420': '420'
-    '421': '421'
-    '422': '422'
-    '423': '423'
-    '424': '424'
-    '501': '501'
-    '502': '502'
-    '503': '503'
-    '601': '601'
-    '611': '611'
-    '612': '612'
-    '613': '613'
-    '701': '701'
-    '999': '999'
-    ' ': ' '
+    '101': Jefe(a), vive solo(a)
+    '201': Esposo(a), compañero(a), cónyuge, pareja
+    '202': Concubino(a),
+    '203': Amante o querida
+    '301': Hijo(a), hijo(a) consanguíneo(a),hijo(a) reconocido(a)
+    '302': Hijo(a) adoptivo(a), hijo(a) adoptado(a)
+    '303': Hijastro(a), entenado(a)
+    '304': Hijo(a) de crianza
+    '401': Madre o padre
+    '402': Madrastra o padrastro
+    '403': Hermana o hermano
+    '404': Media hermana o medio hermano
+    '405': Hermanastra o hermanastro
+    '406': Abuela o abuelo
+    '407': Bisabuela o bisabuelo
+    '408': Tatarabuela o tatarabuelo
+    '409': Nieta o nieto
+    '410': Bisnieta o bisnieto
+    '411': Tataranieta o tataranieto
+    '412': Tía o tío
+    '413': Sobrina o sobrino
+    '414': Prima o primo
+    '415': Suegra o suegro
+    '416': Consuegra o consuegro
+    '417': Nuera o yerno
+    '418': Cuñada o cuñado
+    '419': Concuña o concuño
+    '420': Madrina o padrino
+    '421': Ahijada o ahijado
+    '422': Comadre o compadre
+    '423': Otro familiar
+    '424': Otros familiares
+    '501': Sin parentesco
+    '502': Tutora o tutor
+    '503': Tutelada o tutelado
+    '601': Trabajadora doméstica o trabajador doméstico
+    '611': Esposa(o) del trabajador doméstico
+    '612': Hija o hijo del trabajador doméstico
+    '613': Madre o padre del trabajador doméstico
+    '614': Nieta o nieto del trabajador doméstico
+    '615': Otro pariente del trabajador doméstico
+    '701': Huésped, abonado(a), pensionista
+  Especiales:
+    '999': Parentesco no especificado
 sex:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Sexo
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '1': '1'
-    '2': '2'
-    ' ': ' '
+    '1': Hombre
+    '2': Mujer
 eda:
-  Descripción: Edad en años cumplidos (filtro analítico EDA in [15, 98]). Códigos
-    especiales — 00 menores de 1 año, 97 = 97 años y más, 98 = no especificada (12
-    años y más), 99 = no especificada (menores de 0 a 11 años)
-  Tipo: Carácter
+  Descripción: Edad en años cumplidos (filtro analítico EDA in [15, 98]); 0 = menores de 1 año, 97 = 97
+    años y más
+  Tipo: numeric
   Longitud: '2'
+  Rango:
+  - 0
+  - 97
+  Especiales:
+    '98': No especificada (12 años y más)
+    '99': No especificada (0 a 11 años)
   Categorías: {}
 nac_dia:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Día de nacimiento
+  Pregunta: ¿En qué fecha nació ...? (Día)
+  Tipo: categorical
+  Longitud: '2'
   Categorías:
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '5': '5'
-    '6': '6'
-    '7': '7'
-    '8': '8'
-    '9': '9'
-    '10': '10'
-    '11': '11'
-    '12': '12'
-    '13': '13'
-    '14': '14'
-    '15': '15'
-    '16': '16'
-    '17': '17'
-    '18': '18'
-    '19': '19'
-    '20': '20'
-    '21': '21'
-    '22': '22'
-    '23': '23'
-    '24': '24'
-    '25': '25'
-    '26': '26'
-    '27': '27'
-    '28': '28'
-    '29': '29'
-    '30': '30'
-    '31': '31'
-    '99': '99'
-    ' ': ' '
+    '1': 01 Día de nacimiento
+    '2': 02 Día de nacimiento
+    '3': 03 Día de nacimiento
+    '4': 04 Día de nacimiento
+    '5': 05 Día de nacimiento
+    '6': 06 Día de nacimiento
+    '7': 07 Día de nacimiento
+    '8': 08 Día de nacimiento
+    '9': 09 Día de nacimiento
+    '10': 10 Día de nacimiento
+    '11': 11 Día de nacimiento
+    '12': 12 Día de nacimiento
+    '13': 13 Día de nacimiento
+    '14': 14 Día de nacimiento
+    '15': 15 Día de nacimiento
+    '16': 16 Día de nacimiento
+    '17': 17 Día de nacimiento
+    '18': 18 Día de nacimiento
+    '19': 19 Día de nacimiento
+    '20': 20 Día de nacimiento
+    '21': 21 Día de nacimiento
+    '22': 22 Día de nacimiento
+    '23': 23 Día de nacimiento
+    '24': 24 Día de nacimiento
+    '25': 25 Día de nacimiento
+    '26': 26 Día de nacimiento
+    '27': 27 Día de nacimiento
+    '28': 28 Día de nacimiento
+    '29': 29 Día de nacimiento
+    '30': 30 Día de nacimiento
+    '31': 31 Día de nacimiento
+  Especiales:
+    '99': 99 Día no especificado
 nac_mes:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Mes de nacimiento
+  Pregunta: ¿En qué fecha nació ...? (Mes)
+  Tipo: categorical
+  Longitud: '2'
   Categorías:
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '5': '5'
-    '6': '6'
-    '7': '7'
-    '8': '8'
-    '9': '9'
-    '10': '10'
-    '11': '11'
-    '12': '12'
-    '99': '99'
-    ' ': ' '
+    '1': 01 Enero
+    '2': 02 Febrero
+    '3': 03 Marzo
+    '4': 04 Abril
+    '5': 05 Mayo
+    '6': 06 Junio
+    '7': 07 Julio
+    '8': 08 Agosto
+    '9': 09 septiembre
+    '10': 10 Octubre
+    '11': 11 Noviembre
+    '12': 12 Diciembre
+  Especiales:
+    '99': 99 mes no especificado
 nac_anio:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Año de nacimiento
+  Pregunta: ¿En qué fecha nació ...? (Año)
+  Tipo: string
+  Longitud: '10'
   Categorías: {}
 l_nac_c:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Código del lugar de nacimiento
+  Pregunta: Código del lugar de nacimiento.
+  Tipo: numeric
+  Longitud: '3'
   Categorías: {}
+  Especiales:
+    '600': País no especificado
+    '800': no es posible diferenciar entre Ciudad
+    '999': Usada cuando no es posible asignar alguna clave a una descripción
 cs_p12:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Alfabetismo
+  Pregunta: ¿... sabe leer y escribir un recado?
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '1': '1'
-    '2': '2'
-    '9': '9'
-    ' ': ' '
+    '1': Sí
+    '2': 'No'
+  Especiales:
+    '9': No sabe
 cs_p13_1:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Nivel de instrucción
+  Pregunta: ¿Hasta qué año o grado aprobó ... en la escuela?
+  Tipo: categorical
+  Longitud: '2'
   Categorías:
-    '0': '0'
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '5': '5'
-    '6': '6'
-    '7': '7'
-    '8': '8'
-    '9': '9'
-    '99': '99'
-    ' ': ' '
+    '0': Ninguno
+    '1': Preescolar
+    '2': Primaria
+    '3': Secundaria
+    '4': Preparatoria o bachillerato
+    '5': Normal
+    '6': Carrera técnica
+    '7': Profesional
+    '8': Maestría
+    '9': Doctorado
+  Especiales:
+    '99': No sabe nivel
 cs_p13_2:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Número de años aprobados
+  Pregunta: ¿Hasta qué año o grado aprobó ... en la escuela?
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '0': '0'
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '5': '5'
-    '6': '6'
-    '7': '7'
-    '8': '8'
-    '9': '9'
-    ' ': ' '
+    '0': 0 años aprobados
+    '1': 1 años aprobados
+    '2': 2 años aprobados
+    '3': 3 años aprobados
+    '4': 4 años aprobados
+    '5': 5 años aprobados
+    '6': 6 años aprobados
+    '7': 7 años aprobados
+    '8': 8 años aprobados
+  Especiales:
+    '9': 9 no sabe años aprobados
 cs_p14_c:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Código de carrera
+  Pregunta: Código de carrera.
+  Tipo: string
+  Longitud: '6'
   Categorías: {}
 cs_p15:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Antecedente escolar
+  Pregunta: ¿Qué estudios le pidieron a ... para ingresar a esta carrera?
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '9': '9'
-    ' ': ' '
+    '1': Primaria
+    '2': Secundaria
+    '3': Preparatoria
+  Especiales:
+    '9': No sabe
 cs_p16:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Egreso
+  Pregunta: ¿... terminó los estudios o materias de esta carrera?
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '1': '1'
-    '2': '2'
-    '9': '9'
-    ' ': ' '
+    '1': Sí
+    '2': 'No'
+  Especiales:
+    '9': No sabe
 cs_p17:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Asistencia escolar
+  Pregunta: ¿... asiste actualmente a la escuela?
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '1': '1'
-    '2': '2'
-    '9': '9'
-    ' ': ' '
+    '1': Sí
+    '2': 'No'
+  Especiales:
+    '9': No sabe
 n_hij:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: En total cuantas hijas e hijos nacidos vivos ha vivos tenido
+  Pregunta: ¿En total cuántas hijas e hijos que nacieron vivos ha tenido ...?
+  Tipo: categorical
+  Longitud: '2'
   Categorías:
-    '0': '0'
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '5': '5'
-    '6': '6'
-    '7': '7'
-    '8': '8'
-    '9': '9'
-    '10': '10'
-    '11': '11'
-    '12': '12'
-    '13': '13'
-    '14': '14'
-    '15': '15'
-    '16': '16'
-    '17': '17'
-    '18': '18'
-    '19': '19'
-    '20': '20'
-    '21': '21'
-    '22': '22'
-    '23': '23'
-    '24': '24'
-    '25': '25'
-    '99': '99'
-    ' ': ' '
+    '0': 00 Hijos
+    '1': 01 Hijos
+    '2': 02 Hijos
+    '3': 03 Hijos
+    '4': 04 Hijos
+    '5': 05 Hijos
+    '6': 06 Hijos
+    '7': 07 Hijos
+    '8': 08 Hijos
+    '9': 09 Hijos
+    '10': 10 Hijos
+    '11': 11 Hijos
+    '12': 12 Hijos
+    '13': 13 Hijos
+    '14': 14 Hijos
+    '15': 15 Hijos
+    '16': 16 Hijos
+    '17': 17 Hijos
+    '18': 18 Hijos
+    '19': 19 Hijos
+    '20': 20 Hijos
+    '21': 21 Hijos
+    '22': 22 Hijos
+    '23': 23 hijos
+    '24': 24 Hijos
+    '25': 25 hijos
+  Especiales:
+    '99': 99 Hijos no especificados
 e_con:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Estado conyugal
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '5': '5'
-    '6': '6'
-    '9': '9'
-    ' ': ' '
+    '1': Vive con su pareja en unión libre
+    '2': Está separado(a)
+    '3': Está divorciado(a)
+    '4': Está viudo(a)
+    '5': Está casado(a)
+    '6': Está soltero(a)
+  Especiales:
+    '9': No sabe
 cs_p20a_1:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Hace un año, en (mes) de (año), ¿en qué estado de la República o en qué país vivía ...?
+  Pregunta: Hace un año, en (mes) de (año), ¿en qué estado de la República o en qué país vivía ...?
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    ' ': ' '
+    '1': Aquí en este estado
+    '2': En otro estado (Especifica)
+    '3': En los Estados Unidos de América
+    '4': En otro país (Especifica)
 cs_p20a_c:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Clave de entidad o país
+  Pregunta: No aplica.
+  Tipo: numeric
+  Longitud: '3'
   Categorías: {}
+  Especiales:
+    '999': No especificado
 cs_p20b_1:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: ¿En qué municipio (alcaldía) vivía ... hace un año?
+  Pregunta: ¿En qué municipio (alcaldía) vivía ... hace un año?
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '1': '1'
-    '2': '2'
-    ' ': ' '
+    '1': Aquí, en este municipio (alcaldía)
+    '2': En otro municipio (alcaldía) (Especifica)
 cs_p20b_c:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Clave de municipio
+  Pregunta: No aplica.
+  Tipo: numeric
+  Longitud: '3'
   Categorías: {}
+  Especiales:
+    '999': No especificado
 cs_p20c_1:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: ¿Por qué ... dejó de vivir en ese (municipio o alcaldía o país)?
+  Pregunta: ¿Por qué ... dejó de vivir en ese (municipio o alcaldía o país)?
+  Tipo: categorical
+  Longitud: '2'
   Categorías:
-    '01': '01'
+    '01': Buscar trabajo
+    '02': Cambio u oferta de trabajo
+    '03': Reunirse con la familia
+    '04': Se casó o unió
+    '05': Estudiar
+    '06': Por inseguridad o delincuencia (asaltos, extorsiones, homicidios)
+    '07': Por violencia (entre vecinos, comunidad, intrafamiliar)
+    08: Por sus creencias religiosas
+    09: Por desastres naturales
+    '10': Lo deportaron (regresaron)
+    '11': Otra causa (Especifica)
     '1': '1'
-    '02': '02'
     '2': '2'
     '3': '3'
-    '03': '03'
     '4': '4'
-    '04': '04'
-    '05': '05'
     '5': '5'
     '6': '6'
-    '06': '06'
-    '07': '07'
     '7': '7'
     '8': '8'
-    08: 08
-    09: 09
     '9': '9'
-    '10': '10'
-    '11': '11'
-    ' ': ' '
+  Nota: 'códigos observados sin etiqueta en el DDI: [''1'', ''2'', ''3'', ''4'', ''5'', ''6'', ''7'',
+    ''8'', ''9'']'
 cs_ad_mot:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Ausentes definitivos motivo
+  Pregunta: ¿Cuál es el motivo principal por el que... se fue?
+  Tipo: categorical
+  Longitud: '2'
   Categorías:
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '5': '5'
-    '6': '6'
-    '7': '7'
-    '8': '8'
-    '9': '9'
-    '10': '10'
-    '99': '99'
-    ' ': ' '
+    '1': Trabajo
+    '2': Estudio
+    '3': Se casó o unió
+    '4': Se separó o divorció
+    '5': Problemas de salud
+    '6': Reunirse con la familia
+    '7': Inseguridad pública
+    '8': Falleció
+    '9': Otro motivo
+    '10': Otro motivo
+  Especiales:
+    '99': No sabe
 cs_p21_des:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Ausentes definitivos descripción del motivo
+  Pregunta: Ausentes definitivos y descripción del motivo.
+  Tipo: string
+  Longitud: '50'
   Categorías: {}
 cs_ad_des:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Ausentes definitivos destino
+  Pregunta: ¿A qué estado de la República Mexicana o país se fue ...?
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '9': '9'
-    ' ': ' '
+    '1': Mismo estado
+    '2': No sabe
+    '3': Otro país
+    '4': Otro estado
+  Especiales:
+    '9': No sabe
 cs_nr_mot:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Nuevos residentes motivo
+  Pregunta: ¿Cuál es el motivo principal por el que llegó ...?
+  Tipo: categorical
+  Longitud: '2'
   Categorías:
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '5': '5'
-    '6': '6'
-    '7': '7'
-    '8': '8'
-    '9': '9'
-    '10': '10'
-    '99': '99'
-    ' ': ' '
+    '1': Trabajo
+    '2': Estudio
+    '3': Se casó o unió
+    '4': Se separó o divorció
+    '5': Problemas de salud
+    '6': Reunirse con la familia
+    '7': Inseguridad pública
+    '8': Nació
+    '9': Fue omitido
+    '10': Otro motivo
+  Especiales:
+    '99': No sabe
 cs_p23_des:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Nuevos residentes descripción del motivo
+  Pregunta: Nuevos residentes descripción del motivo.
+  Tipo: string
+  Longitud: '50'
   Categorías: {}
 cs_nr_ori:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Nuevos residentes origen
+  Pregunta: ¿De qué estado de la República Mexicana o país vino ...?
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '9': '9'
-    ' ': ' '
+    '1': Mismo estado
+    '2': Otro estado
+    '3': Otro país
+  Especiales:
+    '9': No sabe
 ur:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Campo exclusivo de proceso
+  Pregunta: Variable de apoyo.
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '1': '1'
-    '2': '2'
+    '1': Urbano
+    '2': Rural
 zona:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Zona salarial
+  Pregunta: Variable de apoyo.
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '1': '1'
-    '2': '2'
+    '1': Zona 1 Frontera Norte
+    '2': Zona 2 Resto del país
 salario:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
-  Categorías:
-    '4251': '4251'
-    '5186': '5186'
-    '6223': '6223'
-    '6402': '6402'
-    '7468': '7468'
-    '7810': '7810'
-    '8364': '8364'
-    '9372': '9372'
-    '11247': '11247'
-    '12596': '12596'
+  Descripción: Salario
+  Pregunta: Variable de apoyo.
+  Tipo: numeric
+  Longitud: '5'
+  Categorías: {}
+  Nota: 'numérica: el DDI sólo enumera códigos especiales'
 fac_tri:
-  Descripción: Ponderador trimestral — permite obtener los resultados trimestrales
-    (desde 2020-T3)
-  Tipo: Numérico
+  Descripción: Ponderador trimestral — permite obtener los resultados trimestrales (desde 2020-T3)
+  Tipo: numeric
   Longitud: '6'
   Categorías: {}
 fac_men:
-  Descripción: Ponderador mensual — resultados mensuales con base en el campo MES_CAL
-    (desde 2020-T3)
-  Tipo: Numérico
+  Descripción: Ponderador mensual — resultados mensuales con base en el campo MES_CAL (desde 2020-T3)
+  Tipo: numeric
   Longitud: '6'
   Categorías: {}
 clase1:
   Descripción: Clasificación de la población en PEA y PNEA
-  Tipo: Numérico
+  Tipo: categorical
   Longitud: '1'
   Categorías:
     '0': No aplica (fuera del universo analítico)
     '1': Población económicamente activa (PEA)
     '2': Población no económicamente activa (PNEA)
 clase2:
-  Descripción: Clasificación de la población ocupada y desocupada; disponible y no
-    disponible
-  Tipo: Numérico
+  Descripción: Clasificación de la población ocupada y desocupada; disponible y no disponible
+  Tipo: categorical
   Longitud: '1'
   Categorías:
     '0': No aplica (fuera del universo analítico)
@@ -577,21 +602,22 @@ clase2:
     '3': Disponible
     '4': No disponible
 clase3:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Composición de la PEA
+  Pregunta: Variable precodificada (creada).
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '0': '0'
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '5': '5'
-    '6': '6'
-    '7': '7'
+    '0': No aplica
+    '1': Ocupado pleno
+    '2': Ocupado sin pago
+    '3': Ocupado ausente con nexo laboral
+    '4': Ocupado ausente con retorno asegurado
+    '5': Desocupados iniciadores
+    '6': Desocupados con búsqueda
+    '7': Desocupados ausentes sin ingreso y sin nexo laboral
 pos_ocu:
   Descripción: Clasificación de la población ocupada por posición en la ocupación
-  Tipo: Numérico
+  Tipo: categorical
   Longitud: '1'
   Categorías:
     '0': No aplica (fuera del universo analítico)
@@ -599,33 +625,36 @@ pos_ocu:
     '2': Empleadores
     '3': Trabajadores por cuenta propia
     '4': Trabajadores sin pago
+  Especiales:
     '5': No especificado
 seg_soc:
-  Descripción: Clasificación de la población ocupada por condición de acceso a instituciones
-    de salud
-  Tipo: Numérico
+  Descripción: Clasificación de la población ocupada por condición de acceso a instituciones de salud
+  Tipo: categorical
   Longitud: '1'
   Categorías:
     '0': No aplica (fuera del universo analítico)
     '1': Con acceso
     '2': Sin acceso
+  Especiales:
     '3': No especificado
 rama:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Sector de actividad económica para ocupados
+  Pregunta: Variable precodificada (creada).
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '0': '0'
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '5': '5'
-    '6': '6'
-    '7': '7'
+    '0': No aplica
+    '1': Construcción
+    '2': Industria manufacturera
+    '3': Comercio
+    '4': Servicios
+    '5': Otros
+    '6': Agropecuario
+  Especiales:
+    '7': No especificado
 c_ocu11c:
   Descripción: Clasificación de la población ocupada por condición de ocupación
-  Tipo: Numérico
+  Tipo: categorical
   Longitud: '2'
   Categorías:
     '0': No aplica (fuera del universo analítico)
@@ -639,83 +668,95 @@ c_ocu11c:
     '8': Trabajadores en servicios personales
     '9': Trabajadores en protección y vigilancia
     '10': Trabajadores agropecuarios
+  Especiales:
     '11': No especificado
 ing7c:
-  Descripción: Clasificación de la población ocupada por nivel de ingreso
-  Tipo: Numérico
+  Descripción: Clasificación de la población ocupada por nivel de ingreso (salarios mínimos)
+  Tipo: categorical
   Longitud: '1'
+  Ordenada: true
   Categorías:
     '0': No aplica (fuera del universo analítico)
+    '6': No recibe ingresos
     '1': Hasta un salario mínimo
     '2': Más de 1 hasta 2 salarios mínimos
     '3': Más de 2 hasta 3 salarios mínimos
     '4': Más de 3 hasta 5 salarios mínimos
     '5': Más de 5 salarios mínimos
-    '6': No recibe ingresos
+  Especiales:
     '7': No especificado
 dur9c:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Duración de la jornada
+  Pregunta: Variable precodificada (creada).
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '0': '0'
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '5': '5'
-    '6': '6'
-    '7': '7'
-    '8': '8'
-    '9': '9'
+    '0': No aplica
+    '1': Ausentes temporales con vínculo laboral
+    '2': Menos de 15 horas
+    '3': De 15 a 24 horas
+    '4': De 25 a 34 horas
+    '5': De 35 a 39 horas
+    '6': De 40 a 48 horas
+    '7': De 49 a 56 horas
+    '8': Más de 56 horas
+  Especiales:
+    '9': No especificado
 emple7c:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Número de trabajadores
+  Pregunta: Variable precodificada (creada).
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '0': '0'
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '5': '5'
-    '6': '6'
-    '7': '7'
+    '0': No aplica
+    '1': 1 persona
+    '2': De 2 a 5 personas
+    '3': De 6 a 10 personas
+    '4': De 11 a 15 personas
+    '5': De 16 a 50 personas
+    '6': De 51 y más personas
+  Especiales:
+    '7': No especificado
 medica5c:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Prestaciones de salud
+  Pregunta: Variable precodificada (creada).
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '0': '0'
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '5': '5'
+    '0': No aplica
+    '1': Sin prestaciones
+    '2': Solo acceso a instituciones de salud
+    '3': Acceso de instituciones de salud y otras prestaciones
+    '4': No tiene acceso a instituciones de salud pero si a otras prestaciones
+  Especiales:
+    '5': No especificado
 buscar5c:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Buscador de otro empleo para ocupados
+  Pregunta: Variable precodificada (creada).
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '0': '0'
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '5': '5'
+    '0': No aplica
+    '1': Para tener otro empleo
+    '2': Para cambiarse de trabajo
+    '3': Otro
+    '4': No buscó
+  Especiales:
+    '5': No especificado
 rama_est1:
   Descripción: Clasificación de la población ocupada según sector de actividad (totales)
-  Tipo: Numérico
+  Tipo: categorical
   Longitud: '1'
   Categorías:
     '0': No aplica (fuera del universo analítico)
     '1': Primario
     '2': Secundario
     '3': Terciario
+  Especiales:
     '4': No especificado
 rama_est2:
   Descripción: Clasificación de la población ocupada según sector de actividad (subtotales)
-  Tipo: Numérico
+  Tipo: categorical
   Longitud: '2'
   Categorías:
     '0': No aplica (fuera del universo analítico)
@@ -731,518 +772,566 @@ rama_est2:
     '10': Servicios diversos
     '11': Gobierno y organismos internacionales
 dur_est:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Duración de la jornada a 6 categorías
+  Pregunta: Variable precodificada (creada).
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '0': '0'
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '5': '5'
-    '6': '6'
+    '0': No aplica
+    '1': Ausentes temporales con vínculo laboral
+    '2': Menos de 15 horas
+    '3': De 15 a 34 horas
+    '4': De 35 a 48 horas
+    '5': Más de 48 horas
+  Especiales:
+    '6': No especificado
 ambito1:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Tamaño de la unidad económica primer categoría
+  Pregunta: Variable precodificada (creada).
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '0': '0'
-    '1': '1'
-    '2': '2'
-    '3': '3'
+    '0': No aplica
+    '1': Ámbito agropecuario
+    '2': Ámbito no agropecuario
+  Especiales:
+    '3': No especificado
 ambito2:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Tamaño de la unidad económica segunda categoría
+  Pregunta: Variable precodificada (creada).
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '0': '0'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '5': '5'
-    '6': '6'
-    '7': '7'
-    '8': '8'
+    '0': No aplica
+    '1': Micronegocios (Calculado se suma código 2 y 3)
+    '2': Sin establecimiento
+    '3': Con establecimiento
+    '4': Pequeños establecimientos
+    '5': Medianos establecimientos
+    '6': Grandes establecimientos
+    '7': Gobierno
+    '8': Otros
 tue1:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Tipo de unidad económica primer categoría
+  Pregunta: Variable precodificada (creada).
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '0': '0'
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
+    '0': No aplica
+    '1': Empresas y negocios
+    '2': Instituciones
+    '3': Sector de los hogares
+    '4': Situaciones de carácter especial y no especificadas
 tue2:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Tipo de unidad económica segunda categoría
+  Pregunta: Variable precodificada (creada).
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '0': '0'
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '5': '5'
-    '6': '6'
-    '7': '7'
+    '0': No aplica
+    '1': Empresas constituidas en sociedad y corporativas
+    '2': Negocios no constituidos en sociedad
+    '3': Privadas
+    '4': Públicas
+    '5': Sector informal
+    '6': Trabajo doméstico remunerado
+    '7': Agricultura de auto subsistencia
 tue3:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Tipo de unidad económica tercer categoría
+  Pregunta: Variable precodificada (creada).
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '0': '0'
-    '1': '1'
-    '2': '2'
+    '0': No aplica
+    '1': Administradas por los gobiernos
+    '2': No administradas por los gobiernos
 busqueda:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Buscador de otro trabajo para subordinados y remunerados
+  Pregunta: Variable precodificada (creada).
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '0': '0'
-    '1': '1'
-    '2': '2'
+    '0': No aplica
+    '1': Si buscó un trabajo adicional
+    '2': No buscó un trabajo adicional
 d_ant_lab:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Antecedentes laborales
+  Pregunta: Variable precodificada (creada).
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '0': '0'
-    '1': '1'
-    '2': '2'
+    '0': No aplica
+    '1': Con experiencia
+    '2': Sin experiencia
 d_cexp_est:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Condición de desocupación
+  Pregunta: Variable precodificada (creada).
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '0': '0'
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
+    '0': No aplica
+    '1': Perdió o termino su empleo anterior
+    '2': Insatisfacción con el empleo anterior
+    '3': Dejo o cerro un negocio propio
+    '4': Otro
 dur_des:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Clasificación de la duración del desempleo
+  Pregunta: Variable precodificada (creada).
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '0': '0'
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '5': '5'
-    '6': '6'
+    '0': No aplica
+    '1': Hasta 1 mes
+    '2': Más de 1 mes hasta 3 meses
+    '3': Más de 3 mes hasta 6 meses
+    '4': Más de 6 meses hasta 1 año
+    '5': Más de 1 año
+  Especiales:
+    '6': No especificado
 sub_o:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Población subocupada
+  Pregunta: Variable precodificada (creada).
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '0': '0'
-    '1': '1'
+    '0': No aplica
+    '1': Si es subocupado
+    '2': No es subocupado
 s_clasifi:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Clasificación de subocupados
+  Pregunta: Variable precodificada (creada).
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '0': '0'
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '5': '5'
-    '6': '6'
+    '0': No aplica
+    '1': Pers. Con nexo laboral pero afectadas por paro técnico
+    '2': Personas afectadas por una caída en el ritmo de su actividad
+    '3': Personas que laboran menos de 35 horas por razones de mercado
+    '4': Personas que laboran más de 35 horas de lo habitual por razones de mercado
+    '5': Personas que buscan aumentar su jornada laboral para obtener más ingreso
+    '6': Ausentes con retorno en la semana de la entrevista
 remune2c:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Composición de la población subordinada y remunerada
+  Pregunta: Variable precodificada (creada).
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '0': '0'
-    '1': '1'
-    '2': '2'
+    '0': No aplica
+    '1': Subordinados y remunerados-asalariados
+    '2': Subordinados y remunerados-con percepciones no salariales
 pre_asa:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Prestaciones laborales
+  Pregunta: Variable precodificada (creada).
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '0': '0'
-    '1': '1'
-    '2': '2'
-    '3': '3'
+    '0': No aplica
+    '1': Con prestaciones
+    '2': Sin prestaciones
+  Especiales:
+    '3': No especificado
 tip_con:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Disponibilidad de tipo de contrato
+  Pregunta: Variable precodificada (creada).
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '0': '0'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '5': '5'
-    '6': '6'
+    '0': No aplica
+    '1': Contrato escrito
+    '2': Temporal
+    '3': De base, planta o por tiempo indefinido
+    '4': Contrato de tipo no especificado
+    '5': Sin contrato escrito
+  Especiales:
+    '6': No especificado
 dispo:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Población disponible
+  Pregunta: Variable precodificada (creada).
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '0': '0'
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '5': '5'
-    '6': '6'
-    '7': '7'
+    '0': No aplica
+    '1': Primera opción
+    '2': Segunda opción
+    '3': Tercera opción
+    '4': Cuarta opción
+    '5': Quinta opción
+    '6': Sexta opción
+    '7': Séptima opción
 nodispo:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Población no disponible
+  Pregunta: Variable precodificada (creada).
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '0': '0'
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '5': '5'
-    '8': '8'
-    '9': '9'
+    '0': No aplica
+    '1': Primera opción
+    '2': Segunda opción
+    '3': Tercera opción
+    '4': Cuarta opción
+    '5': Quinta opción
+    '6': Sexta opción
+    '7': Séptima opción
+    '8': Octava opción
+    '9': Novena opción
 c_inac5c:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Tipo de actividad no económica
+  Pregunta: Variable precodificada (creada).
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '0': '0'
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '5': '5'
+    '0': No aplica
+    '1': Estudiantes
+    '2': Quehaceres domésticos
+    '3': Pensionados y jubilados
+    '4': Incapacitados permanentes
+    '5': Otros no activos
 pnea_est:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Composición de la PNEA
+  Pregunta: Variable precodificada (creada).
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '0': '0'
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '5': '5'
-    '6': '6'
+    '0': No aplica
+    '1': Disponible para trabajar que han desistido de buscar empleo
+    '2': Disponibles para trabajar que no buscan empleo por considerar que no tienen posibilidades
+    '3': Con interés para trabajar pero bajo un contexto que les impide hacerlo
+    '4': Sin interés por trabajar por atender otras obligaciones
+    '5': Con impedimentos físicos para trabajar
+    '6': Otros
 niv_ins:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Nivel de instrucción (población de 5 años y más)
+  Tipo: categorical
+  Longitud: '1'
+  Ordenada: true
   Categorías:
-    '0': '0'
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '5': '5'
+    '0': No aplica (fuera del universo analítico)
+    '1': Primaria incompleta
+    '2': Primaria completa
+    '3': Secundaria completa
+    '4': Medio superior y superior
+  Especiales:
+    '5': No especificado
 eda5c:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Grupos de edad a 5 claves
+  Pregunta: Variable precodificada (creada).
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '0': '0'
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '5': '5'
+    '0': No aplica
+    '1': 15 a 24 años
+    '2': 25 a 44 años
+    '3': 45 a 64 años
+    '4': 65 años y más
+  Especiales:
+    '5': Edad no especificado
 eda7c:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Grupos de edad a 7 claves
+  Pregunta: Variable precodificada (creada).
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '0': '0'
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '5': '5'
-    '6': '6'
-    '7': '7'
+    '0': No aplica
+    '1': De 15 a 19 años
+    '2': De 20 a 29 años
+    '3': De 30 a 39 años
+    '4': De 40 a 49 años
+    '5': De 50 a 59 años
+    '6': De 60 años y más
+  Especiales:
+    '7': Edad no especificada
 eda12c:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Grupos de edad a 12 claves
+  Pregunta: Variable precodificada (creada).
+  Tipo: categorical
+  Longitud: '2'
   Categorías:
-    '0': '0'
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '5': '5'
-    '6': '6'
-    '7': '7'
-    '8': '8'
-    '9': '9'
-    '10': '10'
-    '11': '11'
-    '12': '12'
+    '0': No aplica
+    '1': De 15 a 19 años
+    '2': De 20 a 24 años
+    '3': De 25 a 29 años
+    '4': De 30 a 34 años
+    '5': De 35 a 39 años
+    '6': De 40 a 44 años
+    '7': De 45 a 49 años
+    '8': De 50 a 54 años
+    '9': De 55 a 59 años
+    '10': De 60 a 64 años
+    '11': De 65 años y más
+  Especiales:
+    '12': No especificado
 eda19c:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Grupos de edad a 19 claves
+  Pregunta: Variable precodificada (creada).
+  Tipo: categorical
+  Longitud: '2'
   Categorías:
-    '0': '0'
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '5': '5'
-    '6': '6'
-    '7': '7'
-    '8': '8'
-    '9': '9'
-    '10': '10'
-    '11': '11'
-    '12': '12'
-    '13': '13'
-    '14': '14'
-    '15': '15'
-    '16': '16'
-    '17': '17'
-    '18': '18'
-    '19': '19'
+    '0': No aplica
+    '1': Menores de 1 año
+    '2': De 1 a 4 años
+    '3': De 5 a 9 años
+    '4': De 10 a 11 años
+    '5': De 12 a 14 años
+    '6': De 15 a 19 años
+    '7': De 20 a 24 años
+    '8': De 25 a 29 años
+    '9': De 30 a 34 años
+    '10': De 35 a 39 años
+    '11': De 40 a 44 años
+    '12': De 45 a 49 años
+    '13': De 50 a 54 años
+    '14': De 55 a 59 años
+    '15': De 60 a 64 años
+    '16': De 65 a 69 años
+    '17': De 70 a 74 años
+    '18': De 75 años y más
+  Especiales:
+    '19': No especificado
 hij5c:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Clasificación de la población femenina de 15 años y más por número de hijos
+  Pregunta: Variable precodificada (creada).
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '0': '0'
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '5': '5'
+    '0': No aplica
+    '1': Sin hijos
+    '2': De 1 a 2 hijos
+    '3': De 3 a 5 hijos
+    '4': De 6 hijos y más
+  Especiales:
+    '5': No especificado
 domestico:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Composición de la PEA y la PNEA
+  Pregunta: Variable precodificada (creada).
+  Tipo: categorical
+  Longitud: '2'
   Categorías:
-    '0': '0'
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '5': '5'
-    '6': '6'
-    '7': '7'
-    '8': '8'
-    '9': '9'
-    '10': '10'
+    '0': No aplica
+    '1': Solo PEA
+    '2': PEA y estudian
+    '3': PEA y quehaceres domésticos
+    '4': PEA y apoyos al hogar
+    '5': PEA y otras actividades
+    '6': Solo PNEA
+    '7': PNEA y estudian
+    '8': PNEA y quehaceres domésticos
+    '9': PNEA y apoyos al hogar
+    '10': PNEA y otras actividades
 anios_esc:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
-  Categorías:
-    '0': '0'
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '5': '5'
-    '6': '6'
-    '7': '7'
-    '8': '8'
-    '9': '9'
-    '10': '10'
-    '11': '11'
-    '12': '12'
-    '13': '13'
-    '14': '14'
-    '15': '15'
-    '16': '16'
-    '17': '17'
-    '18': '18'
-    '19': '19'
-    '20': '20'
-    '21': '21'
-    '22': '22'
-    '23': '23'
-    '24': '24'
-    '99': '99'
+  Descripción: Años de escolaridad
+  Tipo: numeric
+  Longitud: '2'
+  Rango:
+  - 0
+  - 24
+  Especiales:
+    '99': No especificado
+  Categorías: {}
 hrsocup:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Horas trabajadas en la semana (población ocupada; 0 fuera del universo)
+  Tipo: numeric
+  Longitud: '3'
+  Rango:
+  - 0
+  - 168
   Categorías: {}
 ingocup:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Ingreso mensual de la población ocupada (pesos corrientes; 0 fuera del universo o sin ingresos)
+  Tipo: numeric
+  Longitud: '6'
+  Rango:
+  - 0
+  - 999999
   Categorías: {}
 ing_x_hrs:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Promedio de ingreso por hora trabajada
+  Pregunta: Variable precodificada (creada).
+  Tipo: numeric
+  Longitud: '10'
   Categorías: {}
 tpg_p8a:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Variable de apoyo Sí buscó trabajo
+  Pregunta: Variable precodificada (creada).
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '0': '0'
-    '1': '1'
+    '0': No aplica
+    '1': Si busco trabajo (Para cálculo de las tasas)
 tcco:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Dato para el cálculo de la tasa TCCO
+  Pregunta: Variable precodificada (creada).
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '0': '0'
-    '1': '1'
-    '2': '2'
-    '3': '3'
+    '0': No aplica
+    '1': Oh35rm (ocupados que trabajan menos de 35 hrs por razones de mercado)
+    '2': Oh35sm (ocupados que trabajan de 35 hrs ó más y ganan hasta 1 salario mínimo)
+    '3': Oh48sm (ocupados que trabajan más de 48 horas con ingresos de más de 1 hasta 2 s.M.)
 cp_anoc:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Clasificación de la población cuenta propia en actividades no calificadas
+  Pregunta: Variable precodificada (creada).
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '0': '0'
-    '1': '1'
+    '0': No aplica
+    '1': Cuenta propia en actividades no calificadas (Para propia en promedio y medianas)
 imssissste:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Instituciones de atención médica
+  Pregunta: Variable precodificada (creada).
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '0': '0'
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '5': '5'
+    '0': No aplica
+    '1': IMSS
+    '2': ISSSTE
+    '3': Otras instituciones
+    '4': No recibe atención médica
+  Especiales:
+    '5': No especificado
 ma48me1sm:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Población ocupada que trabaja más de 48 horas y gana menos de 1 salario mínimo
+  Pregunta: Si trabaja más de 48 horas y gana menos de 1 salario mínimo (para la TIID)
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '0': '0'
-    '1': '1'
+    '0': No aplica
+    '1': Si trabaja más de 48 hrs. y gana menos de 1 salario mínimo (para la TIID)
 p14apoyos:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Población de 15 años y más que reciben apoyo
+  Pregunta: Población de 14 años y más que reciben apoyo
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '0': '0'
-    '1': '1'
-    '2': '2'
-    '3': '3'
+    '0': No aplica
+    '1': Si recibe apoyos económicos
+    '2': No recibe apoyos económicos
+  Especiales:
+    '3': No especificado
 scian:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Clasificación de actividades económicas con base al sistema de clasificación Industrial
+    de América del Norte
+  Pregunta: actividades económicas con base al sistema de clasificación Industrial de América del Norte
+  Tipo: categorical
+  Longitud: '2'
   Categorías:
-    '0': '0'
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '5': '5'
-    '6': '6'
-    '7': '7'
-    '8': '8'
-    '9': '9'
-    '10': '10'
-    '11': '11'
-    '12': '12'
-    '13': '13'
-    '14': '14'
-    '15': '15'
-    '16': '16'
-    '17': '17'
-    '18': '18'
-    '19': '19'
-    '20': '20'
-    '21': '21'
+    '0': No aplica
+    '1': Agricultura, ganadería, aprovechamiento forestal, pesca y caza
+    '2': Minería
+    '3': Generación y distribución de electricidad, suministro de agua y gas
+    '4': Construcción
+    '5': Industrias manufactureras
+    '6': Comercio al por mayor
+    '7': Comercio al por menor
+    '8': Transportes, correos y almacenamiento
+    '9': Información en medios masivos
+    '10': Servicios financieros y de seguros
+    '11': Servicios inmobiliarios y de alquiler de bienes
+    '12': Servicios profesionales, científicos y técnicos
+    '13': Corporativos
+    '14': Servicios de apoyo a los negocios y manejo de deshechos
+    '15': Servicios educativos
+    '16': Servicios de salud y de asistencia social
+    '17': Servicios de esparcimiento, culturales y deportivos
+    '18': Servicios de hospedaje y de preparación de alimentos y bebidas
+    '19': Otros servicios, excepto actividades gubernamentales
+    '20': Actividades gubernamentales y de organismos internacionales
+  Especiales:
+    '21': No especificado
 t_tra:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Total de trabajos
+  Pregunta: Número de trabajadores
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '0': '0'
-    '1': '1'
-    '2': '2'
+    '0': No aplica
+    '1': Un solo trabajo
+    '2': Dos trabajos
 emp_ppal:
   Descripción: Clasificación de empleos formales e informales de la primera actividad
-  Tipo: Numérico
+  Tipo: categorical
   Longitud: '1'
   Categorías:
     '0': No aplica (fuera del universo analítico)
     '1': Empleo informal
     '2': Empleo formal
 tue_ppal:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Tipo de unidad económica del trabajo principal
+  Pregunta: Qué tipo de unidad económica es del trabajo principal?
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '0': '0'
-    '1': '1'
-    '2': '2'
+    '0': No aplica
+    '1': Sector informal
+    '2': Fuera del sector informal
 trans_ppal:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Trabajadores transfronterizos del trabajo principal
+  Pregunta: Es trabajador transfronterizo del trabajo principal?
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '0': '0'
-    '1': '1'
+    '0': No aplica
+    '1': Extranjero, embajadas o consulados
+    '2': Dentro del país
 mh_fil2:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Filas agregadas de la matriz Hussmanns del trabajo principal
+  Pregunta: Variable precodificada (creada).
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '0': '0'
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
+    '0': No aplica
+    '1': Sector informal
+    '2': Trabajo doméstico remunerado
+    '3': Empresas, Gobierno e Instituciones4/
+    '4': Ámbito agropecuario
 mh_col:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Columnas de la matriz Hussmanns del trabajo principal Columnas de la matriz Hussmanns del
+    trabajo principal Columnas de la matriz Hussmanns del trabajo principal
+  Pregunta: Variable precodificada (creada).
+  Tipo: categorical
+  Longitud: '2'
   Categorías:
-    '0': '0'
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '5': '5'
-    '6': '6'
-    '7': '7'
-    '8': '8'
-    '9': '9'
+    '0': No aplica
+    '1': Trabajadores subordinados y remunerados - Asalariados INFORMALES
+    '2': Trabajadores subordinados y remunerados - Asalariados FORMALES
+    '3': Trabajadores subordinados y remunerados - Con percepciones no salariales INFORMALES
+    '4': Trabajadores subordinados y remunerados - Con percepciones no salariales FORMALES
+    '5': Empleadores INFORMAL
+    '6': Empleadores FORMAL
+    '7': Trabajadores por cuenta propia INFORMAL
+    '8': Trabajadores por cuenta propia FORMAL
+    '9': Trabajadores no Remunerados INFORMAL
+    '10': Trabajadores no Remunerados FORMAL
 sec_ins:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Sectores institucionales del trabajo principal
+  Pregunta: Variable precodificada (creada).
+  Tipo: categorical
+  Longitud: '2'
   Categorías:
-    '0': '0'
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '5': '5'
-    '6': '6'
-    '7': '7'
-    '8': '8'
-    '9': '9'
-    '10': '10'
-    '11': '11'
+    '0': No aplica
+    '1': Instituciones financieras
+    '2': Corporaciones y sociedades no financieras
+    '3': Agropecuario (Negocios formales no constituidos en sociedad (Cuasi corporaciones y negocios familiares))
+    '4': No agropecuarios(Negocios formales no constituidos en sociedad (Cuasi corporaciones y negocios
+      familiares))
+    '5': Gobierno
+    '6': Privadas(Instituciones no lucrativas)
+    '7': Públicas(Instituciones no lucrativas)
+    '8': Sector Informal (Hogares)
+    '9': Trabajo doméstico remunerado (Hogares)
+    '10': Agricultura de subsistencia (Hogares)
+    '11': Situaciones de carácter especial y no especificadas
 tipo:
   Descripción: Tipo de muestra (presente desde 2020-T3)
-  Tipo: Carácter
+  Tipo: categorical
   Longitud: '1'
   Categorías:
     '1': ENOE
     '2': ENOE-CATI
 mes_cal:
-  Descripción: Mes calendario — clasificación mensual del registro; base del ponderador
-    mensual FAC_MEN (presente desde 2020-T3). Los códigos de mes se emiten sin cero
-    a la izquierda en el CSV (1-12). Códigos especiales 96-99 por trimestre (Q1=96,
-    Q2=97, Q3=98, Q4=99) — registros sin mes calendario específico.
-  Tipo: Carácter
+  Descripción: Mes calendario — clasificación mensual del registro; base del ponderador mensual FAC_MEN
+    (presente desde 2020-T3). Los códigos de mes se emiten sin cero a la izquierda en el CSV (1-12). Códigos
+    especiales 96-99 por trimestre (Q1=96, Q2=97, Q3=98, Q4=99) — registros sin mes calendario específico.
+  Tipo: categorical
   Longitud: '2'
   Categorías:
     '1': Enero

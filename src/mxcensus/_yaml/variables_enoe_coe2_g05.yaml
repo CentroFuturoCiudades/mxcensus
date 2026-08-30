@@ -1,1363 +1,1264 @@
 cd_a:
   Descripción: Ciudad autorrepresentada (agrupación de áreas de la muestra)
-  Tipo: Carácter
+  Tipo: string
   Longitud: '2'
   Categorías: {}
 ent:
   Descripción: Entidad federativa (01-32)
-  Tipo: Carácter
+  Tipo: string
   Longitud: '2'
   Categorías: {}
 con:
   Descripción: Número de control de la vivienda
-  Tipo: Carácter
+  Tipo: string
   Longitud: '5'
   Categorías: {}
 upm:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Unidad primaria de muestreo
+  Pregunta: No existe pregunta, es un identificador de la vivienda.
+  Tipo: string
+  Longitud: '7'
   Categorías: {}
 d_sem:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Distribución semanal
+  Pregunta: No existe pregunta, es un identificador de la vivienda.
+  Tipo: numeric
+  Longitud: '3'
   Categorías: {}
 n_pro_viv:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Número progresivo de la vivienda
+  Pregunta: No existe pregunta, es un identificador de la vivienda.
+  Tipo: string
+  Longitud: '4'
   Categorías: {}
 v_sel:
   Descripción: Vivienda seleccionada
-  Tipo: Carácter
+  Tipo: string
   Longitud: '2'
   Categorías: {}
 n_hog:
   Descripción: Número de hogar
-  Tipo: Carácter
+  Tipo: string
   Longitud: '1'
   Categorías: {}
 h_mud:
   Descripción: Hogar mudado (número de veces que el hogar se ha mudado)
-  Tipo: Carácter
+  Tipo: string
   Longitud: '1'
   Categorías: {}
 n_ent:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Número de entrevista
+  Pregunta: No existe pregunta, es un identificador de la vivienda.
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '5': '5'
-    '11': '11'
-    '12': '12'
-    '13': '13'
-    '14': '14'
-    '15': '15'
-    '16': '16'
+    '1': Entrevista 1
+    '2': Entrevista 2
+    '3': Entrevista 3
+    '4': Entrevista 4
+    '5': Entrevista 5
+    '11': Entrevista 11
+    '12': Entrevista 12
+    '13': Entrevista 13
+    '14': Entrevista 14
+    '15': Entrevista 15
+    '16': Entrevista 16
 per:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Periodo
+  Pregunta: No existe pregunta, es un identificador de la vivienda.
+  Tipo: categorical
+  Longitud: '3'
   Categorías:
-    '121': '121'
+    '121': Enero-Marzo 2021
 n_ren:
   Descripción: Número de renglón del integrante del hogar
-  Tipo: Carácter
+  Tipo: string
   Longitud: '2'
   Categorías: {}
 eda:
-  Descripción: Edad en años cumplidos (filtro analítico EDA in [15, 98]). Códigos
-    especiales — 00 menores de 1 año, 97 = 97 años y más, 98 = no especificada (12
-    años y más), 99 = no especificada (menores de 0 a 11 años)
-  Tipo: Carácter
+  Descripción: Edad en años cumplidos (filtro analítico EDA in [15, 98]); 0 = menores de 1 año, 97 = 97
+    años y más
+  Tipo: numeric
   Longitud: '2'
+  Rango:
+  - 0
+  - 97
+  Especiales:
+    '98': No especificada (12 años y más)
+    '99': No especificada (0 a 11 años)
   Categorías: {}
 n_inf:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Renglón del informante
+  Pregunta: Dato extraído de la tabla de la primera parte de las preguntas del cuestionario básico (COE1T214).
+  Tipo: categorical
+  Longitud: '2'
   Categorías:
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '5': '5'
-    '6': '6'
-    '7': '7'
-    '8': '8'
-    '9': '9'
-    '10': '10'
-    '11': '11'
-    '12': '12'
-    '13': '13'
-    '14': '14'
-    '15': '15'
-    '97': '97'
-    '99': '99'
+    '1': 01 Renglón del informante
+    '2': 02 Renglón del informante
+    '3': 03 Renglón del informante
+    '4': 04 Renglón del informante
+    '5': 05 Renglón del informante
+    '6': 06 Renglón del informante
+    '7': 07 Renglón del informante
+    '8': 08 Renglón del informante
+    '9': 09 Renglón del informante
+    '10': 10 Renglón del informante
+    '11': 11 Renglón del informante
+    '12': 12 Renglón del informante
+    '13': 13 Renglón del informante
+    '14': 14 Renglón del informante
+    '15': 15 Renglón del informante
+    '16': 16 Renglón del informante
+    '17': 17 Renglón del informante
+    '18': 18 Renglón del informante
+    '21': 21 Renglón del informante
+    '97': Más de un informante
+    '99': Informante autorizado
 p6_1:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Reciben o le pagan
+  Pregunta: ¿... recibe o le pagan
+  Tipo: categorical
+  Longitud: '2'
   Categorías:
-    '1': '1'
-    ' ': ' '
+    '1': por comisión?
 p6_2:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Reciben o le pagan
+  Pregunta: ¿... recibe o le pagan
+  Tipo: categorical
+  Longitud: '2'
   Categorías:
-    '2': '2'
-    ' ': ' '
+    '2': a destajo (por pieza),servicio u obra realizada?
 p6_3:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Reciben o le pagan
+  Pregunta: ¿... recibe o le pagan
+  Tipo: categorical
+  Longitud: '2'
   Categorías:
-    '3': '3'
-    ' ': ' '
+    '3': por honorarios?
 p6_4:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Reciben o le pagan
+  Pregunta: ¿... recibe o le pagan
+  Tipo: categorical
+  Longitud: '2'
   Categorías:
-    '4': '4'
-    ' ': ' '
+    '4': con propinas?
 p6_5:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Reciben o le pagan
+  Pregunta: ¿... recibe o le pagan
+  Tipo: categorical
+  Longitud: '2'
   Categorías:
-    '5': '5'
-    ' ': ' '
+    '5': con bonos de compensación o de productividad?
 p6_6:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Reciben o le pagan
+  Pregunta: ¿... recibe o le pagan
+  Tipo: categorical
+  Longitud: '2'
   Categorías:
-    '6': '6'
-    ' ': ' '
+    '6': con vales o productos comercializables?
 p6_7:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Reciben o le pagan
+  Pregunta: ¿... recibe o le pagan
+  Tipo: categorical
+  Longitud: '2'
   Categorías:
-    '7': '7'
-    ' ': ' '
+    '7': Sólo recibe sueldo, salario o jornal
 p6_8:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Reciben o le pagan
+  Pregunta: ¿... recibe o le pagan
+  Tipo: categorical
+  Longitud: '2'
   Categorías:
-    '8': '8'
-    ' ': ' '
+    '8': Sólo lo que le deja su negocio
 p6_9:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Reciben o le pagan
+  Pregunta: ¿... recibe o le pagan
+  Tipo: categorical
+  Longitud: '2'
   Categorías:
-    '9': '9'
-    ' ': ' '
+    '9': No le pagan ni recibe ingreso (incluye autoconsumo agropecuario)
 p6_10:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Reciben o le pagan
+  Pregunta: ¿... recibe o le pagan
+  Tipo: categorical
+  Longitud: '2'
   Categorías:
-    '10': '10'
-    ' ': ' '
+    '10': Ninguna de las anteriores
 p6_99:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Reciben o le pagan
+  Pregunta: ¿... recibe o le pagan
+  Tipo: categorical
+  Longitud: '2'
   Categorías:
-    '99': '99'
-    ' ': ' '
+    '99': No sabe
 p6a1:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Obtiene o le pagan sus ingresos...
+  Pregunta: Aparte de lo que me acaba de mencionar, ¿... obtiene o le pagan sus ingresos
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '1': '1'
-    ' ': ' '
+    '1': a sueldo, salario o jornal?
 p6a2:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Obtiene o le pagan sus ingresos...
+  Pregunta: Aparte de lo que me acaba de mencionar, ¿... obtiene o le pagan sus ingresos
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '2': '2'
-    ' ': ' '
+    '2': por ganancias o de lo que deja su negocio?
 p6a3:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Obtiene o le pagan sus ingresos...
+  Pregunta: Aparte de lo que me acaba de mencionar, ¿... obtiene o le pagan sus ingresos
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '3': '3'
-    ' ': ' '
+    '3': No le pagan ni recibe ingresos (incluye autoconsumo agropecuario)
 p6a4:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Obtiene o le pagan sus ingresos...
+  Pregunta: Aparte de lo que me acaba de mencionar, ¿... obtiene o le pagan sus ingresos
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '4': '4'
-    ' ': ' '
+    '4': Ninguna de las anteriores
 p6a9:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Obtiene o le pagan sus ingresos...
+  Pregunta: Aparte de lo que me acaba de mencionar, ¿... obtiene o le pagan sus ingresos
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '9': '9'
-    ' ': ' '
+    '9': No sabe
 p6b1:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Cada cuándo obtiene sus ingresos
+  Pregunta: ¿Cada cuándo obtiene ... sus ingresos o le pagan?
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '5': '5'
-    '6': '6'
-    '7': '7'
-    '8': '8'
-    ' ': ' '
+    '1': Cada mes
+    '2': Cada 15 días
+    '3': Cada semana
+    '4': Diario
+    '5': Otro periodo de pago
+    '6': Le pagan por pieza producida o vendida, servicio u obra realizada
+    '7': No supo estimar
+    '8': Se negó a contestar esta pregunta
 p6b2:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: En cuánto calcula sus ingresos
+  Pregunta: ¿Cuánto ganó o en cuánto calcula sus ingresos?
+  Tipo: string
+  Longitud: '6'
   Categorías: {}
 p6c:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Cantidad que recibe según el salario mínimo
+  Pregunta: Actualmente el salario mínimo mensual es de $ , ¿la cantidad que ... obtiene al mes por su
+    trabajo es
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '5': '5'
-    '6': '6'
-    '7': '7'
-    '8': '8'
-    '9': '9'
-    ' ': ' '
+    '1': menor?
+    '2': igual a esta cantidad?
+    '3': más de 1 salario mínimo hasta 2?
+    '4': más de 2 salario mínimo hasta 3?
+    '5': más de 3 salario mínimo hasta 5?
+    '6': más de 5 salario mínimo hasta 10?
+    '7': más de 10 salarios mínimos?
+    '8': No quiso dar información
+  Especiales:
+    '9': No sabe
 p6d:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Acceso atención médica
+  Pregunta: Por parte de este trabajo ¿... tiene acceso a atención médica en
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '5': '5'
-    '6': '6'
-    '9': '9'
-    ' ': ' '
+    '1': el Seguro Social (IMSS)?
+    '2': el hospital o clínica naval, militar o de Pemex?
+    '3': el ISSSTE?
+    '4': el ISSSTE estatal (ISSSTELEÓN, ISSEMYM)?
+    '5': otra institución médica?
+    '6': No recibe atención médica
+  Especiales:
+    '9': No sabe
 p7:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Realiza otra actividad
+  Pregunta: Además del trabajo principal del que ya hablamos, ¿... tiene o realiza otra actividad como
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '5': '5'
-    '6': '6'
-    '7': '7'
-    '9': '9'
-    ' ': ' '
+    '1': vender o hacer productos para la venta
+    '2': prestar servicios
+    '3': trabajar su tierra o parcela y/o crianza de animales
+    '4': trabajar por propinas, comisión o destajo
+    '5': trabajar como asalariado
+    '6': ayudar en algún negocio o en las tierras de un familiar o de otra persona
+    '7': No tiene otro trabajo
+  Especiales:
+    '9': No sabe
 p7a:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Código de la función que desempeña
+  Pregunta: ¿Cuáles son las tareas o funciones principales que ... desempeña en su segundo trabajo?
+  Tipo: numeric
+  Longitud: '4'
   Categorías: {}
 p7b:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: La empresa tiene nombres
+  Pregunta: ¿Cuál es el nombre de la empresa, negocio o institución para la que ... realiza este otro
+    trabajo?
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '9': '9'
-    ' ': ' '
+    '1': Nombre de la empresa o institución
+    '2': El negocio no tiene nombre
+    '3': Es trabajador(subordinado)de una unidad doméstica o trabajador(a) de otro trabajador(a)
+    '4': Es un(a) trabajador(a) en el extranjero
+  Especiales:
+    '9': No sabe
 p7c:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: A qué se dedica la empresa
+  Pregunta: ¿A qué se dedica esta empresa, negocio o institución donde trabaja o ayuda ... en su segundo
+    trabajo?
+  Tipo: numeric
+  Longitud: '4'
   Categorías: {}
 p7d:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Tiene acceso a atención médica en
+  Pregunta: Por parte de este segundo trabajo, ¿... tiene acceso a atención médica en
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '9': '9'
-    ' ': ' '
+    '1': el Seguro Social (IMSS)?
+    '2': el ISSSTE?
+    '3': otra institución médica?
+    '4': No recibe atención médica
+  Especiales:
+    '9': No sabe
 p7e:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Cuántas personas laboran donde trabaja
+  Pregunta: ¿Aproximadamente cuántas personas laboran donde trabaja ... en su segundo empleo?
+  Tipo: categorical
+  Longitud: '2'
   Categorías:
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '5': '5'
-    '6': '6'
-    '7': '7'
-    '8': '8'
-    '9': '9'
-    '10': '10'
-    '11': '11'
-    '99': '99'
-    ' ': ' '
+    '1': 1 persona
+    '2': 2 a 5 personas
+    '3': 6 a 10 personas
+    '4': 11 a 15 personas
+    '5': 16 a 20 personas
+    '6': 21 a 30 personas
+    '7': 31 a 50 personas
+    '8': 51 a 100 personas
+    '9': 101a 250 personas
+    '10': 251 a 500 personas
+    '11': 501 y más personas
+  Especiales:
+    '99': No sabe
 p7f:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Cuántos días y cuántas horas le dedicó
+  Pregunta: ¿Cuántos días y cuántas horas le dedicó ... a su segundo trabajo la semana pasada?
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '1': '1'
-    '2': '2'
-    ' ': ' '
+    '1': Días, Horas
+    '2': No trabajó la semana pasada
 p7f_dias:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Días trabajados
+  Pregunta: Días que trabajo en su segundo trabajo de la semana pasada.
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '5': '5'
-    '6': '6'
-    '7': '7'
-    '9': '9'
-    ' ': ' '
+    '1': 1 día trabajado
+    '2': 2 días trabajados
+    '3': 3 días trabajados
+    '4': 4 días trabajados
+    '5': 5 días trabajados
+    '6': 6 días trabajados
+    '7': 7 días trabajados
+    '9': No sabe días trabajados
 p7f_horas:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Horas trabajadas
+  Pregunta: Horas que trabajo en su segundo trabajo de la semana pasada.
+  Tipo: numeric
+  Longitud: '2'
   Categorías: {}
+  Especiales:
+    '99': No especificado
 p7g1:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Cuánto gana en su segundo trabajo
+  Pregunta: Aproximadamente ¿cuánto gana ... al mes en su segundo trabajo?
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '1': '1'
-    ' ': ' '
+    '1': En efectivo
 p7g2:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Cuánto gana en su segundo trabajo
+  Pregunta: Aproximadamente ¿cuánto gana ... al mes en su segundo trabajo?
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '2': '2'
-    ' ': ' '
+    '2': En especie
 p7g3:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Cuánto gana en su segundo trabajo
+  Pregunta: Aproximadamente ¿cuánto gana ... al mes en su segundo trabajo?
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '3': '3'
-    ' ': ' '
+    '3': No le pagan ni recibe ingresos (incluye autoconsumo agropecuario)
 p7g9:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Cuánto gana en su segundo trabajo
+  Pregunta: Aproximadamente ¿cuánto gana ... al mes en su segundo trabajo?
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '9': '9'
-    ' ': ' '
+    '9': No sabe
 p7gcan:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Cantidad
+  Pregunta: Aproximadamente ¿cuánto gana ... al mes en su segundo trabajo?
+  Tipo: string
+  Longitud: '6'
   Categorías: {}
 p8_1:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: En los últimos tres meses, ¿... ha tratado de
+  Pregunta: Durante los últimos tres meses, ¿... ha tratado de
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '1': '1'
-    ' ': ' '
+    '1': buscar otro trabajo en otro país o hacer preparativos para cruzar la frontera?
 p8_2:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: En los últimos tres meses, ¿... ha tratado de
+  Pregunta: Durante los últimos tres meses, ¿... ha tratado de
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '2': '2'
-    ' ': ' '
+    '2': buscar otro trabajo aquí en el país?
 p8_3:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: En los últimos tres meses, ¿... ha tratado de
+  Pregunta: Durante los últimos tres meses, ¿... ha tratado de
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '3': '3'
-    ' ': ' '
+    '3': poner un negocio o realizar una actividad por su cuenta, sin poder todavía comenzar?
 p8_4:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: En los últimos tres meses, ¿... ha tratado de
+  Pregunta: Durante los últimos tres meses, ¿... ha tratado de
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '4': '4'
-    ' ': ' '
+    '4': Entonces, ¿no ha tratado de buscar otro trabajo?
 p8_9:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: En los últimos tres meses, ¿... ha tratado de
+  Pregunta: Durante los últimos tres meses, ¿... ha tratado de
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '9': '9'
-    ' ': ' '
+    '9': No sabe
 p8a:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Lo que intenta es...
+  Pregunta: Lo que ... intenta ¿es
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '9': '9'
-    ' ': ' '
+    '1': tener más de un trabajo?
+    '2': tener un trabajo de tiempo completo?
+    '3': conseguir una actividad en la que pueda trabajar más horas para ganar más?
+    '4': Ninguna de las anteriores
+  Especiales:
+    '9': No sabe
 p8b:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Motivo por el que busca otro trabajo
+  Pregunta: ¿Cuál es el motivo principal por el que ... está buscando otro trabajo?
+  Tipo: categorical
+  Longitud: '2'
   Categorías:
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '5': '5'
-    '6': '6'
-    '7': '7'
-    '8': '8'
-    '9': '9'
-    '99': '99'
-    ' ': ' '
+    '1': Teme quedarse sin su actual trabajo, que haya recorte de personal o está por terminar su contrato
+    '2': Mejorar sus ingresos trabajando la misma jornada
+    '3': Mejorar sus condiciones de trabajo (horario, prestaciones laborales, ambiente de trabajo)
+    '4': Contar con seguridad social (IMSS o ISSSTE)
+    '5': Tener un trabajo acorde a su escolaridad, experiencia o capacitación
+    '6': Tener un trabajo independiente
+    '7': Tener tiempo para atender o convivir con su familia
+    '8': Tener tiempo para estudiar o realizar otras actividades
+    '9': Ninguno de los anteriores
+  Especiales:
+    '99': No sabe
 p9:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Tuvo que buscar otro trabajo
+  Pregunta: ¿Alguna vez ... se quedó sin trabajo o negocio y tuvo que buscar otro?
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '1': '1'
-    '2': '2'
-    '9': '9'
-    ' ': ' '
+    '1': Sí
+    '2': 'No'
+  Especiales:
+    '9': No sabe
 p9a:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Cuál era la situación
+  Pregunta: ¿La última vez que ... se quedó sin trabajo, ¿cuál era la situación?
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '5': '5'
-    '6': '6'
-    '7': '7'
-    '8': '8'
-    '9': '9'
-    ' ': ' '
+    '1': Perdió o terminó su empleo
+    '2': Renunció a su empleo
+    '3': ¿Cerró o dejó un negocio propio
+    '4': Se pensionó, jubiló o se retiró de su negocio
+    '5': Lo detuvieron, se accidentó o se enfermó por una larga temporada
+    '6': Regresó o lo deportaron de Estados Unidos
+    '7': Un fenómeno natural o siniestro afectó a su fuente de trabajo
+    '8': Ninguna de las anteriores
+  Especiales:
+    '9': No sabe
 p9b:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: En esa ocasión
+  Pregunta: En esa ocasión,
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '5': '5'
-    '6': '6'
-    '7': '7'
-    '9': '9'
-    ' ': ' '
+    '1': la fuente de empleo cerró o quebró
+    '2': hubo recorte de personal
+    '3': la empresa se cambió de ciudad o de país
+    '4': no le renovaron su contrato
+    '5': no lo volvieron a llamar
+    '6': lo despidieron
+    '7': Ninguna de las anteriores
+  Especiales:
+    '9': No sabe
 p9c:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Motivo principal
+  Pregunta: ¿Cuál fue el motivo principal?
+  Tipo: categorical
+  Longitud: '2'
   Categorías:
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '5': '5'
-    '6': '6'
-    '7': '7'
-    '8': '8'
-    '9': '9'
-    '10': '10'
-    '99': '99'
-    ' ': ' '
+    '1': Conflicto laboral y/o sindical
+    '2': Conflicto con su jefe o superior
+    '3': Falta de calificación o capacitación
+    '4': Ya no hubo más trabajo
+    '5': Incumplimiento con la empresa
+    '6': Discriminación por su aspecto físico
+    '7': La edad (joven o viejo)
+    '8': Enfermedad o discapacidad
+    '9': Embarazo y/o responsabilidades maternas
+    '10': Ninguno de los anteriores
+  Especiales:
+    '99': No sabe
 p9d:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: ¿Cuál fue el motivo principal para separarse de ese trabajo?
+  Pregunta: ¿Cuál fue el motivo principal para separarse de ese trabajo?
+  Tipo: categorical
+  Longitud: '2'
   Categorías:
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '5': '5'
-    '6': '6'
-    '7': '7'
-    '8': '8'
-    '9': '9'
-    '10': '10'
-    '11': '11'
-    '12': '12'
-    '99': '99'
-    ' ': ' '
+    '1': Quería ganar más
+    '2': Quería independizarse
+    '3': Cambio o deterioro en las condiciones de trabajo (prestaciones, ingresos y/o jornadas)
+    '4': El trabajo era riesgoso y/o insalubre
+    '5': Lo forzaron a renunciar o a pensionarse
+    '6': Falta de oportunidades para superarse
+    '7': Acoso o falta de respeto a su persona
+    '8': Conflicto con su jefe o superior
+    '9': Matrimonio, embarazo y/o responsabilidades familiares
+    '10': Un familiar le impidió seguir trabajando
+    '11': Quería seguir estudiando
+    '12': Ninguno de los anteriores
+  Especiales:
+    '99': No sabe
 p9e:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Motivo principal para dejar su negocio
+  Pregunta: ¿Cuál fue el motivo principal por el que ... se vio obligado a dejar ese negocio o actividad
+    por su cuenta?
+  Tipo: categorical
+  Longitud: '2'
   Categorías:
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '5': '5'
-    '6': '6'
-    '7': '7'
-    '8': '8'
-    '9': '9'
-    '10': '10'
-    '11': '11'
-    '12': '12'
-    '13': '13'
-    '14': '14'
-    '99': '99'
-    ' ': ' '
+    '1': Exceso de deudas o se declaró en quiebra
+    '2': Aumento de los precios de los insumos o la renta del local
+    '3': Bajaron las ventas, exceso de competencia
+    '4': El negocio resultó menos rentable de lo esperado
+    '5': Incumplimiento de los clientes (exceso de cuentas por cobrar)
+    '6': Falta de crédito para seguir operando
+    '7': Falta de personal adecuado, ausentismo o exceso de rotación
+    '8': Incumplimiento de los proveedores
+    '9': Problemas de inseguridad pública
+    '10': Problemas con las autoridades (extorsión, multa)
+    '11': Matrimonio, embarazo y/o responsabilidades familiares
+    '12': Un familiar le impidió seguir trabajando
+    '13': Quería seguir estudiando
+    '14': Ninguno de los anteriores
+  Especiales:
+    '99': No sabe
 p9f_anio:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Año de suspensión de su trabajo
+  Pregunta: ¿En qué año ... terminó (o suspendió) ese trabajo u oficio?
+  Tipo: string
+  Longitud: '4'
   Categorías: {}
 p9f_mes:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Mes de suspensión de su trabajo
+  Pregunta: ¿En qué año ... terminó (o suspendió) ese trabajo u oficio?
+  Tipo: categorical
+  Longitud: '2'
   Categorías:
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '5': '5'
-    '6': '6'
-    '7': '7'
-    '8': '8'
-    '9': '9'
-    '10': '10'
-    '11': '11'
-    '12': '12'
-    '99': '99'
-    ' ': ' '
+    '1': Enero terminó o suspendió ese trabajo
+    '2': Febrero terminó o suspendió ese trabajo
+    '3': Marzo terminó o suspendió ese trabajo
+    '4': Abril terminó o suspendió ese trabajo
+    '5': Mayo terminó o suspendió ese trabajo
+    '6': Junio terminó o suspendió ese trabajo
+    '7': Julio terminó o suspendió ese trabajo
+    '8': Agosto terminó o suspendió ese trabajo
+    '9': Septiembre terminó o suspendió ese trabajo
+    '10': Octubre terminó o suspendió ese trabajo
+    '11': Noviembre terminó o suspendió ese trabajo
+    '12': Diciembre terminó o suspendió ese trabajo
+  Especiales:
+    '99': No sabe mes que terminó o suspendió ese trabajo
 p9f:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Año de suspensión de su trabajo
+  Pregunta: ¿En qué año ... terminó (o suspendió) ese trabajo u oficio?
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '9': '9'
-    ' ': ' '
+    '1': El año en curso
+    '2': El año pasado
+    '3': Antes del año pasado
+  Especiales:
+    '9': No sabe
 p9g:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Tareas o funciones que desempeña
+  Pregunta: ¿Cuáles eran las tareas o funciones principales que ... desempeñaba en ese trabajo?
+  Tipo: numeric
+  Longitud: '4'
   Categorías: {}
 p9h:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Nombre de la empresa
+  Pregunta: ¿Cuál es el nombre de la empresa, negocio o institución para la que ... realizaba ese trabajo?
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '9': '9'
-    ' ': ' '
+    '1': Nombre de la empresa, negocio o institución
+    '2': El negocio no tiene nombre o razón social
+    '3': Fue trabajador (subordinado) de una unidad doméstica o trabajador(a) de otro trabajador(a)
+    '4': Fue trabajador(a) en el extranjero
+  Especiales:
+    '9': No sabe
 p9h_1:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Código CADIIP
+  Pregunta: ¿Cuál es el nombre de la empresa, negocio o institución para la que... realizaba ese trabajo?
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '2': '2'
-    ' ': ' '
+    '2': CADIIP no reconoció el nombre de la institución en P9hDES1
 p9i:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Código del clasificador del SCIAN
+  Pregunta: ¿A qué se dedica o dedicaba la empresa, negocio o institución donde trabajaba ...?
+  Tipo: numeric
+  Longitud: '4'
   Categorías: {}
 p9j:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Tipo de sector
+  Pregunta: SÓLO PARA EL ENTREVISTADOR
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '1': '1'
-    '2': '2'
-    '9': '9'
-    ' ': ' '
+    '1': Sector público
+    '2': Sector privado
+  Especiales:
+    '9': No sabe
 p9k:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Acceso a atención médica
+  Pregunta: Por parte de ese trabajo, ¿... tenía acceso a atención médica en
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '5': '5'
-    '6': '6'
-    '9': '9'
-    ' ': ' '
+    '1': el Seguro Social (IMSS)?
+    '2': hospital o clínica naval, militar o de Pemex?
+    '3': el ISSSTE?
+    '4': el ISSSTE estatal (ISSSTELEÓN, ISSEMYM)?
+    '5': otra institución médica?
+    '6': No recibía atención médica
+  Especiales:
+    '9': No sabe
 p9l1:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Tipo de percepciones
+  Pregunta: En este trabajo, ¿a ... le daban
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '1': '1'
-    ' ': ' '
+    '1': aguinaldo?
 p9l2:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Tipo de percepciones
+  Pregunta: En este trabajo, ¿a ... le daban
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '2': '2'
-    ' ': ' '
+    '2': vacaciones con goce de sueldo?
 p9l3:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Tipo de percepciones
+  Pregunta: En este trabajo, ¿a ... le daban
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '3': '3'
-    ' ': ' '
+    '3': reparto de utilidades?
 p9l4:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Tipo de percepciones
+  Pregunta: En este trabajo, ¿a ... le daban
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '4': '4'
-    ' ': ' '
+    '4': Ninguna de las anteriores
 p9l5:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Tipo de percepciones
+  Pregunta: En este trabajo, ¿a ... le daban
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '5': '5'
-    ' ': ' '
+    '5': No le daban nada
 p9l9:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Tipo de percepciones
+  Pregunta: En este trabajo, ¿a ... le daban
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '9': '9'
-    ' ': ' '
+    '9': No sabe
 p9m1:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Cuánto ganaba ... al mes en ese trabajo
+  Pregunta: Aproximadamente ¿cuánto ganaba ... al mes en ese trabajo?
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '1': '1'
-    ' ': ' '
+    '1': En efectivo
 p9m2:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Cuánto ganaba ... al mes en ese trabajo
+  Pregunta: Aproximadamente ¿cuánto ganaba ... al mes en ese trabajo?
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '2': '2'
-    ' ': ' '
+    '2': En especie
 p9m3:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Cuánto ganaba ... al mes en ese trabajo
+  Pregunta: Aproximadamente ¿cuánto ganaba ... al mes en ese trabajo?
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '3': '3'
-    ' ': ' '
+    '3': No recibía ingresos
 p9m9:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Cuánto ganaba ... al mes en ese trabajo
+  Pregunta: Aproximadamente ¿cuánto ganaba ... al mes en ese trabajo?
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '9': '9'
-    ' ': ' '
+    '9': No sabe
 p9mcan:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Cantidad
+  Pregunta: Aproximadamente ¿cuánto ganaba ... al mes en ese trabajo?
+  Tipo: string
+  Longitud: '6'
   Categorías: {}
 p9n1:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Recibe o cuenta con algún ingreso derivado de
+  Pregunta: Actualmente ¿... recibe o cuenta con algún ingreso derivado de
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '1': '1'
-    ' ': ' '
+    '1': liquidación o indemnización de un empleo?
 p9n2:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Recibe o cuenta con algún ingreso derivado de
+  Pregunta: Actualmente ¿... recibe o cuenta con algún ingreso derivado de
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '2': '2'
-    ' ': ' '
+    '2': la venta, traspaso o liquidación de un negocio?
 p9n3:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Recibe o cuenta con algún ingreso derivado de
+  Pregunta: Actualmente ¿... recibe o cuenta con algún ingreso derivado de
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '3': '3'
-    ' ': ' '
+    '3': pensión o jubilación?
 p9n4:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Recibe o cuenta con algún ingreso derivado de
+  Pregunta: Actualmente ¿... recibe o cuenta con algún ingreso derivado de
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '4': '4'
-    ' ': ' '
+    '4': seguro de desempleo?
 p9n5:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Recibe o cuenta con algún ingreso derivado de
+  Pregunta: Actualmente ¿... recibe o cuenta con algún ingreso derivado de
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '5': '5'
-    ' ': ' '
+    '5': seguro de separación individual?
 p9n6:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Recibe o cuenta con algún ingreso derivado de
+  Pregunta: Actualmente ¿... recibe o cuenta con algún ingreso derivado de
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '6': '6'
-    ' ': ' '
+    '6': No cuenta con ningún ingreso derivado de un trabajo anterior
 p9n9:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Recibe o cuenta con algún ingreso derivado de
+  Pregunta: Actualmente ¿... recibe o cuenta con algún ingreso derivado de
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '9': '9'
-    ' ': ' '
+    '9': No sabe
 p10_1:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Ha recibido del gobierno
+  Pregunta: En los últimos tres meses ¿... ha recibido del gobierno
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '1': '1'
-    ' ': ' '
+    '1': beca de capacitación o ayuda económica para encontrar trabajo?
 p10_2:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Ha recibido del gobierno
+  Pregunta: En los últimos tres meses ¿... ha recibido del gobierno
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '2': '2'
-    ' ': ' '
+    '2': apoyo para realizar una actividad por su cuenta (Procampo, microcréditos)?
 p10_3:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Ha recibido del gobierno
+  Pregunta: En los últimos tres meses ¿... ha recibido del gobierno
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '3': '3'
-    ' ': ' '
+    '3': ayuda de otro programa de gobierno (beca de estudio, despensa)?
 p10_4:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Ha recibido del gobierno
+  Pregunta: En los últimos tres meses ¿... ha recibido del gobierno
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '4': '4'
-    ' ': ' '
+    '4': No ha recibido nada del gobierno
 p10_9:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Ha recibido del gobierno
+  Pregunta: En los últimos tres meses ¿... ha recibido del gobierno
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '9': '9'
-    ' ': ' '
+    '9': No sabe
 p10a1:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Ha recibido apoyo económico de alguien que vive y/o trabaja
+  Pregunta: ¿En los últimos tres meses ... ha recibido (o le enviaron) apoyo económico de alguien que
+    vive y/o trabaja
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '1': '1'
-    ' ': ' '
+    '1': en el extranjero?
 p10a2:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Ha recibido apoyo económico de alguien que vive y/o trabaja
+  Pregunta: ¿En los últimos tres meses ... ha recibido (o le enviaron) apoyo económico de alguien que
+    vive y/o trabaja
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '2': '2'
-    ' ': ' '
+    '2': en otro estado del país?
 p10a3:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Ha recibido apoyo económico de alguien que vive y/o trabaja
+  Pregunta: ¿En los últimos tres meses ... ha recibido (o le enviaron) apoyo económico de alguien que
+    vive y/o trabaja
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '3': '3'
-    ' ': ' '
+    '3': en este mismo estado?
 p10a4:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Ha recibido apoyo económico de alguien que vive y/o trabaja
+  Pregunta: ¿En los últimos tres meses ... ha recibido (o le enviaron) apoyo económico de alguien que
+    vive y/o trabaja
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '4': '4'
-    ' ': ' '
+    '4': No ha recibido nada
 p10a9:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Ha recibido apoyo económico de alguien que vive y/o trabaja
+  Pregunta: ¿En los últimos tres meses ... ha recibido (o le enviaron) apoyo económico de alguien que
+    vive y/o trabaja
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '9': '9'
-    ' ': ' '
+    '9': No sabe
 p10b:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Cuenta con el seguro popular de salud
+  Pregunta: ¿... cuenta con el Seguro Popular de Salud?
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '1': '1'
-    '2': '2'
-    '9': '9'
+    '1': Sí
+    '2': 'No'
+  Especiales:
+    '9': No sabe
 p11_1:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Tiempo dedicado a estudiar o tomar cursos de capacitación
+  Pregunta: Durante la semana pasada ¿cuánto tiempo dedicó ... a
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '1': '1'
-    ' ': ' '
+    '1': estudiar o tomar cursos de capacitación? (incluye el tiempo dedicado a realizar trabajos escolares)
 p11_h1:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: ¿cuántas horas dedicó a estudiar o tomar cursos de capacitación? (incluye el tiempo dedicado
+    a realizar trabajos escolares)
+  Pregunta: Durante la semana pasada ¿cuánto tiempo dedicó ... a
+  Tipo: numeric
+  Longitud: '2'
   Categorías: {}
 p11_m1:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: ¿cuántos minutos dedicó a estudiar o tomar cursos de capacitación? (incluye el tiempo dedicado
+    a realizar trabajos escolares)
+  Pregunta: Durante la semana pasada ¿cuánto tiempo dedicó ... a
+  Tipo: categorical
+  Longitud: '2'
   Categorías:
-    '0': '0'
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '5': '5'
-    '6': '6'
-    '7': '7'
-    '10': '10'
-    '15': '15'
-    '20': '20'
-    '22': '22'
-    '30': '30'
-    '33': '33'
-    '36': '36'
-    '40': '40'
-    '45': '45'
-    '50': '50'
-    ' ': ' '
+    '0': 0 minutos dedicados
+    '1': 01 minuto dedicado
+    '2': 2 minutos dedicados
+    '3': 3 minutos dedicados
+    '5': 05 minutos dedicados
+    '6': 6 minutos dedicados
+    '7': 7 minutos dedicados
+    '8': 8 minutos dedicados
+    '10': 10 minutos dedicados
+    '15': 15 minutos dedicados
+    '20': 20 minutos dedicados
+    '22': 22 minutos dedicados
+    '24': 24 minutos dedicados
+    '25': 25 minutos dedicados
+    '30': 30 minutos dedicados
+    '33': 33 minutos dedicados
+    '36': 36 minutos dedicados
+    '40': 40 minutos dedicados
+    '45': 45 minutos dedicados
+    '50': 50 minutos dedicados
 p11_2:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Tiempo dedicado a cuidar o atender sin pago, de manera exclusiva a niños, ancianos, enfermos
+    o discapacitados
+  Pregunta: Durante la semana pasada ¿cuánto tiempo dedicó ... a
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '2': '2'
-    ' ': ' '
+    '2': cuidar o atender sin pago de manera exclusiva a niños, ancianos, enfermos o discapacitados
 p11_h2:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: ¿cuántas horas dedicó a cuidar o atender sin pago, de manera exclusiva a niños, ancianos,
+    enfermoso discapacitados? (bañarlos, cambiarlos)
+  Pregunta: Durante la semana pasada ¿cuánto tiempo dedicó ... a
+  Tipo: numeric
+  Longitud: '2'
   Categorías: {}
 p11_m2:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: ¿cuántos minutos dedicó a cuidar o atender sin pago, de manera exclusiva a niños, ancianos,
+    enfermos o discapacitados? (bañarlos, cambiarlos)
+  Pregunta: Durante la semana pasada ¿cuánto tiempo dedicó ... a
+  Tipo: categorical
+  Longitud: '2'
   Categorías:
-    '0': '0'
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '5': '5'
-    '6': '6'
-    '7': '7'
-    '9': '9'
-    '10': '10'
-    '15': '15'
-    '20': '20'
-    '22': '22'
-    '25': '25'
-    '30': '30'
-    '33': '33'
-    '35': '35'
-    '40': '40'
-    '45': '45'
-    '50': '50'
-    '55': '55'
-    ' ': ' '
+    '0': 0 minutos dedicados
+    '1': 01 minuto dedicado
+    '2': 2 minutos dedicados
+    '3': 3 minutos dedicados
+    '4': 04 minutos dedicados
+    '5': 05 minutos dedicados
+    '6': 6 minutos dedicados
+    '7': 7 minutos dedicados
+    '8': 8 minutos dedicados
+    '9': 09 minutos dedicados
+    '10': 10 minutos dedicados
+    '15': 15 minutos dedicados
+    '20': 20 minutos dedicados
+    '22': 22 minutos dedicados
+    '24': 24 minutos dedicados
+    '25': 25 minutos dedicados
+    '30': 30 minutos dedicados
+    '33': 33 minutos dedicados
+    '35': 35 minutos dedicados
+    '36': 36 minutos dedicados
+    '40': 40 minutos dedicados
+    '45': 45 minutos dedicados
+    '50': 50 minutos dedicados
+    '55': 55 minutos dedicados
 p11_3:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Tiempo dedicado a realizar compras, llevar cuentas o realizar trámites para el hogar o
+    encargarse de la seguridad
+  Pregunta: Durante la semana pasada ¿cuánto tiempo dedicó ... a
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '3': '3'
-    ' ': ' '
+    '3': realizar compras, llevar cuentas o realizar trámites para el hogar o encargarse de la seguridad?
+      (como guardar el automóvil)
 p11_h3:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
-  Categorías:
-    '0': '0'
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '5': '5'
-    '6': '6'
-    '7': '7'
-    '8': '8'
-    '9': '9'
-    '10': '10'
-    '11': '11'
-    '12': '12'
-    '13': '13'
-    '14': '14'
-    '15': '15'
-    '16': '16'
-    '17': '17'
-    '18': '18'
-    '19': '19'
-    '20': '20'
-    '21': '21'
-    '22': '22'
-    '23': '23'
-    '24': '24'
-    '25': '25'
-    '28': '28'
-    '30': '30'
-    '35': '35'
-    '36': '36'
-    '39': '39'
-    '40': '40'
-    '41': '41'
-    '42': '42'
-    '43': '43'
-    '45': '45'
-    '49': '49'
-    '50': '50'
-    '52': '52'
-    '56': '56'
-    '60': '60'
-    '62': '62'
-    '65': '65'
-    '70': '70'
-    '93': '93'
-    '94': '94'
-    '97': '97'
-    '98': '98'
-    '99': '99'
-    ' ': ' '
-p11_m3:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
-  Categorías:
-    '0': '0'
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '5': '5'
-    '6': '6'
-    '7': '7'
-    '10': '10'
-    '11': '11'
-    '12': '12'
-    '14': '14'
-    '15': '15'
-    '16': '16'
-    '18': '18'
-    '20': '20'
-    '21': '21'
-    '22': '22'
-    '25': '25'
-    '28': '28'
-    '30': '30'
-    '31': '31'
-    '32': '32'
-    '33': '33'
-    '35': '35'
-    '36': '36'
-    '37': '37'
-    '40': '40'
-    '45': '45'
-    '47': '47'
-    '50': '50'
-    '55': '55'
-    '57': '57'
-    ' ': ' '
-p11_4:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
-  Categorías:
-    '4': '4'
-    ' ': ' '
-p11_h4:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
-  Categorías:
-    '0': '0'
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '5': '5'
-    '6': '6'
-    '7': '7'
-    '8': '8'
-    '9': '9'
-    '10': '10'
-    '11': '11'
-    '12': '12'
-    '14': '14'
-    '15': '15'
-    '16': '16'
-    '17': '17'
-    '18': '18'
-    '20': '20'
-    '21': '21'
-    '22': '22'
-    '24': '24'
-    '25': '25'
-    '27': '27'
-    '28': '28'
-    '29': '29'
-    '30': '30'
-    '33': '33'
-    '35': '35'
-    '36': '36'
-    '40': '40'
-    '42': '42'
-    '45': '45'
-    '48': '48'
-    '49': '49'
-    '50': '50'
-    '56': '56'
-    '69': '69'
-    '90': '90'
-    '98': '98'
-    '99': '99'
-    ' ': ' '
-p11_m4:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
-  Categorías:
-    '0': '0'
-    '1': '1'
-    '2': '2'
-    '5': '5'
-    '7': '7'
-    '10': '10'
-    '15': '15'
-    '20': '20'
-    '25': '25'
-    '30': '30'
-    '40': '40'
-    '45': '45'
-    '50': '50'
-    ' ': ' '
-p11_5:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
-  Categorías:
-    '5': '5'
-    ' ': ' '
-p11_h5:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
-  Categorías:
-    '0': '0'
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '5': '5'
-    '6': '6'
-    '7': '7'
-    '8': '8'
-    '9': '9'
-    '10': '10'
-    '11': '11'
-    '12': '12'
-    '13': '13'
-    '14': '14'
-    '15': '15'
-    '16': '16'
-    '17': '17'
-    '18': '18'
-    '19': '19'
-    '20': '20'
-    '21': '21'
-    '22': '22'
-    '23': '23'
-    '24': '24'
-    '25': '25'
-    '26': '26'
-    '28': '28'
-    '30': '30'
-    '32': '32'
-    '35': '35'
-    '36': '36'
-    '40': '40'
-    '42': '42'
-    '45': '45'
-    '48': '48'
-    '49': '49'
-    '50': '50'
-    '56': '56'
-    '60': '60'
-    '70': '70'
-    '72': '72'
-    '98': '98'
-    '99': '99'
-    ' ': ' '
-p11_m5:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
-  Categorías:
-    '0': '0'
-    '7': '7'
-    '10': '10'
-    '20': '20'
-    '22': '22'
-    '30': '30'
-    '50': '50'
-    ' ': ' '
-p11_6:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
-  Categorías:
-    '6': '6'
-    ' ': ' '
-p11_h6:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
-  Categorías:
-    '0': '0'
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '5': '5'
-    '6': '6'
-    '7': '7'
-    '8': '8'
-    '9': '9'
-    '10': '10'
-    '11': '11'
-    '12': '12'
-    '13': '13'
-    '14': '14'
-    '15': '15'
-    '16': '16'
-    '17': '17'
-    '18': '18'
-    '19': '19'
-    '20': '20'
-    '21': '21'
-    '22': '22'
-    '24': '24'
-    '25': '25'
-    '26': '26'
-    '27': '27'
-    '28': '28'
-    '30': '30'
-    '31': '31'
-    '32': '32'
-    '35': '35'
-    '36': '36'
-    '39': '39'
-    '40': '40'
-    '42': '42'
-    '48': '48'
-    '49': '49'
-    '50': '50'
-    '56': '56'
-    '60': '60'
-    '70': '70'
-    '98': '98'
-    '99': '99'
-    ' ': ' '
-p11_m6:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
-  Categorías:
-    '0': '0'
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '5': '5'
-    '6': '6'
-    '7': '7'
-    '10': '10'
-    '15': '15'
-    '20': '20'
-    '25': '25'
-    '30': '30'
-    '33': '33'
-    '35': '35'
-    '40': '40'
-    '45': '45'
-    '50': '50'
-    ' ': ' '
-p11_7:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
-  Categorías:
-    '7': '7'
-    ' ': ' '
-p11_h7:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: ¿cuántas horas dedicó a realizar compras, llevar cuentas o realizar trámites para el hogar
+    o encargarse de la seguridad? (como guardar el automóvil)
+  Pregunta: Pregunta 11. Durante la semana pasada ¿cuánto tiempo dedicó ... a
+  Tipo: numeric
+  Longitud: '2'
   Categorías: {}
+  Especiales:
+    '99': 99 horas dedicadas
+p11_m3:
+  Descripción: ¿cuántos minutos dedicó a realizar compras, llevar cuentas o realizar trámites para el
+    hogar o encargarse de la seguridad? (como guardar el automóvil)
+  Pregunta: Pregunta 11. Durante la semana pasada ¿cuánto tiempo dedicó ... a
+  Tipo: categorical
+  Longitud: '2'
+  Categorías:
+    '0': 00 minutos dedicados
+    '1': 01 minuto dedicado
+    '2': 02 minutos dedicados
+    '3': 03 minutos dedicados
+    '4': 04 minutos dedicados
+    '5': 05 minutos dedicados
+    '6': 06 minutos dedicados
+    '7': 07 minutos dedicados
+    '9': 09 minutos dedicados
+    '10': 10 minutos dedicados
+    '11': 11 minutos dedicados
+    '12': 12 minutos dedicados
+    '14': 14 minutos dedicados
+    '15': 15 minutos dedicados
+    '16': 16 minutos dedicados
+    '18': 18 minutos dedicados
+    '20': 20 minutos dedicados
+    '21': 21 minutos dedicados
+    '22': 22 minutos dedicados
+    '25': 25 minutos dedicados
+    '26': 26 minutos dedicados
+    '28': 28 minutos dedicados
+    '30': 30 minutos dedicados
+    '31': 31 minutos dedicados
+    '32': 32 minutos dedicados
+    '33': 33 minutos dedicados
+    '35': 35 minutos dedicados
+    '36': 36 minutos dedicados
+    '37': 37 minutos dedicados
+    '40': 40 minutos dedicados
+    '45': 45 minutos dedicados
+    '47': 47 minutos dedicados
+    '50': 50 minutos dedicados
+    '55': 55 minutos dedicados
+    '57': 57 minutos dedicados
+p11_4:
+  Descripción: Tiempo dedicado a llevar a algún miembro del hogar a la escuela, cita médica u otra actividad
+  Pregunta: Pregunta 11. Durante la semana pasada ¿cuánto tiempo dedicó ... a
+  Tipo: categorical
+  Longitud: '1'
+  Categorías:
+    '4': llevar a algún miembro del hogar a la escuela, cita médica u otra actividad?
+p11_h4:
+  Descripción: ¿cuántas horas dedicó a llevar a algún miembro del hogar a la escuela, cita médica u otra
+    actividad?
+  Pregunta: Pregunta 11. Durante la semana pasada ¿cuánto tiempo dedicó ... a
+  Tipo: numeric
+  Longitud: '2'
+  Categorías: {}
+p11_m4:
+  Descripción: ¿cuántos minutos dedicó a llevar a algún miembro del hogar a la escuela, cita médica u
+    otra actividad?
+  Pregunta: Pregunta 11. Durante la semana pasada ¿cuánto tiempo dedicó ... a
+  Tipo: categorical
+  Longitud: '2'
+  Categorías:
+    '0': 00 minutos dedicados
+    '1': 01 minuto dedicado
+    '2': 02 minutos dedicados
+    '3': 03 minutos dedicados
+    '4': 04 minutos dedicados
+    '5': 05 minutos dedicados
+    '6': 06 minutos dedicados
+    '7': 07 minutos dedicados
+    '9': 09 minutos dedicados
+    '10': 10 minutos dedicados
+    '11': 11 minutos dedicados
+    '15': 15 minutos dedicados
+    '20': 20 minutos dedicados
+    '22': 22 minutos dedicados
+    '25': 25 minutos dedicados
+    '26': 26 minutos dedicados
+    '30': 30 minutos dedicados
+    '33': 33 minutos dedicados
+    '35': 35 minutos dedicados
+    '40': 40 minutos dedicados
+    '45': 45 minutos dedicados
+    '50': 50 minutos dedicados
+p11_5:
+  Descripción: Tiempo dedicado a construir o ampliar su vivienda
+  Pregunta: Pregunta 11. Durante la semana pasada ¿cuánto tiempo dedicó ... a
+  Tipo: categorical
+  Longitud: '1'
+  Categorías:
+    '5': construir o ampliar su vivienda?
+p11_h5:
+  Descripción: Cuántas horas dedicó a construir o ampliar su vivienda
+  Pregunta: Pregunta 11. Durante la semana pasada ¿cuánto tiempo dedicó ... a
+  Tipo: numeric
+  Longitud: '2'
+  Categorías: {}
+  Especiales:
+    '99': 99 horas dedicadas
+p11_m5:
+  Descripción: Cuántos minutos dedicó a construir o ampliar su vivienda
+  Pregunta: Pregunta 11. Durante la semana pasada ¿cuánto tiempo dedicó ... a
+  Tipo: categorical
+  Longitud: '2'
+  Categorías:
+    '0': 00 minutos dedicados
+    '1': 01 minuto dedicado
+    '2': 02 minutos dedicados
+    '3': 03 minutos dedicados
+    '4': 04 minutos dedicados
+    '5': 05 minutos dedicados
+    '6': 06 minutos dedicados
+    '7': 07 minutos dedicados
+    '9': 09 minutos dedicados
+    '10': 10 minutos dedicados
+    '11': 11 minutos dedicados
+    '15': 15 minutos dedicados
+    '20': 20 minutos dedicados
+    '22': 22 minutos dedicados
+    '25': 25 minutos dedicados
+    '26': 26 minutos dedicados
+    '30': 30 minutos dedicados
+    '33': 33 minutos dedicados
+    '35': 35 minutos dedicados
+    '40': 40 minutos dedicados
+    '45': 45 minutos dedicados
+    '50': 50 minutos dedicados
+p11_6:
+  Descripción: Tiempo dedicado a reparar o dar mantenimiento a su vivienda, muebles, aparatos electrodomésticos
+    o vehículos
+  Pregunta: Pregunta 11. Durante la semana pasada ¿cuánto tiempo dedicó ... a
+  Tipo: categorical
+  Longitud: '1'
+  Categorías:
+    '6': reparar o dar mantenimiento a su vivienda, muebles, aparatos electrodomésticos (o vehículos)
+p11_h6:
+  Descripción: ¿cuántas horas dedicó a reparar o dar mantenimiento a su vivienda, muebles, aparatos electrodomésticos
+    o vehículos?
+  Pregunta: Pregunta 11. Durante la semana pasada ¿cuánto tiempo dedicó ... a
+  Tipo: numeric
+  Longitud: '2'
+  Categorías: {}
+  Especiales:
+    '99': 99 horas dedicadas
+p11_m6:
+  Descripción: ¿cuántos minutos dedicó a reparar o dar mantenimiento a su vivienda, muebles, aparatos
+    electrodomésticos o vehículos?
+  Pregunta: Pregunta 11. Durante la semana pasada ¿cuánto tiempo dedicó ... a
+  Tipo: categorical
+  Longitud: '2'
+  Categorías:
+    '0': 00 minutos dedicados
+    '1': 01 minuto dedicado
+    '2': 02 minutos dedicados
+    '3': 03 minutos dedicados
+    '4': 04 minutos dedicados
+    '5': 05 minutos dedicados
+    '6': 06 minutos dedicados
+    '7': 07 minutos dedicados
+    '9': 09 minutos dedicados
+    '10': 10 minutos dedicados
+    '11': 11 minutos dedicados
+    '15': 15 minutos dedicados
+    '20': 20 minutos dedicados
+    '22': 22 minutos dedicados
+    '25': 25 minutos dedicados
+    '26': 26 minutos dedicados
+    '30': 30 minutos dedicados
+    '33': 33 minutos dedicados
+    '35': 35 minutos dedicados
+    '40': 40 minutos dedicados
+    '45': 45 minutos dedicados
+    '50': 50 minutos dedicados
+p11_7:
+  Descripción: Tiempo dedicado a realizar los quehaceres de su hogar
+  Pregunta: Pregunta 11. Durante la semana pasada ¿cuánto tiempo dedicó ... a
+  Tipo: categorical
+  Longitud: '1'
+  Categorías:
+    '7': realizar los quehaceres de su hogar? (lavar, planchar, preparar y servir alimentos, barrer)
+p11_h7:
+  Descripción: ¿cuántas horas dedicó a realizar los quehaceres de su hogar? (lavar, planchar, preparar
+    y servir alimentos, barrer)
+  Pregunta: Pregunta 11. Durante la semana pasada ¿cuánto tiempo dedicó ... a
+  Tipo: numeric
+  Longitud: '2'
+  Categorías: {}
+  Especiales:
+    '99': 99 horas dedicadas
 p11_m7:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: ¿cuántos minutos dedicó a realizar los quehaceres de su hogar? (lavar, planchar, preparar
+    y servir alimentos, barrer)
+  Pregunta: Pregunta 11. Durante la semana pasada ¿cuánto tiempo dedicó ... a
+  Tipo: categorical
+  Longitud: '2'
   Categorías:
-    '0': '0'
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '5': '5'
-    '6': '6'
-    '7': '7'
-    '9': '9'
-    '10': '10'
-    '11': '11'
-    '15': '15'
-    '20': '20'
-    '22': '22'
-    '25': '25'
-    '30': '30'
-    '33': '33'
-    '35': '35'
-    '40': '40'
-    '45': '45'
-    '50': '50'
-    ' ': ' '
+    '0': 00 minutos dedicados
+    '1': 01 minuto dedicado
+    '2': 02 minutos dedicados
+    '3': 03 minutos dedicados
+    '4': 04 minutos dedicados
+    '5': 05 minutos dedicados
+    '6': 06 minutos dedicados
+    '7': 07 minutos dedicados
+    '9': 09 minutos dedicados
+    '10': 10 minutos dedicados
+    '11': 11 minutos dedicados
+    '15': 15 minutos dedicados
+    '20': 20 minutos dedicados
+    '22': 22 minutos dedicados
+    '25': 25 minutos dedicados
+    '26': 26 minutos dedicados
+    '30': 30 minutos dedicados
+    '33': 33 minutos dedicados
+    '35': 35 minutos dedicados
+    '40': 40 minutos dedicados
+    '45': 45 minutos dedicados
+    '50': 50 minutos dedicados
 p11_8:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Tiempo dedicado a prestar servicios gratuitos a su comunidad
+  Pregunta: Pregunta 11. Durante la semana pasada ¿cuánto tiempo dedicó ... a
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '8': '8'
-    ' ': ' '
+    '8': prestar servicios gratuitos a su comunidad? (conseguir despensas, cuidar personas en un hospital)
 p11_h8:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
-  Categorías:
-    '0': '0'
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '5': '5'
-    '6': '6'
-    '7': '7'
-    '8': '8'
-    '9': '9'
-    '10': '10'
-    '11': '11'
-    '12': '12'
-    '14': '14'
-    '15': '15'
-    '16': '16'
-    '17': '17'
-    '18': '18'
-    '20': '20'
-    '21': '21'
-    '24': '24'
-    '25': '25'
-    '26': '26'
-    '27': '27'
-    '28': '28'
-    '30': '30'
-    '32': '32'
-    '34': '34'
-    '35': '35'
-    '36': '36'
-    '40': '40'
-    '42': '42'
-    '45': '45'
-    '48': '48'
-    '49': '49'
-    '50': '50'
-    '54': '54'
-    '56': '56'
-    '63': '63'
-    '70': '70'
-    '72': '72'
-    '80': '80'
-    '84': '84'
-    '97': '97'
-    '98': '98'
-    '99': '99'
-    ' ': ' '
+  Descripción: ¿cuántas horas dedicó a prestar servicios gratuitos a su comunidad?(conseguir despensas,
+    cuidar personas en un hospital)
+  Pregunta: Pregunta 11. Durante la semana pasada ¿cuánto tiempo dedicó ... a
+  Tipo: numeric
+  Longitud: '2'
+  Categorías: {}
+  Especiales:
+    '99': 99 horas dedicadas
 p11_m8:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: ¿cuántos minutos dedicó a prestar servicios gratuitos a su comunidad?(conseguir despensas,
+    cuidar personas en un hospital)
+  Pregunta: Pregunta 11. Durante la semana pasada ¿cuánto tiempo dedicó ... a
+  Tipo: categorical
+  Longitud: '2'
   Categorías:
-    '0': '0'
-    '1': '1'
-    '5': '5'
-    '10': '10'
-    '15': '15'
-    '20': '20'
-    '26': '26'
-    '30': '30'
-    '40': '40'
-    '45': '45'
-    '50': '50'
-    ' ': ' '
+    '0': 00 minutos dedicados
+    '1': 01 minuto dedicado
+    '5': 05 minutos dedicados
+    '10': 10 minutos dedicados
+    '15': 15 minutos dedicados
+    '20': 20 minutos dedicados
+    '26': 26 minutos dedicados
+    '30': 30 minutos dedicados
+    '40': 40 minutos dedicados
+    '45': 45 minutos dedicados
+    '50': 50 minutos dedicados
 ur:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Variable de apoyo
+  Pregunta: Variable de apoyo del sistema de captura.
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '1': '1'
-    '2': '2'
+    '1': Urbano
+    '2': Rural
 tipo:
   Descripción: Tipo de muestra (presente desde 2020-T3)
-  Tipo: Carácter
+  Tipo: categorical
   Longitud: '1'
   Categorías:
     '1': ENOE
     '2': ENOE-CATI
 mes_cal:
-  Descripción: Mes calendario — clasificación mensual del registro; base del ponderador
-    mensual FAC_MEN (presente desde 2020-T3). Los códigos de mes se emiten sin cero
-    a la izquierda en el CSV (1-12). Códigos especiales 96-99 por trimestre (Q1=96,
-    Q2=97, Q3=98, Q4=99) — registros sin mes calendario específico.
-  Tipo: Carácter
+  Descripción: Mes calendario — clasificación mensual del registro; base del ponderador mensual FAC_MEN
+    (presente desde 2020-T3). Los códigos de mes se emiten sin cero a la izquierda en el CSV (1-12). Códigos
+    especiales 96-99 por trimestre (Q1=96, Q2=97, Q3=98, Q4=99) — registros sin mes calendario específico.
+  Tipo: categorical
   Longitud: '2'
   Categorías:
     '1': Enero
@@ -1377,21 +1278,20 @@ mes_cal:
     '98': Sin mes calendario específico (trimestre 3)
     '99': Sin mes calendario específico (trimestre 4)
 ca:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Registro por panel
+  Pregunta: ''
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '1': '1'
-    '2': '2'
+    '1': Registro de panel común
+    '2': Resto de paneles
 fac_tri:
-  Descripción: Ponderador trimestral — permite obtener los resultados trimestrales
-    (desde 2020-T3)
-  Tipo: Numérico
+  Descripción: Ponderador trimestral — permite obtener los resultados trimestrales (desde 2020-T3)
+  Tipo: numeric
   Longitud: '6'
   Categorías: {}
 fac_men:
-  Descripción: Ponderador mensual — resultados mensuales con base en el campo MES_CAL
-    (desde 2020-T3)
-  Tipo: Numérico
+  Descripción: Ponderador mensual — resultados mensuales con base en el campo MES_CAL (desde 2020-T3)
+  Tipo: numeric
   Longitud: '6'
   Categorías: {}

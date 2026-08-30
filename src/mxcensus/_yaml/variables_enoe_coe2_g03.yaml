@@ -1,491 +1,578 @@
 CD_A:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Ciudad autorrepresentada
+  Pregunta: No existe pregunta, es un identifícador de la vivienda.
+  Tipo: categorical
+  Longitud: '2'
   Categorías:
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '5': '5'
-    '6': '6'
-    '7': '7'
-    '8': '8'
-    '9': '9'
-    '10': '10'
-    '12': '12'
-    '13': '13'
-    '14': '14'
-    '15': '15'
-    '16': '16'
-    '17': '17'
-    '18': '18'
-    '19': '19'
-    '20': '20'
-    '21': '21'
-    '24': '24'
-    '25': '25'
-    '26': '26'
-    '27': '27'
-    '28': '28'
-    '29': '29'
-    '31': '31'
-    '32': '32'
-    '33': '33'
-    '36': '36'
-    '39': '39'
-    '40': '40'
-    '41': '41'
-    '43': '43'
-    '44': '44'
-    '46': '46'
-    '81': '81'
-    '82': '82'
-    '83': '83'
-    '84': '84'
-    '85': '85'
-    '86': '86'
+    '1': México
+    '2': Guadalajara
+    '3': Monterrey
+    '4': Puebla
+    '5': León
+    '6': Torreón
+    '7': San Luis Potosí
+    '8': Mérida
+    '9': Chihuahua
+    '10': Tampico
+    '12': Veracruz
+    '13': Acapulco
+    '14': Aguascalientes
+    '15': Morelia
+    '16': Toluca
+    '17': Saltillo
+    '18': Villahermosa
+    '19': Tuxtla Gutiérrez
+    '20': Ciudad Juárez
+    '21': Tijuana
+    '24': Culiacán
+    '25': Hermosillo
+    '26': Durango
+    '27': Tepic
+    '28': Campeche
+    '29': Cuernavaca
+    '31': Oaxaca
+    '32': Zacatecas
+    '33': Colima
+    '36': Querétaro
+    '39': Tlaxcala
+    '40': La Paz
+    '41': Cancún
+    '43': Pachuca
+    '44': Mexicali
+    '46': Reynosa
+    '81': Áreas rurales hasta 86
+    '82': Áreas rurales o comp. urb.
+    '83': Áreas rurales o comp. urb.
+    '84': Áreas rurales o comp. urb.
+    '85': Áreas rurales o comp. urb.
+    '86': Áreas rurales o comp. urb.
 ENT:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Entidad
+  Pregunta: No existe pregunta, es un identifícador de la vivienda.
+  Tipo: categorical
+  Longitud: '10'
   Categorías:
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '5': '5'
-    '6': '6'
-    '7': '7'
-    '8': '8'
-    '9': '9'
-    '10': '10'
-    '11': '11'
-    '12': '12'
-    '13': '13'
-    '14': '14'
-    '15': '15'
-    '16': '16'
-    '17': '17'
-    '18': '18'
-    '19': '19'
-    '20': '20'
-    '21': '21'
-    '22': '22'
-    '23': '23'
-    '24': '24'
-    '25': '25'
-    '26': '26'
-    '27': '27'
-    '28': '28'
-    '29': '29'
-    '30': '30'
-    '31': '31'
-    '32': '32'
+    '1': Aguascalientes
+    '2': Baja California
+    '3': Baja California Sur
+    '4': Campeche
+    '5': Coahuila
+    '6': Colima
+    '7': Chiapas
+    '8': Chihuahua
+    '9': Ciudad de México
+    '10': Durango
+    '11': Guanajuato
+    '12': Guerrero
+    '13': Hidalgo
+    '14': Jalisco
+    '15': Estado de México
+    '16': Michoacán
+    '17': Morelos
+    '18': Nayarit
+    '19': Nuevo León
+    '20': Oaxaca
+    '21': Puebla
+    '22': Querétaro
+    '23': Quintana Roo
+    '24': San Luis Potosí
+    '25': Sinaloa
+    '26': Sonora
+    '27': Tabasco
+    '28': Tamaulipas
+    '29': Tlaxcala
+    '30': Veracruz de Ignacio de la Llave
+    '31': Yucatán
+    '32': Zacatecas
 CON:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Control
+  Pregunta: No existe pregunta, es un identifícador de la vivienda.
+  Tipo: numeric
+  Longitud: '10'
   Categorías: {}
 UPM:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Unidad primaria de muestreo
+  Pregunta: No existe pregunta, es un identifícador de la vivienda.
+  Tipo: string
+  Longitud: '5'
   Categorías: {}
 D_SEM:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Distribución semanal
+  Pregunta: No existe pregunta, es un identifícador de la vivienda.
+  Tipo: numeric
+  Longitud: '3'
   Categorías: {}
 N_PRO_VIV:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Número progresivo de la vivienda
+  Pregunta: No existe pregunta, es un identificador de la vivienda.
+  Tipo: string
+  Longitud: '4'
   Categorías: {}
 V_SEL:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Vivienda seleccionada
+  Pregunta: Es un identificador de hogar en la vivienda.
+  Tipo: categorical
+  Longitud: '10'
   Categorías:
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '5': '5'
-    '6': '6'
-    '7': '7'
-    '8': '8'
-    '9': '9'
-    '10': '10'
-    '11': '11'
-    '12': '12'
-    '13': '13'
-    '14': '14'
-    '15': '15'
-    '16': '16'
-    '17': '17'
-    '18': '18'
-    '19': '19'
-    '20': '20'
-    '21': '21'
-    '22': '22'
-    '23': '23'
-    '24': '24'
+    '1': Vivienda uno
+    '2': Vivienda dos
+    '3': Vivienda tres
+    '4': Vivienda cuatro
+    '5': Vivienda cinco
+    '6': Vivienda seis
+    '7': Vivienda siete
+    '8': Vivienda ocho
+    '9': Vivienda nueve
+    '10': Vivienda diez
+    '11': Vivienda once
+    '12': Vivienda doce
+    '13': Vivienda trece
+    '14': Vivienda catorce
+    '15': Vivienda quince
+    '16': Vivienda dieciséis
+    '17': Vivienda diecisiete
+    '18': Vivienda dieciocho
+    '19': Vivienda diecinueve
+    '20': Vivienda veinte
+    '21': Vivienda veintiuno
+    '22': Vivienda veintidós
+    '23': Vivienda veintitrés
+    '24': Vivienda veinticuatro
+    '25': Vivienda veinticinco
+    '26': Vivienda veintiséis
 N_HOG:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Número de hogar
+  Pregunta: No existe pregunta, es un identificador de la vivienda.
+  Tipo: categorical
+  Longitud: '10'
   Categorías:
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '5': '5'
+    '1': Hogar principal
+    '2': Hogar adicional uno
+    '3': Hogar adicional dos
+    '4': Hogar adicional tres
+    '5': Hogar adicional cuatro
+    '6': Hogar adicional cinco
 H_MUD:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Hogar mudado
+  Pregunta: No existe pregunta, es un identificador de hogar en la vivienda.
+  Tipo: categorical
+  Longitud: '10'
   Categorías:
-    '0': '0'
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
+    '0': Hogar actual
+    '1': Primer cambio de hogar
+    '2': Segundo cambio de hogar
+    '3': Tercer cambio de hogar
+    '4': Cuarto cambio de hogar
 N_ENT:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Número de entrevista
+  Pregunta: No existe pregunta, es un identificador de la vivienda.
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '5': '5'
+    '1': Entrevista 1
+    '2': Entrevista 2
+    '3': Entrevista 3
+    '4': Entrevista 4
+    '5': Entrevista 5
 PER:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Periodo
+  Pregunta: No existe pregunta, es un identificador de la vivienda.
+  Tipo: categorical
+  Longitud: '3'
   Categorías:
+    '419': Octubre-Diciembre 2019
     '319': '319'
-    '419': '419'
+  Nota: 'códigos observados sin etiqueta en el DDI: [''319'']'
 N_REN:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Número de renglón
+  Pregunta: Dato extraído de la tabla sociodemográfica (SDEMT214).
+  Tipo: categorical
+  Longitud: '10'
   Categorías:
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '5': '5'
-    '6': '6'
-    '7': '7'
-    '8': '8'
-    '9': '9'
-    '10': '10'
-    '11': '11'
-    '12': '12'
-    '13': '13'
-    '14': '14'
-    '15': '15'
-    '16': '16'
-    '17': '17'
-    '18': '18'
-    '19': '19'
-    '20': '20'
-    '21': '21'
-    '22': '22'
-    '23': '23'
-    '26': '26'
-    '27': '27'
-    '30': '30'
+    '1': Renglón uno
+    '2': Renglón dos
+    '3': Renglón tres
+    '4': Renglón cuatro
+    '5': Renglón cinco
+    '6': Renglón seis
+    '7': Renglón siete
+    '8': Renglón ocho
+    '9': Renglón nueve
+    '10': Renglón diez
+    '11': Renglón once
+    '12': Renglón doce
+    '13': Renglón trece
+    '14': Renglón catorce
+    '15': Renglón quince
+    '16': Renglón dieciséis
+    '17': Renglón diecisiete
+    '18': Renglón dieciocho
+    '19': Renglón diecinueve
+    '20': Renglón veinte
+    '21': Renglón veintiuno
+    '22': Renglón veintidós
+    '23': Renglón veintitrés
+    '24': Renglón veinticuatro
+    '25': Renglón veinticinco
+    '26': Renglón veintiséis
+    '27': Renglón veintisiete
+    '30': Renglón treinta
 EDA:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Edad
+  Pregunta: Dato extraído de la tabla sociodemográfica (SDEMT214).
+  Tipo: numeric
+  Longitud: '2'
   Categorías: {}
 N_INF:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Renglón del informante
+  Pregunta: Dato extraído de la tabla de la primera parte de las preguntas del cuestionario básico (COE1T214).
+  Tipo: categorical
+  Longitud: '2'
   Categorías:
+    '01': 01 Renglón del informante
+    '02': 02 Renglón del informante
+    '03': 03 Renglón del informante
+    '04': 04 Renglón del informante
+    '05': 05 Renglón del informante
+    '06': 06 Renglón del informante
+    '07': 07 Renglón del informante
+    08: 08 Renglón del informante
+    09: 09 Renglón del informante
+    '10': 10 Renglón del informante
+    '11': 11 Renglón del informante
+    '12': 12 Renglón del informante
+    '13': 13 Renglón del informante
+    '14': 14 Renglón del informante
+    '15': 15 Renglón del informante
+    '16': 16 Renglón del informante
+    '17': 17 Renglón del informante
+    '18': 18 Renglón del informante
+    '19': 19 Renglón del informante
     '1': '1'
     '2': '2'
-    '3': '3'
-    '4': '4'
-    '5': '5'
-    '6': '6'
-    '7': '7'
-    '8': '8'
-    '9': '9'
-    '10': '10'
-    '11': '11'
-    '12': '12'
-    '13': '13'
-    '14': '14'
-    '15': '15'
-    '16': '16'
-    '18': '18'
     '21': '21'
-    '97': '97'
-    '99': '99'
+    '3': '3'
+    '4': '4'
+    '5': '5'
+    '6': '6'
+    '7': '7'
+    '8': '8'
+    '9': '9'
+  Nota: 'códigos observados sin etiqueta en el DDI: [''1'', ''2'', ''21'', ''3'', ''4'', ''5'', ''6'',
+    ''7'', ''8'', ''9'']'
+  Especiales:
+    '97': Más de un informante
+    '99': Informante autorizado
 P6_1:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Recibe o le pagan por comisión
+  Pregunta: ¿... recibe o le pagan por comisión?
+  Tipo: categorical
+  Longitud: '2'
   Categorías:
-    '1': '1'
-    ' ': ' '
+    '1': por comisión?
 P6_2:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Recibe o le pagan a destajo (por pieza), servicio u obra realizada
+  Pregunta: ¿... recibe o le pagan a destajo (por pieza), servicio u obra realizada?
+  Tipo: categorical
+  Longitud: '2'
   Categorías:
-    '2': '2'
-    ' ': ' '
+    '2': a destajo (por pieza),servicio u obra realizada
 P6_3:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Recibe o le pagan por honorarios
+  Pregunta: ¿... recibe o le pagan por honorarios?
+  Tipo: categorical
+  Longitud: '2'
   Categorías:
-    '3': '3'
-    ' ': ' '
+    '3': por honorarios
 P6_4:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Recibe o le pagan con propinas
+  Pregunta: ¿... recibe o le pagan con propinas?
+  Tipo: categorical
+  Longitud: '2'
   Categorías:
-    '4': '4'
-    ' ': ' '
+    '4': con propinas
 P6_5:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Recibe o le pagan con bonos de compensación o de productividad
+  Pregunta: ¿... recibe o le pagan con bonos de compensación o de productividad?
+  Tipo: categorical
+  Longitud: '2'
   Categorías:
-    '5': '5'
-    ' ': ' '
+    '5': con bonos de compensación o de productividad
 P6_6:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Recibe o le pagan con vales o productos comercializables
+  Pregunta: ¿... recibe o le pagan con vales o productos comercializables?
+  Tipo: categorical
+  Longitud: '2'
   Categorías:
-    '6': '6'
-    ' ': ' '
+    '6': con vales o productos comercializables
 P6_7:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Recibe o le pagan... Sólo recibe sueldo, salario o jornal
+  Pregunta: No se lee esta opción de respuesta y se espera a que el informante responda espontáneamente
+    que "Sólo recibe sueldo, salario o jornal".
+  Tipo: categorical
+  Longitud: '2'
   Categorías:
-    '7': '7'
-    ' ': ' '
+    '7': Solo recibe sueldo,salario o jornal
 P6_8:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Recibe o le pagan... Sólo lo que le deja su negocio
+  Pregunta: No se lee esta opción de respuesta y se espera a que el informante responda espontáneamente
+    que "Sólo lo que le deja su negocio".
+  Tipo: categorical
+  Longitud: '2'
   Categorías:
-    '8': '8'
-    ' ': ' '
+    '8': Solo lo que le deja su negocio
 P6_9:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Recibe o le pagan... No le pagan ni recibe ingresos (incluye autoconsumo agropecuario)
+  Pregunta: No se lee esta opción de respuesta y se espera a que el informante responda espontáneamente
+    que "No le pagan ni recibe ingresos".
+  Tipo: categorical
+  Longitud: '2'
   Categorías:
-    '9': '9'
-    ' ': ' '
+    '9': No le pagan ni recibe ingreso (incluye autoconsumo agropecuario)
 P6_10:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Recibe o le pagan... Ninguna de las anteriores
+  Pregunta: No se lee esta opción de respuesta y se espera a que el informante responda espontáneamente
+    que "Ninguna de las anteriores".
+  Tipo: categorical
+  Longitud: '2'
   Categorías:
-    '10': '10'
-    ' ': ' '
+    '10': Ninguna de las anteriores
 P6_99:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Recibe o le pagan... No sabe cuánto recibe o le pagan
+  Pregunta: ¿... recibe o le pagan
+  Tipo: categorical
+  Longitud: '2'
   Categorías:
-    '99': '99'
-    ' ': ' '
+    '99': No sabe
 P6A1:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Obtiene o le pagan sus ingresos a sueldo, salario o jornal
+  Pregunta: Aparte de lo que me acaba de mencionar, ¿... obtiene o le pagan sus ingresos a sueldo, salario
+    o jornal?
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '1': '1'
-    ' ': ' '
+    '1': a sueldo,salario o jornal?
 P6A2:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Obtiene o le pagan sus ingresos por ganancias o de lo que deja su negocio
+  Pregunta: Aparte de lo que me acaba de mencionar, ¿... obtiene o le pagan sus ingresos por ganancias
+    o de lo que deja su negocio?
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '2': '2'
-    ' ': ' '
+    '2': por ganancias o de lo que deja su negocio?
 P6A3:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Obtiene o le pagan... No le pagan ni recibe ingresos (incluye autoconsumo agropecuario)
+  Pregunta: No se lee esta opción de respuesta y se espera a que el informante responda espontáneamente
+    que "No le pagan ni recibe ingresos".
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '3': '3'
-    ' ': ' '
+    '3': No le pagan ni recibe ingresos (incluye autoconsumo agropecuario)
 P6A4:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Obtiene o le pagan... Ninguna de las anteriores
+  Pregunta: No se lee esta opción de respuesta y se espera a que el informante responda espontáneamente
+    que "Ninguna de las anteriores".
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '4': '4'
-    ' ': ' '
+    '4': Ninguna de las anteriores
 P6A9:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Obtiene o le pagan... No sabe si obtiene o le pagan sus ingresos
+  Pregunta: No se lee esta opción de respuesta y se espera a que el informante responda espontáneamente
+    que "No sabe si obtiene o le pagan sus ingresos".
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '9': '9'
-    ' ': ' '
+    '9': No sabe
 P6B1:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Cada cuándo obtiene sus ingresos
+  Pregunta: ¿Cada cuándo obtiene ... sus ingresos o le pagan?.
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '5': '5'
-    '6': '6'
-    '7': '7'
-    '8': '8'
-    ' ': ' '
+    '1': Cada mes
+    '2': Cada 15 dias
+    '3': Cada semana
+    '4': Diario
+    '5': Otro periodo de pago
+    '6': Le pagan por pieza producida o vendida,servicio u obra realizada
+    '7': No supo estimar
+    '8': Se negó a contestar esta pregunta
 P6B2:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: En cuánto calcula sus ingresos
+  Pregunta: ¿Cuánto ganó o en cuánto calcula sus ingresos?
+  Tipo: string
+  Longitud: '6'
   Categorías: {}
 P6C:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Cantidad que recibe según el salario mínimo
+  Pregunta: Actualmente el salario mínimo mensual es de $ 2,651, ¿la cantidad que ... obtiene al mes por
+    su trabajo es
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '5': '5'
-    '6': '6'
-    '7': '7'
-    '8': '8'
-    '9': '9'
-    ' ': ' '
+    '1': menor?
+    '2': igual a esta cantidad?
+    '3': más de 1 salario mínimo hasta 2?
+    '4': más de 2 salario mínimo hasta 3?
+    '5': más de 3 salario mínimo hasta 5?
+    '6': más de 5 salario mínimo hasta 10?
+    '7': más de 10 salarios mínimos?
+    '8': No quiso dar información
+  Especiales:
+    '9': No sabe
 P6D:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Acceso atención médica
+  Pregunta: Por parte de este trabajo ¿... tiene acceso a atención médica en
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '5': '5'
-    '6': '6'
-    '9': '9'
-    ' ': ' '
+    '1': el Seguro Social (IMSS)?
+    '2': el hospital o clínica naval, militar o de Pemex?
+    '3': el ISSSTE?
+    '4': el ISSSTE estatal (ISSSTELEÓN,ISSEMYM)?
+    '5': otra institución médica?
+    '6': No recibe atención médica
+  Especiales:
+    '9': No sabe
 P7:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Realiza otra actividad
+  Pregunta: Además del trabajo principal del que ya hablamos, ¿... tiene o realiza otra actividad como
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '5': '5'
-    '6': '6'
-    '7': '7'
-    '9': '9'
-    ' ': ' '
+    '1': vender o hacer productos para la venta
+    '2': prestar servicios
+    '3': trabajar su tierra o parcela y/o crianza de animales
+    '4': trabajar por propinas,comisión o destajo
+    '5': trabajar como asalariado
+    '6': ayudar en algún negocio o en las tierras de un familiar o de otra persona
+    '7': No tiene otro trabajo
+  Especiales:
+    '9': No sabe
 P7A:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Código de la función que desempeña
+  Pregunta: ¿Cuáles son las tareas o funciones principales que ... desempeña en su segundo trabajo?.
+  Tipo: numeric
+  Longitud: '4'
   Categorías: {}
 P7B:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Nombre de la empresa, negocio o institución para la que realiza este otro trabajo
+  Pregunta: ¿Cuál es el nombre de la empresa, negocio o institución para la que ... realiza este otro
+    trabajo?.
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '9': '9'
-    ' ': ' '
+    '1': __________________ nombre de la empresa o institución
+    '2': El negocio no tiene nombre
+    '3': Es trabajador(subordinado)de una unidad doméstica o trabajador(a) de otro trabajador(a)
+    '4': Es un(a) trabajador(a) en el extranjero
+  Especiales:
+    '9': No sabe
 P7C:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: A qué se dedica la empresa, negocio o institución donde trabaja o ayuda en su segundo trabajo
+  Pregunta: ¿A qué se dedica esta empresa, negocio o institución donde trabaja o ayuda ... en su segundo
+    trabajo?.
+  Tipo: numeric
+  Longitud: '4'
   Categorías: {}
 P8_1:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: En los últimos tres meses, ¿ ha tratado de buscar otro trabajo en otro país o hacer preparativos
+    para cruzar la frontera?
+  Pregunta: Durante los últimos tres meses, ¿... ha tratado de buscar otro trabajo en otro país o hacer
+    preparativos para cruzar la frontera?
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '1': '1'
-    ' ': ' '
+    '1': buscar otro trabajo en otro país o hacer preparativos para cruzar la frontera?
 P8_2:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: En los últimos tres meses, ¿... ha tratado de buscar otro trabajo aquí en el país?
+  Pregunta: Durante los últimos tres meses, ¿... ha tratado de buscar otro trabajo aquí en el país?
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '2': '2'
-    ' ': ' '
+    '2': buscar otro trabajo aquí en el país?
 P8_3:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: En los últimos tres meses, ¿... ha tratado de poner un negocio o realizar una actividad
+    por su cuenta, sin poder todavía comenzar?
+  Pregunta: Durante los últimos tres meses, ¿... ha tratado de poner un negocio o realizar una actividad
+    por su cuenta, sin poder todavía comenzar?
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '3': '3'
-    ' ': ' '
+    '3': poner un negocio o realizar una actividad por su cuenta, sin poder todavía comenzar?
 P8_4:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Entonces, ¿no ha tratado de buscar otro trabajo?
+  Pregunta: Entonces, ¿no ha tratado de buscar otro trabajo?
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '4': '4'
-    ' ': ' '
+    '4': Entonces, ¿no ha tratado de buscar otro trabajo?
 P8_9:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: No sabe si en los últimos tres meses, ¿ ha tratado de buscar otro trabajo?
+  Pregunta: No se lee esta opción de respuesta y se espera a que el informante responda espontáneamente
+    que "No sabe si ha tratado de últimos tres meses".
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '9': '9'
-    ' ': ' '
+    '9': No sabe
 P8A:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Lo que intenta es...
+  Pregunta: Lo que ... intenta ¿es
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '9': '9'
-    ' ': ' '
+    '1': tener más de un trabajo?
+    '2': tener un trabajo de tiempo completo?
+    '3': conseguir una actividad en la que pueda trabajar más horas para ganar más?
+    '4': Ninguna de las anteriores
+  Especiales:
+    '9': No sabe
 P9_1:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Tiempo dedicó a estudiar o tomar cursos de capacitación
+  Pregunta: Durante la semana pasada, ¿cuánto tiempo dedicó ... a
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '1': '1'
-    ' ': ' '
+    '0': No aplica
+    '1': estudiar o tomar cursos de capacitación? (incluye el tiempo dedicado a realizar trabajos escolares)
 P9_H1:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Horas dedicadas a estudiar o tomar cursos de capacitación
+  Pregunta: Durante la semana pasada ¿cuánto tiempo dedicó ... a
+  Tipo: numeric
+  Longitud: '3'
   Categorías: {}
+  Especiales:
+    '98': Realizó la actividad pero no sabe cuanto tiempo
+    '99': No sabe si realizó la actividadNo sabe si realizó la actividad
 P9_M1:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Minutos dedicados a estudiar o tomar cursos de capacitación
+  Pregunta: Durante la semana pasada ¿cuánto tiempo dedicó ... a
+  Tipo: categorical
+  Longitud: '2'
   Categorías:
+    '00': 0 minutos a estudiar o tomar cursos de capacitación
+    '01': 1 minuto a estudiar o tomar cursos de capacitación
+    '02': 2 minutos a estudiar o tomar cursos de capacitación
+    '03': 3 minutos a estudiar o tomar cursos de capacitación
+    '04': 4 minutos a estudiar o tomar cursos de capacitación
+    '06': 6 minutos a estudiar o tomar cursos de capacitación
+    '07': 7 minutos a estudiar o tomar cursos de capacitación
+    08: 8 minutos a estudiar o tomar cursos de capacitación
+    '10': 10 minutos a estudiar o tomar cursos de capacitación
+    '11': 11 minutos a estudiar o tomar cursos de capacitación
+    '15': 15 minutos a estudiar o tomar cursos de capacitación
+    '20': 20 minutos a estudiar o tomar cursos de capacitación
+    '22': 22 minutos a estudiar o tomar cursos de capacitación
+    '23': 23 minutos a estudiar o tomar cursos de capacitación
+    '27': 27 minutos a estudiar o tomar cursos de capacitación
+    '30': 30 minutos a estudiar o tomar cursos de capacitación
+    '32': 32 minutos a estudiar o tomar cursos de capacitación
+    '33': 33 minutos a estudiar o tomar cursos de capacitación
+    '40': 40 minutos a estudiar o tomar cursos de capacitación
+    '45': 45 minutos a estudiar o tomar cursos de capacitación
+    '50': 50 minutos a estudiar o tomar cursos de capacitación
+    '55': 55 minutos a estudiar o tomar cursos de capacitación
     '0': '0'
     '1': '1'
     '2': '2'
@@ -495,573 +582,555 @@ P9_M1:
     '6': '6'
     '7': '7'
     '8': '8'
-    '10': '10'
-    '11': '11'
-    '15': '15'
-    '20': '20'
-    '22': '22'
-    '23': '23'
-    '27': '27'
-    '30': '30'
-    '32': '32'
-    '33': '33'
-    '40': '40'
-    '45': '45'
-    '50': '50'
-    '55': '55'
-    ' ': ' '
+  Nota: 'códigos observados sin etiqueta en el DDI: [''0'', ''1'', ''2'', ''3'', ''4'', ''5'', ''6'',
+    ''7'', ''8'']'
 P9_2:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Tiempo que dedicó a cuidar o atender sin pago, de manera exclusiva a niños, ancianos, enfermos
+    o discapacitados
+  Pregunta: Durante la semana pasada ¿cuánto tiempo dedicó ... a
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '2': '2'
-    ' ': ' '
+    '0': No aplica
+    '2': Cuidar o atender sin pago, de manera exclusiva a niños, ancianos, enfermos o discapacitados?
+      (bañarlos, cambiarlos, trasladarlos)
 P9_H2:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Horas dedicadas a cuidar o atender sin pago, de manera exclusiva a niños, ancianos, enfermos
+    o discapacitados
+  Pregunta: Durante la semana pasada ¿cuánto tiempo dedicó ... a
+  Tipo: numeric
+  Longitud: '2'
   Categorías: {}
+  Especiales:
+    '98': 98 Realizó la actividad, pero no sabe cúanto tiempo le dedicó
+    '99': 99 No sabe si realizó la actividad
 P9_M2:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Minutos dedicados a cuidar o atender sin pago, de manera exclusiva a niños, ancianos, enfermos
+    o discapacitados
+  Pregunta: Durante la semana pasada ¿cuánto tiempo dedicó ... a
+  Tipo: categorical
+  Longitud: '2'
   Categorías:
-    '0': '0'
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '5': '5'
-    '6': '6'
-    '7': '7'
-    '10': '10'
-    '14': '14'
-    '15': '15'
-    '20': '20'
-    '22': '22'
-    '25': '25'
-    '30': '30'
-    '33': '33'
-    '35': '35'
-    '36': '36'
-    '38': '38'
-    '40': '40'
-    '45': '45'
-    '50': '50'
-    ' ': ' '
+    '0': 0 Minutos de dicadas a cuidar o atender sin pago
+    '1': 1 Minutos de dicadas a cuidar o atender sin pago
+    '2': 2 Minutos de dicadas a cuidar o atender sin pago
+    '3': 3 Minutos de dicadas a cuidar o atender sin pago
+    '4': 4 Minutos de dicadas a cuidar o atender sin pago
+    '5': 5 Minutos de dicadas a cuidar o atender sin pago
+    '6': 6 Minutos de dicadas a cuidar o atender sin pago
+    '7': 7 Minutos de dicadas a cuidar o atender sin pago
+    '8': 8 Minutos de dicadas a cuidar o atender sin pago
+    '10': 10 Minutos de dicadas a cuidar o atender sin pago
+    '14': 14 Minutos de dicadas a cuidar o atender sin pago
+    '15': 15 Minutos de dicadas a cuidar o atender sin pago
+    '20': 20 Minutos de dicadas a cuidar o atender sin pago
+    '22': 22 Minutos de dicadas a cuidar o atender sin pago
+    '24': 24 Minutos de dicadas a cuidar o atender sin pago
+    '25': 25 Minutos de dicadas a cuidar o atender sin pago
+    '28': 28 Minutos de dicadas a cuidar o atender sin pago
+    '30': 30 Minutos de dicadas a cuidar o atender sin pago
+    '33': 33 Minutos de dicadas a cuidar o atender sin pago
+    '35': 35 Minutos de dicadas a cuidar o atender sin pago
+    '36': 36 Minutos de dicadas a cuidar o atender sin pago
+    '38': 38 Minutos de dicadas a cuidar o atender sin pago
+    '40': 40 Minutos de dicadas a cuidar o atender sin pago
+    '41': 41 Minutos de dicadas a cuidar o atender sin pago
+    '45': 45 Minutos de dicadas a cuidar o atender sin pago
+    '50': 50 Minutos de dicadas a cuidar o atender sin pago
 P9_3:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Tiempo dedicado a realizar compras, llevar cuentas o realizar trámites para el hogar o
+    encargarse de la seguridad
+  Pregunta: Durante la semana pasada ¿cuánto tiempo dedicó ... a
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '3': '3'
-    ' ': ' '
+    '3': realizar compras, llevar cuentas o realizar trámites para el hogar o encargarse de la seguridad
+      (como guardar el automóvil)
 P9_H3:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
-  Categorías:
-    '0': '0'
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '5': '5'
-    '6': '6'
-    '7': '7'
-    '8': '8'
-    '9': '9'
-    '10': '10'
-    '11': '11'
-    '12': '12'
-    '13': '13'
-    '14': '14'
-    '15': '15'
-    '16': '16'
-    '17': '17'
-    '18': '18'
-    '19': '19'
-    '20': '20'
-    '21': '21'
-    '22': '22'
-    '23': '23'
-    '24': '24'
-    '25': '25'
-    '26': '26'
-    '27': '27'
-    '28': '28'
-    '29': '29'
-    '30': '30'
-    '31': '31'
-    '32': '32'
-    '33': '33'
-    '34': '34'
-    '35': '35'
-    '36': '36'
-    '38': '38'
-    '39': '39'
-    '40': '40'
-    '42': '42'
-    '48': '48'
-    '49': '49'
-    '50': '50'
-    '56': '56'
-    '60': '60'
-    '61': '61'
-    '62': '62'
-    '64': '64'
-    '70': '70'
-    '72': '72'
-    '89': '89'
-    '90': '90'
-    '95': '95'
-    '98': '98'
-    '99': '99'
-    ' ': ' '
-P9_M3:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
-  Categorías:
-    '0': '0'
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '5': '5'
-    '6': '6'
-    '7': '7'
-    '9': '9'
-    '10': '10'
-    '11': '11'
-    '13': '13'
-    '14': '14'
-    '15': '15'
-    '16': '16'
-    '17': '17'
-    '20': '20'
-    '21': '21'
-    '22': '22'
-    '24': '24'
-    '25': '25'
-    '26': '26'
-    '27': '27'
-    '28': '28'
-    '30': '30'
-    '31': '31'
-    '33': '33'
-    '34': '34'
-    '35': '35'
-    '36': '36'
-    '38': '38'
-    '40': '40'
-    '42': '42'
-    '43': '43'
-    '44': '44'
-    '45': '45'
-    '46': '46'
-    '48': '48'
-    '50': '50'
-    '54': '54'
-    '55': '55'
-    '56': '56'
-    '57': '57'
-    ' ': ' '
-P9_4:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
-  Categorías:
-    '4': '4'
-    ' ': ' '
-P9_H4:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
-  Categorías:
-    '0': '0'
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '5': '5'
-    '6': '6'
-    '7': '7'
-    '8': '8'
-    '9': '9'
-    '10': '10'
-    '11': '11'
-    '12': '12'
-    '13': '13'
-    '14': '14'
-    '15': '15'
-    '16': '16'
-    '17': '17'
-    '18': '18'
-    '19': '19'
-    '20': '20'
-    '21': '21'
-    '22': '22'
-    '23': '23'
-    '24': '24'
-    '25': '25'
-    '26': '26'
-    '27': '27'
-    '28': '28'
-    '30': '30'
-    '31': '31'
-    '33': '33'
-    '35': '35'
-    '36': '36'
-    '37': '37'
-    '38': '38'
-    '40': '40'
-    '41': '41'
-    '42': '42'
-    '44': '44'
-    '45': '45'
-    '48': '48'
-    '50': '50'
-    '58': '58'
-    '60': '60'
-    '62': '62'
-    '70': '70'
-    '72': '72'
-    '80': '80'
-    '90': '90'
-    '98': '98'
-    '99': '99'
-    ' ': ' '
-P9_M4:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
-  Categorías:
-    '0': '0'
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '5': '5'
-    '6': '6'
-    '7': '7'
-    '8': '8'
-    '9': '9'
-    '10': '10'
-    '11': '11'
-    '12': '12'
-    '14': '14'
-    '15': '15'
-    '20': '20'
-    '21': '21'
-    '23': '23'
-    '25': '25'
-    '26': '26'
-    '30': '30'
-    '33': '33'
-    '35': '35'
-    '36': '36'
-    '37': '37'
-    '40': '40'
-    '44': '44'
-    '45': '45'
-    '46': '46'
-    '48': '48'
-    '50': '50'
-    '53': '53'
-    '55': '55'
-    ' ': ' '
-P9_5:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
-  Categorías:
-    '5': '5'
-    ' ': ' '
-P9_H5:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
-  Categorías:
-    '0': '0'
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '5': '5'
-    '6': '6'
-    '7': '7'
-    '8': '8'
-    '9': '9'
-    '10': '10'
-    '11': '11'
-    '12': '12'
-    '14': '14'
-    '15': '15'
-    '16': '16'
-    '17': '17'
-    '18': '18'
-    '20': '20'
-    '21': '21'
-    '24': '24'
-    '25': '25'
-    '26': '26'
-    '27': '27'
-    '28': '28'
-    '29': '29'
-    '30': '30'
-    '32': '32'
-    '35': '35'
-    '36': '36'
-    '40': '40'
-    '42': '42'
-    '45': '45'
-    '48': '48'
-    '50': '50'
-    '54': '54'
-    '55': '55'
-    '56': '56'
-    '60': '60'
-    '63': '63'
-    '66': '66'
-    '70': '70'
-    '80': '80'
-    '98': '98'
-    '99': '99'
-    ' ': ' '
-P9_M5:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
-  Categorías:
-    '0': '0'
-    '2': '2'
-    '3': '3'
-    '7': '7'
-    '20': '20'
-    '30': '30'
-    '44': '44'
-    ' ': ' '
-P9_6:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
-  Categorías:
-    '6': '6'
-    ' ': ' '
-P9_H6:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
-  Categorías:
-    '0': '0'
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '5': '5'
-    '6': '6'
-    '7': '7'
-    '8': '8'
-    '9': '9'
-    '10': '10'
-    '11': '11'
-    '12': '12'
-    '13': '13'
-    '14': '14'
-    '15': '15'
-    '16': '16'
-    '17': '17'
-    '18': '18'
-    '19': '19'
-    '20': '20'
-    '21': '21'
-    '22': '22'
-    '23': '23'
-    '24': '24'
-    '25': '25'
-    '28': '28'
-    '29': '29'
-    '30': '30'
-    '32': '32'
-    '33': '33'
-    '35': '35'
-    '36': '36'
-    '40': '40'
-    '42': '42'
-    '45': '45'
-    '48': '48'
-    '49': '49'
-    '50': '50'
-    '56': '56'
-    '60': '60'
-    '98': '98'
-    '99': '99'
-    ' ': ' '
-P9_M6:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
-  Categorías:
-    '0': '0'
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '5': '5'
-    '6': '6'
-    '7': '7'
-    '10': '10'
-    '11': '11'
-    '15': '15'
-    '20': '20'
-    '22': '22'
-    '25': '25'
-    '30': '30'
-    '35': '35'
-    '36': '36'
-    '40': '40'
-    '45': '45'
-    '50': '50'
-    ' ': ' '
-P9_7:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
-  Categorías:
-    '7': '7'
-    ' ': ' '
-P9_H7:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Horas dedicadas a realizar compras, llevar cuentas o realizar trámites para el hogar o
+    encargarse de la seguridad
+  Pregunta: Durante la semana pasada ¿cuánto tiempo dedicó ... a
+  Tipo: numeric
+  Longitud: '2'
   Categorías: {}
+  Especiales:
+    '98': 98 Realizó la actividad, pero no sabe cúanto tiempo le dedicó
+    '99': 99 No sabe si realizó la actividad
+P9_M3:
+  Descripción: Minutos dedicados a realizar compras, llevar cuentas o realizar trámites para el hogar
+    o encargarse de la seguridad
+  Pregunta: Durante la semana pasada ¿cuánto tiempo dedicó ... a
+  Tipo: categorical
+  Longitud: '2'
+  Categorías:
+    '0': 0 Minutos a realizar compras, llevar cuentas
+    '1': 1 Minutos a realizar compras, llevar cuentas
+    '2': 2 Minutos a realizar compras, llevar cuentas
+    '3': 3 Minutos a realizar compras, llevar cuentas
+    '4': 4 Minutos a realizar compras, llevar cuentas
+    '5': 5 Minutos a realizar compras, llevar cuentas
+    '6': 6 Minutos a realizar compras, llevar cuentas
+    '7': 7 Minutos a realizar compras, llevar cuentas
+    '8': 8 Minutos a realizar compras, llevar cuentas
+    '9': 9 Minutos a realizar compras, llevar cuentas
+    '10': 10 Minutos a realizar compras, llevar cuentas
+    '11': 11 Minutos a realizar compras, llevar cuentas
+    '12': 12 Minutos a realizar compras, llevar cuentas
+    '13': 13 Minutos a realizar compras, llevar cuentas
+    '14': 14 Minutos a realizar compras, llevar cuentas
+    '15': 15 Minutos a realizar compras, llevar cuentas
+    '16': 16 Minutos a realizar compras, llevar cuentas
+    '17': 17 Minutos a realizar compras, llevar cuentas
+    '18': 18 Minutos a realizar compras, llevar cuentas
+    '19': 19 Minutos a realizar compras, llevar cuentas
+    '20': 20 Minutos a realizar compras, llevar cuentas
+    '21': 21 Minutos a realizar compras, llevar cuentas
+    '22': 22 Minutos a realizar compras, llevar cuentas
+    '23': 23 Minutos a realizar compras, llevar cuentas
+    '24': 24 Minutos a realizar compras, llevar cuentas
+    '25': 25 Minutos a realizar compras, llevar cuentas
+    '26': 26 Minutos a realizar compras, llevar cuentas
+    '27': 27 Minutos a realizar compras, llevar cuentas
+    '28': 28 Minutos a realizar compras, llevar cuentas
+    '29': 29 Minutos a realizar compras, llevar cuentas
+    '30': 30 Minutos a realizar compras, llevar cuentas
+    '31': 31 Minutos a realizar compras, llevar cuentas
+    '32': 32 Minutos a realizar compras, llevar cuentas
+    '33': 33 Minutos a realizar compras, llevar cuentas
+    '34': 34 Minutos a realizar compras, llevar cuentas
+    '35': 35 Minutos a realizar compras, llevar cuentas
+    '36': 36 Minutos a realizar compras, llevar cuentas
+    '37': 37 Minutos a realizar compras, llevar cuentas
+    '38': 38 Minutos a realizar compras, llevar cuentas
+    '39': 39 Minutos a realizar compras, llevar cuentas
+    '40': 40 Minutos a realizar compras, llevar cuentas
+    '41': 41 Minutos a realizar compras, llevar cuentas
+    '42': 42 Minutos a realizar compras, llevar cuentas
+    '43': 43 Minutos a realizar compras, llevar cuentas
+    '44': 44 Minutos a realizar compras, llevar cuentas
+    '45': 45 Minutos a realizar compras, llevar cuentas
+    '46': 46 Minutos a realizar compras, llevar cuentas
+    '47': 47 Minutos a realizar compras, llevar cuentas
+    '48': 48 Minutos a realizar compras, llevar cuentas
+    '49': 49 Minutos a realizar compras, llevar cuentas
+    '50': 50 Minutos a realizar compras, llevar cuentas
+    '51': 51 Minutos a realizar compras, llevar cuentas
+    '52': 52 Minutos a realizar compras, llevar cuentas
+    '53': 53 Minutos a realizar compras, llevar cuentas
+    '54': 54 Minutos a realizar compras, llevar cuentas
+    '55': 55 Minutos a realizar compras, llevar cuentas
+    '56': 56 Minutos a realizar compras, llevar cuentas
+    '57': 57 Minutos a realizar compras, llevar cuentas
+    '58': 58 Minutos a realizar compras, llevar cuentas
+    '59': 59 Minutos a realizar compras, llevar cuentas
+P9_4:
+  Descripción: Tiempo dedicado a llevar a algún miembro del hogar a la escuela, cita médica u otra actividad
+  Pregunta: Durante la semana pasada ¿cuánto tiempo dedicó ... a
+  Tipo: categorical
+  Longitud: '1'
+  Categorías:
+    '4': llevar a algún miembro del hogar a la escuela, cita médica u otra actividad
+P9_H4:
+  Descripción: Horas dedicadas a llevar a algún miembro del hogar a la escuela, cita médica u otra actividad
+  Pregunta: Durante la semana pasada ¿cuánto tiempo dedicó ... a
+  Tipo: numeric
+  Longitud: '2'
+  Categorías: {}
+  Especiales:
+    '98': 98 Realizó la actividad, pero no sabe cuánto tiempo le dedicó.
+    '99': 99 No sabe si realizó la actividad.
+P9_M4:
+  Descripción: Minutos dedicados a llevar a algún miembro del hogar a la escuela, cita médica u otra actividad
+  Pregunta: Durante la semana pasada ¿cuánto tiempo dedicó ... a
+  Tipo: categorical
+  Longitud: '2'
+  Categorías:
+    '0': 0 Número de minutos dedicados a llevar
+    '1': 1 Número de minutos dedicados a llevar
+    '2': 2 Número de minutos dedicados a llevar
+    '3': 3 Número de minutos dedicados a llevar
+    '4': 4 Número de minutos dedicados a llevar
+    '5': 5 Número de minutos dedicados a llevar
+    '6': 6 Número de minutos dedicados a llevar
+    '7': 7 Número de minutos dedicados a llevar
+    '8': 8 Número de minutos dedicados a llevar
+    '9': 9 Número de minutos dedicados a llevar
+    '10': 10 Número de minutos dedicados a llevar
+    '11': 11 Número de minutos dedicados a llevar
+    '12': 12 Número de minutos dedicados a llevar
+    '13': 13 Número de minutos dedicados a llevar
+    '14': 14 Número de minutos dedicados a llevar
+    '15': 15 Número de minutos dedicados a llevar
+    '16': 16 Número de minutos dedicados a llevar
+    '17': 17 Número de minutos dedicados a llevar
+    '18': 18 Número de minutos dedicados a llevar
+    '19': 19 Número de minutos dedicados a llevar
+    '20': 20 Número de minutos dedicados a llevar
+    '21': 21 Número de minutos dedicados a llevar
+    '22': 22 Número de minutos dedicados a llevar
+    '23': 23 Número de minutos dedicados a llevar
+    '24': 24 Número de minutos dedicados a llevar
+    '25': 25 Número de minutos dedicados a llevar
+    '26': 26 Número de minutos dedicados a llevar
+    '27': 27 Número de minutos dedicados a llevar
+    '28': 28 Número de minutos dedicados a llevar
+    '29': 29 Número de minutos dedicados a llevar
+    '30': 30 Número de minutos dedicados a llevar
+    '31': 31 Número de minutos dedicados a llevar
+    '32': 32 Número de minutos dedicados a llevar
+    '33': 33 Número de minutos dedicados a llevar
+    '34': 34 Número de minutos dedicados a llevar
+    '35': 35 Número de minutos dedicados a llevar
+    '36': 36 Número de minutos dedicados a llevar
+    '37': 37 Número de minutos dedicados a llevar
+    '38': 38 Número de minutos dedicados a llevar
+    '39': 39 Número de minutos dedicados a llevar
+    '40': 40 Número de minutos dedicados a llevar
+    '41': 41 Número de minutos dedicados a llevar
+    '42': 42 Número de minutos dedicados a llevar
+    '43': 43 Número de minutos dedicados a llevar
+    '44': 44 Número de minutos dedicados a llevar
+    '45': 45 Número de minutos dedicados a llevar
+    '46': 46 Número de minutos dedicados a llevar
+    '47': 47 Número de minutos dedicados a llevar
+    '48': 48 Número de minutos dedicados a llevar
+    '49': 49 Número de minutos dedicados a llevar
+    '50': 50 Número de minutos dedicados a llevar
+    '51': 51 Número de minutos dedicados a llevar
+    '52': 52 Número de minutos dedicados a llevar
+    '53': 53 Número de minutos dedicados a llevar
+    '54': 54 Número de minutos dedicados a llevar
+    '55': 55 Número de minutos dedicados a llevar
+    '56': 56 Número de minutos dedicados a llevar
+    '57': 57 Número de minutos dedicados a llevar
+    '58': 58 Número de minutos dedicados a llevar
+    '59': 59 Número de minutos dedicados a llevar
+  Especiales:
+    '98': 98 Realizó la actividad,pero no sabe cuánto tiempo le dedicó.
+    '99': 99 No sabe si realizó la actividad.
+P9_5:
+  Descripción: Tiempo dedicado a construir o ampliar su vivienda
+  Pregunta: Durante la semana pasada ¿cuánto tiempo dedicó ... a
+  Tipo: categorical
+  Longitud: '1'
+  Categorías:
+    '5': construir o ampliar su vivienda
+P9_H5:
+  Descripción: Horas dedicadas a construir o ampliar su vivienda
+  Pregunta: Durante la semana pasada ¿cuánto tiempo dedicó ... a
+  Tipo: numeric
+  Longitud: '2'
+  Categorías: {}
+  Especiales:
+    '98': 98 Realizó la actividad, pero no sabe cuánto tiempo le dedicó.
+    '99': 99 No sabe si realizó la actividad.
+P9_M5:
+  Descripción: Minutos dedicados a construir o ampliar su vivienda
+  Pregunta: Durante la semana pasada ¿cuánto tiempo dedicó ... a
+  Tipo: categorical
+  Longitud: '2'
+  Categorías:
+    '0': 0 Número de minutos dedicadas a construir
+    '1': 1 Número de minutos dedicadas a construir
+    '2': 2 Número de minutos dedicadas a construir
+    '3': 3 Número de minutos dedicadas a construir
+    '4': 4 Número de minutos dedicadas a construir
+    '5': 5 Número de minutos dedicadas a construir
+    '6': 6 Número de minutos dedicadas a construir
+    '7': 7 Número de minutos dedicadas a construir
+    '8': 8 Número de minutos dedicadas a construir
+    '9': 9 Número de minutos dedicadas a construir
+    '10': 10 Número de minutos dedicadas a construir
+    '11': 11 Número de minutos dedicadas a construir
+    '12': 12 Número de minutos dedicadas a construir
+    '13': 13 Número de minutos dedicadas a construir
+    '14': 14 Número de minutos dedicadas a construir
+    '15': 15 Número de minutos dedicadas a construir
+    '16': 16 Número de minutos dedicadas a construir
+    '17': 17 Número de minutos dedicadas a construir
+    '18': 18 Número de minutos dedicadas a construir
+    '19': 19 Número de minutos dedicadas a construir
+    '20': 20 Número de minutos dedicadas a construir
+    '21': 21 Número de minutos dedicadas a construir
+    '22': 22 Número de minutos dedicadas a construir
+    '23': 23 Número de minutos dedicadas a construir
+    '24': 24 Número de minutos dedicadas a construir
+    '25': 25 Número de minutos dedicadas a construir
+    '26': 26 Número de minutos dedicadas a construir
+    '27': 27 Número de minutos dedicadas a construir
+    '28': 28 Número de minutos dedicadas a construir
+    '29': 29 Número de minutos dedicadas a construir
+    '30': 30 Número de minutos dedicadas a construir
+    '31': 31 Número de minutos dedicadas a construir
+    '32': 32 Número de minutos dedicadas a construir
+    '33': 33 Número de minutos dedicadas a construir
+    '34': 34 Número de minutos dedicadas a construir
+    '35': 35 Número de minutos dedicadas a construir
+    '36': 36 Número de minutos dedicadas a construir
+    '37': 37 Número de minutos dedicadas a construir
+    '38': 38 Número de minutos dedicadas a construir
+    '39': 39 Número de minutos dedicadas a construir
+    '40': 40 Número de minutos dedicadas a construir
+    '41': 41 Número de minutos dedicadas a construir
+    '42': 42 Número de minutos dedicadas a construir
+    '43': 43 Número de minutos dedicadas a construir
+    '44': 44 Número de minutos dedicadas a construir
+    '45': 45 Número de minutos dedicadas a construir
+    '46': 46 Número de minutos dedicadas a construir
+    '47': 47 Número de minutos dedicadas a construir
+    '48': 48 Número de minutos dedicadas a construir
+    '49': 49 Número de minutos dedicadas a construir
+    '50': 50 Número de minutos dedicadas a construir
+    '51': 51 Número de minutos dedicadas a construir
+    '52': 52 Número de minutos dedicadas a construir
+    '53': 53 Número de minutos dedicadas a construir
+    '54': 54 Número de minutos dedicadas a construir
+    '55': 55 Número de minutos dedicadas a construir
+    '56': 56 Número de minutos dedicadas a construir
+    '57': 57 Número de minutos dedicadas a construir
+    '58': 58 Número de minutos dedicadas a construir
+    '59': 59 Número de minutos dedicadas a construir
+P9_6:
+  Descripción: Tiempo dedicado a reparar o dar mantenimiento a su vivienda, muebles, aparatos electrodomésticos
+    o vehículos
+  Pregunta: Durante la semana pasada ¿cuánto tiempo dedicó ... a
+  Tipo: categorical
+  Longitud: '1'
+  Categorías:
+    '6': reparar o dar mantenimiento a su vivienda, muebles, aparatos electrodomésticos o vehículos
+P9_H6:
+  Descripción: Horas dedicadas a reparar o dar mantenimiento a su vivienda, muebles, aparatos electrodomésticos
+    o vehículos
+  Pregunta: Durante la semana pasada ¿cuánto tiempo dedicó ... a
+  Tipo: numeric
+  Longitud: '2'
+  Categorías: {}
+  Especiales:
+    '98': 98 Realizó la actividad, pero no sabe cuánto tiempo le dedicó.
+    '99': 99 No sabe si realizó la actividad.
+P9_M6:
+  Descripción: Minutos dedicados a reparar o dar mantenimiento a su vivienda, muebles, aparatos electrodomésticos
+    o vehículos
+  Pregunta: Durante la semana pasada ¿cuánto tiempo dedicó ... a
+  Tipo: categorical
+  Longitud: '2'
+  Categorías:
+    '0': 0 Número de minutos dedicados a reparar
+    '1': 1 Número de minutos dedicados a reparar
+    '2': 2 Número de minutos dedicados a reparar
+    '3': 3 Número de minutos dedicados a reparar
+    '4': 4 Número de minutos dedicados a reparar
+    '5': 5 Número de minutos dedicados a reparar
+    '6': 6 Número de minutos dedicados a reparar
+    '7': 7 Número de minutos dedicados a reparar
+    '8': 8 Número de minutos dedicados a reparar
+    '9': 9 Número de minutos dedicados a reparar
+    '10': 10 Número de minutos dedicados a reparar
+    '11': 11 Número de minutos dedicados a reparar
+    '12': 12 Número de minutos dedicados a reparar
+    '13': 13 Número de minutos dedicados a reparar
+    '14': 14 Número de minutos dedicados a reparar
+    '15': 15 Número de minutos dedicados a reparar
+    '16': 16 Número de minutos dedicados a reparar
+    '17': 17 Número de minutos dedicados a reparar
+    '18': 18 Número de minutos dedicados a reparar
+    '19': 19 Número de minutos dedicados a reparar
+    '20': 20 Número de minutos dedicados a reparar
+    '21': 21 Número de minutos dedicados a reparar
+    '22': 22 Número de minutos dedicados a reparar
+    '23': 23 Número de minutos dedicados a reparar
+    '24': 24 Número de minutos dedicados a reparar
+    '25': 25 Número de minutos dedicados a reparar
+    '26': 26 Número de minutos dedicados a reparar
+    '27': 27 Número de minutos dedicados a reparar
+    '28': 28 Número de minutos dedicados a reparar
+    '29': 29 Número de minutos dedicados a reparar
+    '30': 30 Número de minutos dedicados a reparar
+    '31': 31 Número de minutos dedicados a reparar
+    '32': 32 Número de minutos dedicados a reparar
+    '33': 33 Número de minutos dedicados a reparar
+    '34': 34 Número de minutos dedicados a reparar
+    '35': 35 Número de minutos dedicados a reparar
+    '36': 36 Número de minutos dedicados a reparar
+    '37': 37 Número de minutos dedicados a reparar
+    '38': 38 Número de minutos dedicados a reparar
+    '39': 39 Número de minutos dedicados a reparar
+    '40': 40 Número de minutos dedicados a reparar
+    '41': 41 Número de minutos dedicados a reparar
+    '42': 42 Número de minutos dedicados a reparar
+    '43': 43 Número de minutos dedicados a reparar
+    '44': 44 Número de minutos dedicados a reparar
+    '45': 45 Número de minutos dedicados a reparar
+    '46': 46 Número de minutos dedicados a reparar
+    '47': 47 Número de minutos dedicados a reparar
+    '48': 48 Número de minutos dedicados a reparar
+    '49': 49 Número de minutos dedicados a reparar
+    '50': 50 Número de minutos dedicados a reparar
+    '51': 51 Número de minutos dedicados a reparar
+    '52': 52 Número de minutos dedicados a reparar
+    '53': 53 Número de minutos dedicados a reparar
+    '54': 54 Número de minutos dedicados a reparar
+    '55': 55 Número de minutos dedicados a reparar
+    '56': 56 Número de minutos dedicados a reparar
+    '57': 57 Número de minutos dedicados a reparar
+    '58': 58 Número de minutos dedicados a reparar
+    '59': 59 Número de minutos dedicados a reparar
+P9_7:
+  Descripción: Tiempo dedicado a realizar los quehaceres de su hogar
+  Pregunta: Durante la semana pasada ¿cuánto tiempo dedicó ... a
+  Tipo: categorical
+  Longitud: '3'
+  Categorías:
+    '7': realizar los quehaceres de su hogar (lavar, planchar, preparar y servir alimentos, barrer)
+P9_H7:
+  Descripción: Horas dedicadas a realizar los quehaceres de su hogar
+  Pregunta: Durante la semana pasada ¿cuánto tiempo dedicó ... a
+  Tipo: numeric
+  Longitud: '3'
+  Categorías: {}
+  Especiales:
+    '98': 98 Realizó la actividad, pero no sabe cuánto tiempo le dedicó.
+    '99': 99 No sabe si realizó la actividad.
 P9_M7:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Minutos dedicados a realizar los quehaceres de su hogar
+  Pregunta: Durante la semana pasada ¿cuánto tiempo dedicó ... a
+  Tipo: categorical
+  Longitud: '2'
   Categorías:
-    '0': '0'
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '5': '5'
-    '6': '6'
-    '7': '7'
-    '8': '8'
-    '10': '10'
-    '11': '11'
-    '15': '15'
-    '20': '20'
-    '22': '22'
-    '23': '23'
-    '25': '25'
-    '29': '29'
-    '30': '30'
-    '31': '31'
-    '33': '33'
-    '34': '34'
-    '35': '35'
-    '36': '36'
-    '40': '40'
-    '43': '43'
-    '45': '45'
-    '50': '50'
-    '55': '55'
-    ' ': ' '
+    '0': 0 Número de minutos dedicados a quehaceres
+    '1': 1 Número de minutos dedicados a quehaceres
+    '2': 2 Número de minutos dedicados a quehaceres
+    '3': 3 Número de minutos dedicados a quehaceres
+    '4': 4 Número de minutos dedicados a quehaceres
+    '5': 5 Número de minutos dedicados a quehaceres
+    '6': 6 Número de minutos dedicados a quehaceres
+    '7': 7 Número de minutos dedicados a quehaceres
+    '8': 8 Número de minutos dedicados a quehaceres
+    '9': 9 Número de minutos dedicados a quehaceres
+    '10': 10 Número de minutos dedicados a quehaceres
+    '11': 11 Número de minutos dedicados a quehaceres
+    '12': 12 Número de minutos dedicados a quehaceres
+    '13': 13 Número de minutos dedicados a quehaceres
+    '14': 14 Número de minutos dedicados a quehaceres
+    '15': 15 Número de minutos dedicados a quehaceres
+    '16': 16 Número de minutos dedicados a quehaceres
+    '17': 17 Número de minutos dedicados a quehaceres
+    '18': 18 Número de minutos dedicados a quehaceres
+    '19': 19 Número de minutos dedicados a quehaceres
+    '20': 20 Número de minutos dedicados a quehaceres
+    '21': 21 Número de minutos dedicados a quehaceres
+    '22': 22 Número de minutos dedicados a quehaceres
+    '23': 23 Número de minutos dedicados a quehaceres
+    '24': 24 Número de minutos dedicados a quehaceres
+    '25': 25 Número de minutos dedicados a quehaceres
+    '26': 26 Número de minutos dedicados a quehaceres
+    '27': 27 Número de minutos dedicados a quehaceres
+    '28': 28 Número de minutos dedicados a quehaceres
+    '29': 29 Número de minutos dedicados a quehaceres
+    '30': 30 Número de minutos dedicados a quehaceres
+    '31': 31 Número de minutos dedicados a quehaceres
+    '32': 32 Número de minutos dedicados a quehaceres
+    '33': 33 Número de minutos dedicados a quehaceres
+    '34': 34 Número de minutos dedicados a quehaceres
+    '35': 35 Número de minutos dedicados a quehaceres
+    '36': 36 Número de minutos dedicados a quehaceres
+    '37': 37 Número de minutos dedicados a quehaceres
+    '38': 38 Número de minutos dedicados a quehaceres
+    '39': 39 Número de minutos dedicados a quehaceres
+    '40': 40 Número de minutos dedicados a quehaceres
+    '41': 41 Número de minutos dedicados a quehaceres
+    '42': 42 Número de minutos dedicados a quehaceres
+    '43': 43 Número de minutos dedicados a quehaceres
+    '44': 44 Número de minutos dedicados a quehaceres
+    '45': 45 Número de minutos dedicados a quehaceres
+    '46': 46 Número de minutos dedicados a quehaceres
+    '47': 47 Número de minutos dedicados a quehaceres
+    '48': 48 Número de minutos dedicados a quehaceres
+    '49': 49 Número de minutos dedicados a quehaceres
+    '50': 50 Número de minutos dedicados a quehaceres
+    '51': 51 Número de minutos dedicados a quehaceres
+    '52': 52 Número de minutos dedicados a quehaceres
+    '53': 53 Número de minutos dedicados a quehaceres
+    '54': 54 Número de minutos dedicados a quehaceres
+    '55': 55 Número de minutos dedicados a quehaceres
+    '56': 56 Número de minutos dedicados a quehaceres
+    '57': 57 Número de minutos dedicados a quehaceres
+    '58': 58 Número de minutos dedicados a quehaceres
+    '59': 59 Número de minutos dedicados a quehaceres
 P9_8:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Tiempo dedicado a prestar servicios gratuitos a su comunidad
+  Pregunta: Durante la semana pasada ¿cuánto tiempo dedicó ... a
+  Tipo: categorical
+  Longitud: '3'
   Categorías:
-    '8': '8'
-    ' ': ' '
+    '0': No aplica
+    '8': prestar servicios gratuitos a su comunidad (conseguir despensas, cuidar personas en un hospital)
 P9_H8:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
-  Categorías:
-    '0': '0'
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '5': '5'
-    '6': '6'
-    '7': '7'
-    '8': '8'
-    '9': '9'
-    '10': '10'
-    '11': '11'
-    '12': '12'
-    '13': '13'
-    '14': '14'
-    '15': '15'
-    '16': '16'
-    '17': '17'
-    '18': '18'
-    '19': '19'
-    '20': '20'
-    '21': '21'
-    '22': '22'
-    '24': '24'
-    '25': '25'
-    '26': '26'
-    '27': '27'
-    '28': '28'
-    '29': '29'
-    '30': '30'
-    '31': '31'
-    '32': '32'
-    '34': '34'
-    '35': '35'
-    '36': '36'
-    '40': '40'
-    '42': '42'
-    '45': '45'
-    '48': '48'
-    '49': '49'
-    '50': '50'
-    '52': '52'
-    '56': '56'
-    '57': '57'
-    '60': '60'
-    '62': '62'
-    '70': '70'
-    '72': '72'
-    '98': '98'
-    '99': '99'
-    ' ': ' '
+  Descripción: Horas dedicadas a prestar servicios gratuitos a su comunidad
+  Pregunta: Durante la semana pasada ¿cuánto tiempo dedicó ... a
+  Tipo: numeric
+  Longitud: '3'
+  Categorías: {}
+  Especiales:
+    '98': 98 Realizó la actividad, pero no sabe cuanto
+    '99': 99 No sabe si realizó la actividad
 P9_M8:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Minutos dedicados a prestar servicios gratuitos a su comunidad
+  Pregunta: Durante la semana pasada ¿cuánto tiempo dedicó ... a
+  Tipo: categorical
+  Longitud: '8'
   Categorías:
+    '00': 0 Número de minutos dedicados a servicios
+    '01': 1 Número de minutos dedicados a servicios
+    '02': 2 Número de minutos dedicados a servicios
+    '03': 3 Número de minutos dedicados a servicios
+    '04': 4 Número de minutos dedicados a servicios
+    '05': 5 Número de minutos dedicados a servicios
+    '06': 6 Número de minutos dedicados a servicios
+    '07': 7 Número de minutos dedicados a servicios
+    08: 8 Número de minutos dedicados a servicios
+    09: 9 Número de minutos dedicados a servicios
+    '10': 10 Número de minutos dedicados a servicios
+    '11': 11 Número de minutos dedicados a servicios
+    '12': 12 Número de minutos dedicados a servicios
+    '13': 13 Número de minutos dedicados a servicios
+    '14': 14 Número de minutos dedicados a servicios
+    '15': 15 Número de minutos dedicados a servicios
+    '16': 16 Número de minutos dedicados a servicios
+    '17': 17 Número de minutos dedicados a servicios
+    '18': 18 Número de minutos dedicados a servicios
+    '19': 19 Número de minutos dedicados a servicios
+    '20': 20 Número de minutos dedicados a servicios
+    '21': 21 Número de minutos dedicados a servicios
+    '22': 22 Número de minutos dedicados a servicios
+    '23': 23 Número de minutos dedicados a servicios
+    '24': 24 Número de minutos dedicados a servicios
+    '25': 25 Número de minutos dedicados a servicios
+    '26': 26 Número de minutos dedicados a servicios
+    '27': 27 Número de minutos dedicados a servicios
+    '28': 28 Número de minutos dedicados a servicios
+    '29': 29 Número de minutos dedicados a servicios
+    '30': 30 Número de minutos dedicados a servicios
+    '40': 40 Número de minutos dedicados a servicios
+    '45': 45 Número de minutos dedicados a servicios
+    '50': 50 Número de minutos dedicados a servicios
     '0': '0'
     '3': '3'
+    '35': '35'
     '4': '4'
     '5': '5'
-    '10': '10'
-    '15': '15'
-    '20': '20'
-    '21': '21'
-    '25': '25'
-    '30': '30'
-    '35': '35'
-    '40': '40'
-    '45': '45'
-    '50': '50'
-    ' ': ' '
+  Nota: 'códigos observados sin etiqueta en el DDI: [''0'', ''3'', ''35'', ''4'', ''5'']'
 UR:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Variable de apoyo
+  Pregunta: Variable de apoyo del sistema de captura.
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '1': '1'
-    '2': '2'
+    '1': Urbano
+    '2': Rural
 FAC:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Factor de expansión
+  Pregunta: No existe pregunta, es un dato calculado.
+  Tipo: numeric
+  Longitud: '5'
   Categorías: {}

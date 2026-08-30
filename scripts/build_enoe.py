@@ -33,6 +33,7 @@ Metadata modes (from parquet already on disk, no download):
 from __future__ import annotations
 
 import argparse
+import functools
 import shutil
 import zipfile
 from collections import defaultdict
@@ -43,6 +44,7 @@ import pyarrow.parquet as pq
 import yaml
 
 import _build_common as bc
+import _dict_ddi as ddi
 from mxcensus._schema_groups import fingerprint
 from mxcensus.data._enoe_catalog import (
     CATALOG_VERIFIED_DATE,
@@ -64,6 +66,7 @@ _DEFAULT_YAML_DIR = _DEFAULT_SCHEMA_MAP.parent
 _CORE_PATH = _DEFAULT_YAML_DIR / "variables_enoe_core.yaml"
 _DEFAULT_VALIDATE_REPORT = _REPO_ROOT / "docs" / "enoe" / "VALIDATION_REPORT.md"
 _DEFAULT_REGISTRY = _REPO_ROOT / "src" / "mxcensus" / "data" / "registry.txt"
+_DEFAULT_DDI_DIR = _REPO_ROOT / "data" / "dict" / "ddi"
 
 
 # --- CSV reading (copied verbatim from build_denue.py; see its docstrings) ------------
@@ -328,47 +331,57 @@ def _write_report(out_dir: Path, report_path: Path) -> dict:
     return doc
 
 
-# --- variable dictionaries (data-derived categories + hand-curated core descriptions) --
+# --- variable dictionaries (DDI metadata + data-derived categories + hand-curated core) --
 
-def _code_sort_key(v: str):
-    """Sort category keys numerically when they look like codes, else lexically."""
-    s = v.lstrip("-")
-    return (0, int(v)) if s.isdigit() else (1, v)
+def _fetch_dictionaries(ddi_dir: Path, periods: list[str]) -> list[Path]:
+    """Download (once) every RNM DDI codebook that may document ``periods``."""
+    ids = sorted({i for p in periods for i in ddi.enoe_ddi_ids(p)})
+    paths = []
+    for i in ids:
+        paths.append(ddi.fetch_ddi(i, ddi_dir))
+        print(f"  DDI {i} → {paths[-1].name}")
+    return paths
 
 
-def _build_categories(paths: list[Path], threshold: int) -> dict:
-    """`{column: {value: value}}` for a group — distinct values enumerated across its files.
+@functools.cache
+def _ddi(ddi_dir: Path, catalog_id: int) -> dict:
+    path = ddi_dir / f"{catalog_id}.xml"
+    return ddi.parse_ddi(path) if path.exists() else {}
 
-    A column with more than ``threshold`` distinct values is dropped (high-cardinality /
-    continuous / free-text — e.g. weights, ids, the ``*_des`` open-text fields), so what
-    remains is the genuinely categorical columns. Data is the only source (ENOE ZIPs bundle
-    no dictionary); values map to themselves.
-    """
-    if not paths:
-        return {}
-    cols = list(pq.ParquetFile(paths[0]).schema_arrow.names)
-    seen: dict[str, set | None] = {c: set() for c in cols}
-    alive = set(cols)
-    for p in paths:
-        present = [c for c in alive if c in pq.ParquetFile(p).schema_arrow.names]
-        df = pd.read_parquet(p, columns=present)
-        for c in present:
-            seen[c].update(str(v) for v in df[c].dropna().unique())
-            if len(seen[c]) > threshold:
-                alive.discard(c)
-                seen[c] = None  # high-cardinality → not a category column
-    return {c: {v: v for v in sorted(seen[c], key=_code_sort_key)}
-            for c in cols if seen[c] is not None}
+
+def _ddi_doc_for(ddi_dir: Path, table: str, periods: list[str], columns: list[str]) -> tuple[dict | None, str]:
+    """The DDI file documenting a schema group: the exact ``(table, period)`` file of its
+    latest period, else the same-table file of the same or previous year with the largest
+    column overlap (a quarter not yet catalogued — 2026 — reuses last year's questionnaire
+    metadata; columns it lacks fall back to the data). Returns ``(doc, provenance)``."""
+    want = {c.lower() for c in columns}
+    best = None
+    for period in sorted(periods, reverse=True):
+        for cid in ddi.enoe_ddi_ids(period):
+            for stem, vs in _ddi(ddi_dir, cid).items():
+                fp = ddi.enoe_file_period(stem)
+                if fp is None or fp[0] != table:
+                    continue
+                if fp[1] == period:
+                    return vs, f"DDI {cid}/{stem}"
+                overlap = len(want & {k.lower() for k in vs}) / max(len(want), 1)
+                if best is None or overlap > best[0]:
+                    best = (overlap, vs, f"DDI {cid}/{stem} (fallback for {period}, {overlap:.0%} of columns)")
+        if best is not None:
+            return best[1], best[2]
+    return None, "none"
 
 
 def _write_variables_yaml(out_dir: Path, map_path: Path, yaml_dir: Path,
-                          threshold: int = 64) -> int:
+                          threshold: int = 64, ddi_dir: Path = _DEFAULT_DDI_DIR) -> int:
     """Write one variables_enoe_{table}_{gNN}.yaml per (table, schema group).
 
-    Categorías are data-derived (distinct values ≤ threshold). Descripción/Tipo/Longitud
-    are filled from the hand-curated ``variables_enoe_core.yaml`` for the ~24 analytical-core
-    variables and left blank otherwise (ENOE ZIPs carry no per-file dictionary). Returns the
-    number of files written.
+    Per column, in priority: the hand-curated ``variables_enoe_core.yaml`` entry (verbatim —
+    it fixes ordinal order, ranges and sentinels for the analytical core); the INEGI DDI
+    codebook entry (label, question, type, code→label categories reconciled against the
+    codes observed in the group's data, see :func:`_dict_ddi.dictionary_entry`); else the
+    data-enumerated identity map (≤ ``threshold`` distinct values). Prints per-group
+    provenance counts. Returns the number of files written.
     """
     schema_map = yaml.safe_load(map_path.read_text(encoding="utf-8"))
     core = yaml.safe_load(_CORE_PATH.read_text(encoding="utf-8")) if _CORE_PATH.exists() else {}
@@ -378,28 +391,15 @@ def _write_variables_yaml(out_dir: Path, map_path: Path, yaml_dir: Path,
         for gid, g in td["groups"].items():
             paths = [out_dir / f"enoe_{table}_{p}.parquet" for p in g["periods"]]
             paths = [p for p in paths if p.exists()]
-            cats = _build_categories(paths, threshold)
-            doc = {}
-            for col in g["columns"]:
-                if col in core:
-                    # Analytical-core var: take the hand-curated entry verbatim — its
-                    # categories are the complete, FD-sourced, labelled value-set, so the
-                    # isin check stays robust despite a partial build and flags out-of-
-                    # catalog anomalies (mirrors DENUE labelling coded fields from its catalog).
-                    m = core[col]
-                    doc[col] = {
-                        "Descripción": m.get("Descripción", ""),
-                        "Tipo": m.get("Tipo", ""),
-                        "Longitud": m.get("Longitud", ""),
-                        "Categorías": m.get("Categorías", {}),
-                    }
-                else:
-                    doc[col] = {"Descripción": "", "Tipo": "", "Longitud": "",
-                                "Categorías": cats.get(col, {})}
-            path = yaml_dir / f"variables_enoe_{table}_{gid}.yaml"
-            with open(path, "w", encoding="utf-8") as f:
-                yaml.safe_dump(doc, f, sort_keys=False, allow_unicode=True,
-                               default_flow_style=False)
+            observed = ddi.observed_values(paths, g["columns"], threshold)
+            doc, prov = _ddi_doc_for(ddi_dir, table, g["periods"], g["columns"])
+            entries, sources = ddi.group_entries(g["columns"], observed, core, doc, threshold)
+            counts = defaultdict(int)
+            for src in sources.values():
+                counts[src] += 1
+            print(f"  {table}/{gid}: {len(paths)}/{len(g['periods'])} file(s) read; {prov}; "
+                  + ", ".join(f"{k}={v}" for k, v in sorted(counts.items())))
+            ddi.dump_yaml(entries, yaml_dir / f"variables_enoe_{table}_{gid}.yaml")
             n += 1
     return n
 
@@ -486,6 +486,9 @@ def main() -> None:
     parser.add_argument("--cat-threshold", type=int, default=64, metavar="N",
                         help="Max distinct values for a column to be enumerated as a category")
     parser.add_argument("--yaml-dir", type=Path, default=_DEFAULT_YAML_DIR, metavar="DIR")
+    parser.add_argument("--dictionary", action="store_true",
+                        help="Download INEGI's DDI codebooks (RNM) for --periods into --ddi-dir")
+    parser.add_argument("--ddi-dir", type=Path, default=_DEFAULT_DDI_DIR, metavar="DIR")
     parser.add_argument("--validate", action="store_true",
                         help="Skip downloading; validate every parquet against its group schema")
     parser.add_argument("--validate-report", type=Path, default=_DEFAULT_VALIDATE_REPORT,
@@ -519,9 +522,14 @@ def main() -> None:
         print(f"Report → {args.report}  ({len(doc)} table(s))")
         return
 
+    if args.dictionary:
+        paths = _fetch_dictionaries(args.ddi_dir, args.periods)
+        print(f"{len(paths)} DDI codebook(s) in {args.ddi_dir}")
+        return
+
     if args.variables:
         n = _write_variables_yaml(args.output, args.schema_map_path, args.yaml_dir,
-                                  args.cat_threshold)
+                                  args.cat_threshold, args.ddi_dir)
         print(f"Wrote {n} variables_enoe_<table>_<gNN>.yaml → {args.yaml_dir}")
         return
 

@@ -1,441 +1,285 @@
 loc:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
-  Categorías:
-    ' ': ' '
+  Descripción: Localidad
+  Pregunta: No existe pregunta, es un identificador de la vivienda.
+  Tipo: string
+  Longitud: '4'
+  Categorías: {}
 mun:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Municipio
+  Pregunta: No existe pregunta, es un identificador de la vivienda.
+  Tipo: numeric
+  Longitud: '3'
   Categorías: {}
 est:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
-  Categorías:
-    '10': '10'
-    '11': '11'
-    '12': '12'
-    '13': '13'
-    '14': '14'
-    '20': '20'
-    '21': '21'
-    '22': '22'
-    '23': '23'
-    '24': '24'
-    '30': '30'
-    '31': '31'
-    '32': '32'
-    '33': '33'
-    '40': '40'
-    '41': '41'
-    '42': '42'
-    '43': '43'
+  Descripción: Estrato
+  Pregunta: No existe pregunta, es un identificador de la vivienda.
+  Tipo: numeric
+  Longitud: '2'
+  Categorías: {}
 est_d:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Estrato de diseño
+  Pregunta: No existe pregunta, es un identificador de la vivienda.
+  Tipo: numeric
+  Longitud: '3'
   Categorías: {}
 ageb:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Áreas geoestadística básica
+  Pregunta: No existe pregunta, es un identificador de la vivienda.
+  Tipo: categorical
+  Longitud: '5'
   Categorías:
-    '0': '0'
+    '0': '00000'
 t_loc:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Tamaño de localidad
+  Pregunta: No existe pregunta, es un identificador de la vivienda.
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
+    '1': Áreas más urbanizadas
+    '2': Urbano medio
+    '3': Urbano bajo
+    '4': Rural
 cd_a:
   Descripción: Ciudad autorrepresentada (agrupación de áreas de la muestra)
-  Tipo: Carácter
+  Tipo: string
   Longitud: '2'
   Categorías: {}
 ent:
   Descripción: Entidad federativa (01-32)
-  Tipo: Carácter
+  Tipo: string
   Longitud: '2'
   Categorías: {}
 con:
   Descripción: Número de control de la vivienda
-  Tipo: Carácter
+  Tipo: string
   Longitud: '5'
   Categorías: {}
 upm:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Unidad primaria de muestreo
+  Pregunta: No existe pregunta, es un identificador de la vivienda.
+  Tipo: string
+  Longitud: '7'
   Categorías: {}
 d_sem:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Distribución semanal
+  Pregunta: No existe pregunta, es un identificador de la vivienda.
+  Tipo: numeric
+  Longitud: '3'
   Categorías: {}
 n_pro_viv:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Número progresivo de la vivienda
+  Pregunta: No existe pregunta, es un identificador de la vivienda.
+  Tipo: numeric
+  Longitud: '4'
   Categorías: {}
 v_sel:
   Descripción: Vivienda seleccionada
-  Tipo: Carácter
+  Tipo: string
   Longitud: '2'
   Categorías: {}
 n_hog:
   Descripción: Número de hogar
-  Tipo: Carácter
+  Tipo: string
   Longitud: '1'
   Categorías: {}
 h_mud:
   Descripción: Hogar mudado (número de veces que el hogar se ha mudado)
-  Tipo: Carácter
+  Tipo: string
   Longitud: '1'
   Categorías: {}
 n_ent:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Número de entrevista
+  Pregunta: No existe pregunta, es un identificador de la vivienda.
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '5': '5'
+    '1': Entrevista 1
+    '2': Entrevista 2
+    '3': Entrevista 3
+    '4': Entrevista 4
+    '5': Entrevista 5
 per:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
-  Categorías:
-    '105': '105'
-    '106': '106'
-    '107': '107'
-    '108': '108'
-    '109': '109'
-    '110': '110'
-    '111': '111'
-    '112': '112'
-    '113': '113'
-    '114': '114'
-    '115': '115'
-    '116': '116'
-    '117': '117'
-    '118': '118'
-    '119': '119'
-    '120': '120'
-    '205': '205'
-    '206': '206'
-    '207': '207'
-    '208': '208'
-    '209': '209'
-    '210': '210'
-    '211': '211'
-    '212': '212'
-    '213': '213'
-    '214': '214'
-    '215': '215'
-    '216': '216'
-    '217': '217'
-    '218': '218'
-    '219': '219'
-    '305': '305'
-    '306': '306'
-    '307': '307'
-    '308': '308'
-    '309': '309'
-    '310': '310'
-    '311': '311'
-    '312': '312'
-    '313': '313'
-    '314': '314'
-    '315': '315'
-    '316': '316'
-    '317': '317'
-    '318': '318'
-    '405': '405'
-    '406': '406'
-    '407': '407'
-    '408': '408'
-    '409': '409'
-    '410': '410'
-    '411': '411'
-    '412': '412'
-    '413': '413'
-    '414': '414'
-    '415': '415'
-    '416': '416'
-    '417': '417'
-    '418': '418'
+  Descripción: Periodo
+  Pregunta: No existe pregunta, es un identificador de la vivienda.
+  Tipo: numeric
+  Longitud: '3'
+  Categorías: {}
+  Nota: 'numérica: el DDI sólo enumera códigos especiales'
 r_pre:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Resultado preliminar
+  Pregunta: No se pregunta.
+  Tipo: categorical
+  Longitud: '2'
   Categorías:
-    '0': '0'
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '5': '5'
-    '6': '6'
-    '7': '7'
-    '8': '8'
-    '9': '9'
-    '10': '10'
-    '11': '11'
-    '12': '12'
-    '13': '13'
-    '14': '14'
-    '15': '15'
+    '0': Entrevista lograda
+    '1': Nadie en el momento de las visitas
+    '2': Ausente temporalmente
+    '3': Se negó a dar información
+    '4': Informante inadecuado
+    '5': Otro motivo (especifica en observaciones)
+    '6': Adecuada para habitarse
+    '7': De uso temporal
+    '8': Inadecuada para habitarse
+    '9': De uso temporal para fines diferentes de habitación
+    '10': Demolida
+    '11': Cambió de sitio (móvil)
+    '12': Uso permanente para fines diferentes a los de habitación
+    '13': Otro motivo (especifica en observaciones)
+    '14': El hogar se mudó
+    '15': Entrevista suspendida
 p_dia:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Día preliminar
+  Pregunta: No se pregunta.
+  Tipo: categorical
+  Longitud: '2'
   Categorías:
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '5': '5'
-    '6': '6'
-    '7': '7'
-    '8': '8'
-    '9': '9'
-    '10': '10'
-    '11': '11'
-    '12': '12'
-    '13': '13'
-    '14': '14'
-    '15': '15'
-    '16': '16'
-    '17': '17'
-    '18': '18'
-    '19': '19'
-    '20': '20'
-    '21': '21'
-    '22': '22'
-    '23': '23'
-    '24': '24'
-    '25': '25'
-    '26': '26'
-    '27': '27'
-    '28': '28'
-    '29': '29'
-    '30': '30'
-    '31': '31'
+    '1': 01 Día preliminar de la entrev.
+    '2': 02 Día preliminar de la entrev.
+    '3': 03 Día preliminar de la entrev.
+    '4': 04 Día preliminar de la entrev.
+    '5': 05 Día preliminar de la entrev.
+    '6': 06 Día preliminar de la entrev.
+    '7': 07 Día preliminar de la entrev.
+    '8': 08 Día preliminar de la entrev.
+    '9': 09 Día preliminar de la entrev.
+    '10': 10 Día preliminar de la entrev.
+    '11': 11 Día preliminar de la entrev.
+    '12': 12 Día preliminar de la entrev.
+    '13': 13 Día preliminar de la entrev.
+    '14': 14 Día preliminar de la entrev.
+    '15': 15 Día preliminar de la entrev.
+    '16': 16 Día preliminar de la entrev.
+    '17': 17 Día preliminar de la entrev.
+    '18': 18 Día preliminar de la entrev.
+    '19': 19 Día preliminar de la entrev.
+    '20': 20 Día preliminar de la entrev.
+    '21': 21 Día preliminar de la entrev.
+    '22': 22 Día preliminar de la entrev.
+    '23': 23 Día preliminar de la entrev.
+    '24': 24 Día preliminar de la entrev.
+    '25': 25 Día preliminar de la entrev.
+    '26': 26 Día preliminar de la entrev.
+    '27': 27 Día preliminar de la entrev.
+    '28': 28 Día preliminar de la entrev.
+    '29': 29 Día preliminar de la entrev.
+    '30': 30 Día preliminar de la entrev.
+    '31': 31 Día preliminar de la entrev.
 p_mes:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
-  Categorías:
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '5': '5'
-    '6': '6'
-    '7': '7'
-    '8': '8'
-    '9': '9'
-    '10': '10'
-    '11': '11'
-    '12': '12'
+  Descripción: Mes preliminar
+  Pregunta: No se pregunta.
+  Tipo: numeric
+  Longitud: '2'
+  Categorías: {}
+  Nota: 'numérica: el DDI sólo enumera códigos especiales'
 p_anio:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
-  Categorías:
-    '5': '5'
-    '6': '6'
-    '7': '7'
-    '8': '8'
-    '9': '9'
-    '10': '10'
-    '11': '11'
-    '12': '12'
-    '13': '13'
-    '14': '14'
-    '15': '15'
-    '16': '16'
-    '17': '17'
-    '18': '18'
-    '19': '19'
-    '20': '20'
+  Descripción: Año preliminar
+  Pregunta: No se pregunta.
+  Tipo: numeric
+  Longitud: '2'
+  Categorías: {}
+  Nota: 'numérica: el DDI sólo enumera códigos especiales'
 r_def:
-  Descripción: Resultado definitivo de la entrevista (filtro analítico R_DEF == '00');
-    códigos 00-15, etiquetas en la tabla de vivienda/hogar
-  Tipo: Carácter
+  Descripción: Resultado definitivo de la entrevista (filtro analítico R_DEF == '00'; códigos 00-15, sin
+    cero a la izquierda en el CSV)
+  Tipo: string
   Longitud: '2'
   Categorías: {}
 d_dia:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Día definitivo
+  Pregunta: No se pregunta.
+  Tipo: categorical
+  Longitud: '2'
   Categorías:
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '5': '5'
-    '6': '6'
-    '7': '7'
-    '8': '8'
-    '9': '9'
-    '10': '10'
-    '11': '11'
-    '12': '12'
-    '13': '13'
-    '14': '14'
-    '15': '15'
-    '16': '16'
-    '17': '17'
-    '18': '18'
-    '19': '19'
-    '20': '20'
-    '21': '21'
-    '22': '22'
-    '23': '23'
-    '24': '24'
-    '25': '25'
-    '26': '26'
-    '27': '27'
-    '28': '28'
-    '29': '29'
-    '30': '30'
-    '31': '31'
+    '1': 01 Día definitivo de levantamiento.
+    '2': 02 Día definitivo de levantamiento.
+    '3': 03 Día definitivo de levantamiento.
+    '4': 04 Día definitivo de levantamiento.
+    '5': 05 Día definitivo de levantamiento.
+    '6': 06 Día definitivo de levantamiento.
+    '7': 07 Día definitivo de levantamiento.
+    '8': 08 Día definitivo de levantamiento.
+    '9': 09 Día definitivo de levantamiento.
+    '10': 10 Día definitivo de levantamiento.
+    '11': 11 Día definitivo de levantamiento.
+    '12': 12 Día definitivo de levantamiento.
+    '13': 13 Día definitivo de levantamiento.
+    '14': 14 Día definitivo de levantamiento.
+    '15': 15 Día definitivo de levantamiento.
+    '16': 16 Día definitivo de levantamiento.
+    '17': 17 Día definitivo de levantamiento.
+    '18': 18 Día definitivo de levantamiento.
+    '19': 19 Día definitivo de levantamiento.
+    '20': 20 Día definitivo de levantamiento.
+    '21': 21 Día definitivo de levantamiento.
+    '22': 22 Día definitivo de levantamiento.
+    '23': 23 Día definitivo de levantamiento.
+    '24': 24 Día definitivo de levantamiento.
+    '25': 25 Día definitivo de levantamiento.
+    '26': 26 Día definitivo de levantamiento.
+    '27': 27 Día definitivo de levantamiento.
+    '28': 28 Día definitivo de levantamiento.
+    '29': 29 Día definitivo de levantamiento.
+    '30': 30 Día definitivo de levantamiento.
+    '31': 31 Día definitivo de levantamiento.
 d_mes:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
-  Categorías:
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '5': '5'
-    '6': '6'
-    '7': '7'
-    '8': '8'
-    '9': '9'
-    '10': '10'
-    '11': '11'
-    '12': '12'
+  Descripción: Mes definitivo
+  Pregunta: No se pregunta.
+  Tipo: numeric
+  Longitud: '2'
+  Categorías: {}
+  Nota: 'numérica: el DDI sólo enumera códigos especiales'
 d_anio:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
-  Categorías:
-    '5': '5'
-    '6': '6'
-    '7': '7'
-    '8': '8'
-    '9': '9'
-    '10': '10'
-    '11': '11'
-    '12': '12'
-    '13': '13'
-    '14': '14'
-    '15': '15'
-    '16': '16'
-    '17': '17'
-    '18': '18'
-    '19': '19'
-    '20': '20'
+  Descripción: Año definitivo
+  Pregunta: No se pregunta.
+  Tipo: numeric
+  Longitud: '2'
+  Categorías: {}
+  Nota: 'numérica: el DDI sólo enumera códigos especiales'
 e_obs:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Entrevista observada
+  Pregunta: ¿Entrevista observada?
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '1': '1'
-    '2': '2'
-    ' ': ' '
+    '1': Sí
+    '2': 'No'
 p4_1:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Se contratan a trabajadores domésticos
+  Pregunta: ¿En este hogar se contrata a trabajadores domésticos
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    ' ': ' '
+    '1': De entrada por salida?
+    '2': De planta?
+    '3': De entrada por salida y de planta?
+    '4': No contrata trabajadores domésticos
 p4_2:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
-  Categorías:
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '5': '5'
-    '6': '6'
-    '7': '7'
-    '8': '8'
-    '10': '10'
-    '11': '11'
-    '27': '27'
-    '28': '28'
-    '29': '29'
-    '39': '39'
-    '41': '41'
-    '44': '44'
-    '49': '49'
-    '65': '65'
-    '82': '82'
-    '89': '89'
-    '99': '99'
-    ' ': ' '
+  Descripción: Número de trabajadores domésticos
+  Pregunta: ¿Cuántos?
+  Tipo: numeric
+  Longitud: '2'
+  Categorías: {}
+  Nota: 'numérica: el DDI sólo enumera códigos especiales'
 inf:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
-  Categorías:
-    '0': '0'
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '5': '5'
-    '6': '6'
-    '7': '7'
-    '8': '8'
-    '9': '9'
-    '10': '10'
-    '11': '11'
-    '12': '12'
-    '13': '13'
-    '14': '14'
-    '15': '15'
-    '16': '16'
-    '17': '17'
-    '18': '18'
-    '19': '19'
-    '20': '20'
-    '21': '21'
-    '22': '22'
-    '24': '24'
-    '25': '25'
-    '26': '26'
-    '27': '27'
-    '29': '29'
-    '30': '30'
-    '97': '97'
-    '99': '99'
+  Descripción: Renglón del informante
+  Pregunta: Número de renglón del informante
+  Tipo: numeric
+  Longitud: '2'
+  Categorías: {}
+  Especiales:
+    '97': Más de un informante
+    '99': Informante autorizado
+  Nota: 'numérica: el DDI sólo enumera códigos especiales'
 ur:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Variable de apoyo
+  Pregunta: Variable de apoyo
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '1': '1'
-    '2': '2'
+    '1': Urbano
+    '2': Rural
 fac:
   Descripción: Factor de expansión (ponderador; ediciones anteriores a 2020-T3)
-  Tipo: Numérico
+  Tipo: numeric
   Longitud: '6'
   Categorías: {}

@@ -101,11 +101,17 @@ and must NOT be overwritten** (see §Gotchas).
   `96..99`, `ent='1'..'32'`. **2026-T1 renamed** `ent`→`cve_ent` (zero-padded `'01'..'32'`)
   and `ageb/loc/mun`→`cve_*` + added `cvegeo`. The loaders already handle all of this; just
   don't be surprised.
-- **🚫 Never regenerate `variables_enoe_core.yaml`.** It is **hand-curated** from the FD
-  dictionary PDF (labels for `clase1`/`clase2`/`pos_ocu`/…). `--variables` **reads** it (it
-  overlays the authoritative labelled categories onto the analytical-core columns) but never
-  writes it. If a *new* quarter introduces a category value absent from core (validation will
-  flag it), **add** the value to `variables_enoe_core.yaml` by hand — do not delete the check.
+- **🚫 Never regenerate `variables_enoe_core.yaml`.** It is **hand-curated** (labels, ordinal
+  order, numeric ranges and sentinel codes for `clase1`/`pos_ocu`/`ing7c`/`eda`/…; contract in
+  its header). `--variables` **reads** it (it takes precedence over the DDI entry for the
+  analytical-core columns) but never writes it. If a *new* quarter introduces a category value
+  absent from core (`--validate` will flag it), **add** the value to the core by hand — do not
+  delete the check.
+- **Dictionaries come from INEGI's DDI codebooks** (RNM, `scripts/_dict_ddi.py::ENOE_DDI`),
+  fetched by `--dictionary` into the git-ignored `data/dict/ddi/`. A new year needs its two
+  catalog ids (ampliado/básico) added to `ENOE_DDI` (find them with
+  `…/rnm/index.php/api/catalog/search?ps=200&page=N`); until then its quarters reuse the
+  previous year's codebook by best column overlap. See `STEP_12.md`.
 - **Catalog is pinned** to latest = **2026-T1** (verified 2026-07-10). If INEGI has since
   published newer quarters, that's a catalog re-probe (Units 0–1) — **out of scope here**;
   build what `_enoe_catalog.QUARTERS` contains.
@@ -151,8 +157,9 @@ rm src/mxcensus/_yaml/variables_enoe_*_g*.yaml
 # 1. Schema map (COMPLETE now; may contain more groups than the subset's 4–6 per table)
 uv run python scripts/build_enoe.py --schema-map
 
-# 2. Per-group variable dictionaries (data-derived categories + core overlay)
-uv run python scripts/build_enoe.py --variables
+# 2. Per-group variable dictionaries (core > INEGI DDI codebook > data-enumerated)
+uv run python scripts/build_enoe.py --dictionary   # once: DDI codebooks → data/dict/ddi/
+uv run python scripts/build_enoe.py --variables    # prints per-group provenance counts
 
 # 3. Inconsistency report
 uv run python scripts/build_enoe.py --report-only
@@ -161,30 +168,14 @@ uv run python scripts/build_enoe.py --report-only
 uv run python scripts/build_enoe.py --validate
 ```
 
-**After regenerating, re-run the core-category cross-check** — a previously-unsampled quarter
-may carry a precodificado value absent from `variables_enoe_core.yaml`:
-
-```bash
-uv run python - <<'PY'
-import yaml, glob, pandas as pd
-core = yaml.safe_load(open("src/mxcensus/_yaml/variables_enoe_core.yaml"))
-catvars = [k for k,v in core.items() if v["Categorías"]]
-seen = {v:set() for v in catvars}
-for f in glob.glob("data/parquet/enoe_*.parquet"):
-    df = pd.read_parquet(f, columns=None)
-    for v in catvars:
-        if v in df.columns: seen[v].update(df[v].dropna().unique())
-gaps = {v: sorted(seen[v]-set(core[v]["Categorías"])) for v in catvars if seen[v]-set(core[v]["Categorías"])}
-print("UNCOVERED (add these to variables_enoe_core.yaml by hand):", gaps or "none — all covered")
-PY
-```
-
-If `gaps` is non-empty, **edit `variables_enoe_core.yaml`** to add the missing codes (give
-them a sensible label; consult the FD PDF `enoe_<code>_fd_c_bas_amp.pdf` under
-`inegi.org.mx/contenidos/programas/enoe/15ymas/doc/` — it is AES-encrypted, decrypt with
-`qpdf --decrypt --password= in.pdf out.pdf` before `pypdf`), then **re-run steps 2 & 4**.
-`--validate` must end at **0 failures** (or failures you can explain as documented source
-anomalies, per STEP_5's bar).
+**`--validate` is the label-coverage gate.** Each file's raw group schema checks every
+categorical column with `isin` over exactly the `Categorías ∪ Especiales ∪ Alias` keys the
+`labels=True` loaders map (blank cells excepted), and every `Tipo: numeric` column for
+parse + `Rango`/sentinel — so **0 failures** means no user can hit the labelled loaders'
+"values without a dictionary label" error. A failure on a *core* column → add the code to
+`variables_enoe_core.yaml` by hand; on a DDI-sourced column → it is a code the codebook lacks
+(re-run `--variables`: observed codes are appended with an identity label and flagged in
+`Nota`), or a genuine source anomaly (STEP_5's bar).
 
 **Reconcile the YAML dir in git**: `git status src/mxcensus/_yaml/` — `git add -A` the
 `variables_enoe_*` and `enoe_schema_map.yaml` changes (new group files added, stale ones

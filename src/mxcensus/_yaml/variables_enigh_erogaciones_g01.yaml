@@ -1,144 +1,166 @@
 folioviv:
-  Descripción: Identificador de la vivienda (folio). Los dos primeros caracteres son
-    la clave de la entidad federativa.
-  Tipo: str
+  Descripción: Identificador de la vivienda (folio). Los dos primeros caracteres son la clave de la entidad
+    federativa.
+  Tipo: string
   Longitud: 6 (2008–2012) / 10 (2014+)
   Categorías: {}
 foliohog:
   Descripción: Identificador del hogar dentro de la vivienda.
-  Tipo: str
+  Tipo: string
   Longitud: '1'
   Categorías: {}
 clave:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Identificador del producto
+  Pregunta: CLAVE
+  Tipo: categorical
+  Longitud: '4'
   Categorías:
-    Q001: Q001
-    Q002: Q002
-    Q003: Q003
-    Q004: Q004
-    Q005: Q005
-    Q006: Q006
-    Q007: Q007
-    Q008: Q008
-    Q009: Q009
-    Q010: Q010
-    Q011: Q011
-    Q012: Q012
-    Q013: Q013
-    Q014: Q014
-    Q015: Q015
-    Q016: Q016
+    Q001: Depósitos en cuentas de ahorro, tandas, cajas de ahorro, etcétera
+    Q002: Préstamos a personas ajenas al hogar
+    Q003: Pagos a tarjeta de crédito bancaria o comercial (incluye intereses)
+    Q004: Pago de deudas a la empresa donde trabajan y/o a otras personas o instituciones (excluya créditos
+      hipotecarios)
+    Q005: Pago de intereses por préstamos recibidos
+    Q006: Compra de monedas nacionales o extranjeras, metales preciosos, alhajas, obras de arte, etcétera
+    Q007: Seguro de vida capitalizable
+    Q008: Herencias, dotes y legados
+    Q009: Compra de casas, condominios, locales o terrenos que no habita el hogar
+    Q010: Compra de terrenos, casas o condominios que habita el hogar
+    Q011: 'Pago de hipotecas de bienes inmuebles: casas, locales, terrenos, edificios, etcétera'
+    Q012: Otras erogaciones no consideradas en las preguntas anteriores
+    Q013: Compra de maquinaria, equipo, animales destinados a la reproducción, utilizados en negocios
+      del hogar
+    Q014: Balance negativo en negocios del hogar agropecuarios y no agropecuarios
+    Q015: 'Compra de valores: cédulas, acciones y bonos'
+    Q016: Compra de marcas, patentes y derechos de autor
 mes1:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Mes 1
+  Pregunta: El mes pasado, ¿Cuánto gasto por?
+  Tipo: categorical
+  Longitud: '2'
   Categorías:
+    '07': julio
+    08: agosto
+    09: septiembre
+    '10': octubre
     '7': '7'
-    '07': '07'
-    08: 08
     '8': '8'
-    09: 09
     '9': '9'
-    '10': '10'
+  Nota: 'códigos observados sin etiqueta en el DDI: [''7'', ''8'', ''9'']'
 mes2:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Mes 2
+  Pregunta: ¿Cuáles fueron sus gastos durante los meses de…?
+  Tipo: categorical
+  Longitud: '2'
   Categorías:
-    '06': '06'
+    '06': junio
+    '07': julio
+    08: agosto
+    09: septiembre
     '6': '6'
     '7': '7'
-    '07': '07'
-    08: 08
     '8': '8'
-    09: 09
     '9': '9'
+  Nota: 'códigos observados sin etiqueta en el DDI: [''6'', ''7'', ''8'', ''9'']'
 mes3:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Mes 3
+  Pregunta: ''
+  Tipo: categorical
+  Longitud: '2'
   Categorías:
+    '05': mayo
+    '06': junio
+    '07': julio
+    08: agosto
     '5': '5'
-    '05': '05'
-    '06': '06'
     '6': '6'
     '7': '7'
-    '07': '07'
-    08: 08
     '8': '8'
+  Nota: 'códigos observados sin etiqueta en el DDI: [''5'', ''6'', ''7'', ''8'']'
 mes4:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Mes 4
+  Pregunta: ¿Cuáles fueron sus gastos durante los meses de…?
+  Tipo: categorical
+  Longitud: '2'
   Categorías:
+    '04': abril
+    '05': mayo
+    '06': junio
+    '07': julio
     '4': '4'
-    '04': '04'
     '5': '5'
-    '05': '05'
-    '06': '06'
     '6': '6'
     '7': '7'
-    '07': '07'
+  Nota: 'códigos observados sin etiqueta en el DDI: [''4'', ''5'', ''6'', ''7'']'
 mes5:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Mes 5
+  Pregunta: ¿Cuáles fueron sus gastos durante los meses de…?
+  Tipo: categorical
+  Longitud: '2'
   Categorías:
-    '03': '03'
+    '03': marzo
+    '04': abril
+    '05': mayo
+    '06': junio
     '3': '3'
     '4': '4'
-    '04': '04'
     '5': '5'
-    '05': '05'
-    '06': '06'
     '6': '6'
+  Nota: 'códigos observados sin etiqueta en el DDI: [''3'', ''4'', ''5'', ''6'']'
 mes6:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Mes 6
+  Pregunta: ¿Cuáles fueron sus gastos durante los meses de…?
+  Tipo: categorical
+  Longitud: '2'
   Categorías:
-    '02': '02'
+    '02': febrero
+    '03': marzo
+    '04': abril
+    '05': mayo
     '2': '2'
-    '03': '03'
     '3': '3'
     '4': '4'
-    '04': '04'
     '5': '5'
-    '05': '05'
+  Nota: 'códigos observados sin etiqueta en el DDI: [''2'', ''3'', ''4'', ''5'']'
 ero_1:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Erogación 1
+  Pregunta: El mes pasado, ¿Cuánto gasto por?
+  Tipo: numeric
+  Longitud: '9'
   Categorías: {}
 ero_2:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Erogación 2
+  Pregunta: ¿Cuáles fueron sus gastos durante los meses de…?
+  Tipo: numeric
+  Longitud: '9'
   Categorías: {}
 ero_3:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Erogación 3
+  Pregunta: ¿Cuáles fueron sus gastos durante los meses de…?
+  Tipo: numeric
+  Longitud: '9'
   Categorías: {}
 ero_4:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Erogación 4
+  Pregunta: ¿Cuáles fueron sus gastos durante los meses de…?
+  Tipo: numeric
+  Longitud: '9'
   Categorías: {}
 ero_5:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Erogación 5
+  Pregunta: ¿Cuáles fueron sus gastos durante los meses de…?
+  Tipo: numeric
+  Longitud: '9'
   Categorías: {}
 ero_6:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Erogación 6
+  Pregunta: ¿Cuáles fueron sus gastos durante los meses de…?
+  Tipo: numeric
+  Longitud: '9'
   Categorías: {}
 ero_tri:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Erogación trimestral
+  Pregunta: ''
+  Tipo: numeric
+  Longitud: '15'
   Categorías: {}

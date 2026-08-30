@@ -29,6 +29,7 @@ from mxcensus.enoe import (
     load_enoe_viviendas,
     load_enoe_hogares,
     load_enoe_survey,
+    variables_enoe_labels,
 )
 from mxcensus.enigh import (
     load_enigh,
@@ -36,6 +37,7 @@ from mxcensus.enigh import (
     load_enigh_viviendas,
     load_enigh_personas,
     load_enigh_survey,
+    variables_enigh_labels,
 )
 from mxcensus.crosstabs import create_cont_table, get_tables_dict
 from mxcensus.utils import expand_cat_map, get_cats_from_excel, get_vars_from_indicator_csv
@@ -83,12 +85,14 @@ __all__ = [
     "load_enoe_viviendas",
     "load_enoe_hogares",
     "load_enoe_survey",
+    "variables_enoe_labels",
     # ENIGH (household income/expenditure survey, biennial, national)
     "load_enigh",
     "load_enigh_hogares",
     "load_enigh_viviendas",
     "load_enigh_personas",
     "load_enigh_survey",
+    "variables_enigh_labels",
     # Crosstabs / constraints
     "create_cont_table",
     "get_tables_dict",

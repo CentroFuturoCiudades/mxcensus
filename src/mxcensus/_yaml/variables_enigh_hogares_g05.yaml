@@ -1,182 +1,190 @@
 folioviv:
-  Descripción: Identificador de la vivienda (folio). Los dos primeros caracteres son
-    la clave de la entidad federativa.
-  Tipo: str
+  Descripción: Identificador de la vivienda (folio). Los dos primeros caracteres son la clave de la entidad
+    federativa.
+  Tipo: string
   Longitud: 6 (2008–2012) / 10 (2014+)
   Categorías: {}
 foliohog:
   Descripción: Identificador del hogar dentro de la vivienda.
-  Tipo: str
+  Tipo: string
   Longitud: '1'
   Categorías: {}
 huespedes:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
-  Categorías:
-    '0': '0'
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '5': '5'
+  Descripción: Huéspedes que pagan por dormir
+  Pregunta: Hay personas en este hogar que paguen por dormir aquí en sus vivienda ¿Cuántos?
+  Tipo: numeric
+  Longitud: '1'
+  Categorías: {}
 huesp_come:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
-  Categorías:
-    '0': '0'
-    '1': '1'
-    '2': '2'
-    '4': '4'
-    ' ': ' '
+  Descripción: Huéspedes que pagan por comer
+  Pregunta: ¿De esa o esas personas cuántas de ellas también le pagan para comer en este hogar?
+  Tipo: numeric
+  Longitud: '1'
+  Categorías: {}
 num_trab_d:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
-  Categorías:
-    '0': '0'
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '5': '5'
+  Descripción: Número de trabajadores domésticos
+  Pregunta: ¿Cuántos son, incluyendo a los familiares de éstos?
+  Tipo: numeric
+  Longitud: '1'
+  Categorías: {}
 trab_come:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
-  Categorías:
-    '0': '0'
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '5': '5'
-    ' ': ' '
+  Descripción: Trabajadores domésticos que comen
+  Pregunta: ¿De esa o esas personas cuántas de ellas comen de los alimentos que se preparan en este hogar
+    ?
+  Tipo: numeric
+  Longitud: '1'
+  Categorías: {}
 acc_alim1:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Preocupación comida se acabe
+  Pregunta: En los últimos tres meses, por falta de dinero o recursos ¿alguna vez usted se preocupó de
+    que la comida se acabara?
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '1': '1'
-    '2': '2'
+    '1': Sí
+    '2': 'No'
 acc_alim2:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Sin comida
+  Pregunta: En los últimos tres meses, por falta de dinero o recursos ¿alguna vez se quedaron sin comida?
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '1': '1'
-    '2': '2'
+    '1': Sí
+    '2': 'No'
 acc_alim3:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Poca variedad de alimentos
+  Pregunta: En los últimos tres meses, ¿alguna vez se quedaron sin dinero o recursos para obtener una
+    alimentación sana y variada?
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '1': '1'
-    '2': '2'
+    '1': Sí
+    '2': 'No'
 acc_alim4:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Adulto poca variedad de alimentos
+  Pregunta: En los últimos tres meses, por falta de dinero o recursos ¿alguna vez usted o algún adulto
+    en su hogar tuvo una alimentación basada en muy poca variedad de alimentos?
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '1': '1'
-    '2': '2'
+    '1': Sí
+    '2': 'No'
 acc_alim5:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Dejó algún alimento
+  Pregunta: En los últimos tres meses, por falta de dinero o recursos ¿alguna vez usted o algún adulto
+    en su hogar dejó de desayunar, comer o cenar?
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '1': '1'
-    '2': '2'
+    '1': Sí
+    '2': 'No'
 acc_alim6:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Comió menos
+  Pregunta: En los últimos tres meses, por falta de dinero o recursos ¿alguna vez usted o algún adulto
+    en su hogar comió menos de lo que usted piensa debía comer?
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '1': '1'
-    '2': '2'
+    '1': Sí
+    '2': 'No'
 acc_alim7:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Sintió hambre y no comió
+  Pregunta: En los últimos tres meses, por falta de dinero o recursos, ¿alguna vez usted o algún adulto
+    en su hogar sintió hambre pero no comió?
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '1': '1'
-    '2': '2'
-    ' ': ' '
+    '1': Sí
+    '2': 'No'
 acc_alim8:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Una o menos comidas
+  Pregunta: En los últimos tres meses, por falta de dinero o recursos ¿alguna vez usted o algún adulto
+    en su hogar sólo comió una vez al día o dejó de comer todo un día?
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '1': '1'
-    '2': '2'
-    ' ': ' '
+    '1': Sí
+    '2': 'No'
 acc_alim9:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Mendigar por comida
+  Pregunta: En los últimos tres meses, por falta de dinero o recursos ¿alguna vez tuvieron que hacer algo
+    que hubieran preferido no hacer para conseguir comida, tal como mendigar (pedir limosna) o mandar
+    a los niños a trabajar?
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '1': '1'
-    '2': '2'
-    ' ': ' '
+    '1': Sí
+    '2': 'No'
 acc_alim10:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Menor con alimentos no sanos
+  Pregunta: En los últimos tres meses, por falta de dinero o recursos ¿alguna vez algún menor de 18 años
+    en su hogar dejó de tener una alimentación sana y variedad?
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '1': '1'
-    '2': '2'
-    ' ': ' '
+    '1': Sí
+    '2': 'No'
 acc_alim11:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Menor con poca variedad de alimentos
+  Pregunta: En los últimos tres meses, por falta de dinero o recursos ¿alguna vez algún menor de 18 años
+    en su hogar tuvo una alimentación basada en muy poca variedad?
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '1': '1'
-    '2': '2'
-    ' ': ' '
+    '1': Sí
+    '2': 'No'
 acc_alim12:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Menor comió menos
+  Pregunta: En los últimos tres meses, por falta de dinero o recursos ¿alguna vez algún menor de 18 años
+    en su hogar comió menos de lo que debía?
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '1': '1'
-    '2': '2'
-    ' ': ' '
+    '1': Sí
+    '2': 'No'
 acc_alim13:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Disminuyó comida para menor
+  Pregunta: En los últimos tres meses, por falta de dinero o recursos ¿alguna vez tuvieron que disminuir
+    la cantidad servida en las comidas a algún menor de 18 años del hogar?
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '1': '1'
-    '2': '2'
-    ' ': ' '
+    '1': Sí
+    '2': 'No'
 acc_alim14:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Menor sintió hambre y no comió
+  Pregunta: En los últimos tres meses, por falta de dinero o recursos ¿alguna vez algún menor de 18 años
+    en su hogar sintió hambre pero no comió?
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '1': '1'
-    '2': '2'
-    ' ': ' '
+    '1': Sí
+    '2': 'No'
 acc_alim15:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Menor se acostó con hambre
+  Pregunta: En los últimos tres meses, por falta de dinero o recursos ¿alguna vez algún menor de 18 años
+    en su hogar se acostó con hambre?
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '1': '1'
-    '2': '2'
-    ' ': ' '
+    '1': Sí
+    '2': 'No'
 acc_alim16:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Menor con una o menos comidas
+  Pregunta: En los últimos tres meses, por falta de dinero o recursos ¿alguna vez algún menor de 18 años
+    en su hogar comió una vez al día o dejó de comer todo un día?
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '1': '1'
-    '2': '2'
-    ' ': ' '
+    '1': Sí
+    '2': 'No'
 alim17_1:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Número de días que comieron cereales
+  Pregunta: Durante los últimos siete días, ¿cuántos días comieron tortilla, alimentos hechos de masa
+    de maíz, pan (blanco, integral, de caja, rústico, dulce), galletas, cereales de caja, pasta para sopa
+    o cualquier otro alimento hecho de maíz, trigo, arroz, avena, salvado, etc.?
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
     '0': '0'
     '1': '1'
@@ -187,9 +195,11 @@ alim17_1:
     '6': '6'
     '7': '7'
 alim17_2:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Número de días que comieron tubérculos
+  Pregunta: Durante los últimos siete días, ¿cuántos días comieron papas, camote, u otro alimento proveniente
+    de raíces o tubérculos?
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
     '0': '0'
     '1': '1'
@@ -200,9 +210,11 @@ alim17_2:
     '6': '6'
     '7': '7'
 alim17_3:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Número de días que comieron verduras
+  Pregunta: Durante los últimos siete días, ¿cuántos días comieron verduras (frescas, en guisados, sopas,
+    salsas, enlatadas o deshidratadas)?
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
     '0': '0'
     '1': '1'
@@ -213,9 +225,11 @@ alim17_3:
     '6': '6'
     '7': '7'
 alim17_4:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Número de días que comieron frutas
+  Pregunta: Durante los últimos siete días, ¿cuántos días comieron frutas (frescas, enlatadas, deshidratadas,
+    en postres o ensaladas)?
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
     '0': '0'
     '1': '1'
@@ -226,9 +240,11 @@ alim17_4:
     '6': '6'
     '7': '7'
 alim17_5:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Número de días que comieron carne
+  Pregunta: Durante los últimos siete días, ¿cuántos días comieron carne de vaca, cerdo, cordero, cabra,
+    conejo, pollo, pato u otras aves?, ¿hígado, riñón, corazón u otras vísceras?
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
     '0': '0'
     '1': '1'
@@ -239,9 +255,11 @@ alim17_5:
     '6': '6'
     '7': '7'
 alim17_6:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Número de días que comieron huevo
+  Pregunta: Durante los últimos siete días, ¿cuántos días comieron huevos (de gallina, codorniz, pato
+    u otras aves)?
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
     '0': '0'
     '1': '1'
@@ -252,9 +270,11 @@ alim17_6:
     '6': '6'
     '7': '7'
 alim17_7:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Número de días que comieron pescado
+  Pregunta: Durante los últimos siete días, ¿cuántos días comieron pescado, sardinas, atún, camarón o
+    cualquier otro marisco fresco o seco?
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
     '0': '0'
     '1': '1'
@@ -265,9 +285,11 @@ alim17_7:
     '6': '6'
     '7': '7'
 alim17_8:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Número de días que comieron leguminosas
+  Pregunta: Durante los últimos siete días, ¿cuántos días comieron alimentos a base de frijoles, lentejas,
+    habas, garbanzos, soya, cacahuates, pepitas, granola, palanquetas, nueces, amaranto, frutos secos?
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
     '0': '0'
     '1': '1'
@@ -278,9 +300,11 @@ alim17_8:
     '6': '6'
     '7': '7'
 alim17_9:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Número de días que comieron lácteos
+  Pregunta: Durante los últimos siete días, ¿cuántos días comieron queso, yogurt, leche u otros productos
+    lácteos?
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
     '0': '0'
     '1': '1'
@@ -291,9 +315,11 @@ alim17_9:
     '6': '6'
     '7': '7'
 alim17_10:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Número de días que comieron aceites
+  Pregunta: Durante los últimos siete días, ¿cuántos días comieron cualquier tipo de aceite (soya, cártamo,
+    canola, girasol, maíz); mantequilla, mantequilla de cacahuate, mayonesa, crema o manteca?
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
     '0': '0'
     '1': '1'
@@ -304,9 +330,12 @@ alim17_10:
     '6': '6'
     '7': '7'
 alim17_11:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Número de días que comieron azúcar
+  Pregunta: Durante los últimos siete días, ¿cuántos días comieron azúcar o miel (de abeja o maple), jarabe
+    de maíz, gelatina, mermelada, cajeta, polvo para preparar bebidas, flan, dulces, chocolates, refrescos
+    o bebidas industrializadas?
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
     '0': '0'
     '1': '1'
@@ -317,9 +346,11 @@ alim17_11:
     '6': '6'
     '7': '7'
 alim17_12:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Número de días que comieron otros alimentos
+  Pregunta: Durante los últimos siete días, ¿cuántos días comieron otros alimentos como condimentos, café,
+    té?
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
     '0': '0'
     '1': '1'
@@ -330,2289 +361,818 @@ alim17_12:
     '6': '6'
     '7': '7'
 acc_alim18:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Relación con el consumo regular
+  Pregunta: ¿Considera usted que el consumo que reportó fue semejante a lo que come normalmente? Si no,
+    ¿fue mayor o menor?
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '1': '1'
-    '2': '2'
-    '3': '3'
+    '1': Igual
+    '2': Mayor
+    '3': Menor
 telefono:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Línea telefónica fija
+  Pregunta: ¿Este hogar cuenta con línea telefónica fija?
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '1': '1'
-    '2': '2'
+    '1': Sí
+    '2': 'No'
 celular:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Teléfono celular
+  Pregunta: ¿Este hogar cuenta con teléfono móvil o celular?
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '1': '1'
-    '2': '2'
+    '1': Sí
+    '2': 'No'
 tv_paga:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Televisión de paga
+  Pregunta: ¿Este hogar cuenta con televisión de paga?
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '1': '1'
-    '2': '2'
+    '1': Sí
+    '2': 'No'
 conex_inte:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Dispone de conexión a Internet
+  Pregunta: ¿Este hogar cuenta con Internet?
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '1': '1'
-    '2': '2'
+    '1': Sí
+    '2': 'No'
 num_auto:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
-  Categorías:
-    '-1': '-1'
-    '0': '0'
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '5': '5'
-    '6': '6'
-    '7': '7'
-    '8': '8'
-    '9': '9'
-    '10': '10'
-    '11': '11'
-    '12': '12'
-    '13': '13'
-    '15': '15'
-    '28': '28'
+  Descripción: Número de automóviles del hogar
+  Pregunta: ¿Cuántos tiene?
+  Tipo: numeric
+  Longitud: '2'
+  Categorías: {}
+  Especiales:
+    '-1': No especificado
 anio_auto:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
-  Categorías:
-    '00': '00'
-    '01': '01'
-    '02': '02'
-    '03': '03'
-    '04': '04'
-    '05': '05'
-    '06': '06'
-    '07': '07'
-    08: 08
-    09: 09
-    '10': '10'
-    '11': '11'
-    '12': '12'
-    '13': '13'
-    '14': '14'
-    '15': '15'
-    '16': '16'
-    '17': '17'
-    '18': '18'
-    '19': '19'
-    '20': '20'
-    '56': '56'
-    '59': '59'
-    '63': '63'
-    '65': '65'
-    '66': '66'
-    '67': '67'
-    '68': '68'
-    '69': '69'
-    '70': '70'
-    '71': '71'
-    '72': '72'
-    '73': '73'
-    '74': '74'
-    '75': '75'
-    '76': '76'
-    '77': '77'
-    '78': '78'
-    '79': '79'
-    '80': '80'
-    '81': '81'
-    '82': '82'
-    '83': '83'
-    '84': '84'
-    '85': '85'
-    '86': '86'
-    '87': '87'
-    '88': '88'
-    '89': '89'
-    '90': '90'
-    '91': '91'
-    '92': '92'
-    '93': '93'
-    '94': '94'
-    '95': '95'
-    '96': '96'
-    '97': '97'
-    '98': '98'
-    '99': '99'
-    ' ': ' '
-    '&': '&'
+  Descripción: Año del último automóvil adquirido
+  Pregunta: ¿En qué año adquirió su último automóvil?
+  Tipo: numeric
+  Longitud: '2'
+  Categorías: {}
+  Especiales:
+    '&': No especificado
 num_van:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
-  Categorías:
-    '0': '0'
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '5': '5'
-    '6': '6'
-    '7': '7'
-    '8': '8'
-    '9': '9'
-    '10': '10'
-    '11': '11'
-    '12': '12'
-    '14': '14'
-    '18': '18'
+  Descripción: Número de camionetas del hogar
+  Pregunta: ¿Cuántos tiene?
+  Tipo: numeric
+  Longitud: '2'
+  Categorías: {}
 anio_van:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
-  Categorías:
-    '00': '00'
-    '01': '01'
-    '02': '02'
-    '03': '03'
-    '04': '04'
-    '05': '05'
-    '06': '06'
-    '07': '07'
-    08: 08
-    09: 09
-    '10': '10'
-    '11': '11'
-    '12': '12'
-    '13': '13'
-    '14': '14'
-    '15': '15'
-    '16': '16'
-    '17': '17'
-    '18': '18'
-    '19': '19'
-    '20': '20'
-    '58': '58'
-    '60': '60'
-    '62': '62'
-    '65': '65'
-    '68': '68'
-    '70': '70'
-    '72': '72'
-    '74': '74'
-    '75': '75'
-    '76': '76'
-    '77': '77'
-    '78': '78'
-    '79': '79'
-    '80': '80'
-    '81': '81'
-    '82': '82'
-    '83': '83'
-    '84': '84'
-    '85': '85'
-    '86': '86'
-    '87': '87'
-    '88': '88'
-    '89': '89'
-    '90': '90'
-    '91': '91'
-    '92': '92'
-    '93': '93'
-    '94': '94'
-    '95': '95'
-    '96': '96'
-    '97': '97'
-    '98': '98'
-    '99': '99'
-    ' ': ' '
+  Descripción: Año de la última camioneta adquirida
+  Pregunta: ¿En qué año adquirió su última camioneta cerrada o con cabina?
+  Tipo: numeric
+  Longitud: '2'
+  Categorías: {}
+  Especiales:
     '&': '&'
 num_pickup:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
-  Categorías:
-    '0': '0'
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '5': '5'
-    '6': '6'
-    '7': '7'
-    '10': '10'
-    '12': '12'
-    '16': '16'
-    '23': '23'
+  Descripción: Número de pickups del hogar
+  Pregunta: ¿Cuántos tiene?
+  Tipo: numeric
+  Longitud: '2'
+  Categorías: {}
 anio_pickup:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
-  Categorías:
-    '00': '00'
-    '01': '01'
-    '02': '02'
-    '03': '03'
-    '04': '04'
-    '05': '05'
-    '06': '06'
-    '07': '07'
-    08: 08
-    09: 09
-    '10': '10'
-    '11': '11'
-    '12': '12'
-    '13': '13'
-    '14': '14'
-    '15': '15'
-    '16': '16'
-    '17': '17'
-    '18': '18'
-    '19': '19'
-    '20': '20'
-    '57': '57'
-    '60': '60'
-    '64': '64'
-    '65': '65'
-    '66': '66'
-    '67': '67'
-    '68': '68'
-    '69': '69'
-    '70': '70'
-    '71': '71'
-    '72': '72'
-    '73': '73'
-    '74': '74'
-    '75': '75'
-    '76': '76'
-    '77': '77'
-    '78': '78'
-    '79': '79'
-    '80': '80'
-    '81': '81'
-    '82': '82'
-    '83': '83'
-    '84': '84'
-    '85': '85'
-    '86': '86'
-    '87': '87'
-    '88': '88'
-    '89': '89'
-    '90': '90'
-    '91': '91'
-    '92': '92'
-    '93': '93'
-    '94': '94'
-    '95': '95'
-    '96': '96'
-    '97': '97'
-    '98': '98'
-    '99': '99'
-    ' ': ' '
+  Descripción: Año de la última pickup adquirida
+  Pregunta: ¿En qué año adquirió su última camioneta de caja?
+  Tipo: numeric
+  Longitud: '2'
+  Categorías: {}
+  Especiales:
     '&': '&'
 num_moto:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
-  Categorías:
-    '0': '0'
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '5': '5'
-    '6': '6'
-    '10': '10'
-    '15': '15'
-anio_moto:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
-  Categorías:
-    '00': '00'
-    '01': '01'
-    '02': '02'
-    '03': '03'
-    '04': '04'
-    '05': '05'
-    '06': '06'
-    '07': '07'
-    08: 08
-    09: 09
-    '10': '10'
-    '11': '11'
-    '12': '12'
-    '13': '13'
-    '14': '14'
-    '15': '15'
-    '16': '16'
-    '17': '17'
-    '18': '18'
-    '19': '19'
-    '20': '20'
-    '60': '60'
-    '62': '62'
-    '63': '63'
-    '64': '64'
-    '68': '68'
-    '70': '70'
-    '71': '71'
-    '75': '75'
-    '76': '76'
-    '77': '77'
-    '78': '78'
-    '79': '79'
-    '80': '80'
-    '81': '81'
-    '82': '82'
-    '83': '83'
-    '84': '84'
-    '85': '85'
-    '86': '86'
-    '87': '87'
-    '88': '88'
-    '89': '89'
-    '90': '90'
-    '91': '91'
-    '92': '92'
-    '93': '93'
-    '94': '94'
-    '95': '95'
-    '96': '96'
-    '97': '97'
-    '98': '98'
-    '99': '99'
-    ' ': ' '
-    '&': '&'
-num_bici:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
-  Categorías:
-    '-1': '-1'
-    '0': '0'
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '5': '5'
-    '6': '6'
-    '7': '7'
-    '8': '8'
-    '9': '9'
-    '10': '10'
-    '12': '12'
-    '20': '20'
-anio_bici:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Número de motos del hogar
+  Pregunta: ¿Cuántos tiene?
+  Tipo: numeric
+  Longitud: '2'
   Categorías: {}
-num_trici:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
-  Categorías:
-    '0': '0'
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '5': '5'
-anio_trici:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
-  Categorías:
-    '00': '00'
-    '01': '01'
-    '02': '02'
-    '03': '03'
-    '04': '04'
-    '05': '05'
-    '06': '06'
-    '07': '07'
-    08: 08
-    09: 09
-    '10': '10'
-    '11': '11'
-    '12': '12'
-    '13': '13'
-    '14': '14'
-    '15': '15'
-    '16': '16'
-    '17': '17'
-    '18': '18'
-    '19': '19'
-    '20': '20'
-    '70': '70'
-    '78': '78'
-    '80': '80'
-    '81': '81'
-    '82': '82'
-    '83': '83'
-    '84': '84'
-    '85': '85'
-    '86': '86'
-    '87': '87'
-    '88': '88'
-    '89': '89'
-    '90': '90'
-    '91': '91'
-    '92': '92'
-    '93': '93'
-    '94': '94'
-    '95': '95'
-    '96': '96'
-    '97': '97'
-    '98': '98'
-    '99': '99'
-    ' ': ' '
+anio_moto:
+  Descripción: Año de la última moto adquirida
+  Pregunta: ¿En qué año adquirió su última motocicleta o motoneta?
+  Tipo: numeric
+  Longitud: '2'
+  Categorías: {}
+  Especiales:
+    '&': No especificado
+num_bici:
+  Descripción: Número de bicicletas del hogar
+  Pregunta: ¿Cuántos tiene?
+  Tipo: numeric
+  Longitud: '2'
+  Categorías: {}
+anio_bici:
+  Descripción: Año de la última bicicleta adquirida
+  Pregunta: ¿En qué año adquirió su última bicicleta que se utilice como medio de transporte?
+  Tipo: numeric
+  Longitud: '2'
+  Categorías: {}
+  Especiales:
     '&': '&'
+num_trici:
+  Descripción: Número de triciclos del hogar
+  Pregunta: ¿Cuántos tiene?
+  Tipo: numeric
+  Longitud: '2'
+  Categorías: {}
+anio_trici:
+  Descripción: Año del último triciclo adquirido
+  Pregunta: ¿En qué año adquirió su último triciclo de carga utilizado como medio de transporte?
+  Tipo: numeric
+  Longitud: '2'
+  Categorías: {}
+  Especiales:
+    '&': No especificado
 num_carret:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
-  Categorías:
-    '0': '0'
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
+  Descripción: Número de carretas del hogar
+  Pregunta: ¿Cuántos tiene?
+  Tipo: numeric
+  Longitud: '2'
+  Categorías: {}
 anio_carret:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
-  Categorías:
-    '00': '00'
-    '01': '01'
-    '02': '02'
-    '03': '03'
-    '04': '04'
-    '05': '05'
-    '06': '06'
-    '07': '07'
-    08: 08
-    09: 09
-    '10': '10'
-    '11': '11'
-    '12': '12'
-    '13': '13'
-    '14': '14'
-    '15': '15'
-    '16': '16'
-    '17': '17'
-    '18': '18'
-    '19': '19'
-    '20': '20'
-    '51': '51'
-    '54': '54'
-    '55': '55'
-    '58': '58'
-    '60': '60'
-    '62': '62'
-    '64': '64'
-    '66': '66'
-    '70': '70'
-    '72': '72'
-    '76': '76'
-    '78': '78'
-    '79': '79'
-    '80': '80'
-    '81': '81'
-    '82': '82'
-    '83': '83'
-    '84': '84'
-    '85': '85'
-    '86': '86'
-    '88': '88'
-    '89': '89'
-    '90': '90'
-    '91': '91'
-    '92': '92'
-    '94': '94'
-    '95': '95'
-    '96': '96'
-    '97': '97'
-    '98': '98'
-    '99': '99'
-    ' ': ' '
+  Descripción: Año de la última carreta adquirida
+  Pregunta: ¿En qué año adquirió su última carreta, calandria u otros vehículos de tracción animal?
+  Tipo: numeric
+  Longitud: '2'
+  Categorías: {}
+  Especiales:
     '&': '&'
 num_canoa:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
-  Categorías:
-    '0': '0'
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '5': '5'
+  Descripción: Número de canoas del hogar
+  Pregunta: ¿Cuántos tiene?
+  Tipo: numeric
+  Longitud: '2'
+  Categorías: {}
 anio_canoa:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
-  Categorías:
-    '00': '00'
-    '01': '01'
-    '02': '02'
-    '03': '03'
-    '04': '04'
-    '05': '05'
-    '06': '06'
-    '07': '07'
-    08: 08
-    09: 09
-    '10': '10'
-    '11': '11'
-    '12': '12'
-    '13': '13'
-    '14': '14'
-    '15': '15'
-    '16': '16'
-    '17': '17'
-    '18': '18'
-    '19': '19'
-    '20': '20'
-    '70': '70'
-    '76': '76'
-    '78': '78'
-    '80': '80'
-    '81': '81'
-    '83': '83'
-    '85': '85'
-    '86': '86'
-    '88': '88'
-    '89': '89'
-    '90': '90'
-    '91': '91'
-    '92': '92'
-    '93': '93'
-    '95': '95'
-    '96': '96'
-    '97': '97'
-    '98': '98'
-    '99': '99'
-    ' ': ' '
+  Descripción: Año de la última canoa adquirida
+  Pregunta: ¿En qué año adquirió su última canoa, lancha, trajinera u otro vehículo para navegar?
+  Tipo: numeric
+  Longitud: '2'
+  Categorías: {}
+  Especiales:
+    '&': No especificado
 num_otro:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
-  Categorías:
-    '0': '0'
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
+  Descripción: Número de otros vehículos del hogar
+  Pregunta: ¿Cuántos tiene?
+  Tipo: numeric
+  Longitud: '2'
+  Categorías: {}
 anio_otro:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
-  Categorías:
-    '00': '00'
-    '01': '01'
-    '02': '02'
-    '03': '03'
-    '04': '04'
-    '05': '05'
-    '06': '06'
-    '07': '07'
-    08: 08
-    09: 09
-    '10': '10'
-    '11': '11'
-    '12': '12'
-    '13': '13'
-    '14': '14'
-    '15': '15'
-    '16': '16'
-    '17': '17'
-    '18': '18'
-    '19': '19'
-    '20': '20'
-    '80': '80'
-    '82': '82'
-    '83': '83'
-    '85': '85'
-    '86': '86'
-    '87': '87'
-    '88': '88'
-    '90': '90'
-    '91': '91'
-    '92': '92'
-    '93': '93'
-    '94': '94'
-    '95': '95'
-    '96': '96'
-    '97': '97'
-    '98': '98'
-    ' ': ' '
+  Descripción: Año del último vehículo adquirido
+  Pregunta: ¿En qué año adquirió el último vehículo de otro tipo?
+  Tipo: numeric
+  Longitud: '2'
+  Categorías: {}
+  Especiales:
+    '&': No especificado
 num_ester:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
-  Categorías:
-    '0': '0'
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '5': '5'
-    '6': '6'
-    '7': '7'
-    '8': '8'
-    '10': '10'
-    '12': '12'
-    '15': '15'
-    '90': '90'
-    ' ': ' '
+  Descripción: Número de estéreos del hogar
+  Pregunta: ¿Cuántos tiene?
+  Tipo: numeric
+  Longitud: '2'
+  Categorías: {}
+  Especiales:
+    '-1': No especificado
 anio_ester:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
-  Categorías:
-    '00': '00'
-    '01': '01'
-    '02': '02'
-    '03': '03'
-    '04': '04'
-    '05': '05'
-    '06': '06'
-    '07': '07'
-    08: 08
-    09: 09
-    '10': '10'
-    '11': '11'
-    '12': '12'
-    '13': '13'
-    '14': '14'
-    '15': '15'
-    '16': '16'
-    '17': '17'
-    '18': '18'
-    '19': '19'
-    '20': '20'
-    '53': '53'
-    '55': '55'
-    '58': '58'
-    '60': '60'
-    '62': '62'
-    '63': '63'
-    '65': '65'
-    '66': '66'
-    '68': '68'
-    '70': '70'
-    '71': '71'
-    '72': '72'
-    '73': '73'
-    '74': '74'
-    '75': '75'
-    '76': '76'
-    '77': '77'
-    '78': '78'
-    '79': '79'
-    '80': '80'
-    '81': '81'
-    '82': '82'
-    '83': '83'
-    '84': '84'
-    '85': '85'
-    '86': '86'
-    '87': '87'
-    '88': '88'
-    '89': '89'
-    '90': '90'
-    '91': '91'
-    '92': '92'
-    '93': '93'
-    '94': '94'
-    '95': '95'
-    '96': '96'
-    '97': '97'
-    '98': '98'
-    '99': '99'
-    ' ': ' '
+  Descripción: Año del último estéreo adquirido
+  Pregunta: ¿En qué año adquirió su último estéreo, modular o minicomponente?
+  Tipo: numeric
+  Longitud: '2'
+  Categorías: {}
+  Especiales:
     '&': '&'
 num_grab:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
-  Categorías:
-    '0': '0'
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '5': '5'
-    '6': '6'
-    '9': '9'
-    '13': '13'
-    '14': '14'
-    '15': '15'
-    '16': '16'
-    '50': '50'
+  Descripción: Número de radiograbadoras del hogar
+  Pregunta: ¿Cuántos tiene?
+  Tipo: numeric
+  Longitud: '2'
+  Categorías: {}
+  Especiales:
+    '-1': No especificado
 anio_grab:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
-  Categorías:
-    '00': '00'
-    '01': '01'
-    '02': '02'
-    '03': '03'
-    '04': '04'
-    '05': '05'
-    '06': '06'
-    '07': '07'
-    08: 08
-    09: 09
-    '10': '10'
-    '11': '11'
-    '12': '12'
-    '13': '13'
-    '14': '14'
-    '15': '15'
-    '16': '16'
-    '17': '17'
-    '18': '18'
-    '19': '19'
-    '20': '20'
-    '55': '55'
-    '60': '60'
-    '61': '61'
-    '62': '62'
-    '66': '66'
-    '68': '68'
-    '70': '70'
-    '73': '73'
-    '74': '74'
-    '75': '75'
-    '76': '76'
-    '77': '77'
-    '78': '78'
-    '79': '79'
-    '80': '80'
-    '81': '81'
-    '82': '82'
-    '83': '83'
-    '84': '84'
-    '85': '85'
-    '86': '86'
-    '87': '87'
-    '88': '88'
-    '89': '89'
-    '90': '90'
-    '91': '91'
-    '92': '92'
-    '93': '93'
-    '94': '94'
-    '95': '95'
-    '96': '96'
-    '97': '97'
-    '98': '98'
-    '99': '99'
-    ' ': ' '
+  Descripción: Año de la última radiograbadora adquirida
+  Pregunta: ¿En qué año adquirió su última radiograbadora?
+  Tipo: numeric
+  Longitud: '2'
+  Categorías: {}
+  Especiales:
     '&': '&'
 num_radio:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
-  Categorías:
-    '0': '0'
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '5': '5'
-    '6': '6'
-    '7': '7'
-    '8': '8'
-    '9': '9'
-    '10': '10'
-    '15': '15'
-    '16': '16'
-    '20': '20'
-    '25': '25'
-    '32': '32'
-anio_radio:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Número de radios del hogar
+  Pregunta: ¿Cuántos tiene?
+  Tipo: numeric
+  Longitud: '2'
   Categorías: {}
+  Especiales:
+    '-1': No especificado
+anio_radio:
+  Descripción: Año de la última radio adquirida
+  Pregunta: ¿En qué año adquirió su último radio?
+  Tipo: numeric
+  Longitud: '2'
+  Categorías: {}
+  Especiales:
+    '&': '&'
 num_tva:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
-  Categorías:
-    '0': '0'
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '5': '5'
-    '6': '6'
-    '7': '7'
-    '8': '8'
-    '9': '9'
-    '10': '10'
-    '11': '11'
-    '12': '12'
-    '16': '16'
-    '20': '20'
-    ' ': ' '
+  Descripción: Número de televisores analógicos del hogar
+  Pregunta: ¿Cuántos tiene?
+  Tipo: numeric
+  Longitud: '2'
+  Categorías: {}
+  Especiales:
+    '-1': No especificado
 anio_tva:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
-  Categorías:
-    '00': '00'
-    '01': '01'
-    '02': '02'
-    '03': '03'
-    '04': '04'
-    '05': '05'
-    '06': '06'
-    '07': '07'
-    08: 08
-    09: 09
-    '10': '10'
-    '11': '11'
-    '12': '12'
-    '13': '13'
-    '14': '14'
-    '15': '15'
-    '16': '16'
-    '17': '17'
-    '18': '18'
-    '19': '19'
-    '20': '20'
-    '52': '52'
-    '56': '56'
-    '60': '60'
-    '62': '62'
-    '64': '64'
-    '65': '65'
-    '66': '66'
-    '68': '68'
-    '69': '69'
-    '70': '70'
-    '71': '71'
-    '72': '72'
-    '73': '73'
-    '74': '74'
-    '75': '75'
-    '76': '76'
-    '77': '77'
-    '78': '78'
-    '79': '79'
-    '80': '80'
-    '81': '81'
-    '82': '82'
-    '83': '83'
-    '84': '84'
-    '85': '85'
-    '86': '86'
-    '87': '87'
-    '88': '88'
-    '89': '89'
-    '90': '90'
-    '91': '91'
-    '92': '92'
-    '93': '93'
-    '94': '94'
-    '95': '95'
-    '96': '96'
-    '97': '97'
-    '98': '98'
-    '99': '99'
-    ' ': ' '
+  Descripción: Año del último televisor analógico adquirido
+  Pregunta: ¿En qué año adquirió su último televisor analógico?
+  Tipo: numeric
+  Longitud: '2'
+  Categorías: {}
+  Especiales:
     '&': '&'
 num_tvd:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
-  Categorías:
-    '0': '0'
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '5': '5'
-    '6': '6'
-    '7': '7'
-    '8': '8'
-    '9': '9'
-    '10': '10'
-    '11': '11'
-    '12': '12'
-    '14': '14'
-    '16': '16'
-    '17': '17'
-    '19': '19'
+  Descripción: Número de televisores digitales del hogar
+  Pregunta: ¿Cuántos tiene?
+  Tipo: numeric
+  Longitud: '2'
+  Categorías: {}
+  Especiales:
+    '-1': No especificado
 anio_tvd:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
-  Categorías:
-    '00': '00'
-    '01': '01'
-    '02': '02'
-    '03': '03'
-    '04': '04'
-    '05': '05'
-    '06': '06'
-    '07': '07'
-    08: 08
-    09: 09
-    '10': '10'
-    '11': '11'
-    '12': '12'
-    '13': '13'
-    '14': '14'
-    '15': '15'
-    '16': '16'
-    '17': '17'
-    '18': '18'
-    '19': '19'
-    '20': '20'
-    '51': '51'
-    '68': '68'
-    '75': '75'
-    '77': '77'
-    '82': '82'
-    '85': '85'
-    '86': '86'
-    '89': '89'
-    '90': '90'
-    '92': '92'
-    '93': '93'
-    '94': '94'
-    '95': '95'
-    '96': '96'
-    '97': '97'
-    '98': '98'
-    '99': '99'
-    ' ': ' '
+  Descripción: Año del último televisor digital adquirido
+  Pregunta: ¿En qué año adquirió su último televisor digital?
+  Tipo: numeric
+  Longitud: '2'
+  Categorías: {}
+  Especiales:
+    '&': No especificado
 num_dvd:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
-  Categorías:
-    '0': '0'
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '5': '5'
-    '6': '6'
-    '7': '7'
-    '9': '9'
-    '10': '10'
-    '12': '12'
-    '14': '14'
+  Descripción: Número de dvds del hogar
+  Pregunta: ¿Cuántos tiene?
+  Tipo: numeric
+  Longitud: '2'
+  Categorías: {}
+  Especiales:
+    '-1': No especificado
 anio_dvd:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
-  Categorías:
-    '00': '00'
-    '01': '01'
-    '02': '02'
-    '03': '03'
-    '04': '04'
-    '05': '05'
-    '06': '06'
-    '07': '07'
-    08: 08
-    09: 09
-    '10': '10'
-    '11': '11'
-    '12': '12'
-    '13': '13'
-    '14': '14'
-    '15': '15'
-    '16': '16'
-    '17': '17'
-    '18': '18'
-    '19': '19'
-    '20': '20'
-    '60': '60'
-    '70': '70'
-    '80': '80'
-    '81': '81'
-    '83': '83'
-    '84': '84'
-    '85': '85'
-    '86': '86'
-    '87': '87'
-    '88': '88'
-    '89': '89'
-    '90': '90'
-    '91': '91'
-    '92': '92'
-    '93': '93'
-    '94': '94'
-    '95': '95'
-    '96': '96'
-    '97': '97'
-    '98': '98'
-    '99': '99'
-    ' ': ' '
+  Descripción: Año del último dvd adquirido
+  Pregunta: ¿En qué año adquirió su último DVD, Blue-ray (reproductor de discos de video)?
+  Tipo: numeric
+  Longitud: '2'
+  Categorías: {}
+  Especiales:
     '&': '&'
 num_video:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
-  Categorías:
-    '0': '0'
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '5': '5'
-    '10': '10'
+  Descripción: Número de videocaseteras del hogar
+  Pregunta: ¿Cuántos tiene?
+  Tipo: numeric
+  Longitud: '2'
+  Categorías: {}
+  Especiales:
+    '-1': No especificado
 anio_video:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
-  Categorías:
-    '00': '00'
-    '01': '01'
-    '02': '02'
-    '03': '03'
-    '04': '04'
-    '05': '05'
-    '06': '06'
-    '07': '07'
-    08: 08
-    09: 09
-    '10': '10'
-    '11': '11'
-    '12': '12'
-    '13': '13'
-    '14': '14'
-    '15': '15'
-    '16': '16'
-    '17': '17'
-    '18': '18'
-    '19': '19'
-    '20': '20'
-    '58': '58'
-    '63': '63'
-    '65': '65'
-    '70': '70'
-    '75': '75'
-    '76': '76'
-    '78': '78'
-    '80': '80'
-    '81': '81'
-    '83': '83'
-    '84': '84'
-    '85': '85'
-    '86': '86'
-    '87': '87'
-    '88': '88'
-    '89': '89'
-    '90': '90'
-    '91': '91'
-    '92': '92'
-    '93': '93'
-    '94': '94'
-    '95': '95'
-    '96': '96'
-    '97': '97'
-    '98': '98'
-    '99': '99'
-    ' ': ' '
+  Descripción: Año de la última videocasetera adquirida
+  Pregunta: ¿En qué año adquirió su última videocasetera?
+  Tipo: numeric
+  Longitud: '2'
+  Categorías: {}
+  Especiales:
     '&': '&'
 num_licua:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
-  Categorías:
-    '-1': '-1'
-    '0': '0'
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '5': '5'
-    '6': '6'
-    '7': '7'
-    '8': '8'
-    '9': '9'
-    '10': '10'
-    '11': '11'
-    '14': '14'
-    '15': '15'
-    '18': '18'
-    '20': '20'
-    ' ': ' '
-anio_licua:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Número de licuadoras del hogar
+  Pregunta: ¿Cuántos tiene?
+  Tipo: numeric
+  Longitud: '2'
   Categorías: {}
+  Especiales:
+    '-1': No especificado
+anio_licua:
+  Descripción: Año de la última licuadora adquirida
+  Pregunta: ¿En qué año adquirió su última licuadora?
+  Tipo: numeric
+  Longitud: '2'
+  Categorías: {}
+  Especiales:
+    '&': '&'
 num_tosta:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
-  Categorías:
-    '0': '0'
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '8': '8'
+  Descripción: Número de tostadores del hogar
+  Pregunta: ¿Cuántos tiene?
+  Tipo: numeric
+  Longitud: '2'
+  Categorías: {}
+  Especiales:
+    '-1': No especificado
 anio_tosta:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
-  Categorías:
-    '00': '00'
-    '01': '01'
-    '02': '02'
-    '03': '03'
-    '04': '04'
-    '05': '05'
-    '06': '06'
-    '07': '07'
-    08: 08
-    09: 09
-    '10': '10'
-    '11': '11'
-    '12': '12'
-    '13': '13'
-    '14': '14'
-    '15': '15'
-    '16': '16'
-    '17': '17'
-    '18': '18'
-    '19': '19'
-    '20': '20'
-    '66': '66'
-    '68': '68'
-    '70': '70'
-    '72': '72'
-    '73': '73'
-    '75': '75'
-    '76': '76'
-    '77': '77'
-    '78': '78'
-    '80': '80'
-    '81': '81'
-    '82': '82'
-    '83': '83'
-    '84': '84'
-    '85': '85'
-    '86': '86'
-    '87': '87'
-    '88': '88'
-    '89': '89'
-    '90': '90'
-    '91': '91'
-    '92': '92'
-    '93': '93'
-    '94': '94'
-    '95': '95'
-    '96': '96'
-    '97': '97'
-    '98': '98'
-    '99': '99'
-    ' ': ' '
+  Descripción: Año del último tostador adquirido
+  Pregunta: ¿En qué año adquirió su último tostador eléctrico?
+  Tipo: numeric
+  Longitud: '2'
+  Categorías: {}
+  Especiales:
     '&': '&'
 num_micro:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
-  Categorías:
-    '0': '0'
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '5': '5'
-    '6': '6'
-    '7': '7'
-    '8': '8'
-    '9': '9'
-    '11': '11'
-    '13': '13'
-    '15': '15'
-    '18': '18'
-    '20': '20'
+  Descripción: Número de hornos de microondas del hogar
+  Pregunta: ¿Cuántos tiene?
+  Tipo: numeric
+  Longitud: '2'
+  Categorías: {}
+  Especiales:
+    '-1': No especificado
 anio_micro:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
-  Categorías:
-    '00': '00'
-    '01': '01'
-    '02': '02'
-    '03': '03'
-    '04': '04'
-    '05': '05'
-    '06': '06'
-    '07': '07'
-    08: 08
-    09: 09
-    '10': '10'
-    '11': '11'
-    '12': '12'
-    '13': '13'
-    '14': '14'
-    '15': '15'
-    '16': '16'
-    '17': '17'
-    '18': '18'
-    '19': '19'
-    '20': '20'
-    '51': '51'
-    '66': '66'
-    '70': '70'
-    '76': '76'
-    '77': '77'
-    '78': '78'
-    '79': '79'
-    '80': '80'
-    '81': '81'
-    '82': '82'
-    '83': '83'
-    '84': '84'
-    '85': '85'
-    '86': '86'
-    '87': '87'
-    '88': '88'
-    '89': '89'
-    '90': '90'
-    '91': '91'
-    '92': '92'
-    '93': '93'
-    '94': '94'
-    '95': '95'
-    '96': '96'
-    '97': '97'
-    '98': '98'
-    '99': '99'
-    ' ': ' '
-    '&': '&'
+  Descripción: Año del último horno adquirido
+  Pregunta: ¿En qué año adquirió su último horno de microondas?
+  Tipo: numeric
+  Longitud: '2'
+  Categorías: {}
+  Especiales:
+    '&': No especificado
 num_refri:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
-  Categorías:
-    '0': '0'
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '5': '5'
-    '6': '6'
-    '7': '7'
-    '8': '8'
-    '9': '9'
-    '10': '10'
-    '14': '14'
-    '15': '15'
-    '20': '20'
-    '30': '30'
-    ' ': ' '
+  Descripción: Número de refrigeradores del hogar
+  Pregunta: ¿Cuántos tiene?
+  Tipo: numeric
+  Longitud: '2'
+  Categorías: {}
+  Especiales:
+    '-1': No especificado
 anio_refri:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Año del último refrigerador adquirido
+  Pregunta: ¿En qué año adquirió su último refrigerador?
+  Tipo: numeric
+  Longitud: '2'
   Categorías: {}
+  Especiales:
+    '&': '&'
 num_estuf:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
-  Categorías:
-    '0': '0'
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '5': '5'
-    '6': '6'
-    '7': '7'
-    '9': '9'
-    '10': '10'
-    '12': '12'
-    '15': '15'
-    '35': '35'
-    ' ': ' '
-anio_estuf:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Número de estufas del hogar
+  Pregunta: ¿Cuántos tiene?
+  Tipo: numeric
+  Longitud: '2'
   Categorías: {}
+  Especiales:
+    '-1': No especificado
+anio_estuf:
+  Descripción: Año de la última estufa adquirida
+  Pregunta: ¿En qué año adquirió su última estufa de gas o estufa eléctrica?
+  Tipo: numeric
+  Longitud: '2'
+  Categorías: {}
+  Especiales:
+    '&': '&'
 num_lavad:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
-  Categorías:
-    '0': '0'
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '5': '5'
-    '6': '6'
-    '7': '7'
-    '8': '8'
-    '9': '9'
-    '10': '10'
-    '11': '11'
-    '12': '12'
-    '15': '15'
-    '18': '18'
-    ' ': ' '
+  Descripción: Número de lavadoras del hogar
+  Pregunta: ¿Cuántos tiene?
+  Tipo: numeric
+  Longitud: '2'
+  Categorías: {}
+  Especiales:
+    '-1': No especificado
 anio_lavad:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
-  Categorías:
-    '00': '00'
-    '01': '01'
-    '02': '02'
-    '03': '03'
-    '04': '04'
-    '05': '05'
-    '06': '06'
-    '07': '07'
-    08: 08
-    09: 09
-    '10': '10'
-    '11': '11'
-    '12': '12'
-    '13': '13'
-    '14': '14'
-    '15': '15'
-    '16': '16'
-    '17': '17'
-    '18': '18'
-    '19': '19'
-    '20': '20'
-    '51': '51'
-    '60': '60'
-    '64': '64'
-    '65': '65'
-    '66': '66'
-    '67': '67'
-    '68': '68'
-    '69': '69'
-    '70': '70'
-    '71': '71'
-    '72': '72'
-    '73': '73'
-    '74': '74'
-    '75': '75'
-    '76': '76'
-    '77': '77'
-    '78': '78'
-    '79': '79'
-    '80': '80'
-    '81': '81'
-    '82': '82'
-    '83': '83'
-    '84': '84'
-    '85': '85'
-    '86': '86'
-    '87': '87'
-    '88': '88'
-    '89': '89'
-    '90': '90'
-    '91': '91'
-    '92': '92'
-    '93': '93'
-    '94': '94'
-    '95': '95'
-    '96': '96'
-    '97': '97'
-    '98': '98'
-    '99': '99'
-    ' ': ' '
+  Descripción: Año de la última lavadora adquirida
+  Pregunta: ¿En qué año adquirió su última lavadora?
+  Tipo: numeric
+  Longitud: '2'
+  Categorías: {}
+  Especiales:
     '&': '&'
 num_planc:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
-  Categorías:
-    '-1': '-1'
-    '0': '0'
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '5': '5'
-    '6': '6'
-    '7': '7'
-    '8': '8'
-    '10': '10'
-    '11': '11'
-    '13': '13'
-    '14': '14'
-    '15': '15'
-    '16': '16'
-    '17': '17'
-    '19': '19'
-    ' ': ' '
+  Descripción: Número de planchas del hogar
+  Pregunta: ¿Cuántos tiene?
+  Tipo: numeric
+  Longitud: '2'
+  Categorías: {}
+  Especiales:
+    '-1': No especificado
 anio_planc:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
-  Categorías:
-    '00': '00'
-    '01': '01'
-    '02': '02'
-    '03': '03'
-    '04': '04'
-    '05': '05'
-    '06': '06'
-    '07': '07'
-    08: 08
-    09: 09
-    '10': '10'
-    '11': '11'
-    '12': '12'
-    '13': '13'
-    '14': '14'
-    '15': '15'
-    '16': '16'
-    '17': '17'
-    '18': '18'
-    '19': '19'
-    '20': '20'
-    '55': '55'
-    '57': '57'
-    '58': '58'
-    '60': '60'
-    '61': '61'
-    '62': '62'
-    '63': '63'
-    '65': '65'
-    '66': '66'
-    '68': '68'
-    '69': '69'
-    '70': '70'
-    '71': '71'
-    '72': '72'
-    '73': '73'
-    '74': '74'
-    '75': '75'
-    '76': '76'
-    '77': '77'
-    '78': '78'
-    '79': '79'
-    '80': '80'
-    '81': '81'
-    '82': '82'
-    '83': '83'
-    '84': '84'
-    '85': '85'
-    '86': '86'
-    '87': '87'
-    '88': '88'
-    '89': '89'
-    '90': '90'
-    '91': '91'
-    '92': '92'
-    '93': '93'
-    '94': '94'
-    '95': '95'
-    '96': '96'
-    '97': '97'
-    '98': '98'
-    '99': '99'
-    ' ': ' '
+  Descripción: Año de la última plancha adquirida
+  Pregunta: ¿En qué año adquirió su última plancha eléctrica?
+  Tipo: numeric
+  Longitud: '2'
+  Categorías: {}
+  Especiales:
     '&': '&'
 num_maqui:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
-  Categorías:
-    '0': '0'
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '5': '5'
-    '6': '6'
-    '7': '7'
-    '8': '8'
-    '10': '10'
-    '11': '11'
-    '13': '13'
-    '20': '20'
-    '42': '42'
-anio_maqui:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Número de máquinas de coser del hogar
+  Pregunta: ¿Cuántos tiene?
+  Tipo: numeric
+  Longitud: '2'
   Categorías: {}
-num_venti:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
-  Categorías:
-    '-1': '-1'
-    '0': '0'
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '5': '5'
-    '6': '6'
-    '7': '7'
-    '8': '8'
-    '9': '9'
-    '10': '10'
-    '11': '11'
-    '12': '12'
-    '13': '13'
-    '14': '14'
-    '15': '15'
-    '16': '16'
-    '17': '17'
-    '20': '20'
-    ' ': ' '
-anio_venti:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
-  Categorías:
-    '00': '00'
-    '01': '01'
-    '02': '02'
-    '03': '03'
-    '04': '04'
-    '05': '05'
-    '06': '06'
-    '07': '07'
-    08: 08
-    09: 09
-    '10': '10'
-    '11': '11'
-    '12': '12'
-    '13': '13'
-    '14': '14'
-    '15': '15'
-    '16': '16'
-    '17': '17'
-    '18': '18'
-    '19': '19'
-    '20': '20'
-    '55': '55'
-    '60': '60'
-    '61': '61'
-    '63': '63'
-    '66': '66'
-    '68': '68'
-    '69': '69'
-    '70': '70'
-    '71': '71'
-    '72': '72'
-    '73': '73'
-    '74': '74'
-    '75': '75'
-    '76': '76'
-    '77': '77'
-    '78': '78'
-    '79': '79'
-    '80': '80'
-    '81': '81'
-    '82': '82'
-    '83': '83'
-    '84': '84'
-    '85': '85'
-    '86': '86'
-    '87': '87'
-    '88': '88'
-    '89': '89'
-    '90': '90'
-    '91': '91'
-    '92': '92'
-    '93': '93'
-    '94': '94'
-    '95': '95'
-    '96': '96'
-    '97': '97'
-    '98': '98'
-    '99': '99'
-    ' ': ' '
+  Especiales:
+    '-1': No especificado
+anio_maqui:
+  Descripción: Año de la última máquina de coser adquirida
+  Pregunta: ¿En qué año adquirió su última maquina de coser?
+  Tipo: numeric
+  Longitud: '2'
+  Categorías: {}
+  Especiales:
     '&': '&'
+num_venti:
+  Descripción: Número de ventiladores del hogar
+  Pregunta: ¿Cuántos tiene?
+  Tipo: numeric
+  Longitud: '2'
+  Categorías: {}
+  Especiales:
+    '-1': No especificado
+anio_venti:
+  Descripción: Año del último ventilador adquirido
+  Pregunta: ¿En qué año adquirió su último ventilador?
+  Tipo: numeric
+  Longitud: '2'
+  Categorías: {}
+  Especiales:
+    '&': No especificado
 num_aspir:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
-  Categorías:
-    '0': '0'
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '5': '5'
-    '6': '6'
-    '7': '7'
+  Descripción: Número de aspiradoras del hogar
+  Pregunta: ¿Cuántos tiene?
+  Tipo: numeric
+  Longitud: '2'
+  Categorías: {}
+  Especiales:
+    '-1': No especificado
 anio_aspir:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
-  Categorías:
-    '00': '00'
-    '01': '01'
-    '02': '02'
-    '03': '03'
-    '04': '04'
-    '05': '05'
-    '06': '06'
-    '07': '07'
-    08: 08
-    09: 09
-    '10': '10'
-    '11': '11'
-    '12': '12'
-    '13': '13'
-    '14': '14'
-    '15': '15'
-    '16': '16'
-    '17': '17'
-    '18': '18'
-    '19': '19'
-    '20': '20'
-    '60': '60'
-    '67': '67'
-    '70': '70'
-    '72': '72'
-    '75': '75'
-    '76': '76'
-    '77': '77'
-    '78': '78'
-    '80': '80'
-    '82': '82'
-    '83': '83'
-    '84': '84'
-    '85': '85'
-    '86': '86'
-    '87': '87'
-    '88': '88'
-    '89': '89'
-    '90': '90'
-    '91': '91'
-    '92': '92'
-    '93': '93'
-    '94': '94'
-    '95': '95'
-    '96': '96'
-    '97': '97'
-    '98': '98'
-    '99': '99'
-    ' ': ' '
+  Descripción: Año de la última aspiradora adquirida
+  Pregunta: ¿En qué año adquirió su última aspiradora?
+  Tipo: numeric
+  Longitud: '2'
+  Categorías: {}
+  Especiales:
     '&': '&'
 num_compu:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
-  Categorías:
-    '0': '0'
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '5': '5'
-    '6': '6'
-    '7': '7'
-    '8': '8'
-    '9': '9'
-    '10': '10'
-    '12': '12'
-    '15': '15'
-    '18': '18'
-    '20': '20'
+  Descripción: Número de computadoras del hogar
+  Pregunta: ¿Cuántos tiene?
+  Tipo: numeric
+  Longitud: '2'
+  Categorías: {}
+  Especiales:
+    '-1': No especificado
 anio_compu:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
-  Categorías:
-    '00': '00'
-    '01': '01'
-    '02': '02'
-    '03': '03'
-    '04': '04'
-    '05': '05'
-    '06': '06'
-    '07': '07'
-    08: 08
-    09: 09
-    '10': '10'
-    '11': '11'
-    '12': '12'
-    '13': '13'
-    '14': '14'
-    '15': '15'
-    '16': '16'
-    '17': '17'
-    '18': '18'
-    '19': '19'
-    '20': '20'
-    '55': '55'
-    '67': '67'
-    '70': '70'
-    '76': '76'
-    '80': '80'
-    '84': '84'
-    '86': '86'
-    '87': '87'
-    '88': '88'
-    '90': '90'
-    '91': '91'
-    '93': '93'
-    '94': '94'
-    '95': '95'
-    '96': '96'
-    '97': '97'
-    '98': '98'
-    '99': '99'
-    ' ': ' '
-    '&': '&'
+  Descripción: Año de la última computadora adquirida
+  Pregunta: ¿En qué año adquirió su última computadora?
+  Tipo: numeric
+  Longitud: '2'
+  Categorías: {}
+  Especiales:
+    '&': No especificado
 num_impre:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
-  Categorías:
-    '0': '0'
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '5': '5'
-    '6': '6'
-    '7': '7'
-    '8': '8'
-    '9': '9'
-    '41': '41'
+  Descripción: Número de impresoras del hogar
+  Pregunta: ¿Cuántos tiene?
+  Tipo: numeric
+  Longitud: '2'
+  Categorías: {}
+  Especiales:
+    '-1': No especificado
 anio_impre:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
-  Categorías:
-    '00': '00'
-    '01': '01'
-    '02': '02'
-    '03': '03'
-    '04': '04'
-    '05': '05'
-    '06': '06'
-    '07': '07'
-    08: 08
-    09: 09
-    '10': '10'
-    '11': '11'
-    '12': '12'
-    '13': '13'
-    '14': '14'
-    '15': '15'
-    '16': '16'
-    '17': '17'
-    '18': '18'
-    '19': '19'
-    '20': '20'
-    '55': '55'
-    '67': '67'
-    '86': '86'
-    '88': '88'
-    '90': '90'
-    '91': '91'
-    '93': '93'
-    '95': '95'
-    '96': '96'
-    '97': '97'
-    '98': '98'
-    '99': '99'
-    ' ': ' '
+  Descripción: Año de la última impresora adquirida
+  Pregunta: ¿En qué año adquirió su última impresora?
+  Tipo: numeric
+  Longitud: '2'
+  Categorías: {}
+  Especiales:
+    '&': No especificado
 num_juego:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
-  Categorías:
-    '0': '0'
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '5': '5'
-    '6': '6'
-    '7': '7'
-    '8': '8'
-    '9': '9'
-    '10': '10'
-    '11': '11'
-    '12': '12'
-    '15': '15'
+  Descripción: Número de videojuegos del hogar
+  Pregunta: ¿Cuántos tiene?
+  Tipo: numeric
+  Longitud: '2'
+  Categorías: {}
+  Especiales:
+    '-1': No especificado
 anio_juego:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
-  Categorías:
-    '00': '00'
-    '01': '01'
-    '02': '02'
-    '03': '03'
-    '04': '04'
-    '05': '05'
-    '06': '06'
-    '07': '07'
-    08: 08
-    09: 09
-    '10': '10'
-    '11': '11'
-    '12': '12'
-    '13': '13'
-    '14': '14'
-    '15': '15'
-    '16': '16'
-    '17': '17'
-    '18': '18'
-    '19': '19'
-    '20': '20'
-    '80': '80'
-    '85': '85'
-    '88': '88'
-    '90': '90'
-    '91': '91'
-    '92': '92'
-    '93': '93'
-    '94': '94'
-    '95': '95'
-    '96': '96'
-    '97': '97'
-    '98': '98'
-    '99': '99'
-    ' ': ' '
-    '&': '&'
+  Descripción: Año del último videojuego adquirido
+  Pregunta: '¿En qué año adquirió su último videojuegos: Wii, Playstation, Xbox u otros?'
+  Tipo: numeric
+  Longitud: '2'
+  Categorías: {}
+  Especiales:
+    '&': No especificado
 esc_radio:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Escuchan la radio
+  Pregunta: ¿Por qué medio la escuchan?
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '1': '1'
-    '2': '2'
+    '1': Sí
+    '2': 'No'
 er_aparato:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Radio mediante aparato físico
+  Pregunta: ¿Por qué medio la escuchan?
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '1': '1'
-    ' ': ' '
+    '1': Aparato físico
 er_celular:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Radio mediante teléfono celular
+  Pregunta: ¿Por qué medio la escuchan?
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '2': '2'
-    ' ': ' '
+    '2': Teléfono celular
 er_compu:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Radio mediante computadora
+  Pregunta: ¿Por qué medio la escuchan?
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '3': '3'
-    ' ': ' '
+    '3': Computadora
 er_aplicac:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Radio mediante aplicación
+  Pregunta: ¿Por qué medio la escuchan?
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '4': '4'
-    ' ': ' '
+    '4': Aplicación
 er_tv:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Radio mediante televisión
+  Pregunta: ¿Por qué medio la escuchan?
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '5': '5'
-    ' ': ' '
+    '5': Televisión
 er_otro:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Radio por otro medio
+  Pregunta: ¿Por qué medio la escuchan?
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '6': '6'
-    ' ': ' '
+    '6': Otro
 recib_tvd:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Recibió televisor digital
+  Pregunta: Del 2015 a la fecha, ¿ha recibido del Gobierno Federal algún televisor digital?
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '1': '1'
-    '2': '2'
-    ' ': ' '
+    '1': Sí
+    '2': 'No'
 tsalud1_h:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
-  Categorías:
-    '0': '0'
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '5': '5'
-    '6': '6'
-    '7': '7'
-    '8': '8'
-    '9': '9'
-    '10': '10'
-    '11': '11'
-    '12': '12'
-    '13': '13'
-    '14': '14'
-    '15': '15'
-    '16': '16'
-    '18': '18'
-    '20': '20'
-    '21': '21'
-    '22': '22'
-    '24': '24'
-    '25': '25'
-    '30': '30'
-    '40': '40'
-    '41': '41'
-    '44': '44'
-    '45': '45'
-    '48': '48'
-    '50': '50'
-    '55': '55'
-    '60': '60'
-    '63': '63'
-    '80': '80'
-    '90': '90'
+  Descripción: Horas en llegar al hospital
+  Pregunta: En caso de emergencia y considerando el medio de transporte que utilizaría, ¿cuánto tiempo
+    cree que tardaría en llegar a un hospital en donde lo(a) pudieran atender?
+  Tipo: numeric
+  Longitud: '2'
+  Categorías: {}
 tsalud1_m:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
-  Categorías:
-    '0': '0'
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '5': '5'
-    '6': '6'
-    '7': '7'
-    '8': '8'
-    '9': '9'
-    '10': '10'
-    '11': '11'
-    '12': '12'
-    '13': '13'
-    '14': '14'
-    '15': '15'
-    '16': '16'
-    '17': '17'
-    '18': '18'
-    '19': '19'
-    '20': '20'
-    '21': '21'
-    '22': '22'
-    '23': '23'
-    '24': '24'
-    '25': '25'
-    '26': '26'
-    '27': '27'
-    '28': '28'
-    '29': '29'
-    '30': '30'
-    '31': '31'
-    '32': '32'
-    '33': '33'
-    '34': '34'
-    '35': '35'
-    '36': '36'
-    '38': '38'
-    '39': '39'
-    '40': '40'
-    '41': '41'
-    '42': '42'
-    '43': '43'
-    '44': '44'
-    '45': '45'
-    '46': '46'
-    '47': '47'
-    '48': '48'
-    '49': '49'
-    '50': '50'
-    '52': '52'
-    '55': '55'
-    '58': '58'
-    '59': '59'
+  Descripción: Minutos en llegar al hospital
+  Pregunta: En caso de emergencia y considerando el medio de transporte que utilizaría, ¿cuánto tiempo
+    cree que tardaría en llegar a un hospital en donde lo(a) pudieran atender?
+  Tipo: numeric
+  Longitud: '2'
+  Categorías: {}
 habito_1:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Cada mes
+  Pregunta: ¿Cada cuándo realizan las compras en alimentos y bebidas, ya sea para preparar sus alimentos
+    o para su despensa?
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '1': '1'
-    ' ': ' '
+    '1': Cada mes
 habito_2:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Cada 15 días
+  Pregunta: ¿Cada cuándo realizan las compras en alimentos y bebidas, ya sea para preparar sus alimentos
+    o para su despensa?
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '2': '2'
-    ' ': ' '
+    '2': Cada 15 días
 habito_3:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Cada 8 días
+  Pregunta: ¿Cada cuándo realizan las compras en alimentos y bebidas, ya sea para preparar sus alimentos
+    o para su despensa?
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '3': '3'
-    ' ': ' '
+    '3': Cada 8 días
 habito_4:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Cada tercer día
+  Pregunta: ¿Cada cuándo realizan las compras en alimentos y bebidas, ya sea para preparar sus alimentos
+    o para su despensa?
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '4': '4'
-    ' ': ' '
+    '4': Cada tercer día
 habito_5:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Diariamente
+  Pregunta: ¿Cada cuándo realizan las compras en alimentos y bebidas, ya sea para preparar sus alimentos
+    o para su despensa?
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '5': '5'
-    ' ': ' '
+    '5': Diariamente
 habito_6:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Otros
+  Pregunta: ¿Cada cuándo realizan las compras en alimentos y bebidas, ya sea para preparar sus alimentos
+    o para su despensa?
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '6': '6'
-    ' ': ' '
+    '6': Otros
 consumo:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Consumo
+  Pregunta: Las compras en alimentos y bebidas que hace cada ... ¿las realizó en alguno de los días en
+    los que ha registrado (proporcionado) la información de sus gastos en alimentos?
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '1': '1'
-    '2': '2'
-    ' ': ' '
+    '1': Sí
+    '2': 'No'
 nr_viv:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Numero de renglón de vivienda
+  Pregunta: Asignar el número de renglón que corresponda según el cuestionario de Hogares y Viviendas
+    Sección III
+  Tipo: categorical
+  Longitud: '2'
   Categorías:
     '01': '01'
     '02': '02'
     '03': '03'
     '04': '04'
-    ' ': ' '
+  Nota: 'códigos observados sin etiqueta en el DDI: [''04'']'
 tarjeta:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Tarjeta
+  Pregunta: ¿Alguna de las personas que conforman su hogar ... con tarjeta de crédito bancaria o comercial?
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '1': '1'
-    '2': '2'
+    '1': Sí
+    '2': 'No'
 pagotarjet:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Pagos con tarjetas
+  Pregunta: No aplica.
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '1': '1'
-    '2': '2'
+    '1': Sí
+    '2': 'No'
 regalotar:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Regalos con tarjeta
+  Pregunta: No aplica.
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '1': '1'
-    '2': '2'
+    '1': Sí
+    '2': 'No'
 regalodado:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Regalos a otras personas
+  Pregunta: ¿Compró algún artículo o pagó algún servicio para regalar a personas que no forman parte de
+    su hogar?
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '1': '1'
-    '2': '2'
+    '1': Sí
+    '2': 'No'
 autocons:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Autoconsumo
+  Pregunta: No aplica.
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '1': '1'
-    '2': '2'
+    '1': Sí
+    '2': 'No'
 regalos:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Regalos recibidos
+  Pregunta: No aplica.
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '1': '1'
-    '2': '2'
+    '1': Sí
+    '2': 'No'
 remunera:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Remuneraciones
+  Pregunta: No aplica.
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '1': '1'
-    '2': '2'
+    '1': Sí
+    '2': 'No'
 transferen:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Transferencias
+  Pregunta: No aplica.
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '1': '1'
-    '2': '2'
+    '1': Sí
+    '2': 'No'
 parto_g:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Gasto en parto
+  Pregunta: Durante los meses _______a _________, ¿el hogar realizó gasto por concepto de parto?
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '1': '1'
-    '2': '2'
+    '1': Sí
+    '2': 'No'
 embarazo_g:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Servicios médicos parto
+  Pregunta: Durante los meses ... a ... , ¿el hogar realizó gastos por concepto de embarazo?
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '1': '1'
-    '2': '2'
+    '1': Sí
+    '2': 'No'
 negcua:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Negocio del hogar
+  Pregunta: ¿Algún integrante cuenta con algún negocio propiedad del hogar que se dedique a elaborar,
+    vender o procesar alimentos, bebidas o tabaco, o bien, a prestar servicios de alimentación o transporte?
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '1': '1'
-    '2': '2'
+    '1': Sí
+    '2': 'No'
 est_alim:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Estimación de gastos en alimentos
+  Pregunta: TOTAL Realice la sumatoria de las claves A805, A806 y A807
+  Tipo: numeric
+  Longitud: '9'
   Categorías: {}
 est_trans:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Estimación en gastos de transporte
+  Pregunta: Durante el mes pasado ¿cuánto gastó usted y las demás personas que conforman este hogar en
+    servicios de transporte público como autobús, colectivo, taxi, etcétera?
+  Tipo: numeric
+  Longitud: '9'
   Categorías: {}
 bene_licon:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Beneficiario Liconsa
+  Pregunta: Actualmente, ¿usted o algún integrante del hogar es beneficiario del Programa de Abasto Social
+    de Leche (Liconsa)?
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '1': '1'
-    '2': '2'
+    '1': Sí
+    '2': 'No'
 cond_licon:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Otorgamiento condicionado
+  Pregunta: ¿Les condicionan el otorgamiento de leche Liconsa con la compra de algún otro artículo?
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '1': '1'
-    '2': '2'
-    ' ': ' '
+    '1': Sí
+    '2': 'No'
 lts_licon:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Litros de leche Liconsa
+  Pregunta: ¿Cuántos litros de leche Liconsa compra el hogar a la semana?
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '5': '5'
-    '6': '6'
-    '7': '7'
-    ' ': ' '
+    '1': 4 litros
+    '2': 8 litros
+    '3': 12 litros
+    '4': 16 litros
+    '5': 20 litros
+    '6': 24 litros
+    '7': Otro
 otros_lts:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
-  Categorías:
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '5': '5'
-    '6': '6'
-    '7': '7'
-    '8': '8'
-    '9': '9'
-    '10': '10'
-    '11': '11'
-    '12': '12'
-    '13': '13'
-    '14': '14'
-    '15': '15'
-    '16': '16'
-    '17': '17'
-    '18': '18'
-    '20': '20'
-    '21': '21'
-    '22': '22'
-    '24': '24'
-    '25': '25'
-    '26': '26'
-    '28': '28'
-    '30': '30'
-    '32': '32'
-    '33': '33'
-    '34': '34'
-    '36': '36'
-    '40': '40'
-    '48': '48'
-    '52': '52'
-    '56': '56'
-    '60': '60'
-    '64': '64'
-    '76': '76'
-    '88': '88'
-    '99': '99'
-    ' ': ' '
+  Descripción: Otra cantidad de litros
+  Pregunta: ¿Cuántos litros de leche Liconsa compra el hogar a la semana?
+  Tipo: numeric
+  Longitud: '2'
+  Categorías: {}
 diconsa:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Tienda Diconsa en la localidad
+  Pregunta: ¿Hay tienda Diconsa en su colonia o localidad?
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '1': '1'
-    '2': '2'
-    '9': '9'
+    '1': Sí
+    '2': 'No'
+  Especiales:
+    '9': No sabe
 frec_dicon:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Frecuencia de compra en Diconsa
+  Pregunta: ¿Con qué frecuencia usted o algún integrante del hogar compra en la tienda Diconsa?
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    ' ': ' '
+    '1': Siempre
+    '2': A veces
+    '3': Nunca
 cond_dicon:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Venta condicionada
+  Pregunta: ¿Les condicionan la venta de artículos alimentarios en la tienda Diconsa con la compra de
+    algún otro artículo?
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '1': '1'
-    '2': '2'
-    ' ': ' '
+    '1': Sí
+    '2': 'No'
 pago_dicon:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Gasto semanal en Diconsa
+  Pregunta: ¿Cuánto paga usted o algún integrante del hogar por alimentos semanalmente en la tienda Diconsa?
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '5': '5'
-    '7': '7'
-    ' ': ' '
+    '1': 50 pesos
+    '2': 100 pesos
+    '3': 150 pesos
+    '4': 200 pesos
+    '5': 250 pesos
+    '7': Otro
 otro_pago:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Otro monto de gasto
+  Pregunta: ¿Cuánto paga usted o algún integrante del hogar por alimentos semanalmente en la tienda Diconsa?
+  Tipo: numeric
+  Longitud: '3'
   Categorías: {}

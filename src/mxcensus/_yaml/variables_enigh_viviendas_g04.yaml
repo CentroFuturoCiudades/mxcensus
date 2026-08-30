@@ -1,187 +1,167 @@
 folioviv:
-  Descripción: Identificador de la vivienda (folio). Los dos primeros caracteres son
-    la clave de la entidad federativa.
-  Tipo: str
+  Descripción: Identificador de la vivienda (folio). Los dos primeros caracteres son la clave de la entidad
+    federativa.
+  Tipo: string
   Longitud: 6 (2008–2012) / 10 (2014+)
   Categorías: {}
 tipo_viv:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Tipo de vivienda
+  Pregunta: 'Esta vivienda es:'
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '5': '5'
-    '&': '&'
+    '1': Casa independiente
+    '2': Departamento en edificio
+    '3': Vivienda en vecindad
+    '4': Vivienda en cuarto de azotea
+    '5': Local no construido para habitación
+  Especiales:
+    '&': No especificado o Perdido por el usuario
 mat_pared:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Material de paredes
+  Pregunta: ¿De qué material es la mayor parte de las paredes o muros de esta vivienda?
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '5': '5'
-    '6': '6'
-    '7': '7'
-    '8': '8'
+    '1': Material de desecho
+    '2': Lámina de cartón
+    '3': Lámina de asbesto o metálica
+    '4': Carrizo bambú o palma
+    '5': Embarro o bajareque
+    '6': Madera
+    '7': Adobe
+    '8': Tabique, ladrillo, block, piedra, cantera, cemento o concreto
 mat_techos:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Material de techos
+  Pregunta: ¿De qué material es la mayor parte del techo de esta vivienda?
+  Tipo: categorical
+  Longitud: '2'
   Categorías:
-    '01': '01'
-    '02': '02'
-    '03': '03'
-    '04': '04'
-    '05': '05'
-    '06': '06'
-    '07': '07'
-    08: 08
-    09: 09
-    '10': '10'
+    '01': Material de desecho
+    '02': Lámina de cartón
+    '03': Lámina metálica
+    '04': Lámina de asbesto
+    '05': Lámina de fibrocemento ondulada (techo fijo)
+    '06': Palma o paja
+    '07': Madera o tejamanil
+    08: Terrado con viguería
+    09: Teja
+    '10': Losa de concreto o viguetas con bovedilla
 mat_pisos:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Material de pisos
+  Pregunta: ¿De qué material es la mayor parte del piso de esta vivienda?
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '&': '&'
+    '1': Tierra
+    '2': Cemento o firme
+    '3': Madera, mosaico u otro recubrimiento
+  Especiales:
+    '&': No especificado o Perdido por el usuario
 antiguedad:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Antigüedad de la vivienda
+  Pregunta: ¿Cuánto años hace que se construyó esta vivienda?
+  Tipo: numeric
+  Longitud: '2'
   Categorías: {}
 antigua_ne:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Antigüedad no especificada de la vivienda
+  Pregunta: ¿Cuánto años hace que se construyó esta vivienda?
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '1': '1'
-    ' ': ' '
+    '1': No sabe
 cocina:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Tiene cocina
+  Pregunta: ¿Esta vivienda tiene un cuarto para cocinar?
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '1': '1'
-    '2': '2'
+    '1': Sí
+    '2': 'No'
 cocina_dor:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Utiliza cocina de dormitorio
+  Pregunta: ¿En el cuarto donde cocinan también duermen?
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '1': '1'
-    '2': '2'
-    ' ': ' '
+    '1': Sí
+    '2': 'No'
 cuart_dorm:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
-  Categorías:
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '5': '5'
-    '6': '6'
-    '7': '7'
-    '8': '8'
-    '9': '9'
-    '10': '10'
-    '11': '11'
-    '13': '13'
+  Descripción: Cuartos dormitorio
+  Pregunta: ¿Cuántos cuartos se usan para dormir sin contar pasillos ni baños?
+  Tipo: numeric
+  Longitud: '2'
+  Categorías: {}
 num_cuarto:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
-  Categorías:
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '5': '5'
-    '6': '6'
-    '7': '7'
-    '8': '8'
-    '9': '9'
-    '10': '10'
-    '11': '11'
-    '12': '12'
-    '13': '13'
-    '14': '14'
-    '15': '15'
-    '16': '16'
-    '17': '17'
-    '18': '18'
-    '19': '19'
-    '20': '20'
-    '22': '22'
-    '23': '23'
+  Descripción: Número de cuartos
+  Pregunta: ¿Cuántos cuartos tiene en total esta vivienda, contando la cocina? (no cuente pasillos ni
+    baños)
+  Tipo: numeric
+  Longitud: '2'
+  Categorías: {}
 disp_agua:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Disponibilidad de agua
+  Pregunta: ¿En esta vivienda tienen...
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '5': '5'
-    '6': '6'
-    '7': '7'
+    '1': Agua entubada dentro de la vivienda
+    '2': Agua entubada fuera de la vivienda, pero dentro del terreno
+    '3': Agua entubada de llave pública (o hidrante)
+    '4': Captadores de agua de lluvia
+    '5': Agua entubada que acarrean de otra vivienda
+    '6': Agua de pipa
+    '7': Agua de un pozo, río, lago, arroyo u otra
 dotac_agua:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Dotación de agua
+  Pregunta: ¿Cuántos días a la semana llega el agua a esta vivienda?
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '5': '5'
-    ' ': ' '
+    '1': Diario
+    '2': Cada tercer día
+    '3': Dos veces por semana
+    '4': Una vez por semana
+    '5': De vez en cuando
 excusado:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Tiene excusado
+  Pregunta: ¿Tienen excusado, retrete, sanitario, letrina u hoyo negro?
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '1': '1'
-    '2': '2'
+    '1': Sí
+    '2': 'No'
 uso_compar:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Uso compartido del sanitario
+  Pregunta: ¿El servicio sanitario lo comparten con otra vivienda?
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '1': '1'
-    '2': '2'
-    ' ': ' '
+    '1': Sí
+    '2': 'No'
 sanit_agua:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Sanitario conexión agua
+  Pregunta: ¿El servicio sanitario…
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    ' ': ' '
+    '1': Tiene descarga directa de agua
+    '2': Le echan agua con cubeta
+    '3': No se le puede echar agua
 biodigest:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Dispone de biodigestor
+  Pregunta: ¿El servicio sanitario cuenta con biodigestor?
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '1': '1'
-    '2': '2'
-    ' ': ' '
+    '1': Sí
+    '2': 'No'
 bano_comp:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Sanitario con excusado y regadera
+  Pregunta: ¿Cuántos baños tiene esta vivienda con excusado y regadera?
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
     '0': '0'
     '1': '1'
@@ -193,11 +173,11 @@ bano_comp:
     '7': '7'
     '8': '8'
     '9': '9'
-    ' ': ' '
 bano_excus:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Sanitario con excusado
+  Pregunta: ¿Cuántos baños tiene esta vivienda sólo con excusado?
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
     '0': '0'
     '1': '1'
@@ -209,11 +189,11 @@ bano_excus:
     '7': '7'
     '8': '8'
     '9': '9'
-    ' ': ' '
 bano_regad:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Sanitario con regadera
+  Pregunta: ¿Cuántos baños tiene esta vivienda sólo con regadera?
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
     '0': '0'
     '1': '1'
@@ -225,186 +205,151 @@ bano_regad:
     '7': '7'
     '8': '8'
     '9': '9'
-    ' ': ' '
 drenaje:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Destino de drenaje
+  Pregunta: ¿Esta vivienda tiene drenaje o desagüe conectado a…
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '5': '5'
+    '1': La red pública
+    '2': Una fosa séptica
+    '3': Una tubería que va a dar a una barranca o grieta
+    '4': Una tubería que va a dar a un río, lago o mar
+    '5': No tiene drenaje
 disp_elect:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Disponibilidad eléctrica
+  Pregunta: ¿En esta vivienda la luz eléctrica la obtienen…
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '5': '5'
+    '1': Del servicio público
+    '2': De una planta particular
+    '3': De panel solar
+    '4': De otra fuente
+    '5': No tiene luz eléctrica
 focos_inca:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
-  Categorías:
-    '0': '0'
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '5': '5'
-    '6': '6'
-    '7': '7'
-    '8': '8'
-    '9': '9'
-    '10': '10'
-    '11': '11'
-    '12': '12'
-    '13': '13'
-    '14': '14'
-    '15': '15'
-    '16': '16'
-    '17': '17'
-    '18': '18'
-    '19': '19'
-    '20': '20'
-    '21': '21'
-    '22': '22'
-    '23': '23'
-    '24': '24'
-    '25': '25'
-    '26': '26'
-    '27': '27'
-    '28': '28'
-    '30': '30'
-    '32': '32'
-    '33': '33'
-    '35': '35'
-    '36': '36'
-    '37': '37'
-    '38': '38'
-    '39': '39'
-    '40': '40'
-    '44': '44'
-    '48': '48'
-    '50': '50'
-    '52': '52'
-    '60': '60'
-    '70': '70'
-    '80': '80'
-    '98': '98'
-    '99': '99'
-    ' ': ' '
+  Descripción: Número de focos incandescentes
+  Pregunta: Número de focos incandescentes que se usan para iluminar la vivienda, tanto en el interior
+    como en el exterior.
+  Tipo: numeric
+  Longitud: '2'
+  Categorías: {}
 focos_ahor:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Número de focos ahorradores
+  Pregunta: ¿Cuántos focos tiene esta vivienda?
+  Tipo: numeric
+  Longitud: '2'
   Categorías: {}
 combustible:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Tipo de combustible
+  Pregunta: ¿El combustible que más usan para cocinar es…
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '5': '5'
-    '6': '6'
+    '1': Leña
+    '2': Carbón
+    '3': Gas de tanque
+    '4': Gas natural o de tubería
+    '5': Electricidad
+    '6': Otro combustible
     '&': '&'
+  Nota: 'códigos observados sin etiqueta en el DDI: [''&'']'
 estufa_chi:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Estufa con chimenea
+  Pregunta: Presencia de chimenea para desalojar el humo al cocinar.
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '1': '1'
-    '2': '2'
-    ' ': ' '
+    '1': Sí
+    '2': 'No'
 eli_basura:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Eliminación de basura
+  Pregunta: ¿La basura de esta vivienda…
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '5': '5'
-    '6': '6'
-    '7': '7'
-    '8': '8'
+    '1': La recoge un camión o carrito de basura
+    '2': La tiran en el basurero público
+    '3': La tiran en un contenedor o depósito
+    '4': La queman
+    '5': La entierran
+    '6': La tiran en un terreno baldío o calle
+    '7': La tiran en barranca o grieta
+    '8': La tiran al río, lago o mar
 tenencia:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Tipo de tenencia de la vivienda
+  Pregunta: ¿Esta vivienda…
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '5': '5'
-    '6': '6'
+    '1': Es rentada
+    '2': Es prestada
+    '3': Es propia pero la están pagando
+    '4': Es propia
+    '5': Está intestada o en litigio
+    '6': Otra situación
 renta:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Monto de la renta mensual
+  Pregunta: ¿Cuál es el monto de la renta mensual?
+  Tipo: numeric
+  Longitud: '6'
   Categorías: {}
 estim_pago:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Estimación del pago de renta
+  Pregunta: ¿Cuánto pagaría mensualmente si la estuviera rentando?
+  Tipo: numeric
+  Longitud: '9'
   Categorías: {}
 pago_viv:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Pago de vivienda
+  Pregunta: ¿Cuánto está pagando al mes?
+  Tipo: numeric
+  Longitud: '6'
   Categorías: {}
 pago_mesp:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Pagó el mes pasado
+  Pregunta: ¿La pagó el mes pasado?
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '1': '1'
-    '2': '2'
-    ' ': ' '
+    '1': Sí
+    '2': 'No'
 tipo_adqui:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Tipo de adquisición
+  Pregunta: ¿El dueño o propietario de esta vivienda...
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    ' ': ' '
+    '1': La compró hecha
+    '2': La mandó construir
+    '3': La construyó él mismo
+    '4': La obtuvo de otra manera
 viv_usada:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Compró la vivienda usada
+  Pregunta: Cuando compraron esta vivienda, ¿era usada?
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '1': '1'
-    '2': '2'
-    ' ': ' '
+    '1': Sí
+    '2': 'No'
 tipo_finan:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Tipo de financiamiento
+  Pregunta: ¿Para pagar o construir esta vivienda...
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '5': '5'
-    ' ': ' '
-    '&': '&'
+    '1': Le dió crédito el INFONAVIT, FOVISSSTE o FONHAPO
+    '2': Le dió crédito un banco, SOFOL o caja de ahorro
+    '3': Le dió crédito otra institución
+    '4': Le prestó un familiar, amigo o prestamista
+    '5': Usó sus propios recursos
+  Especiales:
+    '&': No especificado o Perdido por el usuario
 num_dueno1:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Identificador del primer dueño
+  Pregunta: ¿Quién de las personas que viven aquí es el dueño o dueña de esta vivienda?
+  Tipo: categorical
+  Longitud: '2'
   Categorías:
     '01': '01'
     '02': '02'
@@ -416,24 +361,26 @@ num_dueno1:
     08: 08
     09: 09
     '10': '10'
+    '17': '17'
     '11': '11'
     '14': '14'
-    '17': '17'
-    ' ': ' '
+  Nota: 'códigos observados sin etiqueta en el DDI: [''11'', ''14'']'
 hog_dueno1:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Hogar del primer dueño
+  Pregunta: ¿Quién de las personas que viven aquí es el dueño o dueña de esta vivienda?
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
     '1': '1'
     '2': '2'
     '3': '3'
     '4': '4'
-    ' ': ' '
+  Nota: 'códigos observados sin etiqueta en el DDI: [''4'']'
 num_dueno2:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Identificador del segundo dueño
+  Pregunta: ¿Quién de las personas que viven aquí es el dueño o dueña de esta vivienda?
+  Tipo: categorical
+  Longitud: '2'
   Categorías:
     '01': '01'
     '02': '02'
@@ -442,212 +389,176 @@ num_dueno2:
     '05': '05'
     '06': '06'
     '07': '07'
+    '10': '10'
     08: 08
-    '10': '10'
-    ' ': ' '
+  Nota: 'códigos observados sin etiqueta en el DDI: [''08'']'
 hog_dueno2:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Hogar del segundo dueño
+  Pregunta: ¿Quién de las personas que viven aquí es el dueño o dueña de esta vivienda?
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
     '1': '1'
     '2': '2'
     '3': '3'
-    ' ': ' '
 escrituras:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Escrituras de la vivienda
+  Pregunta: ¿Esta vivienda cuenta con escrituras o título de propiedad...
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    ' ': ' '
+    '1': A nombre del dueño
+    '2': A nombre de otra persona
+    '3': No tiene escrituras
+    '4': No sabe
 lavadero:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Dispone de lavadero
+  Pregunta: ¿Esta vivienda tiene lavadero?
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '1': '1'
-    '2': '2'
+    '1': Sí
+    '2': 'No'
 fregadero:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Dispone de fregadero
+  Pregunta: ¿Esta vivienda tiene fregadero o tarja?
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '1': '1'
-    '2': '2'
+    '1': Sí
+    '2': 'No'
 regadera:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Dispone de regadera
+  Pregunta: ¿Esta vivienda tiene regadera?
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '1': '1'
-    '2': '2'
+    '1': Sí
+    '2': 'No'
 tinaco_azo:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Dispone de tinaco
+  Pregunta: ¿Esta vivienda tiene tinaco en la azotea?
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '1': '1'
-    '2': '2'
+    '1': Sí
+    '2': 'No'
 cisterna:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Dispone de cisterna
+  Pregunta: ¿Esta vivienda tiene cisterna o aljibe?
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '1': '1'
-    '2': '2'
+    '1': Sí
+    '2': 'No'
 pileta:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Dispone de pileta o tanque
+  Pregunta: ¿Esta vivienda tiene pileta, tanque o depósito de agua?
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '1': '1'
-    '2': '2'
+    '1': Sí
+    '2': 'No'
 calent_sol:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Dispone de calentador solar de agua
+  Pregunta: ¿Esta vivienda tiene calentador solar de agua?
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '1': '1'
-    '2': '2'
+    '1': Sí
+    '2': 'No'
 calent_gas:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Dispone de calentador de gas
+  Pregunta: ¿Esta vivienda tiene calentador de gas u otros?
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '1': '1'
-    '2': '2'
+    '1': Sí
+    '2': 'No'
 medidor_luz:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Dispone de medidor de luz
+  Pregunta: ¿Esta vivienda tiene medidor de luz?
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '1': '1'
-    '2': '2'
+    '1': Sí
+    '2': 'No'
 bomba_agua:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Dispone de bomba de agua
+  Pregunta: ¿Esta vivienda tiene bomba de agua?
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '1': '1'
-    '2': '2'
+    '1': Sí
+    '2': 'No'
 tanque_gas:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Dispone de tanque de gas estacionario
+  Pregunta: ¿Esta vivienda tiene tanque de gas estacionario?
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '1': '1'
-    '2': '2'
+    '1': Sí
+    '2': 'No'
 aire_acond:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Dispone de aire acondicionado
+  Pregunta: ¿Esta vivienda tiene aire acondicionado?
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '1': '1'
-    '2': '2'
+    '1': Sí
+    '2': 'No'
 calefacc:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Dispone de calefacción
+  Pregunta: ¿Esta vivienda tiene calefacción?
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '1': '1'
-    '2': '2'
+    '1': Sí
+    '2': 'No'
 tot_resid:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
-  Categorías:
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '5': '5'
-    '6': '6'
-    '7': '7'
-    '8': '8'
-    '9': '9'
-    '10': '10'
-    '11': '11'
-    '12': '12'
-    '13': '13'
-    '14': '14'
-    '15': '15'
-    '16': '16'
-    '17': '17'
-    '18': '18'
-    '19': '19'
-    '20': '20'
-    '22': '22'
-    '25': '25'
+  Descripción: Total de residentes de la vivienda
+  Pregunta: Sin pregunta textual.
+  Tipo: numeric
+  Longitud: '2'
+  Categorías: {}
 tot_hom:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
-  Categorías:
-    '0': '0'
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '5': '5'
-    '6': '6'
-    '7': '7'
-    '8': '8'
-    '9': '9'
-    '10': '10'
-    '11': '11'
-    '12': '12'
-    '13': '13'
+  Descripción: Total de residentes hombres
+  Pregunta: Sin pregunta textual.
+  Tipo: numeric
+  Longitud: '2'
+  Categorías: {}
 tot_muj:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
-  Categorías:
-    '0': '0'
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '5': '5'
-    '6': '6'
-    '7': '7'
-    '8': '8'
-    '9': '9'
-    '10': '10'
-    '11': '11'
-    '12': '12'
+  Descripción: Total de residentes mujeres
+  Pregunta: Sin pregunta textual.
+  Tipo: numeric
+  Longitud: '2'
+  Categorías: {}
 tot_hog:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
-  Categorías:
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '5': '5'
+  Descripción: Total de hogares en la vivienda
+  Pregunta: Sin pregunta textual.
+  Tipo: numeric
+  Longitud: '1'
+  Categorías: {}
 ubica_geo:
-  Descripción: Ubicación geográfica — clave de entidad (2) + municipio (3) [+ localidad
-    (4) en 2012–2022].
-  Tipo: str
+  Descripción: Ubicación geográfica — clave de entidad (2) + municipio (3) [+ localidad (4) en 2012–2022].
+  Tipo: string
   Longitud: 5 / 9
   Categorías: {}
 tam_loc:
   Descripción: Tamaño de localidad.
-  Tipo: str
+  Tipo: categorical
   Longitud: '1'
+  Ordenada: true
   Categorías:
-    '1': Localidades con 100 000 y más habitantes
-    '2': Localidades con 15 000 a 99 999 habitantes
-    '3': Localidades con 2 500 a 14 999 habitantes
     '4': Localidades con menos de 2 500 habitantes
+    '3': Localidades con 2 500 a 14 999 habitantes
+    '2': Localidades con 15 000 a 99 999 habitantes
+    '1': Localidades con 100 000 y más habitantes
 est_socio:
   Descripción: Estrato socioeconómico (2012+).
-  Tipo: str
+  Tipo: categorical
   Longitud: '1'
+  Ordenada: true
   Categorías:
     '1': Bajo
     '2': Medio bajo
@@ -655,24 +566,24 @@ est_socio:
     '4': Alto
 est_dis:
   Descripción: Estrato de diseño muestral.
-  Tipo: str
+  Tipo: string
   Longitud: '3'
   Categorías: {}
 upm:
   Descripción: Unidad primaria de muestreo.
-  Tipo: str
+  Tipo: string
   Longitud: '4'
   Categorías: {}
 factor:
-  Descripción: Factor de expansión (de vivienda/hogar según la tabla; `factor_hog`/`factor_viv`
-    en 2012–2014).
-  Tipo: int
+  Descripción: Factor de expansión (de vivienda/hogar según la tabla; `factor_hog`/`factor_viv` en 2012–2014).
+  Tipo: numeric
   Longitud: ''
   Categorías: {}
 procaptar:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Viviendas PROCAPTAR
+  Pregunta: No aplica.
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '0': '0'
-    '1': '1'
+    '0': No aplica
+    '1': Vivienda con precipitación pluvial mayor o igual a 1500 mm

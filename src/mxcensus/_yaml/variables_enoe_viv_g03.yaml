@@ -1,193 +1,202 @@
 loc:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
-  Categorías:
-    ' ': ' '
+  Descripción: Localidad
+  Pregunta: No existe pregunta, es un identificador de la vivienda.
+  Tipo: string
+  Longitud: '4'
+  Categorías: {}
 mun:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Municipio
+  Pregunta: No existe pregunta, es un identificador de la vivienda.
+  Tipo: string
+  Longitud: '3'
   Categorías: {}
 est:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
-  Categorías:
-    '10': '10'
-    '20': '20'
-    '30': '30'
-    '40': '40'
+  Descripción: Estrato
+  Pregunta: No existe pregunta, es un identificador de la vivienda.
+  Tipo: numeric
+  Longitud: '2'
+  Categorías: {}
 est_d_tri:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Estrato de diseño trimestral
+  Pregunta: No existe pregunta, es un identificador de la vivienda.
+  Tipo: numeric
+  Longitud: '3'
   Categorías: {}
 est_d_men:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Estrato de diseño mensual
+  Pregunta: No existe pregunta, es un identificador de la vivienda.
+  Tipo: numeric
+  Longitud: '3'
   Categorías: {}
 ageb:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
-  Categorías:
-    '0': '0'
+  Descripción: Área geoestadística básica
+  Pregunta: No existe pregunta, es un identificador de la vivienda.
+  Tipo: numeric
+  Longitud: '5'
+  Categorías: {}
+  Nota: 'numérica: el DDI sólo enumera códigos especiales'
 t_loc_tri:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Tamaño de localidad trimestral
+  Pregunta: No existe pregunta, es un identificador de la vivienda.
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
+    '1': Localidades mayores de 100 000 habitantes
+    '2': Localidades de 15 000 a 99 999 habitantes
+    '3': Localidades de 2 500 a 14 999 habitantes
+    '4': Localidades menores de 2 500 habitantes
 t_loc_men:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Tamaño de localidad mensual
+  Pregunta: No existe pregunta, es un identificador de la vivienda.
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '0': '0'
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    ' ': ' '
+    '0': No disponible
+    '1': Localidades mayores de 100 000 habitantes
+    '2': Localidades de 15 000 a 99 999 habitantes
+    '3': Localidades de 2 500 a 14 999 habitantes
+    '4': Localidades menores de 2 500 habitantes
 cd_a:
   Descripción: Ciudad autorrepresentada (agrupación de áreas de la muestra)
-  Tipo: Carácter
+  Tipo: string
   Longitud: '2'
   Categorías: {}
 ent:
   Descripción: Entidad federativa (01-32)
-  Tipo: Carácter
+  Tipo: string
   Longitud: '2'
   Categorías: {}
 con:
   Descripción: Número de control de la vivienda
-  Tipo: Carácter
+  Tipo: string
   Longitud: '5'
   Categorías: {}
 upm:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Unidad primaria de muestreo
+  Pregunta: No existe pregunta, es un identificador de la vivienda.
+  Tipo: string
+  Longitud: '5'
   Categorías: {}
 d_sem:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Distribución semanal
+  Pregunta: No existe pregunta, es un identificador de la vivienda.
+  Tipo: numeric
+  Longitud: '3'
   Categorías: {}
 n_pro_viv:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Número progresivo de la vivienda
+  Pregunta: No existe pregunta, es un identificador de la vivienda.
+  Tipo: string
+  Longitud: '4'
   Categorías: {}
 v_sel:
   Descripción: Vivienda seleccionada
-  Tipo: Carácter
+  Tipo: string
   Longitud: '2'
   Categorías: {}
 n_ent:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Número de entrevista
+  Pregunta: No existe pregunta, es un identificador de la vivienda.
+  Tipo: categorical
+  Longitud: '2'
   Categorías:
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '5': '5'
+    '1': Entrevista 1
+    '2': Entrevista 2
+    '3': Entrevista 3
+    '4': Entrevista 4
+    '5': Entrevista 5
+    '11': Entrevista 11
+    '12': Entrevista 12
+    '13': Entrevista 13
+    '14': Entrevista 14
+    '15': Entrevista 15
+    '16': Entrevista 16
+    '17': Entrevista 17
+    '18': Entrevista 18
+    '19': Entrevista 19
+    '10': '10'
     '6': '6'
     '7': '7'
     '8': '8'
     '9': '9'
-    '10': '10'
-    '11': '11'
-    '12': '12'
-    '13': '13'
-    '14': '14'
-    '15': '15'
-    '16': '16'
-    '17': '17'
-    '18': '18'
-    '19': '19'
+  Nota: 'códigos observados sin etiqueta en el DDI: [''10'', ''6'', ''7'', ''8'', ''9'']'
 per:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
-  Categorías:
-    '121': '121'
-    '221': '221'
-    '320': '320'
-    '420': '420'
+  Descripción: Periodo
+  Pregunta: No existe pregunta, es un identificador de la vivienda.
+  Tipo: numeric
+  Longitud: '3'
+  Categorías: {}
+  Nota: 'numérica: el DDI sólo enumera códigos especiales'
 p1:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Personas que viven en la vivienda
+  Pregunta: ¿Cuántas personas viven normalmente en esta vivienda contando a los niños chiquitos y a los
+    ancianos?
+  Tipo: categorical
+  Longitud: '2'
   Categorías:
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '5': '5'
-    '6': '6'
-    '7': '7'
-    '8': '8'
-    '9': '9'
-    '10': '10'
-    '11': '11'
-    '12': '12'
-    '13': '13'
-    '14': '14'
-    '15': '15'
-    '16': '16'
-    '17': '17'
-    '18': '18'
-    '19': '19'
-    '21': '21'
-    '23': '23'
-    ' ': ' '
+    '1': 1 Persona
+    '2': 2 Personas
+    '3': 3 Personas
+    '4': 4 Personas
+    '5': 5 Personas
+    '6': 6 Personas
+    '7': 7 Personas
+    '8': 8 Personas
+    '9': 9 Personas
+    '10': 10 Personas
+    '11': 11 Personas
+    '12': 12 Personas
+    '13': 13 Personas
+    '14': 14 Personas
+    '15': 15 Personas
+    '16': 16 Personas
+    '17': 17 Personas
+    '18': 18 Personas
+    '19': 19 Personas
+    '20': 20 Personas
+    '21': 21 Personas
+    '22': 22 Personas
+    '23': 23 Personas
+    '25': 25 Personas
 p2:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Comparten un mismo gasto
+  Pregunta: ¿Todas estas personas comparten un mismo gasto para comer?
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '1': '1'
-    '2': '2'
-    ' ': ' '
+    '1': Sí
+    '2': 'No'
 p3:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Grupos con gastos separados
+  Pregunta: ¿Cuántos hogares o grupos de personas tienen gastos separados para comer contando el de usted?
+  Tipo: categorical
+  Longitud: '2'
   Categorías:
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '5': '5'
-    '6': '6'
-    ' ': ' '
+    '2': Dos Hogares
+    '3': Tres Hogares
+    '4': Cuatro Hogares
+    '5': Cinco Hogares
+    '6': Seis Hogares
 ur:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Variable de apoyo
+  Pregunta: Variable de apoyo
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '1': '1'
-    '2': '2'
+    '1': Urbano
+    '2': Rural
 tipo:
   Descripción: Tipo de muestra (presente desde 2020-T3)
-  Tipo: Carácter
+  Tipo: categorical
   Longitud: '1'
   Categorías:
     '1': ENOE
     '2': ENOE-CATI
 mes_cal:
-  Descripción: Mes calendario — clasificación mensual del registro; base del ponderador
-    mensual FAC_MEN (presente desde 2020-T3). Los códigos de mes se emiten sin cero
-    a la izquierda en el CSV (1-12). Códigos especiales 96-99 por trimestre (Q1=96,
-    Q2=97, Q3=98, Q4=99) — registros sin mes calendario específico.
-  Tipo: Carácter
+  Descripción: Mes calendario — clasificación mensual del registro; base del ponderador mensual FAC_MEN
+    (presente desde 2020-T3). Los códigos de mes se emiten sin cero a la izquierda en el CSV (1-12). Códigos
+    especiales 96-99 por trimestre (Q1=96, Q2=97, Q3=98, Q4=99) — registros sin mes calendario específico.
+  Tipo: categorical
   Longitud: '2'
   Categorías:
     '1': Enero
@@ -207,21 +216,20 @@ mes_cal:
     '98': Sin mes calendario específico (trimestre 3)
     '99': Sin mes calendario específico (trimestre 4)
 ca:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Registro por panel
+  Pregunta: No existe pregunta, es un identificador de la vivienda.
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '1': '1'
-    '2': '2'
+    '1': Registro de panel común
+    '2': Resto de paneles
 fac_tri:
-  Descripción: Ponderador trimestral — permite obtener los resultados trimestrales
-    (desde 2020-T3)
-  Tipo: Numérico
+  Descripción: Ponderador trimestral — permite obtener los resultados trimestrales (desde 2020-T3)
+  Tipo: numeric
   Longitud: '6'
   Categorías: {}
 fac_men:
-  Descripción: Ponderador mensual — resultados mensuales con base en el campo MES_CAL
-    (desde 2020-T3)
-  Tipo: Numérico
+  Descripción: Ponderador mensual — resultados mensuales con base en el campo MES_CAL (desde 2020-T3)
+  Tipo: numeric
   Longitud: '6'
   Categorías: {}

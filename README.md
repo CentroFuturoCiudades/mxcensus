@@ -118,12 +118,25 @@ sdem_jal = mxcensus.load_enoe(table="sdem", period="2023t1", ent=14)   # filter 
 # The analysis-ready person frame: SDEM joined with COE1/COE2, filtered to the canonical
 # working-age universe, with a numeric `fac_tri` weight and labour-force flags
 persons = mxcensus.load_enoe_persons(period="2023t1")
+persons["clase1"].cat.categories     # ['No aplica (…)', 'Población económicamente activa (PEA)', …]
+persons["ing7c"].cat.ordered         # True — ordinal scales are ordered categoricals
+persons["eda"].dtype                 # Int64 (sentinel codes 98/99 → NA)
+raw = mxcensus.load_enoe_persons(period="2023t1", labels=False)   # the faithful raw codes
 
 pop_15plus = persons["fac_tri"].sum()                              # ~99.7 M
 pea        = persons.loc[persons["is_pea"], "fac_tri"].sum()       # economically active
 participation = pea / pop_15plus                                   # ~0.602
 informal   = persons.loc[persons["is_informal"], "fac_tri"].sum()
 ```
+
+Every analysis-ready loader (`load_enoe_persons/viviendas/hogares/survey`, and the ENIGH
+`load_enigh_hogares/viviendas/personas/survey`) returns **labelled** frames by default:
+coded fields become labelled `Categorical` columns (ordered where the scale is ordinal),
+numeric fields become numbers with INEGI's non-response codes as NA, the key/index columns
+stay raw strings, and the result is validated by a strict schema (an out-of-dictionary value
+raises). Pass `labels=False` for the faithful `dtype=str` codes; the low-level `load_enoe` /
+`load_enigh` are raw by default (`labels=True` opts in). Weighted totals are identical either
+way — flags and filters are computed from the raw codes.
 
 `load_enoe_persons` adds `is_pea` / `is_ocupado` / `is_informal` boolean flags and a canonical
 numeric `fac_tri` expansion weight (coalescing the pre-2020 `fac` and later `fac_tri` columns),
@@ -198,6 +211,8 @@ the 2008–2014-only `gastotarjetas`/`gastos`). Nine editions are mirrored as fa
 ```python
 # Analysis-ready household frame = INEGI's `concentradohogar` summary, numeric weight/income
 hog = mxcensus.load_enigh_hogares(period="2024")          # indexed by (folioviv, foliohog)
+hog["educa_jefe"].cat.categories                          # 'Sin instrucción' … 'Posgrado' (ordered)
+hog.groupby("tam_loc", observed=True)["ing_cor"].mean()   # labelled, ordered locality size
 hog["factor"].sum()                                       # 38,830,230 households
 (hog["ing_cor"] * hog["factor"]).sum() / hog["factor"].sum()   # mean quarterly income
 
@@ -240,10 +255,19 @@ mxcensus.denue_schema_map()        # DENUE schema groups + the latest (harmoniza
 mxcensus.enoe_schema_map()         # ENOE per-table schema groups (viv/hog/sdem/coe1/coe2)
 mxcensus.variables_enoe("sdem", "g04")   # ENOE variables for a (table, schema group)
 mxcensus.variables_enoe_core()     # ENOE analytical-core labels (clase1, pos_ocu, …)
+mxcensus.variables_enoe_labels("sdem", "g04")   # the merged dictionary the labelled loaders apply
 mxcensus.enigh_schema_map()        # ENIGH per-table schema groups (concentradohogar/poblacion/…)
 mxcensus.variables_enigh("concentradohogar", "g06")   # ENIGH variables for a (table, schema group)
 mxcensus.variables_enigh_core()    # ENIGH analytical-core labels (clase_hog, educa_jefe, …)
+mxcensus.variables_enigh_labels("poblacion", "g08")   # merged dictionary (core over DDI)
 ```
+
+The ENOE and ENIGH per-group dictionaries carry a human-readable `Descripción`, the
+question text (`Pregunta`) and code→label `Categorías` for every documented variable,
+sourced from INEGI's DDI codebooks in the Red Nacional de Metadatos and overlaid by the
+hand-curated core (ordinal order, numeric ranges, sentinel codes). Every entry follows
+one contract: `Tipo` (`categorical` / `numeric` / `string`), `Categorías`, `Especiales`
+(non-response codes), `Ordenada`, `Rango`, `Alias`.
 
 The ITER and RESARGEBUB dictionaries are national (identical across states), so a
 single copy of each is bundled. Note their schema differs from the microdata
@@ -332,6 +356,7 @@ before and during loading:
   defect — a few mangled accented characters in two open-text SDEM fields
   (`cs_p21_des`/`cs_p23_des`) — is preserved as published, **not** corrected.
 - **ENIGH** — every edition's CSV tables are converted to parquet as **faithful raw** text. The `load_enigh_*` loaders only **derive** analysis frames (numeric weights joined from `concentradohogar` where a table carries none, a hierarchical index, and — with `harmonize=True` — canonical names for the analytical core plus geography derived from `ubica_geo`); no value is imputed or corrected.
+- **Labelled survey frames** — with `labels=True` (the default of the ENOE/ENIGH analysis-ready loaders) coded values are replaced by the labels of INEGI's own dictionaries (DDI codebooks + the bundled core), numeric fields are parsed and INEGI's non-response codes (`99`, `&`, …) become missing values. The mirror and `labels=False` keep the codes verbatim.
 
 **These transformations are performed by `mxcensus`, not by INEGI.** Any errors,
 imputations, or derived values are the responsibility of this package and must not

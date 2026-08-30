@@ -1,60 +1,60 @@
 folioviv:
-  Descripción: Identificador de la vivienda (folio). Los dos primeros caracteres son
-    la clave de la entidad federativa.
-  Tipo: str
+  Descripción: Identificador de la vivienda (folio). Los dos primeros caracteres son la clave de la entidad
+    federativa.
+  Tipo: string
   Longitud: 6 (2008–2012) / 10 (2014+)
   Categorías: {}
 foliohog:
   Descripción: Identificador del hogar dentro de la vivienda.
-  Tipo: str
+  Tipo: string
   Longitud: '1'
   Categorías: {}
 factor:
-  Descripción: Factor de expansión (de vivienda/hogar según la tabla; `factor_hog`/`factor_viv`
-    en 2012–2014).
-  Tipo: int
+  Descripción: Factor de expansión (de vivienda/hogar según la tabla; `factor_hog`/`factor_viv` en 2012–2014).
+  Tipo: numeric
   Longitud: ''
   Categorías: {}
 tam_loc:
   Descripción: Tamaño de localidad.
-  Tipo: str
+  Tipo: categorical
   Longitud: '1'
+  Ordenada: true
   Categorías:
-    '1': Localidades con 100 000 y más habitantes
-    '2': Localidades con 15 000 a 99 999 habitantes
-    '3': Localidades con 2 500 a 14 999 habitantes
     '4': Localidades con menos de 2 500 habitantes
+    '3': Localidades con 2 500 a 14 999 habitantes
+    '2': Localidades con 15 000 a 99 999 habitantes
+    '1': Localidades con 100 000 y más habitantes
 ubica_geo:
-  Descripción: Ubicación geográfica — clave de entidad (2) + municipio (3) [+ localidad
-    (4) en 2012–2022].
-  Tipo: str
+  Descripción: Ubicación geográfica — clave de entidad (2) + municipio (3) [+ localidad (4) en 2012–2022].
+  Tipo: string
   Longitud: 5 / 9
   Categorías: {}
 conapo:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Índice de marginación
+  Pregunta: ''
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '5': '5'
+    '1': Muy alto
+    '2': Alto
+    '3': Medio
+    '4': Bajo
+    '5': Muy bajo
 tenencia:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Tenencia de la vivienda
+  Pregunta: ''
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '5': '5'
-    '6': '6'
-    ' ': ' '
+    '1': Es rentada
+    '2': Es prestada
+    '3': Es propia pero la están pagando
+    '4': Es propia
+    '5': Está intestada o en litigio
+    '6': Otra situación
 clase_hog:
   Descripción: Clase de hogar.
-  Tipo: str
+  Tipo: categorical
   Longitud: '1'
   Categorías:
     '1': Unipersonal
@@ -64,850 +64,748 @@ clase_hog:
     '5': De corresidentes
 sexo:
   Descripción: Sexo (tabla poblacion).
-  Tipo: str
+  Tipo: categorical
   Longitud: '1'
   Categorías:
     '1': Hombre
     '2': Mujer
 edad:
   Descripción: Edad en años cumplidos (tabla poblacion).
-  Tipo: int
-  Longitud: ''
+  Tipo: numeric
+  Longitud: '3'
+  Rango:
+  - 0
+  - 120
   Categorías: {}
 ed_formal:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Educación formal
+  Pregunta: ''
+  Tipo: categorical
+  Longitud: '2'
   Categorías:
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '5': '5'
-    '6': '6'
-    '7': '7'
-    '8': '8'
-    '9': '9'
-    '10': '10'
-    '11': '11'
+    '1': Sin instrucción
+    '2': Preescolar
+    '3': Primaria incompleta
+    '4': Primaria completa
+    '5': Secundaria incompleta
+    '6': Secundaria completa
+    '7': Preparatoria incompleta
+    '8': Preparatoria completa
+    '9': Profesional incompleta
+    '10': Profesional completa
+    '11': Posgrado
 tam_hog:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
-  Categorías:
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '5': '5'
-    '6': '6'
-    '7': '7'
-    '8': '8'
-    '9': '9'
-    '10': '10'
-    '11': '11'
-    '12': '12'
-    '13': '13'
-    '14': '14'
-    '15': '15'
-    '16': '16'
-    '20': '20'
-    '21': '21'
+  Descripción: Integrantes del hogar
+  Pregunta: ''
+  Tipo: numeric
+  Longitud: '2'
+  Categorías: {}
 hombres:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
-  Categorías:
-    '0': '0'
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '5': '5'
-    '6': '6'
-    '7': '7'
-    '8': '8'
-    '9': '9'
-    '12': '12'
+  Descripción: Integrantes del hogar hombres
+  Pregunta: ''
+  Tipo: numeric
+  Longitud: '2'
+  Categorías: {}
 mujeres:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
-  Categorías:
-    '0': '0'
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '5': '5'
-    '6': '6'
-    '7': '7'
-    '8': '8'
-    '9': '9'
-    '10': '10'
-    '11': '11'
-    '12': '12'
-    '14': '14'
+  Descripción: Integrantes del hogar mujeres
+  Pregunta: ''
+  Tipo: numeric
+  Longitud: '2'
+  Categorías: {}
 tot_resi:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
-  Categorías:
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '5': '5'
-    '6': '6'
-    '7': '7'
-    '8': '8'
-    '9': '9'
-    '10': '10'
-    '11': '11'
-    '12': '12'
-    '13': '13'
-    '14': '14'
-    '15': '15'
-    '16': '16'
-    '20': '20'
-    '21': '21'
+  Descripción: Población total
+  Pregunta: ''
+  Tipo: numeric
+  Longitud: '2'
+  Categorías: {}
 tot_hom:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
-  Categorías:
-    '0': '0'
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '5': '5'
-    '6': '6'
-    '7': '7'
-    '8': '8'
-    '9': '9'
-    '12': '12'
+  Descripción: Población total hombres
+  Pregunta: ''
+  Tipo: numeric
+  Longitud: '2'
+  Categorías: {}
 tot_muj:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
-  Categorías:
-    '0': '0'
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '5': '5'
-    '6': '6'
-    '7': '7'
-    '8': '8'
-    '9': '9'
-    '10': '10'
-    '11': '11'
-    '12': '12'
-    '14': '14'
+  Descripción: Población total mujeres
+  Pregunta: ''
+  Tipo: numeric
+  Longitud: '2'
+  Categorías: {}
 mayores:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
-  Categorías:
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '5': '5'
-    '6': '6'
-    '7': '7'
-    '8': '8'
-    '9': '9'
-    '10': '10'
-    '11': '11'
-    '12': '12'
-    '13': '13'
+  Descripción: Integrantes mayores
+  Pregunta: ''
+  Tipo: numeric
+  Longitud: '2'
+  Categorías: {}
 menores:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
-  Categorías:
-    '0': '0'
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '5': '5'
-    '6': '6'
-    '7': '7'
-    '8': '8'
-    '9': '9'
+  Descripción: Integrantes menores
+  Pregunta: ''
+  Tipo: numeric
+  Longitud: '2'
+  Categorías: {}
 p12_64:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
-  Categorías:
-    '0': '0'
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '5': '5'
-    '6': '6'
-    '7': '7'
-    '8': '8'
-    '9': '9'
-    '10': '10'
-    '11': '11'
-    '12': '12'
-    '13': '13'
+  Descripción: Integrantes de 12 a 64 años
+  Pregunta: ''
+  Tipo: numeric
+  Longitud: '2'
+  Categorías: {}
 p65mas:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
-  Categorías:
-    '0': '0'
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
+  Descripción: Integrantes de 65 años y mas
+  Pregunta: ''
+  Tipo: numeric
+  Longitud: '2'
+  Categorías: {}
 n_ocup:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
-  Categorías:
-    '0': '0'
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '5': '5'
-    '6': '6'
-    '7': '7'
-    '8': '8'
-    '9': '9'
-    '10': '10'
+  Descripción: Número de ocupados
+  Pregunta: ''
+  Tipo: numeric
+  Longitud: '2'
+  Categorías: {}
 pering:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
-  Categorías:
-    '0': '0'
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '5': '5'
-    '6': '6'
-    '7': '7'
-    '8': '8'
-    '9': '9'
-    '10': '10'
-    '11': '11'
-    '12': '12'
-    '13': '13'
+  Descripción: Perceptores de ingreso
+  Pregunta: ''
+  Tipo: numeric
+  Longitud: '2'
+  Categorías: {}
 perocu:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
-  Categorías:
-    '0': '0'
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '5': '5'
-    '6': '6'
-    '7': '7'
-    '8': '8'
-    '9': '9'
-    '10': '10'
+  Descripción: Perceptores de ingreso ocupados
+  Pregunta: ''
+  Tipo: numeric
+  Longitud: '2'
+  Categorías: {}
 ingcor:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Ingreso corriente
+  Pregunta: ''
+  Tipo: numeric
+  Longitud: '15'
   Categorías: {}
 ingtrab:
   Descripción: Ingreso trimestral por trabajo.
-  Tipo: float
-  Longitud: ''
+  Tipo: numeric
+  Longitud: '12'
+  Decimales: '2'
+  Rango:
+  - 0
+  - 1000000000
   Categorías: {}
 trabajo:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Ingreso por trabajo
+  Pregunta: ''
+  Tipo: numeric
+  Longitud: '15'
   Categorías: {}
 sueldos:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Sueldos
+  Pregunta: ''
+  Tipo: numeric
+  Longitud: '15'
   Categorías: {}
 horext:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Horas extras
+  Pregunta: ''
+  Tipo: numeric
+  Longitud: '15'
   Categorías: {}
 comis:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Comisiones y propinas
+  Pregunta: ''
+  Tipo: numeric
+  Longitud: '15'
   Categorías: {}
 agui:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Aguinaldo
+  Pregunta: ''
+  Tipo: numeric
+  Longitud: '15'
   Categorías: {}
 indemtrab:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Indemnizaciones
+  Pregunta: ''
+  Tipo: numeric
+  Longitud: '15'
   Categorías: {}
 otra_rem:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Otras remuneraciones
+  Pregunta: ''
+  Tipo: numeric
+  Longitud: '15'
   Categorías: {}
 rem_esp:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Remuneraciones en especie
+  Pregunta: ''
+  Tipo: numeric
+  Longitud: '15'
   Categorías: {}
 negocio:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Ingresos independiente
+  Pregunta: ''
+  Tipo: numeric
+  Longitud: '15'
   Categorías: {}
 noagrop:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Negocios no agropecuarios
+  Pregunta: ''
+  Tipo: numeric
+  Longitud: '15'
   Categorías: {}
 industria:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Negocios industriales
+  Pregunta: ''
+  Tipo: numeric
+  Longitud: '15'
   Categorías: {}
 comercio:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Negocios comerciales
+  Pregunta: ''
+  Tipo: numeric
+  Longitud: '15'
   Categorías: {}
 servicios:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Negocios de servicios
+  Pregunta: ''
+  Tipo: numeric
+  Longitud: '15'
   Categorías: {}
 agrope:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Negocios agropecuarios
+  Pregunta: ''
+  Tipo: numeric
+  Longitud: '15'
   Categorías: {}
 agricolas:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Negocios agrícolas
+  Pregunta: ''
+  Tipo: numeric
+  Longitud: '15'
   Categorías: {}
 pecuarios:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Negocios pecuarios
+  Pregunta: ''
+  Tipo: numeric
+  Longitud: '15'
   Categorías: {}
 reproducc:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Negocios de recolección
+  Pregunta: ''
+  Tipo: numeric
+  Longitud: '15'
   Categorías: {}
 pesca:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
-  Categorías:
-    '0': '0'
-    '10271.54': '10271.54'
-    '10586.1': '10586.1'
-    '11232.47': '11232.47'
-    '1196.71': '1196.71'
-    '12264.27': '12264.27'
-    '12826.79': '12826.79'
-    '12830.35': '12830.35'
-    '1336.87': '1336.87'
-    '1339.9': '1339.9'
-    '1367.12': '1367.12'
-    '14315.43': '14315.43'
-    '145.18': '145.18'
-    '14688.85': '14688.85'
-    '15274.23': '15274.23'
-    '154.25': '154.25'
-    '16078.62': '16078.62'
-    '1717.66': '1717.66'
-    '17282.56': '17282.56'
-    '1805.69': '1805.69'
-    '19423.69': '19423.69'
-    '19507.92': '19507.92'
-    '2217.03': '2217.03'
-    '226.85': '226.85'
-    '251.04': '251.04'
-    '2830.22': '2830.22'
-    '28428.22': '28428.22'
-    '2911.9': '2911.9'
-    '30630.12': '30630.12'
-    '31310.66': '31310.66'
-    '314.56': '314.56'
-    '3164.58': '3164.58'
-    '3190.95': '3190.95'
-    '3327.06': '3327.06'
-    '3705.14': '3705.14'
-    '4068.09': '4068.09'
-    '4235.49': '4235.49'
-    '4809.11': '4809.11'
-    '505.11': '505.11'
-    '51.42': '51.42'
-    '535.45': '535.45'
-    '592.82': '592.82'
-    '6012.9': '6012.9'
-    '6481.72': '6481.72'
-    '6542.21': '6542.21'
-    '6617.82': '6617.82'
-    '6759.98': '6759.98'
-    '6802.33': '6802.33'
-    '695.66': '695.66'
-    '697.89': '697.89'
-    '72741.63': '72741.63'
-    '7310.46': '7310.46'
-    '7454.22': '7454.22'
-    '839.28': '839.28'
-    '84.23': '84.23'
-    '8510.08': '8510.08'
-    '8792.51': '8792.51'
-    '895.28': '895.28'
-    '9285.52': '9285.52'
+  Descripción: Negocios de pesca
+  Pregunta: ''
+  Tipo: numeric
+  Longitud: '15'
+  Categorías: {}
 otros_trab:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Otros ingresos por trabajo
+  Pregunta: ''
+  Tipo: numeric
+  Longitud: '15'
   Categorías: {}
 rentas:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Renta de la propiedad
+  Pregunta: ''
+  Tipo: numeric
+  Longitud: '15'
   Categorías: {}
 utilidad:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Ingresos de sociedades
+  Pregunta: ''
+  Tipo: numeric
+  Longitud: '15'
   Categorías: {}
 arrenda:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Arrendamiento
+  Pregunta: ''
+  Tipo: numeric
+  Longitud: '15'
   Categorías: {}
 transfer:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Transferencias
+  Pregunta: ''
+  Tipo: numeric
+  Longitud: '15'
   Categorías: {}
 jubila:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Jubilaciones
+  Pregunta: ''
+  Tipo: numeric
+  Longitud: '15'
   Categorías: {}
 beca:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Becas
+  Pregunta: ''
+  Tipo: numeric
+  Longitud: '15'
   Categorías: {}
 donativo:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Donativos
+  Pregunta: ''
+  Tipo: numeric
+  Longitud: '15'
   Categorías: {}
 remesa:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Remesas
+  Pregunta: ''
+  Tipo: numeric
+  Longitud: '15'
   Categorías: {}
 bene_gob:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Beneficios gubernamentales
+  Pregunta: ''
+  Tipo: numeric
+  Longitud: '15'
   Categorías: {}
 esp_hog:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Transferencias de hogares
+  Pregunta: ''
+  Tipo: numeric
+  Longitud: '15'
   Categorías: {}
 esp_inst:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Transferencias de instituciones
+  Pregunta: ''
+  Tipo: numeric
+  Longitud: '15'
   Categorías: {}
 esti:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Estimación del alquiler
+  Pregunta: ''
+  Tipo: numeric
+  Longitud: '15'
   Categorías: {}
 otros:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Otros ingresos corrientes
+  Pregunta: ''
+  Tipo: numeric
+  Longitud: '15'
   Categorías: {}
 gasmon:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Gasto corriente monetario
+  Pregunta: ''
+  Tipo: numeric
+  Longitud: '15'
   Categorías: {}
 alimentos:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Alimentos
+  Pregunta: ''
+  Tipo: numeric
+  Longitud: '15'
   Categorías: {}
 ali_dent:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Alimentos dentro del hogar
+  Pregunta: ''
+  Tipo: numeric
+  Longitud: '15'
   Categorías: {}
 cereales:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Cereales
+  Pregunta: ''
+  Tipo: numeric
+  Longitud: '15'
   Categorías: {}
 carnes:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Carnes
+  Pregunta: ''
+  Tipo: numeric
+  Longitud: '15'
   Categorías: {}
 pescado:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Pescados y mariscos
+  Pregunta: ''
+  Tipo: numeric
+  Longitud: '15'
   Categorías: {}
 leche:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Leche y derivados
+  Pregunta: ''
+  Tipo: numeric
+  Longitud: '15'
   Categorías: {}
 huevo:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Huevo
+  Pregunta: ''
+  Tipo: numeric
+  Longitud: '15'
   Categorías: {}
 aceites:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Aceites y grasas
+  Pregunta: ''
+  Tipo: numeric
+  Longitud: '15'
   Categorías: {}
 tuberculo:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Tubérculos
+  Pregunta: ''
+  Tipo: numeric
+  Longitud: '15'
   Categorías: {}
 verduras:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Verduras
+  Pregunta: ''
+  Tipo: numeric
+  Longitud: '15'
   Categorías: {}
 frutas:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Frutas
+  Pregunta: ''
+  Tipo: numeric
+  Longitud: '15'
   Categorías: {}
 azucar:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Azúcar y mieles
+  Pregunta: ''
+  Tipo: numeric
+  Longitud: '15'
   Categorías: {}
 cafe:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Café, té y chocolate
+  Pregunta: ''
+  Tipo: numeric
+  Longitud: '15'
   Categorías: {}
 especias:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Especias y aderezos
+  Pregunta: ''
+  Tipo: numeric
+  Longitud: '15'
   Categorías: {}
 otro_ali:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Otros alimentos diversos
+  Pregunta: ''
+  Tipo: numeric
+  Longitud: '15'
   Categorías: {}
 bebidas:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Bebidas
+  Pregunta: ''
+  Tipo: numeric
+  Longitud: '15'
   Categorías: {}
 fuera_hog:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Alimentos fuera del hogar
+  Pregunta: ''
+  Tipo: numeric
+  Longitud: '15'
   Categorías: {}
 tabaco:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Tabaco
+  Pregunta: ''
+  Tipo: numeric
+  Longitud: '15'
   Categorías: {}
 vestido_c:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Vestido y calzado
+  Pregunta: ''
+  Tipo: numeric
+  Longitud: '15'
   Categorías: {}
 vestido:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Vestido
+  Pregunta: ''
+  Tipo: numeric
+  Longitud: '15'
   Categorías: {}
 calzado:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Calzado y su reparación
+  Pregunta: ''
+  Tipo: numeric
+  Longitud: '15'
   Categorías: {}
 vivienda:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Vivienda
+  Pregunta: ''
+  Tipo: numeric
+  Longitud: '15'
   Categorías: {}
 alquiler:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Alquileres brutos
+  Pregunta: ''
+  Tipo: numeric
+  Longitud: '15'
   Categorías: {}
 pred_cons:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Predial y cuotas
+  Pregunta: ''
+  Tipo: numeric
+  Longitud: '15'
   Categorías: {}
 agua:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Agua
+  Pregunta: ''
+  Tipo: numeric
+  Longitud: '15'
   Categorías: {}
 energia:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Electricidad y combustibles
+  Pregunta: ''
+  Tipo: numeric
+  Longitud: '15'
   Categorías: {}
 limpieza:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Limpieza
+  Pregunta: ''
+  Tipo: numeric
+  Longitud: '15'
   Categorías: {}
 cuidados:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Cuidados de la casa
+  Pregunta: ''
+  Tipo: numeric
+  Longitud: '15'
   Categorías: {}
 utensilios:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Utensilios domésticos
+  Pregunta: ''
+  Tipo: numeric
+  Longitud: '15'
   Categorías: {}
 enseres:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Enseres domésticos
+  Pregunta: ''
+  Tipo: numeric
+  Longitud: '15'
   Categorías: {}
 salud:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Cuidados de la salud
+  Pregunta: ''
+  Tipo: numeric
+  Longitud: '15'
   Categorías: {}
 aten_pri:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Atención primaria o ambulatoria
+  Pregunta: ''
+  Tipo: numeric
+  Longitud: '15'
   Categorías: {}
 hospital:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Atención hospitalaria
+  Pregunta: ''
+  Tipo: numeric
+  Longitud: '15'
   Categorías: {}
 medica:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Medicamentos sin receta
+  Pregunta: ''
+  Tipo: numeric
+  Longitud: '15'
   Categorías: {}
 transporte:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Transporte
+  Pregunta: ''
+  Tipo: numeric
+  Longitud: '15'
   Categorías: {}
 publico:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Transporte publico
+  Pregunta: ''
+  Tipo: numeric
+  Longitud: '15'
   Categorías: {}
 foraneo:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Transporte foráneo
+  Pregunta: ''
+  Tipo: numeric
+  Longitud: '15'
   Categorías: {}
 adqui:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Adquisición de vehículos
+  Pregunta: ''
+  Tipo: numeric
+  Longitud: '15'
   Categorías: {}
 mante:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Mantenimiento de vehículos
+  Pregunta: ''
+  Tipo: numeric
+  Longitud: '15'
   Categorías: {}
 refa:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Refacciones para vehículos
+  Pregunta: ''
+  Tipo: numeric
+  Longitud: '15'
   Categorías: {}
 combus:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Combustibles para vehículos
+  Pregunta: ''
+  Tipo: numeric
+  Longitud: '15'
   Categorías: {}
 comunica:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Comunicaciones
+  Pregunta: ''
+  Tipo: numeric
+  Longitud: '15'
   Categorías: {}
 educacion:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Educación y esparcimiento
+  Pregunta: ''
+  Tipo: numeric
+  Longitud: '15'
   Categorías: {}
 educa:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Educación
+  Pregunta: ''
+  Tipo: numeric
+  Longitud: '15'
   Categorías: {}
 esparci:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Esparcimiento
+  Pregunta: ''
+  Tipo: numeric
+  Longitud: '15'
   Categorías: {}
 paquete:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Paquetes turísticos
+  Pregunta: ''
+  Tipo: numeric
+  Longitud: '15'
   Categorías: {}
 personal:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Personales
+  Pregunta: ''
+  Tipo: numeric
+  Longitud: '15'
   Categorías: {}
 cuidado:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Cuidados personales
+  Pregunta: ''
+  Tipo: numeric
+  Longitud: '15'
   Categorías: {}
 accesorio:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Accesorios personales
+  Pregunta: ''
+  Tipo: numeric
+  Longitud: '15'
   Categorías: {}
 otros_gas:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Otros gastos diversos
+  Pregunta: ''
+  Tipo: numeric
+  Longitud: '15'
   Categorías: {}
 transfe:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Transferencias de gasto
+  Pregunta: ''
+  Tipo: numeric
+  Longitud: '15'
   Categorías: {}
 pertot:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Percepciones totales
+  Pregunta: ''
+  Tipo: numeric
+  Longitud: '15'
   Categorías: {}
 retiro:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Retiro de inversiones
+  Pregunta: ''
+  Tipo: numeric
+  Longitud: '15'
   Categorías: {}
 prestamo:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Préstamos
+  Pregunta: ''
+  Tipo: numeric
+  Longitud: '15'
   Categorías: {}
 otras_pr:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Otras percepciones
+  Pregunta: ''
+  Tipo: numeric
+  Longitud: '15'
   Categorías: {}
 enomonviv:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Erogaciones patrimoniales
+  Pregunta: ''
+  Tipo: numeric
+  Longitud: '15'
   Categorías: {}
 enomonhog:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Transferencias no regulares
+  Pregunta: ''
+  Tipo: numeric
+  Longitud: '15'
   Categorías: {}
 erotot:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Erogaciones totales
+  Pregunta: ''
+  Tipo: numeric
+  Longitud: '15'
   Categorías: {}
 cuota:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Cuota por vivienda
+  Pregunta: ''
+  Tipo: numeric
+  Longitud: '15'
   Categorías: {}
 mat_serv:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Servicios y materiales
+  Pregunta: ''
+  Tipo: numeric
+  Longitud: '15'
   Categorías: {}
 material:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Materiales
+  Pregunta: ''
+  Tipo: numeric
+  Longitud: '15'
   Categorías: {}
 servicio:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Servicios de reparación
+  Pregunta: ''
+  Tipo: numeric
+  Longitud: '15'
   Categorías: {}
 deposito:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Depósito de ahorro
+  Pregunta: ''
+  Tipo: numeric
+  Longitud: '15'
   Categorías: {}
 terceros:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Prestamos a terceros
+  Pregunta: ''
+  Tipo: numeric
+  Longitud: '15'
   Categorías: {}
 pago_tar:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Pago por tarjeta de crédito
+  Pregunta: ''
+  Tipo: numeric
+  Longitud: '15'
   Categorías: {}
 deudas:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Pago de deudas
+  Pregunta: ''
+  Tipo: numeric
+  Longitud: '15'
   Categorías: {}
 balance:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Pérdidas del negocio
+  Pregunta: ''
+  Tipo: numeric
+  Longitud: '15'
   Categorías: {}
 otra_ero:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Otras erogaciones
+  Pregunta: ''
+  Tipo: numeric
+  Longitud: '15'
   Categorías: {}
 smg:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
-  Categorías:
-    '4902.3': '4902.3'
-    '5025.6': '5025.6'
-    '5171.4': '5171.4'
+  Descripción: Salario mínimo general
+  Pregunta: ''
+  Tipo: numeric
+  Longitud: '15'
+  Categorías: {}
 est_dis:
   Descripción: Estrato de diseño muestral.
-  Tipo: str
+  Tipo: string
   Longitud: '3'
   Categorías: {}
 upm:
   Descripción: Unidad primaria de muestreo.
-  Tipo: str
+  Tipo: string
   Longitud: '4'
   Categorías: {}

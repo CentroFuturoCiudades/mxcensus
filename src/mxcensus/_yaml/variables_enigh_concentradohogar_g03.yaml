@@ -1,39 +1,41 @@
 folioviv:
-  Descripción: Identificador de la vivienda (folio). Los dos primeros caracteres son
-    la clave de la entidad federativa.
-  Tipo: str
+  Descripción: Identificador de la vivienda (folio). Los dos primeros caracteres son la clave de la entidad
+    federativa.
+  Tipo: string
   Longitud: 6 (2008–2012) / 10 (2014+)
   Categorías: {}
 foliohog:
   Descripción: Identificador del hogar dentro de la vivienda.
-  Tipo: str
+  Tipo: string
   Longitud: '1'
   Categorías: {}
 ubica_geo:
-  Descripción: Ubicación geográfica — clave de entidad (2) + municipio (3) [+ localidad
-    (4) en 2012–2022].
-  Tipo: str
+  Descripción: Ubicación geográfica — clave de entidad (2) + municipio (3) [+ localidad (4) en 2012–2022].
+  Tipo: string
   Longitud: 5 / 9
   Categorías: {}
 ageb:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Área geoestadística básica
+  Pregunta: No aplica.
+  Tipo: categorical
+  Longitud: '5'
   Categorías:
     000-0: 000-0
 tam_loc:
   Descripción: Tamaño de localidad.
-  Tipo: str
+  Tipo: categorical
   Longitud: '1'
+  Ordenada: true
   Categorías:
-    '1': Localidades con 100 000 y más habitantes
-    '2': Localidades con 15 000 a 99 999 habitantes
-    '3': Localidades con 2 500 a 14 999 habitantes
     '4': Localidades con menos de 2 500 habitantes
+    '3': Localidades con 2 500 a 14 999 habitantes
+    '2': Localidades con 15 000 a 99 999 habitantes
+    '1': Localidades con 100 000 y más habitantes
 est_socio:
   Descripción: Estrato socioeconómico (2012+).
-  Tipo: str
+  Tipo: categorical
   Longitud: '1'
+  Ordenada: true
   Categorías:
     '1': Bajo
     '2': Medio bajo
@@ -41,22 +43,23 @@ est_socio:
     '4': Alto
 est_dis:
   Descripción: Estrato de diseño muestral.
-  Tipo: str
+  Tipo: string
   Longitud: '3'
   Categorías: {}
 upm:
   Descripción: Unidad primaria de muestreo.
-  Tipo: str
+  Tipo: string
   Longitud: '4'
   Categorías: {}
 factor_hog:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Factor de expansión del hogar
+  Pregunta: No aplica.
+  Tipo: numeric
+  Longitud: '5'
   Categorías: {}
 clase_hog:
   Descripción: Clase de hogar.
-  Tipo: str
+  Tipo: categorical
   Longitud: '1'
   Categorías:
     '1': Unipersonal
@@ -66,20 +69,24 @@ clase_hog:
     '5': De corresidentes
 sexo_jefe:
   Descripción: Sexo de la jefa o jefe del hogar.
-  Tipo: str
+  Tipo: categorical
   Longitud: '1'
   Categorías:
     '1': Hombre
     '2': Mujer
 edad_jefe:
-  Descripción: Edad de la jefa o jefe del hogar.
-  Tipo: int
-  Longitud: ''
+  Descripción: Edad de la jefa o jefe del hogar (años cumplidos).
+  Tipo: numeric
+  Longitud: '3'
+  Rango:
+  - 0
+  - 120
   Categorías: {}
 educa_jefe:
   Descripción: Nivel de escolaridad de la jefa o jefe del hogar.
-  Tipo: str
+  Tipo: categorical
   Longitud: '2'
+  Ordenada: true
   Categorías:
     '01': Sin instrucción
     '02': Preescolar
@@ -92,653 +99,715 @@ educa_jefe:
     09: Profesional incompleta
     '10': Profesional completa
     '11': Posgrado
-    '1': Sin instrucción (sin cero a la izquierda, 2012)
-    '2': Preescolar (sin cero a la izquierda, 2012)
-    '3': Primaria incompleta (sin cero a la izquierda, 2012)
-    '4': Primaria completa (sin cero a la izquierda, 2012)
-    '5': Secundaria incompleta (sin cero a la izquierda, 2012)
-    '6': Secundaria completa (sin cero a la izquierda, 2012)
-    '7': Preparatoria incompleta (sin cero a la izquierda, 2012)
-    '8': Preparatoria completa (sin cero a la izquierda, 2012)
-    '9': Profesional incompleta (sin cero a la izquierda, 2012)
+  Alias:
+    '1': '01'
+    '2': '02'
+    '3': '03'
+    '4': '04'
+    '5': '05'
+    '6': '06'
+    '7': '07'
+    '8': 08
+    '9': 09
 tot_integ:
   Descripción: Total de integrantes del hogar.
-  Tipo: int
-  Longitud: ''
+  Tipo: numeric
+  Longitud: '2'
+  Rango:
+  - 1
+  - 60
   Categorías: {}
 hombres:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
-  Categorías:
-    '0': '0'
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '5': '5'
-    '6': '6'
-    '7': '7'
-    '8': '8'
-    '9': '9'
-    '10': '10'
-    '11': '11'
+  Descripción: Integrantes del hogar hombres
+  Pregunta: No aplica.
+  Tipo: numeric
+  Longitud: '2'
+  Categorías: {}
 mujeres:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
-  Categorías:
-    '0': '0'
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '5': '5'
-    '6': '6'
-    '7': '7'
-    '8': '8'
-    '9': '9'
-    '10': '10'
-    '12': '12'
+  Descripción: Integrantes del hogar mujeres
+  Pregunta: No aplica.
+  Tipo: numeric
+  Longitud: '2'
+  Categorías: {}
 mayores:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
-  Categorías:
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '5': '5'
-    '6': '6'
-    '7': '7'
-    '8': '8'
-    '9': '9'
-    '10': '10'
-    '11': '11'
-    '12': '12'
-    '13': '13'
+  Descripción: Integrantes mayores
+  Pregunta: No aplica.
+  Tipo: numeric
+  Longitud: '2'
+  Categorías: {}
 menores:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
-  Categorías:
-    '0': '0'
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '5': '5'
-    '6': '6'
-    '7': '7'
-    '8': '8'
-    '9': '9'
+  Descripción: Integrantes menores
+  Pregunta: No aplica.
+  Tipo: numeric
+  Longitud: '2'
+  Categorías: {}
 p12_64:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
-  Categorías:
-    '0': '0'
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '5': '5'
-    '6': '6'
-    '7': '7'
-    '8': '8'
-    '9': '9'
-    '10': '10'
-    '11': '11'
-    '12': '12'
-    '13': '13'
+  Descripción: Integrantes de 12 a 64 años
+  Pregunta: No aplica.
+  Tipo: numeric
+  Longitud: '2'
+  Categorías: {}
 p65mas:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
-  Categorías:
-    '0': '0'
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
+  Descripción: Integrantes de 65 años y mas
+  Pregunta: No aplica.
+  Tipo: numeric
+  Longitud: '2'
+  Categorías: {}
 ocupados:
   Descripción: Integrantes ocupados del hogar.
-  Tipo: int
-  Longitud: ''
+  Tipo: numeric
+  Longitud: '2'
+  Rango:
+  - 0
+  - 60
   Categorías: {}
 percep_ing:
   Descripción: Perceptores de ingreso en el hogar.
-  Tipo: int
-  Longitud: ''
+  Tipo: numeric
+  Longitud: '2'
+  Rango:
+  - 0
+  - 60
   Categorías: {}
 perc_ocupa:
   Descripción: Perceptores de ingreso ocupados en el hogar.
-  Tipo: int
-  Longitud: ''
+  Tipo: numeric
+  Longitud: '2'
+  Rango:
+  - 0
+  - 60
   Categorías: {}
 ing_cor:
   Descripción: Ingreso corriente total trimestral del hogar (monetario + no monetario).
-  Tipo: float
-  Longitud: ''
+  Tipo: numeric
+  Longitud: '12'
+  Decimales: '2'
+  Rango:
+  - 0
+  - 1000000000
   Categorías: {}
 ingtrab:
   Descripción: Ingreso trimestral por trabajo.
-  Tipo: float
-  Longitud: ''
+  Tipo: numeric
+  Longitud: '12'
+  Decimales: '2'
+  Rango:
+  - 0
+  - 1000000000
   Categorías: {}
 trabajo:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Ingreso por trabajo
+  Pregunta: No aplica.
+  Tipo: numeric
+  Longitud: '12'
   Categorías: {}
 sueldos:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Sueldos
+  Pregunta: No aplica.
+  Tipo: numeric
+  Longitud: '12'
   Categorías: {}
 horas_extr:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Horas extras
+  Pregunta: No aplica.
+  Tipo: numeric
+  Longitud: '12'
   Categorías: {}
 comisiones:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Comisiones y propinas
+  Pregunta: No aplica.
+  Tipo: numeric
+  Longitud: '12'
   Categorías: {}
 aguinaldo:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Aguinaldo
+  Pregunta: No aplica.
+  Tipo: numeric
+  Longitud: '12'
   Categorías: {}
 indemtrab:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Indemnizaciones
+  Pregunta: No aplica.
+  Tipo: numeric
+  Longitud: '12'
   Categorías: {}
 otra_rem:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Otras remuneraciones
+  Pregunta: No aplica.
+  Tipo: numeric
+  Longitud: '12'
   Categorías: {}
 remu_espec:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Remuneraciones en especie
+  Pregunta: No aplica.
+  Tipo: numeric
+  Longitud: '12'
   Categorías: {}
 negocio:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Ingresos independiente
+  Pregunta: No aplica.
+  Tipo: numeric
+  Longitud: '12'
   Categorías: {}
 noagrop:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Negocios no agropecuarios
+  Pregunta: No aplica.
+  Tipo: numeric
+  Longitud: '12'
   Categorías: {}
 industria:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Negocios industriales
+  Pregunta: No aplica.
+  Tipo: numeric
+  Longitud: '12'
   Categorías: {}
 comercio:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Negocios comerciales
+  Pregunta: No aplica.
+  Tipo: numeric
+  Longitud: '12'
   Categorías: {}
 servicios:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Negocios de servicios
+  Pregunta: No aplica.
+  Tipo: numeric
+  Longitud: '12'
   Categorías: {}
 agrope:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Negocios agropecuarios
+  Pregunta: No aplica.
+  Tipo: numeric
+  Longitud: '12'
   Categorías: {}
 agricolas:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Negocios agrícolas
+  Pregunta: No aplica.
+  Tipo: numeric
+  Longitud: '12'
   Categorías: {}
 pecuarios:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Negocios pecuarios
+  Pregunta: No aplica.
+  Tipo: numeric
+  Longitud: '12'
   Categorías: {}
 reproducc:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Negocios de recolección
+  Pregunta: No aplica.
+  Tipo: numeric
+  Longitud: '12'
   Categorías: {}
 pesca:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Negocios de pesca
+  Pregunta: No aplica.
+  Tipo: numeric
+  Longitud: '12'
   Categorías: {}
 otros_trab:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Otros ingresos por trabajo
+  Pregunta: No aplica.
+  Tipo: numeric
+  Longitud: '12'
   Categorías: {}
 rentas:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Renta de la propiedad
+  Pregunta: No aplica.
+  Tipo: numeric
+  Longitud: '12'
   Categorías: {}
 utilidad:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Ingresos de sociedades
+  Pregunta: No aplica.
+  Tipo: numeric
+  Longitud: '12'
   Categorías: {}
 arrenda:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Arrendamiento
+  Pregunta: No aplica.
+  Tipo: numeric
+  Longitud: '12'
   Categorías: {}
 transfer:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Transferencias
+  Pregunta: No aplica.
+  Tipo: numeric
+  Longitud: '12'
   Categorías: {}
 jubilacion:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Jubilaciones
+  Pregunta: No aplica.
+  Tipo: numeric
+  Longitud: '12'
   Categorías: {}
 becas:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Becas
+  Pregunta: No aplica.
+  Tipo: numeric
+  Longitud: '12'
   Categorías: {}
 donativos:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Donativos
+  Pregunta: No aplica.
+  Tipo: numeric
+  Longitud: '12'
   Categorías: {}
 remesas:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Remesas
+  Pregunta: No aplica.
+  Tipo: numeric
+  Longitud: '12'
   Categorías: {}
 bene_gob:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Beneficios gubernamentales
+  Pregunta: No aplica.
+  Tipo: numeric
+  Longitud: '12'
   Categorías: {}
 transf_hog:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Transferencias de hogares
+  Pregunta: No aplica.
+  Tipo: numeric
+  Longitud: '12'
   Categorías: {}
 trans_inst:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Transferencias de instituciones
+  Pregunta: No aplica.
+  Tipo: numeric
+  Longitud: '12'
   Categorías: {}
 estim_alqu:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Estimación del alquiler
+  Pregunta: No aplica.
+  Tipo: numeric
+  Longitud: '12'
   Categorías: {}
 otros_ing:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Otros ingresos corrientes
+  Pregunta: No aplica.
+  Tipo: numeric
+  Longitud: '12'
   Categorías: {}
 gasto_mon:
   Descripción: Gasto corriente monetario trimestral del hogar.
-  Tipo: float
-  Longitud: ''
+  Tipo: numeric
+  Longitud: '12'
+  Decimales: '2'
+  Rango:
+  - 0
+  - 1000000000
   Categorías: {}
 alimentos:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Alimentos
+  Pregunta: No aplica.
+  Tipo: numeric
+  Longitud: '12'
   Categorías: {}
 ali_dentro:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Alimentos dentro del hogar
+  Pregunta: No aplica.
+  Tipo: numeric
+  Longitud: '12'
   Categorías: {}
 cereales:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Cereales
+  Pregunta: No aplica.
+  Tipo: numeric
+  Longitud: '12'
   Categorías: {}
 carnes:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Carnes
+  Pregunta: No aplica.
+  Tipo: numeric
+  Longitud: '12'
   Categorías: {}
 pescado:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Pescados y mariscos
+  Pregunta: No aplica.
+  Tipo: numeric
+  Longitud: '12'
   Categorías: {}
 leche:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Leche y derivados
+  Pregunta: No aplica.
+  Tipo: numeric
+  Longitud: '12'
   Categorías: {}
 huevo:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Huevo
+  Pregunta: No aplica.
+  Tipo: numeric
+  Longitud: '12'
   Categorías: {}
 aceites:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Aceites y grasas
+  Pregunta: No aplica.
+  Tipo: numeric
+  Longitud: '12'
   Categorías: {}
 tuberculo:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Tubérculos
+  Pregunta: No aplica.
+  Tipo: numeric
+  Longitud: '12'
   Categorías: {}
 verduras:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Verduras
+  Pregunta: No aplica.
+  Tipo: numeric
+  Longitud: '12'
   Categorías: {}
 frutas:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Frutas
+  Pregunta: No aplica.
+  Tipo: numeric
+  Longitud: '12'
   Categorías: {}
 azucar:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Azúcar y mieles
+  Pregunta: No aplica.
+  Tipo: numeric
+  Longitud: '12'
   Categorías: {}
 cafe:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Café, té y chocolate
+  Pregunta: No aplica.
+  Tipo: numeric
+  Longitud: '12'
   Categorías: {}
 especias:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Especias y aderezos
+  Pregunta: No aplica.
+  Tipo: numeric
+  Longitud: '12'
   Categorías: {}
 otros_alim:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Otros alimentos diversos
+  Pregunta: No aplica.
+  Tipo: numeric
+  Longitud: '12'
   Categorías: {}
 bebidas:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Bebidas
+  Pregunta: No aplica.
+  Tipo: numeric
+  Longitud: '12'
   Categorías: {}
 ali_fuera:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Alimentos fuera del hogar
+  Pregunta: No aplica.
+  Tipo: numeric
+  Longitud: '12'
   Categorías: {}
 tabaco:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Tabaco
+  Pregunta: No aplica.
+  Tipo: numeric
+  Longitud: '12'
   Categorías: {}
 vesti_calz:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Vestido y calzado
+  Pregunta: No aplica.
+  Tipo: numeric
+  Longitud: '12'
   Categorías: {}
 vestido:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Vestido
+  Pregunta: No aplica.
+  Tipo: numeric
+  Longitud: '12'
   Categorías: {}
 calzado:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Calzado y su reparación
+  Pregunta: No aplica.
+  Tipo: numeric
+  Longitud: '12'
   Categorías: {}
 vivienda:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Vivienda
+  Pregunta: No aplica.
+  Tipo: numeric
+  Longitud: '12'
   Categorías: {}
 alquiler:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Alquileres brutos
+  Pregunta: No aplica.
+  Tipo: numeric
+  Longitud: '12'
   Categorías: {}
 pred_cons:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Predial y cuotas
+  Pregunta: No aplica.
+  Tipo: numeric
+  Longitud: '12'
   Categorías: {}
 agua:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Agua
+  Pregunta: No aplica.
+  Tipo: numeric
+  Longitud: '12'
   Categorías: {}
 energia:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Electricidad y combustibles
+  Pregunta: No aplica.
+  Tipo: numeric
+  Longitud: '12'
   Categorías: {}
 limpieza:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Limpieza
+  Pregunta: No aplica.
+  Tipo: numeric
+  Longitud: '12'
   Categorías: {}
 cuidados:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Cuidados de la casa
+  Pregunta: No aplica.
+  Tipo: numeric
+  Longitud: '12'
   Categorías: {}
 utensilios:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Utensilios domésticos
+  Pregunta: No aplica.
+  Tipo: numeric
+  Longitud: '12'
   Categorías: {}
 enseres:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Enseres domésticos
+  Pregunta: No aplica.
+  Tipo: numeric
+  Longitud: '12'
   Categorías: {}
 salud:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Cuidados de la salud
+  Pregunta: No aplica.
+  Tipo: numeric
+  Longitud: '12'
   Categorías: {}
 atenc_ambu:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Atención primaria o ambulatoria
+  Pregunta: No aplica.
+  Tipo: numeric
+  Longitud: '12'
   Categorías: {}
 hospital:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Atención hospitalaria
+  Pregunta: No aplica.
+  Tipo: numeric
+  Longitud: '12'
   Categorías: {}
 medicinas:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Medicamentos sin receta
+  Pregunta: No aplica.
+  Tipo: numeric
+  Longitud: '12'
   Categorías: {}
 transporte:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Transporte
+  Pregunta: No aplica.
+  Tipo: numeric
+  Longitud: '12'
   Categorías: {}
 publico:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Transporte publico
+  Pregunta: No aplica.
+  Tipo: numeric
+  Longitud: '12'
   Categorías: {}
 foraneo:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Transporte foráneo
+  Pregunta: No aplica.
+  Tipo: numeric
+  Longitud: '12'
   Categorías: {}
 adqui_vehi:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Adquisición de vehículos
+  Pregunta: No aplica.
+  Tipo: numeric
+  Longitud: '12'
   Categorías: {}
 mantenim:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Mantenimiento de vehículos
+  Pregunta: No aplica.
+  Tipo: numeric
+  Longitud: '12'
   Categorías: {}
 refaccion:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Refacciones para vehículos
+  Pregunta: No aplica.
+  Tipo: numeric
+  Longitud: '12'
   Categorías: {}
 combus:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Combustibles para vehículos
+  Pregunta: No aplica.
+  Tipo: numeric
+  Longitud: '12'
   Categorías: {}
 comunica:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Comunicaciones
+  Pregunta: No aplica.
+  Tipo: numeric
+  Longitud: '12'
   Categorías: {}
 educa_espa:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Educación y esparcimiento
+  Pregunta: No aplica.
+  Tipo: numeric
+  Longitud: '12'
   Categorías: {}
 educacion:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Educación
+  Pregunta: No aplica.
+  Tipo: numeric
+  Longitud: '12'
   Categorías: {}
 esparci:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Esparcimiento
+  Pregunta: No aplica.
+  Tipo: numeric
+  Longitud: '12'
   Categorías: {}
 paq_turist:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Paquetes turísticos
+  Pregunta: No aplica.
+  Tipo: numeric
+  Longitud: '12'
   Categorías: {}
 personales:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Personales
+  Pregunta: No aplica.
+  Tipo: numeric
+  Longitud: '12'
   Categorías: {}
 cuida_pers:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Cuidados personales
+  Pregunta: No aplica.
+  Tipo: numeric
+  Longitud: '12'
   Categorías: {}
 acces_pers:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Accesorios personales
+  Pregunta: No aplica.
+  Tipo: numeric
+  Longitud: '12'
   Categorías: {}
 otros_gas:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Otros gastos diversos
+  Pregunta: No aplica.
+  Tipo: numeric
+  Longitud: '12'
   Categorías: {}
 transf_gas:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Transferencias de gasto
+  Pregunta: No aplica.
+  Tipo: numeric
+  Longitud: '12'
   Categorías: {}
 percep_tot:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Percepciones totales
+  Pregunta: No aplica.
+  Tipo: numeric
+  Longitud: '12'
   Categorías: {}
 retiro_inv:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Retiro de inversiones
+  Pregunta: No aplica.
+  Tipo: numeric
+  Longitud: '12'
   Categorías: {}
 prestamos:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Préstamos
+  Pregunta: No aplica.
+  Tipo: numeric
+  Longitud: '12'
   Categorías: {}
 otras_perc:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Otras percepciones
+  Pregunta: No aplica.
+  Tipo: numeric
+  Longitud: '12'
   Categorías: {}
 ero_nm_viv:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Erogaciones patrimoniales
+  Pregunta: No aplica.
+  Tipo: numeric
+  Longitud: '12'
   Categorías: {}
 ero_nm_hog:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Transferencias no regulares
+  Pregunta: No aplica.
+  Tipo: numeric
+  Longitud: '12'
   Categorías: {}
 erogac_tot:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Erogaciones totales
+  Pregunta: No aplica.
+  Tipo: numeric
+  Longitud: '12'
   Categorías: {}
 cuota_viv:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Cuota por vivienda
+  Pregunta: No aplica.
+  Tipo: numeric
+  Longitud: '12'
   Categorías: {}
 mater_serv:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Servicios y materiales
+  Pregunta: No aplica.
+  Tipo: numeric
+  Longitud: '12'
   Categorías: {}
 material:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Materiales
+  Pregunta: No aplica.
+  Tipo: numeric
+  Longitud: '12'
   Categorías: {}
 servicio:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Servicios de reparación
+  Pregunta: No aplica.
+  Tipo: numeric
+  Longitud: '12'
   Categorías: {}
 deposito:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Depósito de ahorro
+  Pregunta: No aplica.
+  Tipo: numeric
+  Longitud: '12'
   Categorías: {}
 prest_terc:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Prestamos a terceros
+  Pregunta: No aplica.
+  Tipo: numeric
+  Longitud: '12'
   Categorías: {}
 pago_tarje:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Pago por tarjeta de crédito
+  Pregunta: No aplica.
+  Tipo: numeric
+  Longitud: '12'
   Categorías: {}
 deudas:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Pago de deudas
+  Pregunta: No aplica.
+  Tipo: numeric
+  Longitud: '12'
   Categorías: {}
 balance:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Pérdidas del negocio
+  Pregunta: No aplica.
+  Tipo: numeric
+  Longitud: '12'
   Categorías: {}
 otras_erog:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Otras erogaciones
+  Pregunta: No aplica.
+  Tipo: numeric
+  Longitud: '12'
   Categorías: {}
 smg:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
-  Categorías:
-    '5317.2': '5317.2'
-    '5451.3': '5451.3'
-    '5609.7': '5609.7'
-    '5739.3': '5739.3'
-    '6056.1': '6056.1'
+  Descripción: Salario mínimo general
+  Pregunta: No aplica.
+  Tipo: numeric
+  Longitud: '6'
+  Categorías: {}
+  Nota: 'numérica: el DDI sólo enumera códigos especiales'

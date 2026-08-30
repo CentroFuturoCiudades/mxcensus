@@ -10,7 +10,8 @@ Fifth data family (after census, MGN, DENUE, ENOE), modelled on ENOE: per-editio
 `dtype=str` parquet → per-table fingerprint schema groups → warn-not-raise validation →
 HF bucket → edition-qualified loaders with a shared nested index + core-only `harmonize=True`.
 Design notes: `STEP_0_probe.md` (URLs, regimes, breaks), `STEP_1.md` (build + metadata),
-`STEP_2.md` (loaders + harmonization), `STEP_3.md` (wiring/tests/docs).
+`STEP_2.md` (loaders + harmonization), `STEP_3.md` (wiring/tests/docs), `STEP_4.md` (DDI
+dictionaries + labelled loaders).
 
 ## Prerequisites
 
@@ -29,8 +30,13 @@ Design notes: `STEP_0_probe.md` (URLs, regimes, breaks), `STEP_1.md` (build + me
 - **Per-year NCV filenames** (`Vivi` vs `Viviendas`, `Gastos` in 2008/2010, no dwelling table
   in 2008/2010) are encoded in `_enigh_catalog._NCV_STEMS`; INEGI's server is
   case-insensitive on ZIP names. A new INEGI stem → extend `_NCV_STEMS`, not the build.
-- **Never regenerate `variables_enigh_core.yaml`** (hand-curated). If a new edition brings a
-  new code for a core categorical (`--validate` will flag it), add it by hand.
+- **Never regenerate `variables_enigh_core.yaml`** (hand-curated: labels, `Ordenada`, `Rango`,
+  `Especiales`, `Alias`; contract in `variables_enoe_core.yaml`'s header). If a new edition
+  brings a new code for a core categorical (`--validate` will flag it), add it by hand.
+- **Dictionaries come from INEGI's DDI codebooks** (RNM; `scripts/_dict_ddi.py::ENIGH_DDI`,
+  one id per edition) fetched by `--dictionary` into the git-ignored `data/dict/ddi/`; a new
+  edition needs its id added there. `--validate` doubles as the label-coverage gate for the
+  `labels=True` loaders. See `STEP_4.md`.
 - `ubica_geo` width varies (5 chars in 2008/2010/**2024**, 9 in 2012–2022); harmonization
   slices, never assumes.
 
@@ -45,9 +51,10 @@ uv run python scripts/build_enigh.py                    # all 9 editions → dat
 ## B. Metadata (ORDER MATTERS)
 
 ```bash
+uv run python scripts/build_enigh.py --dictionary         # once: DDI codebooks → data/dict/ddi/
 rm src/mxcensus/_yaml/variables_enigh_*_g*.yaml          # keeps variables_enigh_core.yaml
 uv run python scripts/build_enigh.py --schema-map
-uv run python scripts/build_enigh.py --variables
+uv run python scripts/build_enigh.py --variables          # core > DDI > data; provenance printed
 uv run python scripts/build_enigh.py --report-only
 uv run python scripts/build_enigh.py --validate           # must be 0 failures
 uv run python scripts/build_enigh.py --update-registry    # +99 entries
@@ -65,7 +72,8 @@ MXCENSUS_CACHE_DIR=$(mktemp -d) uv run python -c "from mxcensus.data._registry i
 ## D. Adding a new edition (e.g. 2026)
 
 1. Probe `…/nc/2026/microdatos/enigh2026_ns_{table}_csv.zip` (HEAD; Content-Type must be zip).
-2. `_enigh_catalog.py`: add the year to `_NS_YEARS`, bump `CATALOG_VERIFIED_DATE`.
+2. `_enigh_catalog.py`: add the year to `_NS_YEARS`, bump `CATALOG_VERIFIED_DATE`; add the
+   edition's RNM catalog id to `scripts/_dict_ddi.py::ENIGH_DDI`.
 3. §A with `--periods 2026`, then §B in full (group ids are chronological — adding the newest
    edition can only append/join groups), core-category check, §C, docs counts
    (`CLAUDE.md`, `README.md`, `docs/hf_bucket_readme.md`), tests' `_HOUSEHOLDS` table.

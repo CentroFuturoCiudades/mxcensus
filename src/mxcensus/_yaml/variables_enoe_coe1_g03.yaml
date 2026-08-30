@@ -1,222 +1,261 @@
 R_DEF:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Resultado definitivo
+  Pregunta: Dato extraído de la tabla de hogares.
+  Tipo: categorical
+  Longitud: '2'
   Categorías:
-    '0': '0'
+    '0': Entrevista lograda
 CD_A:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Ciudad autorrepresentada
+  Pregunta: No existe pregunta, es un identificador de la vivienda.
+  Tipo: categorical
+  Longitud: '2'
   Categorías:
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '5': '5'
-    '6': '6'
-    '7': '7'
-    '8': '8'
-    '9': '9'
-    '10': '10'
-    '12': '12'
-    '13': '13'
-    '14': '14'
-    '15': '15'
-    '16': '16'
-    '17': '17'
-    '18': '18'
-    '19': '19'
-    '20': '20'
-    '21': '21'
-    '24': '24'
-    '25': '25'
-    '26': '26'
-    '27': '27'
-    '28': '28'
-    '29': '29'
-    '31': '31'
-    '32': '32'
-    '33': '33'
-    '36': '36'
-    '39': '39'
-    '40': '40'
-    '41': '41'
-    '43': '43'
-    '44': '44'
-    '46': '46'
-    '81': '81'
-    '82': '82'
-    '83': '83'
-    '84': '84'
-    '85': '85'
-    '86': '86'
+    '1': México
+    '2': Guadalajara
+    '3': Monterrey
+    '4': Puebla
+    '5': León
+    '6': Torreón
+    '7': San Luis Potosí
+    '8': Mérida
+    '9': Chihuahua
+    '10': Tampico
+    '12': Veracruz
+    '13': Acapulco
+    '14': Aguascalientes
+    '15': Morelia
+    '16': Toluca
+    '17': Saltillo
+    '18': Villahermosa
+    '19': Tuxtla Gutiérrez
+    '20': Ciudad Juárez
+    '21': Tijuana
+    '24': Culiacán
+    '25': Hermosillo
+    '26': Durango
+    '27': Tepic
+    '28': Campeche
+    '29': Cuernavaca
+    '31': Oaxaca
+    '32': Zacatecas
+    '33': Colima
+    '36': Querétaro
+    '39': Tlaxcala
+    '40': La Paz
+    '41': Cancún
+    '43': Pachuca
+    '44': Mexicali
+    '46': Reynosa
+    '81': Áreas rurales hasta 86
+    '82': Áreas rurales o comp. urb.
+    '83': Áreas rurales o comp. urb.
+    '84': Áreas rurales o comp. urb.
+    '85': Áreas rurales o comp. urb.
+    '86': Áreas rurales o comp. urb.
 ENT:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Entidad
+  Pregunta: No existe pregunta, es un identificador de la vivienda.
+  Tipo: categorical
+  Longitud: '10'
   Categorías:
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '5': '5'
-    '6': '6'
-    '7': '7'
-    '8': '8'
-    '9': '9'
-    '10': '10'
-    '11': '11'
-    '12': '12'
-    '13': '13'
-    '14': '14'
-    '15': '15'
-    '16': '16'
-    '17': '17'
-    '18': '18'
-    '19': '19'
-    '20': '20'
-    '21': '21'
-    '22': '22'
-    '23': '23'
-    '24': '24'
-    '25': '25'
-    '26': '26'
-    '27': '27'
-    '28': '28'
-    '29': '29'
-    '30': '30'
-    '31': '31'
-    '32': '32'
+    '1': Aguascalientes
+    '2': Baja california
+    '3': Baja california sur
+    '4': Campeche
+    '5': Coahuila de Zaragoza
+    '6': Colima
+    '7': Chiapas
+    '8': Chihuahua
+    '9': Ciudad de México
+    '10': Durango
+    '11': Guanajuato
+    '12': Guerrero
+    '13': Hidalgo
+    '14': Jalisco
+    '15': Estado de México
+    '16': Michoacán de Ocampo
+    '17': Morelos
+    '18': Nayarit
+    '19': Nuevo león
+    '20': Oaxaca
+    '21': Puebla
+    '22': Querétaro
+    '23': Quintana Roo
+    '24': San Luis Potosí
+    '25': Sinaloa
+    '26': Sonora
+    '27': Tabasco
+    '28': Tamaulipas
+    '29': Tlaxcala
+    '30': Veracruz de Ignacio de la Llave
+    '31': Yucatán
+    '32': Zacatecas
 CON:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Control
+  Pregunta: No existe pregunta, es un identificador de la vivienda.
+  Tipo: numeric
+  Longitud: '10'
   Categorías: {}
 UPM:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Unidad primaria de muestreo
+  Pregunta: No existe pregunta, es un identificador de la vivienda.
+  Tipo: string
+  Longitud: '5'
   Categorías: {}
 D_SEM:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Distribución semanal
+  Pregunta: No existe pregunta, es un identificador de la vivienda.
+  Tipo: numeric
+  Longitud: '3'
   Categorías: {}
 N_PRO_VIV:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Número progresivo de la vivienda
+  Pregunta: Todos los residentes de los hogares de las viviendas en muestra.
+  Tipo: numeric
+  Longitud: '8'
   Categorías: {}
 V_SEL:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Vivienda seleccionada
+  Pregunta: No existe pregunta, es un identificador de la vivienda.
+  Tipo: categorical
+  Longitud: '10'
   Categorías:
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '5': '5'
-    '6': '6'
-    '7': '7'
-    '8': '8'
-    '9': '9'
-    '10': '10'
-    '11': '11'
-    '12': '12'
-    '13': '13'
-    '14': '14'
-    '15': '15'
-    '16': '16'
-    '17': '17'
-    '18': '18'
-    '19': '19'
-    '20': '20'
-    '21': '21'
-    '22': '22'
-    '23': '23'
-    '24': '24'
+    '1': Vivienda uno
+    '2': Vivienda dos
+    '3': Vivienda tres
+    '4': Vivienda cuatro
+    '5': Vivienda cinco
+    '6': Vivienda seis
+    '7': Vivienda siete
+    '8': Vivienda ocho
+    '9': Vivienda nueve
+    '10': Vivienda diez
+    '11': Vivienda once
+    '12': Vivienda doce
+    '13': Vivienda trece
+    '14': Vivienda catorce
+    '15': Vivienda quince
+    '16': Vivienda dieciséis
+    '17': Vivienda diecisiete
+    '18': Vivienda dieciocho
+    '19': Vivienda diecinueve
+    '20': Vivienda veinte
+    '21': Vivienda veintiuno
+    '22': Vivienda veintidós
+    '23': Vivienda veintitrés
+    '24': Vivienda veinticuatro
 N_HOG:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Número de hogar
+  Pregunta: Es un identificador de hogar en la vivienda.
+  Tipo: categorical
+  Longitud: '10'
   Categorías:
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '5': '5'
+    '1': Hogar principal
+    '2': Hogar adicional uno
+    '3': Hogar adicional dos
+    '4': Hogar adicional tres
+    '5': Hogar adicional cuatro
+    '6': Hogar adicional cinco
 H_MUD:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Hogar mudado
+  Pregunta: No existe pregunta, es un identificador de hogar en la vivienda.
+  Tipo: categorical
+  Longitud: '10'
   Categorías:
-    '0': '0'
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
+    '0': Hogar actual
+    '1': Primer cambio de hogar
+    '2': Segundo cambio de hogar
+    '3': Tercer cambio de hogar
+    '4': Cuarto cambio de hogar
 N_ENT:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Número de entrevista
+  Pregunta: No existe pregunta, es un identificador de la vivienda.
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '5': '5'
+    '1': Entrevista 1
+    '2': Entrevista 2
+    '3': Entrevista 3
+    '4': Entrevista 4
+    '5': Entrevista 5
 PER:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Periodo
+  Pregunta: No existe pregunta, es un identificador de la vivienda.
+  Tipo: categorical
+  Longitud: '3'
   Categorías:
+    '419': Octubre-Diciembre 2019
     '319': '319'
-    '419': '419'
+  Nota: 'códigos observados sin etiqueta en el DDI: [''319'']'
 N_REN:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Número de renglón
+  Pregunta: Dato extraído de la tabla sociodemográfica (SDEMT214).
+  Tipo: categorical
+  Longitud: '10'
   Categorías:
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '5': '5'
-    '6': '6'
-    '7': '7'
-    '8': '8'
-    '9': '9'
-    '10': '10'
-    '11': '11'
-    '12': '12'
-    '13': '13'
-    '14': '14'
-    '15': '15'
-    '16': '16'
-    '17': '17'
-    '18': '18'
-    '19': '19'
-    '20': '20'
-    '21': '21'
-    '22': '22'
-    '23': '23'
-    '26': '26'
-    '27': '27'
-    '30': '30'
+    '1': Renglón uno
+    '2': Renglón dos
+    '3': Renglón tres
+    '4': Renglón cuatro
+    '5': Renglón cinco
+    '6': Renglón seis
+    '7': Renglón siete
+    '8': Renglón ocho
+    '9': Renglón nueve
+    '10': Renglón diez
+    '11': Renglón once
+    '12': Renglón doce
+    '13': Renglón trece
+    '14': Renglón catorce
+    '15': Renglón quince
+    '16': Renglón dieciséis
+    '17': Renglón diecisiete
+    '18': Renglón dieciocho
+    '19': Renglón diecinueve
+    '20': Renglón veinte
+    '21': Renglón veintiuno
+    '22': Renglón veintidós
+    '23': Renglón veintitrés
+    '24': Renglón veinticuatro
+    '25': Renglón veinticinco
+    '26': Renglón veintiséis
+    '27': 27 Renglón veintisiete
+    '30': 30 Renglón treinta
 EDA:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Edad
+  Pregunta: Dato extraído de la tabla sociodemográfica (SDEMT214).
+  Tipo: numeric
+  Longitud: '2'
   Categorías: {}
 N_INF:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Renglón del informante
+  Pregunta: No se pregunta.
+  Tipo: categorical
+  Longitud: '2'
   Categorías:
+    '01': 01 renglón del informante
+    '02': 02 renglón del informante
+    '03': 03 renglón del informante
+    '04': 04 renglón del informante
+    '05': 05 renglón del informante
+    '06': 06 renglón del informante
+    '07': 07 renglón del informante
+    08: 08 renglón del informante
+    09: 09 renglón del informante
+    '10': 10 renglón del informante
+    '11': 11 renglón del informante
+    '12': 12 renglón del informante
+    '13': 13 renglón del informante
+    '14': 14 renglón del informante
+    '15': 15 renglón del informante
+    '16': 16 renglón del informante
+    '17': 17 renglón del informante
+    '18': 18 renglón del informante
+    '19': 19 renglón del informante
     '1': '1'
     '2': '2'
+    '21': '21'
     '3': '3'
     '4': '4'
     '5': '5'
@@ -224,953 +263,929 @@ N_INF:
     '7': '7'
     '8': '8'
     '9': '9'
-    '10': '10'
-    '11': '11'
-    '12': '12'
-    '13': '13'
-    '14': '14'
-    '15': '15'
-    '16': '16'
-    '18': '18'
-    '21': '21'
-    '97': '97'
-    '99': '99'
+  Nota: 'códigos observados sin etiqueta en el DDI: [''1'', ''2'', ''21'', ''3'', ''4'', ''5'', ''6'',
+    ''7'', ''8'', ''9'']'
+  Especiales:
+    '97': 97 renglón del informante
+    '99': 99 Informante autorizado
 P1:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: ¿La semana pasada trabajó por lo menos una hora?
+  Pregunta: Ahora le voy a preguntar por la situación laboral de… ¿La semana pasada trabajó por lo menos
+    una hora?.
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '1': '1'
-    '2': '2'
+    '1': Sí
+    '2': 'No'
 P1A1:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: realizar una actividad que le proporcionó ingresos?
+  Pregunta: Independientemente de lo que me acaba de decir, ¿… le dedicó la semana pasada al menos una
+    hora a
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '1': '1'
-    ' ': ' '
+    '1': Realizar una actividad que le proporcionó ingresos
 P1A2:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: ayudar en las tierras o en el negocio de un familiar o de otra persona?
+  Pregunta: Independientemente de lo que me acaba de decir, ¿… le dedicó la semana pasada al menos una
+    hora a
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '2': '2'
-    ' ': ' '
+    '2': Ayudar en las tierras o en el negocio de un familiar o de otra persona
 P1A3:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: No trabajó la semana pasada
+  Pregunta: Independientemente de lo que me acaba de decir, ¿… le dedicó la semana pasada al menos una
+    hora a
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '3': '3'
-    ' ': ' '
+    '3': No trabajó la semana pasada
 P1B:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Tiene empleo o negocio
+  Pregunta: Aunque ya me dijo que… no trabajó la semana pasada, ¿tiene algún empleo, negocio o realiza
+    alguna actividad por su cuenta?.
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '1': '1'
-    '2': '2'
-    ' ': ' '
+    '1': Sí
+    '2': 'No'
 P1C:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Razón de no trabajar la semana pasada
+  Pregunta: ¿Cuál es la razón principal por la que… no trabajó la semana pasada?.
+  Tipo: categorical
+  Longitud: '2'
   Categorías:
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '5': '5'
-    '6': '6'
-    '7': '7'
-    '8': '8'
-    '9': '9'
-    '10': '10'
-    '11': '11'
-    '12': '12'
-    '99': '99'
-    ' ': ' '
+    '1': Huelga o paro laboral
+    '2': Paro técnico
+    '3': Suspensión temporal de sus funciones (asalariado)
+    '4': Asistencia a cursos de capacitación
+    '5': Vacaciones
+    '6': Permiso, enfermedad o arreglo de asuntos personales
+    '7': Falta de vehículo o descompostura de maquinaria
+    '8': Falta de materias primas, financiamiento o clientes
+    '9': Mal tiempo o fenómeno natural
+    '10': Término de temporada de trabajo o cultivo
+    '11': Comenzará un trabajo o negocio nuevo
+    '12': Otra razón
+  Especiales:
+    '99': No sabe
 P1D:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Recibe sueldo o ganancias
+  Pregunta: Durante este periodo de ausencia ¿… recibe sueldo o ganancias?
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '1': '1'
-    '2': '2'
-    '9': '9'
-    ' ': ' '
+    '1': Sí
+    '2': 'No'
+  Especiales:
+    '9': No sabe
 P1E:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Tiempo en que regresarán a trabajar
+  Pregunta: ¿En cuánto tiempo regresará… a este mismo trabajo?.
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '5': '5'
-    '9': '9'
-    ' ': ' '
+    '1': ¿ya se reincorporó o regresará a trabajar esta semana?
+    '2': ¿en cuatro semanas o menos?
+    '3': ¿en más de cuatro semanas?
+    '4': ¿no hay seguridad de que regrese a trabajar o cuándo reinicie su actividad?
+    '5': No regresará
+  Especiales:
+    '9': No sabe
 P2_1:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Ha tratado de buscar trabajo en otro país o hacer preparativos para cruzar la frontera?
+  Pregunta: ¿... ha tratado de buscar trabajo en otro país o hacer preparativos para cruzar la frontera?
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '1': '1'
-    ' ': ' '
+    '1': Sí buscó trabajo en otro país o hacer preparativos para cruzar la frontera?
 P2_2:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Ha tratado de buscar trabajo aquí en el país
+  Pregunta: ¿... ha tratado de buscar trabajo aquí en el país?.
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '2': '2'
-    ' ': ' '
+    '2': Sí buscó trabajo aquí en el país?
 P2_3:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Ha tratado de poner un negocio o realizar una actividad por su cuenta, sin poder todavía
+    comenzar?
+  Pregunta: ¿... ha tratado de poner un negocio o realizar una actividad por su cuenta sin poder todavía
+    comenzar?.
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '3': '3'
-    ' ': ' '
+    '3': Sí trató de poner un negocio o realizar una actividad por su cuenta sin poder todavía comenzar?
 P2_4:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Entonces, ¿no ha tratado de buscar trabajo?
+  Pregunta: Entonces, ¿no ha tratado de buscar trabajo?.
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '4': '4'
-    ' ': ' '
+    '4': Entonces, ¿no ha tratado de buscar trabajo?
 P2_9:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: No sabe
+  Pregunta: No sabe.
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '9': '9'
-    ' ': ' '
+    '9': No sabe
 P2A_DIA:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Día en que comenzó a buscar trabajo
+  Pregunta: ¿En qué fecha comenzó... a buscar trabajo (o comenzó con los preparativos para poner el negocio)?.
+  Tipo: categorical
+  Longitud: '2'
   Categorías:
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '5': '5'
-    '6': '6'
-    '7': '7'
-    '8': '8'
-    '9': '9'
-    '10': '10'
-    '11': '11'
-    '12': '12'
-    '13': '13'
-    '14': '14'
-    '15': '15'
-    '16': '16'
-    '17': '17'
-    '18': '18'
-    '19': '19'
-    '20': '20'
-    '21': '21'
-    '22': '22'
-    '23': '23'
-    '24': '24'
-    '25': '25'
-    '26': '26'
-    '27': '27'
-    '28': '28'
-    '29': '29'
-    '30': '30'
-    '31': '31'
-    '99': '99'
-    ' ': ' '
+    '1': 01 día que comenzó a buscar trabajo
+    '2': 02 día que comenzó a buscar trabajo
+    '3': 03 día que comenzó a buscar trabajo
+    '4': 04 día que comenzó a buscar trabajo
+    '5': 05 día que comenzó a buscar trabajo
+    '6': 06 día que comenzó a buscar trabajo
+    '7': 07 día que comenzó a buscar trabajo
+    '8': 08 día que comenzó a buscar trabajo
+    '9': 09 día que comenzó a buscar trabajo
+    '10': 10 día que comenzó a buscar trabajo
+    '11': 11 día que comenzó a buscar trabajo
+    '12': 12 día que comenzó a buscar trabajo
+    '13': 13 día que comenzó a buscar trabajo
+    '14': 14 día que comenzó a buscar trabajo
+    '15': 15 día que comenzó a buscar trabajo
+    '16': 16 día que comenzó a buscar trabajo
+    '17': 17 día que comenzó a buscar trabajo
+    '18': 18 día que comenzó a buscar trabajo
+    '19': 19 día que comenzó a buscar trabajo
+    '20': 20 día que comenzó a buscar trabajo
+    '21': 21 día que comenzó a buscar trabajo
+    '22': 22 día que comenzó a buscar trabajo
+    '23': 23 día que comenzó a buscar trabajo
+    '24': 24 día que comenzó a buscar trabajo
+    '25': 25 día que comenzó a buscar trabajo
+    '26': 26 día que comenzó a buscar trabajo
+    '27': 27 día que comenzó a buscar trabajo
+    '28': 28 día que comenzó a buscar trabajo
+    '29': 29 día que comenzó a buscar trabajo
+    '30': 30 día que comenzó a buscar trabajo
+    '31': 31 día que comenzó a buscar trabajo
+  Especiales:
+    '99': 99 no sabe el día que comenzó a buscar trabajo
 P2A_SEM:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Semana en que comenzó a buscar trabajo
+  Pregunta: ¿En qué fecha comenzó... a buscar trabajo (o comenzó con los preparativos para poner el negocio)?.
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '9': '9'
-    ' ': ' '
+    '1': 1 semana del mes que comenzó a buscar trabajo
+    '2': 2 semana del mes que comenzó a buscar trabajo
+    '3': 3 semana del mes que comenzó a buscar trabajo
+    '4': 4 semana del mes que comenzó a buscar trabajo
+  Especiales:
+    '9': 9 no sabe la semana del mes que comenzó a buscar trabajo
 P2A_MES:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Mes en que comenzó a buscar trabajo
+  Pregunta: ¿En qué fecha comenzó... a buscar trabajo (o comenzó con los preparativos para poner el negocio)?.
+  Tipo: categorical
+  Longitud: '2'
   Categorías:
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '5': '5'
-    '6': '6'
-    '7': '7'
-    '8': '8'
-    '9': '9'
-    '10': '10'
-    '11': '11'
-    '12': '12'
-    '99': '99'
-    ' ': ' '
+    '1': Enero comenzó a buscar trabajo
+    '2': Febrero comenzó a buscar trabajo
+    '3': Marzo comenzó a buscar trabajo
+    '4': Abril comenzó a buscar trabajo
+    '5': Mayo comenzó a buscar trabajo
+    '6': Junio comenzó a buscar trabajo
+    '7': Julio comenzó a buscar trabajo
+    '8': Agosto comenzó a buscar trabajo
+    '9': Septiembre comenzó a buscar trabajo
+    '10': Octubre comenzó a buscar trabajo
+    '11': Noviembre comenzó a buscar trabajo
+    '12': Diciembre comenzó a buscar trabajo
+  Especiales:
+    '99': No sabe el mes que comenzó a buscar trabajo
 P2A_ANIO:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Año en que comenzó a buscar trabajo
+  Pregunta: ¿En qué fecha comenzó... a buscar trabajo (o comenzó con los preparativos para poner el negocio)?.
+  Tipo: categorical
+  Longitud: '4'
   Categorías:
-    '2001': '2001'
-    '2009': '2009'
-    '2010': '2010'
-    '2011': '2011'
-    '2012': '2012'
-    '2013': '2013'
-    '2014': '2014'
-    '2015': '2015'
-    '2016': '2016'
-    '2017': '2017'
-    '2018': '2018'
-    '2019': '2019'
-    '9999': '9999'
-    ' ': ' '
+    '2000': 2000 año que comenzó a buscar trabajo
+    '2001': 2001 año que comenzó a buscar trabajo
+    '2003': 2003 año que comenzó a buscar trabajo
+    '2004': 2004 año que comenzó a buscar trabajo
+    '2005': 2005 año que comenzó a buscar trabajo
+    '2006': 2006 año que comenzó a buscar trabajo
+    '2007': 2007 año que comenzó a buscar trabajo
+    '2008': 2008 año que comenzó a buscar trabajo
+    '2009': 2009 año que comenzó a buscar trabajo
+    '2010': 2010 año que comenzó a buscar trabajo
+    '2011': 2011 año que comenzó a buscar trabajo
+    '2012': 2012 año que comenzó a buscar trabajo
+    '2013': 2013 año que comenzó a buscar trabajo
+    '2014': 2014 año que comenzó a buscar trabajo
+    '2015': 2015 año que comenzó a buscar trabajo
+    '2016': 2016 año que comenzó a buscar trabajo
+    '2017': 2017 año que comenzó a buscar trabajo
+    '2018': 2018 año que comenzó a buscar trabajo
+    '2019': 2019 año que comenzó a buscar trabajo
+  Especiales:
+    '9999': No sabe año que comenzó a buscar trabajo
 P2B_DIA:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Día de última búsqueda de trabajo
+  Pregunta: ¿En qué fecha fue la última vez que… buscó trabajo (o comenzó con los preparativos para poner
+    el negocio)?.
+  Tipo: categorical
+  Longitud: '2'
   Categorías:
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '5': '5'
-    '6': '6'
-    '7': '7'
-    '8': '8'
-    '9': '9'
-    '10': '10'
-    '11': '11'
-    '12': '12'
-    '13': '13'
-    '14': '14'
-    '15': '15'
-    '16': '16'
-    '17': '17'
-    '18': '18'
-    '19': '19'
-    '20': '20'
-    '21': '21'
-    '22': '22'
-    '23': '23'
-    '24': '24'
-    '25': '25'
-    '26': '26'
-    '27': '27'
-    '28': '28'
-    '29': '29'
-    '30': '30'
-    '31': '31'
-    '99': '99'
-    ' ': ' '
+    '1': 01 día de última vez que buscó trabajo
+    '2': 02 día de última vez que buscó trabajo
+    '3': 03 día de última vez que buscó trabajo
+    '4': 04 día de última vez que buscó trabajo
+    '5': 05 día de última vez que buscó trabajo
+    '6': 06 día de última vez que buscó trabajo
+    '7': 07 día de última vez que buscó trabajo
+    '8': 08 día de última vez que buscó trabajo
+    '9': 09 día de última vez que buscó trabajo
+    '10': 10 día de última vez que buscó trabajo
+    '11': 11 día de última vez que buscó trabajo
+    '12': 12 día de última vez que buscó trabajo
+    '13': 13 día de última vez que buscó trabajo
+    '14': 14 día de última vez que buscó trabajo
+    '15': 15 día de última vez que buscó trabajo
+    '16': 16 día de última vez que buscó trabajo
+    '17': 17 día de última vez que buscó trabajo
+    '18': 18 día de última vez que buscó trabajo
+    '19': 19 día de última vez que buscó trabajo
+    '20': 20 día de última vez que buscó trabajo
+    '21': 21 día de última vez que buscó trabajo
+    '22': 22 día de última vez que buscó trabajo
+    '23': 23 día de última vez que buscó trabajo
+    '24': 24 día de última vez que buscó trabajo
+    '25': 25 día de última vez que buscó trabajo
+    '26': 26 día de última vez que buscó trabajo
+    '27': 27 día de última vez que buscó trabajo
+    '28': 28 día de última vez que buscó trabajo
+    '29': 29 día de última vez que buscó trabajo
+    '30': 30 día de última vez que buscó trabajo
+    '31': 31 día de última vez que buscó trabajo
+  Especiales:
+    '99': 99 no sabe día de última vez que buscó trabajo
 P2B_SEM:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Semana de última búsqueda de trabajo
+  Pregunta: ¿En qué fecha fue la última vez que… buscó trabajo (o comenzó con los preparativos para poner
+    el negocio)?.
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '9': '9'
-    ' ': ' '
+    '1': 1 semana del mes de última vez que buscó trabajo
+    '2': 2 semana del mes de última vez que buscó trabajo
+    '3': 3 semana del mes de última vez que buscó trabajo
+    '4': 4 semana del mes de última vez que buscó trabajo
+  Especiales:
+    '9': 9 no sabe semana del mes de última vez que buscó trabajo
 P2B_MES:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Mes de última búsqueda de trabajo
+  Pregunta: ¿En qué fecha fue la última vez que… buscó trabajo (o comenzó con los preparativos para poner
+    el negocio)?.
+  Tipo: categorical
+  Longitud: '2'
   Categorías:
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '5': '5'
-    '6': '6'
-    '7': '7'
-    '8': '8'
-    '9': '9'
-    '10': '10'
-    '11': '11'
-    '12': '12'
-    '99': '99'
-    ' ': ' '
+    '1': Enero última vez que buscó trabajo
+    '2': Febrero última vez que buscó trabajo
+    '3': Marzo última vez que buscó trabajo
+    '4': Abril última vez que buscó trabajo
+    '5': Mayo última vez que buscó trabajo
+    '6': Junio última vez que buscó trabajo
+    '7': Julio última vez que buscó trabajo
+    '8': Agosto última vez que buscó trabajo
+    '9': Septiembre última vez que buscó trabajo
+    '10': Octubre última vez que buscó trabajo
+    '11': Noviembre última vez que buscó trabajo
+    '12': Diciembre última vez que buscó trabajo
+  Especiales:
+    '99': No sabe el mes de última vez que buscó trabajo
 P2B_ANIO:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Año de última búsqueda de trabajo
+  Pregunta: ¿En qué fecha fue la última vez que… buscó trabajo (o comenzó con los preparativos para poner
+    el negocio)?.
+  Tipo: categorical
+  Longitud: '4'
   Categorías:
-    '2011': '2011'
-    '2015': '2015'
-    '2016': '2016'
-    '2017': '2017'
-    '2018': '2018'
-    '2019': '2019'
-    '2020': '2020'
-    ' ': ' '
+    '2010': 2010 año de última vez que buscó trabajo
+    '2011': 2011 año de última vez que buscó trabajo
+    '2012': 2012 año de última vez que buscó trabajo
+    '2013': 2013 año de última vez que buscó trabajo
+    '2014': 2014 año de última vez que buscó trabajo
+    '2015': 2015 año de última vez que buscó trabajo
+    '2016': 2016 año de última vez que buscó trabajo
+    '2017': 2017 año que comenzó a buscar trabajo
+    '2018': 2018 año que comenzó a buscar trabajo
+    '2019': 2019 año que comenzó a buscar trabajo
+    '2020': 2020 año que comenzó a buscar trabajo
+  Especiales:
+    '9999': 9999 año no especificado
 P2B:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Última vez que buscó trabajo
+  Pregunta: ¿En qué fecha fue la última vez que… buscó trabajo (o terminó con los preparativos para poner
+    el negocio)?.
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '9': '9'
-    ' ': ' '
+    '1': Hasta un mes
+    '2': Más de 1 hasta 2 meses
+    '3': Más de 2 hasta 3 meses
+    '4': Más de 3 meses
+  Especiales:
+    '9': No sabe cuantos meses
 P2C:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Disposición a trabajar la semana pasada
+  Pregunta: ¿… estaba dispuesto a trabajar la semana pasada?.
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '1': '1'
-    '2': '2'
-    '9': '9'
-    ' ': ' '
+    '1': Sí
+    '2': 'No'
+  Especiales:
+    '9': No sabe
 P2D1:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Acudió directamente al lugar de trabajo (fábrica, tienda, taller)
+  Pregunta: ¿A dónde acudió o qué hizo … para buscar empleo (o iniciar un negocio o actividad por su cuenta)?.
+  Tipo: categorical
+  Longitud: '2'
   Categorías:
-    '1': '1'
-    ' ': ' '
+    '1': Sí acudió directamente al lugar de trabajo (fábrica, tienda, taller)
 P2D2:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Hizo trámites en una agencia o bolsa de trabajo privada
+  Pregunta: ¿A dónde acudió o qué hizo … para buscar empleo (o iniciar un negocio o actividad por su cuenta)?.
+  Tipo: categorical
+  Longitud: '2'
   Categorías:
-    '2': '2'
-    ' ': ' '
+    '2': Sí hizo trámites en una agencia o bolsa de trabajo privada
 P2D3:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Hizo trámites en un servicio público de colocación
+  Pregunta: ¿A dónde acudió o qué hizo … para buscar empleo (o iniciar un negocio o actividad por su cuenta)?.
+  Tipo: categorical
+  Longitud: '2'
   Categorías:
-    '3': '3'
-    ' ': ' '
+    '3': Sí hizo trámites en un servicio público de colocación
 P2D4:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Hizo trámites en algún programa de empleo temporal del gobierno (federal, estatal y/o municipal)
+  Pregunta: ¿A dónde acudió o qué hizo … para buscar empleo (o iniciar un negocio o actividad por su cuenta)?.
+  Tipo: categorical
+  Longitud: '2'
   Categorías:
-    '4': '4'
-    ' ': ' '
+    '4': Sí hizo trámites en algún programa de empleo temporal del gobierno (federal, estatal y/o municipal)
 P2D5:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Hizo trámites o realizó alguna actividad para iniciar un negocio por su cuenta
+  Pregunta: ¿A dónde acudió o qué hizo … para buscar empleo (o iniciar un negocio o actividad por su cuenta)?.
+  Tipo: categorical
+  Longitud: '2'
   Categorías:
-    '5': '5'
-    ' ': ' '
+    '5': Sí hizo trámites o realizó alguna actividad para iniciar un negocio por su cuenta
 P2D6:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Puso o contestó un anuncio en internet
+  Pregunta: ¿A dónde acudió o qué hizo … para buscar empleo (o iniciar un negocio o actividad por su cuenta)?.
+  Tipo: categorical
+  Longitud: '2'
   Categorías:
-    '6': '6'
-    ' ': ' '
+    '6': Sí puso o contestó un anuncio en internet
 P2D7:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Puso o contestó un anuncio en algún lugar público o en medios de comunicación (periódico,
+    radio)
+  Pregunta: ¿A dónde acudió o qué hizo … para buscar empleo (o iniciar un negocio o actividad por su cuenta)?.
+  Tipo: categorical
+  Longitud: '2'
   Categorías:
-    '7': '7'
-    ' ': ' '
+    '7': Sí puso o contestó un anuncio en algún lugar público o en medios de comunicación (periódico,
+      radio)
 P2D8:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Acudió a un sindicato o gremio
+  Pregunta: ¿A dónde acudió o qué hizo … para buscar empleo (o iniciar un negocio o actividad por su cuenta)?.
+  Tipo: categorical
+  Longitud: '2'
   Categorías:
-    '8': '8'
-    ' ': ' '
+    '8': Sí acudió a un sindicato o gremio
 P2D9:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Pidió a conocidos o familiares que lo recomendaran o le avisaran de algún trabajo
+  Pregunta: ¿A dónde acudió o qué hizo … para buscar empleo (o iniciar un negocio o actividad por su cuenta)?.
+  Tipo: categorical
+  Longitud: '2'
   Categorías:
-    '9': '9'
-    ' ': ' '
+    '9': Sí pidió a conocidos o familiares que lo recomendaran o le avisaran de algún trabajo
 P2D10:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Solo consultó el anuncio clasificado
+  Pregunta: ¿A dónde acudió o qué hizo … para buscar empleo (o iniciar un negocio o actividad por su cuenta)?.
+  Tipo: categorical
+  Longitud: '2'
   Categorías:
-    '10': '10'
-    ' ': ' '
+    '10': Solo consultó el anuncio clasificado
 P2D11:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Otra actividad
+  Pregunta: ¿A dónde acudió o qué hizo … para buscar empleo (o iniciar un negocio o actividad por su cuenta)?.
+  Tipo: categorical
+  Longitud: '2'
   Categorías:
-    '11': '11'
-    ' ': ' '
+    '11': Sí realizo otra actividad
 P2D99:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: No sabe a dónde acudió o qué hizo para buscar empleo
+  Pregunta: ¿A dónde acudió o qué hizo … para buscar empleo (o iniciar un negocio o actividad por su cuenta)?.
+  Tipo: categorical
+  Longitud: '2'
   Categorías:
-    '99': '99'
-    ' ': ' '
+    '99': No sabe
 P2E:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Qué tipo de persona es
+  Pregunta: ¿… es
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '5': '5'
-    '6': '6'
-    '9': '9'
-    ' ': ' '
+    '1': Una persona temporalmente ausente de su actividad u oficio?
+    '2': Pensionado o jubilado de su trabajo?
+    '3': Estudiante?
+    '4': Una persona que se dedica a los quehaceres de su hogar?
+    '5': Una persona con alguna limitación física o mental que le impide trabajar por el resto de su vida?
+    '6': Otra condición
+  Especiales:
+    '9': No sabe
 P2F:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Tiene necesidad de trabajar
+  Pregunta: Actualmente, ¿ … tiene necesidad de trabajar?.
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '9': '9'
-    ' ': ' '
+    '1': Sí tiene necesidad de trabajar
+    '2': Sólo tiene deseos de trabajar
+    '3': No tiene necesidad ni deseos de trabajar
+  Especiales:
+    '9': No sabe
 P2G1:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: No busca trabajo
+  Pregunta: ¿Hay alguna otra razón además de ser (menciona lo que te contestaron en 2e) por la que… no
+    esté buscando trabajo?.
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '1': '1'
-    '2': '2'
-    '9': '9'
-    ' ': ' '
+    '1': Sí
+    '2': 'No'
+  Especiales:
+    '9': No sabe
 P2G2:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Razón por la que no busca trabajo
+  Pregunta: ¿Hay alguna otra razón además de ser (menciona lo que te contestaron en 2e) por la que… no
+    esté buscando trabajo?.
+  Tipo: categorical
+  Longitud: '2'
   Categorías:
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '5': '5'
-    '6': '6'
-    '7': '7'
-    '8': '8'
-    '9': '9'
-    '10': '10'
-    '11': '11'
-    '12': '12'
-    ' ': ' '
+    '1': Está esperando la respuesta a una solicitud o está apalabrado con un patrón que lo llamará en
+      fecha próxima
+    '2': No hay trabajo en su especialidad, oficio o profesión
+    '3': No cuenta con la escolaridad, los papeles o la experiencia necesaria para realizar un trabajo
+    '4': Piensa que por su edad o por su aspecto no lo aceptarían en un trabajo
+    '5': En su localidad no hay trabajo o sólo se realiza en ciertas temporadas del año
+    '6': La inseguridad pública o el exceso de trámites lo desalientan a iniciar una actividad
+    '7': Espera recuperarse de una enfermedad o accidente
+    '8': Está embarazada
+    '9': No tiene quién le cuide a sus hijos pequeños, ancianos o enfermos
+    '10': No lo(a) deja un familiar
+    '11': Otras razones de mercado
+    '12': Otras razones personales
 P2H1:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Ha trabajado alguna vez por un pago o salario?
+  Pregunta: ¿… ha trabajado alguna vez en su vida
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '1': '1'
-    ' ': ' '
+    '1': Por un pago o salario
 P2H2:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Ha trabajado alguna vez por su cuenta?
+  Pregunta: ¿… ha trabajado alguna vez en su vida
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '2': '2'
-    ' ': ' '
+    '2': Por su cuenta
 P2H3:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Ha trabajado alguna vez ayudando en el negocio o actividad económica de alguna persona?
+  Pregunta: ¿… ha trabajado alguna vez en su vida
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '3': '3'
-    ' ': ' '
+    '3': Ayudando en el negocio o actividad económica de alguna persona
 P2H4:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Nunca ha trabajado
+  Pregunta: ¿… ha trabajado alguna vez en su vida
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '4': '4'
-    ' ': ' '
+    '4': Nunca ha trabajado
 P2H9:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: No sabe si ha trabajado alguna vez en su vida
+  Pregunta: ¿… ha trabajado alguna vez en su vida
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '9': '9'
-    ' ': ' '
+    '9': No sabe
 P2I:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: La última vez que … se quedó sin trabajo, ¿cuál era la situación?
+  Pregunta: La última vez que ... se quedó sin trabajo, ¿cuál era la situación?
+  Tipo: categorical
+  Longitud: '8'
   Categorías:
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '5': '5'
-    '6': '6'
-    '7': '7'
-    '8': '8'
-    '9': '9'
-    ' ': ' '
+    '1': ¿Perdió o terminó su empleo?
+    '2': ¿Renunció a su empleo?
+    '3': ¿Cerró o dejó un negocio propio?
+    '4': Se pensionó, jubiló o se retiró de su negocio
+    '5': Lo detuvieron, se accidentó o se enfermó por una larga temporada
+    '6': Regresó o lo deportaron de Estados Unidos
+    '7': Un fenómeno natural o siniestro afectó a su fuente de trabajo
+    '8': Ninguna de las anteriores
+  Especiales:
+    '9': No sabe
 P2J:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: En esa ocasión
+  Pregunta: En esa ocasión,
+  Tipo: categorical
+  Longitud: '8'
   Categorías:
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '5': '5'
-    '6': '6'
-    '7': '7'
-    '9': '9'
-    ' ': ' '
+    '1': ¿la fuente del empleo cerró o quebró?
+    '2': ¿hubo recorte de personal?
+    '3': ¿la empresa se cambió de ciudad o de país?
+    '4': ¿no le renovaron su contrato?
+    '5': ¿no le volvieron a llamar?
+    '6': ¿le despidieron?
+    '7': Ninguna de las anteriores
+  Especiales:
+    '9': No sabe
 P2K_ANIO:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: ¿En qué año … terminó (o suspendió) ese trabajo u oficio?
+  Pregunta: ¿En qué año ... terminó (o suspendió) ese trabajo u oficio?
+  Tipo: numeric
+  Longitud: '8'
   Categorías: {}
+  Especiales:
+    '9999': Año no especificado
 P2K_MES:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: (Anota el mes si se trata del año en curso o del año pasado)
+  Pregunta: (Anota el mes si se trata del año en curso o del año pasado)
+  Tipo: categorical
+  Longitud: '8'
   Categorías:
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '5': '5'
-    '6': '6'
-    '7': '7'
-    '8': '8'
-    '9': '9'
-    '10': '10'
-    '11': '11'
-    '12': '12'
-    '99': '99'
-    ' ': ' '
+    '1': Enero mes en que terminó el trabajo u oficio
+    '2': Febrero mes en que terminó el trabajo u oficio
+    '3': Marzo mes en que terminó el trabajo u oficio
+    '4': Abril mes en que terminó el trabajo u oficio
+    '5': Mayo mes en que terminó el trabajo u oficio
+    '6': Junio mes en que terminó el trabajo u oficio
+    '7': Julio mes en que terminó el trabajo u oficio
+    '8': Agosto mes en que terminó el trabajo u oficio
+    '9': Septiembre mes en que terminó el trabajo u oficio
+    '10': Octubre mes en que terminó el trabajo u oficio
+    '11': Noviembre mes en que terminó el trabajo u oficio
+    '12': Diciembre mes en que terminó el trabajo u oficio
+  Especiales:
+    '99': Mes no especificado
 P2K:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: (Clasifica si se trata del año en curso o del año pasado)
+  Pregunta: (Clasifica si se trata del año en curso o del año pasado)
+  Tipo: categorical
+  Longitud: '8'
   Categorías:
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '9': '9'
-    ' ': ' '
+    '1': El año en curso
+    '2': El año pasado
+    '3': Antes del año pasado
+  Especiales:
+    '9': No sabe
 P3:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Código de la función que desempeña
+  Pregunta: ¿Si… tiene más de un trabajo, hablemos del principal. ¿Cuáles son las tareas o funciones principales
+    que… desempeña en su trabajo?.
+  Tipo: numeric
+  Longitud: '4'
   Categorías: {}
 P3A:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Tiene un jefe o superior
+  Pregunta: ¿En su trabajo… tiene un jefe(a) o superior?.
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '1': '1'
-    '2': '2'
-    ' ': ' '
+    '1': Sí
+    '2': 'No'
 P3B:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Tienen un negocio o actividad por su cuenta
+  Pregunta: Entonces, ¿… se dedica a un negocio o actividad por su cuenta?.
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '1': '1'
-    '2': '2'
-    ' ': ' '
+    '1': Sí
+    '2': 'No'
 P3C1:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Ofrece productos o servicios a una sola empresa, negocio o intermediario?
+  Pregunta: ¿… ofrece sus productos o servicios
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '1': '1'
-    ' ': ' '
+    '1': A una sola empresa, negocio o intermediario?
 P3C2:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Ofrece productos o servicios a varios negocios, empresas o intermediarios?
+  Pregunta: ¿… ofrece sus productos o servicios
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '2': '2'
-    ' ': ' '
+    '2': A varios negocios, empresas o intermediarios?
 P3C3:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Ofrece productos o servicios directamente al público?
+  Pregunta: ¿… ofrece sus productos o servicios
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '3': '3'
-    ' ': ' '
+    '3': Directamente al público?
 P3C4:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Es autoconsumo agropecuario
+  Pregunta: ¿… ofrece sus productos o servicios
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '4': '4'
-    ' ': ' '
+    '4': Es autoconsumo agropecuario
 P3C9:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: No sabe si ofrece productos o servicios
+  Pregunta: ¿… ofrece sus productos o servicios
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '9': '9'
-    ' ': ' '
+    '9': No sabe
 P3D:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Tiene empleados o personas que le ayudan
+  Pregunta: ¿… tiene empleados o le ayudan personas en su negocio o actividad?.
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '1': '1'
-    '2': '2'
-    '9': '9'
-    ' ': ' '
+    '1': Sí
+    '2': 'No'
+  Especiales:
+    '9': No sabe
 P3E:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Tiene uno o varios negocios
+  Pregunta: ¿… Tiene
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '1': '1'
-    '2': '2'
-    ' ': ' '
+    '1': Un solo tipo de negocio
+    '2': Varios tipos de negocios
 P3F1:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Tiene puestos o establecimientos
+  Pregunta: ¿Cuántos puestos o establecimientos (o en su caso vehículos) forman este negocio o empresa?.
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '9': '9'
-    ' ': ' '
+    '1': Uno solo?
+    '2': Más de uno? ¿cuántos?
+    '3': No tiene puesto o establecimiento (o vehículo)
+  Especiales:
+    '9': No sabe
 P3F2:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Número de puestos o establecimientos
+  Pregunta: ¿Cuántos puestos o establecimientos (o en su caso vehículos) forman este negocio o empresa?.
+  Tipo: categorical
+  Longitud: '2'
   Categorías:
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '5': '5'
-    '6': '6'
-    '7': '7'
-    '8': '8'
-    '9': '9'
-    '10': '10'
-    '11': '11'
-    '15': '15'
-    '20': '20'
-    '22': '22'
-    '30': '30'
-    '40': '40'
-    '45': '45'
-    '50': '50'
-    '99': '99'
-    ' ': ' '
+    '2': 2 negocios
+    '3': 3 negocios
+    '4': 4 negocios
+    '5': 5 negocios
+    '6': 6 negocios
+    '7': 7 negocios
+    '8': 8 negocios
+    '9': 9 negocios
+    '10': 10 negocios
+    '11': 11 negocios
+    '15': 15 negocios
+    '20': 20 negocios
+    '22': 22 negocios
+    '30': 30 negocios
+    '40': 40 negocios
+    '45': 45 negocios
+    '50': 50 negocios
+  Especiales:
+    '99': No sabe número de negocios
 P3G1_1:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Trabajadores que reciben un pago
+  Pregunta: De las personas que ocupa o le ayudan a… ¿cuántos son
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '1': '1'
-    ' ': ' '
+    '1': Trabajadores que reciben un pago?
 P3G1_2:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
-  Categorías:
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '5': '5'
-    '6': '6'
-    '7': '7'
-    '8': '8'
-    '9': '9'
-    '10': '10'
-    '11': '11'
-    '12': '12'
-    '13': '13'
-    '14': '14'
-    '15': '15'
-    '16': '16'
-    '17': '17'
-    '18': '18'
-    '19': '19'
-    '20': '20'
-    '21': '21'
-    '22': '22'
-    '23': '23'
-    '24': '24'
-    '25': '25'
-    '26': '26'
-    '27': '27'
-    '28': '28'
-    '29': '29'
-    '30': '30'
-    '31': '31'
-    '32': '32'
-    '35': '35'
-    '36': '36'
-    '40': '40'
-    '48': '48'
-    '50': '50'
-    '54': '54'
-    '55': '55'
-    '60': '60'
-    '66': '66'
-    '70': '70'
-    '72': '72'
-    '75': '75'
-    '80': '80'
-    '90': '90'
-    '98': '98'
-    '99': '99'
-    '100': '100'
-    '110': '110'
-    '120': '120'
-    '145': '145'
-    '180': '180'
-    '198': '198'
-    '200': '200'
-    '286': '286'
-    '300': '300'
-    '400': '400'
-    '450': '450'
-    '500': '500'
-    '600': '600'
-    '999': '999'
-    ' ': ' '
+  Descripción: Número de trabajadores que reciben un pago
+  Pregunta: De las personas que ocupa o le ayudan a… ¿cuántos son
+  Tipo: numeric
+  Longitud: '3'
+  Categorías: {}
+  Especiales:
+    '999': No sabe cuantos trabajadores asalariados
+  Nota: 'numérica: el DDI sólo enumera códigos especiales'
 P3G2_1:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Socios
+  Pregunta: De las personas que ocupa o le ayudan a… ¿cuántos son
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '2': '2'
-    ' ': ' '
+    '2': Socios?
 P3G2_2:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
-  Categorías:
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '5': '5'
-    '6': '6'
-    '7': '7'
-    '8': '8'
-    '9': '9'
-    '10': '10'
-    '11': '11'
-    '12': '12'
-    '13': '13'
-    '15': '15'
-    '16': '16'
-    '18': '18'
-    '20': '20'
-    '23': '23'
-    '24': '24'
-    '26': '26'
-    '30': '30'
-    '34': '34'
-    '39': '39'
-    '41': '41'
-    '42': '42'
-    '70': '70'
-    '88': '88'
-    '105': '105'
-    '110': '110'
-    '120': '120'
-    '140': '140'
-    '142': '142'
-    '150': '150'
-    '200': '200'
-    '220': '220'
-    '250': '250'
-    '999': '999'
-    ' ': ' '
+  Descripción: Número de socios
+  Pregunta: De las personas que ocupa o le ayudan a… ¿cuántos son
+  Tipo: numeric
+  Longitud: '3'
+  Categorías: {}
+  Especiales:
+    '999': No sabe cuantos socios
+  Nota: 'numérica: el DDI sólo enumera códigos especiales'
 P3G3_1:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Trabajadores sin pago
+  Pregunta: De las personas que ocupa o le ayudan a… ¿cuántos son
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '3': '3'
-    ' ': ' '
+    '3': Trabajadores sin pago?
 P3G3_2:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Número de trabajadores sin pago
+  Pregunta: De las personas que ocupa o le ayudan a… ¿cuántos son
+  Tipo: categorical
+  Longitud: '3'
   Categorías:
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '5': '5'
-    '6': '6'
-    '7': '7'
-    '8': '8'
-    '10': '10'
-    '999': '999'
-    ' ': ' '
+    '1': 1 trabajador sin pago
+    '2': 2 trabajadores sin pago
+    '3': 3 trabajadores sin pago
+    '4': 4 trabajadores sin pago
+    '5': 5 trabajadores sin pago
+    '6': 6 trabajadores sin pago
+    '7': 7 trabajadores sin pago
+    '8': 8 trabajadores sin pago
+    '10': 10 trabajadores sin pago
+  Especiales:
+    '999': Trabajadores no especificados
 P3G4_1:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: No sabe que tipo de trabajadores son
+  Pregunta: De las personas que ocupa o le ayudan a… ¿cuántos son
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '4': '4'
-    ' ': ' '
+    '4': No sabe qué tipo de trabajadores son
 P3G4_2:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
-  Categorías:
-    '1': '1'
-    '3': '3'
-    '10': '10'
-    '999': '999'
-    ' ': ' '
+  Descripción: Número de trabajadores
+  Pregunta: De las personas que ocupa o le ayudan a… ¿cuántos son
+  Tipo: numeric
+  Longitud: '3'
+  Categorías: {}
+  Especiales:
+    '999': No sabe número de trabajadores
+  Nota: 'numérica: el DDI sólo enumera códigos especiales'
 P3G9:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: No sabe el número de personas que ocupa o le ayudan
+  Pregunta: De las personas que ocupa o le ayudan a… ¿cuántos son
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '9': '9'
-    ' ': ' '
+    '9': No sabe
 P3G_TOT:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Total de trabajadores
+  Pregunta: De las personas que ocupa o le ayudan a… ¿cuántos son
+  Tipo: numeric
+  Longitud: '4'
   Categorías: {}
 P3H:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Tipo de pago que recibe
+  Pregunta: ¿En este trabajo...
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    ' ': ' '
+    '1': Recibe un pago
+    '2': Es un trabajador no familiar sin pago
+    '3': Es un trabajador familiar sin pago
+  Especiales:
+    '9': No sabe
 P3I:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: ¿En su empleo ... cuenta con un contrato por escrito?
+  Pregunta: ¿En este empleo ... cuenta con un contrato por escrito?
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '1': '1'
-    '2': '2'
-    '9': '9'
-    ' ': ' '
+    '1': Sí
+    '2': 'No'
+  Especiales:
+    '9': No sabe
 P3J1:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: ¿El contrato de ... es
+  Pregunta: ¿En su empleo… cuenta con un contrato por escrito?
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '1': '1'
-    '2': '2'
-    '9': '9'
-    ' ': ' '
+    '1': temporal o por obra determinada?
+    '2': de base, planta o por tiempo indefinido?
+  Especiales:
+    '9': No sabe
 P3J2:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Desglose de contrato temporal
+  Pregunta: temporal o por obra determinada?
+  Tipo: categorical
+  Longitud: '8'
   Categorías:
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    ' ': ' '
+    '1': menos de dos meses
+    '2': de dos a seis meses
+    '3': más de seis meses hasta un año
+    '4': hasta el término de la obra
 P3K1:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: En este trabajo, ¿a ... le dan aguinaldo?
+  Pregunta: ¿El contrato de ... es
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '1': '1'
-    ' ': ' '
+    '0': No aplica
+    '1': aguinaldo?
 P3K2:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: En este trabajo, ¿a ... le dan vacaciones con goce de sueldo?
+  Pregunta: temporal o por obra determinada?.
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '2': '2'
-    ' ': ' '
+    '0': No aplica
+    '2': vacaciones con goce de sueldo?
 P3K3:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: En este trabajo, ¿a ... le dan reparto de utilidades?
+  Pregunta: En este trabajo, ¿a ... le dan reparto de utilidades?
+  Tipo: categorical
+  Longitud: '8'
   Categorías:
-    '3': '3'
-    ' ': ' '
+    '0': No aplica
+    '3': reparto de utilidades?
 P3K4:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: En este trabajo, ¿a ... le dan (ninguna de las anteriores)
+  Pregunta: La opción de respuesta no se lee, se espera a que el informante declare ninguna de las anteriores.
+  Tipo: categorical
+  Longitud: '8'
   Categorías:
-    '4': '4'
-    ' ': ' '
+    '0': No aplica
+    '4': Ninguna de las anteriores
 P3K5:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: En este trabajo, ¿a ... le dan (no le dan nada)
+  Pregunta: La opción de respuesta no se lee, se espera a que el informante declare que no de la nada.
+  Tipo: categorical
+  Longitud: '8'
   Categorías:
-    '5': '5'
-    ' ': ' '
+    '0': No aplica
+    '5': No le dan nada
 P3K9:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: En este trabajo, ¿a ... le dan (no sabe)
+  Pregunta: La opción de respuesta no se lee, se espera a que el informante declare que no sabe.
+  Tipo: categorical
+  Longitud: '8'
   Categorías:
-    '9': '9'
-    ' ': ' '
+    '0': No aplica
+    '9': No sabe
 P3L:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: ¿Aproximadamente cuántas personas, incluyendo al dueño, laboran donde trabaja ...?
+  Pregunta: ¿Aproximadamente cuántas personas, incluyendo al dueño, laboran donde trabaja ...?
+  Tipo: categorical
+  Longitud: '2'
   Categorías:
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '5': '5'
-    '6': '6'
-    '7': '7'
-    '8': '8'
-    '9': '9'
-    '10': '10'
-    '11': '11'
-    '99': '99'
-    ' ': ' '
+    '0': No aplica
+    '1': 1 persona
+    '2': 2 a 5 personas
+    '3': 6 a 10 personas
+    '4': 11 a 15 personas
+    '5': 16 a 20 personas
+    '6': 21 a 30 personas
+    '7': 31 a 50 personas
+    '8': 51 a 100 personas
+    '9': 101 a 250 personas
+    '10': 251 a 500 personas
+    '11': 501 y más personas
+  Especiales:
+    '12': No sabe
+    '99': No especificado
 P4:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: ¿Cuál es el nombre de la empresa, negocio o institución para la que ... trabaja o ayuda?
+  Pregunta: ¿Cuál es el nombre de la empresa, negocio o institución para la que ... trabaja o ayuda?.
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '9': '9'
-    ' ': ' '
+    '1': Nombre de la empresa
+    '2': El negocio no tiene nombre
+    '3': Es trabajador (subordinado) de una unidad doméstica o trabajador(a) de otro trabajador(a)
+    '4': Es un(a) trabajador(a) en el extranjero
+  Especiales:
+    '9': No sabe
 P4_1:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Campo exclusivo del sistema (p4_1)
+  Pregunta: Variable de apoyo del sistema de captura.
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
     '1': '1'
     '2': '2'
+  Especiales:
     '9': '9'
-    ' ': ' '
 P4_2:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Campo exclusivo del sistema (p4_2)
+  Pregunta: Variable de apoyo del sistema de captura.
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
     '1': '1'
     '2': '2'
@@ -1181,593 +1196,708 @@ P4_2:
     '7': '7'
     '8': '8'
     '9': '9'
-    ' ': ' '
 P4_3:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Campo exclusivo del sistema (p4_3)
+  Pregunta: Variable de apoyo del sistema de captura.
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
     '1': '1'
     '2': '2'
-    ' ': ' '
 P4A:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: A qué se dedica la empresa
+  Pregunta: ¿A qué se dedica esta empresa, negocio o institución?.
+  Tipo: numeric
+  Longitud: '4'
   Categorías: {}
 P4A_1:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Campo exclusivo del sistema (P4A_1)
+  Pregunta: Variable de apoyo del sistema de captura.
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
     '1': '1'
     '2': '2'
-    ' ': ' '
 P4B:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Clasificación del negocio
+  Pregunta: SÓLO PARA EL ENTREVISTADOR
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '5': '5'
-    ' ': ' '
+    '1': Es una actividad agropecuaria
+    '2': Es una institución educativa u hospital
+    '3': Es una institución pública o una sin fines de lucro
+    '4': Se trata de una actividad o negocio del sector privado
+    '5': Aún no se puede determinar
 P4C:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Tipo de negocio
+  Pregunta: Entonces, ¿estamos hablando de que este negocio es
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    ' ': ' '
+    '1': De tipo independiente, personal o familiar
+    '2': Una compañía o empresa del sector privado
+    '3': Ninguno de los anteriores
 P4D1:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Entonces usted trabaja para ... institución de gobierno, ... una institución no administrada
+    por el gobierno
+  Pregunta: Entonces, ¿... trabaja para
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '1': '1'
-    '2': '2'
-    '9': '9'
-    ' ': ' '
+    '1': Una institución de gobierno
+    '2': Una institución no administrada por el gobierno
+  Especiales:
+    '9': No sabe
 P4D2:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Opciones de respuesta P4D1
+  Pregunta: Entonces, ¿... trabaja para, desglose de pregunta cuando p4d1 es igual a 1
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '5': '5'
-    '6': '6'
-    '7': '7'
-    '9': '9'
-    ' ': ' '
+    '1': P4D1=1.-Poder judicial o poder legislativo; P4D1=2.- Institución educativa u hospital particular.
+    '2': P4D1=1.-Empresa pública o paraestatal; P4D1=2.-Una institución autónoma y pública de estudios
+      de nivel medio superior o superior (UNAM, UAM, UACH, universidades autónomas estatales).
+    '3': P4D1=1.-Escuelas, hospitales, clínicas y servicios asistenciales administrados por el gobierno;
+      P4D1=2.-Organismo autónomo (IFE, Institutos Estatales Electorales, Comisiones Nacionales o Estatales
+      de Derechos Humanos).
+    '4': P4D1=1.-Gobierno o dependencias federales; P4D1=2.-Iglesia, asociación profesional, cámara o
+      sindicato.
+    '5': P4D1=1.-Gobierno del estado (incluye Distrito Federal); P4D1=2.-Asociación civil no clasificada
+      en las opciones anteriores.
+    '6': P4D1=1.-Gobierno del municipio (incluye delegaciones del Distrito Federal); P4D1=2.-Organismo
+      internacional.
+    '7': P4D1=1.-Ninguna de las anteriores; P4D1=2.-Partido político.
+    '8': P4D1=1.-No aplica; P4D1=2.-Ninguna de las anteriores.
+    '9': P4D1=1.-No sabe; P4D1=2.-No sabe.
 P4D3:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Entonces trabaja para...
+  Pregunta: Variable de apoyo.
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    ' ': ' '
+    '1': Cadiip imputó el código en p4_1 y p4_2
+    '2': Cadiip ratifica la codificación de campo de p4d1 y p4d2
+    '3': Cadiip respeta la codificación de campo de p4d1 y p4d2
 P4E:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Local, oficina o establecimiento del negocio
+  Pregunta: ¿El negocio o actividad
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '9': '9'
-    ' ': ' '
+    '1': Cuenta con establecimiento y oficina
+    '2': Solo tiene oficina o despacho
+    '3': Solo tiene local
+    '4': No tiene local, oficina o establecimiento
+  Especiales:
+    '9': No sabe
 P4F:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Dónde se realizan las actividades del negocio
+  Pregunta: Entonces, ¿en dónde se realizan las actividades de este negocio?.
+  Tipo: categorical
+  Longitud: '2'
   Categorías:
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '5': '5'
-    '6': '6'
-    '7': '7'
-    '8': '8'
-    '9': '9'
-    '10': '10'
-    '11': '11'
-    '99': '99'
-    ' ': ' '
+    '1': En el campo, a cielo abierto, bordo,poza, mar
+    '2': Ambulante de casa en casa o en la calle
+    '3': Puesto improvisado
+    '4': En vehículo sin motor
+    '5': En vehículo motorizado
+    '6': En su propio domicilio sin instalación especial
+    '7': En su propio domicilio con instalación especial
+    '8': En el domicilio o propiedad del patrón o en el lugar donde lo requieren los clientes
+    '9': Puesto semifijo
+    '10': Puesto fijo
+    '11': Otro lugar
+  Especiales:
+    '99': No sabe
 P4G:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Registros contables
+  Pregunta: En este negocio o actividad,
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '9': '9'
-    ' ': ' '
+    '1': Se acude a los servicios de un contador para llevar las cuentas
+    '2': Sólo se utiliza un cuaderno o una libreta de apuntes personales para llevar las cuentas
+    '3': Está inscrito en algún esquema o régimen para pequeños contribuyentes de la secretaría de hacienda
+      (lleva el cuadernillo de ingresos o utiliza la caja registradora)
+    '4': No lleva ningún registro contable
+  Especiales:
+    '9': No sabe
 P4H:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Lugar en qué trabaja
+  Pregunta: ¿Normalmente en qué lugar trabaja ... ?.
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '5': '5'
-    '9': '9'
-    ' ': ' '
+    '1': ¿En las instalaciones (o vehículos) de... (menciona el nombre que te indicaron en la pregunta4)?
+    '2': ¿En las instalaciones de otra empresa o institución a donde se le envía?
+    '3': ¿Visitando a distintos clientes?
+    '4': ¿En el lugar de la obra?
+    '5': Ninguna de las anteriores
+  Especiales:
+    '9': No sabe
 P4I:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: La empresa tiene oficinas o establecimientos
+  Pregunta: La empresa a la que pertenece ... ¿tiene oficinas o establecimientos
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '9': '9'
-    ' ': ' '
+    '1': En otros países
+    '2': Únicamente en México, pero en varias ciudades del país?
+    '3': Sólo en una ciudad
+    '4': Se trata de un negocio que opera bajo la modalidad de franquicia
+  Especiales:
+    '9': No sabe
 P4I_1:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Código de franquicias
+  Pregunta: La empresa a la que pertenece ... ¿tiene oficinas o establecimientos
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    ' ': ' '
+    '1': El sistema imputó el código 4 en la p4i
+    '2': El sistema ratificó el código 4 en la p4i
+    '3': El sistema respetó la codificación de campo de la p4i
 P5:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: La semana pasada, ¿... tuvo poco trabajo que hacer?
+  Pregunta: La semana pasada, ¿ ... tuvo poco trabajo qué hacer? (hubo tiempos muertos, largos periodos
+    de espera)
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '9': '9'
-    ' ': ' '
+    '1': Sí
+    '2': No trabajó la semana pasada
+    '3': No se encontró en esa situación
+  Especiales:
+    '9': No sabe
 P5A:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: ¿Le preocupa a ... esta situación?
+  Pregunta: ¿Le preocupa a ... esta situación?
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '5': '5'
-    '6': '6'
-    '9': '9'
-    ' ': ' '
+    '1': Sí
+    '2': Sólo un poco
+    '3': No, porque así es su trabajo
+    '4': No, porque así es en esta época del año
+    '5': No, porque la considera una situación pasajera
+    '6': No, por otras razones
+  Especiales:
+    '9': No sabe
 P5B_HLU:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Horas que le dedicó a su trabajo el lunes de la semana pasada
+  Pregunta: ¿Qué días y cuántas horas le dedicó ... a su trabajo la semana pasada?.
+  Tipo: categorical
+  Longitud: '2'
   Categorías:
-    '0': '0'
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '5': '5'
-    '6': '6'
-    '7': '7'
-    '8': '8'
-    '9': '9'
-    '10': '10'
-    '11': '11'
-    '12': '12'
-    '13': '13'
-    '14': '14'
-    '15': '15'
-    '16': '16'
-    '17': '17'
-    '18': '18'
-    '19': '19'
-    '20': '20'
-    '21': '21'
-    '22': '22'
-    '24': '24'
-    '98': '98'
-    '99': '99'
-    ' ': ' '
+    '0': 0 horas trabajadas el lunes
+    '1': 1 hora trabajada el lunes
+    '2': 2 horas trabajadas el lunes
+    '3': 3 horas trabajadas el lunes
+    '4': 4 horas trabajadas el lunes
+    '5': 5 horas trabajadas el lunes
+    '6': 6 horas trabajadas el lunes
+    '7': 7 horas trabajadas el lunes
+    '8': 8 horas trabajadas el lunes
+    '9': 9 horas trabajadas el lunes
+    '10': 10 horas trabajadas el lunes
+    '11': 11 horas trabajadas el lunes
+    '12': 12 horas trabajadas el lunes
+    '13': 13 horas trabajadas el lunes
+    '14': 14 horas trabajadas el lunes
+    '15': 15 horas trabajadas el lunes
+    '16': 16 horas trabajadas el lunes
+    '17': 17 horas trabajadas el lunes
+    '18': 18 horas trabajadas el lunes
+    '19': 19 horas trabajadas el lunes
+    '20': 20 horas trabajadas el lunes
+    '21': 21 horas trabajadas el lunes
+    '22': 22 horas trabajadas el lunes
+    '24': 24 horas trabajadas el lunes
+  Especiales:
+    '98': Trabajó ese día, pero no sabe cuanto tiempo
+    '99': No sabe si trabajó ese día
 P5B_MLU:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Minutos que le dedicó a su trabajo el lunes de la semana pasada
+  Pregunta: ¿Qué días y cuántas horas le dedicó ... a su trabajo la semana pasada?.
+  Tipo: categorical
+  Longitud: '2'
   Categorías:
+    '00': 0 minutos trabajados el lunes
+    '01': 1 minuto trabajado el lunes
+    '02': 2 minutos trabajados el lunes
+    '03': 3 minutos trabajados el lunes
+    '04': 4 minutos trabajados el lunes
+    '06': 6 minutos trabajados el lunes
+    '07': 7 minutos trabajados el lunes
+    08: 8 minutos trabajados el lunes
+    09: 9 minutos trabajados el lunes
+    '10': 10 minutos trabajados el lunes
+    '11': 11 minutos trabajados el lunes
+    '12': 12 minutos trabajados el lunes
+    '15': 15 minutos trabajados el lunes
+    '20': 20 minutos trabajados el lunes
+    '21': 21 minutos trabajados el lunes
+    '25': 25 minutos trabajados el lunes
+    '26': 26 minutos trabajados el lunes
+    '30': 30 minutos trabajados el lunes
+    '35': 35 minutos trabajados el lunes
+    '36': 36 minutos trabajados el lunes
+    '39': 39 minutos trabajados el lunes
+    '40': 40 minutos trabajados el lunes
+    '45': 45 minutos trabajados el lunes
+    '50': 50 minutos trabajados el lunes
     '0': '0'
     '1': '1'
     '2': '2'
     '3': '3'
+    '33': '33'
     '4': '4'
     '5': '5'
-    '6': '6'
-    '7': '7'
-    '8': '8'
-    '9': '9'
-    '10': '10'
-    '11': '11'
-    '12': '12'
-    '15': '15'
-    '20': '20'
-    '21': '21'
-    '25': '25'
-    '26': '26'
-    '30': '30'
-    '33': '33'
-    '35': '35'
-    '36': '36'
-    '39': '39'
-    '40': '40'
-    '45': '45'
-    '50': '50'
     '53': '53'
     '54': '54'
     '57': '57'
-    ' ': ' '
+    '6': '6'
+    '7': '7'
+    '8': '8'
+    '9': '9'
+  Nota: 'códigos observados sin etiqueta en el DDI: [''0'', ''1'', ''2'', ''3'', ''33'', ''4'', ''5'',
+    ''53'', ''54'', ''57'', ''6'', ''7'', ''8'', ''9'']'
 P5B_HMA:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Horas que le dedicó a su trabajo el martes de la semana pasada
+  Pregunta: ¿Qué días y cuántas horas le dedicó ... a su trabajo la semana pasada?.
+  Tipo: categorical
+  Longitud: '2'
   Categorías:
-    '0': '0'
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '5': '5'
-    '6': '6'
-    '7': '7'
-    '8': '8'
-    '9': '9'
-    '10': '10'
-    '11': '11'
-    '12': '12'
-    '13': '13'
-    '14': '14'
-    '15': '15'
-    '16': '16'
-    '17': '17'
-    '18': '18'
-    '19': '19'
-    '20': '20'
-    '21': '21'
-    '22': '22'
-    '24': '24'
-    '98': '98'
-    '99': '99'
-    ' ': ' '
+    '0': 0 horas trabajadas el martes
+    '1': 1 hora trabajada el martes
+    '2': 2 horas trabajadas el martes
+    '3': 3 horas trabajadas el martes
+    '4': 4 horas trabajadas el martes
+    '5': 5 horas trabajadas el martes
+    '6': 6 horas trabajadas el martes
+    '7': 7 horas trabajadas el martes
+    '8': 8 horas trabajadas el martes
+    '9': 9 horas trabajadas el martes
+    '10': 10 horas trabajadas el martes
+    '11': 11 horas trabajadas el martes
+    '12': 12 horas trabajadas el martes
+    '13': 13 horas trabajadas el martes
+    '14': 14 horas trabajadas el martes
+    '15': 15 horas trabajadas el martes
+    '16': 16 horas trabajadas el martes
+    '17': 17 horas trabajadas el martes
+    '18': 18 horas trabajadas el martes
+    '19': 19 horas trabajadas el martes
+    '20': 20 horas trabajadas el martes
+    '21': 21 horas trabajadas el martes
+    '22': 22 horas trabajadas el martes
+    '24': 24 horas trabajadas el martes
+  Especiales:
+    '98': Trabajó ese día, pero no sabe cuanto tiempo
+    '99': No sabe si trabajó ese día
 P5B_MMA:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Minutos que le dedicó a su trabajo el martes de la semana pasada
+  Pregunta: ¿Qué días y cuántas horas le dedicó ... a su trabajo la semana pasada?.
+  Tipo: categorical
+  Longitud: '2'
   Categorías:
+    '00': 0 minutos trabajados el martes
+    '01': 1 minuto trabajado el martes
+    '02': 2 minutos trabajados el martes
+    '03': 3 minutos trabajados el martes
+    '05': 5 minutos trabajados el martes
+    '06': 6 minutos trabajados el martes
+    '07': 7 minutos trabajados el martes
+    08: 8 minutos trabajados el martes
+    09: 9 minutos trabajados el martes
+    '10': 10 minutos trabajados el martes
+    '11': 11 minutos trabajados el martes
+    '12': 12 minutos trabajados el martes
+    '15': 15 minutos trabajados el martes
+    '20': 20 minutos trabajados el martes
+    '21': 21 minutos trabajados el martes
+    '25': 25 minutos trabajados el martes
+    '26': 26 minutos trabajados el martes
+    '30': 30 minutos trabajados el martes
+    '33': 33 minutos trabajados el martes
+    '35': 35 minutos trabajados el martes
+    '36': 36 minutos trabajados el martes
+    '39': 39 minutos trabajados el martes
+    '40': 40 minutos trabajados el martes
+    '45': 45 minutos trabajados el martes
+    '50': 50 minutos trabajados el martes
     '0': '0'
     '1': '1'
+    '17': '17'
     '2': '2'
     '3': '3'
+    '42': '42'
+    '48': '48'
     '5': '5'
+    '53': '53'
+    '54': '54'
     '6': '6'
     '7': '7'
     '8': '8'
     '9': '9'
-    '10': '10'
-    '11': '11'
-    '12': '12'
-    '15': '15'
-    '17': '17'
-    '20': '20'
-    '21': '21'
-    '25': '25'
-    '26': '26'
-    '30': '30'
-    '33': '33'
-    '35': '35'
-    '36': '36'
-    '39': '39'
-    '40': '40'
-    '42': '42'
-    '45': '45'
-    '48': '48'
-    '50': '50'
-    '53': '53'
-    '54': '54'
-    ' ': ' '
+  Nota: 'códigos observados sin etiqueta en el DDI: [''0'', ''1'', ''17'', ''2'', ''3'', ''42'', ''48'',
+    ''5'', ''53'', ''54'', ''6'', ''7'', ''8'', ''9'']'
 P5B_HMI:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Horas que le dedicó a su trabajo el miércoles de la semana pasada
+  Pregunta: ¿Qué días y cuántas horas le dedicó ... a su trabajo la semana pasada?.
+  Tipo: categorical
+  Longitud: '2'
   Categorías:
-    '0': '0'
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '5': '5'
-    '6': '6'
-    '7': '7'
-    '8': '8'
-    '9': '9'
-    '10': '10'
-    '11': '11'
-    '12': '12'
-    '13': '13'
-    '14': '14'
-    '15': '15'
-    '16': '16'
-    '17': '17'
-    '18': '18'
-    '19': '19'
-    '20': '20'
-    '21': '21'
-    '22': '22'
-    '23': '23'
-    '24': '24'
-    '98': '98'
-    '99': '99'
-    ' ': ' '
+    '0': 0 horas trabajadas el miércoles
+    '1': 1 hora trabajada el miércoles
+    '2': 2 horas trabajadas el miércoles
+    '3': 3 horas trabajadas el miércoles
+    '4': 4 horas trabajadas el miércoles
+    '5': 5 horas trabajadas el miércoles
+    '6': 6 horas trabajadas el miércoles
+    '7': 7 horas trabajadas el miércoles
+    '8': 8 horas trabajadas el miércoles
+    '9': 9 horas trabajadas el miércoles
+    '10': 10 horas trabajadas el miércoles
+    '11': 11 horas trabajadas el miércoles
+    '12': 12 horas trabajadas el miércoles
+    '13': 13 horas trabajadas el miércoles
+    '14': 14 horas trabajadas el miércoles
+    '15': 15 horas trabajadas el miércoles
+    '16': 16 horas trabajadas el miércoles
+    '17': 17 horas trabajadas el miércoles
+    '18': 18 horas trabajadas el miércoles
+    '19': 19 horas trabajadas el miércoles
+    '20': 20 horas trabajadas el miércoles
+    '21': 21 horas trabajadas el miércoles
+    '22': 22 horas trabajadas el miércoles
+    '23': 23 horas trabajadas el miércoles
+    '24': 24 horas trabajadas el miércoles
+  Especiales:
+    '98': Trabajó ese día, pero no sabe cuanto tiempo
+    '99': No sabe si trabajó ese día
 P5B_MMI:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Minutos que le dedicó a su trabajo el miércoles de la semana pasada
+  Pregunta: ¿Qué días y cuántas horas le dedicó ... a su trabajo la semana pasada?.
+  Tipo: categorical
+  Longitud: '2'
   Categorías:
+    '00': 0 minutos trabajados el miércoles
+    '01': 1 minuto trabajado el miércoles
+    '03': 3 minutos trabajados el miércoles
+    '04': 4 minutos trabajados el miércoles
+    '05': 5 minutos trabajados el miércoles
+    '06': 6 minutos trabajados el miércoles
+    '07': 7 minutos trabajados el miércoles
+    08: 8 minutos trabajados el miércoles
+    09: 9 minutos trabajados el miércoles
+    '10': 10 minutos trabajados el miércoles
+    '11': 11 minutos trabajados el miércoles
+    '12': 12 minutos trabajados el miércoles
+    '15': 15 minutos trabajados el miércoles
+    '20': 20 minutos trabajados el miércoles
+    '21': 21 minutos trabajados el miércoles
+    '25': 25 minutos trabajados el miércoles
+    '26': 26 minutos trabajados el miércoles
+    '30': 30 minutos trabajados el miércoles
+    '32': 32 minutos trabajados el miércoles
+    '35': 35 minutos trabajados el miércoles
+    '36': 36 minutos trabajados el miércoles
+    '39': 39 minutos trabajados el miércoles
+    '40': 40 minutos trabajados el miércoles
+    '45': 45 minutos trabajados el miércoles
+    '50': 50 minutos trabajados el miércoles
+    '59': 59 minutos trabajados el miércoles
     '0': '0'
     '1': '1'
+    '17': '17'
     '2': '2'
     '3': '3'
-    '4': '4'
-    '5': '5'
-    '6': '6'
-    '7': '7'
-    '8': '8'
-    '9': '9'
-    '10': '10'
-    '11': '11'
-    '12': '12'
-    '15': '15'
-    '17': '17'
-    '20': '20'
-    '21': '21'
-    '25': '25'
-    '26': '26'
-    '30': '30'
-    '32': '32'
     '33': '33'
-    '35': '35'
-    '36': '36'
-    '39': '39'
-    '40': '40'
+    '4': '4'
     '42': '42'
-    '45': '45'
     '48': '48'
-    '50': '50'
+    '5': '5'
     '53': '53'
     '54': '54'
-    '59': '59'
-    ' ': ' '
+    '6': '6'
+    '7': '7'
+    '8': '8'
+    '9': '9'
+  Nota: 'códigos observados sin etiqueta en el DDI: [''0'', ''1'', ''17'', ''2'', ''3'', ''33'', ''4'',
+    ''42'', ''48'', ''5'', ''53'', ''54'', ''6'', ''7'', ''8'', ''9'']'
 P5B_HJU:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Horas que le dedicó a su trabajo el jueves de la semana pasada
+  Pregunta: ¿Qué días y cuántas horas le dedicó ... a su trabajo la semana pasada?.
+  Tipo: categorical
+  Longitud: '2'
   Categorías:
-    '0': '0'
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '5': '5'
-    '6': '6'
-    '7': '7'
-    '8': '8'
-    '9': '9'
-    '10': '10'
-    '11': '11'
-    '12': '12'
-    '13': '13'
-    '14': '14'
-    '15': '15'
-    '16': '16'
-    '17': '17'
-    '18': '18'
-    '19': '19'
-    '20': '20'
-    '21': '21'
-    '22': '22'
-    '24': '24'
-    '98': '98'
-    '99': '99'
-    ' ': ' '
+    '0': 0 horas trabajadas el jueves
+    '1': 1 hora trabajada el jueves
+    '2': 2 horas trabajadas el jueves
+    '3': 3 horas trabajadas el jueves
+    '4': 4 horas trabajadas el jueves
+    '5': 5 horas trabajadas el jueves
+    '6': 6 horas trabajadas el jueves
+    '7': 7 horas trabajadas el jueves
+    '8': 8 horas trabajadas el jueves
+    '9': 9 horas trabajadas el jueves
+    '10': 10 horas trabajadas el jueves
+    '11': 11 horas trabajadas el jueves
+    '12': 12 horas trabajadas el jueves
+    '13': 13 horas trabajadas el jueves
+    '14': 14 horas trabajadas el jueves
+    '15': 15 horas trabajadas el jueves
+    '16': 16 horas trabajadas el jueves
+    '17': 17 horas trabajadas el jueves
+    '18': 18 horas trabajadas el jueves
+    '19': 19 horas trabajadas el jueves
+    '20': 20 horas trabajadas el jueves
+    '21': 21 horas trabajadas el jueves
+    '22': 22 horas trabajadas el jueves
+    '24': 24 horas trabajadas el jueves
+  Especiales:
+    '98': Trabajó ese día, pero no sabe cuanto tiempo
+    '99': No sabe si trabajó ese día
 P5B_MJU:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Minutos que le dedicó a su trabajo el jueves de la semana pasada
+  Pregunta: ¿Qué días y cuántas horas le dedicó ... a su trabajo la semana pasada?.
+  Tipo: categorical
+  Longitud: '2'
   Categorías:
+    '00': 0 minutos trabajados el jueves
+    '01': 1 minuto trabajado el jueves
+    '02': 2 minutos trabajados el jueves
+    '03': 3 minutos trabajados el jueves
+    '04': 4 minutos trabajados el jueves
+    '05': 5 minutos trabajados el jueves
+    '06': 6 minutos trabajados el jueves
+    '07': 7 minutos trabajados el jueves
+    08: 8 minutos trabajados el jueves
+    09: 9 minutos trabajados el jueves
+    '10': 10 minutos trabajados el jueves
+    '11': 11 minutos trabajados el jueves
+    '12': 12 minutos trabajados el jueves
+    '15': 15 minutos trabajados el jueves
+    '20': 20 minutos trabajados el jueves
+    '21': 21 minutos trabajados el jueves
+    '22': 22 minutos trabajados el jueves
+    '25': 25 minutos trabajados el jueves
+    '26': 26 minutos trabajados el jueves
+    '30': 30 minutos trabajados el jueves
+    '33': 33 minutos trabajados el jueves
+    '35': 35 minutos trabajados el jueves
+    '36': 36 minutos trabajados el jueves
+    '39': 39 minutos trabajados el jueves
+    '40': 40 minutos trabajados el jueves
+    '45': 45 minutos trabajados el jueves
+    '50': 50 minutos trabajados el jueves
     '0': '0'
     '1': '1'
     '2': '2'
     '3': '3'
     '4': '4'
-    '5': '5'
-    '6': '6'
-    '7': '7'
-    '8': '8'
-    '9': '9'
-    '10': '10'
-    '11': '11'
-    '12': '12'
-    '15': '15'
-    '20': '20'
-    '21': '21'
-    '22': '22'
-    '25': '25'
-    '26': '26'
-    '30': '30'
-    '33': '33'
-    '35': '35'
-    '36': '36'
-    '39': '39'
-    '40': '40'
     '42': '42'
-    '45': '45'
     '48': '48'
-    '50': '50'
+    '5': '5'
     '52': '52'
     '53': '53'
     '54': '54'
-    ' ': ' '
+    '6': '6'
+    '7': '7'
+    '8': '8'
+    '9': '9'
+  Nota: 'códigos observados sin etiqueta en el DDI: [''0'', ''1'', ''2'', ''3'', ''4'', ''42'', ''48'',
+    ''5'', ''52'', ''53'', ''54'', ''6'', ''7'', ''8'', ''9'']'
 P5B_HVI:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Horas que le dedicó a su trabajo el viernes de la semana pasada
+  Pregunta: ¿Qué días y cuántas horas le dedicó ... a su trabajo la semana pasada?.
+  Tipo: categorical
+  Longitud: '2'
   Categorías:
-    '0': '0'
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '5': '5'
-    '6': '6'
-    '7': '7'
-    '8': '8'
-    '9': '9'
-    '10': '10'
-    '11': '11'
-    '12': '12'
-    '13': '13'
-    '14': '14'
-    '15': '15'
-    '16': '16'
-    '17': '17'
-    '18': '18'
-    '19': '19'
-    '20': '20'
-    '21': '21'
-    '22': '22'
-    '24': '24'
-    '98': '98'
-    '99': '99'
-    ' ': ' '
+    '0': 0 horas trabajadas el viernes
+    '1': 1 hora trabajada el viernes
+    '2': 2 horas trabajadas el viernes
+    '3': 3 horas trabajadas el viernes
+    '4': 4 horas trabajadas el viernes
+    '5': 5 horas trabajadas el viernes
+    '6': 6 horas trabajadas el viernes
+    '7': 7 horas trabajadas el viernes
+    '8': 8 horas trabajadas el viernes
+    '9': 9 horas trabajadas el viernes
+    '10': 10 horas trabajadas el viernes
+    '11': 11 horas trabajadas el viernes
+    '12': 12 horas trabajadas el viernes
+    '13': 13 horas trabajadas el viernes
+    '14': 14 horas trabajadas el viernes
+    '15': 15 horas trabajadas el viernes
+    '16': 16 horas trabajadas el viernes
+    '17': 17 horas trabajadas el viernes
+    '18': 18 horas trabajadas el viernes
+    '19': 19 horas trabajadas el viernes
+    '20': 20 horas trabajadas el viernes
+    '21': 21 horas trabajadas el viernes
+    '22': 22 horas trabajadas el viernes
+    '24': 24 horas trabajadas el viernes
+  Especiales:
+    '98': Trabajó ese día, pero no sabe cuanto tiempo
+    '99': No sabe si trabajó ese día
 P5B_MVI:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Minutos que le dedicó a su trabajo el viernes de la semana pasada
+  Pregunta: ¿Qué días y cuántas horas le dedicó ... a su trabajo la semana pasada?.
+  Tipo: categorical
+  Longitud: '2'
   Categorías:
+    '00': 0 minutos trabajados el viernes
+    '01': 1 minuto trabajado el viernes
+    '02': 2 minutos trabajados el viernes
+    '03': 3 minutos trabajados el viernes
+    '04': 4 minutos trabajados el viernes
+    '05': 5 minutos trabajados el viernes
+    '06': 6 minutos trabajados el viernes
+    '07': 7 minutos trabajados el viernes
+    08: 8 minutos trabajados el viernes
+    09: 9 minutos trabajados el viernes
+    '10': 10 minutos trabajados el viernes
+    '11': 11 minutos trabajados el viernes
+    '12': 12 minutos trabajados el viernes
+    '15': 15 minutos trabajados el viernes
+    '20': 20 minutos trabajados el viernes
+    '21': 21 minutos trabajados el viernes
+    '24': 24 minutos trabajados el viernes
+    '25': 25 minutos trabajados el viernes
+    '26': 26 minutos trabajados el viernes
+    '30': 30 minutos trabajados el viernes
+    '32': 32 minutos trabajados el viernes
+    '35': 35 minutos trabajados el viernes
+    '36': 36 minutos trabajados el viernes
+    '39': 39 minutos trabajados el viernes
+    '40': 40 minutos trabajados el viernes
+    '45': 45 minutos trabajados el viernes
+    '50': 50 minutos trabajados el viernes
     '0': '0'
     '1': '1'
     '2': '2'
     '3': '3'
     '4': '4'
-    '5': '5'
-    '6': '6'
-    '7': '7'
-    '8': '8'
-    '9': '9'
-    '10': '10'
-    '11': '11'
-    '12': '12'
-    '15': '15'
-    '20': '20'
-    '21': '21'
-    '24': '24'
-    '25': '25'
-    '26': '26'
-    '30': '30'
-    '32': '32'
-    '35': '35'
-    '36': '36'
-    '39': '39'
-    '40': '40'
     '42': '42'
-    '45': '45'
     '48': '48'
-    '50': '50'
+    '5': '5'
     '53': '53'
     '54': '54'
-    ' ': ' '
+    '6': '6'
+    '7': '7'
+    '8': '8'
+    '9': '9'
+  Nota: 'códigos observados sin etiqueta en el DDI: [''0'', ''1'', ''2'', ''3'', ''4'', ''42'', ''48'',
+    ''5'', ''53'', ''54'', ''6'', ''7'', ''8'', ''9'']'
 P5B_HSA:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Horas que le dedicó a su trabajo el sábado de la semana pasada
+  Pregunta: ¿Qué días y cuántas horas le dedicó ... a su trabajo la semana pasada?.
+  Tipo: categorical
+  Longitud: '2'
   Categorías:
-    '0': '0'
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '5': '5'
-    '6': '6'
-    '7': '7'
-    '8': '8'
-    '9': '9'
-    '10': '10'
-    '11': '11'
-    '12': '12'
-    '13': '13'
-    '14': '14'
-    '15': '15'
-    '16': '16'
-    '17': '17'
-    '18': '18'
-    '19': '19'
-    '20': '20'
-    '21': '21'
-    '22': '22'
-    '23': '23'
-    '24': '24'
-    '98': '98'
-    '99': '99'
-    ' ': ' '
+    '0': 0 horas trabajadas el sábado
+    '1': 1 hora trabajada el sábado
+    '2': 2 horas trabajadas el sábado
+    '3': 3 horas trabajadas el sábado
+    '4': 4 horas trabajadas el sábado
+    '5': 5 horas trabajadas el sábado
+    '6': 6 horas trabajadas el sábado
+    '7': 7 horas trabajadas el sábado
+    '8': 8 horas trabajadas el sábado
+    '9': 9 horas trabajadas el sábado
+    '10': 10 horas trabajadas el sábado
+    '11': 11 horas trabajadas el sábado
+    '12': 12 horas trabajadas el sábado
+    '13': 13 horas trabajadas el sábado
+    '14': 14 horas trabajadas el sábado
+    '15': 15 horas trabajadas el sábado
+    '16': 16 horas trabajadas el sábado
+    '17': 17 horas trabajadas el sábado
+    '18': 18 horas trabajadas el sábado
+    '19': 19 horas trabajadas el sábado
+    '20': 20 horas trabajadas el sábado
+    '21': 21 horas trabajadas el sábado
+    '22': 22 horas trabajadas el sábado
+    '23': 23 horas trabajadas el sábado
+    '24': 24 horas trabajadas el sábado
+  Especiales:
+    '98': Trabajó ese día, pero no sabe cuanto tiempo
+    '99': No sabe si trabajó ese día
 P5B_MSA:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Minutos que le dedicó a su trabajo el sábado de la semana pasada
+  Pregunta: ¿Qué días y cuántas horas le dedicó ... a su trabajo la semana pasada?.
+  Tipo: categorical
+  Longitud: '2'
   Categorías:
+    '00': 0 minutos trabajados el sábado
+    '01': 1 minuto trabajado el sábado
+    '02': 2 minutos trabajados el sábado
+    '03': 3 minutos trabajados el sábado
+    '06': 6 minutos trabajados el sábado
+    '07': 7 minutos trabajados el sábado
+    08: 8 minutos trabajados el sábado
+    '10': 10 minutos trabajados el sábado
+    '11': 11 minutos trabajados el sábado
+    '12': 12 minutos trabajados el sábado
+    '15': 15 minutos trabajados el sábado
+    '20': 20 minutos trabajados el sábado
+    '22': 22 minutos trabajados el sábado
+    '25': 25 minutos trabajados el sábado
+    '30': 30 minutos trabajados el sábado
+    '39': 39 minutos trabajados el sábado
+    '40': 40 minutos trabajados el sábado
+    '44': 44 minutos trabajados el sábado
+    '45': 45 minutos trabajados el sábado
+    '50': 50 minutos trabajados el sábado
+    '54': 54 minutos trabajados el sábado
+    '59': 59 minutos trabajados el sábado
     '0': '0'
     '1': '1'
     '2': '2'
     '3': '3'
+    '36': '36'
     '5': '5'
     '6': '6'
     '7': '7'
     '8': '8'
     '9': '9'
-    '10': '10'
-    '11': '11'
-    '12': '12'
-    '15': '15'
-    '20': '20'
-    '22': '22'
-    '25': '25'
-    '30': '30'
-    '36': '36'
-    '39': '39'
-    '40': '40'
-    '44': '44'
-    '45': '45'
-    '50': '50'
-    '54': '54'
-    '59': '59'
-    ' ': ' '
+  Nota: 'códigos observados sin etiqueta en el DDI: [''0'', ''1'', ''2'', ''3'', ''36'', ''5'', ''6'',
+    ''7'', ''8'', ''9'']'
 P5B_HDO:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Horas que le dedicó a su trabajo el domingo de la semana pasada
+  Pregunta: ¿Qué días y cuántas horas le dedicó ... a su trabajo la semana pasada?.
+  Tipo: categorical
+  Longitud: '2'
   Categorías:
+    '00': 0 horas trabajadas el domingo
+    '01': 1 hora trabajada el domingo
+    '02': 2 horas trabajadas el domingo
+    '03': 3 horas trabajadas el domingo
+    '04': 4 horas trabajadas el domingo
+    '05': 5 horas trabajadas el domingo
+    '06': 6 horas trabajadas el domingo
+    '07': 7 horas trabajadas el domingo
+    08: 8 horas trabajadas el domingo
+    09: 9 horas trabajadas el domingo
+    '10': 10 horas trabajadas el domingo
+    '11': 11 horas trabajadas el domingo
+    '12': 12 horas trabajadas el domingo
+    '13': 13 horas trabajadas el domingo
+    '14': 14 horas trabajadas el domingo
+    '15': 15 horas trabajadas el domingo
+    '16': 16 horas trabajadas el domingo
+    '17': 17 horas trabajadas el domingo
+    '18': 18 horas trabajadas el domingo
+    '19': 19 horas trabajadas el domingo
+    '20': 20 horas trabajadas el domingo
+    '22': 22 horas trabajadas el domingo
+    '24': 24 horas trabajadas el domingo
     '0': '0'
     '1': '1'
     '2': '2'
+    '21': '21'
     '3': '3'
     '4': '4'
     '5': '5'
@@ -1775,97 +1905,120 @@ P5B_HDO:
     '7': '7'
     '8': '8'
     '9': '9'
-    '10': '10'
-    '11': '11'
-    '12': '12'
-    '13': '13'
-    '14': '14'
-    '15': '15'
-    '16': '16'
-    '17': '17'
-    '18': '18'
-    '19': '19'
-    '20': '20'
-    '21': '21'
-    '22': '22'
-    '24': '24'
-    '98': '98'
-    '99': '99'
-    ' ': ' '
+  Nota: 'códigos observados sin etiqueta en el DDI: [''0'', ''1'', ''2'', ''21'', ''3'', ''4'', ''5'',
+    ''6'', ''7'', ''8'', ''9'']'
+  Especiales:
+    '98': Trabajó ese día, pero no sabe cuanto tiempo
+    '99': No sabe si trabajó ese día
 P5B_MDO:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Minutos que le dedicó a su trabajo el domingo de la semana pasada
+  Pregunta: ¿Qué días y cuántas horas le dedicó ... a su trabajo la semana pasada?.
+  Tipo: categorical
+  Longitud: '2'
   Categorías:
+    '00': 0 minutos trabajados el domingo
+    '01': 1 minuto trabajado el domingo
+    '02': 2 minutos trabajados el domingo
+    '03': 3 minutos trabajados el domingo
+    '06': 6 minutos trabajados el domingo
+    08: 8 minutos trabajados el domingo
+    '10': 10 minutos trabajados el domingo
+    '11': 11 minutos trabajados el domingo
+    '12': 12 minutos trabajados el domingo
+    '14': 14 minutos trabajados el domingo
+    '15': 15 minutos trabajados el domingo
+    '20': 20 minutos trabajados el domingo
+    '22': 22 minutos trabajados el domingo
+    '24': 24 minutos trabajados el domingo
+    '25': 25 minutos trabajados el domingo
+    '30': 30 minutos trabajados el domingo
+    '39': 39 minutos trabajados el domingo
+    '40': 40 minutos trabajados el domingo
+    '45': 45 minutos trabajados el domingo
+    '50': 50 minutos trabajados el domingo
     '0': '0'
     '1': '1'
     '2': '2'
-    '3': '3'
-    '5': '5'
-    '6': '6'
-    '8': '8'
-    '9': '9'
-    '10': '10'
-    '11': '11'
-    '12': '12'
-    '14': '14'
-    '15': '15'
-    '20': '20'
     '21': '21'
-    '22': '22'
-    '24': '24'
-    '25': '25'
-    '30': '30'
+    '3': '3'
     '36': '36'
-    '39': '39'
-    '40': '40'
-    '45': '45'
-    '50': '50'
-    ' ': ' '
+    '5': '5'
+    '6': '6'
+    '8': '8'
+    '9': '9'
+  Nota: 'códigos observados sin etiqueta en el DDI: [''0'', ''1'', ''2'', ''21'', ''3'', ''36'', ''5'',
+    ''6'', ''8'', ''9'']'
 P5B_THRS:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Total de horas que le dedicó a su trabajo la semana pasada
+  Pregunta: ¿Qué días y cuántas horas le dedicó ... a su trabajo la semana pasada?.
+  Tipo: numeric
+  Longitud: '3'
   Categorías: {}
+  Especiales:
+    '999': Total de horas no especificadas
 P5B_TDIA:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Total de días que le dedicó a su trabajo la semana pasada
+  Pregunta: ¿Qué días y cuántas horas le dedicó ... a su trabajo la semana pasada?.
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '5': '5'
-    '6': '6'
-    '7': '7'
-    '9': '9'
-    ' ': ' '
+    '1': 1 total de días trabajados
+    '2': 2 total de días trabajados
+    '3': 3 total de días trabajados
+    '4': 4 total de días trabajados
+    '5': 5 total de días trabajados
+    '6': 6 total de días trabajados
+    '7': 7 total de días trabajados
+  Especiales:
+    '9': No sabe días trabajados
 P5C:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: ¿Ese es el número de horas que habitualmente trabaja ...?
+  Pregunta: ¿Ese es el número de horas que habitualmente trabaja ...?.
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '1': '1'
-    '2': '2'
-    '9': '9'
-    ' ': ' '
+    '1': Sí
+    '2': 'No'
+  Especiales:
+    '9': No sabe
 P5D1:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: ¿Qué días y cuántas horas le dedica habitualmente ... a su trabajo?
+  Pregunta: ¿Qué días y cuántas horas le dedica habitualmente... a su trabajo?.
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '1': '1'
-    '2': '2'
-    ' ': ' '
+    '1': Tiene un horario regular de trabajo
+    '2': No tiene un horario regular de trabajo
 P5D_HLU:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Horas que le dedica habitualmente a su trabajo el lunes
+  Pregunta: ¿Qué días y cuántas horas le dedica habitualmente... a su trabajo?.
+  Tipo: categorical
+  Longitud: '2'
   Categorías:
+    '00': 0 horas habituales que trabaja lunes
+    '01': 1 hora habitual que trabaja lunes
+    '02': 2 horas habituales que trabaja lunes
+    '03': 3 horas habituales que trabaja lunes
+    '04': 4 horas habituales que trabaja lunes
+    '05': 5 horas habituales que trabaja lunes
+    '06': 6 horas habituales que trabaja lunes
+    '07': 7 horas habituales que trabaja lunes
+    08: 8 horas habituales que trabaja lunes
+    09: 9 horas habituales que trabaja lunes
+    '10': 10 horas habituales que trabaja lunes
+    '11': 11 horas habituales que trabaja lunes
+    '12': 12 horas habituales que trabaja lunes
+    '13': 13 horas habituales que trabaja lunes
+    '14': 14 horas habituales que trabaja lunes
+    '15': 15 horas habituales que trabaja lunes
+    '16': 16 horas habituales que trabaja lunes
+    '17': 17 horas habituales que trabaja lunes
+    '18': 18 horas habituales que trabaja lunes
+    '24': 24 horas habituales que trabaja lunes
     '0': '0'
     '1': '1'
     '2': '2'
+    '20': '20'
     '3': '3'
     '4': '4'
     '5': '5'
@@ -1873,103 +2026,107 @@ P5D_HLU:
     '7': '7'
     '8': '8'
     '9': '9'
-    '10': '10'
-    '11': '11'
-    '12': '12'
-    '13': '13'
-    '14': '14'
-    '15': '15'
-    '16': '16'
-    '17': '17'
-    '18': '18'
-    '20': '20'
-    '24': '24'
-    '98': '98'
-    '99': '99'
-    ' ': ' '
+  Nota: 'códigos observados sin etiqueta en el DDI: [''0'', ''1'', ''2'', ''20'', ''3'', ''4'', ''5'',
+    ''6'', ''7'', ''8'', ''9'']'
+  Especiales:
+    '98': Trabajó ese día, pero no sabe cuanto tiempo
+    '99': No sabe
 P5D_MLU:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Minutos que le dedica habitualmente a su trabajo el lunes
+  Pregunta: ¿Qué días y cuántas horas le dedica habitualmente... a su trabajo?.
+  Tipo: categorical
+  Longitud: '2'
   Categorías:
+    '00': 0 minutos habituales que trabaja lunes
+    '03': 3 minutos habituales que trabaja lunes
+    '05': 5 minutos habituales que trabaja lunes
+    '06': 6 minutos habituales que trabaja lunes
+    '10': 10 minutos habituales que trabaja lunes
+    '12': 12 minutos habituales que trabaja lunes
+    '15': 15 minutos habituales que trabaja lunes
+    '20': 20 minutos habituales que trabaja lunes
+    '30': 30 minutos habituales que trabaja lunes
+    '36': 36 minutos habituales que trabaja lunes
+    '39': 39 minutos habituales que trabaja lunes
+    '40': 40 minutos habituales que trabaja lunes
+    '45': 45 minutos habituales que trabaja lunes
+    '50': 50 minutos habituales que trabaja lunes
     '0': '0'
     '1': '1'
+    '25': '25'
     '3': '3'
     '5': '5'
     '6': '6'
-    '10': '10'
-    '12': '12'
-    '15': '15'
-    '20': '20'
-    '25': '25'
-    '30': '30'
-    '36': '36'
-    '39': '39'
-    '40': '40'
-    '45': '45'
-    '50': '50'
-    ' ': ' '
+  Nota: 'códigos observados sin etiqueta en el DDI: [''0'', ''1'', ''25'', ''3'', ''5'', ''6'']'
 P5D_HMA:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
-  Categorías:
-    '0': '0'
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '5': '5'
-    '6': '6'
-    '7': '7'
-    '8': '8'
-    '9': '9'
-    '10': '10'
-    '11': '11'
-    '12': '12'
-    '13': '13'
-    '14': '14'
-    '15': '15'
-    '16': '16'
-    '17': '17'
-    '18': '18'
-    '19': '19'
-    '20': '20'
-    '24': '24'
-    '98': '98'
-    '99': '99'
-    ' ': ' '
+  Descripción: Horas que le dedica habitualmente a su trabajo el martes
+  Pregunta: ¿Qué días y cuántas horas le dedica habitualmente... a su trabajo?.
+  Tipo: numeric
+  Longitud: '2'
+  Categorías: {}
+  Especiales:
+    '98': Trabajó ese día, pero no sabe cuanto tiempo
+    '99': No sabe
+  Nota: 'numérica: el DDI sólo enumera códigos especiales'
 P5D_MMA:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Minutos que le dedica habitualmente a su trabajo el martes
+  Pregunta: ¿Qué días y cuántas horas le dedica habitualmente... a su trabajo?.
+  Tipo: categorical
+  Longitud: '2'
   Categorías:
+    '00': 0 minutos habituales que trabaja martes
+    '05': 5 minutos habituales que trabaja martes
+    '06': 6 minutos habituales que trabaja martes
+    08: 8 minutos habituales que trabaja martes
+    '10': 10 minutos habituales que trabaja martes
+    '12': 12 minutos habituales que trabaja martes
+    '15': 15 minutos habituales que trabaja martes
+    '20': 20 minutos habituales que trabaja martes
+    '30': 30 minutos habituales que trabaja martes
+    '36': 36 minutos habituales que trabaja martes
+    '39': 39 minutos habituales que trabaja martes
+    '40': 40 minutos habituales que trabaja martes
+    '45': 45 minutos habituales que trabaja martes
+    '50': 50 minutos habituales que trabaja martes
     '0': '0'
     '1': '1'
+    '11': '11'
+    '25': '25'
     '5': '5'
     '6': '6'
     '8': '8'
-    '10': '10'
-    '11': '11'
-    '12': '12'
-    '15': '15'
-    '20': '20'
-    '25': '25'
-    '30': '30'
-    '36': '36'
-    '39': '39'
-    '40': '40'
-    '45': '45'
-    '50': '50'
-    ' ': ' '
+  Nota: 'códigos observados sin etiqueta en el DDI: [''0'', ''1'', ''11'', ''25'', ''5'', ''6'', ''8'']'
 P5D_HMI:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Horas que le dedica habitualmente a su trabajo el miércoles
+  Pregunta: ¿Qué días y cuántas horas le dedica habitualmente... a su trabajo?.
+  Tipo: categorical
+  Longitud: '2'
   Categorías:
+    '00': 0 horas habituales que trabaja miércoles
+    '01': 1 hora habitual que trabaja miércoles
+    '02': 2 horas habituales que trabaja miércoles
+    '03': 3 horas habituales que trabaja miércoles
+    '04': 4 horas habituales que trabaja miércoles
+    '05': 5 horas habituales que trabaja miércoles
+    '06': 6 horas habituales que trabaja miércoles
+    '07': 7 horas habituales que trabaja miércoles
+    08: 8 horas habituales que trabaja miércoles
+    09: 9 horas habituales que trabaja miércoles
+    '10': 10 horas habituales que trabaja miércoles
+    '11': 11 horas habituales que trabaja miércoles
+    '12': 12 horas habituales que trabaja miércoles
+    '13': 13 horas habituales que trabaja miércoles
+    '14': 14 horas habituales que trabaja miércoles
+    '15': 15 horas habituales que trabaja miércoles
+    '16': 16 horas habituales que trabaja miércoles
+    '17': 17 horas habituales que trabaja miércoles
+    '18': 18 horas habituales que trabaja miércoles
+    '24': 24 horas habituales que trabaja miércoles
     '0': '0'
     '1': '1'
+    '19': '19'
     '2': '2'
+    '20': '20'
     '3': '3'
     '4': '4'
     '5': '5'
@@ -1977,401 +2134,350 @@ P5D_HMI:
     '7': '7'
     '8': '8'
     '9': '9'
-    '10': '10'
-    '11': '11'
-    '12': '12'
-    '13': '13'
-    '14': '14'
-    '15': '15'
-    '16': '16'
-    '17': '17'
-    '18': '18'
-    '19': '19'
-    '20': '20'
-    '24': '24'
-    '98': '98'
-    '99': '99'
-    ' ': ' '
+  Nota: 'códigos observados sin etiqueta en el DDI: [''0'', ''1'', ''19'', ''2'', ''20'', ''3'', ''4'',
+    ''5'', ''6'', ''7'', ''8'', ''9'']'
+  Especiales:
+    '98': Trabajó ese día, pero no sabe cuanto tiempo
+    '99': No sabe
 P5D_MMI:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Minutos que le dedica habitualmente a su trabajo el miércoles
+  Pregunta: ¿Qué días y cuántas horas le dedica habitualmente... a su trabajo?.
+  Tipo: categorical
+  Longitud: '2'
   Categorías:
+    '00': 0 minutos habituales que trabaja miércoles
+    '05': 5 minutos habituales que trabaja miércoles
+    '06': 6 minutos habituales que trabaja miércoles
+    08: 8 minutos habituales que trabaja miércoles
+    '10': 10 minutos habituales que trabaja miércoles
+    '15': 15 minutos habituales que trabaja miércoles
+    '20': 20 minutos habituales que trabaja miércoles
+    '30': 30 minutos habituales que trabaja miércoles
+    '36': 36 minutos habituales que trabaja miércoles
+    '39': 39 minutos habituales que trabaja miércoles
+    '40': 40 minutos habituales que trabaja miércoles
+    '45': 45 minutos habituales que trabaja miércoles
+    '50': 50 minutos habituales que trabaja miércoles
     '0': '0'
     '1': '1'
-    '5': '5'
-    '6': '6'
-    '8': '8'
-    '10': '10'
     '12': '12'
-    '15': '15'
-    '20': '20'
     '23': '23'
     '25': '25'
-    '30': '30'
-    '36': '36'
-    '39': '39'
-    '40': '40'
-    '45': '45'
-    '50': '50'
-    ' ': ' '
+    '5': '5'
+    '6': '6'
+    '8': '8'
+  Nota: 'códigos observados sin etiqueta en el DDI: [''0'', ''1'', ''12'', ''23'', ''25'', ''5'', ''6'',
+    ''8'']'
 P5D_HJU:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
-  Categorías:
-    '0': '0'
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '5': '5'
-    '6': '6'
-    '7': '7'
-    '8': '8'
-    '9': '9'
-    '10': '10'
-    '11': '11'
-    '12': '12'
-    '13': '13'
-    '14': '14'
-    '15': '15'
-    '16': '16'
-    '17': '17'
-    '18': '18'
-    '19': '19'
-    '20': '20'
-    '24': '24'
-    '98': '98'
-    '99': '99'
-    ' ': ' '
-P5D_MJU:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
-  Categorías:
-    '0': '0'
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '5': '5'
-    '7': '7'
-    '8': '8'
-    '9': '9'
-    '10': '10'
-    '12': '12'
-    '15': '15'
-    '20': '20'
-    '25': '25'
-    '30': '30'
-    '36': '36'
-    '39': '39'
-    '40': '40'
-    '45': '45'
-    '50': '50'
-    ' ': ' '
-P5D_HVI:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
-  Categorías:
-    '0': '0'
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '5': '5'
-    '6': '6'
-    '7': '7'
-    '8': '8'
-    '9': '9'
-    '10': '10'
-    '11': '11'
-    '12': '12'
-    '13': '13'
-    '14': '14'
-    '15': '15'
-    '16': '16'
-    '17': '17'
-    '18': '18'
-    '19': '19'
-    '24': '24'
-    '98': '98'
-    '99': '99'
-    ' ': ' '
-P5D_MVI:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
-  Categorías:
-    '0': '0'
-    '1': '1'
-    '5': '5'
-    '6': '6'
-    '8': '8'
-    '9': '9'
-    '10': '10'
-    '12': '12'
-    '15': '15'
-    '20': '20'
-    '25': '25'
-    '30': '30'
-    '36': '36'
-    '39': '39'
-    '40': '40'
-    '45': '45'
-    '50': '50'
-    ' ': ' '
-P5D_HSA:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
-  Categorías:
-    '0': '0'
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '5': '5'
-    '6': '6'
-    '7': '7'
-    '8': '8'
-    '9': '9'
-    '10': '10'
-    '11': '11'
-    '12': '12'
-    '13': '13'
-    '14': '14'
-    '15': '15'
-    '16': '16'
-    '17': '17'
-    '18': '18'
-    '19': '19'
-    '20': '20'
-    '24': '24'
-    '98': '98'
-    ' ': ' '
-P5D_MSA:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
-  Categorías:
-    '0': '0'
-    '2': '2'
-    '5': '5'
-    '10': '10'
-    '12': '12'
-    '15': '15'
-    '20': '20'
-    '30': '30'
-    '40': '40'
-    '45': '45'
-    '50': '50'
-    ' ': ' '
-P5D_HDO:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
-  Categorías:
-    '0': '0'
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '5': '5'
-    '6': '6'
-    '7': '7'
-    '8': '8'
-    '9': '9'
-    '10': '10'
-    '11': '11'
-    '12': '12'
-    '13': '13'
-    '14': '14'
-    '15': '15'
-    '16': '16'
-    '17': '17'
-    '18': '18'
-    '19': '19'
-    '20': '20'
-    '24': '24'
-    '98': '98'
-    ' ': ' '
-P5D_MDO:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
-  Categorías:
-    '0': '0'
-    '1': '1'
-    '2': '2'
-    '8': '8'
-    '10': '10'
-    '11': '11'
-    '12': '12'
-    '14': '14'
-    '15': '15'
-    '30': '30'
-    ' ': ' '
-P5D_THRS:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Horas que le dedica habitualmente a su trabajo el jueves
+  Pregunta: ¿Qué días y cuántas horas le dedica habitualmente... a su trabajo?.
+  Tipo: numeric
+  Longitud: '2'
   Categorías: {}
+  Especiales:
+    '98': Trabajó ese día, pero no sabe cuanto tiempo
+    '99': No sabe
+  Nota: 'numérica: el DDI sólo enumera códigos especiales'
+P5D_MJU:
+  Descripción: Minutos que le dedica habitualmente a su trabajo el jueves
+  Pregunta: ¿Qué días y cuántas horas le dedica habitualmente... a su trabajo?.
+  Tipo: numeric
+  Longitud: '2'
+  Categorías: {}
+  Nota: 'numérica: el DDI sólo enumera códigos especiales'
+P5D_HVI:
+  Descripción: Horas que le dedica habitualmente a su trabajo el viernes
+  Pregunta: ¿Qué días y cuántas horas le dedica habitualmente... a su trabajo?.
+  Tipo: categorical
+  Longitud: '2'
+  Categorías:
+    '00': 0 horas habituales que trabaja viernes
+    '01': 1 hora habitual que trabaja viernes
+    '02': 2 horas habituales que trabaja viernes
+    '03': 3 horas habituales que trabaja viernes
+    '04': 4 horas habituales que trabaja viernes
+    '05': 5 horas habituales que trabaja viernes
+    '06': 6 horas habituales que trabaja viernes
+    '07': 7 horas habituales que trabaja viernes
+    08: 8 horas habituales que trabaja viernes
+    09: 9 horas habituales que trabaja viernes
+    '10': 10 horas habituales que trabaja viernes
+    '11': 11 horas habituales que trabaja viernes
+    '12': 12 horas habituales que trabaja viernes
+    '13': 13 horas habituales que trabaja viernes
+    '14': 14 horas habituales que trabaja viernes
+    '15': 15 horas habituales que trabaja viernes
+    '16': 16 horas habituales que trabaja viernes
+    '17': 17 horas habituales que trabaja viernes
+    '18': 18 horas habituales que trabaja viernes
+    '24': 24 horas habituales que trabaja viernes
+    '0': '0'
+    '1': '1'
+    '19': '19'
+    '2': '2'
+    '3': '3'
+    '4': '4'
+    '5': '5'
+    '6': '6'
+    '7': '7'
+    '8': '8'
+    '9': '9'
+  Nota: 'códigos observados sin etiqueta en el DDI: [''0'', ''1'', ''19'', ''2'', ''3'', ''4'', ''5'',
+    ''6'', ''7'', ''8'', ''9'']'
+  Especiales:
+    '98': Trabajó ese día, pero no sabe cuanto tiempo
+    '99': No sabe
+P5D_MVI:
+  Descripción: Minutos que le dedica habitualmente a su trabajo el viernes
+  Pregunta: ¿Qué días y cuántas horas le dedica habitualmente... a su trabajo?.
+  Tipo: categorical
+  Longitud: '2'
+  Categorías:
+    '00': 0 minutos habituales que trabaja viernes
+    '05': 5 minutos habituales que trabaja viernes
+    '06': 6 minutos habituales que trabaja viernes
+    08: 8 minutos habituales que trabaja viernes
+    09: 9 minutos habituales que trabaja viernes
+    '10': 10 minutos habituales que trabaja viernes
+    '15': 15 minutos habituales que trabaja viernes
+    '20': 20 minutos habituales que trabaja viernes
+    '30': 30 minutos habituales que trabaja viernes
+    '36': 36 minutos habituales que trabaja viernes
+    '39': 39 minutos habituales que trabaja viernes
+    '40': 40 minutos habituales que trabaja viernes
+    '45': 45 minutos habituales que trabaja viernes
+    '50': 50 minutos habituales que trabaja viernes
+    '0': '0'
+    '1': '1'
+    '12': '12'
+    '25': '25'
+    '5': '5'
+    '6': '6'
+    '8': '8'
+    '9': '9'
+  Nota: 'códigos observados sin etiqueta en el DDI: [''0'', ''1'', ''12'', ''25'', ''5'', ''6'', ''8'',
+    ''9'']'
+P5D_HSA:
+  Descripción: Horas que le dedica habitualmente a su trabajo el sábado
+  Pregunta: ¿Qué días y cuántas horas le dedica habitualmente... a su trabajo?.
+  Tipo: categorical
+  Longitud: '2'
+  Categorías:
+    '0': 0 horas habituales que trabaja sábado
+    '1': 1 horas habituales que trabaja sábado
+    '2': 2 horas habituales que trabaja sábado
+    '3': 3 horas habituales que trabaja sábado
+    '4': 4 horas habituales que trabaja sábado
+    '5': 5 horas habituales que trabaja sábado
+    '6': 6 horas habituales que trabaja sábado
+    '7': 7 horas habituales que trabaja sábado
+    '8': 8 horas habituales que trabaja sábado
+    '9': 9 horas habituales que trabaja sábado
+    '10': 10 horas habituales que trabaja sábado
+    '11': 11 horas habituales que trabaja sábado
+    '12': 12 horas habituales que trabaja sábado
+    '13': 13 horas habituales que trabaja sábado
+    '14': 14 horas habituales que trabaja sábado
+    '15': 15 horas habituales que trabaja sábado
+    '16': 16 horas habituales que trabaja sábado
+    '17': 17 horas habituales que trabaja sábado
+    '18': 18 horas habituales que trabaja sábado
+    '19': 19 horas habituales que trabaja sábado
+    '20': 20 horas habituales que trabaja sábado
+    '21': 21 horas habituales que trabaja sábado
+    '24': 24 horas habituales que trabaja sábado
+  Especiales:
+    '98': Trabajó ese día, pero no sabe cuanto tiempo
+    '99': No sabe
+P5D_MSA:
+  Descripción: Minutos que le dedica habitualmente a su trabajo el sábado
+  Pregunta: ¿Qué días y cuántas horas le dedica habitualmente... a su trabajo?.
+  Tipo: numeric
+  Longitud: '2'
+  Categorías: {}
+  Nota: 'numérica: el DDI sólo enumera códigos especiales'
+P5D_HDO:
+  Descripción: Horas que le dedica habitualmente a su trabajo el domingo
+  Pregunta: ¿Qué días y cuántas horas le dedica habitualmente... a su trabajo?.
+  Tipo: numeric
+  Longitud: '2'
+  Categorías: {}
+  Especiales:
+    '98': Trabajó ese día, pero no sabe cuanto tiempo
+  Nota: 'numérica: el DDI sólo enumera códigos especiales'
+P5D_MDO:
+  Descripción: Minutos que le dedica habitualmente a su trabajo el domingo
+  Pregunta: ¿Qué días y cuántas horas le dedica habitualmente... a su trabajo?.
+  Tipo: numeric
+  Longitud: '2'
+  Categorías: {}
+  Nota: 'numérica: el DDI sólo enumera códigos especiales'
+P5D_THRS:
+  Descripción: Total de horas que le dedica habitualmente a su trabajo
+  Pregunta: ¿Qué días y cuántas horas le dedica habitualmente... a su trabajo?.
+  Tipo: numeric
+  Longitud: '3'
+  Categorías: {}
+  Especiales:
+    '999': '999'
 P5D_TDIA:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Total de días que le dedica habitualmente a su trabajo
+  Pregunta: ¿Qué días y cuántas horas le dedica habitualmente... a su trabajo?.
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '5': '5'
-    '6': '6'
-    '7': '7'
-    '9': '9'
-    ' ': ' '
+    '1': 1 total de días habituales
+    '2': 2 total de días habituales
+    '3': 3 total de días habituales
+    '4': 4 total de días habituales
+    '5': 5 total de día habituales
+    '6': 6 total de días habituales
+    '7': 7 total de días habituales
+  Especiales:
+    '9': No sabe días habituales
 P5E:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Motivo por el que no trabajó horas habituales
+  Pregunta: ¿Cuál es el motivo principal por el que la semana pasada ... no trabajó las horas habituales?.
+  Tipo: categorical
+  Longitud: '2'
   Categorías:
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '5': '5'
-    '6': '6'
-    '7': '7'
-    '8': '8'
-    '9': '9'
-    '10': '10'
-    '11': '11'
-    '12': '12'
-    '99': '99'
-    ' ': ' '
+    '1': Exceso de trabajo
+    '2': Obtener más ingresos
+    '3': Horas extras
+    '4': Temporada alta
+    '5': Reducción o suspensión del trabajo
+    '6': Término del contrato o temporada de trabajo
+    '7': Causas climatológicas
+    '8': Vacaciones o días festivos
+    '9': Enfermedad o accidente
+    '10': Cuidar o atender a niños, enfermos o ancianos
+    '11': Otros motivos personales o familiares
+    '12': Ninguno de los anteriores
+  Especiales:
+    '99': No sabe
 P5F1:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Realiza el trabajo en Enero
+  Pregunta: ¿En qué meses del año ... realiza este trabajo?.
+  Tipo: categorical
+  Longitud: '2'
   Categorías:
-    '1': '1'
-    ' ': ' '
+    '1': Trabaja en enero
 P5F2:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Realiza el trabajo en Febrero
+  Pregunta: ¿En qué meses del año ... realiza este trabajo?.
+  Tipo: categorical
+  Longitud: '2'
   Categorías:
-    '2': '2'
-    ' ': ' '
+    '2': Trabaja en febrero
 P5F3:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Realiza el trabajo en Marzo
+  Pregunta: ¿En qué meses del año ... realiza este trabajo?.
+  Tipo: categorical
+  Longitud: '2'
   Categorías:
-    '3': '3'
-    ' ': ' '
+    '3': Trabaja en marzo
 P5F4:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Realiza el trabajo en Abril
+  Pregunta: ¿En qué meses del año ... realiza este trabajo?.
+  Tipo: categorical
+  Longitud: '2'
   Categorías:
-    '4': '4'
-    ' ': ' '
+    '4': Trabaja en abril
 P5F5:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Realiza el trabajo en Mayo
+  Pregunta: ¿En qué meses del año ... realiza este trabajo?.
+  Tipo: categorical
+  Longitud: '2'
   Categorías:
-    '5': '5'
-    ' ': ' '
+    '5': Trabaja en mayo
 P5F6:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Realiza el trabajo en Junio
+  Pregunta: ¿En qué meses del año ... realiza este trabajo?.
+  Tipo: categorical
+  Longitud: '2'
   Categorías:
-    '6': '6'
-    ' ': ' '
+    '6': Trabaja en junio
 P5F7:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Realiza el trabajo en Julio
+  Pregunta: ¿En qué meses del año ... realiza este trabajo?.
+  Tipo: categorical
+  Longitud: '2'
   Categorías:
-    '7': '7'
-    ' ': ' '
+    '7': Trabaja en julio
 P5F8:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Realiza el trabajo en Agosto
+  Pregunta: ¿En qué meses del año ... realiza este trabajo?.
+  Tipo: categorical
+  Longitud: '2'
   Categorías:
-    '8': '8'
-    ' ': ' '
+    '8': Trabaja en agosto
 P5F9:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Realiza el trabajo en Septiembre
+  Pregunta: ¿En qué meses del año ... realiza este trabajo?.
+  Tipo: categorical
+  Longitud: '2'
   Categorías:
-    '9': '9'
-    ' ': ' '
+    '9': Trabaja en septiembre
 P5F10:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Realiza el trabajo en Octubre
+  Pregunta: ¿En qué meses del año ... realiza este trabajo?.
+  Tipo: categorical
+  Longitud: '2'
   Categorías:
-    '10': '10'
-    ' ': ' '
+    '10': Trabaja en octubre
 P5F11:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Realiza el trabajo en Noviembre
+  Pregunta: ¿En qué meses del año ... realiza este trabajo?.
+  Tipo: categorical
+  Longitud: '2'
   Categorías:
-    '11': '11'
-    ' ': ' '
+    '11': Trabaja en noviembre
 P5F12:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Realiza el trabajo en Diciembre
+  Pregunta: ¿En qué meses del año ... realiza este trabajo?.
+  Tipo: categorical
+  Longitud: '2'
   Categorías:
-    '12': '12'
-    ' ': ' '
+    '12': Trabaja en diciembre
 P5F13:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Varían los meses en que trabaja
+  Pregunta: ¿En qué meses del año ... realiza este trabajo?.
+  Tipo: categorical
+  Longitud: '2'
   Categorías:
-    '13': '13'
-    ' ': ' '
+    '13': Varían los meses en que trabaja
 P5F14:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Trabaja todos los meses del año
+  Pregunta: ¿En qué meses del año ... realiza este trabajo?.
+  Tipo: categorical
+  Longitud: '2'
   Categorías:
-    '14': '14'
-    ' ': ' '
+    '14': Trabaja todos los meses del año
 P5F15:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Tiene menos de un año en el trabajo
+  Pregunta: ¿En qué meses del año ... realiza este trabajo?.
+  Tipo: categorical
+  Longitud: '2'
   Categorías:
-    '15': '15'
-    ' ': ' '
+    '15': Tiene menos de un año en este trabajo
 P5F99:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: No especifica cuando realiza el trabajo
+  Pregunta: ¿En qué meses del año ... realiza este trabajo?.
+  Tipo: categorical
+  Longitud: '2'
   Categorías:
-    '99': '99'
-    ' ': ' '
+    '99': No sabe
 UR:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Variable de apoyo
+  Pregunta: Variable de apoyo del sistema de captura.
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '1': '1'
-    '2': '2'
+    '1': Urbano
+    '2': Rural
 FAC:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Factor de expansión
+  Pregunta: No existe pregunta, es un dato calculado.
+  Tipo: numeric
+  Longitud: '5'
   Categorías: {}
