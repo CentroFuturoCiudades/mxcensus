@@ -1,62 +1,65 @@
 folioviv:
-  Descripción: Identificador de la vivienda (folio). Los dos primeros caracteres son
-    la clave de la entidad federativa.
-  Tipo: str
+  Descripción: Identificador de la vivienda (folio). Los dos primeros caracteres son la clave de la entidad
+    federativa.
+  Tipo: string
   Longitud: 6 (2008–2012) / 10 (2014+)
   Categorías: {}
 foliohog:
   Descripción: Identificador del hogar dentro de la vivienda.
-  Tipo: str
+  Tipo: string
   Longitud: '1'
   Categorías: {}
 numren:
   Descripción: Número de renglón (identificador de la persona dentro del hogar).
-  Tipo: str
+  Tipo: string
   Longitud: '2'
   Categorías: {}
 numtrab:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Identificador del trabajo
+  Pregunta: ''
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '1': '1'
-    '2': '2'
+    '1': Trabajo principal
+    '2': Trabajo secundario
 trapais:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Trabajo dentro del país
+  Pregunta: Este trabajo ¿lo realizó dentro del país?
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '1': '1'
-    '2': '2'
+    '1': Sí
+    '2': 'No'
 subor:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Subordinado
+  Pregunta: ¿En su trabajo tuvo un jefe(a) o supervisor?
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '1': '1'
-    '2': '2'
+    '1': Sí
+    '2': 'No'
 indep:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Independiente
+  Pregunta: Entonces, ¿se dedicó a un negocio o actividad por su cuenta?
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '1': '1'
-    '2': '2'
-    ' ': ' '
+    '1': Sí
+    '2': 'No'
 personal:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Personal
+  Pregunta: ¿Tuvo empleados o le ayudaron personas en su negocio o actividad?
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '1': '1'
-    '2': '2'
-    ' ': ' '
+    '1': Sí
+    '2': 'No'
 trab_1:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Personal con pago
+  Pregunta: De las personas que ocupó o le ayudaron, ¿cuántos son trabajadores que reciben un pago?
+  Tipo: categorical
+  Longitud: '3'
   Categorías:
-    '-1': '-1'
     '0': '0'
     '1': '1'
     '2': '2'
@@ -105,13 +108,14 @@ trab_1:
     '252': '252'
     '290': '290'
     '800': '800'
-    ' ': ' '
+  Especiales:
+    '-1': No especificado
 trab_2:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Personal socios
+  Pregunta: De las personas que ocupó o le ayudaron, ¿cuántos son socios?
+  Tipo: categorical
+  Longitud: '3'
   Categorías:
-    '-1': '-1'
     '0': '0'
     '1': '1'
     '2': '2'
@@ -125,13 +129,14 @@ trab_2:
     '16': '16'
     '20': '20'
     '180': '180'
-    ' ': ' '
+  Especiales:
+    '-1': No especificado
 trab_3:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Personal sin pagos
+  Pregunta: De las personas que ocupó o le ayudaron, ¿cuántos son trabajadores sin pago?
+  Tipo: categorical
+  Longitud: '3'
   Categorías:
-    '-1': '-1'
     '0': '0'
     '1': '1'
     '2': '2'
@@ -146,13 +151,14 @@ trab_3:
     '15': '15'
     '50': '50'
     '400': '400'
-    ' ': ' '
+  Especiales:
+    '-1': No especificado
 trab_4:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Personal sin clasificar
+  Pregunta: De las personas que ocupó o le ayudaron, ¿cuántos no sabe que tipo de trabajadores son?
+  Tipo: categorical
+  Longitud: '3'
   Categorías:
-    '-1': '-1'
     '0': '0'
     '1': '1'
     '4': '4'
@@ -161,396 +167,390 @@ trab_4:
     '9': '9'
     '48': '48'
     '999': '999'
-    ' ': ' '
+  Especiales:
+    '-1': No especificado
 pago:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Pago
+  Pregunta: ¿En ese trabajo…
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    ' ': ' '
+    '1': Recibe un pago
+    '2': Es un trabajador(a) sin pago en un negocio del hogar
+    '3': Es un trabajador(a) sin pago en en negocio que no es del hogar
 contrato:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Contrato
+  Pregunta: ¿En su trabajo cuenta con un contrato escrito?
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    ' ': ' '
+    '1': Sí
+    '2': 'No'
+    '3': No sabe
 tipocontr:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Tipo de contrato
+  Pregunta: ¿El contrato es…
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    ' ': ' '
+    '1': Temporal o por obra determinada
+    '2': De base, planta o por tiempo indeterminado
+    '3': No sabe
 pres_1:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Prestaciones sociales en el trabajo
+  Pregunta: ¿En este trabajo le dieron las siguientes prestaciones, aunque no las haya utilizado?
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '1': '1'
-    ' ': ' '
+    '1': Incapacidad en caso de enfermedad, accidente o maternidad
 pres_2:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Prestaciones sociales en el trabajo
+  Pregunta: ¿En este trabajo le dieron las siguientes prestaciones, aunque no las haya utilizado?
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '2': '2'
-    ' ': ' '
+    '2': Aguinaldo
 pres_3:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Prestaciones sociales en el trabajo
+  Pregunta: ¿En este trabajo le dieron las siguientes prestaciones, aunque no las haya utilizado?
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '3': '3'
-    ' ': ' '
+    '3': Vacaciones con goce de sueldo
 pres_4:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Prestaciones sociales en el trabajo
+  Pregunta: ¿En este trabajo le dieron las siguientes prestaciones, aunque no las haya utilizado?
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '4': '4'
-    ' ': ' '
+    '4': Reparto de utilidades
 pres_5:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Prestaciones sociales en el trabajo
+  Pregunta: ¿En este trabajo le dieron las siguientes prestaciones, aunque no las haya utilizado?
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '5': '5'
-    ' ': ' '
+    '5': Crédito de vivienda
 pres_6:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Prestaciones sociales en el trabajo
+  Pregunta: ¿En este trabajo le dieron las siguientes prestaciones, aunque no las haya utilizado?
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '6': '6'
-    ' ': ' '
+    '6': Guarderías y estancias infantiles
 pres_7:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Prestaciones sociales en el trabajo
+  Pregunta: ¿En este trabajo le dieron las siguientes prestaciones, aunque no las haya utilizado?
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '7': '7'
-    ' ': ' '
+    '7': Tiempo para cuidados maternos o paternos
 pres_8:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Prestaciones sociales en el trabajo
+  Pregunta: ¿En este trabajo le dieron las siguientes prestaciones, aunque no las haya utilizado?
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '8': '8'
-    ' ': ' '
+    '8': SAR o AFORE
 pres_9:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Prestaciones sociales en el trabajo
+  Pregunta: ¿En este trabajo le dieron las siguientes prestaciones, aunque no las haya utilizado?
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '9': '9'
-    ' ': ' '
+    '9': Seguro de vida
 pres_10:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Prestaciones sociales en el trabajo
+  Pregunta: ¿En este trabajo le dieron las siguientes prestaciones, aunque no las haya utilizado?
+  Tipo: categorical
+  Longitud: '2'
   Categorías:
-    '10': '10'
-    ' ': ' '
+    '10': Prestamos personales y/o caja de ahorro
 pres_11:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Prestaciones sociales en el trabajo
+  Pregunta: ¿En este trabajo le dieron las siguientes prestaciones, aunque no las haya utilizado?
+  Tipo: categorical
+  Longitud: '2'
   Categorías:
-    '11': '11'
-    ' ': ' '
+    '11': Prima vacacional
 pres_12:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Prestaciones sociales en el trabajo
+  Pregunta: ¿En este trabajo le dieron las siguientes prestaciones, aunque no las haya utilizado?
+  Tipo: categorical
+  Longitud: '2'
   Categorías:
-    '12': '12'
-    ' ': ' '
+    '12': Becas y apoyos educativos
 pres_13:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Prestaciones sociales en el trabajo
+  Pregunta: ¿En este trabajo le dieron las siguientes prestaciones, aunque no las haya utilizado?
+  Tipo: categorical
+  Longitud: '2'
   Categorías:
-    '13': '13'
-    ' ': ' '
+    '13': Servicio de comedor
 pres_14:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Prestaciones sociales en el trabajo
+  Pregunta: ¿En este trabajo le dieron las siguientes prestaciones, aunque no las haya utilizado?
+  Tipo: categorical
+  Longitud: '2'
   Categorías:
-    '14': '14'
-    ' ': ' '
+    '14': Crédito FONACOT
 pres_15:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Prestaciones sociales en el trabajo
+  Pregunta: ¿En este trabajo le dieron las siguientes prestaciones, aunque no las haya utilizado?
+  Tipo: categorical
+  Longitud: '2'
   Categorías:
-    '15': '15'
-    ' ': ' '
+    '15': Ayuda de despensas
 pres_16:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Prestaciones sociales en el trabajo
+  Pregunta: ¿En este trabajo le dieron las siguientes prestaciones, aunque no las haya utilizado?
+  Tipo: categorical
+  Longitud: '2'
   Categorías:
-    '16': '16'
-    ' ': ' '
+    '16': Ayuda o exención en el pago de luz, agua o teléfono
 pres_17:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Prestaciones sociales en el trabajo
+  Pregunta: ¿En este trabajo le dieron las siguientes prestaciones, aunque no las haya utilizado?
+  Tipo: categorical
+  Longitud: '2'
   Categorías:
-    '17': '17'
-    ' ': ' '
+    '17': Pensión en caso de invalidez
 pres_18:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Prestaciones sociales en el trabajo
+  Pregunta: ¿En este trabajo le dieron las siguientes prestaciones, aunque no las haya utilizado?
+  Tipo: categorical
+  Longitud: '2'
   Categorías:
-    '18': '18'
-    ' ': ' '
+    '18': Pensión para sus familiares en caso de fallecimiento
 pres_19:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Prestaciones sociales en el trabajo
+  Pregunta: ¿En este trabajo le dieron las siguientes prestaciones, aunque no las haya utilizado?
+  Tipo: categorical
+  Longitud: '2'
   Categorías:
-    '19': '19'
-    ' ': ' '
+    '19': Otras prestaciones
 pres_20:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Prestaciones sociales en el trabajo
+  Pregunta: ¿En este trabajo le dieron las siguientes prestaciones, aunque no las haya utilizado?
+  Tipo: categorical
+  Longitud: '2'
   Categorías:
-    '20': '20'
-    ' ': ' '
+    '20': No tiene prestaciones provenientes de su trabajo
 htrab:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Horas trabajadas
+  Pregunta: El mes pasado en este trabajo, ¿cuántas horas a la semana trabajó?
+  Tipo: numeric
+  Longitud: '3'
   Categorías: {}
 cmo:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Clasificación Mexicana de Ocupaciones
+  Pregunta: ''
+  Tipo: numeric
+  Longitud: '4'
   Categorías: {}
 scian:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Sistema de Clasificación Industrial de América del Norte
+  Pregunta: ''
+  Tipo: numeric
+  Longitud: '4'
   Categorías: {}
 clas_emp:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Clasificación de la empresa
+  Pregunta: 'Entonces ¿estamos hablando de que esta empresa es:'
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
+    '1': De tipo independiente, personal o familiar
+    '2': 'Una compañía o empresa del sector privado (sociedad mercantil: anónima o bajo otra modalidad;
+      transnacional, cadena comercial, bancaria o de servicios)'
+    '3': Una institución de gobierno
+    '4': Una institución no administrada por el gobierno
 tipoact:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Tipo de actividad
+  Pregunta: El mes pasado, ¿a qué se dedicó su empresa o negocio?
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '5': '5'
-    '6': '6'
-    '7': '7'
-    '8': '8'
-    '9': '9'
-    ' ': ' '
+    '1': Industrial
+    '2': Comercial
+    '3': De servicios
+    '4': Actividades agrícolas
+    '5': Actividades de cría y explotación de animales
+    '6': Actividades de recolección
+    '7': Reforestación y tala de arboles
+    '8': Actividades de caza y captura de animales
+    '9': Actividades de pesca
 tam_emp:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Tamaño de la empresa
+  Pregunta: Durante el mes pasado, ¿cuántas personas incluyéndose usted laboraron en esta empresa o negocio?
+  Tipo: categorical
+  Longitud: '2'
   Categorías:
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '5': '5'
-    '6': '6'
-    '7': '7'
-    '8': '8'
-    '9': '9'
-    '10': '10'
-    '11': '11'
-    '12': '12'
+    '1': De 1 persona
+    '2': De 2 a 5 personas
+    '3': De 6 a 10 personas
+    '4': De 11 a 15 personas
+    '5': De 16 a 20 personas
+    '6': De 21 a 30 personas
+    '7': De 31 a 50 personas
+    '8': De 51 a 100 personas
+    '9': De 101 a 250 personas
+    '10': De 251 a 500 personas
+    '11': De 501 a más personas
+    '12': No sabe
 p49:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Causa de no recepción de ingresos
+  Pregunta: ¿Por qué causa no recibió ingresos por ese trabajo?
+  Tipo: categorical
+  Longitud: '3'
   Categorías:
-    '101': '101'
-    '102': '102'
-    '103': '103'
-    '104': '104'
-    '105': '105'
-    '107': '107'
-    '199': '199'
-    '311': '311'
-    '399': '399'
-    '601': '601'
-    '602': '602'
-    '699': '699'
-    ' ': ' '
+    '101': Pago en especie,Trabajo principal para subordinados
+    '102': No le ha pagado,Trabajo principal para subordinados
+    '103': Está contratado pero no ha iniciado sus actividades,Trabajo principal para subordinados
+    '104': Incapacidad temporal (enfermedad, accidente, etcétera),Trabajo principal para subordinados
+    '105': Falta de trabajo (cierre temporal de la empresa, negocio o comercio pero sin haber sido despedido),Trabajo
+      principal para subordinados
+    '107': Inicio de labores y no hay gastos ni ingresos,Trabajo principal para subordinados
+    '199': Otras causas no consideradas en las anteriores.,Trabajo principal para subordinados
+    '311': Escasez de materiales y reparación del equipo para la producción o venta.,Trabajo principal
+      para independientes (cooperativas, sociedades y empresas que funcionan como sociedades)
+    '399': Otras causas no consideradas en las anteriores.,Trabajo principal para independientes (cooperativas,
+      sociedades y empresas que funcionan como sociedades)
+    '601': Pago en especie,Trabajo secundario para subordinados
+    '602': No le ha pagado,Trabajo secundario para subordinados
+    '699': Otras causas no consideradas en las anteriores.,Trabajo secundario para subordinados
 tiene_suel:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Asignación de sueldo
+  Pregunta: ¿En este trabajo usted recibió o tuvo asignado un sueldo?
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '1': '1'
-    '2': '2'
-    ' ': ' '
+    '1': Sí
+    '2': 'No'
 otro_trab:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Identificación de otro trabajo en el mes pasado
+  Pregunta: Además de este trabajo, ¿tuvo algún otro el mes pasado?
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '1': '1'
-    '2': '2'
-    ' ': ' '
+    '1': Sí
+    '2': 'No'
 mismo_patr:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Confirmación de otro trabajo en el mes pasado
+  Pregunta: ¿Este trabajo lo realizó en la misma empresa o tiene el mismo patrón que en su trabajo principal?
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '1': '1'
-    '2': '2'
-    ' ': ' '
+    '1': Sí
+    '2': 'No'
 socios:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Socios del negocio
+  Pregunta: ¿En este negocio cuenta con socios que no son integrantes del hogar?
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '1': '1'
-    '2': '2'
-    ' ': ' '
+    '1': Sí
+    '2': 'No'
 soc_nr1:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
-  Categorías:
-    '01': '01'
-    '02': '02'
-    '03': '03'
-    '04': '04'
-    '05': '05'
-    '06': '06'
-    '07': '07'
-    ' ': ' '
+  Descripción: Socios del negocio
+  Pregunta: ¿Quiénes son?
+  Tipo: numeric
+  Longitud: '2'
+  Categorías: {}
+  Nota: 'numérica: el DDI sólo enumera códigos especiales'
 soc_nr2:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
-  Categorías:
-    '01': '01'
-    '02': '02'
-    '03': '03'
-    '04': '04'
-    '05': '05'
-    ' ': ' '
+  Descripción: Socios del negocio
+  Pregunta: ¿Quiénes son?
+  Tipo: numeric
+  Longitud: '2'
+  Categorías: {}
+  Nota: 'numérica: el DDI sólo enumera códigos especiales'
 soc_resp:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
-  Categorías:
-    '01': '01'
-    '02': '02'
-    '03': '03'
-    '04': '04'
-    '05': '05'
-    '06': '06'
-    '07': '07'
-    '10': '10'
-    ' ': ' '
+  Descripción: Responsable del negocio
+  Pregunta: ¿Quién es la persona que podría proporcionar información sobre este negocio?
+  Tipo: numeric
+  Longitud: '2'
+  Categorías: {}
+  Nota: 'numérica: el DDI sólo enumera códigos especiales'
 otra_act:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Otras actividades del negocio
+  Pregunta: Además de la actividad mencionada, el mes pasado, ¿realizó alguna otra actividad en el negocio?
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '1': '1'
-    '2': '2'
-    ' ': ' '
+    '1': Sí
+    '2': 'No'
 tipoact2:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Otras actividades del negocio
+  Pregunta: Además de la actividad mencionada, el mes pasado, ¿realizó alguna otra actividad en el negocio?
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '5': '5'
-    '6': '6'
-    '7': '7'
-    ' ': ' '
+    '1': Industrial
+    '2': Comercial
+    '3': De servicios
+    '4': Actividades agrícolas
+    '5': Actividades de cría y explotación de animales
+    '6': Actividades de recolección
+    '7': Reforestación y tala de arboles
 tipoact3:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Otras actividades del negocio
+  Pregunta: Además de la actividad mencionada, el mes pasado, ¿realizó alguna otra actividad en el negocio?
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '5': '5'
-    ' ': ' '
+    '1': Industrial
+    '2': Comercial
+    '3': De servicios
+    '4': Actividades agrícolas
+    '5': Actividades de cría y explotación de animales
 tipoact4:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Otras actividades del negocio
+  Pregunta: Además de la actividad mencionada, el mes pasado, ¿realizó alguna otra actividad en el negocio?
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '3': '3'
-    '4': '4'
-    ' ': ' '
+    '3': De servicios
+    '4': Actividades agrícolas
 lugar:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Confirmación de establecimiento
+  Pregunta: ¿Esta(s) actividad(es) la(s) realizó en el mismo lugar o establecimiento que la actividad
+    principal?
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '1': '1'
-    '2': '2'
-    ' ': ' '
+    '1': Sí
+    '2': 'No'
 conf_per:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Confirmación de personal
+  Pregunta: ¿El personal empleado es el mismo que utilizó en la actividad principal?
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '1': '1'
-    '2': '2'
-    ' ': ' '
+    '1': Sí
+    '2': 'No'
 reg_not:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Registro ante notario
+  Pregunta: ¿Su negocio cuenta con un registro ante notario como sociedad o cooperativa?
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '1': '1'
-    '2': '2'
-    ' ': ' '
+    '1': Sí
+    '2': 'No'
 reg_cont:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Registro contable
+  Pregunta: En este negocio o actividad, ¿se cuenta con los servicios de un contador?
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '1': '1'
-    '2': '2'
-    ' ': ' '
+    '1': Sí
+    '2': 'No'
 com_fis:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Comprobantes fiscales
+  Pregunta: ¿Qué tipo de comprobantes de venta expide a sus clientes?
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    ' ': ' '
+    '1': Expide facturas
+    '2': Solo expide notas o ticket de venta
+    '3': Ninguno

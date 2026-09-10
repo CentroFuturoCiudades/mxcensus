@@ -33,6 +33,7 @@ Metadata modes (from parquet already on disk, no download):
 from __future__ import annotations
 
 import argparse
+import functools
 import re
 import shutil
 import zipfile
@@ -44,6 +45,7 @@ import pyarrow.parquet as pq
 import yaml
 
 import _build_common as bc
+import _dict_ddi as ddi
 from mxcensus._schema_groups import fingerprint
 from mxcensus.data._enigh_catalog import (
     CATALOG_VERIFIED_DATE,
@@ -64,6 +66,7 @@ _DEFAULT_YAML_DIR = _DEFAULT_SCHEMA_MAP.parent
 _CORE_PATH = _DEFAULT_YAML_DIR / "variables_enigh_core.yaml"
 _DEFAULT_VALIDATE_REPORT = _REPO_ROOT / "docs" / "enigh" / "VALIDATION_REPORT.md"
 _DEFAULT_REGISTRY = _REPO_ROOT / "src" / "mxcensus" / "data" / "registry.txt"
+_DEFAULT_DDI_DIR = _REPO_ROOT / "data" / "dict" / "ddi"
 
 # enigh_{table}_{period}.parquet — table names may themselves contain underscores in the
 # future, so parse from the right rather than splitting on "_" (an ENOE-build gotcha).
@@ -325,43 +328,65 @@ def _write_report(out_dir: Path, report_path: Path) -> dict:
     return doc
 
 
-# --- variable dictionaries (data-derived categories + hand-curated core) ---------------
+# --- variable dictionaries (DDI metadata + data-derived categories + hand-curated core) --
 
-def _code_sort_key(v: str):
-    s = v.lstrip("-")
-    return (0, int(v)) if s.isdigit() else (1, v)
+# DDI data-file stems for the canonical table names where they differ (2008/2010 NCV).
+_DDI_STEM_ALIASES: dict[str, tuple[str, ...]] = {
+    "concentradohogar": ("concentradohogar", "concentrado"),
+    "gastospersona": ("gastospersona", "gastospersonas"),
+}
 
 
-def _build_categories(paths: list[Path], threshold: int) -> dict:
-    """`{column: {value: value}}` for a group — distinct values enumerated across its files.
+def _fetch_dictionaries(ddi_dir: Path, periods: list[str]) -> list[Path]:
+    """Download (once) the RNM DDI codebook of every edition in ``periods``."""
+    paths = []
+    for p in periods:
+        cid = ddi.ENIGH_DDI.get(p)
+        if cid is None:
+            print(f"  {p}: no DDI catalog id known — skipped")
+            continue
+        paths.append(ddi.fetch_ddi(cid, ddi_dir))
+        print(f"  {p}: DDI {cid} → {paths[-1].name}")
+    return paths
 
-    Columns with more than ``threshold`` distinct values (ids, amounts, free text) are
-    dropped. Data is the only source: ENIGH ZIPs bundle no dictionary.
-    """
-    if not paths:
-        return {}
-    cols = list(pq.ParquetFile(paths[0]).schema_arrow.names)
-    seen: dict[str, set | None] = {c: set() for c in cols}
-    alive = set(cols)
-    for p in paths:
-        present = [c for c in alive if c in pq.ParquetFile(p).schema_arrow.names]
-        df = pd.read_parquet(p, columns=present)
-        for c in present:
-            seen[c].update(str(v) for v in df[c].dropna().unique())
-            if len(seen[c]) > threshold:
-                alive.discard(c)
-                seen[c] = None
-    return {c: {v: v for v in sorted(seen[c], key=_code_sort_key)}
-            for c in cols if seen[c] is not None}
+
+@functools.cache
+def _ddi(ddi_dir: Path, catalog_id: int) -> dict:
+    path = ddi_dir / f"{catalog_id}.xml"
+    return ddi.parse_ddi(path) if path.exists() else {}
+
+
+def _ddi_doc_for(ddi_dir: Path, table: str, periods: list[str], columns: list[str]) -> tuple[dict | None, str]:
+    """The DDI file documenting a schema group: ``table``'s file in the codebook of the
+    group's latest edition (falling back to older editions of the group whose variables
+    cover every column). Returns ``(doc, provenance)``."""
+    want = {c.lower() for c in columns}
+    stems = _DDI_STEM_ALIASES.get(table, (table,))
+    fallback = None
+    for period in sorted(periods, reverse=True):
+        cid = ddi.ENIGH_DDI.get(period)
+        if cid is None:
+            continue
+        files = {k.lower(): v for k, v in _ddi(ddi_dir, cid).items()}
+        for stem in stems:
+            vs = files.get(stem)
+            if vs is None:
+                continue
+            if period == max(periods):
+                return vs, f"DDI {cid}/{stem}"
+            if fallback is None and want <= {k.lower() for k in vs}:
+                fallback = (vs, f"DDI {cid}/{stem} (fallback)")
+    return fallback or (None, "none")
 
 
 def _write_variables_yaml(out_dir: Path, map_path: Path, yaml_dir: Path,
-                          threshold: int = 64) -> int:
+                          threshold: int = 64, ddi_dir: Path = _DEFAULT_DDI_DIR) -> int:
     """Write one variables_enigh_{table}_{gNN}.yaml per (table, schema group).
 
-    Categorías are data-derived; Descripción/Tipo/Longitud and the *complete* labelled
-    value-sets come from the hand-curated ``variables_enigh_core.yaml`` for the analytical-
-    core variables (read, never written here). Returns the number of files written.
+    Per column, in priority: the hand-curated ``variables_enigh_core.yaml`` entry (verbatim);
+    the INEGI DDI codebook entry (label, question, type, code→label categories reconciled
+    against the codes observed in the group's data — see :func:`_dict_ddi.dictionary_entry`);
+    else the data-enumerated identity map. Returns the number of files written.
     """
     schema_map = yaml.safe_load(map_path.read_text(encoding="utf-8"))
     core = yaml.safe_load(_CORE_PATH.read_text(encoding="utf-8")) if _CORE_PATH.exists() else {}
@@ -371,24 +396,15 @@ def _write_variables_yaml(out_dir: Path, map_path: Path, yaml_dir: Path,
         for gid, g in td["groups"].items():
             paths = [out_dir / f"enigh_{table}_{p}.parquet" for p in g["periods"]]
             paths = [p for p in paths if p.exists()]
-            cats = _build_categories(paths, threshold)
-            doc = {}
-            for col in g["columns"]:
-                if col in core:
-                    m = core[col]
-                    doc[col] = {
-                        "Descripción": m.get("Descripción", ""),
-                        "Tipo": m.get("Tipo", ""),
-                        "Longitud": m.get("Longitud", ""),
-                        "Categorías": m.get("Categorías", {}) or {},
-                    }
-                else:
-                    doc[col] = {"Descripción": "", "Tipo": "", "Longitud": "",
-                                "Categorías": cats.get(col, {})}
-            path = yaml_dir / f"variables_enigh_{table}_{gid}.yaml"
-            with open(path, "w", encoding="utf-8") as f:
-                yaml.safe_dump(doc, f, sort_keys=False, allow_unicode=True,
-                               default_flow_style=False)
+            observed = ddi.observed_values(paths, g["columns"], threshold)
+            doc, prov = _ddi_doc_for(ddi_dir, table, g["periods"], g["columns"])
+            entries, sources = ddi.group_entries(g["columns"], observed, core, doc, threshold)
+            counts = defaultdict(int)
+            for src in sources.values():
+                counts[src] += 1
+            print(f"  {table}/{gid}: {len(paths)}/{len(g['periods'])} file(s) read; {prov}; "
+                  + ", ".join(f"{k}={v}" for k, v in sorted(counts.items())))
+            ddi.dump_yaml(entries, yaml_dir / f"variables_enigh_{table}_{gid}.yaml")
             n += 1
     return n
 
@@ -466,6 +482,9 @@ def main() -> None:
     parser.add_argument("--cat-threshold", type=int, default=64, metavar="N",
                         help="Max distinct values for a column to be enumerated as a category")
     parser.add_argument("--yaml-dir", type=Path, default=_DEFAULT_YAML_DIR, metavar="DIR")
+    parser.add_argument("--dictionary", action="store_true",
+                        help="Download INEGI's DDI codebooks (RNM) for --periods into --ddi-dir")
+    parser.add_argument("--ddi-dir", type=Path, default=_DEFAULT_DDI_DIR, metavar="DIR")
     parser.add_argument("--validate", action="store_true",
                         help="Skip downloading; validate every parquet against its group schema")
     parser.add_argument("--validate-report", type=Path, default=_DEFAULT_VALIDATE_REPORT,
@@ -496,9 +515,14 @@ def main() -> None:
         doc = _write_report(args.output, args.report)
         print(f"Report → {args.report}  ({len(doc)} table(s))")
         return
+    if args.dictionary:
+        paths = _fetch_dictionaries(args.ddi_dir, args.periods)
+        print(f"{len(paths)} DDI codebook(s) in {args.ddi_dir}")
+        return
+
     if args.variables:
         n = _write_variables_yaml(args.output, args.schema_map_path, args.yaml_dir,
-                                  args.cat_threshold)
+                                  args.cat_threshold, args.ddi_dir)
         print(f"Wrote {n} variables_enigh_<table>_<gNN>.yaml → {args.yaml_dir}")
         return
     if args.validate:

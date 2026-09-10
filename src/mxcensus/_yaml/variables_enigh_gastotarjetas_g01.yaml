@@ -1,60 +1,68 @@
 folioviv:
-  Descripción: Identificador de la vivienda (folio). Los dos primeros caracteres son
-    la clave de la entidad federativa.
-  Tipo: str
+  Descripción: Identificador de la vivienda (folio). Los dos primeros caracteres son la clave de la entidad
+    federativa.
+  Tipo: string
   Longitud: 6 (2008–2012) / 10 (2014+)
   Categorías: {}
 foliohog:
   Descripción: Identificador del hogar dentro de la vivienda.
-  Tipo: str
+  Tipo: string
   Longitud: '1'
   Categorías: {}
 clave:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Clave de gasto
+  Pregunta: CLAVE
+  Tipo: categorical
+  Longitud: '4'
   Categorías:
-    TB01: TB01
-    TB02: TB02
-    TB03: TB03
-    TB04: TB04
-    TB05: TB05
-    TB06: TB06
-    TB07: TB07
-    TB08: TB08
-    TB09: TB09
-    TB10: TB10
-    TB11: TB11
-    TB12: TB12
-    TB13: TB13
-    TB14: TB14
-    TB15: TB15
-    TR01: TR01
-    TR02: TR02
-    TR03: TR03
-    TR04: TR04
-    TR05: TR05
-    TR06: TR06
-    TR07: TR07
-    TR08: TR08
-    TR09: TR09
-    TR10: TR10
-    TR11: TR11
-    TR12: TR12
-    TR13: TR13
-    TR14: TR14
+    TB01: Alimentos, bebidas y tabaco
+    TB02: Artículos o servicios destinados a la limpieza y cuidados de la casa
+    TB03: Artículos o servicios destinados a cuidados personales
+    TB04: Artículos o servicios destinados a educación, cultura y recreación
+    TB05: Artículos o servicios destinados a la comunicación y servicios para vehículos
+    TB06: Artículos o servicios destinados a vivienda y servicios de conservación
+    TB07: Último recibo pagado
+    TB08: Prendas de vestir, calzado y accesorios
+    TB09: Cristalería, blancos y utensilios domésticos
+    TB10: Artículos o servicios destinados a cuidados de la salud
+    TB11: Enseres domésticos y mantenimiento de la vivienda
+    TB12: Artículos de esparcimiento
+    TB13: Artículos o servicios destinados al transporte
+    TB14: Gastos diversos
+    TB15: Erogaciones financieras y de capital
+    TR01: Alimentos, bebidas y tabaco
+    TR02: Artículos o servicios destinados a la limpieza y cuidados de la casa
+    TR03: Artículos o servicios destinados a cuidados personales
+    TR04: Artículos o servicios destinados a educación, cultura y recreación
+    TR05: Artículos o servicios destinados a la comunicación y servicios para vehículos
+    TR06: Artículos o servicios destinados a vivienda y servicios de conservación
+    TR07: Último recibo pagado
+    TR08: Prendas de vestir, calzado y accesorios
+    TR09: Cristalería, blancos y utensilios domésticos
+    TR10: Artículos o servicios destinados a cuidados de la salud
+    TR11: Enseres domésticos y mantenimiento de la vivienda
+    TR12: Artículos de esparcimiento
+    TR13: Artículos o servicios destinados al transporte
+    TR14: Gastos diversos
 gasto:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Gasto efectuado
+  Pregunta: ¿Cuánto pagó?
+  Tipo: numeric
+  Longitud: '9'
   Categorías: {}
+  Especiales:
+    '-1': No especificado
 pago_mp:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Pago mes pasado
+  Pregunta: ¿Cuánto pagó?
+  Tipo: numeric
+  Longitud: '9'
   Categorías: {}
 gas_tri:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Gasto trimestral
+  Pregunta: ''
+  Tipo: numeric
+  Longitud: '15'
   Categorías: {}
+  Especiales:
+    '-1': No especificado

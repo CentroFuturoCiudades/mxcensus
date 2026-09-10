@@ -1,232 +1,131 @@
 loc:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
-  Categorías:
-    ' ': ' '
+  Descripción: Localidad
+  Pregunta: No existe pregunta, es un identificador de la vivienda.
+  Tipo: string
+  Longitud: '4'
+  Categorías: {}
 mun:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Municipio
+  Pregunta: No existe pregunta, es un identificador de la vivienda.
+  Tipo: numeric
+  Longitud: '3'
   Categorías: {}
 est:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
-  Categorías:
-    '10': '10'
-    '11': '11'
-    '12': '12'
-    '13': '13'
-    '14': '14'
-    '20': '20'
-    '21': '21'
-    '22': '22'
-    '23': '23'
-    '24': '24'
-    '30': '30'
-    '31': '31'
-    '32': '32'
-    '33': '33'
-    '40': '40'
-    '41': '41'
-    '42': '42'
-    '43': '43'
+  Descripción: Estrato
+  Pregunta: No existe pregunta, es un identificador de la vivienda.
+  Tipo: numeric
+  Longitud: '2'
+  Categorías: {}
 est_d:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Estrato de diseño
+  Pregunta: No existe pregunta, es un identificador de la vivienda.
+  Tipo: numeric
+  Longitud: '3'
   Categorías: {}
 ageb:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Área geoestadística básica
+  Pregunta: No existe pregunta, es un identificador de la vivienda.
+  Tipo: categorical
+  Longitud: '5'
   Categorías:
-    '0': '0'
+    '0': '00000'
 t_loc:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Tamaño de localidad (ediciones anteriores a 2020-T3)
+  Tipo: categorical
+  Longitud: '1'
+  Ordenada: true
   Categorías:
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
+    '4': Localidades menores de 2 500 habitantes
+    '3': Localidades de 2 500 a 14 999 habitantes
+    '2': Localidades de 15 000 a 99 999 habitantes
+    '1': Localidades mayores de 100 000 habitantes
+  Especiales:
+    '0': No especificado (código no documentado en la FD)
 cd_a:
   Descripción: Ciudad autorrepresentada (agrupación de áreas de la muestra)
-  Tipo: Carácter
+  Tipo: string
   Longitud: '2'
   Categorías: {}
 ent:
   Descripción: Entidad federativa (01-32)
-  Tipo: Carácter
+  Tipo: string
   Longitud: '2'
   Categorías: {}
 con:
   Descripción: Número de control de la vivienda
-  Tipo: Carácter
+  Tipo: string
   Longitud: '5'
   Categorías: {}
 upm:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Unidad primaria de muestreo
+  Pregunta: No existe pregunta, es un identificador de la vivienda.
+  Tipo: string
+  Longitud: '5'
   Categorías: {}
 d_sem:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Distribución semanal
+  Pregunta: No existe pregunta, es un identificador de la vivienda.
+  Tipo: numeric
+  Longitud: '3'
   Categorías: {}
 n_pro_viv:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Número progresivo de la vivienda
+  Pregunta: No existe pregunta, es un identificador de la vivienda.
+  Tipo: numeric
+  Longitud: '4'
   Categorías: {}
 v_sel:
   Descripción: Vivienda seleccionada
-  Tipo: Carácter
+  Tipo: string
   Longitud: '2'
   Categorías: {}
 n_ent:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
-  Categorías:
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '5': '5'
+  Descripción: Número de entrevista o visita a la vivienda (1-5 en el panel de cinco visitas; valores
+    mayores — hasta 17 y más — en la ENOE-N/CATI de 2020-T3 a 2021-T2, no documentados en la FD)
+  Tipo: numeric
+  Longitud: '2'
+  Rango:
+  - 1
+  - 99
+  Categorías: {}
 per:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
-  Categorías:
-    '105': '105'
-    '106': '106'
-    '107': '107'
-    '108': '108'
-    '109': '109'
-    '110': '110'
-    '111': '111'
-    '112': '112'
-    '113': '113'
-    '114': '114'
-    '115': '115'
-    '116': '116'
-    '117': '117'
-    '118': '118'
-    '119': '119'
-    '120': '120'
-    '205': '205'
-    '206': '206'
-    '207': '207'
-    '208': '208'
-    '209': '209'
-    '210': '210'
-    '211': '211'
-    '212': '212'
-    '213': '213'
-    '214': '214'
-    '215': '215'
-    '216': '216'
-    '217': '217'
-    '218': '218'
-    '219': '219'
-    '305': '305'
-    '306': '306'
-    '307': '307'
-    '308': '308'
-    '309': '309'
-    '310': '310'
-    '311': '311'
-    '312': '312'
-    '313': '313'
-    '314': '314'
-    '315': '315'
-    '316': '316'
-    '317': '317'
-    '318': '318'
-    '405': '405'
-    '406': '406'
-    '407': '407'
-    '408': '408'
-    '409': '409'
-    '410': '410'
-    '411': '411'
-    '412': '412'
-    '413': '413'
-    '414': '414'
-    '415': '415'
-    '416': '416'
-    '417': '417'
-    '418': '418'
+  Descripción: Periodo — trimestre (primer dígito 1-4) y año (dos dígitos), p. ej. '123' = 2023-T1
+  Tipo: string
+  Longitud: '3'
+  Categorías: {}
 p1:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
-  Categorías:
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '5': '5'
-    '6': '6'
-    '7': '7'
-    '8': '8'
-    '9': '9'
-    '10': '10'
-    '11': '11'
-    '12': '12'
-    '13': '13'
-    '14': '14'
-    '15': '15'
-    '16': '16'
-    '17': '17'
-    '18': '18'
-    '19': '19'
-    '20': '20'
-    '21': '21'
-    '22': '22'
-    '23': '23'
-    '24': '24'
-    '25': '25'
-    '26': '26'
-    '27': '27'
-    '28': '28'
-    '29': '29'
-    '30': '30'
-    ' ': ' '
+  Descripción: Personas que viven en la vivienda
+  Pregunta: ¿Cuántas personas viven normalmente en esta vivienda contando a los niños chiquitos y a los
+    ancianos?
+  Tipo: numeric
+  Longitud: '2'
+  Categorías: {}
+  Nota: 'numérica: el DDI sólo enumera códigos especiales'
 p2:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Comparten un mismo gasto
+  Pregunta: ¿Todas estas personas comparten un mismo gasto para comer?
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '1': '1'
-    '2': '2'
-    ' ': ' '
+    '1': Sí
+    '2': 'No'
 p3:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
-  Categorías:
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '5': '5'
-    '6': '6'
-    '7': '7'
-    '8': '8'
-    ' ': ' '
+  Descripción: Grupos con gastos separados
+  Pregunta: ¿Cuántos hogares o grupos de personas tienen gastos separados para comer contando el de usted?
+  Tipo: numeric
+  Longitud: '2'
+  Categorías: {}
+  Nota: 'numérica: el DDI sólo enumera códigos especiales'
 ur:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Variable de apoyo
+  Pregunta: Variable de apoyo
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '1': '1'
-    '2': '2'
+    '1': Urbano
+    '2': Rural
 fac:
   Descripción: Factor de expansión (ponderador; ediciones anteriores a 2020-T3)
-  Tipo: Numérico
+  Tipo: numeric
   Longitud: '6'
   Categorías: {}

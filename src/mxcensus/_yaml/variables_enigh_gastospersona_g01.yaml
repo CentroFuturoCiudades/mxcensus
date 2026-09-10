@@ -1,116 +1,140 @@
 folioviv:
-  Descripción: Identificador de la vivienda (folio). Los dos primeros caracteres son
-    la clave de la entidad federativa.
-  Tipo: str
+  Descripción: Identificador de la vivienda (folio). Los dos primeros caracteres son la clave de la entidad
+    federativa.
+  Tipo: string
   Longitud: 6 (2008–2012) / 10 (2014+)
   Categorías: {}
 foliohog:
   Descripción: Identificador del hogar dentro de la vivienda.
-  Tipo: str
+  Tipo: string
   Longitud: '1'
   Categorías: {}
 numren:
   Descripción: Número de renglón (identificador de la persona dentro del hogar).
-  Tipo: str
+  Tipo: string
   Longitud: '2'
   Categorías: {}
 clave:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Clave de gasto
+  Pregunta: Durante el mes de ____________, ¿compró o estuvo pagando algún artículo o servicio de los
+    que le voy a mencionar?
+  Tipo: string
+  Longitud: '4'
   Categorías: {}
+  Nota: catálogo de 746 códigos (no enumerado)
 tipo_gasto:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Tipo de gasto
+  Pregunta: No aplica.
+  Tipo: categorical
+  Longitud: '2'
   Categorías:
-    G1: G1
-    G4: G4
+    G1: Gasto monetario en bienes y servicios para el hogar
+    G4: Gasto no monetario por remuneraciones en especie
 mes_dia:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Mes y día del gasto
+  Pregunta: No aplica.
+  Tipo: string
+  Longitud: '4'
   Categorías: {}
+  Nota: catálogo de 64 códigos (no enumerado)
 frec_rem:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Frecuencia de la remuneración
+  Pregunta: ¿Con que frecuencia lo recibe?
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '5': '5'
-    '6': '6'
-    '7': '7'
-    '8': '8'
-    '9': '9'
-    ' ': ' '
+    '1': Una vez a la semana
+    '2': Dos veces a la semana
+    '3': Tres veces a la semana
+    '4': Cuatro veces a la semana
+    '5': Cinco veces a la semana
+    '6': Seis veces a la semana
+    '7': Una vez a la quincena
+    '8': Una vez al mes
+    '9': Otros
 inst:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Institución para cuidados de la salud
+  Pregunta: ¿Quién le proporcionó el artículo o servicio?
+  Tipo: categorical
+  Longitud: '2'
   Categorías:
-    '01': '01'
-    '02': '02'
-    '03': '03'
-    '06': '06'
-    '11': '11'
-    ' ': ' '
+    '01': Médicos, laboratorios y hospitales particulares
+    '02': Servicios médicos del IMSS
+    '03': Servicios médicos del ISSSTE
+    '04': Servicios médicos de PEMEX
+    '05': Servicios médicos del la Marina
+    '06': Servicios médicos del Ejército
+    '07': Servicios médicos de la SSA
+    08: SSA con Seguro Popular
+    09: Servicios médicos del DIF
+    '10': Servicios médicos de universidades públicas
+    '11': Otros servicios médicos:Cruz Roja, Cruz Verde, etc.
+    '12': Servicios médicos provenientes del programa PROGRESA u OPORT
+    '13': Provenientes de otro hogar
 forma_pago:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Forma de pago
+  Pregunta: Este artículo o servicio ¿lo pagó...?
+  Tipo: categorical
+  Longitud: '3'
   Categorías:
-    '001': '001'
-    '002': '002'
-    '003': '003'
-    '021': '021'
-    '031': '031'
-    '032': '032'
-    ' ': ' '
+    '001': De contado
+    '002': Con tarjeta de crédito bancaria o comercial
+    '003': Fiado (persona particular o establecimiento comercial)
+    '021': De contado y con tarjeta de crédito bancaria o comercial
+    '031': De contado y fiado (persona particular o establecimiento com
+    '032': Con tarjeta de crédito bancaria o comercial y fiado (persona
+    '321': De contado, con tarjeta de crédito bancaria o comercial y fi
 inscrip:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Gasto en inscripciones
+  Pregunta: De este gasto ¿cuánto pagó de inscripción?
+  Tipo: numeric
+  Longitud: '9'
   Categorías: {}
 colegia:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Gasto en colegiaturas
+  Pregunta: De este gasto ¿cuánto pagó de colegiatura?
+  Tipo: numeric
+  Longitud: '9'
   Categorías: {}
 material:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Gasto en material educativo
+  Pregunta: De este gasto ¿cuánto pagó de material escolar?
+  Tipo: numeric
+  Longitud: '9'
   Categorías: {}
 cantidad:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Cantidad de artículos o servicios
+  Pregunta: No aplica.
+  Tipo: numeric
+  Longitud: '10'
   Categorías: {}
 gasto:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Gasto efectuado
+  Pregunta: No aplica.
+  Tipo: numeric
+  Longitud: '10'
   Categorías: {}
 costo:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Costo del producto, artículo o servicio
+  Pregunta: ¿Cuál fue el precio que acordó al momento de adquirirlo?
+  Tipo: numeric
+  Longitud: '10'
   Categorías: {}
 gasto_tri:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Gasto trimestral
+  Pregunta: No aplica.
+  Tipo: numeric
+  Longitud: '12'
   Categorías: {}
 gasto_nm:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Gasto no monetario
+  Pregunta: No aplica.
+  Tipo: numeric
+  Longitud: '10'
   Categorías: {}
 gas_nm_tri:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Gasto no monetario trimestral
+  Pregunta: No aplica.
+  Tipo: numeric
+  Longitud: '12'
   Categorías: {}

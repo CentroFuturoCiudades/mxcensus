@@ -16,6 +16,7 @@ import pandera.pandas as pa
 import pytest
 
 import mxcensus
+from mxcensus import _schema_groups as sg
 from mxcensus._resources import enigh_schema_map, variables_enigh, variables_enigh_core
 from mxcensus.data._enigh_catalog import (
     EDITIONS,
@@ -55,11 +56,18 @@ def _cols(table, gid):
     return _SM[table]["groups"][gid]["columns"]
 
 
-def _valid_value(table, gid, col):
+def _valid_value(table: str, gid: str, col: str) -> str:
+    """A value that should pass ``_group_schema(table, gid)`` for ``col``."""
     if col in _WEIGHTS:
         return "1"
-    cats = (variables_enigh(table, gid).get(col) or {}).get("Categorías") or {}
-    return next(iter(cats)) if cats else "x"
+    meta = variables_enigh(table, gid).get(col) or {}
+    cats = meta.get("Categorías") or {}
+    if cats:
+        return next(iter(cats))
+    if sg.norm_tipo(meta) == "numeric":
+        rng = meta.get("Rango") or []
+        return str(rng[0]) if rng else "1"
+    return "x"
 
 
 def _valid_frame(table, gid, rows=3):
@@ -333,3 +341,81 @@ def test_ent_filter_real(local_mirror):
 def test_survey_raises_without_dwelling_table(local_mirror):
     with pytest.raises(ValueError, match="not published"):
         mxcensus.load_enigh_survey("2008")
+
+
+# --- labelled frames (labels=True) ------------------------------------------------------
+
+def test_core_yaml_contract():
+    core = mxcensus.variables_enigh_core()
+    for name, meta in core.items():
+        assert meta.get("Tipo") in ("categorical", "numeric", "string"), name
+        if meta.get("Ordenada"):
+            assert meta.get("Categorías"), name
+        if "Rango" in meta:
+            assert len(meta["Rango"]) == 2 and meta["Rango"][0] <= meta["Rango"][1], name
+        cats, special = meta.get("Categorías") or {}, meta.get("Especiales") or {}
+        assert not set(cats) & set(special), name
+        labels = list(cats.values()) + list(special.values())
+        assert len(labels) == len(set(labels)), f"{name}: duplicate labels"
+        for raw, canon in (meta.get("Alias") or {}).items():
+            assert canon in cats, f"{name}: alias {raw}→{canon} not a category"
+    assert core["educa_jefe"]["Alias"]["1"] == "01" and core["educa_jefe"]["Ordenada"]
+
+
+def test_variables_enigh_labels_merges_core_under_both_names():
+    gid = _SM["concentradohogar"]["latest"]
+    labels = mxcensus.variables_enigh_labels("concentradohogar", gid)
+    assert labels["clase_hog"]["Categorías"]["2"] == "Nuclear"
+    # a 2012–2014 group carries factor_hog: the merged dictionary keys it under both names
+    gid_ncv = next(g for g, m in _SM["concentradohogar"]["groups"].items() if "factor_hog" in m["columns"])
+    labels = mxcensus.variables_enigh_labels("concentradohogar", gid_ncv)
+    assert labels["factor_hog"]["Tipo"] == labels["factor"]["Tipo"] == "numeric"
+    assert "variables_enigh_labels" in mxcensus.__all__
+
+
+@pytest.mark.parametrize("table,gid", _TABLE_GROUPS)
+def test_load_enigh_labels_offline(monkeypatch, table, gid):
+    frame = _valid_frame(table, gid)
+    monkeypatch.setattr(pd, "read_parquet", lambda *_a, **_k: frame.copy())
+    raw = mxcensus.load_enigh(survey_path=Path("x.parquet"), table=table)
+    assert raw.equals(frame)
+    lab = mxcensus.load_enigh(survey_path=Path("x.parquet"), table=table, labels=True)
+    variables = mxcensus.variables_enigh_labels(table, gid)
+    keys = mxcensus.enigh._KEY_COLUMNS
+    for col in lab.columns:
+        meta = variables.get(col)
+        if meta is None or col in keys:
+            assert lab[col].dtype == frame[col].dtype, col
+        elif col in _WEIGHTS or sg.norm_tipo(meta) == "numeric":
+            assert lab[col].dtype.kind in "fiu", (col, lab[col].dtype)
+        elif sg.norm_tipo(meta) == "categorical":
+            assert isinstance(lab[col].dtype, pd.CategoricalDtype), col
+            assert lab[col].dtype.ordered == bool(meta.get("Ordenada")), col
+
+
+@pytest.mark.skipif(not _REAL, reason="no local ENIGH mirror (data/parquet/)")
+@pytest.mark.parametrize("period", ["2024", "2016", "2012", "2008"])
+def test_hogares_labelled_real(local_mirror, period):
+    harmonize = period in ("2008", "2012")
+    lab = mxcensus.load_enigh_hogares(period, harmonize=harmonize)
+    raw = mxcensus.load_enigh_hogares(period, harmonize=harmonize, labels=False)
+    assert len(lab) == len(raw) and lab["factor"].sum() == raw["factor"].sum()
+    assert lab["ing_cor"].sum() == pytest.approx(raw["ing_cor"].sum())
+    assert isinstance(lab["clase_hog"].dtype, pd.CategoricalDtype)
+    assert lab["educa_jefe"].cat.ordered and list(lab["educa_jefe"].cat.categories)[0] == "Sin instrucción"
+    assert str(lab["edad_jefe"].dtype) == "Int64" and str(lab["ing_cor"].dtype) == "Float64"
+    assert list(lab.index.names) == ["folioviv", "foliohog"] and lab.index.is_unique
+    if period == "2024":
+        assert lab["factor"].sum() == _HOUSEHOLDS["2024"]
+        assert lab["tam_loc"].cat.ordered
+        assert (lab["sexo_jefe"] == "Mujer").sum() == (raw["sexo_jefe"] == "2").sum()
+
+
+@pytest.mark.skipif(not _REAL, reason="no local ENIGH mirror (data/parquet/)")
+def test_personas_survey_labelled_real(local_mirror):
+    viv, hog, per = mxcensus.load_enigh_survey("2024")
+    assert isinstance(per["sexo"].dtype, pd.CategoricalDtype) and str(per["edad"].dtype) == "Int64"
+    assert isinstance(per["nivelaprob"].dtype, pd.CategoricalDtype)
+    assert isinstance(viv["tipo_viv"].dtype, pd.CategoricalDtype)
+    assert per.index.is_unique and list(per.index.names) == ["folioviv", "foliohog", "numren"]
+    assert per.index.get_level_values("folioviv").dtype.kind in "OU" or str(per.index.get_level_values("folioviv").dtype) == "str"

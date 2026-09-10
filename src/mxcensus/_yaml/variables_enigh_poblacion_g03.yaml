@@ -1,1689 +1,1282 @@
 folioviv:
-  Descripción: Identificador de la vivienda (folio). Los dos primeros caracteres son
-    la clave de la entidad federativa.
-  Tipo: str
+  Descripción: Identificador de la vivienda (folio). Los dos primeros caracteres son la clave de la entidad
+    federativa.
+  Tipo: string
   Longitud: 6 (2008–2012) / 10 (2014+)
   Categorías: {}
 foliohog:
   Descripción: Identificador del hogar dentro de la vivienda.
-  Tipo: str
+  Tipo: string
   Longitud: '1'
   Categorías: {}
 numren:
   Descripción: Número de renglón (identificador de la persona dentro del hogar).
-  Tipo: str
+  Tipo: string
   Longitud: '2'
   Categorías: {}
 parentesco:
-  Descripción: Parentesco con la jefa o jefe del hogar (código de 3 dígitos; clasificador
-    INEGI).
-  Tipo: str
+  Descripción: Parentesco con la jefa o jefe del hogar (código de 3 dígitos; clasificador INEGI — etiquetas
+    en el diccionario por grupo).
+  Tipo: string
   Longitud: '3'
   Categorías: {}
 sexo:
   Descripción: Sexo (tabla poblacion).
-  Tipo: str
+  Tipo: categorical
   Longitud: '1'
   Categorías:
     '1': Hombre
     '2': Mujer
 edad:
   Descripción: Edad en años cumplidos (tabla poblacion).
-  Tipo: int
-  Longitud: ''
+  Tipo: numeric
+  Longitud: '3'
+  Rango:
+  - 0
+  - 120
   Categorías: {}
 madre_hog:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Pertenece la madre al hogar
+  Pregunta: En este hogar, ¿vive la madre de (NOMBRE)?
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '1': '1'
-    '2': '2'
+    '1': Sí
+    '2': 'No'
 madre_id:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
-  Categorías:
-    '01': '01'
-    '02': '02'
-    '03': '03'
-    '04': '04'
-    '05': '05'
-    '06': '06'
-    '07': '07'
-    08: 08
-    09: 09
-    '10': '10'
-    '11': '11'
-    '13': '13'
-    '15': '15'
-    '16': '16'
-    '20': '20'
-    '21': '21'
-    ' ': ' '
-    '&': '&'
+  Descripción: Identificador de la madre
+  Pregunta: ¿Quién es?
+  Tipo: numeric
+  Longitud: '2'
+  Categorías: {}
+  Especiales:
+    '&': No especificado
 padre_hog:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Pertenece el padre al hogar
+  Pregunta: En este hogar, ¿vive el padre de (NOMBRE)?
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '1': '1'
-    '2': '2'
+    '1': Sí
+    '2': 'No'
 padre_id:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
-  Categorías:
-    '01': '01'
-    '02': '02'
-    '03': '03'
-    '04': '04'
-    '05': '05'
-    '06': '06'
-    '07': '07'
-    08: 08
-    09: 09
-    '10': '10'
-    '13': '13'
-    ' ': ' '
-    '&': '&'
+  Descripción: Identificador del padre
+  Pregunta: ¿Quién es?
+  Tipo: numeric
+  Longitud: '2'
+  Categorías: {}
+  Especiales:
+    '&': No especificado
 disc1:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Discapacidad 1
+  Pregunta: En su vida diaria (NOMBRE) tiene alguna dificultad para?
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '5': '5'
-    '6': '6'
-    '7': '7'
-    '8': '8'
-    '&': '&'
+    '1': Caminar, moverse, subir o bajar
+    '2': Ver, aun usando lentes
+    '3': Hablar, comunicarse o conversar
+    '4': Oír, aun usando aparato auditivo
+    '5': Vestirse, bañarse o comer
+    '6': Poner atención o aprender cosas sencillas
+    '7': Tiene alguna limitación mental
+    '8': No tiene dificulta física o mental
+  Especiales:
+    '&': No especificado
 disc2:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Discapacidad 2
+  Pregunta: En su vida diaria (NOMBRE) tiene alguna dificultad para?
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '5': '5'
-    '6': '6'
-    '7': '7'
-    ' ': ' '
+    '2': Ver, aun usando lentes
+    '3': Hablar, comunicarse o conversar
+    '4': Oír, aun usando aparato auditivo
+    '5': Vestirse, bañarse o comer
+    '6': Poner atención o aprender cosas sencillas
+    '7': Tiene alguna limitación mental
 disc3:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Discapacidad 3
+  Pregunta: En su vida diaria (NOMBRE) tiene alguna dificultad para?
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '3': '3'
-    '4': '4'
-    '5': '5'
-    '6': '6'
-    '7': '7'
-    ' ': ' '
+    '3': Hablar, comunicarse o conversar
+    '4': Oír, aun usando aparato auditivo
+    '5': Vestirse, bañarse o comer
+    '6': Poner atención o aprender cosas sencillas
+    '7': Tiene alguna limitación mental
 disc4:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Discapacidad 4
+  Pregunta: En su vida diaria (NOMBRE) tiene alguna dificultad para?
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '4': '4'
-    '5': '5'
-    '6': '6'
-    '7': '7'
-    ' ': ' '
+    '4': Oír, aun usando aparato auditivo
+    '5': Vestirse, bañarse o comer
+    '6': Poner atención o aprender cosas sencillas
+    '7': Tiene alguna limitación mental
 disc5:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Discapacidad 5
+  Pregunta: En su vida diaria (NOMBRE) tiene alguna dificultad para?
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '5': '5'
-    '6': '6'
-    '7': '7'
-    ' ': ' '
+    '5': Vestirse, bañarse o comer
+    '6': Poner atención o aprender cosas sencillas
+    '7': Tiene alguna limitación mental
 disc6:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Discapacidad 6
+  Pregunta: En su vida diaria (NOMBRE) tiene alguna dificultad para?
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '6': '6'
-    '7': '7'
-    ' ': ' '
+    '6': Poner atención o aprender cosas sencillas
+    '7': Tiene alguna limitación mental
 disc7:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Discapacidad 7
+  Pregunta: En su vida diaria (NOMBRE) tiene alguna dificultad para?
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    ' ': ' '
+    '7': Tiene alguna limitación mental
 causa1:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Causa 1 de discapacidad
+  Pregunta: '¿(NOMBRE) tiene esta dificultad:'
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '5': '5'
-    ' ': ' '
+    '1': Porque nació así
+    '2': Por una enfermedad
+    '3': Por un accidente
+    '4': Por edad avanzada
+    '5': Por otra causa
 causa2:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Causa 2 de discapacidad
+  Pregunta: '¿(NOMBRE) tiene esta dificultad:'
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '5': '5'
-    ' ': ' '
+    '1': Porque nació así
+    '2': Por una enfermedad
+    '3': Por un accidente
+    '4': Por edad avanzada
+    '5': Por otra causa
 causa3:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Causa 3 de discapacidad
+  Pregunta: '¿(NOMBRE) tiene esta dificultad:'
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '5': '5'
-    ' ': ' '
+    '1': Porque nació así
+    '2': Por una enfermedad
+    '3': Por un accidente
+    '4': Por edad avanzada
+    '5': Por otra causa
 causa4:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Causa 4 de discapacidad
+  Pregunta: '¿(NOMBRE) tiene esta dificultad:'
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    ' ': ' '
+    '1': Porque nació así
+    '2': Por una enfermedad
+    '3': Por un accidente
+    '4': Por edad avanzada
+    '5': Por otra causa
 causa5:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Causa 5 de discapacidad
+  Pregunta: '¿(NOMBRE) tiene esta dificultad:'
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    ' ': ' '
+    '1': Porque nació así
+    '2': Por una enfermedad
+    '3': Por un accidente
+    '4': Por edad avanzada
+    '5': Por otra causa
 causa6:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Causa 6 de discapacidad
+  Pregunta: '¿(NOMBRE) tiene esta dificultad:'
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    ' ': ' '
+    '1': Porque nació así
+    '2': Por una enfermedad
+    '3': Por un accidente
+    '4': Por edad avanzada
+    '5': Por otra causa
 causa7:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Causa 7 de discapacidad
+  Pregunta: '¿(NOMBRE) tiene esta dificultad:'
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    ' ': ' '
+    '1': Porque nació así
+    '2': Por una enfermedad
+    '3': Por un accidente
+    '4': Por edad avanzada
+    '5': Por otra causa
 hablaind:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Hablante indígena
+  Pregunta: ¿... (NOMBRE) habla alguna lengua indígena o dialecto?
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '1': '1'
-    '2': '2'
-    ' ': ' '
+    '1': Sí
+    '2': 'No'
 lenguaind:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
-  Categorías:
-    '0200': '0200'
-    '0211': '0211'
-    '0311': '0311'
-    '0331': '0331'
-    '0332': '0332'
-    '0341': '0341'
-    '0400': '0400'
-    '0421': '0421'
-    '0422': '0422'
-    '0431': '0431'
-    '0433': '0433'
-    '0441': '0441'
-    '0450': '0450'
-    '0451': '0451'
-    '0452': '0452'
-    '0453': '0453'
-    '0454': '0454'
-    '0455': '0455'
-    '0461': '0461'
-    '0471': '0471'
-    0482: 0482
-    0491: 0491
-    '0611': '0611'
-    '0711': '0711'
-    0811: 0811
-    0822: 0822
-    0823: 0823
-    0911: 0911
-    0922: 0922
-    0931: 0931
-    0932: 0932
-    0933: 0933
-    0934: 0934
-    0961: 0961
-    '1013': '1013'
-    '1014': '1014'
-    '1021': '1021'
-    '1022': '1022'
-    '1031': '1031'
-    '1032': '1032'
-    '1041': '1041'
-    '1111': '1111'
-    '1311': '1311'
-    '1999': '1999'
-    ' ': ' '
+  Descripción: Lengua indígena
+  Pregunta: ¿Qué dialecto o lengua indígena habla (NOMBRE)?
+  Tipo: numeric
+  Longitud: '4'
+  Categorías: {}
 hablaesp:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Español
+  Pregunta: ¿(NOMBRE) habla también español?
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '1': '1'
-    '2': '2'
-    ' ': ' '
+    '1': Sí
+    '2': 'No'
 alfabetism:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Alfabetismo
+  Pregunta: ¿(NOMBRE) sabe leer y escribir un recado?
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '1': '1'
-    '2': '2'
-    ' ': ' '
+    '1': Sí
+    '2': 'No'
 asis_esc:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Asistencia a la escuela
+  Pregunta: ¿... (NOMBRE) asiste actualmente a la escuela?
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '1': '1'
-    '2': '2'
-    ' ': ' '
+    '1': Sí
+    '2': 'No'
 comprenind:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Comprensión
+  Pregunta: ¿(NOMBRE) entiende alguna lengua indígena?
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '1': '1'
-    '2': '2'
-    ' ': ' '
+    '1': Sí
+    '2': 'No'
 etnia:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Autoadscripción étnica
+  Pregunta: De acuerdo con la cultura de (NOMBRE), ¿ella (él) se considera indígena?
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '1': '1'
-    '2': '2'
-    ' ': ' '
+    '1': Sí
+    '2': 'No'
 nivel:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Nivel escolar al que asiste
+  Pregunta: ¿Cuál es el año o grado al que asiste (NOMBRE)?
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '5': '5'
-    '6': '6'
-    '7': '7'
-    '8': '8'
-    '9': '9'
-    ' ': ' '
+    '1': Preescolar
+    '2': Primaria
+    '3': Secundaria
+    '4': Carrera técnica con secundaria terminada
+    '5': Preparatoria o bachillerato
+    '6': Carrera técnica con preparatoria terminada
+    '7': Normal
+    '8': Profesional
+    '9': Maestría o doctorado
 grado:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Grado escolar al que asiste
+  Pregunta: ¿Cuál es el año o grado al que asiste (NOMBRE)?
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '5': '5'
-    '6': '6'
-    ' ': ' '
+    '1': Primer año
+    '2': Segundo año
+    '3': Tercer año
+    '4': Cuarto año
+    '5': Quinto año
+    '6': Sexto año
 tipoesc:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Tipo de escuela
+  Pregunta: ¿La escuela a la que asiste (NOMBRE) es...
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    ' ': ' '
+    '1': Pública o de gobierno
+    '2': Privada o de paga
+    '3': De otro tipo
 tiene_b:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Beca escolar
+  Pregunta: ¿Le otorgaron beca a (NOMBRE) para este año escolar?
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '1': '1'
-    '2': '2'
-    ' ': ' '
+    '1': Sí
+    '2': 'No'
 otorg_b:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Otorga beca escolar
+  Pregunta: ¿Quién se la otorga?
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '5': '5'
-    ' ': ' '
+    '1': El programa OPORTUNIDADES
+    '2': Su escuela pública o de gobierno
+    '3': Su escuela privada o de paga
+    '4': Un organismo de gobierno
+    '5': Una institución privada
 forma_b:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Forma de beca escolar
+  Pregunta: ¿Cómo recibe (NOMBRE) su beca...
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '5': '5'
-    ' ': ' '
+    '1': Sólo en dinero
+    '2': Sólo en artículos
+    '3': En dinero y en artículos
+    '4': No paga colegiatura
+    '5': Sólo paga parte de la colegiatura
 tiene_c:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Crédito educativo
+  Pregunta: ¿Le otorgaron crédito educativo a (NOMBRE) para este año escolar?
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '1': '1'
-    '2': '2'
-    ' ': ' '
+    '1': Sí
+    '2': 'No'
 otorg_c:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Otorga crédito educativo
+  Pregunta: ¿Quién se lo otorga?
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    ' ': ' '
+    '1': Su escuela pública o de gobierno
+    '2': Su escuela privada o de paga
+    '3': Un organismo de gobierno
+    '4': Una institución privada
 forma_c:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Forma de crédito educativo
+  Pregunta: ¿Cómo recibe (NOMBRE) su crédito educativo…
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    ' ': ' '
+    '1': Sólo en dinero
+    '2': No paga colegiatura
+    '3': Sólo paga parte de la colegiatura
+  Especiales:
+    '&': No especificado
 nivelaprob:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Nivel de instrucción aprobado
+  Pregunta: ¿Hasta qué año o grado aprobó (NOMBRE) en la escuela?
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '0': '0'
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '5': '5'
-    '6': '6'
-    '7': '7'
-    '8': '8'
-    '9': '9'
-    ' ': ' '
+    '0': Ninguno
+    '1': Preescolar
+    '2': Primaria
+    '3': Secundaria
+    '4': Preparatoria o bachillerato
+    '5': Normal
+    '6': Carrera técnica o comercial
+    '7': Profesional
+    '8': Maestría
+    '9': Doctorado
 gradoaprob:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Grado aprobado
+  Pregunta: ¿Hasta qué año o grado aprobó (NOMBRE) en la escuela?
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '0': '0'
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '5': '5'
-    '6': '6'
-    ' ': ' '
+    '0': Ninguno
+    '1': Primer año
+    '2': Segundo año
+    '3': Tercer año
+    '4': Cuarto año
+    '5': Quinto año
+    '6': Sexto año
 antec_esc:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Antecedente escolar
+  Pregunta: ¿Qué estudios le pidieron a (NOMBRE) para ingresar a...?
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '5': '5'
-    ' ': ' '
+    '1': Primaria
+    '2': Secundaria
+    '3': Preparatoria o bachillerato
+    '4': Licenciatura o profesional
+    '5': Maestría
 residencia:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Residencia
+  Pregunta: ¿Hace 5 años, en octubre de 2005, en qué estado de la República Mexicana o país vivía (NOMBRE)?
+  Tipo: categorical
+  Longitud: '2'
   Categorías:
-    '01': '01'
-    '02': '02'
-    '03': '03'
-    '04': '04'
-    '05': '05'
-    '06': '06'
-    '07': '07'
-    08: 08
-    09: 09
-    '10': '10'
-    '11': '11'
-    '12': '12'
-    '13': '13'
-    '14': '14'
-    '15': '15'
-    '16': '16'
-    '17': '17'
-    '18': '18'
-    '19': '19'
-    '20': '20'
-    '21': '21'
-    '22': '22'
-    '23': '23'
-    '24': '24'
-    '25': '25'
-    '26': '26'
-    '27': '27'
-    '28': '28'
-    '29': '29'
-    '30': '30'
-    '31': '31'
-    '32': '32'
-    '33': '33'
-    '34': '34'
-    ' ': ' '
+    '01': Aguascalientes
+    '02': Baja California
+    '03': Baja California Sur
+    '04': Campeche
+    '05': Coahuila de Zaragoza
+    '06': Colima
+    '07': Chiapas
+    08: Chihuahua
+    09: Distrito Federal
+    '10': Durango
+    '11': Guanajuato
+    '12': Guerrero
+    '13': Hidalgo
+    '14': Jalisco
+    '15': México
+    '16': Michoacán de Ocampo
+    '17': Morelos
+    '18': Nayarit
+    '19': Nuevo León
+    '20': Oaxaca
+    '21': Puebla
+    '22': Querétaro Arteaga
+    '23': Quintana Roo
+    '24': San Luis Potosí
+    '25': Sinaloa
+    '26': Sonora
+    '27': Tabasco
+    '28': Tamaulipas
+    '29': Tlaxcala
+    '30': Veracruz de Ignacio de la Llave
+    '31': Yucatán
+    '32': Zacatecas
+    '33': Estados Unidos de América
+    '34': Otro país
 edo_conyug:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Situación conyugal
+  Pregunta: ¿Actualmente (NOMBRE)...
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '5': '5'
-    '6': '6'
-    ' ': ' '
+    '1': Vive con su pareja en unión libre
+    '2': Está casado(a)
+    '3': Está separado(a)
+    '4': Está divorciado(a)
+    '5': Es viudo(a)
+    '6': Está soltero(a)
 pareja_hog:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Pertenece el cónyuge al hogar
+  Pregunta: En este hogar, ¿vive la pareja o esposa(o) de (NOMBRE)?
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '1': '1'
-    '2': '2'
-    ' ': ' '
+    '1': Sí
+    '2': 'No'
 conyuge_id:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
-  Categorías:
-    '01': '01'
-    '02': '02'
-    '03': '03'
-    '04': '04'
-    '05': '05'
-    '06': '06'
-    '07': '07'
-    08: 08
-    09: 09
-    '10': '10'
-    '11': '11'
-    '13': '13'
-    '14': '14'
-    '15': '15'
-    '16': '16'
-    '20': '20'
-    '21': '21'
-    ' ': ' '
-    '&': '&'
+  Descripción: Identificador del cónyuge
+  Pregunta: ¿Quién es?
+  Tipo: numeric
+  Longitud: '2'
+  Categorías: {}
+  Especiales:
+    '&': No especificado
 segsoc:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Contribución a la seguridad social
+  Pregunta: ¿Alguna vez ha contribuido o cotizado para alguna institución de seguridad social?
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '1': '1'
-    '2': '2'
-    ' ': ' '
+    '1': Sí
+    '2': 'No'
 ss_aa:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
-  Categorías:
-    '-1': '-1'
-    '0': '0'
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '5': '5'
-    '6': '6'
-    '7': '7'
-    '8': '8'
-    '9': '9'
-    '10': '10'
-    '11': '11'
-    '12': '12'
-    '13': '13'
-    '14': '14'
-    '15': '15'
-    '16': '16'
-    '17': '17'
-    '18': '18'
-    '19': '19'
-    '20': '20'
-    '21': '21'
-    '22': '22'
-    '23': '23'
-    '24': '24'
-    '25': '25'
-    '26': '26'
-    '27': '27'
-    '28': '28'
-    '29': '29'
-    '30': '30'
-    '31': '31'
-    '32': '32'
-    '33': '33'
-    '34': '34'
-    '35': '35'
-    '36': '36'
-    '37': '37'
-    '38': '38'
-    '39': '39'
-    '40': '40'
-    '41': '41'
-    '42': '42'
-    '43': '43'
-    '44': '44'
-    '45': '45'
-    '46': '46'
-    '47': '47'
-    '48': '48'
-    '49': '49'
-    '50': '50'
-    '53': '53'
-    '54': '54'
-    '55': '55'
-    '60': '60'
-    '64': '64'
-    ' ': ' '
+  Descripción: Tiempo de contribución años
+  Pregunta: ¿Por cuánto tiempo en total?
+  Tipo: numeric
+  Longitud: '2'
+  Categorías: {}
+  Especiales:
+    '-1': No especificado
 ss_mm:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
-  Categorías:
-    '-1': '-1'
-    '0': '0'
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '5': '5'
-    '6': '6'
-    '7': '7'
-    '8': '8'
-    '9': '9'
-    '10': '10'
-    '11': '11'
-    ' ': ' '
+  Descripción: Tiempo de contribución meses
+  Pregunta: ¿Por cuánto tiempo en total?
+  Tipo: numeric
+  Longitud: '2'
+  Categorías: {}
+  Especiales:
+    '-1': No especificado
 segpop:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Seguro popular
+  Pregunta: Actualmente, ¿se encuentra usted afiliado o inscrito al Seguro Popular?
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '1': '1'
-    '2': '2'
-    ' ': ' '
+    '1': Sí
+    '2': 'No'
 atemed:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Atención médica
+  Pregunta: ¿Está usted afiliado o inscrito para recibir atención médica de parte de alguna institución?
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '1': '1'
-    '2': '2'
-    ' ': ' '
+    '1': Sí
+    '2': 'No'
 inst_1:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Institución médica IMSS
+  Pregunta: '¿En que institución está usted afiliado o inscrito:'
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '1': '1'
-    ' ': ' '
+    '1': En el IMSS
 inst_2:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Institución médica ISSSTE
+  Pregunta: '¿En que institución está usted afiliado o inscrito:'
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '2': '2'
-    ' ': ' '
+    '2': En el ISSSTE
 inst_3:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Institución médica ISSSTE estatal
+  Pregunta: '¿En que institución está usted afiliado o inscrito:'
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '3': '3'
-    ' ': ' '
+    '3': En el ISSSTE estatal
 inst_4:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Institución médica PEMEX
+  Pregunta: '¿En que institución está usted afiliado o inscrito:'
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '4': '4'
-    ' ': ' '
+    '4': Por PEMEX, la defensa o la Marina
 inst_5:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Institución médica Otro
+  Pregunta: '¿En que institución está usted afiliado o inscrito:'
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '5': '5'
-    ' ': ' '
+    '5': Otro
 inscr_1:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Prestación en el trabajo
+  Pregunta: '¿Está usted afiliado o inscrito por:'
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '1': '1'
-    ' ': ' '
+    '1': Prestación en el trabajo
 inscr_2:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Jubilación o invalidez
+  Pregunta: '¿Está usted afiliado o inscrito por:'
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '2': '2'
-    ' ': ' '
+    '2': Jubilación o invalidez
 inscr_3:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Familiar en el hogar
+  Pregunta: '¿Está usted afiliado o inscrito por:'
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '3': '3'
-    ' ': ' '
+    '3': Algún familiar en el hogar
 inscr_4:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Muerte del asegurado
+  Pregunta: '¿Está usted afiliado o inscrito por:'
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '4': '4'
-    ' ': ' '
+    '4': Muerte del asegurado
 inscr_5:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Ser estudiante
+  Pregunta: '¿Está usted afiliado o inscrito por:'
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '5': '5'
-    ' ': ' '
+    '5': Ser estudiante
 inscr_6:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Contratación propia
+  Pregunta: '¿Está usted afiliado o inscrito por:'
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '6': '6'
-    ' ': ' '
+    '6': Contratación propia
 inscr_7:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Algún familiar de otro hogar
+  Pregunta: '¿Está usted afiliado o inscrito por:'
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '7': '7'
-    ' ': ' '
+    '7': Algún familiar de otro hogar
 inscr_8:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: No sabe
+  Pregunta: '¿Está usted afiliado o inscrito por:'
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '8': '8'
-    ' ': ' '
+    '8': No sabe
 servmed_1:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Centro de salud
+  Pregunta: Cuando tiene problemas de salud, ¿en dónde se atiende?
+  Tipo: categorical
+  Longitud: '2'
   Categorías:
-    '01': '01'
-    ' ': ' '
+    '01': Centros de salud (secretaría de salud)
 servmed_2:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Hospital o instituto
+  Pregunta: Cuando tiene problemas de salud, ¿en dónde se atiende?
+  Tipo: categorical
+  Longitud: '2'
   Categorías:
-    '02': '02'
-    ' ': ' '
+    '02': Hospital o instituto (secretaría de salud)
 servmed_3:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: IMSS
+  Pregunta: Cuando tiene problemas de salud, ¿en dónde se atiende?
+  Tipo: categorical
+  Longitud: '2'
   Categorías:
-    '03': '03'
-    ' ': ' '
+    '03': Seguro social o IMSS
 servmed_4:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Oportunidades
+  Pregunta: Cuando tiene problemas de salud, ¿en dónde se atiende?
+  Tipo: categorical
+  Longitud: '2'
   Categorías:
-    '04': '04'
-    ' ': ' '
+    '04': IMSS-Oportunidades
 servmed_5:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: ISSSTE
+  Pregunta: Cuando tiene problemas de salud, ¿en dónde se atiende?
+  Tipo: categorical
+  Longitud: '2'
   Categorías:
-    '05': '05'
-    ' ': ' '
+    '05': ISSSTE
 servmed_6:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: ISSSTE estatal
+  Pregunta: Cuando tiene problemas de salud, ¿en dónde se atiende?
+  Tipo: categorical
+  Longitud: '2'
   Categorías:
-    '06': '06'
-    ' ': ' '
+    '06': ISSSTE estatal
 servmed_7:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Otros
+  Pregunta: Cuando tiene problemas de salud, ¿en dónde se atiende?
+  Tipo: categorical
+  Longitud: '2'
   Categorías:
-    '07': '07'
-    ' ': ' '
+    '07': Otro servicio médico público (PEMEX, Defensa, Marina, DIF, INI, GDF)
 servmed_8:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Consultorios privados
+  Pregunta: Cuando tiene problemas de salud, ¿en dónde se atiende?
+  Tipo: categorical
+  Longitud: '2'
   Categorías:
-    08: 08
-    ' ': ' '
+    08: Consultorios y hospitales privados
 servmed_9:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Consultorio de farmacias
+  Pregunta: Cuando tiene problemas de salud, ¿en dónde se atiende?
+  Tipo: categorical
+  Longitud: '2'
   Categorías:
-    09: 09
-    ' ': ' '
+    09: Consultorio de farmacias
 servmed_10:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Curandero
+  Pregunta: Cuando tiene problemas de salud, ¿en dónde se atiende?
+  Tipo: categorical
+  Longitud: '2'
   Categorías:
-    '10': '10'
-    ' ': ' '
+    '10': Curandero, hierbero, comadrona, brujo, etc
 servmed_11:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Se automedica
+  Pregunta: Cuando tiene problemas de salud, ¿en dónde se atiende?
+  Tipo: categorical
+  Longitud: '2'
   Categorías:
-    '11': '11'
-    ' ': ' '
+    '11': Se automedica
 servmed_12:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Otro
+  Pregunta: Cuando tiene problemas de salud, ¿en dónde se atiende?
+  Tipo: categorical
+  Longitud: '2'
   Categorías:
-    '12': '12'
-    ' ': ' '
+    '12': Otro
 servmed_13:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: No sabe
+  Pregunta: Cuando tiene problemas de salud, ¿en dónde se atiende?
+  Tipo: categorical
+  Longitud: '2'
   Categorías:
-    '13': '13'
-    ' ': ' '
+    '13': No sabe
 peso:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Control de peso y talla
+  Pregunta: ¿En los últimos doce meses, algún médico o enfermera lo ha pesado y medido?
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '1': '1'
-    '2': '2'
-    ' ': ' '
+    '1': Sí
+    '2': 'No'
 prob_sal:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Problemas de salud
+  Pregunta: En los últimos doce meses, ¿se ha enfermado o ha padecido de algún dolor, malestar o accidente
+    que le haya impedido realizar sus actividades cotidianas?
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '1': '1'
-    '2': '2'
-    ' ': ' '
+    '1': Sí
+    '2': 'No'
 aten_sal:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Atención médica para menores
+  Pregunta: En estos casos, ¿recibió (NOMBRE) atención médica?
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '1': '1'
-    '2': '2'
-    ' ': ' '
+    '1': Sí
+    '2': 'No'
 aten_sal1:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Atención médica para mayores
+  Pregunta: '¿Recibió usted atención médica:'
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '5': '5'
-    ' ': ' '
+    '1': Siempre
+    '2': Casi siempre
+    '3': Casi nunca
+    '4': Nunca
+    '5': Algunas veces
 noatenc_1:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: No hay donde atenderse
+  Pregunta: No se atendió, ¿porque...
+  Tipo: categorical
+  Longitud: '2'
   Categorías:
-    '01': '01'
-    ' ': ' '
+    '01': No hay donde atenderse
 noatenc_2:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Es caro
+  Pregunta: No se atendió, ¿porque...
+  Tipo: categorical
+  Longitud: '2'
   Categorías:
-    '02': '02'
-    ' ': ' '
+    '02': Es caro
 noatenc_3:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: No tenia dinero
+  Pregunta: No se atendió, ¿porque...
+  Tipo: categorical
+  Longitud: '2'
   Categorías:
-    '03': '03'
-    ' ': ' '
+    '03': No tenia dinero
 noatenc_4:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Unidad médica lejana
+  Pregunta: No se atendió, ¿porque...
+  Tipo: categorical
+  Longitud: '2'
   Categorías:
-    '04': '04'
-    ' ': ' '
+    '04': La unidad médica queda lejos
 noatenc_5:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: No lo atienden
+  Pregunta: No se atendió, ¿porque...
+  Tipo: categorical
+  Longitud: '2'
   Categorías:
-    '05': '05'
-    ' ': ' '
+    '05': No lo atienden
 noatenc_6:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: No le tiene confianza
+  Pregunta: No se atendió, ¿porque...
+  Tipo: categorical
+  Longitud: '2'
   Categorías:
-    '06': '06'
-    ' ': ' '
+    '06': No le tiene confianza
 noatenc_7:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Lo tratan mal
+  Pregunta: No se atendió, ¿porque...
+  Tipo: categorical
+  Longitud: '2'
   Categorías:
-    '07': '07'
-    ' ': ' '
+    '07': Lo(a) tratan mal donde se atiende
 noatenc_8:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: No hablan la misma lengua
+  Pregunta: No se atendió, ¿porque...
+  Tipo: categorical
+  Longitud: '2'
   Categorías:
-    08: 08
-    ' ': ' '
+    08: No hablan la misma lengua
 noatenc_9:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: No era necesario
+  Pregunta: No se atendió, ¿porque...
+  Tipo: categorical
+  Longitud: '2'
   Categorías:
-    09: 09
-    ' ': ' '
+    09: No quiso o no era necesario
 noatenc_10:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Hay que esperar mucho
+  Pregunta: No se atendió, ¿porque...
+  Tipo: categorical
+  Longitud: '2'
   Categorías:
-    '10': '10'
-    ' ': ' '
+    '10': Hay que esperar mucho para ser atendido(a)
 noatenc_11:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: No le dan medicamento
+  Pregunta: No se atendió, ¿porque...
+  Tipo: categorical
+  Longitud: '2'
   Categorías:
-    '11': '11'
-    ' ': ' '
+    '11': No le dan el medicamento que necesita
 noatenc_12:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: No tuvo tiempo
+  Pregunta: No se atendió, ¿porque...
+  Tipo: categorical
+  Longitud: '2'
   Categorías:
-    '12': '12'
-    ' ': ' '
+    '12': No tuvo tiempo
 noatenc_13:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Unidad médica cerrada
+  Pregunta: No se atendió, ¿porque...
+  Tipo: categorical
+  Longitud: '2'
   Categorías:
-    '13': '13'
-    ' ': ' '
+    '13': La unidad médica no estaba abierta
 noatenc_14:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Citas fuera de tiempo
+  Pregunta: No se atendió, ¿porque...
+  Tipo: categorical
+  Longitud: '2'
   Categorías:
-    '14': '14'
-    ' ': ' '
+    '14': Le dieron una cita hasta mucho tiempo después
 noatenc_15:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: No hubo quien lo llevara
+  Pregunta: No se atendió, ¿porque...
+  Tipo: categorical
+  Longitud: '2'
   Categorías:
-    '15': '15'
-    ' ': ' '
+    '15': No hubo quien lo llevara
 noatenc_16:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: No había medico en la unidad
+  Pregunta: No se atendió, ¿porque...
+  Tipo: categorical
+  Longitud: '2'
   Categorías:
-    '16': '16'
-    ' ': ' '
+    '16': No había médico en la unidad
 noatenc_17:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Se lo impidió un integrante
+  Pregunta: No se atendió, ¿porque...
+  Tipo: categorical
+  Longitud: '2'
   Categorías:
-    '17': '17'
-    ' ': ' '
+    '17': Se lo impidió un integrante de su hogar
 noatenc_18:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Se automedica
+  Pregunta: No se atendió, ¿porque...
+  Tipo: categorical
+  Longitud: '2'
   Categorías:
-    '18': '18'
-    ' ': ' '
+    '18': Se automedicó o autorecetó
 noatenc_19:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Otro motivo
+  Pregunta: No se atendió, ¿porque...
+  Tipo: categorical
+  Longitud: '2'
   Categorías:
-    '19': '19'
-    ' ': ' '
+    '19': Otro motivo
 noatenc_20:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: No sabe
+  Pregunta: No se atendió, ¿porque...
+  Tipo: categorical
+  Longitud: '2'
   Categorías:
-    '20': '20'
-    ' ': ' '
+    '20': No sabe
 redsoc_1:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Red social 1
+  Pregunta: ¿Cree usted que si necesitara pedirle a alguien la cantidad de dinero que se gana en su hogar
+    en un mes, le sería
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '5': '5'
-    ' ': ' '
+    '1': Imposible conseguirla
+    '2': Difícil conseguirla
+    '3': Fácil conseguirla
+    '4': Muy fácil conseguirla
+    '5': Ni fácil ni difícil conseguirla (espontánea)
 redsoc_2:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Red social 2
+  Pregunta: ¿Cree usted que si necesitara pedir ayuda para que lo(a) cuiden a usted en una enfermedad,
+    le sería
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '5': '5'
-    ' ': ' '
+    '1': Imposible conseguirla
+    '2': Difícil conseguirla
+    '3': Fácil conseguirla
+    '4': Muy fácil conseguirla
+    '5': Ni fácil ni difícil conseguirla (espontánea)
 redsoc_3:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Red social 3
+  Pregunta: ¿Cree usted que si necesitara pedir ayuda para conseguir un trabajo, le sería
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '5': '5'
-    ' ': ' '
+    '1': Imposible conseguirla
+    '2': Difícil conseguirla
+    '3': Fácil conseguirla
+    '4': Muy fácil conseguirla
+    '5': Ni fácil ni difícil conseguirla (espontánea)
 redsoc_4:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Red social 4
+  Pregunta: ¿Cree usted que si necesitara pedir ayuda para que lo(a) acompañen al doctor, le sería
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '5': '5'
-    ' ': ' '
+    '1': Imposible conseguirla
+    '2': Difícil conseguirla
+    '3': Fácil conseguirla
+    '4': Muy fácil conseguirla
+    '5': Ni fácil ni difícil conseguirla (espontánea)
 redsoc_5:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Red social 5
+  Pregunta: ¿Cree usted que si necesitara pedir cooperación para realizar mejoras en su colonia o localidad,
+    le sería
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '5': '5'
-    ' ': ' '
+    '1': Imposible conseguirla
+    '2': Difícil conseguirla
+    '3': Fácil conseguirla
+    '4': Muy fácil conseguirla
+    '5': Ni fácil ni difícil conseguirla (espontánea)
 redsoc_6:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Red social 6
+  Pregunta: ¿Cree usted que si necesitara pedir ayuda para que cuiden a los(as) niños(as) en este hogar,
+    le sería
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '5': '5'
-    ' ': ' '
+    '1': Imposible conseguirla
+    '2': Difícil conseguirla
+    '3': Fácil conseguirla
+    '4': Muy fácil conseguirla
+    '5': Ni fácil ni difícil conseguirla (espontánea)
 hor_1:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Trabajar_horas
+  Pregunta: Durante la semana pasada ¿cuánto tiempo dedicó a trabajar?
+  Tipo: numeric
+  Longitud: '3'
   Categorías: {}
 min_1:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
-  Categorías:
-    '0': '0'
-    '2': '2'
-    '5': '5'
-    '6': '6'
-    '9': '9'
-    '10': '10'
-    '11': '11'
-    '14': '14'
-    '15': '15'
-    '17': '17'
-    '20': '20'
-    '22': '22'
-    '30': '30'
-    '32': '32'
-    '35': '35'
-    '36': '36'
-    '40': '40'
-    '45': '45'
-    '49': '49'
-    '50': '50'
-    '59': '59'
-    ' ': ' '
+  Descripción: Trabajar_minutos
+  Pregunta: Durante la semana pasada ¿cuánto tiempo dedicó a trabajar?
+  Tipo: numeric
+  Longitud: '2'
+  Categorías: {}
 usotiempo1:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Trabajar
+  Pregunta: Durante la semana pasada ¿cuánto tiempo dedicó a trabajar?
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '8': '8'
-    '9': '9'
-    ' ': ' '
+    '8': No recuerda
+    '9': No lo hizo
 hor_2:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Estudiar_horas
+  Pregunta: Durante la semana pasada ¿cuánto tiempo dedicó a estudiar y hacer actividades relacionadas
+    con el estudio?
+  Tipo: numeric
+  Longitud: '3'
   Categorías: {}
 min_2:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
-  Categorías:
-    '0': '0'
-    '1': '1'
-    '6': '6'
-    '9': '9'
-    '10': '10'
-    '15': '15'
-    '20': '20'
-    '30': '30'
-    '35': '35'
-    '40': '40'
-    '50': '50'
-    ' ': ' '
+  Descripción: Estudiar_minutos
+  Pregunta: Durante la semana pasada ¿cuánto tiempo dedicó a estudiar y hacer actividades relacionadas
+    con el estudio?
+  Tipo: numeric
+  Longitud: '2'
+  Categorías: {}
 usotiempo2:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Estudiar y hacer actividades
+  Pregunta: Durante la semana pasada ¿cuánto tiempo dedicó a estudiar y hacer actividades relacionadas
+    con el estudio?
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '8': '8'
-    '9': '9'
-    ' ': ' '
+    '8': No recuerda
+    '9': No lo hizo
 hor_3:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
-  Categorías:
-    '0': '0'
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '5': '5'
-    '6': '6'
-    '7': '7'
-    '8': '8'
-    '9': '9'
-    '10': '10'
-    '11': '11'
-    '12': '12'
-    '14': '14'
-    '15': '15'
-    '16': '16'
-    '17': '17'
-    '18': '18'
-    '20': '20'
-    '21': '21'
-    '22': '22'
-    '24': '24'
-    '25': '25'
-    '27': '27'
-    '28': '28'
-    '30': '30'
-    '32': '32'
-    '35': '35'
-    '36': '36'
-    '40': '40'
-    '42': '42'
-    '46': '46'
-    '48': '48'
-    '50': '50'
-    '55': '55'
-    '58': '58'
-    '60': '60'
-    '86': '86'
-    ' ': ' '
+  Descripción: Realizar trabajo_horas
+  Pregunta: Durante la semana pasada ¿cuánto tiempo dedicó a realizar trabajo comunitario o voluntario?
+  Tipo: numeric
+  Longitud: '2'
+  Categorías: {}
 min_3:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
-  Categorías:
-    '0': '0'
-    '2': '2'
-    '5': '5'
-    '6': '6'
-    '9': '9'
-    '10': '10'
-    '15': '15'
-    '20': '20'
-    '30': '30'
-    '35': '35'
-    '40': '40'
-    '50': '50'
-    '56': '56'
-    ' ': ' '
+  Descripción: Realiza trabajo_minutos
+  Pregunta: Durante la semana pasada ¿cuánto tiempo dedicó a realizar trabajo comunitario o voluntario?
+  Tipo: numeric
+  Longitud: '2'
+  Categorías: {}
 usotiempo3:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Trabajo comunitario
+  Pregunta: Durante la semana pasada ¿cuánto tiempo dedicó a realizar trabajo comunitario o voluntario?
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '8': '8'
-    '9': '9'
-    ' ': ' '
+    '8': No recuerda
+    '9': No lo hizo
 hor_4:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Cuidar_horas
+  Pregunta: Durante la semana pasada ¿cuánto tiempo dedicó a cuidar, atender sin pago y de manera exclusiva
+    a niños, ancianos, enfermos, discapacitados?
+  Tipo: numeric
+  Longitud: '2'
   Categorías: {}
 min_4:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
-  Categorías:
-    '0': '0'
-    '1': '1'
-    '7': '7'
-    '10': '10'
-    '15': '15'
-    '20': '20'
-    '28': '28'
-    '30': '30'
-    '40': '40'
-    '50': '50'
-    '59': '59'
-    ' ': ' '
+  Descripción: Cuidar_minutos
+  Pregunta: Durante la semana pasada ¿cuánto tiempo dedicó a cuidar, atender sin pago y de manera exclusiva
+    a niños, ancianos, enfermos, discapacitados?
+  Tipo: numeric
+  Longitud: '2'
+  Categorías: {}
 usotiempo4:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Cuidar, atender sin pago
+  Pregunta: Durante la semana pasada ¿cuánto tiempo dedicó a cuidar, atender sin pago y de manera exclusiva
+    a niños, ancianos, enfermos, discapacitados?
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '8': '8'
-    '9': '9'
-    ' ': ' '
+    '8': No recuerda
+    '9': No lo hizo
 hor_5:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
-  Categorías:
-    '0': '0'
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '5': '5'
-    '6': '6'
-    '7': '7'
-    '8': '8'
-    '9': '9'
-    '10': '10'
-    '11': '11'
-    '12': '12'
-    '13': '13'
-    '14': '14'
-    '15': '15'
-    '16': '16'
-    '17': '17'
-    '18': '18'
-    '19': '19'
-    '20': '20'
-    '21': '21'
-    '22': '22'
-    '23': '23'
-    '24': '24'
-    '25': '25'
-    '26': '26'
-    '27': '27'
-    '28': '28'
-    '30': '30'
-    '31': '31'
-    '32': '32'
-    '35': '35'
-    '36': '36'
-    '40': '40'
-    '42': '42'
-    '48': '48'
-    '50': '50'
-    '56': '56'
-    '58': '58'
-    '60': '60'
-    '64': '64'
-    '70': '70'
-    '84': '84'
-    ' ': ' '
+  Descripción: Reparar_horas
+  Pregunta: Durante la semana pasada ¿cuánto tiempo dedicó a reparar o dar mantenimiento a su vivienda,
+    muebles, aparatos domésticos o vehículos?
+  Tipo: numeric
+  Longitud: '2'
+  Categorías: {}
 min_5:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
-  Categorías:
-    '0': '0'
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '5': '5'
-    '6': '6'
-    '10': '10'
-    '15': '15'
-    '20': '20'
-    '30': '30'
-    '40': '40'
-    '45': '45'
-    '50': '50'
-    ' ': ' '
+  Descripción: Reparar_minutos
+  Pregunta: Durante la semana pasada ¿cuánto tiempo dedicó a reparar o dar mantenimiento a su vivienda,
+    muebles, aparatos domésticos o vehículos?
+  Tipo: numeric
+  Longitud: '2'
+  Categorías: {}
 usotiempo5:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Reparar su vivienda
+  Pregunta: Durante la semana pasada ¿cuánto tiempo dedicó a reparar o dar mantenimiento a su vivienda,
+    muebles, aparatos domésticos o vehículos?
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '8': '8'
-    '9': '9'
-    ' ': ' '
+    '8': No recuerda
+    '9': No lo hizo
 hor_6:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Quehacer_horas
+  Pregunta: Durante la semana pasada ¿cuánto tiempo dedicó a realizar el quehacer de su hogar?
+  Tipo: numeric
+  Longitud: '2'
   Categorías: {}
 min_6:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
-  Categorías:
-    '0': '0'
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '5': '5'
-    '6': '6'
-    '7': '7'
-    '10': '10'
-    '15': '15'
-    '16': '16'
-    '20': '20'
-    '22': '22'
-    '25': '25'
-    '28': '28'
-    '30': '30'
-    '33': '33'
-    '35': '35'
-    '40': '40'
-    '45': '45'
-    '50': '50'
-    '56': '56'
-    '59': '59'
-    ' ': ' '
-usotiempo6:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
-  Categorías:
-    '8': '8'
-    '9': '9'
-    ' ': ' '
-hor_7:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
-  Categorías:
-    '0': '0'
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '5': '5'
-    '6': '6'
-    '7': '7'
-    '8': '8'
-    '9': '9'
-    '10': '10'
-    '11': '11'
-    '12': '12'
-    '13': '13'
-    '14': '14'
-    '15': '15'
-    '16': '16'
-    '17': '17'
-    '18': '18'
-    '19': '19'
-    '20': '20'
-    '21': '21'
-    '23': '23'
-    '24': '24'
-    '25': '25'
-    '26': '26'
-    '28': '28'
-    '29': '29'
-    '30': '30'
-    '35': '35'
-    '36': '36'
-    '37': '37'
-    '39': '39'
-    '40': '40'
-    '42': '42'
-    '45': '45'
-    '48': '48'
-    '49': '49'
-    '60': '60'
-    '70': '70'
-    '72': '72'
-    '80': '80'
-    '92': '92'
-    ' ': ' '
-min_7:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
-  Categorías:
-    '0': '0'
-    '1': '1'
-    '3': '3'
-    '5': '5'
-    '6': '6'
-    '7': '7'
-    '10': '10'
-    '15': '15'
-    '20': '20'
-    '25': '25'
-    '28': '28'
-    '30': '30'
-    '35': '35'
-    '40': '40'
-    '45': '45'
-    '50': '50'
-    ' ': ' '
-usotiempo7:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
-  Categorías:
-    '8': '8'
-    '9': '9'
-    ' ': ' '
-hor_8:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Quehacer_minutos
+  Pregunta: Durante la semana pasada ¿cuánto tiempo dedicó a realizar el quehacer de su hogar?
+  Tipo: numeric
+  Longitud: '2'
   Categorías: {}
+usotiempo6:
+  Descripción: Realizar quehacer en su hogar
+  Pregunta: Durante la semana pasada ¿cuánto tiempo dedicó a realizar el quehacer de su hogar?
+  Tipo: categorical
+  Longitud: '1'
+  Categorías:
+    '8': No recuerda
+    '9': No lo hizo
+hor_7:
+  Descripción: Acarrear_horas
+  Pregunta: Durante la semana pasada ¿cuánto tiempo dedicó a acarrear agua o leña?
+  Tipo: numeric
+  Longitud: '2'
+  Categorías: {}
+min_7:
+  Descripción: Acarrear_minutos
+  Pregunta: Durante la semana pasada ¿cuánto tiempo dedicó a acarrear agua o leña?
+  Tipo: numeric
+  Longitud: '2'
+  Categorías: {}
+usotiempo7:
+  Descripción: Acarrear agua o leña
+  Pregunta: Durante la semana pasada ¿cuánto tiempo dedicó a acarrear agua o leña?
+  Tipo: categorical
+  Longitud: '1'
+  Categorías:
+    '8': No recuerda
+    '9': No lo hizo
+hor_8:
+  Descripción: Tiempo_horas
+  Pregunta: Durante la semana pasada ¿Cuánto tiempo le quedó para realizar actividades que a usted le
+    gustan?
+  Tipo: numeric
+  Longitud: '3'
+  Categorías: {}
+  Especiales:
+    '-1': No especificado
 min_8:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
-  Categorías:
-    '-1': '-1'
-    '0': '0'
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '5': '5'
-    '6': '6'
-    '10': '10'
-    '11': '11'
-    '12': '12'
-    '20': '20'
-    '30': '30'
-    '35': '35'
-    '40': '40'
-    '45': '45'
-    '50': '50'
-    ' ': ' '
+  Descripción: Tiempo_minutos
+  Pregunta: Durante la semana pasada ¿Cuánto tiempo le quedó para realizar actividades que a usted le
+    gustan?
+  Tipo: numeric
+  Longitud: '2'
+  Categorías: {}
+  Especiales:
+    '-1': No especificado
 usotiempo8:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Tiempo para realizar actividades
+  Pregunta: Durante la semana pasada ¿Cuánto tiempo le quedó para realizar actividades que a usted le
+    gustan?
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '8': '8'
-    '9': '9'
-    ' ': ' '
+    '8': No recuerda
+    '9': No lo hizo
 diabetes:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Diabetes
+  Pregunta: ¿En los últimos doce meses le han tomado alguna muestra de sangre mediante punción de alguno
+    de sus dedos para detección de diabetes?
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '1': '1'
-    '2': '2'
-    ' ': ' '
+    '1': Sí
+    '2': 'No'
 pres_alta:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Presión alta
+  Pregunta: ¿En los últimos doce meses le han medido a usted su presión arterial?
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '1': '1'
-    '2': '2'
-    ' ': ' '
+    '1': Sí
+    '2': 'No'
 segvol_1:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Seguro voluntario 1
+  Pregunta: ¿Tiene usted contratado voluntariamente un...
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '1': '1'
-    ' ': ' '
+    '1': SAR, AFORE o fondo de pensiones
 segvol_2:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Seguro voluntario 2
+  Pregunta: ¿Tiene usted contratado voluntariamente un...
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '2': '2'
-    ' ': ' '
+    '2': seguro privado de gastos médicos
 segvol_3:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Seguro voluntario 3
+  Pregunta: ¿Tiene usted contratado voluntariamente un...
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '3': '3'
-    ' ': ' '
+    '3': seguro de vida
 segvol_4:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Seguro voluntario 4
+  Pregunta: ¿Tiene usted contratado voluntariamente un...
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '4': '4'
-    ' ': ' '
+    '4': seguro de invalidez
 segvol_5:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Seguro voluntario 5
+  Pregunta: ¿Tiene usted contratado voluntariamente un...
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '5': '5'
-    ' ': ' '
+    '5': otro tipo de seguro
 segvol_6:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Seguro voluntario 6
+  Pregunta: ¿Tiene usted contratado voluntariamente un...
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '6': '6'
-    ' ': ' '
+    '6': Ninguno de los anteriores
 segvol_7:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Seguro voluntario 7
+  Pregunta: ¿Tiene usted contratado voluntariamente un...
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '7': '7'
-    ' ': ' '
+    '7': No sabe
 hijos_viv:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
-  Categorías:
-    '0': '0'
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '5': '5'
-    '6': '6'
-    '7': '7'
-    '8': '8'
-    '9': '9'
-    '10': '10'
-    '11': '11'
-    '12': '12'
-    '13': '13'
-    '14': '14'
-    '15': '15'
-    '16': '16'
-    '17': '17'
-    '18': '18'
-    '20': '20'
-    '22': '22'
-    '24': '24'
-    ' ': ' '
+  Descripción: Hijos nacidos vivos
+  Pregunta: En total, ¿cuántas hijas o hijos que nacieron vivos ha tenido?
+  Tipo: numeric
+  Longitud: '2'
+  Categorías: {}
 hijos_mue:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
-  Categorías:
-    '0': '0'
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '5': '5'
-    '6': '6'
-    '7': '7'
-    '8': '8'
-    '9': '9'
-    '10': '10'
-    '11': '11'
-    '12': '12'
-    '14': '14'
-    '18': '18'
-    ' ': ' '
+  Descripción: Hijos fallecidos
+  Pregunta: ¿De sus hijas e hijos cuántos han muerto?
+  Tipo: numeric
+  Longitud: '2'
+  Categorías: {}
 hijos_sob:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
-  Categorías:
-    '0': '0'
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '5': '5'
-    '6': '6'
-    '7': '7'
-    '8': '8'
-    '9': '9'
-    '10': '10'
-    '11': '11'
-    '12': '12'
-    '13': '13'
-    '14': '14'
-    '15': '15'
-    '16': '16'
-    ' ': ' '
+  Descripción: Hijos sobrevivientes
+  Pregunta: ¿Cuántas de sus hijas o hijos viven actualmente aunque no residan en esta vivienda?
+  Tipo: numeric
+  Longitud: '2'
+  Categorías: {}
 trabajo_mp:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Trabajó el mes pasado
+  Pregunta: No aplica.
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '1': '1'
-    '2': '2'
-    ' ': ' '
+    '1': Trabajó el mes pasado
+    '2': No trabajó el mes pasado
 motivo_aus:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Motivo de ausencia al trabajo
+  Pregunta: ¿Cuál es la razón principal por la que estuvo ausente de su trabajo el mes pasado?
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '5': '5'
-    '7': '7'
-    ' ': ' '
+    '1': Tenía permiso por enfermedad o para realizar tramites, etc.
+    '2': Estaba recibiendo capacitación para su trabajo o de vacaciones
+    '3': Había un conflicto laboral o huelga
+    '4': No tenia materias primas, clientes o el equipo estaba descompuesto
+    '5': No era temporada de trabajo agrícola
+    '6': Había mal clima u otro fenómeno natural
+    '7': Ninguna de las anteriores
 act_buscot:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Buscador de trabajo 1
+  Pregunta: Entonces el mes pasado...
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '1': '1'
-    ' ': ' '
+    '1': Estuvo buscando trabajo
 act_rento:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Buscador de trabajo 2
+  Pregunta: Entonces el mes pasado...
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '2': '2'
-    ' ': ' '
+    '2': Rentó o alquiló alguna propiedad
 act_pensio:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Buscador de trabajo 3
+  Pregunta: Entonces el mes pasado...
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '3': '3'
-    ' ': ' '
+    '3': Es pensionado o jubilado
 act_quehac:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Buscador de trabajo 4
+  Pregunta: Entonces el mes pasado...
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '4': '4'
-    ' ': ' '
+    '4': Se dedicó a los quehaceres del hogar
 act_estudi:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Buscador de trabajo 5
+  Pregunta: Entonces el mes pasado...
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '5': '5'
-    ' ': ' '
+    '5': Se dedicó a estudiar
 act_discap:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Buscador de trabajo 6
+  Pregunta: Entonces el mes pasado...
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '6': '6'
-    ' ': ' '
+    '6': Es una persona con alguna limitación física o mental
 act_otra:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Buscador de trabajo 7
+  Pregunta: Entonces el mes pasado...
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '7': '7'
-    ' ': ' '
+    '7': Está en otra situación diferente a las anteriores
 num_trabaj:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Números de trabajos
+  Pregunta: ¿Cuántos trabajos tuvo el mes pasado?
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '1': '1'
-    '2': '2'
-    ' ': ' '
+    '1': Sólo 1
+    '2': Dos o más

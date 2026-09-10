@@ -1,106 +1,117 @@
 folioviv:
-  Descripción: Identificador de la vivienda (folio). Los dos primeros caracteres son
-    la clave de la entidad federativa.
-  Tipo: str
+  Descripción: Identificador de la vivienda (folio). Los dos primeros caracteres son la clave de la entidad
+    federativa.
+  Tipo: string
   Longitud: 6 (2008–2012) / 10 (2014+)
   Categorías: {}
 foliohog:
   Descripción: Identificador del hogar dentro de la vivienda.
-  Tipo: str
+  Tipo: string
   Longitud: '1'
   Categorías: {}
 clave:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Clave de gasto
+  Pregunta: Durante el mes de ____________, ¿compró o estuvo pagando algún artículo o servicio de los
+    que le voy a mencionar?
+  Tipo: string
+  Longitud: '4'
   Categorías: {}
+  Nota: catálogo de 465 códigos (no enumerado)
 lug_com:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Lugar de compra
+  Pregunta: ¿Dónde compró este artículo o servicio?
+  Tipo: categorical
+  Longitud: '2'
   Categorías:
-    '01': '01'
-    '02': '02'
-    '03': '03'
-    '04': '04'
-    '05': '05'
-    '06': '06'
-    '07': '07'
-    08: 08
-    09: 09
-    '10': '10'
-    '15': '15'
-    '16': '16'
-    '17': '17'
-    '18': '18'
-    ' ': ' '
+    '01': Mercado
+    '02': Tianguis o mercado sobre ruedas
+    '03': Vendedores ambulantes
+    '04': Tiendas de abarrotes
+    '05': Tiendas específicas del ramo (mueblerías, jugueterías, zapaterías, etcétera)
+    '06': Supermercados
+    '07': Tiendas departamentales
+    08: Compras fuera del país
+    09: Tiendas con membresía
+    '10': Tiendas de conveniencia
+    '15': Diconsa
+    '16': Lechería Linconsa
+    '17': Persona particular
+    '18': Internet
 inst1:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Organización o institución
+  Pregunta: ¿En dónde recibió el servicio y/o los productos?
+  Tipo: categorical
+  Longitud: '2'
   Categorías:
-    '01': '01'
-    '02': '02'
-    '03': '03'
-    '04': '04'
-    '05': '05'
-    '06': '06'
-    '07': '07'
-    08: 08
-    09: 09
-    '10': '10'
-    '11': '11'
-    '12': '12'
-    '13': '13'
-    ' ': ' '
+    '01': Médicos particulares
+    '02': IMSS
+    '03': ISSSTE
+    '04': PEMEX
+    '05': DE LA MARINA
+    '06': EJÉRCITO
+    '07': SSA
+    08: SSA con Seguro Popular
+    09: DIF
+    '10': Universidades públicas
+    '11': Otros servicios:Cruz Roja, Cruz Verde, etc.
+    '12': PROGRESA U OPORTUNIDADES
+    '13': Provenientes de otro hogar
 inst2:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Organización o institución
+  Pregunta: ¿En dónde recibió el servicio y/o los productos?
+  Tipo: categorical
+  Longitud: '2'
   Categorías:
-    '01': '01'
-    '02': '02'
-    '03': '03'
-    '04': '04'
-    '05': '05'
-    '06': '06'
-    '07': '07'
-    08: 08
-    09: 09
-    '10': '10'
-    '11': '11'
-    '12': '12'
-    '13': '13'
-    ' ': ' '
+    '01': Médicos particulares
+    '02': IMSS
+    '03': ISSSTE
+    '04': PEMEX
+    '05': DE LA MARINA
+    '06': EJÉRCITO
+    '07': SSA
+    08: SSA con Seguro Popular
+    09: DIF
+    '10': Universidades públicas
+    '11': Otros servicios:Cruz Roja, Cruz Verde, etc.
+    '12': PROGRESA U OPORTUNIDADES
+    '13': Provenientes de otro hogar
 fpago:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Forma de pago
+  Pregunta: Este artículo o servicio ¿lo pagó...?
+  Tipo: categorical
+  Longitud: '3'
   Categorías:
-    '001': '001'
-    '002': '002'
-    '003': '003'
-    '021': '021'
-    '031': '031'
-    '032': '032'
-    ' ': ' '
+    '001': De contado
+    '002': Con tarjeta de crédito bancaria o comercial
+    '003': Fiado (persona particular o establecimiento comercial)
+    '021': De contado y con tarjeta de crédito bancaria o comercial
+    '031': De contado y fiado (persona particular o establecimiento comercial)
+    '032': Con tarjeta de crédito bancaria o comercial y fiado (persona particular o establecimiento comercial)
 gasto:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Gasto efectuado
+  Pregunta: ¿Cuánto pagó el mes pasado?
+  Tipo: numeric
+  Longitud: '9'
   Categorías: {}
+  Especiales:
+    '-1': No especificado
 pago_mp:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Pago mes pasado
+  Pregunta: ¿Cuánto pagó en total el mes pasado?
+  Tipo: numeric
+  Longitud: '9'
   Categorías: {}
 inmujer:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Gasto mujeres
+  Pregunta: ¿Cuánto gastó en total para mujeres y niñas?
+  Tipo: numeric
+  Longitud: '9'
   Categorías: {}
 gas_tri:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Gasto trimestral
+  Pregunta: ''
+  Tipo: numeric
+  Longitud: '15'
   Categorías: {}
+  Especiales:
+    '-1': No especificado

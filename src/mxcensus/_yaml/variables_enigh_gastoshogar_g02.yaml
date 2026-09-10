@@ -1,384 +1,290 @@
 folioviv:
-  Descripción: Identificador de la vivienda (folio). Los dos primeros caracteres son
-    la clave de la entidad federativa.
-  Tipo: str
+  Descripción: Identificador de la vivienda (folio). Los dos primeros caracteres son la clave de la entidad
+    federativa.
+  Tipo: string
   Longitud: 6 (2008–2012) / 10 (2014+)
   Categorías: {}
 foliohog:
   Descripción: Identificador del hogar dentro de la vivienda.
-  Tipo: str
+  Tipo: string
   Longitud: '1'
   Categorías: {}
 clave:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Clave de gasto
+  Pregunta: No aplica.
+  Tipo: string
+  Longitud: '4'
   Categorías: {}
+  Nota: catálogo de 762 códigos (no enumerado)
 tipo_gasto:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Tipo de gasto
+  Pregunta: No aplica.
+  Tipo: categorical
+  Longitud: '2'
   Categorías:
-    G1: G1
-    G2: G2
-    G3: G3
-    G5: G5
-    G6: G6
-    G7: G7
+    G1: Gasto monetario en bienes y servicios para el hogar
+    G2: Gasto monetario en bienes y servicios para otro hogar
+    G3: Gasto no monetario procedente de autoconsumo
+    G5: Gasto no monetario por regalos recibidos de otro hogar
+    G6: Gasto no monetario por transferencias de instituciones
+    G7: Gasto imputado por estimación del alquiler
 mes_dia:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Mes y día del gasto
+  Pregunta: No aplica.
+  Tipo: categorical
+  Longitud: '4'
   Categorías:
-    '0000': '0000'
-    0820: 0820
-    0821: 0821
-    0822: 0822
-    0823: 0823
-    0824: 0824
-    0825: 0825
-    0826: 0826
-    0830: 0830
-    0831: 0831
-    0901: 0901
-    0902: 0902
-    0903: 0903
-    0904: 0904
-    0905: 0905
-    0909: 0909
-    0910: 0910
-    0911: 0911
-    0912: 0912
-    0913: 0913
-    0914: 0914
-    0915: 0915
-    0919: 0919
-    0920: 0920
-    0921: 0921
-    0922: 0922
-    0923: 0923
-    0924: 0924
-    0925: 0925
-    0929: 0929
-    0930: 0930
-    '1001': '1001'
-    '1002': '1002'
-    '1003': '1003'
-    '1004': '1004'
-    '1005': '1005'
-    '1009': '1009'
-    '1010': '1010'
-    '1011': '1011'
-    '1012': '1012'
-    '1013': '1013'
-    '1014': '1014'
-    '1015': '1015'
-    '1019': '1019'
-    '1020': '1020'
-    '1021': '1021'
-    '1022': '1022'
-    '1023': '1023'
-    '1024': '1024'
-    '1025': '1025'
-    '1029': '1029'
-    '1030': '1030'
-    '1031': '1031'
-    '1101': '1101'
-    '1102': '1102'
-    '1103': '1103'
-    '1104': '1104'
-    '1108': '1108'
-    '1109': '1109'
-    '1110': '1110'
-    '1111': '1111'
-    '1112': '1112'
-    '1113': '1113'
-    '1114': '1114'
+    '0000': No aplica
+    0820: miércoles 20 de agosto
+    0821: jueves 21 de agosto
+    0822: viernes 22 de agosto
+    0823: sábado 23 de agosto
+    0824: domingo 24 de agosto
+    0825: lunes 25 de agosto
+    0826: martes 26 de agosto
+    0830: sábado 30 de agosto
+    0831: domingo 31 de agosto
+    0901: lunes 1 de septiembre
+    0902: martes 2 de septiembre
+    0903: miércoles 3 de septiembre
+    0904: jueves 4 de septiembre
+    0905: viernes 5 de septiembre
+    0909: martes 9 de septiembre
+    0910: miércoles 10 de septiembre
+    0911: jueves 11 de septiembre
+    0912: viernes 12 de septiembre
+    0913: sábado 13 de septiembre
+    0914: domingo 14 de septiembre
+    0915: lunes 15 de septiembre
+    0919: viernes 19 de septiembre
+    0920: sábado 20 de septiembre
+    0921: domingo 21 de septiembre
+    0922: lunes 22 de septiembre
+    0923: martes 23 de septiembre
+    0924: miércoles 24 de septiembre
+    0925: jueves 25 de septiembre
+    0929: lunes 29 de septiembre
+    0930: martes 30 de septiembre
+    '1001': miércoles 1 de octubre
+    '1002': jueves 2 de octubre
+    '1003': viernes 3 de octubre
+    '1004': sábado 4 de octubre
+    '1005': domingo 5 de octubre
+    '1009': jueves 9 de octubre
+    '1010': viernes 10 de octubre
+    '1011': sábado 11 de octubre
+    '1012': domingo 12 de octubre
+    '1013': lunes 13 de octubre
+    '1014': martes 14 de octubre
+    '1015': miércoles 15 de octubre
+    '1019': domingo 19 de octubre
+    '1020': lunes 20 de octubre
+    '1021': martes 21 de octubre
+    '1022': miércoles 22 de octubre
+    '1023': jueves 23 de octubre
+    '1024': viernes 24 de octubre
+    '1025': sábado 25 de octubre
+    '1029': miércoles 29 de octubre
+    '1030': jueves 30 de octubre
+    '1031': viernes 31 de octubre
+    '1101': sábado 1 de noviembre
+    '1102': domingo 2 de noviembre
+    '1103': lunes 3 de noviembre
+    '1104': martes 4 de noviembre
+    '1108': sábado 8 de noviembre
+    '1109': domingo 9 de noviembre
+    '1110': lunes 10 de noviembre
+    '1111': martes 11 de noviembre
+    '1112': miércoles 12 de noviembre
+    '1113': jueves 13 de noviembre
+    '1114': viernes 14 de noviembre
 forma_pago:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Forma de pago
+  Pregunta: Este artículo o servicio ¿lo pago...
+  Tipo: categorical
+  Longitud: '2'
   Categorías:
-    '00': '00'
-    '01': '01'
-    '02': '02'
-    '03': '03'
-    '21': '21'
+    '00': No aplica
+    '01': De contado
+    '02': Con tarjeta de crédito bancaria o comercial
+    '03': Fiado (persona particular o establecimiento comercial)
+    '21': De contado y con tarjeta de crédito bancaria o comercial
 lugar_comp:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Lugar de compra
+  Pregunta: ¿Dónde compró este artículo o servicio?
+  Tipo: categorical
+  Longitud: '2'
   Categorías:
-    '00': '00'
-    '01': '01'
-    '02': '02'
-    '03': '03'
-    '04': '04'
-    '05': '05'
-    '06': '06'
-    '07': '07'
-    08: 08
-    09: 09
-    '10': '10'
-    '11': '11'
-    '12': '12'
-    '13': '13'
-    '14': '14'
-    '15': '15'
-    '16': '16'
-    '17': '17'
-    '18': '18'
+    '00': No aplica
+    '01': Mercado
+    '02': Tianguis o mercado sobre ruedas
+    '03': Vendedores ambulantes
+    '04': Tiendas de abarrotes
+    '05': Tiendas específicas del ramo
+    '06': Supermercados
+    '07': Tiendas departamentales
+    08: Compras fuera del país
+    09: Tiendas con membresía
+    '10': Tiendas de conveniencia
+    '11': Restaurantes
+    '12': Loncherías, fondas, torterías , cocinas económicas, cenadur
+    '13': Cafeterías
+    '14': Pulquería, cantina o bar
+    '15': Diconsa
+    '16': Lechería Liconsa
+    '17': Persona particular
+    '18': Internet
 orga_inst:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Organización o institución proveedora
+  Pregunta: ¿En donde recibió el servicio y/o los productos?
+  Tipo: categorical
+  Longitud: '2'
   Categorías:
-    '00': '00'
-    '01': '01'
-    '02': '02'
-    '03': '03'
-    '04': '04'
-    '05': '05'
-    '06': '06'
-    '07': '07'
-    08: 08
+    '00': No aplica
+    '01': Gobierno Municipal
+    '02': Gobierno Estatal
+    '03': Gobierno Federal
+    '04': Sedesol
+    '05': Oportunidades
+    '06': Institución privada
+    '07': Liconsa
+    08: Diconsa
 frecuencia:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Frecuencia
+  Pregunta: ¿Con que frecuencia lo recibe?
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '0': '0'
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '5': '5'
-    '6': '6'
+    '0': No aplica
+    '1': Diario
+    '2': Cada Semana
+    '3': Una vez al mes
+    '4': Cada año
+    '5': Lo recibió una sola vez
+    '6': Otros
 fecha_adqu:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Fecha de adquisición
+  Pregunta: ¿En qué año y mes lo adquirió?
+  Tipo: numeric
+  Longitud: '4'
   Categorías: {}
 fecha_pago:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
-  Categorías:
-    '0000': '0000'
-    '0202': '0202'
-    0408: 0408
-    0409: 0409
-    '0411': '0411'
-    0902: 0902
-    '1005': '1005'
-    '1006': '1006'
-    '1008': '1008'
-    '1009': '1009'
-    '1010': '1010'
-    '1012': '1012'
-    '1102': '1102'
-    '1103': '1103'
-    '1104': '1104'
-    '1105': '1105'
-    '1106': '1106'
-    '1107': '1107'
-    '1108': '1108'
-    '1110': '1110'
-    '1111': '1111'
-    '1112': '1112'
-    '1201': '1201'
-    '1202': '1202'
-    '1203': '1203'
-    '1204': '1204'
-    '1205': '1205'
-    '1206': '1206'
-    '1207': '1207'
-    '1209': '1209'
-    '1210': '1210'
-    '1211': '1211'
-    '1212': '1212'
-    '1301': '1301'
-    '1302': '1302'
-    '1303': '1303'
-    '1304': '1304'
-    '1305': '1305'
-    '1306': '1306'
-    '1307': '1307'
-    '1308': '1308'
-    '1309': '1309'
-    '1310': '1310'
-    '1311': '1311'
-    '1312': '1312'
-    '1401': '1401'
-    '1402': '1402'
-    '1403': '1403'
-    '1404': '1404'
-    '1405': '1405'
-    '1406': '1406'
-    '1407': '1407'
-    '1408': '1408'
-    '1409': '1409'
-    '1410': '1410'
-    '1411': '1411'
-    '1412': '1412'
-    '1501': '1501'
-    '1502': '1502'
-    '1506': '1506'
-    '1507': '1507'
-    '1509': '1509'
+  Descripción: Fecha de pago
+  Pregunta: ¿En qué fecha empezó o empezará a pagar?
+  Tipo: numeric
+  Longitud: '4'
+  Categorías: {}
 cantidad:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Cantidad de artículos o servicios
+  Pregunta: ¿Qué cantidad recibió?
+  Tipo: numeric
+  Longitud: '10'
   Categorías: {}
 gasto:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Gasto efectuado
+  Pregunta: No aplica.
+  Tipo: numeric
+  Longitud: '10'
   Categorías: {}
 pago_mp:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Pago mes pasado
+  Pregunta: ¿Cuánto pagó en total el mes pasado?
+  Tipo: numeric
+  Longitud: '10'
   Categorías: {}
 costo:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Costo del producto, artículo o servicio
+  Pregunta: No aplica.
+  Tipo: numeric
+  Longitud: '10'
   Categorías: {}
 inmujer:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Gasto mujeres
+  Pregunta: ¿Cuánto gastó en total para mujeres y niñas?
+  Tipo: numeric
+  Longitud: '10'
   Categorías: {}
+  Especiales:
+    '-1': No especificado
 inst_1:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Institución para cuidados de la salud
+  Pregunta: ¿En dónde recibió el servicio y/o los productos?
+  Tipo: categorical
+  Longitud: '2'
   Categorías:
-    '01': '01'
-    '02': '02'
-    '03': '03'
-    '04': '04'
-    '05': '05'
-    '06': '06'
-    '07': '07'
-    08: 08
-    09: 09
-    '10': '10'
-    '11': '11'
-    '12': '12'
-    '13': '13'
-    ' ': ' '
+    '01': Médicos, laboratorios y hospitales particulares
+    '02': Servicios médicos del IMSS
+    '03': Servicios médicos del ISSSTE
+    '04': Servicios médicos de PEMEX
+    '05': Servicios médicos del la Marina
+    '06': Servicios médicos del Ejército
+    '07': Servicios médicos de la SSA
+    08: SSA con Seguro Popular
+    09: Servicios médicos del DIF
+    '10': Servicios médicos de universidades públicas
+    '11': Otros servicios médicos:Cruz Roja, Cruz Verde, etc.
+    '12': Servicios médicos provenientes del programa PROGRESA u OPORT
+    '13': Provenientes de otro hogar
 inst_2:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Institución para cuidados de la salud
+  Pregunta: ¿En dónde recibió el servicio y/o los productos?
+  Tipo: categorical
+  Longitud: '2'
   Categorías:
-    '01': '01'
-    '02': '02'
-    '03': '03'
-    '04': '04'
-    '05': '05'
-    '06': '06'
-    '07': '07'
-    08: 08
-    09: 09
-    '11': '11'
-    '12': '12'
-    '13': '13'
-    ' ': ' '
+    '01': Médicos, laboratorios y hospitales particulares
+    '02': Servicios médicos del IMSS
+    '03': Servicios médicos del ISSSTE
+    '04': Servicios médicos de PEMEX
+    '05': Servicios médicos del la Marina
+    '06': Servicios médicos del Ejército
+    '07': Servicios médicos de la SSA
+    08: SSA con Seguro Popular
+    09: Servicios médicos del DIF
+    '10': Servicios médicos de universidades públicas
+    '11': Otros servicios médicos:Cruz Roja, Cruz Verde, etc.
+    '12': Servicios médicos provenientes del programa PROGRESA u OPORT
+    '13': Provenientes de otro hogar
 num_meses:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
-  Categorías:
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '5': '5'
-    '6': '6'
-    '7': '7'
-    '8': '8'
-    '9': '9'
-    '10': '10'
-    '11': '11'
-    '12': '12'
-    '13': '13'
-    '14': '14'
-    '15': '15'
-    '16': '16'
-    '18': '18'
-    '20': '20'
-    '22': '22'
-    '23': '23'
-    '24': '24'
-    '25': '25'
-    '30': '30'
-    '32': '32'
-    '36': '36'
-    '38': '38'
-    '40': '40'
-    '48': '48'
-    '50': '50'
-    '60': '60'
-    '61': '61'
-    '70': '70'
-    '72': '72'
-    '84': '84'
-    '96': '96'
-    ' ': ' '
+  Descripción: Meses pagados
+  Pregunta: ¿Cuántos meses abarca el recibo?
+  Tipo: numeric
+  Longitud: '2'
+  Categorías: {}
 num_pagos:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
-  Categorías:
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '5': '5'
-    '6': '6'
-    '7': '7'
-    '8': '8'
-    '9': '9'
-    '10': '10'
-    '11': '11'
-    '12': '12'
-    '13': '13'
-    '14': '14'
-    '15': '15'
-    '16': '16'
-    '18': '18'
-    '21': '21'
-    '23': '23'
-    '24': '24'
-    '25': '25'
-    '30': '30'
-    ' ': ' '
+  Descripción: Número de pagos
+  Pregunta: ¿Cuántas veces ha pagado el recibo en los últimos 12 meses?
+  Tipo: numeric
+  Longitud: '2'
+  Categorías: {}
 ultim_pago:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Fecha del último pago
+  Pregunta: ¿Cuál fue la fecha del último pago?
+  Tipo: numeric
+  Longitud: '4'
   Categorías: {}
 gasto_tri:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Gasto trimestral
+  Pregunta: No aplica.
+  Tipo: numeric
+  Longitud: '12'
   Categorías: {}
 gasto_nm:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Gasto no monetario
+  Pregunta: Sin pregunta textual.
+  Tipo: numeric
+  Longitud: '10'
   Categorías: {}
 gas_nm_tri:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Gasto no monetario trimestral
+  Pregunta: Sin pregunta textual.
+  Tipo: numeric
+  Longitud: '12'
   Categorías: {}
 imujer_tri:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Gasto monetario trimestral en mujeres
+  Pregunta: No aplica.
+  Tipo: numeric
+  Longitud: '12'
   Categorías: {}
+  Especiales:
+    '-1': No especificado

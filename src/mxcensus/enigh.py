@@ -24,7 +24,9 @@ Public API:
 - :func:`load_enigh_survey` — ``(viviendas, hogares, personas)`` with a shared nested
   ``MultiIndex`` (dwelling ⊂ household ⊂ person), as the ENOE/extended-census loaders.
 
-All loaders accept ``harmonize=True`` for **analytical-core harmonization** across editions
+Every loader accepts ``labels`` (raw codes, or labelled ``Categorical``/numeric columns —
+the default of the analysis-ready loaders; see :func:`variables_enigh_labels`) and
+``harmonize=True`` for **analytical-core harmonization** across editions
 (:func:`_harmonize`): lowercase names, the 2012–2014 ``factor_hog``/``factor_viv`` → ``factor``,
 the 2008/2010 ``concentradohogar`` spellings (``ingcor``→``ing_cor``, ``tam_hog``→``tot_integ``,
 head ``sexo``/``edad``/``ed_formal``→``*_jefe``, …), zero-padded ``educa_jefe``, and derived
@@ -85,6 +87,39 @@ def _filter_ent(df: pd.DataFrame, ent: int) -> pd.DataFrame:
     the entity code in every edition and table (equal to ``ubica_geo[:2]`` where present)."""
     col = "folioviv" if "folioviv" in df.columns else "FOLIOVIV"
     return df[pd.to_numeric(df[col].str[:2], errors="coerce") == int(ent)].reset_index(drop=True)
+
+
+# ---------------------------------------------------------------------------------------
+# Labelled (human-readable) frames — ``labels=True`` (same design as ``enoe.py``)
+# ---------------------------------------------------------------------------------------
+_KEY_COLUMNS = frozenset(c for aliases in _PERSON_KEY_SPEC for c in aliases)
+
+
+@functools.cache
+def variables_enigh_labels(table: str, gid: str) -> dict:
+    """The labelling dictionary of one ENIGH ``(table, schema group)``: the per-group
+    variables overlaid by :func:`variables_enigh_core`, keyed by both the raw and the
+    harmonized column names (``factor_hog`` and ``factor``, the 2008/2010
+    ``concentradohogar`` spellings and their canonical names)."""
+    rename = {**_RENAME_ALL, **_RENAME_TABLE.get(table, {})}
+    merged: dict = {}
+    for src in (variables_enigh(table, gid), variables_enigh_core()):
+        for col, meta in src.items():
+            merged[col] = meta
+            merged[rename.get(col, col)] = meta
+    return merged
+
+
+def _finish_labelled(df: pd.DataFrame, variables: dict, label: str,
+                     spec: list[tuple[str, ...]] | None = None) -> pd.DataFrame:
+    """Label ``df``, set the level index when ``spec`` is given, validate strictly."""
+    out = _sg.label_frame(df, variables, weights=_WEIGHTS, family="ENIGH", skip=_KEY_COLUMNS)
+    key = _sg.level_key(spec, out) if spec else None
+    if key:
+        out = _index_level(out, spec)
+    schema = _sg.build_labelled_schema(out.columns, variables, weights=_WEIGHTS,
+                                       skip=_KEY_COLUMNS, index_names=key)
+    return _sg.validate_raise("ENIGH", schema, out, f"{label} labelled")
 
 
 # ---------------------------------------------------------------------------------------
@@ -176,15 +211,12 @@ def _latest_schema(table: str) -> pa.DataFrameSchema:
     core = variables_enigh_core()
     schema = {}
     for col, meta in core.items():
-        cats = meta.get("Categorías") or {}
+        codes = _sg.raw_codes(meta)
         req = col in ("folioviv",)
-        if col == "educa_jefe":
-            cats = {k: v for k, v in cats.items() if len(k) == 2}   # padded after _harmonize
-        if col in _WEIGHTS or (meta.get("Tipo") in ("int", "float")):
+        if col in _WEIGHTS or _sg.norm_tipo(meta) == "numeric":
             schema[col] = pa.Column(float, nullable=True, coerce=True, required=req)
-        elif cats:
-            schema[col] = pa.Column(str, pa.Check.isin(list(cats)), nullable=True, coerce=True,
-                                    required=req)
+        elif _sg.norm_tipo(meta) == "categorical":
+            schema[col] = _sg.raw_column(pa.Check.isin(codes), required=req)
         else:
             schema[col] = pa.Column(str, nullable=True, coerce=True, required=req)
     for col, rx in _GEO_REGEX.items():
@@ -193,35 +225,15 @@ def _latest_schema(table: str) -> pa.DataFrameSchema:
     return pa.DataFrameSchema(schema, strict=False, coerce=True)
 
 
-def load_enigh(
+def _load_enigh_raw(
     survey_path: Path | None = None,
     *,
     table: str,
     period: str | None = None,
     harmonize: bool = False,
     ent: int | None = None,
-) -> pd.DataFrame:
-    """Load one raw ENIGH table for one edition as a faithful ``dtype=str`` DataFrame.
-
-    - ``load_enigh(table="concentradohogar", period="2022")`` — fetch from the mirror via
-      Pooch (``period`` defaults to the latest edition).
-    - ``load_enigh(survey_path=Path("enigh_poblacion_2022.parquet"), table="poblacion")``.
-
-    Parameters
-    ----------
-    table : str
-        One of :data:`mxcensus.data._enigh_catalog.TABLES` (canonical nueva-serie names;
-        ``gastotarjetas``/``gastos`` exist only for 2008–2014).
-    period : str, optional
-        Edition year (``"2008"`` … ``"2024"``); defaults to the latest.
-    harmonize : bool, default False
-        Canonicalize the analytical core across editions (:func:`_harmonize`) and validate
-        against :func:`_latest_schema`.
-    ent : int, optional
-        Keep only rows of INEGI state ``ent`` (1–32) — a post-load row filter on ``folioviv``.
-
-    Validation warns on value-level violations; an unknown schema raises ``ValueError``.
-    """
+) -> tuple[pd.DataFrame, str, str]:
+    """:func:`load_enigh` without labelling, returning ``(frame, gid, label)``."""
     if table not in TABLES:
         raise ValueError(f"unknown table {table!r}; known: {TABLES}")
     if survey_path is None:
@@ -244,6 +256,48 @@ def load_enigh(
     if harmonize:
         df = _harmonize(df, table, label)
         _validate(_latest_schema(table), df, f"{label} harmonized")
+    return df, gid, label
+
+
+def load_enigh(
+    survey_path: Path | None = None,
+    *,
+    table: str,
+    period: str | None = None,
+    harmonize: bool = False,
+    ent: int | None = None,
+    labels: bool = False,
+) -> pd.DataFrame:
+    """Load one raw ENIGH table for one edition as a faithful ``dtype=str`` DataFrame.
+
+    - ``load_enigh(table="concentradohogar", period="2022")`` — fetch from the mirror via
+      Pooch (``period`` defaults to the latest edition).
+    - ``load_enigh(survey_path=Path("enigh_poblacion_2022.parquet"), table="poblacion")``.
+
+    Parameters
+    ----------
+    table : str
+        One of :data:`mxcensus.data._enigh_catalog.TABLES` (canonical nueva-serie names;
+        ``gastotarjetas``/``gastos`` exist only for 2008–2014).
+    period : str, optional
+        Edition year (``"2008"`` … ``"2024"``); defaults to the latest.
+    harmonize : bool, default False
+        Canonicalize the analytical core across editions (:func:`_harmonize`) and validate
+        against :func:`_latest_schema`.
+    ent : int, optional
+        Keep only rows of INEGI state ``ent`` (1–32) — a post-load row filter on ``folioviv``.
+
+    labels : bool, default False
+        Return a **labelled** frame: coded fields become labelled ``Categorical`` columns,
+        numeric fields numbers (sentinel codes → NA), validated strictly (raises on an
+        out-of-dictionary value) — see :func:`variables_enigh_labels`. Key columns stay raw.
+
+    Validation warns on value-level violations; an unknown schema raises ``ValueError``.
+    """
+    df, gid, label = _load_enigh_raw(survey_path, table=table, period=period,
+                                     harmonize=harmonize, ent=ent)
+    if labels:
+        df = _finish_labelled(df, variables_enigh_labels(table, gid), label)
     return df
 
 
@@ -282,7 +336,8 @@ def _attach_factor(df: pd.DataFrame, period: str, ent: int | None, harmonize: bo
         df = df.rename(columns={w: "factor"})
     need = [c for c in ("factor", "ubica_geo", "tam_loc") if c not in df.columns]
     if need:
-        conc = load_enigh(table="concentradohogar", period=period, ent=ent, harmonize=False)
+        conc, _, _ = _load_enigh_raw(table="concentradohogar", period=period, ent=ent,
+                                     harmonize=False)
         wc = _weight_col(conc)
         conc = conc.rename(columns={wc: "factor"}) if wc != "factor" else conc
         key = _level_key(key_spec, df, conc)
@@ -297,7 +352,8 @@ def _attach_factor(df: pd.DataFrame, period: str, ent: int | None, harmonize: bo
 
 
 def load_enigh_hogares(
-    period: str | None = None, *, ent: int | None = None, harmonize: bool = False
+    period: str | None = None, *, ent: int | None = None, harmonize: bool = False,
+    labels: bool = True,
 ) -> pd.DataFrame:
     """The analysis-ready **household** frame: ``concentradohogar`` (INEGI's per-household
     summary — income/expenditure aggregates, head characteristics, household composition)
@@ -306,43 +362,62 @@ def load_enigh_hogares(
 
     ``harmonize=True`` folds the 2008–2014 spellings onto the nueva-serie names
     (``ing_cor``, ``tot_integ``, ``sexo_jefe``, …) so editions stack; note the 2014→2016
-    series break when comparing levels.
+    series break when comparing levels. ``labels=True`` (default) returns labelled
+    ``Categorical``/numeric columns validated strictly (see :func:`load_enigh`); the index
+    levels stay raw strings.
     """
     period = period or latest_edition().period
-    df = load_enigh(table="concentradohogar", period=period, ent=ent, harmonize=harmonize)
+    df, gid, label = _load_enigh_raw(table="concentradohogar", period=period, ent=ent,
+                                     harmonize=harmonize)
     df = _attach_factor(df, period, ent, harmonize, _HOUSEHOLD_KEY_SPEC)
+    if labels:
+        return _finish_labelled(df, variables_enigh_labels("concentradohogar", gid), label,
+                                _HOUSEHOLD_KEY_SPEC)
     df = _numeric(df, ["ing_cor", "ingcor", "ingtrab", "gasto_mon", "tot_integ", "tam_hog",
                        "edad_jefe"])
     return _index_level(df, _HOUSEHOLD_KEY_SPEC)
 
 
 def load_enigh_viviendas(
-    period: str | None = None, *, ent: int | None = None, harmonize: bool = False
+    period: str | None = None, *, ent: int | None = None, harmonize: bool = False,
+    labels: bool = True,
 ) -> pd.DataFrame:
     """The **dwelling** frame (``viviendas``, 2012+) with a numeric ``factor``, indexed by
-    ``folioviv``. Raises for 2008/2010, which publish no dwelling table (dwelling items live
-    in ``hogares`` there)."""
+    ``folioviv``; labelled columns by default (``labels``, see :func:`load_enigh_hogares`).
+    Raises for 2008/2010, which publish no dwelling table (dwelling items live in
+    ``hogares`` there)."""
     period = period or latest_edition().period
-    df = load_enigh(table="viviendas", period=period, ent=ent, harmonize=harmonize)
+    df, gid, label = _load_enigh_raw(table="viviendas", period=period, ent=ent,
+                                     harmonize=harmonize)
     df = _attach_factor(df, period, ent, harmonize, _DWELLING_KEY_SPEC)
+    if labels:
+        return _finish_labelled(df, variables_enigh_labels("viviendas", gid), label,
+                                _DWELLING_KEY_SPEC)
     return _index_level(df, _DWELLING_KEY_SPEC)
 
 
 def load_enigh_personas(
-    period: str | None = None, *, ent: int | None = None, harmonize: bool = False
+    period: str | None = None, *, ent: int | None = None, harmonize: bool = False,
+    labels: bool = True,
 ) -> pd.DataFrame:
     """The **person** frame (``poblacion``) with a numeric ``factor`` (joined from the
     household summary when the raw table carries none) and numeric ``edad``, indexed by the
-    person key ``(folioviv, foliohog, numren)``. Σ ``factor`` = the expanded population."""
+    person key ``(folioviv, foliohog, numren)``; labelled columns by default (``labels``).
+    Σ ``factor`` = the expanded population."""
     period = period or latest_edition().period
-    df = load_enigh(table="poblacion", period=period, ent=ent, harmonize=harmonize)
+    df, gid, label = _load_enigh_raw(table="poblacion", period=period, ent=ent,
+                                     harmonize=harmonize)
     df = _attach_factor(df, period, ent, harmonize, _HOUSEHOLD_KEY_SPEC)
+    if labels:
+        return _finish_labelled(df, variables_enigh_labels("poblacion", gid), label,
+                                _PERSON_KEY_SPEC)
     df = _numeric(df, ["edad"])
     return _index_level(df, _PERSON_KEY_SPEC)
 
 
 def load_enigh_survey(
-    period: str | None = None, *, ent: int | None = None, harmonize: bool = False
+    period: str | None = None, *, ent: int | None = None, harmonize: bool = False,
+    labels: bool = True,
 ) -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
     """Load the three survey levels with a **shared nested** ``MultiIndex``.
 
@@ -353,7 +428,7 @@ def load_enigh_survey(
     edition with a dwelling table (2012+).
     """
     period = period or latest_edition().period
-    viviendas = load_enigh_viviendas(period=period, ent=ent, harmonize=harmonize)
-    hogares = load_enigh_hogares(period=period, ent=ent, harmonize=harmonize)
-    personas = load_enigh_personas(period=period, ent=ent, harmonize=harmonize)
+    viviendas = load_enigh_viviendas(period=period, ent=ent, harmonize=harmonize, labels=labels)
+    hogares = load_enigh_hogares(period=period, ent=ent, harmonize=harmonize, labels=labels)
+    personas = load_enigh_personas(period=period, ent=ent, harmonize=harmonize, labels=labels)
     return viviendas, hogares, personas

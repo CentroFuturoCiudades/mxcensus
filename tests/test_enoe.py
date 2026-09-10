@@ -18,6 +18,7 @@ import pandera.pandas as pa
 import pytest
 
 import mxcensus
+from mxcensus import _schema_groups as sg
 from mxcensus._resources import enoe_schema_map, variables_enoe
 from mxcensus.data._enoe_catalog import TABLES
 from mxcensus.enoe import (
@@ -56,9 +57,13 @@ def _valid_value(table: str, gid: str, col: str) -> str:
     """A value that should pass ``_group_schema(table, gid)`` for ``col``."""
     if col in _WEIGHTS:
         return "1"  # numeric-coercible
-    cats = (variables_enoe(table, gid).get(col) or {}).get("Categorías") or {}
+    meta = variables_enoe(table, gid).get(col) or {}
+    cats = meta.get("Categorías") or {}
     if cats:
         return next(iter(cats))
+    if sg.norm_tipo(meta) == "numeric":
+        rng = meta.get("Rango") or []
+        return str(rng[0]) if rng else "1"
     return "x"
 
 
@@ -555,3 +560,92 @@ def test_harmonized_survey_shared_index_names(local_mirror):
     assert viv.index.names[1] == "cve_ent"
     assert list(viv.index.names) == list(hog.index.names[: viv.index.nlevels])
     assert list(hog.index.names) == list(per.index.names[: hog.index.nlevels])
+
+
+# --- labelled frames (labels=True) ------------------------------------------------------
+
+def test_core_yaml_contract():
+    """variables_enoe_core.yaml follows the entry contract read by _schema_groups."""
+    core = mxcensus.variables_enoe_core()
+    for name, meta in core.items():
+        assert sg.norm_tipo(meta) in ("categorical", "numeric", "string"), name
+        assert meta.get("Tipo") in ("categorical", "numeric", "string"), name  # normalised vocab
+        if meta.get("Ordenada"):
+            assert meta.get("Categorías"), name
+        if "Rango" in meta:
+            assert len(meta["Rango"]) == 2 and meta["Rango"][0] <= meta["Rango"][1], name
+        cats, special = meta.get("Categorías") or {}, meta.get("Especiales") or {}
+        assert not set(cats) & set(special), name
+        labels = list(cats.values()) + list(special.values())
+        assert len(labels) == len(set(labels)), f"{name}: duplicate labels"
+        for raw, canon in (meta.get("Alias") or {}).items():
+            assert canon in cats, f"{name}: alias {raw}→{canon} not a category"
+
+
+def test_variables_enoe_labels_merges_core_under_both_names():
+    table, gid = "sdem", _SM["sdem"]["latest"]
+    labels = mxcensus.variables_enoe_labels(table, gid)
+    assert labels["clase1"]["Categorías"]["1"].startswith("Población económicamente activa")
+    assert labels["cve_ent"] == labels["ent"] and labels["fac_tri"]["Tipo"] == "numeric"
+    assert "variables_enoe_labels" in mxcensus.__all__
+
+
+@pytest.mark.parametrize("table,gid", _TABLE_GROUPS)
+def test_load_enoe_labels_offline(monkeypatch, table, gid):
+    """labels=True maps every categorical/numeric column of a synthetic group frame and
+    returns Categorical / numeric dtypes; labels=False is byte-identical to today."""
+    frame = _valid_frame(table, gid)
+    monkeypatch.setattr(pd, "read_parquet", lambda *_a, **_k: frame.copy())
+    raw = mxcensus.load_enoe(survey_path=Path("x.parquet"), table=table)
+    assert (raw.dtypes == frame.dtypes).all() and raw.equals(frame)
+    lab = mxcensus.load_enoe(survey_path=Path("x.parquet"), table=table, labels=True)
+    variables = mxcensus.variables_enoe_labels(table, gid)
+    keys = mxcensus.enoe._KEY_COLUMNS
+    for col in lab.columns:
+        meta = variables.get(col)
+        if meta is None or col in keys:
+            assert lab[col].dtype == frame[col].dtype, col
+        elif col in _WEIGHTS or sg.norm_tipo(meta) == "numeric":
+            assert lab[col].dtype.kind in "fiu", (col, lab[col].dtype)
+        elif sg.norm_tipo(meta) == "categorical":
+            assert isinstance(lab[col].dtype, pd.CategoricalDtype), col
+            assert lab[col].dtype.ordered == bool(meta.get("Ordenada")), col
+            assert set(lab[col].dropna()) <= set(lab[col].cat.categories)
+
+
+def test_load_enoe_labels_unknown_code_raises(monkeypatch):
+    table, gid = "sdem", _SM["sdem"]["latest"]
+    frame = _valid_frame(table, gid)
+    frame.loc[0, "clase1"] = "__nope__"
+    monkeypatch.setattr(pd, "read_parquet", lambda *_a, **_k: frame.copy())
+    with pytest.raises(ValueError, match=r"ENOE: values without a dictionary label.*clase1"):
+        mxcensus.load_enoe(survey_path=Path("x.parquet"), table=table, labels=True)
+
+
+@pytest.mark.skipif(not _REAL, reason="no local ENOE mirror (data/parquet/)")
+@pytest.mark.parametrize("period,harmonize", [("2023t1", False), ("2023t1", True), ("2005t1", False)])
+def test_persons_labelled_real(local_mirror, period, harmonize):
+    lab = mxcensus.load_enoe_persons(period=period, harmonize=harmonize)
+    raw = mxcensus.load_enoe_persons(period=period, harmonize=harmonize, labels=False)
+    assert len(lab) == len(raw) and lab["fac_tri"].sum() == raw["fac_tri"].sum()
+    assert lab.loc[lab["is_pea"], "fac_tri"].sum() == raw.loc[raw["is_pea"], "fac_tri"].sum()
+    assert isinstance(lab["clase1"].dtype, pd.CategoricalDtype)
+    assert "Población económicamente activa (PEA)" in lab["clase1"].cat.categories
+    assert lab["ing7c"].cat.ordered and list(lab["ing7c"].cat.categories)[1] == "No recibe ingresos"
+    assert lab["eda"].dtype.kind in "iu" and 15 <= lab["eda"].min() and lab["eda"].max() <= 97
+    assert lab["sex"].isin(["Hombre", "Mujer"]).all()
+    assert lab["is_pea"].dtype == bool
+    # codes recoverable: label ↔ code counts agree
+    assert (lab["clase1"] == "Población económicamente activa (PEA)").sum() == (raw["clase1"] == "1").sum()
+
+
+@pytest.mark.skipif(not _REAL, reason="no local ENOE mirror (data/parquet/)")
+def test_survey_labelled_real_keeps_raw_index(local_mirror):
+    viv, hog, per = mxcensus.load_enoe_survey(period="2023t1")
+    for lvl in (viv, hog, per):
+        assert lvl.index.is_unique
+        for level in lvl.index.levels:
+            assert level.dtype.kind in "OU" or str(level.dtype) == "str", level.dtype
+    assert list(per.index.names)[: len(hog.index.names)] == list(hog.index.names)
+    assert isinstance(viv["t_loc_tri"].dtype, pd.CategoricalDtype)
+    assert isinstance(per["sex"].dtype, pd.CategoricalDtype)

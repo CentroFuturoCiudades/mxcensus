@@ -1,306 +1,231 @@
 folioviv:
-  Descripción: Identificador de la vivienda (folio). Los dos primeros caracteres son
-    la clave de la entidad federativa.
-  Tipo: str
+  Descripción: Identificador de la vivienda (folio). Los dos primeros caracteres son la clave de la entidad
+    federativa.
+  Tipo: string
   Longitud: 6 (2008–2012) / 10 (2014+)
   Categorías: {}
 foliohog:
   Descripción: Identificador del hogar dentro de la vivienda.
-  Tipo: str
+  Tipo: string
   Longitud: '1'
   Categorías: {}
 numren:
   Descripción: Número de renglón (identificador de la persona dentro del hogar).
-  Tipo: str
+  Tipo: string
   Longitud: '2'
   Categorías: {}
 numtrab:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Identificador del trabajo
+  Pregunta: ''
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '1': '1'
-    '2': '2'
+    '1': Trabajo principal
+    '2': Trabajo secundario
 tipoact:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Tipo de actividad
+  Pregunta: El mes pasado, ¿a qué se dedicó su empresa o negocio?
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '1': '1'
-    '2': '2'
-    '3': '3'
+    '1': Industrial
+    '2': Comercial
+    '3': De servicios
 numesta:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Numero de establecimientos
+  Pregunta: ¿Cuántos puestos o establecimientos forman este negocio o empresa?
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '1': '1'
-    '2': '2'
-    '3': '3'
+    '1': No tiene establecimiento
+    '2': Uno solo
+    '3': Más de uno
 totesta:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Total de establecimientos
+  Pregunta: ¿Cuántos?
+  Tipo: categorical
+  Longitud: '2'
   Categorías:
     '1': '1'
     '2': '2'
     '3': '3'
     '4': '4'
     '5': '5'
-    ' ': ' '
 lugact:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Lugar donde realizo las actividades
+  Pregunta: Entonces ¿dónde realizó las actividades de su empresa o negocio?
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '5': '5'
-    '6': '6'
-    '7': '7'
-    '8': '8'
-    '9': '9'
-    ' ': ' '
+    '1': En su domicilio, sin una instalación especial
+    '2': En su domicilio, con una instalación especial
+    '3': Ambulante de casa en casa o en la calle
+    '4': En puesto improvisado en la vía publica
+    '5': En el domicilio de los clientes
+    '6': En puesto fijo en la calle
+    '7': En puesto semi fijo
+    '8': En el campo o a cielo abierto
+    '9': Otro lugar no mencionado anteriormente
 socios:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Socios no integrantes del hogar
+  Pregunta: ¿En este negocio cuenta con socios que no son integrantes del hogar?
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '1': '1'
-    '2': '2'
+    '1': Sí
+    '2': 'No'
 numsocio:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
-  Categorías:
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '5': '5'
-    '8': '8'
-    '9': '9'
-    '48': '48'
-    ' ': ' '
+  Descripción: Numero de socios
+  Pregunta: ¿Cuántos?
+  Tipo: numeric
+  Longitud: '2'
+  Categorías: {}
 psocio:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
-  Categorías:
-    '10': '10'
-    '11': '11'
-    '12': '12'
-    '15': '15'
-    '17': '17'
-    '20': '20'
-    '25': '25'
-    '30': '30'
-    '33': '33'
-    '40': '40'
-    '49': '49'
-    '50': '50'
-    '60': '60'
-    '66': '66'
-    '67': '67'
-    '70': '70'
-    '75': '75'
-    '80': '80'
-    '90': '90'
-    '95': '95'
-    ' ': ' '
+  Descripción: Porcentaje del socio
+  Pregunta: ¿Con qué porcentaje de las ganancias del negocio, se quedan los socios que no son integrantes
+    del hogar?
+  Tipo: numeric
+  Longitud: '2'
+  Categorías: {}
 autocons:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Autoconsumo
+  Pregunta: De lo que produce, vende o de los servicios que presta ¿tomó usted o algún integrante del
+    hogar algún artículo o servicio para el consumo del hogar?
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '1': '1'
-    '2': '2'
+    '1': Sí
+    '2': 'No'
 mes:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Mes de referencia
+  Pregunta: ''
+  Tipo: categorical
+  Longitud: '2'
   Categorías:
-    '7': '7'
-    '8': '8'
-    '9': '9'
-    '10': '10'
-    ' ': ' '
+    '7': Julio
+    '8': Agosto
+    '9': Septiembre
+    '10': Octubre
 enproduc:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Productos en proceso
+  Pregunta: ¿Cuál es el valor de producción de los artículos o productos que aún no terminaba el último
+    día del mes pasado?
+  Tipo: numeric
+  Longitud: '9'
   Categorías: {}
 novend:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Productos en remanente
+  Pregunta: ¿Cuál es el valor de venta de los productos o mercancías que aún no había vendido el último
+    día del mes pasado?
+  Tipo: numeric
+  Longitud: '9'
   Categorías: {}
 consinter:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
-  Categorías:
-    '0': '0'
-    '9': '9'
-    '10': '10'
-    '12': '12'
-    '20': '20'
-    '25': '25'
-    '30': '30'
-    '40': '40'
-    '45': '45'
-    '50': '50'
-    '58': '58'
-    '60': '60'
-    '80': '80'
-    '99': '99'
-    '100': '100'
-    '108': '108'
-    '120': '120'
-    '130': '130'
-    '135': '135'
-    '150': '150'
-    '160': '160'
-    '180': '180'
-    '200': '200'
-    '210': '210'
-    '220': '220'
-    '250': '250'
-    '300': '300'
-    '320': '320'
-    '400': '400'
-    '500': '500'
-    '600': '600'
-    '700': '700'
-    '800': '800'
-    '900': '900'
-    '999': '999'
-    '1000': '1000'
-    '1200': '1200'
-    '1400': '1400'
-    '1500': '1500'
-    '1600': '1600'
-    '1700': '1700'
-    '1800': '1800'
-    '2000': '2000'
-    '2500': '2500'
-    '2700': '2700'
-    '3000': '3000'
-    '3500': '3500'
-    '4000': '4000'
-    '4500': '4500'
-    '6000': '6000'
-    '6400': '6400'
-    '6500': '6500'
-    '7000': '7000'
-    '8000': '8000'
-    '10000': '10000'
-    '13000': '13000'
-    '20000': '20000'
-    '23900': '23900'
-    '30000': '30000'
-    '100000': '100000'
-    ' ': ' '
+  Descripción: Productos de consumo intermedio
+  Pregunta: ¿Cuál es el valor de producción de los artículos o servicios que utilizó para elaborar otros
+    productos?
+  Tipo: numeric
+  Longitud: '9'
+  Categorías: {}
 peract:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Duración de actividad
+  Pregunta: ¿Esta actividad…
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '1': '1'
-    '2': '2'
-    '3': '3'
+    '1': la inicio este año
+    '2': la realizo solo en algunas épocas del año
+    '3': la realizo durante todo el año
 mesact_1:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Mes de actividad
+  Pregunta: ¿En qué mes realizó esta actividad?
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '1': '1'
-    ' ': ' '
+    '1': Enero
 mesact_2:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Mes de actividad
+  Pregunta: ¿En qué mes realizó esta actividad?
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '2': '2'
-    ' ': ' '
+    '2': Febrero
 mesact_3:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Mes de actividad
+  Pregunta: ¿En qué mes realizó esta actividad?
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '3': '3'
-    ' ': ' '
+    '3': Marzo
 mesact_4:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Mes de actividad
+  Pregunta: ¿En qué mes realizó esta actividad?
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '4': '4'
-    ' ': ' '
+    '4': Abril
 mesact_5:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Mes de actividad
+  Pregunta: ¿En qué mes realizó esta actividad?
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '5': '5'
-    ' ': ' '
+    '5': Mayo
 mesact_6:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Mes de actividad
+  Pregunta: ¿En qué mes realizó esta actividad?
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '6': '6'
-    ' ': ' '
+    '6': Junio
 mesact_7:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Mes de actividad
+  Pregunta: ¿En qué mes realizó esta actividad?
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '7': '7'
-    ' ': ' '
+    '7': Julio
 mesact_8:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Mes de actividad
+  Pregunta: ¿En qué mes realizó esta actividad?
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '8': '8'
-    ' ': ' '
+    '8': Agosto
 mesact_9:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Mes de actividad
+  Pregunta: ¿En qué mes realizó esta actividad?
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '9': '9'
-    ' ': ' '
+    '9': Septiembre
 mesact_10:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Mes de actividad
+  Pregunta: ¿En qué mes realizó esta actividad?
+  Tipo: categorical
+  Longitud: '2'
   Categorías:
-    '10': '10'
-    ' ': ' '
+    '10': Octubre
 mesact_11:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Mes de actividad
+  Pregunta: ¿En qué mes realizó esta actividad?
+  Tipo: categorical
+  Longitud: '2'
   Categorías:
-    '11': '11'
-    ' ': ' '
+    '11': Noviembre
 mesact_12:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Mes de actividad
+  Pregunta: ¿En qué mes realizó esta actividad?
+  Tipo: categorical
+  Longitud: '2'
   Categorías:
-    '12': '12'
-    ' ': ' '
+    '12': Diciembre
 t_emp:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Personal total
+  Pregunta: Durante el mes pasado… ¿cuántas personas sin incluirse usted trabajaron en este negocio?
+  Tipo: categorical
+  Longitud: '2'
   Categorías:
-    '-1': '-1'
     '0': '0'
     '1': '1'
     '2': '2'
@@ -314,59 +239,21 @@ t_emp:
     '10': '10'
     '11': '11'
     '12': '12'
+    '13': '13'
     '14': '14'
     '15': '15'
     '17': '17'
     '22': '22'
     '40': '40'
+    '60': '60'
+  Especiales:
+    '-1': No especificado
 h_emp:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Personal hombres
+  Pregunta: Durante el mes pasado… ¿cuántas personas sin incluirse usted trabajaron en este negocio?
+  Tipo: categorical
+  Longitud: '2'
   Categorías:
-    '-1': '-1'
-    '0': '0'
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '5': '5'
-    '6': '6'
-    '7': '7'
-    '8': '8'
-    '9': '9'
-    '10': '10'
-    '12': '12'
-    '15': '15'
-    '17': '17'
-    '21': '21'
-    '22': '22'
-    '40': '40'
-    ' ': ' '
-m_emp:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
-  Categorías:
-    '-1': '-1'
-    '0': '0'
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '5': '5'
-    '6': '6'
-    '7': '7'
-    '8': '8'
-    '9': '9'
-    '10': '10'
-    ' ': ' '
-t_cpago:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
-  Categorías:
-    '-1': '-1'
     '0': '0'
     '1': '1'
     '2': '2'
@@ -380,18 +267,69 @@ t_cpago:
     '10': '10'
     '11': '11'
     '12': '12'
+    '13': '13'
+    '15': '15'
+    '17': '17'
+    '21': '21'
+    '22': '22'
+    '40': '40'
+    '60': '60'
+  Especiales:
+    '-1': No especificado
+m_emp:
+  Descripción: Personal mujeres
+  Pregunta: Durante el mes pasado… ¿cuántas personas sin incluirse usted trabajaron en este negocio?
+  Tipo: categorical
+  Longitud: '2'
+  Categorías:
+    '0': '0'
+    '1': '1'
+    '2': '2'
+    '3': '3'
+    '4': '4'
+    '5': '5'
+    '6': '6'
+    '7': '7'
+    '8': '8'
+    '9': '9'
+    '10': '10'
+    '15': '15'
+  Especiales:
+    '-1': No especificado
+t_cpago:
+  Descripción: Personal con pago
+  Pregunta: Durante el mes pasado… ¿a cuántas personas les pagó?
+  Tipo: categorical
+  Longitud: '2'
+  Categorías:
+    '0': '0'
+    '1': '1'
+    '2': '2'
+    '3': '3'
+    '4': '4'
+    '5': '5'
+    '6': '6'
+    '7': '7'
+    '8': '8'
+    '9': '9'
+    '10': '10'
+    '11': '11'
+    '12': '12'
+    '13': '13'
     '14': '14'
     '15': '15'
     '17': '17'
     '22': '22'
     '40': '40'
-    ' ': ' '
+    '60': '60'
+  Especiales:
+    '-1': No especificado
 h_cpago:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Personal hombres con pago
+  Pregunta: Durante el mes pasado… ¿a cuántas personas les pagó?
+  Tipo: categorical
+  Longitud: '2'
   Categorías:
-    '-1': '-1'
     '0': '0'
     '1': '1'
     '2': '2'
@@ -404,18 +342,21 @@ h_cpago:
     '9': '9'
     '10': '10'
     '12': '12'
+    '13': '13'
     '15': '15'
     '17': '17'
     '21': '21'
     '22': '22'
     '40': '40'
-    ' ': ' '
+    '60': '60'
+  Especiales:
+    '-1': No especificado
 m_cpago:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Personal mujeres con pago
+  Pregunta: Durante el mes pasado… ¿a cuántas personas les pagó?
+  Tipo: categorical
+  Longitud: '2'
   Categorías:
-    '-1': '-1'
     '0': '0'
     '1': '1'
     '2': '2'
@@ -427,13 +368,15 @@ m_cpago:
     '8': '8'
     '9': '9'
     '10': '10'
-    ' ': ' '
+    '15': '15'
+  Especiales:
+    '-1': No especificado
 t_ispago:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Personal integrantes del hogar sin pago
+  Pregunta: Durante el mes pasado… ¿cuántas eran integrantes del hogar que le ayudaron sin pago?
+  Tipo: categorical
+  Longitud: '2'
   Categorías:
-    '-1': '-1'
     '0': '0'
     '1': '1'
     '2': '2'
@@ -442,39 +385,42 @@ t_ispago:
     '5': '5'
     '6': '6'
     '7': '7'
-    ' ': ' '
+  Especiales:
+    '-1': No especificado
 h_ispago:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Personal hombres integrantes del hogar sin pago
+  Pregunta: Durante el mes pasado… ¿cuántas eran integrantes del hogar que le ayudaron sin pago?
+  Tipo: categorical
+  Longitud: '2'
   Categorías:
-    '-1': '-1'
     '0': '0'
     '1': '1'
     '2': '2'
     '3': '3'
     '4': '4'
     '6': '6'
-    ' ': ' '
+  Especiales:
+    '-1': No especificado
 m_ispago:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Personal mujeres integrantes del hogar sin pago
+  Pregunta: Durante el mes pasado… ¿cuántas eran integrantes del hogar que le ayudaron sin pago?
+  Tipo: categorical
+  Longitud: '2'
   Categorías:
-    '-1': '-1'
     '0': '0'
     '1': '1'
     '2': '2'
     '3': '3'
     '4': '4'
     '5': '5'
-    ' ': ' '
+  Especiales:
+    '-1': No especificado
 t_nispago:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Personal no integrantes del hogar sin pago
+  Pregunta: Durante el mes pasado… ¿cuántas no eran integrantes del hogar que le ayudaron sin pago?
+  Tipo: categorical
+  Longitud: '2'
   Categorías:
-    '-1': '-1'
     '0': '0'
     '1': '1'
     '2': '2'
@@ -486,13 +432,14 @@ t_nispago:
     '8': '8'
     '9': '9'
     '10': '10'
-    ' ': ' '
+  Especiales:
+    '-1': No especificado
 h_nispago:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Personal hombres no integrantes del hogar sin pago
+  Pregunta: Durante el mes pasado… ¿cuántas no eran integrantes del hogar que le ayudaron sin pago?
+  Tipo: categorical
+  Longitud: '2'
   Categorías:
-    '-1': '-1'
     '0': '0'
     '1': '1'
     '2': '2'
@@ -501,13 +448,14 @@ h_nispago:
     '5': '5'
     '9': '9'
     '10': '10'
-    ' ': ' '
+  Especiales:
+    '-1': No especificado
 m_nispago:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Personal mujeres no integrantes del hogar sin pago
+  Pregunta: Durante el mes pasado… ¿cuántas no eran integrantes del hogar que le ayudaron sin pago?
+  Tipo: categorical
+  Longitud: '2'
   Categorías:
-    '-1': '-1'
     '0': '0'
     '1': '1'
     '2': '2'
@@ -515,238 +463,300 @@ m_nispago:
     '4': '4'
     '5': '5'
     '6': '6'
-    ' ': ' '
+  Especiales:
+    '-1': No especificado
 com_fis:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Comprobantes fiscales
+  Pregunta: ¿Qué tipo de comprobantes de venta expide a sus clientes?
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '2': '2'
-    '3': '3'
-    ' ': ' '
+    '1': Expide facturas
+    '2': Solo expide notas o ticket de venta
+    '3': Ninguno
 reg_cont:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Registro contable
+  Pregunta: En este negocio o actividad, ¿se cuenta con los servicios de un contador?
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '1': '1'
-    '2': '2'
-    ' ': ' '
+    '1': Sí
+    '2': 'No'
 reg_not:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Registro ante notario
+  Pregunta: ¿Su negocio cuenta con un registro ante notario como sociedad o cooperativa?
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '1': '1'
-    '2': '2'
-    ' ': ' '
+    '1': Sí
+    '2': 'No'
 ventas1:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Ventas del mes 1
+  Pregunta: Cuanto recibió por… los artículos que vendió, maquilo o los servicios que presto? (incluyendo
+    el dinero que tomo para el hogar)
+  Tipo: numeric
+  Longitud: '10'
   Categorías: {}
 ventas2:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Ventas del mes 2
+  Pregunta: Cuanto recibió por… los artículos que vendió, maquilo o los servicios que presto? (incluyendo
+    el dinero que tomo para el hogar)
+  Tipo: numeric
+  Longitud: '10'
   Categorías: {}
 ventas3:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Ventas del mes 3
+  Pregunta: Cuanto recibió por… los artículos que vendió, maquilo o los servicios que presto? (incluyendo
+    el dinero que tomo para el hogar)
+  Tipo: numeric
+  Longitud: '10'
   Categorías: {}
 ventas4:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Ventas del mes 4
+  Pregunta: Cuanto recibió por… los artículos que vendió, maquilo o los servicios que presto? (incluyendo
+    el dinero que tomo para el hogar)
+  Tipo: numeric
+  Longitud: '10'
   Categorías: {}
 ventas5:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Ventas del mes 5
+  Pregunta: Cuanto recibió por… los artículos que vendió, maquilo o los servicios que presto? (incluyendo
+    el dinero que tomo para el hogar)
+  Tipo: numeric
+  Longitud: '10'
   Categorías: {}
 ventas6:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Ventas del mes 6
+  Pregunta: Cuanto recibió por… los artículos que vendió, maquilo o los servicios que presto? (incluyendo
+    el dinero que tomo para el hogar)
+  Tipo: numeric
+  Longitud: '10'
   Categorías: {}
 autocons1:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Autoconsumo del mes 1
+  Pregunta: ¿Cuánto habría pagado si lo hubiera comprado en otro negocio?
+  Tipo: numeric
+  Longitud: '10'
   Categorías: {}
 autocons2:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Autoconsumo del mes 2
+  Pregunta: ¿Cuánto habría pagado si lo hubiera comprado en otro negocio?
+  Tipo: numeric
+  Longitud: '10'
   Categorías: {}
 autocons3:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Autoconsumo del mes 3
+  Pregunta: ¿Cuánto habría pagado si lo hubiera comprado en otro negocio?
+  Tipo: numeric
+  Longitud: '10'
   Categorías: {}
 autocons4:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Autoconsumo del mes 4
+  Pregunta: ¿Cuánto habría pagado si lo hubiera comprado en otro negocio?
+  Tipo: numeric
+  Longitud: '10'
   Categorías: {}
 autocons5:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Autoconsumo del mes 5
+  Pregunta: ¿Cuánto habría pagado si lo hubiera comprado en otro negocio?
+  Tipo: numeric
+  Longitud: '10'
   Categorías: {}
 autocons6:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Autoconsumo del mes 6
+  Pregunta: ¿Cuánto habría pagado si lo hubiera comprado en otro negocio?
+  Tipo: numeric
+  Longitud: '10'
   Categorías: {}
 otrosnom1:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Otros montos del mes 1
+  Pregunta: 'De lo que produce, vende o de los servicios que presta, estime el valor que destino para:
+    pagar a sus trabajadores, pagar una deuda que adquirió para el negocio, pagar una deuda referente
+    al hogar e intercambiar por otros productos o servicios.'
+  Tipo: numeric
+  Longitud: '10'
   Categorías: {}
 otrosnom2:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Otros montos del mes 2
+  Pregunta: 'De lo que produce, vende o de los servicios que presta, estime el valor que destino para:
+    pagar a sus trabajadores, pagar una deuda que adquirió para el negocio, pagar una deuda referente
+    al hogar e intercambiar por otros productos o servicios.'
+  Tipo: numeric
+  Longitud: '10'
   Categorías: {}
 otrosnom3:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Otros montos del mes 3
+  Pregunta: 'De lo que produce, vende o de los servicios que presta, estime el valor que destino para:
+    pagar a sus trabajadores, pagar una deuda que adquirió para el negocio, pagar una deuda referente
+    al hogar e intercambiar por otros productos o servicios.'
+  Tipo: numeric
+  Longitud: '10'
   Categorías: {}
 otrosnom4:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Otros montos del mes 4
+  Pregunta: 'De lo que produce, vende o de los servicios que presta, estime el valor que destino para:
+    pagar a sus trabajadores, pagar una deuda que adquirió para el negocio, pagar una deuda referente
+    al hogar e intercambiar por otros productos o servicios.'
+  Tipo: numeric
+  Longitud: '10'
   Categorías: {}
 otrosnom5:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Otros montos del mes 5
+  Pregunta: 'De lo que produce, vende o de los servicios que presta, estime el valor que destino para:
+    pagar a sus trabajadores, pagar una deuda que adquirió para el negocio, pagar una deuda referente
+    al hogar e intercambiar por otros productos o servicios.'
+  Tipo: numeric
+  Longitud: '10'
   Categorías: {}
 otrosnom6:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Otros montos del mes 6
+  Pregunta: 'De lo que produce, vende o de los servicios que presta, estime el valor que destino para:
+    pagar a sus trabajadores, pagar una deuda que adquirió para el negocio, pagar una deuda referente
+    al hogar e intercambiar por otros productos o servicios.'
+  Tipo: numeric
+  Longitud: '10'
   Categorías: {}
 gasneg1:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Gastos del mes 1
+  Pregunta: ¿Cuánto gasto en el negocio en el mes de referencia?
+  Tipo: numeric
+  Longitud: '10'
   Categorías: {}
 gasneg2:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Gastos del mes 2
+  Pregunta: ¿Cuánto gasto en el negocio en el mes de referencia?
+  Tipo: numeric
+  Longitud: '10'
   Categorías: {}
 gasneg3:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Gastos del mes 3
+  Pregunta: ¿Cuánto gasto en el negocio en el mes de referencia?
+  Tipo: numeric
+  Longitud: '10'
   Categorías: {}
 gasneg4:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Gastos del mes 4
+  Pregunta: ¿Cuánto gasto en el negocio en el mes de referencia?
+  Tipo: numeric
+  Longitud: '10'
   Categorías: {}
 gasneg5:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Gastos del mes 5
+  Pregunta: ¿Cuánto gasto en el negocio en el mes de referencia?
+  Tipo: numeric
+  Longitud: '10'
   Categorías: {}
 gasneg6:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Gastos del mes 6
+  Pregunta: ¿Cuánto gasto en el negocio en el mes de referencia?
+  Tipo: numeric
+  Longitud: '10'
   Categorías: {}
 ing1:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Ingresos del mes 1
+  Pregunta: ''
+  Tipo: numeric
+  Longitud: '10'
   Categorías: {}
 ing2:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Ingresos del mes 2
+  Pregunta: ''
+  Tipo: numeric
+  Longitud: '10'
   Categorías: {}
 ing3:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Ingresos del mes 3
+  Pregunta: ''
+  Tipo: numeric
+  Longitud: '10'
   Categorías: {}
 ing4:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Ingresos del mes 4
+  Pregunta: ''
+  Tipo: numeric
+  Longitud: '10'
   Categorías: {}
 ing5:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Ingresos del mes 5
+  Pregunta: ''
+  Tipo: numeric
+  Longitud: '10'
   Categorías: {}
 ing6:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Ingresos del mes 6
+  Pregunta: ''
+  Tipo: numeric
+  Longitud: '10'
   Categorías: {}
 ero1:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Erogaciones del mes 1
+  Pregunta: ''
+  Tipo: numeric
+  Longitud: '10'
   Categorías: {}
 ero2:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Erogaciones del mes 2
+  Pregunta: ''
+  Tipo: numeric
+  Longitud: '10'
   Categorías: {}
 ero3:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Erogaciones del mes 3
+  Pregunta: ''
+  Tipo: numeric
+  Longitud: '10'
   Categorías: {}
 ero4:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Erogaciones del mes 4
+  Pregunta: ''
+  Tipo: numeric
+  Longitud: '10'
   Categorías: {}
 ero5:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Erogaciones del mes 5
+  Pregunta: ''
+  Tipo: numeric
+  Longitud: '10'
   Categorías: {}
 ero6:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Erogaciones del mes 6
+  Pregunta: ''
+  Tipo: numeric
+  Longitud: '10'
   Categorías: {}
 ing_tri:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Ingresos trimestrales
+  Pregunta: ''
+  Tipo: numeric
+  Longitud: '10'
   Categorías: {}
 ero_tri:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Erogaciones trimestrales
+  Pregunta: ''
+  Tipo: numeric
+  Longitud: '10'
   Categorías: {}
 ventas_tri:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Ingreso trimestral por ventas
+  Pregunta: ''
+  Tipo: numeric
+  Longitud: '10'
   Categorías: {}
 auto_tri:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Autoconsumo trimestral
+  Pregunta: ''
+  Tipo: numeric
+  Longitud: '10'
   Categorías: {}
 otros_tri:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Otros montos no monetarios trimestrales
+  Pregunta: ''
+  Tipo: numeric
+  Longitud: '10'
   Categorías: {}
 gasto_tri:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Gasto trimestral del negocio
+  Pregunta: ''
+  Tipo: numeric
+  Longitud: '10'
   Categorías: {}

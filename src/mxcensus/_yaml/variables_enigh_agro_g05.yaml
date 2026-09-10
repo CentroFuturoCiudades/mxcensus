@@ -1,617 +1,396 @@
 folioviv:
-  Descripción: Identificador de la vivienda (folio). Los dos primeros caracteres son
-    la clave de la entidad federativa.
-  Tipo: str
+  Descripción: Identificador de la vivienda (folio). Los dos primeros caracteres son la clave de la entidad
+    federativa.
+  Tipo: string
   Longitud: 6 (2008–2012) / 10 (2014+)
   Categorías: {}
 foliohog:
   Descripción: Identificador del hogar dentro de la vivienda.
-  Tipo: str
+  Tipo: string
   Longitud: '1'
   Categorías: {}
 numren:
   Descripción: Número de renglón (identificador de la persona dentro del hogar).
-  Tipo: str
+  Tipo: string
   Longitud: '2'
   Categorías: {}
 id_trabajo:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Identificador del trabajo
+  Pregunta: No aplica.
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '1': '1'
-    '2': '2'
+    '1': Trabajo principal
+    '2': Trabajo secundario
 tipoact:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Tipo de actividad
+  Pregunta: No aplica.
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '4': '4'
-    '5': '5'
-    '6': '6'
-    '7': '7'
-    '8': '8'
-    '9': '9'
+    '4': Actividades agrícolas
+    '5': Actividades de cría y explotación de animales
+    '6': Actividades de recolección
+    '7': Reforestación y tala de árboles
+    '8': Actividades de caza y captura de animales
+    '9': Actividades de pesca
 cose_cria:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Cosecha o cría
+  Pregunta: ¿Sembró o cosechó algún producto agrícola?
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '1': '1'
-    '2': '2'
+    '1': Sí
+    '2': 'No'
 prep_deriv:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Preparación o derivados
+  Pregunta: ¿Preparó las tierras para el cultivo?
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '1': '1'
-    '2': '2'
-    ' ': ' '
+    '1': Sí
+    '2': 'No'
 otro_pago:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Forma de pago alterna
+  Pregunta: En su negocio, ¿acepta alguna otra forma de pago además de efectivo?
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '1': '1'
-    '2': '2'
+    '1': Sí
+    '2': 'No'
 fpago_1:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Domiciliación
+  Pregunta: ¿Cuáles?
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '1': '1'
-    ' ': ' '
+    '1': Domiciliación
 fpago_2:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Transferencia electrónica de fondos
+  Pregunta: ¿Cuáles?
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '2': '2'
-    ' ': ' '
+    '2': Transferencia electrónica de fondos
 fpago_3:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Tarjeta de crédito
+  Pregunta: ¿Cuáles?
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '3': '3'
-    ' ': ' '
+    '3': Tarjeta de crédito
 fpago_4:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Tarjeta de débito
+  Pregunta: ¿Cuáles?
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '4': '4'
-    ' ': ' '
+    '4': Tarjeta de débito
 fpago_5:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Cheque
+  Pregunta: ¿Cuáles?
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '5': '5'
-    ' ': ' '
+    '5': Cheque
 fpago_6:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Vale
+  Pregunta: ¿Cuáles?
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '6': '6'
-    ' ': ' '
+    '6': Vale
 fpago_7:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Pago móvil
+  Pregunta: ¿Cuáles?
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '7': '7'
-    ' ': ' '
+    '7': Pago móvil
 fpago_8:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Otra forma de pago
+  Pregunta: ¿Cuáles?
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '8': '8'
-    ' ': ' '
+    '8': Otro
 nofpago:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: No acepta forma de pago alterna
+  Pregunta: ¿Por qué no?
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '5': '5'
-    '6': '6'
-    '7': '7'
-    ' ': ' '
+    '1': Tamaño del negocio
+    '2': Desconocimiento de otras modalidades
+    '3': Por costos de operación
+    '4': Falta de infraestructura o equipo
+    '5': Desconfianza de otras formas de pago
+    '6': No lo cree necesario
+    '7': Otro
 t_emp:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
-  Categorías:
-    '0': '0'
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '5': '5'
-    '6': '6'
-    '7': '7'
-    '8': '8'
-    '9': '9'
-    '10': '10'
-    '11': '11'
-    '12': '12'
-    '13': '13'
-    '14': '14'
+  Descripción: Personal total
+  Pregunta: Durante el mes pasado ¿cuántas personas, sin incluirse usted, trabajaron en este negocio?
+  Tipo: numeric
+  Longitud: '2'
+  Categorías: {}
 h_emp:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
-  Categorías:
-    '0': '0'
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '5': '5'
-    '6': '6'
-    '7': '7'
-    '8': '8'
-    '9': '9'
-    '10': '10'
-    '11': '11'
-    '12': '12'
-    '13': '13'
-    '14': '14'
-    ' ': ' '
+  Descripción: Personal hombres
+  Pregunta: Durante el mes pasado ¿cuántas personas, sin incluirse usted, trabajaron en este negocio?
+  Tipo: numeric
+  Longitud: '2'
+  Categorías: {}
 m_emp:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
-  Categorías:
-    '0': '0'
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '5': '5'
-    '6': '6'
-    '7': '7'
-    '8': '8'
-    '9': '9'
-    ' ': ' '
+  Descripción: Personal mujeres
+  Pregunta: Durante el mes pasado ¿cuántas personas, sin incluirse usted, trabajaron en este negocio?
+  Tipo: numeric
+  Longitud: '2'
+  Categorías: {}
 t_cpago:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
-  Categorías:
-    '0': '0'
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '5': '5'
-    '6': '6'
-    '7': '7'
-    '8': '8'
-    '9': '9'
-    '10': '10'
-    '11': '11'
-    '12': '12'
-    '13': '13'
-    '14': '14'
-    ' ': ' '
+  Descripción: Personal con pago
+  Pregunta: Durante el mes pasado ¿a cuántas personas les pagó?
+  Tipo: numeric
+  Longitud: '2'
+  Categorías: {}
 h_cpago:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
-  Categorías:
-    '0': '0'
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '5': '5'
-    '6': '6'
-    '7': '7'
-    '8': '8'
-    '9': '9'
-    '10': '10'
-    '11': '11'
-    '12': '12'
-    '13': '13'
-    '14': '14'
-    ' ': ' '
+  Descripción: Hombres con pago
+  Pregunta: Durante el mes pasado ¿a cuántas personas les pagó?
+  Tipo: numeric
+  Longitud: '2'
+  Categorías: {}
 m_cpago:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
-  Categorías:
-    '0': '0'
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '5': '5'
-    '6': '6'
-    '7': '7'
-    '8': '8'
-    '9': '9'
-    ' ': ' '
+  Descripción: Mujeres con pago
+  Pregunta: Durante el mes pasado ¿a cuántas personas les pagó?
+  Tipo: numeric
+  Longitud: '2'
+  Categorías: {}
 t_ispago:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
-  Categorías:
-    '0': '0'
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '5': '5'
-    '6': '6'
-    '7': '7'
-    '8': '8'
-    ' ': ' '
+  Descripción: Integrantes del hogar sin pago
+  Pregunta: Durante el mes pasado ¿cuántas eran integrantes del hogar que le ayudaron sin pago?
+  Tipo: numeric
+  Longitud: '2'
+  Categorías: {}
 h_ispago:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
-  Categorías:
-    '0': '0'
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '5': '5'
-    ' ': ' '
+  Descripción: Hombres integrantes sin pago
+  Pregunta: Durante el mes pasado ¿cuántas eran integrantes del hogar que le ayudaron sin pago?
+  Tipo: numeric
+  Longitud: '2'
+  Categorías: {}
 m_ispago:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
-  Categorías:
-    '0': '0'
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '5': '5'
-    '6': '6'
-    '7': '7'
-    ' ': ' '
+  Descripción: Mujeres integrantes sin pago
+  Pregunta: Durante el mes pasado ¿cuántas eran integrantes del hogar que le ayudaron sin pago?
+  Tipo: numeric
+  Longitud: '2'
+  Categorías: {}
 t_nispago:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
-  Categorías:
-    '0': '0'
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '5': '5'
-    '6': '6'
-    '7': '7'
-    '8': '8'
-    '9': '9'
-    '10': '10'
-    '12': '12'
-    '13': '13'
-    '14': '14'
-    ' ': ' '
+  Descripción: No integrantes del hogar sin pago
+  Pregunta: Durante el mes pasado ¿cuántas eran integrantes del hogar que le ayudaron sin pago?
+  Tipo: numeric
+  Longitud: '2'
+  Categorías: {}
 h_nispago:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
-  Categorías:
-    '0': '0'
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '5': '5'
-    '6': '6'
-    '7': '7'
-    '9': '9'
-    '10': '10'
-    '12': '12'
-    '13': '13'
-    '14': '14'
-    ' ': ' '
+  Descripción: Hombres no integrantes sin pago
+  Pregunta: Durante el mes pasado ¿cuántas eran integrantes del hogar que le ayudaron sin pago?
+  Tipo: numeric
+  Longitud: '2'
+  Categorías: {}
 m_nispago:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
-  Categorías:
-    '0': '0'
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '5': '5'
-    '6': '6'
-    ' ': ' '
+  Descripción: Mujeres no integrantes sin pago
+  Pregunta: Durante el mes pasado ¿cuántas eran integrantes del hogar que le ayudaron sin pago?
+  Tipo: numeric
+  Longitud: '2'
+  Categorías: {}
 valrema:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Valor de productos en remanente
+  Pregunta: ¿Cuál es el valor de los cultivos o productos que le quedaron y que aún no determina su uso?
+  Tipo: numeric
+  Longitud: '9'
   Categorías: {}
 valproc:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Valor de productos en proceso
+  Pregunta: ¿Cuál es el valor de los cultivos o productos que se encontraban en crecimiento o desarrollo
+    el último día del mes pasado?
+  Tipo: numeric
+  Longitud: '9'
   Categorías: {}
 apoyo:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Apoyo para los negocios
+  Pregunta: ¿Recibió dinero como apoyo para su negocio...
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '1': '1'
-    '2': '2'
+    '1': Sí
+    '2': 'No'
 apoyo_1:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
-  Categorías:
-    '160': '160'
-    '300': '300'
-    '400': '400'
-    '500': '500'
-    '770': '770'
-    '800': '800'
-    '1080': '1080'
-    '1392': '1392'
-    '1400': '1400'
-    '1700': '1700'
-    '2000': '2000'
-    '2260': '2260'
-    '2300': '2300'
-    '3000': '3000'
-    '3040': '3040'
-    '3200': '3200'
-    '3360': '3360'
-    '3600': '3600'
-    '4500': '4500'
-    '6000': '6000'
-    '6200': '6200'
-    '7000': '7000'
-    '8000': '8000'
-    '8100': '8100'
-    '9000': '9000'
-    '11375': '11375'
-    '12250': '12250'
-    '15000': '15000'
-    '18000': '18000'
-    '20000': '20000'
-    '21000': '21000'
-    '30000': '30000'
-    '40000': '40000'
-    '50000': '50000'
-    '90000': '90000'
-    '100000': '100000'
-    '170000': '170000'
-    '180000': '180000'
-    '195000': '195000'
-    '200000': '200000'
-    '206000': '206000'
-    '225000': '225000'
-    '231800': '231800'
-    '240000': '240000'
-    '250000': '250000'
-    '256000': '256000'
-    '260000': '260000'
-    '266000': '266000'
-    '320000': '320000'
-    '400000': '400000'
-    '700000': '700000'
-    ' ': ' '
+  Descripción: Apoyo de gobierno federal con pago
+  Pregunta: ¿Recibió dinero como apoyo para su negocio del gobierno federal con el compromiso de pagarlo?
+  Tipo: numeric
+  Longitud: '9'
+  Categorías: {}
 apoyo_2:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
-  Categorías:
-    '20': '20'
-    '100': '100'
-    '168': '168'
-    '200': '200'
-    '240': '240'
-    '300': '300'
-    '400': '400'
-    '667': '667'
-    '700': '700'
-    '840': '840'
-    '1000': '1000'
-    '1200': '1200'
-    '1500': '1500'
-    '1645': '1645'
-    '2000': '2000'
-    '2400': '2400'
-    '3150': '3150'
-    '3200': '3200'
-    '3500': '3500'
-    '4000': '4000'
-    '4180': '4180'
-    '5100': '5100'
-    '8000': '8000'
-    '10000': '10000'
-    '13000': '13000'
-    '15000': '15000'
-    '19000': '19000'
-    '20000': '20000'
-    '92000': '92000'
-    '100000': '100000'
-    ' ': ' '
+  Descripción: Apoyo de gobierno estatal con pago
+  Pregunta: ¿Recibió dinero como apoyo para su negocio del gobierno federal con el compromiso de pagarlo?
+  Tipo: numeric
+  Longitud: '9'
+  Categorías: {}
 apoyo_3:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
-  Categorías:
-    '50': '50'
-    '160': '160'
-    '200': '200'
-    '250': '250'
-    '300': '300'
-    '400': '400'
-    '500': '500'
-    '750': '750'
-    '800': '800'
-    '850': '850'
-    '1000': '1000'
-    '1150': '1150'
-    '1200': '1200'
-    '1500': '1500'
-    '1570': '1570'
-    '1600': '1600'
-    '2000': '2000'
-    '2250': '2250'
-    '2720': '2720'
-    '3000': '3000'
-    '3600': '3600'
-    '3840': '3840'
-    '4260': '4260'
-    '4500': '4500'
-    '4800': '4800'
-    '5000': '5000'
-    '5500': '5500'
-    '6780': '6780'
-    '7000': '7000'
-    '7500': '7500'
-    '8000': '8000'
-    '10000': '10000'
-    '11500': '11500'
-    ' ': ' '
+  Descripción: Apoyo de gobierno municipal con pago
+  Pregunta: ¿Recibió dinero como apoyo para su negocio del gobierno federal con el compromiso de pagarlo?
+  Tipo: numeric
+  Longitud: '9'
+  Categorías: {}
 apoyo_4:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Apoyo de gobierno federal sin pago
+  Pregunta: ¿Recibió dinero como apoyo para su negocio del gobierno federal con el compromiso de pagarlo?
+  Tipo: numeric
+  Longitud: '9'
   Categorías: {}
 apoyo_5:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Apoyo de gobierno estatal sin pago
+  Pregunta: ¿Recibió dinero como apoyo para su negocio del gobierno federal con el compromiso de pagarlo?
+  Tipo: numeric
+  Longitud: '9'
   Categorías: {}
 apoyo_6:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Apoyo de gobierno municipal sin pago
+  Pregunta: ¿Recibió dinero como apoyo para su negocio del gobierno federal con el compromiso de pagarlo?
+  Tipo: numeric
+  Longitud: '9'
   Categorías: {}
 apoyo_7:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Apoyo no gubernamental con pago
+  Pregunta: ¿Recibió dinero como apoyo para su negocio del gobierno federal con el compromiso de pagarlo?
+  Tipo: numeric
+  Longitud: '9'
   Categorías: {}
 apoyo_8:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Apoyo no gubernamental sin pago
+  Pregunta: ¿Recibió dinero como apoyo para su negocio del gobierno federal con el compromiso de pagarlo?
+  Tipo: numeric
+  Longitud: '9'
   Categorías: {}
 procampo:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Apoyo PROCAMPO
+  Pregunta: ¿cuánto dinero recibió como apoyo de PROCAMPO
+  Tipo: numeric
+  Longitud: '9'
   Categorías: {}
 mesproc:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Mes PROCAMPO
+  Pregunta: ¿En qué mes lo recibió?
+  Tipo: categorical
+  Longitud: '2'
   Categorías:
-    '01': '01'
-    '02': '02'
-    '03': '03'
-    '04': '04'
-    '05': '05'
-    '06': '06'
-    '07': '07'
-    08: 08
-    09: 09
-    '10': '10'
-    '11': '11'
-    '12': '12'
-    ' ': ' '
+    '01': Enero
+    '02': Febrero
+    '03': Marzo
+    '04': Abril
+    '05': Mayo
+    '06': Junio
+    '07': Julio
+    08: Agosto
+    09: Septiembre
+    '10': Octubre
+    '11': Noviembre
+    '12': Diciembre
 progan:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Apoyo del PROGAN
+  Pregunta: ¿cuánto dinero recibió como apoyo del PROGAN?
+  Tipo: numeric
+  Longitud: '9'
   Categorías: {}
 mesprogan:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Mes PROGAN
+  Pregunta: ¿En qué mes lo recibió?
+  Tipo: categorical
+  Longitud: '2'
   Categorías:
-    '01': '01'
-    '02': '02'
-    '03': '03'
-    '04': '04'
-    '05': '05'
-    '06': '06'
-    '07': '07'
-    08: 08
-    09: 09
-    '10': '10'
-    '11': '11'
-    '12': '12'
-    ' ': ' '
+    '01': Enero
+    '02': Febrero
+    '03': Marzo
+    '04': Abril
+    '05': Mayo
+    '06': Junio
+    '07': Julio
+    08: Agosto
+    09: Septiembre
+    '10': Octubre
+    '11': Noviembre
+    '12': Diciembre
 reg_not:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Registro ante notario
+  Pregunta: ¿Su negocio cuenta con un registro ante notario como sociedad o cooperativa?
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '2': '2'
+    '1': Sí
+    '2': 'No'
 reg_cont:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Registro contable
+  Pregunta: En este negocio o actividad, ¿se cuenta con los servicios de un contador?
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '2': '2'
-    '3': '3'
-    '4': '4'
+    '1': Utiliza los servicios profesionales de un contador
+    '2': Utiliza la herramienta electrónica MIS CUENTAS proporcionada por SAT
+    '3': La realiza usted o algún familiar
+    '4': No realiza contabilidad
 ventas:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Ingreso por ventas
+  Pregunta: No aplica.
+  Tipo: numeric
+  Longitud: '10'
   Categorías: {}
 autocons:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Autoconsumo del hogar
+  Pregunta: No aplica.
+  Tipo: numeric
+  Longitud: '10'
   Categorías: {}
 otrosnom:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Otros montos no monetarios
+  Pregunta: No aplica.
+  Tipo: numeric
+  Longitud: '10'
   Categorías: {}
 gasneg:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Gasto del negocio
+  Pregunta: No aplica.
+  Tipo: numeric
+  Longitud: '10'
   Categorías: {}
 ventas_tri:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Ingreso trimestral por ventas
+  Pregunta: No aplica.
+  Tipo: numeric
+  Longitud: '12'
   Categorías: {}
 auto_tri:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Autoconsumo trimestral
+  Pregunta: No aplica.
+  Tipo: numeric
+  Longitud: '12'
   Categorías: {}
 otros_tri:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Otros montos trimestral
+  Pregunta: No aplica.
+  Tipo: numeric
+  Longitud: '12'
   Categorías: {}
 gasto_tri:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Gasto negocio trimestral
+  Pregunta: No aplica.
+  Tipo: numeric
+  Longitud: '12'
   Categorías: {}
 ing_tri:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Ingreso trimestral
+  Pregunta: No aplica.
+  Tipo: numeric
+  Longitud: '12'
   Categorías: {}
 ero_tri:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Erogación trimestral
+  Pregunta: No aplica.
+  Tipo: numeric
+  Longitud: '12'
   Categorías: {}

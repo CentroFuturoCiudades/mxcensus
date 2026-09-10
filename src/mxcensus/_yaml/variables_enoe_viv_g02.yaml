@@ -1,247 +1,270 @@
 LOC:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
-  Categorías:
-    ' ': ' '
+  Descripción: Localidad
+  Pregunta: No existe pregunta, es un identificador de la vivienda.
+  Tipo: string
+  Longitud: '4'
+  Categorías: {}
 MUN:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Municipio
+  Pregunta: No existe pregunta, es un identificador de la vivienda.
+  Tipo: numeric
+  Longitud: '3'
   Categorías: {}
 EST:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
-  Categorías:
-    '10': '10'
-    '20': '20'
-    '30': '30'
-    '40': '40'
+  Descripción: Estrato
+  Pregunta: No existe pregunta, es un identificador de la vivienda.
+  Tipo: numeric
+  Longitud: '2'
+  Categorías: {}
 EST_D:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Estrato de diseño
+  Pregunta: No existe pregunta, es un identificador de la vivienda.
+  Tipo: numeric
+  Longitud: '4'
   Categorías: {}
 AGEB:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Área geoestadística básica
+  Pregunta: No existe pregunta, es un identificador de la vivienda.
+  Tipo: categorical
+  Longitud: '5'
   Categorías:
-    '0': '0'
+    '0': '00000'
 T_LOC:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Tamaño de localidad
+  Pregunta: No existe pregunta, es un identificador de la vivienda.
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
+    '1': Áreas más urbanizadas
+    '2': Urbano medio
+    '3': Urbano bajo
+    '4': Rural
 CD_A:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Ciudad autorrepresentada
+  Pregunta: No existe pregunta, es un identificador de la vivienda.
+  Tipo: categorical
+  Longitud: '2'
   Categorías:
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '5': '5'
-    '6': '6'
-    '7': '7'
-    '8': '8'
-    '9': '9'
-    '10': '10'
-    '12': '12'
-    '13': '13'
-    '14': '14'
-    '15': '15'
-    '16': '16'
-    '17': '17'
-    '18': '18'
-    '19': '19'
-    '20': '20'
-    '21': '21'
-    '24': '24'
-    '25': '25'
-    '26': '26'
-    '27': '27'
-    '28': '28'
-    '29': '29'
-    '31': '31'
-    '32': '32'
-    '33': '33'
-    '36': '36'
-    '39': '39'
-    '40': '40'
-    '41': '41'
-    '43': '43'
-    '44': '44'
-    '46': '46'
-    '81': '81'
-    '82': '82'
-    '83': '83'
-    '84': '84'
-    '85': '85'
-    '86': '86'
+    '1': México
+    '2': Guadalajara
+    '3': Monterrey
+    '4': Puebla
+    '5': León
+    '6': Torreón
+    '7': San Luis Potosí
+    '8': Mérida
+    '9': Chihuahua
+    '10': Tampico
+    '12': Veracruz
+    '13': Acapulco
+    '14': Aguascalientes
+    '15': Morelia
+    '16': Toluca
+    '17': Saltillo
+    '18': Villahermosa
+    '19': Tuxtla Gutiérrez
+    '20': Ciudad Juárez
+    '21': Tijuana
+    '24': Culiacán
+    '25': Hermosillo
+    '26': Durango
+    '27': Tepic
+    '28': Campeche
+    '29': Cuernavaca
+    '31': Oaxaca
+    '32': Zacatecas
+    '33': Colima
+    '36': Querétaro
+    '39': Tlaxcala
+    '40': La Paz
+    '41': Cancún
+    '43': Pachuca
+    '44': Mexicali
+    '46': Reynosa
+    '81': Áreas rurales o comp. urb.
+    '82': Áreas rurales o comp. urb.
+    '83': Áreas rurales o comp. urb.
+    '84': Áreas rurales o comp. urb.
+    '85': Áreas rurales o comp. urb.
+    '86': Áreas rurales o comp. urb.
 ENT:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Entidad
+  Pregunta: No existe pregunta, es un identificador de la vivienda
+  Tipo: categorical
+  Longitud: '2'
   Categorías:
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '5': '5'
-    '6': '6'
-    '7': '7'
-    '8': '8'
-    '9': '9'
-    '10': '10'
-    '11': '11'
-    '12': '12'
-    '13': '13'
-    '14': '14'
-    '15': '15'
-    '16': '16'
-    '17': '17'
-    '18': '18'
-    '19': '19'
-    '20': '20'
-    '21': '21'
-    '22': '22'
-    '23': '23'
-    '24': '24'
-    '25': '25'
-    '26': '26'
-    '27': '27'
-    '28': '28'
-    '29': '29'
-    '30': '30'
-    '31': '31'
-    '32': '32'
+    '1': Aguascalientes
+    '2': Baja California
+    '3': Baja California Sur
+    '4': Campeche
+    '5': Coahuila de Zaragoza
+    '6': Colima
+    '7': Chiapas
+    '8': Chihuahua
+    '9': Ciudad de México
+    '10': Durango
+    '11': Guanajuato
+    '12': Guerrero
+    '13': Hidalgo
+    '14': Jalisco
+    '15': Estado de México
+    '16': Michoacán de Ocampo
+    '17': Morelos
+    '18': Nayarit
+    '19': Nuevo León
+    '20': Oaxaca
+    '21': Puebla
+    '22': Querétaro
+    '23': Quintana Roo
+    '24': San Luis Potosí
+    '25': Sinaloa
+    '26': Sonora
+    '27': Tabasco
+    '28': Tamaulipas
+    '29': Tlaxcala
+    '30': Veracruz de Ignacio de la Llave
+    '31': Yucatán
+    '32': Zacatecas
 CON:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Control
+  Pregunta: No existe pregunta, es un identificador de la vivienda.
+  Tipo: numeric
+  Longitud: '5'
   Categorías: {}
 UPM:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Unidad primaria de muestreo
+  Pregunta: No existe pregunta, es un identificador de la vivienda.
+  Tipo: string
+  Longitud: '7'
   Categorías: {}
 D_SEM:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Distribución semanal
+  Pregunta: No existe pregunta, es un identificador de la vivienda.
+  Tipo: numeric
+  Longitud: '3'
   Categorías: {}
 N_PRO_VIV:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Número progresivo de la vivienda
+  Pregunta: No existe pregunta, es un identificador de la vivienda.
+  Tipo: numeric
+  Longitud: '4'
   Categorías: {}
 V_SEL:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Vivienda seleccionada
+  Pregunta: No existe pregunta, es un identificador de la vivienda.
+  Tipo: categorical
+  Longitud: '2'
   Categorías:
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '5': '5'
-    '6': '6'
-    '7': '7'
-    '8': '8'
-    '9': '9'
-    '10': '10'
-    '11': '11'
-    '12': '12'
-    '13': '13'
-    '14': '14'
-    '15': '15'
-    '16': '16'
-    '17': '17'
-    '18': '18'
-    '19': '19'
-    '20': '20'
-    '21': '21'
-    '22': '22'
-    '23': '23'
-    '24': '24'
+    '1': Vivienda uno
+    '2': Vivienda dos
+    '3': Vivienda tres
+    '4': Vivienda cuatro
+    '5': Vivienda cinco
+    '6': Vivienda seis
+    '7': Vivienda siete
+    '8': Vivienda ocho
+    '9': Vivienda nueve
+    '10': Vivienda diez
+    '11': Vivienda once
+    '12': Vivienda doce
+    '13': Vivienda trece
+    '14': Vivienda catorce
+    '15': Vivienda quince
+    '16': Vivienda dieciséis
+    '17': Vivienda diecisiete
+    '18': Vivienda dieciocho
+    '19': Vivienda diecinueve
+    '20': Vivienda veinte
+    '21': Vivienda veintiuno
+    '22': Vivienda veintidós
+    '23': Vivienda veintitrés
+    '24': Vivienda veinticuatro
+    '25': Vivienda veinticinco
+    '26': Vivienda veintiséis
+    '27': Vivienda veintisiete
+    '28': Vivienda veintiocho
+    '29': Vivienda veintinueve
 N_ENT:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Número de entrevista
+  Pregunta: No existe pregunta, es un identificador de la vivienda.
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '5': '5'
+    '1': Entrevista uno
+    '2': Entrevista dos
+    '3': Entrevista tres
+    '4': Entrevista cuatro
+    '5': Entrevista cinco
 PER:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Periodo
+  Pregunta: No existe pregunta, es un identificador de la vivienda.
+  Tipo: categorical
+  Longitud: '3'
   Categorías:
+    '419': Octubre-Diciembre 2019
     '319': '319'
-    '419': '419'
+  Nota: 'códigos observados sin etiqueta en el DDI: [''319'']'
 P1:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Personas que viven en la vivienda
+  Pregunta: ¿Cuántas personas viven normalmente en esta vivienda contando a los niños chiquitos y a los
+    ancianos?
+  Tipo: categorical
+  Longitud: '2'
   Categorías:
-    '1': '1'
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '5': '5'
-    '6': '6'
-    '7': '7'
-    '8': '8'
-    '9': '9'
-    '10': '10'
-    '11': '11'
-    '12': '12'
-    '13': '13'
-    '14': '14'
-    '15': '15'
-    '16': '16'
-    '17': '17'
-    '18': '18'
-    '19': '19'
-    '20': '20'
-    '22': '22'
-    ' ': ' '
+    '1': 1 Persona
+    '2': 2 Personas
+    '3': 3 Personas
+    '4': 4 Personas
+    '5': 5 Personas
+    '6': 6 Personas
+    '7': 7 Personas
+    '8': 8 Personas
+    '9': 9 Personas
+    '10': 10 Personas
+    '11': 11 Personas
+    '12': 12 Personas
+    '13': 13 Personas
+    '14': 14 Personas
+    '15': 15 Personas
+    '16': 16 Personas
+    '17': 17 Personas
+    '18': 18 Personas
+    '19': 19 Personas
+    '20': 20 Personas
+    '21': 21 Personas
+    '22': 22 Personas
+    '23': 23 Personas
+    '25': 25 Personas
 P2:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Comparten un mismo gasto
+  Pregunta: ¿Todas estas personas comparten un mismo gasto para comer?
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '1': '1'
-    '2': '2'
-    ' ': ' '
+    '1': Sí
+    '2': 'No'
 P3:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Grupos con gastos separados
+  Pregunta: ¿Cuántos hogares o grupos de personas tienen gastos separados para comer contando el de usted?
+  Tipo: categorical
+  Longitud: '2'
   Categorías:
-    '2': '2'
-    '3': '3'
-    '4': '4'
-    '5': '5'
-    ' ': ' '
+    '2': Dos Hogares
+    '3': Tres Hogares
+    '4': Cuatro Hogares
+    '5': Cinco Hogares
+    '6': Seis Hogares
 UR:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Variable de apoyo
+  Pregunta: Variable de apoyo
+  Tipo: categorical
+  Longitud: '1'
   Categorías:
-    '1': '1'
-    '2': '2'
+    '1': Urbano
+    '2': Rural
 FAC:
-  Descripción: ''
-  Tipo: ''
-  Longitud: ''
+  Descripción: Factor de expansión
+  Pregunta: No existe pregunta, es un dato calculado.
+  Tipo: numeric
+  Longitud: '6'
   Categorías: {}

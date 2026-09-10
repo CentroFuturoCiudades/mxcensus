@@ -20,7 +20,10 @@ Public API:
   dwelling/household tables (numeric weights, hierarchical ``MultiIndex``) and the three
   levels together with a shared nested index.
 
-All loaders accept ``harmonize=True`` for cross-era **analytical-core harmonization**
+Every loader accepts ``labels`` (raw ``dtype=str`` codes, or human-readable labelled
+``Categorical``/numeric columns validated strictly — the default of the analysis-ready
+loaders; see :func:`variables_enoe_labels`) and ``harmonize=True`` for cross-era
+**analytical-core harmonization**
 (:func:`_harmonize`): lowercase names, ``fac``→``fac_tri`` (+ ``fac_men``), ``ent``/``mun``→
 zero-padded ``cve_ent``/``cve_mun`` + ``cvegeo``, NA ``tipo``/``mes_cal`` before 2020-T3 —
 validated against :func:`_latest_schema`. Unlike DENUE it keeps every non-core column
@@ -103,6 +106,46 @@ def _filter_ent(df: pd.DataFrame, ent: int) -> pd.DataFrame:
     if col is None:
         raise KeyError(f"no entity column {_ENT_ALIASES} in frame")
     return df[pd.to_numeric(df[col], errors="coerce") == int(ent)].reset_index(drop=True)
+
+
+# ---------------------------------------------------------------------------------------
+# Labelled (human-readable) frames — ``labels=True``
+# ---------------------------------------------------------------------------------------
+# The analysis-ready loaders return frames the way the extended-census loaders do: coded
+# fields become labelled ``Categorical`` columns (ordered where the dictionary says so),
+# numeric fields become numbers with their sentinel codes as NA, and the result is validated
+# by a strict schema (an out-of-dictionary value *raises*). The dictionary is the group's
+# ``variables_enoe_{table}_{gid}.yaml`` (INEGI DDI labels reconciled with the data by the
+# build) overlaid by the hand-curated core, under both the raw and the harmonized names.
+# Key/identifier columns (:data:`_KEY_COLUMNS`) are never labelled — they are index levels.
+_KEY_COLUMNS = frozenset(c for aliases in _PERSON_KEY_SPEC for c in aliases)
+
+
+@functools.cache
+def variables_enoe_labels(table: str, gid: str) -> dict:
+    """The labelling dictionary of one ENOE ``(table, schema group)``: the per-group
+    variables overlaid by :func:`variables_enoe_core`, keyed by **both** the raw and the
+    harmonized column names (``ent`` and ``cve_ent``, ``fac`` and ``fac_tri``) so it applies
+    to a frame from :func:`load_enoe` with or without ``harmonize``."""
+    merged: dict = {}
+    for src in (variables_enoe(table, gid), variables_enoe_core()):
+        for col, meta in src.items():
+            merged[col] = meta
+            merged[_RENAME_CORE.get(col, col)] = meta
+    return merged
+
+
+def _finish_labelled(df: pd.DataFrame, variables: dict, label: str,
+                     spec: list[tuple[str, ...]] | None = None) -> pd.DataFrame:
+    """Label ``df`` (:func:`_schema_groups.label_frame`), set the level index when ``spec``
+    is given, and validate strictly (:func:`_schema_groups.validate_raise`)."""
+    out = _sg.label_frame(df, variables, weights=_WEIGHTS, family="ENOE", skip=_KEY_COLUMNS)
+    key = _sg.level_key(spec, out) if spec else None
+    if key:
+        out = _index_level(out, spec)
+    schema = _sg.build_labelled_schema(out.columns, variables, weights=_WEIGHTS,
+                                       skip=_KEY_COLUMNS, index_names=key)
+    return _sg.validate_raise("ENOE", schema, out, f"{label} labelled")
 
 
 # ---------------------------------------------------------------------------------------
@@ -209,24 +252,65 @@ def _latest_schema(table: str) -> pa.DataFrameSchema:
     carries are validated per-era by :func:`_group_schema`, not here.
     """
     always = {"cve_ent", "fac_tri", *_CORE_ADD}
-    cols = {_RENAME_CORE.get(raw, raw): (meta.get("Categorías") or {})
-            for raw, meta in variables_enoe_core().items()}
+    cols = {_RENAME_CORE.get(raw, raw): meta for raw, meta in variables_enoe_core().items()}
     for col in _CORE_ADD:
         cols.setdefault(col, {})
     schema = {}
-    for col, cats in cols.items():
+    for col, meta in cols.items():
         req = col in always
+        codes = _sg.raw_codes(meta)
         if col in _WEIGHTS:
             schema[col] = pa.Column(float, nullable=True, coerce=True, required=req)
         elif col in _GEO_REGEX:
             schema[col] = pa.Column(str, pa.Check.str_matches(_GEO_REGEX[col]),
                                     nullable=True, coerce=True, required=req)
-        elif cats:
-            schema[col] = pa.Column(str, pa.Check.isin(list(cats)), nullable=True,
-                                    coerce=True, required=req)
+        elif _sg.norm_tipo(meta) == "categorical":
+            schema[col] = _sg.raw_column(pa.Check.isin(codes), required=req)
+        elif _sg.norm_tipo(meta) == "numeric":
+            schema[col] = _sg.raw_column(_sg._numeric_raw_check(meta), required=req)
         else:
             schema[col] = pa.Column(str, nullable=True, coerce=True, required=req)
     return pa.DataFrameSchema(schema, strict=False, coerce=True)
+
+
+def _load_enoe_raw(
+    survey_path: Path | None = None,
+    *,
+    table: str,
+    period: str | None = None,
+    harmonize: bool = False,
+    ent: int | None = None,
+) -> tuple[pd.DataFrame, str, str]:
+    """:func:`load_enoe` without labelling, returning ``(frame, gid, label)`` — the
+    analysis-ready loaders derive their flags/filters from the raw codes first and label at
+    the end, so they need the group id alongside the frame."""
+    if table not in TABLES:
+        raise ValueError(f"unknown table {table!r}; known: {TABLES}")
+    if survey_path is None:
+        period = period or latest_quarter().period
+        if period not in QUARTERS_BY_PERIOD:
+            raise ValueError(
+                f"unknown period {period!r}; known: {list(QUARTERS_BY_PERIOD)[:3]}…"
+                f"{list(QUARTERS_BY_PERIOD)[-1]}"
+            )
+        from mxcensus.data._registry import POOCH
+        survey_path = Path(POOCH.fetch(f"enoe_{table}_{period}.parquet"))
+
+    df = pd.read_parquet(survey_path)
+    if ent is not None:
+        df = _filter_ent(df, ent)
+    gid = _group_of(table, df)
+    label = f"{table} {period or survey_path.stem} ({gid})"
+    _validate(_group_schema(table, gid), df, f"{label} raw")
+    if harmonize:
+        df = _harmonize(df, table, label)
+        _validate(_latest_schema(table), df, f"{label} harmonized")
+    return df, gid, label
+
+
+def _level_key(spec: list[tuple[str, ...]], *frames: pd.DataFrame) -> list[str]:
+    """Resolve a key ``spec`` to the columns present in every frame (shared helper)."""
+    return _sg.level_key(spec, *frames)
 
 
 def load_enoe(
@@ -236,6 +320,7 @@ def load_enoe(
     period: str | None = None,
     harmonize: bool = False,
     ent: int | None = None,
+    labels: bool = False,
 ) -> pd.DataFrame:
     """Load one raw ENOE table for one quarter as a faithful ``dtype=str`` DataFrame.
 
@@ -264,34 +349,18 @@ def load_enoe(
 
     The frame is validated against its group's tight schema; value-level violations emit a
     ``warnings.warn`` summary (they do not raise). An unrecognized schema raises ``ValueError``.
-    """
-    if table not in TABLES:
-        raise ValueError(f"unknown table {table!r}; known: {TABLES}")
-    if survey_path is None:
-        period = period or latest_quarter().period
-        if period not in QUARTERS_BY_PERIOD:
-            raise ValueError(
-                f"unknown period {period!r}; known: {list(QUARTERS_BY_PERIOD)[:3]}…"
-                f"{list(QUARTERS_BY_PERIOD)[-1]}"
-            )
-        from mxcensus.data._registry import POOCH
-        survey_path = Path(POOCH.fetch(f"enoe_{table}_{period}.parquet"))
 
-    df = pd.read_parquet(survey_path)
-    if ent is not None:
-        df = _filter_ent(df, ent)
-    gid = _group_of(table, df)
-    label = f"{table} {period or survey_path.stem} ({gid})"
-    _validate(_group_schema(table, gid), df, f"{label} raw")
-    if harmonize:
-        df = _harmonize(df, table, label)
-        _validate(_latest_schema(table), df, f"{label} harmonized")
+    ``labels=True`` returns a **labelled** frame (coded fields → labelled ``Categorical``
+    columns, numeric fields → numbers with sentinel codes as NA), validated strictly — see
+    :func:`variables_enoe_labels`. Key/identifier columns stay raw strings.
+    """
+    df, gid, label = _load_enoe_raw(survey_path, table=table, period=period,
+                                    harmonize=harmonize, ent=ent)
+    if labels:
+        df = _finish_labelled(df, variables_enoe_labels(table, gid), label)
     return df
 
 
-def _level_key(spec: list[tuple[str, ...]], *frames: pd.DataFrame) -> list[str]:
-    """Resolve a key ``spec`` to the columns present in every frame (shared helper)."""
-    return _sg.level_key(spec, *frames)
 
 
 def _person_key(*frames: pd.DataFrame) -> list[str]:
@@ -305,6 +374,7 @@ def load_enoe_persons(
     ent: int | None = None,
     canonical_filter: bool = True,
     harmonize: bool = False,
+    labels: bool = True,
 ) -> pd.DataFrame:
     """Load the analytical person frame for one quarter: SDEM joined with COE1/COE2.
 
@@ -328,6 +398,10 @@ def load_enoe_persons(
         Passed to :func:`load_enoe` for the three tables: canonicalize the analytical core
         across eras (``cve_ent``/``cvegeo``, ``fac_tri``/``fac_men``, ``tipo``/``mes_cal``, …)
         so frames from different quarters stack. The person key resolves either way.
+    labels : bool, default True
+        Return labelled ``Categorical``/numeric columns validated strictly (see
+        :func:`load_enoe`); the flags and the filter are computed from the raw codes first,
+        so weighted totals are identical either way. ``False`` keeps raw ``dtype=str``.
 
     Added columns
     -------------
@@ -336,12 +410,13 @@ def load_enoe_persons(
     - ``is_pea`` (``clase1==1``), ``is_ocupado`` (``clase2==1``), ``is_informal``
       (``emp_ppal==1``) — boolean labour-force flags.
 
-    All other columns are the faithful raw ``dtype=str`` values.
+    All other columns are labelled per the dictionaries (``labels=True``) or the faithful
+    raw ``dtype=str`` values (``labels=False``).
     """
     period = period or latest_quarter().period
-    sdem = load_enoe(table="sdem", period=period, ent=ent, harmonize=harmonize)
-    coe1 = load_enoe(table="coe1", period=period, ent=ent, harmonize=harmonize)
-    coe2 = load_enoe(table="coe2", period=period, ent=ent, harmonize=harmonize)
+    sdem, g_sdem, _ = _load_enoe_raw(table="sdem", period=period, ent=ent, harmonize=harmonize)
+    coe1, g_coe1, _ = _load_enoe_raw(table="coe1", period=period, ent=ent, harmonize=harmonize)
+    coe2, g_coe2, _ = _load_enoe_raw(table="coe2", period=period, ent=ent, harmonize=harmonize)
 
     key = _person_key(sdem, coe1, coe2)
     # Guard against a silent fan-out: if the key isn't unique in SDEM (e.g. a future era
@@ -372,6 +447,10 @@ def load_enoe_persons(
     for name, col, val in (("is_pea", "clase1", "1"), ("is_ocupado", "clase2", "1"),
                            ("is_informal", "emp_ppal", "1")):
         merged[name] = merged[col].eq(val) if col in merged.columns else pd.NA
+    if labels:
+        variables = {**variables_enoe_labels("coe2", g_coe2), **variables_enoe_labels("coe1", g_coe1),
+                     **variables_enoe_labels("sdem", g_sdem)}
+        merged = _finish_labelled(merged, variables, f"persons {period}")
     return merged
 
 
@@ -396,7 +475,8 @@ def _index_level(df: pd.DataFrame, spec: list[tuple[str, ...]]) -> pd.DataFrame:
 
 
 def load_enoe_viviendas(
-    period: str | None = None, *, ent: int | None = None, harmonize: bool = False
+    period: str | None = None, *, ent: int | None = None, harmonize: bool = False,
+    labels: bool = True,
 ) -> pd.DataFrame:
     """Load the ENOE **dwelling** (``viv``) table for one quarter, analysis-ready.
 
@@ -416,14 +496,21 @@ def load_enoe_viviendas(
         post-load row filter.
     harmonize : bool, default False
         Canonicalize the analytical core across eras (see :func:`load_enoe`).
+    labels : bool, default True
+        Labelled ``Categorical``/numeric columns, strictly validated (see :func:`load_enoe`);
+        the index levels stay raw strings. ``False`` keeps raw ``dtype=str`` columns.
     """
     period = period or latest_quarter().period
-    viv = load_enoe(table="viv", period=period, ent=ent, harmonize=harmonize)
-    return _index_level(_coalesce_fac_tri(viv), _DWELLING_KEY_SPEC)
+    viv, gid, label = _load_enoe_raw(table="viv", period=period, ent=ent, harmonize=harmonize)
+    viv = _coalesce_fac_tri(viv)
+    if labels:
+        return _finish_labelled(viv, variables_enoe_labels("viv", gid), label, _DWELLING_KEY_SPEC)
+    return _index_level(viv, _DWELLING_KEY_SPEC)
 
 
 def load_enoe_hogares(
-    period: str | None = None, *, ent: int | None = None, harmonize: bool = False
+    period: str | None = None, *, ent: int | None = None, harmonize: bool = False,
+    labels: bool = True,
 ) -> pd.DataFrame:
     """Load the ENOE **household** (``hog``) table for one quarter, analysis-ready.
 
@@ -432,11 +519,14 @@ def load_enoe_hogares(
     the dwelling index and is itself a prefix of the person index.
 
     Parameters mirror :func:`load_enoe_viviendas` (``period`` default latest; ``ent`` row
-    filter; ``harmonize`` cross-era core canonicalization).
+    filter; ``harmonize`` cross-era core canonicalization; ``labels`` labelled columns).
     """
     period = period or latest_quarter().period
-    hog = load_enoe(table="hog", period=period, ent=ent, harmonize=harmonize)
-    return _index_level(_coalesce_fac_tri(hog), _HOUSEHOLD_KEY_SPEC)
+    hog, gid, label = _load_enoe_raw(table="hog", period=period, ent=ent, harmonize=harmonize)
+    hog = _coalesce_fac_tri(hog)
+    if labels:
+        return _finish_labelled(hog, variables_enoe_labels("hog", gid), label, _HOUSEHOLD_KEY_SPEC)
+    return _index_level(hog, _HOUSEHOLD_KEY_SPEC)
 
 
 def load_enoe_survey(
@@ -445,6 +535,7 @@ def load_enoe_survey(
     ent: int | None = None,
     persons: str = "all",
     harmonize: bool = False,
+    labels: bool = True,
 ) -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
     """Load all three ENOE household-survey levels with a **shared, nested** ``MultiIndex``.
 
@@ -472,17 +563,24 @@ def load_enoe_survey(
         Canonicalize the analytical core of all three frames across eras (see
         :func:`load_enoe`), so surveys from different quarters share index names
         (``cve_ent`` rather than the era's ``ent``/``cve_ent``) and weight columns.
+    labels : bool, default True
+        Labelled ``Categorical``/numeric columns in all three frames, strictly validated
+        (see :func:`load_enoe`). The shared index levels stay raw strings either way.
     """
     if persons not in ("all", "labor"):
         raise ValueError(f"persons must be 'all' or 'labor', got {persons!r}")
     period = period or latest_quarter().period
-    viviendas = load_enoe_viviendas(period=period, ent=ent, harmonize=harmonize)
-    hogares = load_enoe_hogares(period=period, ent=ent, harmonize=harmonize)
+    viviendas = load_enoe_viviendas(period=period, ent=ent, harmonize=harmonize, labels=labels)
+    hogares = load_enoe_hogares(period=period, ent=ent, harmonize=harmonize, labels=labels)
     if persons == "all":
-        sdem = load_enoe(table="sdem", period=period, ent=ent, harmonize=harmonize)
-        personas = _index_level(_coalesce_fac_tri(sdem), _PERSON_KEY_SPEC)
+        sdem, gid, label = _load_enoe_raw(table="sdem", period=period, ent=ent, harmonize=harmonize)
+        sdem = _coalesce_fac_tri(sdem)
+        if labels:
+            personas = _finish_labelled(sdem, variables_enoe_labels("sdem", gid), label, _PERSON_KEY_SPEC)
+        else:
+            personas = _index_level(sdem, _PERSON_KEY_SPEC)
     else:  # "labor"
         frame = load_enoe_persons(period=period, ent=ent, canonical_filter=True,
-                                  harmonize=harmonize)
+                                  harmonize=harmonize, labels=labels)
         personas = _index_level(frame, _PERSON_KEY_SPEC)
     return viviendas, hogares, personas
