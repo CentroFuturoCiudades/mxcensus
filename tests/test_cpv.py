@@ -1172,8 +1172,12 @@ def test_eic2025_data_checks_by_state(state):
     assert (big.to_numpy() == loc["POBTOT"].to_numpy()).all()
     resto = e[e["NIVEL"] == "resto_estatal"]["POBTOT"]
     assert len(resto) == 1 and p.loc[p["LOC50K"] == "0000", "FACTOR"].sum() == resto.iloc[0]
-    # coverage: one COBERTURA per municipality
-    assert (p.groupby("CVE_MUN")["COBERTURA"].nunique() == 1).all()
+    # coverage: one COBERTURA per municipality, as the estimates mark the municipality's
+    # name (``*`` censado = 1, unmarked muestreado = 2, ``**`` muestra insuficiente = 3)
+    cov = p.groupby("CVE_MUN")["COBERTURA"].agg(["first", "nunique"])
+    assert (cov["nunique"] == 1).all()
+    mark = mun["NOM_MUN"].str.extract(r"(\**)$")[0].map({"*": "1", "": "2", "**": "3"})
+    assert cov["first"].tolist() == mark.tolist()
 
 
 @_REAL_SKIP
@@ -1219,4 +1223,5 @@ def test_eic2025_national_real():
         n_loc += p.loc[p["LOC50K"] != "0000", ["CVEGEO", "LOC50K"]].drop_duplicates().shape[0]
     assert tot == _PUBLISHED
     assert len(mun_cov) == 2_478 and n_loc == 233
-    assert sum(c == "1" for c in mun_cov.values()) == 753
+    # 750 censados, 1,721 muestreados, 7 con muestra insuficiente (the estimates' * / **)
+    assert pd.Series(mun_cov).value_counts().to_dict() == {"2": 1_721, "1": 750, "3": 7}

@@ -15,9 +15,9 @@ unit.
 | **0** | Groundwork: build-script hazards, MG editions, `_cpv_catalog.py` (all 8 editions), CLI selector map, probe doc, catalog/CLI/legacy tests | — | ✅ done 2026-10-07 (`STEP_0_probe.md`) |
 | **1a** | `scripts/build_cpv.py`: build mode, `--dry-run`, multi-member ZIPs, faithful-raw parquet; EIC 2025 smoke build locally (states 01, 09 + estimaciones); full 2025 build on `wsl` | 0 | ✅ done 2026-10-07 (`STEP_1a.md`): 97 files on `wsl`, 0 failures, Σ `FACTOR` = published totals |
 | **1b** | Dictionaries: `scripts/_dict_fd.py` (FD xlsx → `parse_ddi` shape), classification catalogs, hand-curated `variables_cpv_core.yaml`, `--dictionary --schema-map --variables --report-only --validate` | 1a | ✅ done 2026-10-07 (`STEP_1b.md`): 0/97 failures on `wsl`; every observed code documented by the FD (stdlib xlsx reader, no `openpyxl`) |
-| **1c** | Loaders: `cpv.py` (`load_cpv`, `load_cpv_viviendas/personas/migrantes`, `load_cpv_survey`, `variables_cpv_labels`), `cpv_aggregates.load_cpv_estimaciones`; `_resources`/`__init__`; CLI `--dataset cpv --edition`; `tests/test_cpv.py` (offline + `_REAL`), `test_schema_groups.py` family loops; EIC 2025 data checks (§Verification) | 1b | pytest green; Σ `FACTOR` checks recorded |
+| **1c** | Loaders: `cpv.py` (`load_cpv`, `load_cpv_viviendas/personas/migrantes`, `load_cpv_survey`, `variables_cpv_labels`), `cpv_aggregates.load_cpv_estimaciones`; `_resources`/`__init__`; `tests/test_cpv.py` (offline + `_REAL`), `test_schema_groups.py` family loops; EIC 2025 data checks (§Verification) | 1b | ✅ done 2026-10-07 (`STEP_1c.md`): pytest green; every Σ `FACTOR` check exact (state, municipality, ≥50k locality, nation on `wsl`); CLI moved to 1e |
 | **1d** | MG EIC 2025: full `build_marco_geo.py --period 2025` on `wsl` (480 files); `load_mg(layer, *, state, period)`; CLI `--dataset mg --edition`; decide on the CRS-spelling difference (`STEP_0_probe.md` §MG) | 0 | 480 files; `load_mg` tested |
-| **1e** | Registry + `upload_hf.py upload`/`verify` + clean-cache fetch; README/CLAUDE.md/`hf_bucket_readme.md`/pyproject; version bump | 1a–1d | clean-cache `POOCH.fetch` of a `cpv_` and an `mg_*_2025_` file |
+| **1e** | Registry + `upload_hf.py upload`/`verify` + clean-cache fetch; CLI `--dataset cpv --edition` (moved from 1c: the CLI never offers unregistered files); README/CLAUDE.md/`hf_bucket_readme.md`/pyproject; version bump | 1a–1d | clean-cache `POOCH.fetch` of a `cpv_` and an `mg_*_2025_` file |
 | **2a** | CPV 2020 into the family (`viviendas`/`personas`/**`migrantes`**, `iter`, `ageb` as `cpv_*_2020_NN`); 2020 dictionary (RNM DDI probe, else FD xlsx) | 1 | `--validate` 0 failures |
 | **2b** | 2020↔2025 core harmonization; raw-vs-harmonized and legacy-equality tests; upload | 2a | totals identical; uploaded |
 | **3a** | EIC 2015 (`TR_VIVIENDA`/`TR_PERSONA`, DDI 214) | 2 | validate 0; Σ `FACTOR` vs INEGI |
@@ -170,8 +170,9 @@ prefix are shared.
   - Per-state tables: `None` raises (no accidental multi-GB fetch). A sequence concatenates and
     must fall in one group unless `harmonize=True`.
   - National tables: `state` filters rows on `CVE_ENT`.
-- `cpv_aggregates.load_cpv_estimaciones(period="2025", *, estimador="valor", nivel=None, state=None)`
-  returns one row per geography and one column per indicator, indexed `(CVE_ENT, CVE_MUN, CVE_LOC)`.
+- `cpv_aggregates.load_cpv_estimaciones(period=None, *, estimador="valor", nivel=None, state=None,
+  survey_path=None)` returns one row per geography and one column per indicator, indexed
+  `(CVE_ENT, CVE_MUN, CVE_LOC)`.
   - An ordered `NIVEL` column takes `nacional | estatal | municipal | resto_estatal (997/9997) | localidad`.
   - `ESTIMADOR` maps to `valor|ee|li|ls|cv`. A list or `None` keeps `ESTIMADOR` as the last index level.
 - Geometry: new `load_mg(layer, *, state, period="2020")`. It reads legacy names for 2020 and
@@ -192,8 +193,9 @@ prefix are shared.
 - **`_cli.py`:**
   - Turn the flag→family check into a map from each flag to a set of families
     (`SELECTOR_FLAGS`); make `STATE` optional for the national surveys (`NATIONAL_DATASETS`).
-  - `--dataset cpv --edition YYYY` and `--dataset mg --edition YYYY` are added with their
-    loaders (units 1c / 1d), so the CLI never offers files that are not in the registry.
+  - `--dataset cpv --edition YYYY` and `--dataset mg --edition YYYY` are added together
+    with their registry entries (unit 1e), so the CLI never offers files that are not in
+    the registry.
   - The `state` positional stays meaningful for per-state files.
 - `data/_cpv_catalog.py` with all eight editions, plus `docs/cpv/STEP_0_probe.md` (the matrix, URLs, quirks).
 - `tests/test_cpv.py` skeleton with catalog/URL/`_FILE_RE` round-trip tests.
@@ -215,8 +217,8 @@ prefix are shared.
    - Then run `--schema-map`, `--variables`, `--report-only`, and `--validate`, which must report 0
      failures and doubles as the label-coverage gate.
 3. **Loaders:** `cpv.py`, `cpv_aggregates.load_cpv_estimaciones`, `load_mg`. Add `_resources`
-   accessors (`cpv_schema_map`, `variables_cpv(table, gid)`, `variables_cpv_core`), `__init__`
-   exports, and CLI.
+   accessors (`cpv_schema_map`, `variables_cpv(table, gid)`, `variables_cpv_core`) and `__init__`
+   exports. The CLI comes with the registry (1e).
 4. **MG EIC 2025:** all 15 layers × 32 states (≈2–3 GB) via the parameterised `build_marco_geo.py --period 2025`.
 5. **Registry and upload on the `wsl` build host.** Registry +97 cpv and +480 mg → 2509 entries.
    Run `upload_hf.py upload` (no `--delete`), `verify`, then a clean-cache `POOCH.fetch`.
@@ -327,8 +329,9 @@ prefix are shared.
 - **Keys:** IDs are unique per level, `ID_PERSONA[:12] == ID_VIV`, and every person's dwelling
   exists. Check (don't assume) that `FACTOR` is constant within a dwelling.
 - **Geography:** `CVEGEO == CVE_ENT+CVE_MUN`, and each state file holds only its own `CVE_ENT`.
-- **Coverage:** `COBERTURA = 1` for 753 municipalities.
-- **Estimates:** LI ≤ valor ≤ LS, cv ≈ 100·ee/valor, and 2,776 × 5 rows.
+- **Coverage:** `COBERTURA` 1 / 2 / 3 = 750 / 1,721 / 7 municipalities, matching the
+  estimaciones name marks `*` / none / `**` (1c found 750 censados, not the 753 first assumed).
+- **Estimates:** LI ≤ valor ≤ LS, cv ≈ 100·ee/valor (within the 2-decimal rounding), and 2,776 × 5 rows.
 - **Legacy path:** `load_census(state=1)` and `load_extended_*` are unchanged.
 
 ## Risks
