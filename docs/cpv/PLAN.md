@@ -14,7 +14,7 @@ unit.
 |---|---|---|---|
 | **0** | Groundwork: build-script hazards, MG editions, `_cpv_catalog.py` (all 8 editions), CLI selector map, probe doc, catalog/CLI/legacy tests | — | ✅ done 2026-10-07 (`STEP_0_probe.md`) |
 | **1a** | `scripts/build_cpv.py`: build mode, `--dry-run`, multi-member ZIPs, faithful-raw parquet; EIC 2025 smoke build locally (states 01, 09 + estimaciones); full 2025 build on `wsl` | 0 | ✅ done 2026-10-07 (`STEP_1a.md`): 97 files on `wsl`, 0 failures, Σ `FACTOR` = published totals |
-| **1b** | Dictionaries: `scripts/_dict_fd.py` (FD xlsx → `parse_ddi` shape), classification catalogs, hand-curated `variables_cpv_core.yaml`, `--dictionary --schema-map --variables --report-only --validate` | 1a | `--validate` reports 0 failures |
+| **1b** | Dictionaries: `scripts/_dict_fd.py` (FD xlsx → `parse_ddi` shape), classification catalogs, hand-curated `variables_cpv_core.yaml`, `--dictionary --schema-map --variables --report-only --validate` | 1a | ✅ done 2026-10-07 (`STEP_1b.md`): 0/97 failures on `wsl`; every observed code documented by the FD (stdlib xlsx reader, no `openpyxl`) |
 | **1c** | Loaders: `cpv.py` (`load_cpv`, `load_cpv_viviendas/personas/migrantes`, `load_cpv_survey`, `variables_cpv_labels`), `cpv_aggregates.load_cpv_estimaciones`; `_resources`/`__init__`; CLI `--dataset cpv --edition`; `tests/test_cpv.py` (offline + `_REAL`), `test_schema_groups.py` family loops; EIC 2025 data checks (§Verification) | 1b | pytest green; Σ `FACTOR` checks recorded |
 | **1d** | MG EIC 2025: full `build_marco_geo.py --period 2025` on `wsl` (480 files); `load_mg(layer, *, state, period)`; CLI `--dataset mg --edition`; decide on the CRS-spelling difference (`STEP_0_probe.md` §MG) | 0 | 480 files; `load_mg` tested |
 | **1e** | Registry + `upload_hf.py upload`/`verify` + clean-cache fetch; README/CLAUDE.md/`hf_bucket_readme.md`/pyproject; version bump | 1a–1d | clean-cache `POOCH.fetch` of a `cpv_` and an `mg_*_2025_` file |
@@ -125,13 +125,15 @@ prefix are shared.
 - `variables_cpv_{table}_{gNN}.yaml` = core > dictionary > data. `variables_cpv_core.yaml` is
   hand-curated and never regenerated, under the contract header of `variables_enoe_core.yaml`.
 - **Dictionary sources:**
-  - RNM DDI through `scripts/_dict_ddi.py`: new `CPV_DDI = {2000: 141, 2005: 140, 2010: 71, 2015: 214}`,
-    with 2020 to probe.
-  - New `scripts/_dict_fd.py::parse_fd_xlsx(path) -> {stem: {VAR: meta}}` in the same shape as
-    `parse_ddi`, generalising `utils.get_cats_from_excel`. It covers EIC 2025, 2020 if it has no DDI,
-    and 2015 as a cross-check.
-  - Aggregates use INEGI's `diccionario_datos_*.csv` (`utils.get_vars_from_indicator_csv`):
-    `Tipo: numeric`, `Especiales {'*', 'N/D'}`, `--cat-threshold 0`.
+  - RNM DDI through `scripts/_dict_ddi.py`, with the ids taken from `CpvEdition.ddi_id` (2000 = 141,
+    2005 = 140, 2010 = 71, 2015 = 214; 2020 to probe). `build_cpv.py --dictionary` fetches them.
+  - `scripts/_dict_fd.py::parse_fd_xlsx(path, catalogs) -> {stem: {VAR: meta}}` in the same shape
+    as `parse_ddi`, generalising `utils.get_cats_from_excel`. It reads the workbook with a stdlib
+    reader (`read_xlsx`; no `openpyxl`). It covers EIC 2025, 2020 if it has no DDI, and 2015 as a
+    cross-check. `fd_entry` builds the entries (1b, `STEP_1b.md`).
+  - Aggregates use INEGI's `diccionario_datos_*.csv` (`_dict_fd.parse_indicator_csv`):
+    `Tipo: numeric`, `Especiales` from the dictionary's own footnotes (2025: `NA`, `MI`), no
+    `Rango` (a column mixes the five estimators), and `--cat-threshold 0` (`_TABLE_THRESHOLD`).
   - 1990/1995 have no DDI: use DBF field metadata, then data enumeration, and flag it.
 - Large classification codes (SINCO, SCIAN, country, language from `889463931966_csv.zip`) get
   `Tipo: string` plus a `Catálogo:` note, not huge `Categorías`.
@@ -223,7 +225,8 @@ prefix are shared.
    - README: a new `### Census & intercensal (multi-year)` section, and generalise the "2020 Census"
      title.
    - Counts in CLAUDE.md and `docs/hf_bucket_readme.md`; generalise the pyproject description.
-   - Add a `build` extra (`openpyxl`, later `dbfread`).
+   - No `build` extra yet: the FD workbook is read with the stdlib (1b). `dbfread` will need one
+     in 3b.
 
 ### Phase 2 — CPV 2020 into the family
 - Rebuild the 2020 CA tables (`viviendas`/`personas`/**`migrantes`**), `iter` and `ageb` as
@@ -283,13 +286,14 @@ prefix are shared.
   - `tests/test_cpv.py`, `docs/cpv/*`
 - **Modified:**
   - `scripts/build_data.py` (registry fix), `scripts/build_marco_geo.py` (period param, cache names)
-  - `scripts/_build_common.py`, `scripts/_dict_ddi.py` (`CPV_DDI`, per-column observed values)
+  - `scripts/_build_common.py`, `scripts/_dict_ddi.py` (per-column observed values; `group_entries(entry_fn=)`)
   - `src/mxcensus/_resources.py`, `__init__.py`, `_cli.py`
   - `tests/test_schema_groups.py` (add `cpv` to the family loops)
   - README, CLAUDE.md, `docs/hf_bucket_readme.md`, pyproject
 - **Reused as is:** `_schema_groups.py` (all of it), `_build_common.fetch_zip_verified`/`update_registry`,
   `_dict_ddi.dictionary_entry`/`group_entries`/`dump_yaml`, and
-  `utils.get_cats_from_excel`/`get_vars_from_indicator_csv` (logic generalised into `_dict_fd.py`).
+  `utils.get_cats_from_excel`/`get_vars_from_indicator_csv` (logic generalised into `_dict_fd.py`;
+  the utils themselves are untouched).
   The CSV reader is the exception: `build_cpv.py` has its own streamed sniff and pyarrow reader
   instead of `build_enigh._read_csv_robust`/`_df_to_parquet` (1a).
 
