@@ -13,7 +13,7 @@ unit.
 | unit | scope | depends on | gate (must hold before handing off) |
 |---|---|---|---|
 | **0** | Groundwork: build-script hazards, MG editions, `_cpv_catalog.py` (all 8 editions), CLI selector map, probe doc, catalog/CLI/legacy tests | — | ✅ done 2026-10-07 (`STEP_0_probe.md`) |
-| **1a** | `scripts/build_cpv.py`: build mode, `--dry-run`, multi-member ZIPs, faithful-raw parquet; EIC 2025 smoke build locally (states 01, 09 + estimaciones); full 2025 build on `wsl` | 0 | 97 `cpv_*_2025*` files on `wsl`; ZIP integrity, row counts in `STEP_1a.md` |
+| **1a** | `scripts/build_cpv.py`: build mode, `--dry-run`, multi-member ZIPs, faithful-raw parquet; EIC 2025 smoke build locally (states 01, 09 + estimaciones); full 2025 build on `wsl` | 0 | ✅ done 2026-10-07 (`STEP_1a.md`): 97 files on `wsl`, 0 failures, Σ `FACTOR` = published totals |
 | **1b** | Dictionaries: `scripts/_dict_fd.py` (FD xlsx → `parse_ddi` shape), classification catalogs, hand-curated `variables_cpv_core.yaml`, `--dictionary --schema-map --variables --report-only --validate` | 1a | `--validate` reports 0 failures |
 | **1c** | Loaders: `cpv.py` (`load_cpv`, `load_cpv_viviendas/personas/migrantes`, `load_cpv_survey`, `variables_cpv_labels`), `cpv_aggregates.load_cpv_estimaciones`; `_resources`/`__init__`; CLI `--dataset cpv --edition`; `tests/test_cpv.py` (offline + `_REAL`), `test_schema_groups.py` family loops; EIC 2025 data checks (§Verification) | 1b | pytest green; Σ `FACTOR` checks recorded |
 | **1d** | MG EIC 2025: full `build_marco_geo.py --period 2025` on `wsl` (480 files); `load_mg(layer, *, state, period)`; CLI `--dataset mg --edition`; decide on the CRS-spelling difference (`STEP_0_probe.md` §MG) | 0 | 480 files; `load_mg` tested |
@@ -202,7 +202,9 @@ prefix are shared.
    --tables --states --dry-run --dictionary --schema-map --variables --report-only --validate
    --update-registry`).
    - Loop over (edition, product ZIP) and extract several members per ZIP.
-   - Use `_sniff_encoding`; the estimaciones file is cp1252.
+   - Read CSVs with `pyarrow.csv` (all `string`, `null_values=[""]`) after a streamed
+     `_sniff_encoding`; pandas `dtype=str` does not fit the large personas files in memory
+     (`STEP_1a.md`). The estimaciones file is cp1252.
    - Output: 96 microdata files + 1 estimaciones file. The national `_00_` ZIP is not mirrored.
 2. **Metadata:**
    - `--dictionary` fetches the FD xlsx and classification catalogs into `data/dict/fd/`.
@@ -286,8 +288,10 @@ prefix are shared.
   - `tests/test_schema_groups.py` (add `cpv` to the family loops)
   - README, CLAUDE.md, `docs/hf_bucket_readme.md`, pyproject
 - **Reused as is:** `_schema_groups.py` (all of it), `_build_common.fetch_zip_verified`/`update_registry`,
-  `build_enigh._sniff_encoding`/`_read_csv_robust`/`_df_to_parquet`, `_dict_ddi.dictionary_entry`/`group_entries`/`dump_yaml`,
+  `_dict_ddi.dictionary_entry`/`group_entries`/`dump_yaml`, and
   `utils.get_cats_from_excel`/`get_vars_from_indicator_csv` (logic generalised into `_dict_fd.py`).
+  The CSV reader is the exception: `build_cpv.py` has its own streamed sniff and pyarrow reader
+  instead of `build_enigh._read_csv_robust`/`_df_to_parquet` (1a).
 
 ## Verification
 
