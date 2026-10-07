@@ -39,6 +39,15 @@ from mxcensus.enigh import (
     load_enigh_survey,
     variables_enigh_labels,
 )
+from mxcensus.cpv import (
+    load_cpv,
+    load_cpv_viviendas,
+    load_cpv_personas,
+    load_cpv_migrantes,
+    load_cpv_survey,
+    variables_cpv_labels,
+)
+from mxcensus.cpv_aggregates import load_cpv_estimaciones
 from mxcensus.crosstabs import create_cont_table, get_tables_dict
 from mxcensus.utils import expand_cat_map, get_cats_from_excel, get_vars_from_indicator_csv
 from mxcensus._resources import (
@@ -56,6 +65,9 @@ from mxcensus._resources import (
     variables_enigh,
     variables_enigh_core,
     enigh_schema_map,
+    variables_cpv,
+    variables_cpv_core,
+    cpv_schema_map,
 )
 from mxcensus import data
 
@@ -93,6 +105,14 @@ __all__ = [
     "load_enigh_personas",
     "load_enigh_survey",
     "variables_enigh_labels",
+    # CPV family (censos, conteos y encuestas intercensales; EIC 2025 so far)
+    "load_cpv",
+    "load_cpv_viviendas",
+    "load_cpv_personas",
+    "load_cpv_migrantes",
+    "load_cpv_survey",
+    "load_cpv_estimaciones",
+    "variables_cpv_labels",
     # Crosstabs / constraints
     "create_cont_table",
     "get_tables_dict",
@@ -111,6 +131,9 @@ __all__ = [
     "variables_enigh",
     "variables_enigh_core",
     "enigh_schema_map",
+    "variables_cpv",
+    "variables_cpv_core",
+    "cpv_schema_map",
     # Utilities
     "expand_cat_map",
     "get_cats_from_excel",

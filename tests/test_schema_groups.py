@@ -77,10 +77,13 @@ def test_family_wrappers_share_implementation():
     spec = [("folioviv",), ("foliohog",)]
     f = pd.DataFrame({"folioviv": ["1", "1"], "foliohog": ["1", "1"]})
     assert enigh._level_key(spec, f) == enoe._level_key(spec, f) == ["folioviv", "foliohog"]
+    assert cpv._level_key(spec, f) == ["folioviv", "foliohog"]
     with pytest.warns(UserWarning, match="ENIGH level key"):
         enigh._index_level(f, spec)
     with pytest.warns(UserWarning, match="ENOE level key"):
         enoe._index_level(f, spec)
+    with pytest.warns(UserWarning, match="CPV level key"):
+        cpv._index_level(f, spec)
     schema = sg.build_group_schema(["c"], {"c": {"Categorías": {"1": "a"}}})
     bad = pd.DataFrame({"c": ["x"]})
     with pytest.warns(UserWarning, match="^DENUE lbl"):
@@ -130,11 +133,19 @@ def test_expand_cat_map_str_ranges():
     assert expand_cat_map_str({"1..2": "x"}) == {"1": "x", "2": "x"}
 
 
+def _vals(s):
+    return [None if pd.isna(x) else x for x in s]
+
+
 def test_label_frame_maps_codes_numerics_and_sentinels():
     out = sg.label_frame(_raw(), _VARS, weights={"w"}, family="FAM", skip={"txt"})
-    assert list(out["lvl"]) == ["Bajo", "Alto", "No especificado", None]
-    assert list(out["pad"]) == ["Uno", "Dos", "Dos", None]          # Alias + strip + blank→NA
+    assert _vals(out["lvl"]) == ["Bajo", "Alto", "No especificado", None]
+    assert _vals(out["pad"]) == ["Uno", "Dos", "Dos", None]         # Alias + strip + blank→NA
     assert list(out["rng"]) == ["Sí", "No", "Sí", "Sí"]
+    # categoricals come out as the dtype the strict schema declares (no object detour)
+    assert out["lvl"].dtype == pd.CategoricalDtype(["Bajo", "Medio", "Alto", "No especificado"],
+                                                   ordered=True)
+    assert list(out["rng"].cat.categories) == ["Sí", "No"]
     assert list(out["age"].astype("Float64")) == [15, None, 0, 98] or pd.isna(out["age"][1])
     assert out["age"].dtype.kind in "fi" and pd.isna(out["age"].iloc[1])
     assert out["amt"].iloc[3] == 1000.0 and out["w"].dtype.kind == "f"

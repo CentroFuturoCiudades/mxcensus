@@ -19,6 +19,7 @@ import warnings
 from collections.abc import Callable, Iterable
 from hashlib import sha256
 
+import numpy as np
 import pandas as pd
 import pandera.pandas as pa
 from pandera.errors import SchemaErrors
@@ -212,6 +213,28 @@ def _labels_of(meta: dict) -> dict[str, str]:
     return m
 
 
+def _categorical_dtype(meta: dict) -> pd.CategoricalDtype:
+    """The labelled dtype of a categorical entry: its distinct labels in YAML order
+    (duplicates folded), ordered when ``Ordenada``."""
+    labels = list(dict.fromkeys(_labels_of(meta).values()))
+    return pd.CategoricalDtype(labels, ordered=bool(meta.get("Ordenada")))
+
+
+def _to_categorical(s: pd.Series, meta: dict, col: str, problems: dict) -> pd.Series:
+    """Map stripped raw codes onto their labelled ``Categorical`` through integer codes
+    (no per-cell label objects); codes without a label are recorded in ``problems`` and
+    become NA."""
+    code_map = _labels_of(meta)
+    dtype = _categorical_dtype(meta)
+    pos = pd.Index(list(code_map)).get_indexer(s)
+    unmapped = (pos < 0) & s.notna().to_numpy()
+    if unmapped.any():
+        problems[col] = sorted(s[unmapped].unique())[:12]
+    label_code = dtype.categories.get_indexer(list(code_map.values()))
+    codes = np.where(pos >= 0, label_code[pos], -1)
+    return pd.Series(pd.Categorical.from_codes(codes, dtype=dtype), index=s.index, name=s.name)
+
+
 def _numeric_dtype(meta: dict) -> str:
     return "Float64" if str(meta.get("Decimales") or "").strip() else "Int64"
 
@@ -221,7 +244,8 @@ def label_frame(df: pd.DataFrame, variables: dict, *, weights: Iterable[str] = (
     """Map a raw ``dtype=str`` frame onto labels/numbers per ``variables`` (a copy).
 
     Per column present in ``variables``: weights → numeric; categorical → ``Alias`` then the
-    code→label map (``Categorías`` ∪ ``Especiales``); numeric → ``Especiales`` codes to NA,
+    code→label map (``Categorías`` ∪ ``Especiales``) as a ``Categorical`` of the dtype
+    :func:`build_labelled_schema` declares; numeric → ``Especiales`` codes to NA,
     then ``to_numeric``; string → untouched. Columns in ``skip`` (index keys) and columns
     absent from the dictionary are left verbatim. Blank strings become NA.
 
@@ -230,7 +254,7 @@ def label_frame(df: pd.DataFrame, variables: dict, *, weights: Iterable[str] = (
     ``--validate`` gate guarantees the mirror never trips this).
     """
     weights, skip = set(weights), set(skip)
-    out = df.copy()
+    out = df.copy(deep=False)  # columns are replaced, never written in place
     problems: dict[str, list] = {}
     for col in out.columns:
         if col in skip:
@@ -244,20 +268,23 @@ def label_frame(df: pd.DataFrame, variables: dict, *, weights: Iterable[str] = (
             continue
         if not (raw.dtype == object or pd.api.types.is_string_dtype(raw)):
             continue  # already typed (a derived numeric/flag column) — nothing to map
-        s = raw.astype("string").str.strip()
-        s = s.mask(s == "")
         tipo = norm_tipo(meta)
+        if tipo not in ("categorical", "numeric"):
+            continue
+        # Map each distinct value once (a coded column has a handful), then expand through
+        # the factorized codes — millions of rows never become Python objects.
+        codes, uniques = pd.factorize(raw)
+        u = pd.Series(uniques, dtype="string").str.strip()
+        u = u.mask(u == "")
         if tipo == "categorical":
             alias = meta.get("Alias") or {}
             if alias:
-                s = s.replace(alias)
-            mapped = s.map(_labels_of(meta))
-            missing = s[mapped.isna() & s.notna()]
-            if len(missing):
-                problems[col] = sorted(missing.unique())[:12]
-            out[col] = mapped.astype(object).where(mapped.notna(), None)
-        elif tipo == "numeric":
-            out[col] = _to_numeric(s, meta, col, problems)
+                u = u.replace(alias)
+            mapped = _to_categorical(u, meta, col, problems)
+        else:
+            mapped = _to_numeric(u, meta, col, problems)
+        out[col] = pd.Series(mapped.array.take(codes, allow_fill=True), index=raw.index,
+                             name=col)
     if problems:
         raise ValueError(
             f"{family}: values without a dictionary label (add them to the variables YAML, "
@@ -306,9 +333,7 @@ def build_labelled_schema(columns: Iterable[str], variables: dict, *,
         if col in weights:
             schema[col] = pa.Column(float, pa.Check.ge(0), nullable=True, coerce=True)
         elif tipo == "categorical":
-            labels = list(dict.fromkeys(_labels_of(meta).values()))
-            dtype = pd.CategoricalDtype(labels, ordered=bool(meta.get("Ordenada")))
-            schema[col] = pa.Column(dtype, nullable=True, coerce=True)
+            schema[col] = pa.Column(_categorical_dtype(meta), nullable=True, coerce=True)
         elif tipo == "numeric":
             rng = meta.get("Rango") or []
             checks = [pa.Check(lambda s: pd.api.types.is_numeric_dtype(s), name="numeric_dtype",

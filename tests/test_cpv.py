@@ -743,3 +743,480 @@ def test_generated_dictionaries_cover_every_column():
         for col, meta in v.items():
             assert sg.norm_tipo(meta) in ("categorical", "numeric", "string")
             assert meta.get("Descripción"), (table, gid, col)   # nothing left undocumented
+
+
+# --- unit 1c: loaders (mxcensus.cpv, mxcensus.cpv_aggregates) --------------------------
+
+import functools  # noqa: E402
+import warnings  # noqa: E402
+
+import numpy as np  # noqa: E402
+
+from mxcensus import cpv as _cpv  # noqa: E402
+from mxcensus.cpv_aggregates import ESTIMADORES, NIVELES  # noqa: E402
+
+_MIRROR = Path(__file__).resolve().parent.parent / "data" / "parquet"
+_REAL = (_MIRROR / "cpv_personas_2025_01.parquet").exists()
+_REAL_SKIP = pytest.mark.skipif(not _REAL, reason="no local CPV mirror (data/parquet/)")
+# States whose three 2025 microdata tables are on disk (the Mac: 01, 09, 15; wsl: all 32).
+_LOCAL_STATES = [s for s in range(1, 33) if all(
+    (_MIRROR / cpv_filename(t, "2025", s)).exists() for t in ("viviendas", "personas", "migrantes"))]
+_ALL32 = len(_LOCAL_STATES) == 32 and (_MIRROR / "cpv_estimaciones_2025.parquet").exists()
+
+_GEOS = [("00", "000", "0000"), ("01", "000", "0000"), ("01", "001", "0000"),
+         ("01", "001", "0001"), ("01", "997", "9997")]
+_EST_NIVEL = ["nacional", "estatal", "municipal", "localidad", "resto_estatal"]
+_EST_RAW = dict(zip(["Valor", "Error estándar", "Límite inferior de confianza",
+                     "Límite superior de confianza", "Coeficiente de variación"],
+                    ["10", "1.25", "8", "12", "12.5"]))
+
+
+def _keyed_frame(table: str, state: int, rows: int = 3) -> pd.DataFrame:
+    """A valid frame of ``table``'s latest group with unique keys and the geography of
+    ``state`` (municipality 001), as a mirror file would hold."""
+    f = _valid_frame(table, _SM[table]["latest"], rows)
+    ent = f"{state:02d}"
+    viv = [f"{ent}001{i:07d}" for i in range(rows)]
+    f["CVE_ENT"], f["CVE_MUN"], f["CVEGEO"], f["LOC50K"] = ent, "001", ent + "001", "0000"
+    f["ID_VIV"] = viv
+    if "ID_PERSONA" in f:
+        f["ID_PERSONA"] = [v + "00001" for v in viv]
+    if "ID_MII" in f:
+        f["ID_MII"] = [v + "01" for v in viv]
+    return f
+
+
+def _est_frame() -> pd.DataFrame:
+    """Synthetic estimaciones: the 5 geographic levels × the 5 estimator rows."""
+    gid = _SM["estimaciones"]["latest"]
+    rows = []
+    for ent, mun, loc in _GEOS:
+        for est, val in _EST_RAW.items():
+            r = {c: val for c in _cols("estimaciones", gid)}
+            r.update(CVEGEO=ent + mun + loc, CVE_ENT=ent, CVE_MUN=mun, CVE_LOC=loc,
+                     NOM_ENT="E", NOM_MUN="M", NOM_LOC="L", ESTIMADOR=est,
+                     PCN_P_0A4="MI" if loc == "0001" else val)
+            r["POBFEM"] = "NA" if mun == "997" else val
+            rows.append(r)
+    return pd.DataFrame(rows, columns=_cols("estimaciones", gid), dtype=str)
+
+
+@pytest.fixture
+def fake_mirror(monkeypatch):
+    """``POOCH.fetch`` echoes the requested name (recorded); ``read_parquet`` returns a
+    valid synthetic frame for the mirror file it is given."""
+    from mxcensus.data import _registry
+    fetched: list[str] = []
+    monkeypatch.setattr(_registry.POOCH, "fetch", lambda f, **_: fetched.append(f) or f)
+
+    def _fake_read(path, *_, **__):
+        table, _period, state = parse_filename(Path(path).name)
+        return _est_frame() if table == "estimaciones" else _keyed_frame(table, state)
+
+    monkeypatch.setattr(pd, "read_parquet", _fake_read)
+    return fetched
+
+
+def _no_warnings():
+    ctx = warnings.catch_warnings()
+    ctx.__enter__()
+    warnings.simplefilter("error")
+    return ctx
+
+
+def test_key_specs_nest_and_skip():
+    assert _cpv._PERSON_KEY_SPEC[:1] == _cpv._DWELLING_KEY_SPEC == _cpv._MIGRANT_KEY_SPEC[:1]
+    f2010 = pd.DataFrame({"ID_VIV": ["1"], "ID_PER": ["1"], "ID_MIN": ["1"]})
+    assert _cpv._level_key(_cpv._PERSON_KEY_SPEC, f2010) == ["ID_VIV", "ID_PER"]
+    assert _cpv._level_key(_cpv._MIGRANT_KEY_SPEC, f2010) == ["ID_VIV", "ID_MIN"]
+    assert {"ID_VIV", "ID_PERSONA", "ID_PER", "ID_MII", "ID_MIN"} <= _cpv._KEY_COLUMNS
+    assert set(_cpv._GEO_CODES) | set(_cpv._POINTERS) | _cpv._KEY_COLUMNS == _cpv._SKIP
+    columns = {c for t in _SM for g in _SM[t]["groups"].values() for c in g["columns"]}
+    assert set(_cpv._POINTERS) <= columns           # every pointer exists in 2025
+    for ptr in _cpv._POINTERS:     # …and codes person numbers 01-54 as themselves (≥ 96: other)
+        table = next(t for t in ("personas", "viviendas", "migrantes") if ptr in _cols(t, "g01"))
+        cats = variables_cpv(table, "g01")[ptr]["Categorías"]
+        assert all((k == v) == (int(k) <= 54) for k, v in cats.items()), ptr
+        assert sum(int(k) <= 54 for k in cats) >= 50, ptr
+
+
+def test_variables_cpv_labels_merges_core_and_renames(monkeypatch):
+    labels = mxcensus.variables_cpv_labels("personas", _SM["personas"]["latest"])
+    assert labels["SEXO"]["Categorías"] == {"1": "Hombre", "3": "Mujer"}
+    assert labels["TAMLOC"]["Ordenada"] and "ESTIMADOR" in labels     # core overlay
+    # a legacy lower-case raw name is keyed under its harmonized name too
+    monkeypatch.setattr(_cpv, "_RENAME_CORE", {"ENT": "CVE_ENT"})
+    monkeypatch.setattr(_cpv, "variables_cpv",
+                        lambda t, g: {"ent": {"Descripción": "x"}, "otra": {"Descripción": "y"}})
+    merged = _cpv.variables_cpv_labels.__wrapped__("personas", "gXX")
+    assert merged["ent"]["Descripción"] == "x" and merged["OTRA"] == merged["otra"]
+    assert merged["CVE_ENT"] == variables_cpv_core()["CVE_ENT"]          # core wins
+
+
+@pytest.mark.parametrize("table,gid", _TABLE_GROUPS)
+def test_load_cpv_labels_offline(monkeypatch, table, gid):
+    frame = _valid_frame(table, gid)
+    monkeypatch.setattr(pd, "read_parquet", lambda *_a, **_k: frame.copy())
+    raw = mxcensus.load_cpv(survey_path=Path("x.parquet"), table=table)
+    assert raw.equals(frame)
+    lab = mxcensus.load_cpv(survey_path=Path("x.parquet"), table=table, labels=True)
+    variables = mxcensus.variables_cpv_labels(table, gid)
+    for col in lab.columns:
+        meta = variables.get(col)
+        if meta is None or col in _cpv._SKIP:
+            assert lab[col].dtype == frame[col].dtype, col
+        elif col in _WEIGHTS or sg.norm_tipo(meta) == "numeric":
+            assert lab[col].dtype.kind in "fiu", (col, lab[col].dtype)
+        elif sg.norm_tipo(meta) == "categorical":
+            assert isinstance(lab[col].dtype, pd.CategoricalDtype), col
+            assert lab[col].dtype.ordered == bool(meta.get("Ordenada")), col
+
+
+def test_load_cpv_unmapped_code_raises(monkeypatch):
+    frame = _valid_frame("personas", _SM["personas"]["latest"])
+    frame["SEXO"] = ["1", "2", "3"]
+    monkeypatch.setattr(pd, "read_parquet", lambda *_a, **_k: frame.copy())
+    with pytest.warns(UserWarning, match="SEXO/isin"):               # raw: warns
+        mxcensus.load_cpv(survey_path=Path("x.parquet"), table="personas")
+    with pytest.warns(UserWarning), pytest.raises(ValueError, match=r"'SEXO': \['2'\]"):
+        mxcensus.load_cpv(survey_path=Path("x.parquet"), table="personas", labels=True)
+
+
+# --- harmonize ---------------------------------------------------------------------------
+
+def test_harmonize_2025_is_identity_up_to_factor_dtype():
+    for table in ("viviendas", "personas", "migrantes"):
+        f = _keyed_frame(table, 9)
+        ctx = _no_warnings()
+        h = _cpv._harmonize(f, table)
+        ctx.__exit__(None, None, None)
+        assert list(h.columns) == list(f.columns)
+        assert h.drop(columns="FACTOR").equals(f.drop(columns="FACTOR"))
+        assert h["FACTOR"].dtype.kind in "fi"
+        assert _cpv._harmonize(h, table).equals(h)                       # idempotent
+        _cpv._latest_schema(table).validate(h, lazy=True)
+
+
+def test_harmonize_pads_derives_and_uppercases():
+    f = pd.DataFrame({"cve_ent": ["1", "15"], "cve_mun": ["7", "121"], "loc50k": ["1", None],
+                      "id_viv": ["a", "b"], "factor": ["3", "4"], "otra": ["x", "y"]}, dtype=str)
+    h = _cpv._harmonize(f, "viviendas")
+    assert list(h.columns) == ["CVEGEO", "CVE_ENT", "CVE_MUN", "LOC50K", "ID_VIV", "FACTOR", "OTRA"]
+    assert list(h["CVE_ENT"]) == ["01", "15"] and list(h["CVE_MUN"]) == ["007", "121"]
+    assert list(h["CVEGEO"]) == ["01007", "15121"]
+    assert h["LOC50K"].iloc[0] == "0001" and pd.isna(h["LOC50K"].iloc[1])
+    assert list(h["FACTOR"]) == [3, 4] and list(h["OTRA"]) == ["x", "y"]
+    assert _cpv._harmonize(h, "viviendas").equals(h)
+
+
+def test_harmonize_checks_cvegeo_and_warns_on_missing_core():
+    f = _keyed_frame("personas", 1)
+    f.loc[0, "CVEGEO"] = "01999"
+    with pytest.warns(UserWarning, match=r"CVEGEO differs from CVE_ENT\+CVE_MUN in 1 row"):
+        _cpv._harmonize(f, "personas")
+    with pytest.warns(UserWarning, match=r"lacks core column\(s\) \['CVE_ENT', 'ID_PERSONA'\]"):
+        _cpv._harmonize(pd.DataFrame({"ID_VIV": ["1"]}), "personas")
+    est = _est_frame()                                       # 9-digit CVEGEO = ENT+MUN+LOC
+    ctx = _no_warnings()
+    _cpv._harmonize(est, "estimaciones")
+    ctx.__exit__(None, None, None)
+
+
+def test_harmonize_rename_and_clash(monkeypatch):
+    monkeypatch.setattr(_cpv, "_RENAME_CORE", {"ENT": "CVE_ENT", "MUN": "CVE_MUN"})
+    h = _cpv._harmonize(pd.DataFrame({"ENT": ["9"], "MUN": ["2"], "ID_VIV": ["x"]}), "viviendas")
+    assert list(h.columns) == ["CVEGEO", "CVE_ENT", "CVE_MUN", "ID_VIV"]
+    assert h.iloc[0].tolist() == ["09002", "09", "002", "x"]
+    with pytest.raises(ValueError, match=r"both a legacy column and its target.*\['CVE_ENT'\]"):
+        _cpv._harmonize(pd.DataFrame({"ENT": ["9"], "CVE_ENT": ["09"]}), "viviendas")
+
+
+def test_latest_schema_rejects_unpadded_and_bad_core():
+    h = _cpv._harmonize(_keyed_frame("personas", 1), "personas")
+    for col, bad in (("CVE_ENT", "1"), ("CVEGEO", "0100"), ("SEXO", "2"), ("FACTOR", "x")):
+        f = h.copy()
+        f[col] = [bad] * len(f)
+        with pytest.raises(pa.errors.SchemaErrors, match=col):
+            _cpv._latest_schema("personas").validate(f, lazy=True)
+    with pytest.raises(pa.errors.SchemaErrors, match="ID_PERSONA"):
+        _cpv._latest_schema("personas").validate(h.drop(columns="ID_PERSONA"), lazy=True)
+
+
+# --- state / period semantics (synthetic mirror) ----------------------------------------
+
+def test_state_semantics(fake_mirror):
+    with pytest.raises(ValueError, match="mirrored per state; pass state="):
+        mxcensus.load_cpv(table="personas")
+    for bad in (0, 33, True, "9", [], [1, 40], 1.0):
+        with pytest.raises(ValueError, match="state"):
+            mxcensus.load_cpv(table="personas", state=bad)
+    df = mxcensus.load_cpv(table="personas", state=[9, np.int64(1), 9])
+    assert fake_mirror == ["cpv_personas_2025_09.parquet", "cpv_personas_2025_01.parquet"]
+    assert list(df["CVE_ENT"]) == ["09"] * 3 + ["01"] * 3 and df.index.is_unique
+    fake_mirror.clear()
+    est = mxcensus.load_cpv(table="estimaciones", state=1)            # national: a row filter
+    assert fake_mirror == ["cpv_estimaciones_2025.parquet"]
+    assert set(est["CVE_ENT"]) == {"01"} and len(est) == 20
+
+
+def test_period_and_table_errors(fake_mirror):
+    with pytest.raises(ValueError, match="unknown CPV table"):
+        mxcensus.load_cpv(table="nope", state=1)
+    with pytest.raises(ValueError, match="unknown CPV edition"):
+        mxcensus.load_cpv(table="personas", period="1999", state=1)
+    with pytest.raises(ValueError, match="'migrantes' is not published.*2015"):
+        mxcensus.load_cpv_migrantes("2015", state=1)
+    with pytest.raises(ValueError, match="'estimaciones' is not published"):
+        mxcensus.load_cpv(table="estimaciones", period=2020)
+    assert fake_mirror == []                                          # nothing fetched
+
+
+def test_mixed_schema_groups(fake_mirror, monkeypatch):
+    gid = _SM["personas"]["latest"]
+    monkeypatch.setattr(_cpv, "_group_of", lambda t, df: "gA" if df["CVE_ENT"].iloc[0] == "01" else "gB")
+    monkeypatch.setattr(_cpv, "_group_schema", lambda t, g: pa.DataFrameSchema())
+    with pytest.raises(ValueError, match=r"different schema groups \['gA', 'gB'\]"):
+        mxcensus.load_cpv(table="personas", state=[1, 2])
+    df = mxcensus.load_cpv(table="personas", state=[1, 2], harmonize=True)
+    assert len(df) == 6
+    base = mxcensus.variables_cpv_labels("personas", gid)
+    other = {**base, "NIVACAD": {**base["NIVACAD"], "Categorías": {"00": "Otro"}}}
+    monkeypatch.setattr(_cpv, "variables_cpv_labels", lambda t, g: base if g == "gA" else other)
+    with pytest.warns(UserWarning, match=r"\['NIVACAD'\] are documented differently"):
+        lab = mxcensus.load_cpv_personas(state=[1, 2], harmonize=True)
+    assert lab["NIVACAD"].dtype == frame_dtype("NIVACAD") and isinstance(lab["SEXO"].dtype, pd.CategoricalDtype)
+
+
+def frame_dtype(col):
+    return _keyed_frame("personas", 1)[col].dtype
+
+
+def test_level_loaders_offline(fake_mirror):
+    v, p, m = mxcensus.load_cpv_survey(state=9)
+    assert list(v.index.names) == ["ID_VIV"]
+    assert list(p.index.names) == ["ID_VIV", "ID_PERSONA"]
+    assert list(m.index.names) == ["ID_VIV", "ID_MII"]
+    assert p.index.get_level_values("ID_VIV").isin(v.index).all()
+    assert m.index.get_level_values("ID_VIV").isin(v.index).all()
+    for f in (v, p, m):
+        assert f.index.is_unique and f["FACTOR"].dtype.kind in "fi"
+        assert f["CVE_ENT"].dtype == frame_dtype("CVE_ENT")              # skip: raw string
+    assert isinstance(p["SEXO"].dtype, pd.CategoricalDtype) and p["NUMPER"].dtype == frame_dtype("NUMPER")
+    raw = mxcensus.load_cpv_personas(state=9, labels=False)
+    assert raw["FACTOR"].dtype.kind in "fi" and raw["SEXO"].dtype == frame_dtype("SEXO")
+    assert list(raw.index.names) == ["ID_VIV", "ID_PERSONA"]
+    harm = mxcensus.load_cpv_personas(state=9, harmonize=True)
+    assert harm.equals(p)                                             # 2025: identity
+    *_, none = mxcensus.load_cpv_survey("2015", state=9)              # no migrant table
+    assert none is None
+    with pytest.raises(TypeError):
+        mxcensus.load_cpv_personas()                                  # state is required
+
+
+# --- estimaciones (synthetic) -------------------------------------------------------------
+
+def test_estimaciones_reshape_and_nivel(fake_mirror):
+    e = mxcensus.load_cpv_estimaciones()
+    assert list(e.index.names) == ["CVE_ENT", "CVE_MUN", "CVE_LOC"] and len(e) == 5
+    assert e.index.is_unique and e.index.is_monotonic_increasing
+    nivel = dict(zip(_GEOS, _EST_NIVEL))
+    assert all(e.loc[g, "NIVEL"] == n for g, n in nivel.items())
+    assert e["NIVEL"].dtype == pd.CategoricalDtype(NIVELES, ordered=True)
+    assert list(e.columns[:5]) == ["NIVEL", "CVEGEO", "NOM_ENT", "NOM_MUN", "NOM_LOC"]
+    assert "ESTIMADOR" not in e.columns and len(e.columns) == 341 + 5
+    assert str(e["POBTOT"].dtype) == "Int64" and (e["POBTOT"] == 10).all()
+    assert str(e["PCN_P_0A4"].dtype) == "Float64"
+    assert pd.isna(e.loc[("01", "001", "0001"), "PCN_P_0A4"])           # MI → NA
+    assert pd.isna(e.loc[("01", "997", "9997"), "POBFEM"])              # NA → NA
+    ee = mxcensus.load_cpv_estimaciones(estimador="ee")
+    assert str(ee["POBTOT"].dtype) == "Float64" and (ee["POBTOT"] == 1.25).all()
+
+
+def test_estimaciones_estimador_levels_and_filters(fake_mirror):
+    a = mxcensus.load_cpv_estimaciones(estimador=None)
+    assert list(a.index.names) == ["CVE_ENT", "CVE_MUN", "CVE_LOC", "ESTIMADOR"] and len(a) == 25
+    lvl = a.index.get_level_values("ESTIMADOR")
+    assert list(lvl[:5]) == list(ESTIMADORES) and lvl.dtype.ordered
+    two = mxcensus.load_cpv_estimaciones(estimador=["ls", "valor"])
+    assert list(two.index.get_level_values("ESTIMADOR")[:2]) == ["valor", "ls"]
+    assert list(two.xs("ls", level="ESTIMADOR")["POBTOT"]) == [12] * 5
+    sub = mxcensus.load_cpv_estimaciones(nivel=["estatal", "localidad"], state=[1])
+    assert list(sub["NIVEL"]) == ["estatal", "localidad"]
+    assert len(mxcensus.load_cpv_estimaciones(nivel="nacional")) == 1
+    for kw in ({"estimador": "valor_x"}, {"estimador": []}, {"nivel": "pais"}):
+        with pytest.raises(ValueError, match="must be one of"):
+            mxcensus.load_cpv_estimaciones(**kw)
+
+
+def test_cpv_exports():
+    for name in ("load_cpv", "load_cpv_viviendas", "load_cpv_personas", "load_cpv_migrantes",
+                 "load_cpv_survey", "load_cpv_estimaciones", "variables_cpv_labels",
+                 "variables_cpv", "variables_cpv_core", "cpv_schema_map"):
+        assert name in mxcensus.__all__ and callable(getattr(mxcensus, name))
+
+
+# --- real data: EIC 2025 (skipped without the local mirror) --------------------------------
+
+@pytest.fixture
+def local_mirror(monkeypatch):
+    """Redirect ``POOCH.fetch`` to ``data/parquet`` (the registry has no cpv entries yet)."""
+    from mxcensus.data import _registry
+
+    def _fetch(fname, **_):
+        p = _MIRROR / fname
+        if not p.exists():
+            raise FileNotFoundError(p)
+        return str(p)
+
+    monkeypatch.setattr(_registry.POOCH, "fetch", _fetch)
+    return _MIRROR
+
+
+@functools.cache
+def _estimates(estimador="valor") -> pd.DataFrame:
+    return mxcensus.load_cpv_estimaciones(survey_path=_MIRROR / "cpv_estimaciones_2025.parquet",
+                                          estimador=estimador)
+
+
+def _read_mirror(table: str, state: int, columns: list[str]) -> pd.DataFrame:
+    df = pd.read_parquet(_MIRROR / cpv_filename(table, "2025", state), columns=columns)
+    if "FACTOR" in df:
+        df["FACTOR"] = pd.to_numeric(df["FACTOR"])
+    return df
+
+
+@_REAL_SKIP
+def test_load_cpv_raw_real(local_mirror):
+    ctx = _no_warnings()
+    raw = mxcensus.load_cpv(table="personas", state=1)
+    harm = mxcensus.load_cpv(table="personas", state=1, harmonize=True)
+    ctx.__exit__(None, None, None)
+    assert raw.shape == (177_984, 92) and all(str(t) == "str" for t in raw.dtypes)
+    assert harm.drop(columns="FACTOR").equals(raw.drop(columns="FACTOR"))
+
+
+@_REAL_SKIP
+def test_survey_labelled_real(local_mirror):
+    ctx = _no_warnings()
+    v, p, m = mxcensus.load_cpv_survey(state=1)
+    ctx.__exit__(None, None, None)
+    assert (len(v), len(p), len(m)) == (48_538, 177_984, 5_060)
+    for f in (v, p, m):
+        assert f.index.is_unique
+        assert all(str(f.index.get_level_values(i).dtype) == "str" for i in range(f.index.nlevels))
+    pv = p.index.get_level_values("ID_VIV")
+    assert pv.isin(v.index).all() and m.index.get_level_values("ID_VIV").isin(v.index).all()
+    assert (p.index.get_level_values("ID_PERSONA").str[:12] == pv).all()
+    # FACTOR is constant within a dwelling and equals the dwelling's
+    assert (p["FACTOR"].to_numpy() == v["FACTOR"].reindex(pv).to_numpy()).all()
+    st = _estimates().loc[("01", "000", "0000")]
+    assert p["FACTOR"].sum() == st["POBTOT"] and v["FACTOR"].sum() == st["VIVPARHAB"]
+    assert p["SEXO"].cat.categories.tolist() == ["Hombre", "Mujer"]
+    assert p["TAMLOC"].cat.ordered and str(p["EDAD"].dtype) == "Int64"
+    assert p["EDAD"].between(0, 130).all() and str(v["TOTCUART"].dtype) == "Int64"
+    assert str(p["NUMPER"].dtype) == "str" and str(p["CVEGEO"].dtype) == "str"
+    # the optional emigrant → person link: (ID_VIV, MPERLS) = (ID_VIV, NUMPER)
+    ret = m[m["MCONRESACT"] == "Sí"].reset_index()
+    people = p.reset_index()[["ID_VIV", "NUMPER"]]
+    linked = ret.merge(people, left_on=["ID_VIV", "MPERLS"], right_on=["ID_VIV", "NUMPER"])
+    assert len(ret) == len(linked) == 652
+
+
+@_REAL_SKIP
+def test_state_sequence_real(local_mirror):
+    both = mxcensus.load_cpv_viviendas(state=[9, 1])
+    one = pd.concat([mxcensus.load_cpv_viviendas(state=1), mxcensus.load_cpv_viviendas(state=9)])
+    pd.testing.assert_frame_equal(both, one)
+    assert both.index.is_monotonic_increasing
+
+
+@_REAL_SKIP
+@pytest.mark.parametrize("state", _LOCAL_STATES)
+def test_eic2025_data_checks_by_state(state):
+    """The PLAN.md §Verification checks of one state, read column-pruned from the mirror."""
+    ent = f"{state:02d}"
+    geo = ["CVEGEO", "CVE_ENT", "CVE_MUN", "LOC50K", "ID_VIV"]
+    p = _read_mirror("personas", state, geo + ["ID_PERSONA", "FACTOR", "COBERTURA"])
+    v = _read_mirror("viviendas", state, geo + ["FACTOR", "MCONMIG", "MNUMPERS"])
+    m = _read_mirror("migrantes", state, ["CVE_ENT", "ID_VIV", "ID_MII", "FACTOR"])
+    e = _estimates().xs(ent, level="CVE_ENT")
+    # geography: only this state; CVEGEO = CVE_ENT + CVE_MUN
+    for f in (p, v, m):
+        assert (f["CVE_ENT"] == ent).all() and (f["ID_VIV"].str[:2] == ent).all()
+    for f in (p, v):
+        assert (f["CVEGEO"] == f["CVE_ENT"] + f["CVE_MUN"]).all()
+    # keys: unique per level, nested, FACTOR constant within the dwelling
+    assert v["ID_VIV"].is_unique and p["ID_PERSONA"].is_unique and m["ID_MII"].is_unique
+    assert (p["ID_PERSONA"].str[:12] == p["ID_VIV"]).all()
+    assert p["ID_VIV"].isin(v["ID_VIV"]).all() and m["ID_VIV"].isin(v["ID_VIV"]).all()
+    assert v["ID_VIV"].isin(p["ID_VIV"]).all()
+    vf = v.set_index("ID_VIV")["FACTOR"]
+    assert (p["FACTOR"].to_numpy() == vf.reindex(p["ID_VIV"]).to_numpy()).all()
+    assert (m["FACTOR"].to_numpy() == vf.reindex(m["ID_VIV"]).to_numpy()).all()
+    # emigrants: one record per emigrant the dwelling declared
+    declared = pd.to_numeric(v.set_index("ID_VIV")["MNUMPERS"]).dropna().astype(int)
+    assert (v["MCONMIG"] == "1").sum() == len(declared)
+    assert m.groupby("ID_VIV").size().reindex(declared.index, fill_value=0).equals(declared)
+    # Σ FACTOR = the estimates' Valor: state, every municipality, each ≥50k locality,
+    # and the state's remainder of smaller localities
+    st, mun = e.loc[("000", "0000")], e[e["NIVEL"] == "municipal"]
+    assert p["FACTOR"].sum() == st["POBTOT"] and v["FACTOR"].sum() == st["VIVPARHAB"]
+    mun = mun.reset_index().set_index("CVE_MUN")
+    for f, ind in ((p, "POBTOT"), (v, "VIVPARHAB")):
+        got = f.groupby("CVE_MUN")["FACTOR"].sum()
+        assert got.index.tolist() == mun.index.tolist()
+        assert (got.to_numpy() == mun[ind].to_numpy()).all(), ind
+    loc = e[e["NIVEL"] == "localidad"]
+    big = p[p["LOC50K"] != "0000"].groupby(["CVE_MUN", "LOC50K"])["FACTOR"].sum()
+    assert big.index.tolist() == loc.index.tolist()
+    assert (big.to_numpy() == loc["POBTOT"].to_numpy()).all()
+    resto = e[e["NIVEL"] == "resto_estatal"]["POBTOT"]
+    assert len(resto) == 1 and p.loc[p["LOC50K"] == "0000", "FACTOR"].sum() == resto.iloc[0]
+    # coverage: one COBERTURA per municipality
+    assert (p.groupby("CVE_MUN")["COBERTURA"].nunique() == 1).all()
+
+
+@_REAL_SKIP
+def test_eic2025_estimates_real():
+    a = _estimates(None)
+    assert len(a) == 2_776 * 5 and a.index.is_unique
+    counts = a.xs("valor", level="ESTIMADOR")["NIVEL"].value_counts()
+    assert counts.to_dict() == {"nacional": 1, "estatal": 32, "municipal": 2_478,
+                                "resto_estatal": 32, "localidad": 233}
+    ind = [c for c in a.columns if c not in ("NIVEL", "CVEGEO", "NOM_ENT", "NOM_MUN", "NOM_LOC")]
+    x = {k: a.xs(k, level="ESTIMADOR")[ind].astype("Float64") for k in ESTIMADORES}
+    v, ee, li, ls, cv = (x[k] for k in ESTIMADORES)
+    assert all((x[k].isna() == v.isna()).all().all() for k in ESTIMADORES)  # NA/MI aligned
+    both = v.notna()
+    assert ((li <= v) & (v <= ls))[both].all().all()
+    # cv = 100·ee/valor, up to the 2-decimal rounding of the three published figures
+    d = 0.005
+    ok = v > d
+    lo = 100 * (ee - d).clip(lower=0) / (v + d) - d - 1e-9
+    hi = 100 * (ee + d) / (v - d) + d + 1e-9
+    assert ((cv >= lo) & (cv <= hi))[ok].all().all()
+    assert (_estimates().loc[("00", "000", "0000"), ["POBTOT", "VIVPARHAB"]].tolist()
+            == [130_393_389, 39_699_242])
+
+
+# Published national figures (INEGI, Comunicado de prensa 54/26, 22 Sep 2026).
+_PUBLISHED = {"personas": 130_393_389, "viviendas": 39_699_242,
+              "emigrantes": 1_259_978, "retornados": 150_752}
+
+
+@pytest.mark.skipif(not _ALL32, reason="needs all 32 states of EIC 2025 (the wsl mirror)")
+def test_eic2025_national_real():
+    tot = dict.fromkeys(("personas", "viviendas", "emigrantes", "retornados"), 0)
+    mun_cov, n_loc = {}, 0
+    for s in _LOCAL_STATES:
+        p = _read_mirror("personas", s, ["CVEGEO", "LOC50K", "FACTOR", "COBERTURA"])
+        tot["personas"] += p["FACTOR"].sum()
+        tot["viviendas"] += _read_mirror("viviendas", s, ["FACTOR"])["FACTOR"].sum()
+        m = _read_mirror("migrantes", s, ["FACTOR", "MPAIRES"])
+        tot["emigrantes"] += m["FACTOR"].sum()
+        tot["retornados"] += m.loc[m["MPAIRES"] == "3", "FACTOR"].sum()
+        mun_cov.update(p.groupby("CVEGEO")["COBERTURA"].first().to_dict())
+        n_loc += p.loc[p["LOC50K"] != "0000", ["CVEGEO", "LOC50K"]].drop_duplicates().shape[0]
+    assert tot == _PUBLISHED
+    assert len(mun_cov) == 2_478 and n_loc == 233
+    assert sum(c == "1" for c in mun_cov.values()) == 753
