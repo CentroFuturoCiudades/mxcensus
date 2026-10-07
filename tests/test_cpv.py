@@ -256,3 +256,147 @@ def test_mg_2025_and_national_editions():
     # Every edition that names an MG frame points at a known MG edition.
     for e in EDITIONS:
         assert e.mg_period is None or e.mg_period in MG_EDITIONS
+
+
+def test_per_state_matches_national_tables():
+    for e in EDITIONS:
+        for product in e.products:
+            national = all(t in NATIONAL_TABLES for t in e.tables_in(product))
+            assert e.per_state(product) is not national
+    with pytest.raises(ValueError, match="no 'iter' product"):
+        get_edition("2025").per_state("iter")
+
+
+def test_zip_cache_names_unique():
+    """The build caches ZIPs flat under INEGI's basenames — they must never collide."""
+    names = [e.zip_filename(p, s)
+             for e in EDITIONS for p in e.products
+             for s in (range(1, 33) if e.per_state(p) else [None])]
+    assert len(names) == len(set(names))
+
+
+# --- build script (scripts/build_cpv.py) — pure helpers, no download -------------------
+
+import sys  # noqa: E402
+from pathlib import Path  # noqa: E402
+
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "scripts"))
+import build_cpv as _bcpv  # noqa: E402
+import build_enigh as _benigh  # noqa: E402
+
+_ACCENTS = "CVE_ENT,NOM_LOC\n01,Jesús María\n09,Álvaro Obregón\n"
+_MANY = ("CVE_ENT,NOM_LOC\n" + "01,Jesús María\n09,Álvaro Obregón\n" * 50).encode("utf-8")
+
+
+@pytest.mark.parametrize("raw, expected", [
+    (b"a,b\n1,2\n", "utf-8"),                                          # ASCII
+    (_ACCENTS.encode("utf-8"), "utf-8"),                               # clean UTF-8
+    (_MANY + b"09,x\xe9y\n", "utf-8/replace"),                         # a few bad bytes
+    (_ACCENTS.encode("cp1252"), "cp1252"),                             # single-byte
+    (_ACCENTS.encode("latin-1") + b"\x81\n", "latin-1"),               # undefined in cp1252
+    (_MANY + "ñ".encode("utf-8")[:1], "utf-8/replace"),               # truncated tail
+    (_ACCENTS.encode("utf-8") + "ñ".encode("utf-8")[:1], "latin-1"),  # ≥10% bad; 0x81 ∉ cp1252
+])
+@pytest.mark.parametrize("chunk", [1, 3, 1 << 24])
+def test_sniff_encoding_streaming_matches_one_shot(tmp_path, raw, expected, chunk):
+    path = tmp_path / "x.csv"
+    path.write_bytes(raw)
+    assert _bcpv._sniff_encoding(path, chunk_size=chunk) == expected
+    assert _benigh._sniff_encoding(path) == expected  # same decision as the ENIGH build
+
+
+def _read(tmp_path, raw: bytes):
+    path = tmp_path / "x.csv"
+    path.write_bytes(raw)
+    return _bcpv._read_csv_arrow(path)
+
+
+def test_read_csv_arrow_faithful(tmp_path):
+    raw = ('﻿CVE_ENT,CVE_MUN,FACTOR,NOTA,TXT\n'
+           '01,001,12,NA," a\nb "\n'
+           '09,,0007,N/A,""\n').encode("utf-8")
+    table, enc = _read(tmp_path, raw)
+    assert enc == "utf-8"
+    assert table.column_names == ["CVE_ENT", "CVE_MUN", "FACTOR", "NOTA", "TXT"]  # BOM gone
+    assert {str(t) for t in table.schema.types} == {"string"}
+    assert table.to_pydict() == {
+        "CVE_ENT": ["01", "09"],           # zero-padding kept
+        "CVE_MUN": ["001", None],          # empty cell → null
+        "FACTOR": ["12", "0007"],          # no numeric inference
+        "NOTA": ["NA", "N/A"],             # NA-like strings kept verbatim
+        "TXT": [" a\nb ", None],           # quoted newline + whitespace kept; "" → null
+    }
+
+
+def test_read_csv_arrow_encodings(tmp_path):
+    table, enc = _read(tmp_path, _ACCENTS.encode("cp1252"))
+    assert enc == "cp1252"
+    assert table.column("NOM_LOC").to_pylist() == ["Jesús María", "Álvaro Obregón"]
+    table, enc = _read(tmp_path, _MANY + b"09,x\xe9y\n")
+    assert enc == "utf-8/replace"
+    assert table.num_rows == 101 and table.column("NOM_LOC")[-1].as_py() == "x�y"
+    assert table.column("NOM_LOC")[0].as_py() == "Jesús María"
+
+
+def test_arrow_parquet_matches_pandas_path(tmp_path):
+    """Same frame as the ENIGH pandas path (``_read_csv_robust`` + ``_df_to_parquet``) on a
+    file without pandas' default NA strings (those stay verbatim here — see STEP_1a)."""
+    import pandas as pd
+
+    csv = tmp_path / "v.csv"
+    csv.write_bytes(("ID_VIV,CVE_MUN,FACTOR,NOM\n"
+                     "010010000001,001,12,Jesús\n"
+                     "010010000002,,0007, \n").encode("utf-8"))
+    df, _ = _benigh._read_csv_robust(csv)
+    _benigh._df_to_parquet(df, tmp_path / "pandas.parquet")
+    table, _ = _bcpv._read_csv_arrow(csv)
+    _bcpv._table_to_parquet(table, tmp_path / "arrow.parquet")
+    pd.testing.assert_frame_equal(pd.read_parquet(tmp_path / "pandas.parquet"),
+                                  pd.read_parquet(tmp_path / "arrow.parquet"))
+
+
+def test_read_csv_arrow_rejects_duplicate_header(tmp_path):
+    with pytest.raises(ValueError, match="duplicates"):
+        _read(tmp_path, b"A,B,A\n1,2,3\n")
+
+
+def test_build_plan():
+    e25 = get_edition("2025")
+    jobs = _bcpv._plan([e25], list(TABLES), [1, 9])
+    assert [(j[1], j[2], j[3]) for j in jobs] == [
+        ("microdatos", 1, ("viviendas", "personas", "migrantes")),
+        ("microdatos", 9, ("viviendas", "personas", "migrantes")),
+        ("estimaciones", None, ("estimaciones",)),   # national: once, whatever --states
+    ]
+    jobs = _bcpv._plan([e25], ["personas"], list(range(1, 33)))
+    assert len(jobs) == 32 and all(j[3] == ("personas",) for j in jobs)
+    assert _bcpv._plan([e25], ["iter"], [1]) == []   # 2025 has no ITER
+    full = _bcpv._plan([e25], list(TABLES), list(range(1, 33)))
+    assert sum(len(j[3]) for j in full) == 97          # 96 microdata files + estimaciones
+
+
+@pytest.mark.parametrize("key", [("2025", "microdatos"), ("2025", "estimaciones"),
+                                 ("2005", "microdatos"), ("2020", "iter")])
+def test_member_plan(key):
+    period, product = key
+    ed = get_edition(period)
+    state = None if product == "estimaciones" else 1
+    names = _PROBED_MEMBERS[key]
+    tables = ed.tables_in(product)
+    plan = _bcpv._member_plan(names, ed, tables, state)
+    assert set(plan) == set(tables) and all(plan.values())
+    assert len(set(plan.values())) == len(plan)
+    # A member missing from the ZIP is reported as None, not raised.
+    first = tables[0]
+    plan = _bcpv._member_plan([n for n in names if n != plan[first]], ed, tables, state)
+    assert plan[first] is None
+
+
+def test_build_cli_guards(capsys):
+    assert _bcpv.main(["--dry-run", "--periods", "2010", "--states", "1"]) == 0
+    out = capsys.readouterr().out
+    assert "MC2010_01_dbf.zip" in out and "cpv_personas_2010_01.parquet" in out
+    with pytest.raises(SystemExit):
+        _bcpv.main(["--periods", "2010", "--states", "1"])   # DBF edition not enabled
+    with pytest.raises(SystemExit):
+        _bcpv.main(["--dry-run", "--states", "33"])

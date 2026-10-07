@@ -115,6 +115,12 @@ class CpvEdition:
     def has(self, table: str) -> bool:
         return table in self.members
 
+    def per_state(self, product: str) -> bool:
+        """Whether ``product`` ships one ZIP per state (else one national ZIP)."""
+        if product not in self.urls:
+            raise ValueError(f"{self.label} has no {product!r} product")
+        return "{" in self.urls[product]
+
     def _require(self, table: str) -> None:
         if table not in TABLES:
             raise ValueError(f"unknown CPV table {table!r}; known: {list(TABLES)}")
@@ -377,3 +383,5 @@ assert all("_" not in t for t in TABLES), "table names must not contain '_' (FIL
 assert all(e.kind in KINDS for e in EDITIONS)
 assert all(PRODUCT_OF[t] in e.urls for e in EDITIONS for t in e.members), \
     "every table needs its product's URL"
+assert all(e.per_state(PRODUCT_OF[t]) == (t not in NATIONAL_TABLES)
+           for e in EDITIONS for t in e.members), "per-state URL ⇔ per-state table"
