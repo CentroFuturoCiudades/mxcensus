@@ -48,6 +48,7 @@ from mxcensus.cpv import (
     variables_cpv_labels,
 )
 from mxcensus.cpv_aggregates import load_cpv_estimaciones
+from mxcensus.mg import load_mg
 from mxcensus.crosstabs import create_cont_table, get_tables_dict
 from mxcensus.utils import expand_cat_map, get_cats_from_excel, get_vars_from_indicator_csv
 from mxcensus._resources import (
@@ -113,6 +114,8 @@ __all__ = [
     "load_cpv_survey",
     "load_cpv_estimaciones",
     "variables_cpv_labels",
+    # Marco Geoestadístico (geometry, per state; 2020 and EIC 2025 frames)
+    "load_mg",
     # Crosstabs / constraints
     "create_cont_table",
     "get_tables_dict",

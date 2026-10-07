@@ -105,7 +105,7 @@ class MgEdition:
     """One Marco Geoestadístico edition, keyed by the census period it frames.
 
     ``layout="state"`` editions ship one ``{code}_{slug}.zip`` per state under
-    ``marcogeo/{upc}/`` (15 layers each); ``layout="national"`` editions ship a single
+    ``marcogeo/{upc}/`` (the ``MG_LAYERS``); ``layout="national"`` editions ship a single
     ``marc_geo/{upc}_s.zip`` that the build splits per state. URLs and slugs verified
     against INEGI's product API (``…/app/api/productos/interna_v2/ficha/datos?upc=``)
     on 2026-10-07.
@@ -133,6 +133,31 @@ MG_EDITIONS: dict[str, MgEdition] = {
 
 # The mirror's original MG files carry no period: ``mg_{suffix}_{NN}`` *is* 2020.
 MG_LEGACY_PERIOD = "2020"
+
+# Layer suffix (file/layer name == f"{NN}{suffix}") → content, per the ``contenido.txt``
+# shipped in every per-state ZIP (2020 and 2025 share the 16 suffixes and their columns).
+MG_LAYERS: dict[str, str] = {
+    "ent": "Áreas geoestadísticas estatales",
+    "mun": "Áreas geoestadísticas municipales",
+    "ar": "Áreas geoestadísticas básicas (AGEB) rurales",
+    "a": "Áreas geoestadísticas básicas (AGEB) urbanas",
+    "l": "Localidades urbanas y rurales amanzanadas (polígonos)",
+    "lpr": "Localidades rurales puntuales (puntos)",
+    "ti": "Territorio insular",
+    "pe": "Polígonos externos (localidad rural con caserío disperso)",
+    "pem": "Polígonos externos de manzanas (caserío disperso periurbano)",
+    "m": "Manzanas (polígonos)",
+    "fm": "Frentes de manzana",
+    "e": "Ejes de vialidad",
+    "cd": "Caserío disperso",
+    "sia": "Servicios con información complementaria de tipo área",
+    "sil": "Servicios con información complementaria de tipo línea",
+    "sip": "Servicios con información complementaria de tipo puntual",
+}
+# Layers INEGI ships only for the states that have such features: ``ti`` exists only for
+# the island states (13 in 2020). The other optional ones per ``contenido.txt`` (cd, pe,
+# pem, sia, sil, sip) are present in every state of 2020 and 2025.
+MG_OPTIONAL_LAYERS: frozenset[str] = frozenset({"ti"})
 
 
 def _mg_edition(period: str) -> MgEdition:

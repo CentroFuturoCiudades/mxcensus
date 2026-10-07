@@ -5,9 +5,10 @@ This script is for maintainers only — it is NOT part of the installed package.
 It downloads INEGI's per-state Marco Geoestadístico shapefile ZIPs for ``--period``
 (default 2020: "Marco Geoestadístico, Censo de Población y Vivienda 2020", UPC
 889463807469; 2025: "…Encuesta Intercensal 2025", UPC 794551196649 — editions in
-``mxcensus.data._catalog.MG_EDITIONS``) and converts each of their 15 layers to
-GeoParquet, one file per layer per state, then appends their SHA256 hashes to the
-package registry alongside the census parquet entries.
+``mxcensus.data._catalog.MG_EDITIONS``) and converts each of their layers
+(``_catalog.MG_LAYERS``: 15 in every state, plus ``ti`` — territorio insular — in the
+island states only) to GeoParquet, one file per layer per state, then appends their
+SHA256 hashes to the package registry alongside the census parquet entries.
 
 File names: 2020 keeps the original period-less ``mg_{suffix}_{NN}.parquet``; every
 other period is ``mg_{suffix}_{period}_{NN}.parquet`` (``_catalog.mg_filename``). The
@@ -20,14 +21,17 @@ Steps
 1. For each requested state, download ``{code}_{slug}.zip`` from INEGI (cached), extract
    its ``conjunto_de_datos/{code}{suffix}.shp`` layers, and convert each to
    ``mg_filename(suffix, NN, period)`` (zstd compression, source ``.prj`` CRS preserved —
-   the custom MEXICO_ITRF_2008_LCC). Single-part geometries are promoted to their
+   INEGI spells the one LCC projection two ways, the custom MEXICO_ITRF_2008_LCC on most
+   layers and EPSG:6372 on a few; ``mxcensus.load_mg`` normalises them, the mirror stays
+   faithful — docs/cpv/STEP_1d.md). Single-part geometries are promoted to their
    Multi* form (the gpkg-era files were multi-part; ``mxcensus.mg_agebs_ur`` relies on
    ``lpr`` being MultiPoint). Integer attribute columns are cast to int32.
 2. Append/update the ``mg_*`` entries in registry.txt, preserving every existing
-   (census/DENUE) entry. Disable with --no-registry.
+   (census/DENUE) entry. Disable with --no-registry; ``--update-registry`` upserts the
+   hashes of files already built (no download).
 
-Only four layers are consumed by the current loaders (a, l, lpr, ar — see
-``mxcensus.load_mg_census``); the rest are mirrored for completeness.
+Every layer is readable with ``mxcensus.load_mg(layer, state=, period=)``; the legacy
+``mxcensus.load_mg_census`` consumes four of the 2020 layers (a, l, lpr, ar).
 
 Quick smoke test (Aguascalientes only, ~37 MB download, no registry write)
 --------------------------------------------------------------------------
@@ -37,6 +41,7 @@ Full build (all 32 states; several GB of downloads, ~2.3 GB of geoparquet)
 --------------------------------------------------------------------------
     uv run python scripts/build_marco_geo.py
     uv run python scripts/build_marco_geo.py --period 2025     # EIC 2025 frame
+    uv run python scripts/build_marco_geo.py --period 2025 --update-registry   # hashes only
 
 A local copy of the per-state GeoPackages can still be used instead of downloading:
     uv run python scripts/build_marco_geo.py --local-gpkg-dir /path/to/MarcoGeo2020
@@ -61,7 +66,9 @@ from shapely.geometry import MultiLineString, MultiPoint, MultiPolygon
 import _build_common as bc
 from mxcensus.data._catalog import (
     MG_EDITIONS,
+    MG_LAYERS,
     MG_LEGACY_PERIOD,
+    MG_OPTIONAL_LAYERS,
     STATE_CODE_FMT,
     marco_geo_zip_url,
     mg_filename,
@@ -78,10 +85,7 @@ _DEFAULT_RAW = _REPO_ROOT / "data" / "raw"
 _DEFAULT_REGISTRY = _REPO_ROOT / "src" / "mxcensus" / "data" / "registry.txt"
 
 # INEGI per-state layer suffixes (file/layer name == f"{code}{suffix}").
-_ALL_SUFFIXES = [
-    "a", "ar", "cd", "e", "ent", "fm", "l", "lpr", "m", "mun",
-    "pe", "pem", "sia", "sil", "sip",
-]
+_ALL_SUFFIXES = sorted(MG_LAYERS)
 
 # ---------------------------------------------------------------------------
 # Helpers
@@ -127,7 +131,7 @@ def _inegi_layer_paths(
 ) -> tuple[dict[str, Path], Path]:
     """Download+extract a state's MG zip; return ({suffix: shp_path}, extract_dir).
 
-    Layers are discovered from the ZIP; a suffix outside the expected 15 is reported
+    Layers are discovered from the ZIP; a suffix outside ``MG_LAYERS`` is reported
     (and skipped) so a new INEGI layer is noticed rather than silently dropped."""
     code = STATE_CODE_FMT(state)
     zip_name, sub = _cache_names(state, period)
@@ -178,7 +182,8 @@ def _build_marco_geo_state(
     for suffix in suffixes:
         gdf = reader(suffix)
         if gdf is None:
-            print(f"  ! {code}{suffix}: layer not present — skipped")
+            if suffix not in MG_OPTIONAL_LAYERS:     # ti: island states only
+                print(f"  ! {code}{suffix}: layer not present — skipped")
             continue
         gdf = _normalize(gdf)
         out_path = out_dir / mg_filename(suffix, state, period)
@@ -189,12 +194,30 @@ def _build_marco_geo_state(
     return written
 
 
+def _built_files(
+    out_dir: Path, states: list[int], suffixes: list[str], period: str,
+) -> tuple[list[Path], list[str]]:
+    """(files of ``period`` already in ``out_dir``, missing names) for ``states`` ×
+    ``suffixes``. An absent optional layer (``ti`` outside the island states) is not
+    reported missing."""
+    present: list[Path] = []
+    missing: list[str] = []
+    for state in states:
+        for suffix in suffixes:
+            path = out_dir / mg_filename(suffix, state, period)
+            if path.exists():
+                present.append(path)
+            elif suffix not in MG_OPTIONAL_LAYERS:
+                missing.append(path.name)
+    return present, missing
+
+
 # ---------------------------------------------------------------------------
 # CLI
 # ---------------------------------------------------------------------------
 
 
-def main() -> None:
+def main(argv: list[str] | None = None) -> None:
     parser = argparse.ArgumentParser(
         description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter
     )
@@ -225,10 +248,24 @@ def main() -> None:
                         help="registry.txt to update")
     parser.add_argument("--no-registry", dest="registry_update", action="store_false",
                         help="Skip updating registry.txt")
+    parser.add_argument("--update-registry", dest="registry_only", action="store_true",
+                        help="Only upsert the hashes of the --period/--states/--layers files "
+                             "already in --output into registry.txt (no download)")
     parser.set_defaults(registry_update=True, cleanup_raw=True)
-    args = parser.parse_args()
+    args = parser.parse_args(argv)
     if args.local_gpkg_dir is not None and args.period != MG_LEGACY_PERIOD:
         parser.error("--local-gpkg-dir only applies to the 2020 frame")
+    if args.registry_only and not args.registry_update:
+        parser.error("--update-registry and --no-registry are mutually exclusive")
+
+    if args.registry_only:
+        present, missing = _built_files(args.output, args.states, args.layers, args.period)
+        if missing:
+            print(f"  ! {len(missing)} expected file(s) not built: {', '.join(missing[:10])}"
+                  + (" …" if len(missing) > 10 else ""))
+        print(f"Upserting {len(present)} MG {args.period} file(s) into {args.registry}")
+        bc.update_registry(present, args.registry)
+        return
 
     args.output.mkdir(parents=True, exist_ok=True)
 
