@@ -3,8 +3,19 @@ from __future__ import annotations
 
 import argparse
 
+# Each multi-temporal family has its own selector flag. A flag maps to the set of
+# --dataset values it applies to (one flag may serve several families, e.g. --edition).
+SELECTOR_FLAGS: dict[str, frozenset[str]] = {
+    "release": frozenset({"denue"}),
+    "period": frozenset({"enoe"}),
+    "edition": frozenset({"enigh"}),
+}
 
-def main() -> None:
+# Datasets mirrored as one national file set: the STATE positional does not apply.
+NATIONAL_DATASETS = frozenset({"enoe", "enigh"})
+
+
+def main(argv: list[str] | None = None) -> None:
     parser = argparse.ArgumentParser(
         prog="mxcensus",
         description="mxcensus — Mexico Census 2020 data tools",
@@ -16,8 +27,9 @@ def main() -> None:
         help="Pre-download parquet files for a state from the mirror",
     )
     fetch_p.add_argument(
-        "state", type=int, metavar="STATE",
-        help="State code (ENTIDAD), 1-32. Ignored (N/A) for --dataset enoe/enigh (national surveys)",
+        "state", type=int, metavar="STATE", nargs="?",
+        help="State code (ENTIDAD), 1-32. Required except for the national surveys "
+             "(--dataset enoe/enigh), where it is ignored",
     )
     fetch_p.add_argument(
         "--dataset",
@@ -40,18 +52,22 @@ def main() -> None:
 
     sub.add_parser("info", help="Show cache directory and mirror info")
 
-    args = parser.parse_args()
+    args = parser.parse_args(argv)
 
     if args.cmd == "fetch":
         from mxcensus.data._registry import POOCH
         from mxcensus.data._catalog import STATE_CODE_FMT
 
-        code = STATE_CODE_FMT(args.state)
-        # Each multi-temporal family has its own selector flag; reject a flag used with
-        # another family.
-        for flag, family in (("release", "denue"), ("period", "enoe"), ("edition", "enigh")):
-            if getattr(args, flag) and args.dataset != family:
-                parser.error(f"--{flag} only applies to --dataset {family}")
+        # Reject a selector flag used with a family it does not apply to.
+        for flag, families in SELECTOR_FLAGS.items():
+            if getattr(args, flag) and args.dataset not in families:
+                parser.error(f"--{flag} only applies to --dataset {'/'.join(sorted(families))}")
+        if args.dataset not in NATIONAL_DATASETS:
+            if args.state is None:
+                parser.error(f"STATE is required for --dataset {args.dataset}")
+            if not 1 <= args.state <= 32:
+                parser.error(f"STATE must be 1-32, got {args.state}")
+            code = STATE_CODE_FMT(args.state)
         if args.dataset == "enigh":
             # ENIGH is national — one file per (edition, table); `state` is ignored.
             from mxcensus.data._enigh_catalog import EDITIONS_BY_PERIOD, latest_edition

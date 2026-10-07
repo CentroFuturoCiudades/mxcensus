@@ -308,19 +308,22 @@ def dictionary_entry(col: str, observed: set[str] | None, core: dict | None,
 
 def observed_values(paths, columns, threshold: int) -> dict[str, set[str] | None]:
     """``{column: set of distinct stripped values}`` across ``paths`` (``None`` once a column
-    exceeds ``threshold`` distinct values — high-cardinality, never enumerated)."""
-    import pandas as pd
+    exceeds ``threshold`` distinct values — high-cardinality, never enumerated).
+
+    Reads one column at a time and de-duplicates in Arrow, so peak memory is one column of
+    one file — whole frames of the census microdata (tens of millions of person rows) do not
+    fit."""
+    import pyarrow.compute as pc
     import pyarrow.parquet as pq
 
     seen: dict[str, set[str] | None] = {c: set() for c in columns}
     alive = set(columns)
     for p in paths:
-        present = [c for c in alive if c in pq.ParquetFile(p).schema_arrow.names]
-        if not present:
-            continue
-        df = pd.read_parquet(p, columns=present)
-        for c in present:
-            vals = {str(v).strip() for v in df[c].dropna().unique()} - {""}
+        pf = pq.ParquetFile(p)
+        names = set(pf.schema_arrow.names)
+        for c in [c for c in columns if c in alive and c in names]:
+            uniq = pc.unique(pf.read(columns=[c]).column(c)).drop_null()
+            vals = {str(v).strip() for v in uniq.to_pylist()} - {""}
             seen[c].update(vals)
             if len(seen[c]) > threshold:
                 alive.discard(c)

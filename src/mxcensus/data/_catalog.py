@@ -1,8 +1,12 @@
-"""INEGI Census 2020 (CPV 2020) download catalog.
+"""INEGI Census 2020 (CPV 2020) download catalog + shared state tables / MG editions.
 
 URL patterns were identified from the INEGI open-data portal for the
 Censo de Población y Vivienda 2020. Verify against the live portal before
 relying on downloads, as INEGI occasionally reorganises file locations.
+
+The multi-year census family (1990–2025) lives in ``_cpv_catalog.py``; this module
+keeps the legacy 2020 builders plus the pieces every family shares (``STATE_ABBR``,
+``STATE_CODE_FMT``, ``CatalogEntry``) and the Marco Geoestadístico editions.
 """
 
 from __future__ import annotations
@@ -90,17 +94,82 @@ STATE_SLUG_MG: dict[int, str] = {
     32: "zacatecas",
 }
 
-# Marco Geoestadístico, Censo de Población y Vivienda 2020 (UPC 889463807469).
-# Per-state shapefile ZIPs live directly under this folder as {code}_{slug}.zip.
-_MG_BASE = (
+_MG_ROOT = (
     "https://www.inegi.org.mx/contenidos/productos/prod_serv/contenidos/espanol/"
-    "bvinegi/productos/geografia/marcogeo/889463807469"
+    "bvinegi/productos/geografia"
 )
 
 
-def marco_geo_zip_url(state: int) -> str:
-    """Return the INEGI per-state Marco Geoestadístico 2020 shapefile ZIP URL."""
-    return f"{_MG_BASE}/{STATE_CODE_FMT(state)}_{STATE_SLUG_MG[state]}.zip"
+@dataclass(frozen=True)
+class MgEdition:
+    """One Marco Geoestadístico edition, keyed by the census period it frames.
+
+    ``layout="state"`` editions ship one ``{code}_{slug}.zip`` per state under
+    ``marcogeo/{upc}/`` (15 layers each); ``layout="national"`` editions ship a single
+    ``marc_geo/{upc}_s.zip`` that the build splits per state. URLs and slugs verified
+    against INEGI's product API (``…/app/api/productos/interna_v2/ficha/datos?upc=``)
+    on 2026-10-07.
+    """
+
+    period: str
+    upc: str
+    title: str
+    layout: str  # "state" | "national"
+
+
+MG_EDITIONS: dict[str, MgEdition] = {
+    e.period: e
+    for e in (
+        MgEdition("1995", "702825292836", "Marco Geoestadístico municipal 1995", "national"),
+        MgEdition("2000", "702825292843", "Marco Geoestadístico municipal 2000", "national"),
+        MgEdition("2005", "702825292850", "Marco Geoestadístico municipal 2005 v1.0", "national"),
+        MgEdition("2010", "702825292812", "Marco Geoestadístico 2010 v5.0", "national"),
+        MgEdition("2020", "889463807469",
+                  "Marco Geoestadístico, Censo de Población y Vivienda 2020", "state"),
+        MgEdition("2025", "794551196649",
+                  "Marco Geoestadístico, Encuesta Intercensal 2025", "state"),
+    )
+}
+
+# The mirror's original MG files carry no period: ``mg_{suffix}_{NN}`` *is* 2020.
+MG_LEGACY_PERIOD = "2020"
+
+
+def _mg_edition(period: str) -> MgEdition:
+    try:
+        return MG_EDITIONS[period]
+    except KeyError:
+        raise ValueError(
+            f"unknown Marco Geoestadístico period {period!r}; known: {sorted(MG_EDITIONS)}"
+        ) from None
+
+
+def marco_geo_zip_url(state: int, period: str = MG_LEGACY_PERIOD) -> str:
+    """Return the INEGI per-state Marco Geoestadístico shapefile ZIP URL for ``period``."""
+    ed = _mg_edition(period)
+    if ed.layout != "state":
+        raise ValueError(
+            f"MG {period} is published as one national ZIP; use marco_geo_national_url()"
+        )
+    return f"{_MG_ROOT}/marcogeo/{ed.upc}/{STATE_CODE_FMT(state)}_{STATE_SLUG_MG[state]}.zip"
+
+
+def marco_geo_national_url(period: str) -> str:
+    """Return the single national ZIP URL of a ``layout="national"`` MG edition."""
+    ed = _mg_edition(period)
+    if ed.layout != "national":
+        raise ValueError(f"MG {period} is published per state; use marco_geo_zip_url()")
+    return f"{_MG_ROOT}/marc_geo/{ed.upc}_s.zip"
+
+
+def mg_filename(suffix: str, state: int, period: str = MG_LEGACY_PERIOD) -> str:
+    """Mirror filename of one MG layer: ``mg_{suffix}_{NN}`` for 2020, else
+    ``mg_{suffix}_{period}_{NN}`` (the ``mg_`` prefix keeps registry protection)."""
+    _mg_edition(period)
+    code = STATE_CODE_FMT(state)
+    if period == MG_LEGACY_PERIOD:
+        return f"mg_{suffix}_{code}.parquet"
+    return f"mg_{suffix}_{period}_{code}.parquet"
 
 
 _BASE = "https://www.inegi.org.mx/contenidos/programas/ccpv/2020"

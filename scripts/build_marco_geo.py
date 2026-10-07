@@ -1,17 +1,25 @@
-"""Build the Marco Geoestadístico (MGN) 2020 geoparquet mirror.
+"""Build the Marco Geoestadístico (MGN) geoparquet mirror for one census period.
 
 This script is for maintainers only — it is NOT part of the installed package.
 
-It downloads INEGI's "Marco Geoestadístico, Censo de Población y Vivienda 2020"
-per-state shapefile ZIPs (UPC 889463807469) and converts each of their 15 layers to
+It downloads INEGI's per-state Marco Geoestadístico shapefile ZIPs for ``--period``
+(default 2020: "Marco Geoestadístico, Censo de Población y Vivienda 2020", UPC
+889463807469; 2025: "…Encuesta Intercensal 2025", UPC 794551196649 — editions in
+``mxcensus.data._catalog.MG_EDITIONS``) and converts each of their 15 layers to
 GeoParquet, one file per layer per state, then appends their SHA256 hashes to the
 package registry alongside the census parquet entries.
+
+File names: 2020 keeps the original period-less ``mg_{suffix}_{NN}.parquet``; every
+other period is ``mg_{suffix}_{period}_{NN}.parquet`` (``_catalog.mg_filename``). The
+ZIP cache / extraction dirs are period-qualified the same way, so two editions never
+share a cached ZIP. Editions INEGI publishes as one national ZIP (2010 and the
+1995–2005 municipal frames) are not supported yet — see docs/cpv/PLAN.md.
 
 Steps
 -----
 1. For each requested state, download ``{code}_{slug}.zip`` from INEGI (cached), extract
    its ``conjunto_de_datos/{code}{suffix}.shp`` layers, and convert each to
-   ``mg_{suffix}_{NN}.parquet`` (zstd compression, source ``.prj`` CRS preserved —
+   ``mg_filename(suffix, NN, period)`` (zstd compression, source ``.prj`` CRS preserved —
    the custom MEXICO_ITRF_2008_LCC). Single-part geometries are promoted to their
    Multi* form (the gpkg-era files were multi-part; ``mxcensus.mg_agebs_ur`` relies on
    ``lpr`` being MultiPoint). Integer attribute columns are cast to int32.
@@ -28,14 +36,14 @@ Quick smoke test (Aguascalientes only, ~37 MB download, no registry write)
 Full build (all 32 states; several GB of downloads, ~2.3 GB of geoparquet)
 --------------------------------------------------------------------------
     uv run python scripts/build_marco_geo.py
+    uv run python scripts/build_marco_geo.py --period 2025     # EIC 2025 frame
 
 A local copy of the per-state GeoPackages can still be used instead of downloading:
     uv run python scripts/build_marco_geo.py --local-gpkg-dir /path/to/MarcoGeo2020
 
 After running
 -------------
-- Upload the new files to the existing GitHub Release (e.g. via upload_release.py):
-    python scripts/upload_release.py upload core_mg --clobber   # then mg-rest
+- Upload the new files to the Hugging Face bucket: ``python scripts/upload_hf.py upload``.
 - Commit the updated src/mxcensus/data/registry.txt.
 """
 from __future__ import annotations
@@ -51,7 +59,13 @@ import pyogrio
 from shapely.geometry import MultiLineString, MultiPoint, MultiPolygon
 
 import _build_common as bc
-from mxcensus.data._catalog import STATE_CODE_FMT, marco_geo_zip_url
+from mxcensus.data._catalog import (
+    MG_EDITIONS,
+    MG_LEGACY_PERIOD,
+    STATE_CODE_FMT,
+    marco_geo_zip_url,
+    mg_filename,
+)
 
 # ---------------------------------------------------------------------------
 # Defaults
@@ -98,15 +112,29 @@ def _normalize(gdf: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
     return gdf
 
 
-def _inegi_layer_paths(
-    state: int, cache_dir: Path, raw_dir: Path, retries: int
-) -> tuple[dict[str, Path], Path]:
-    """Download+extract a state's MG zip; return ({suffix: shp_path}, extract_dir)."""
+def _cache_names(state: int, period: str) -> tuple[str, Path]:
+    """(cached ZIP name, extraction subdir) — period-qualified except for legacy 2020,
+    whose names are kept so an existing 2020 cache stays valid."""
     code = STATE_CODE_FMT(state)
+    if period == MG_LEGACY_PERIOD:
+        return f"mg_{code}.zip", Path("mg") / code
+    return f"mg_{period}_{code}.zip", Path("mg") / period / code
+
+
+def _inegi_layer_paths(
+    state: int, cache_dir: Path, raw_dir: Path, retries: int,
+    period: str = MG_LEGACY_PERIOD,
+) -> tuple[dict[str, Path], Path]:
+    """Download+extract a state's MG zip; return ({suffix: shp_path}, extract_dir).
+
+    Layers are discovered from the ZIP; a suffix outside the expected 15 is reported
+    (and skipped) so a new INEGI layer is noticed rather than silently dropped."""
+    code = STATE_CODE_FMT(state)
+    zip_name, sub = _cache_names(state, period)
     zip_path = bc.fetch_zip_verified(
-        marco_geo_zip_url(state), cache_dir, f"mg_{code}.zip", retries
+        marco_geo_zip_url(state, period), cache_dir, zip_name, retries
     )
-    extract_dir = raw_dir / "mg" / code
+    extract_dir = raw_dir / sub
     extract_dir.mkdir(parents=True, exist_ok=True)
     with zipfile.ZipFile(zip_path) as zf:
         zf.extractall(extract_dir)
@@ -115,6 +143,8 @@ def _inegi_layer_paths(
         suffix = shp.stem[len(code):]            # 01ent -> ent
         if suffix in _ALL_SUFFIXES:
             paths[suffix] = shp
+        else:
+            print(f"  ! {shp.name}: unexpected layer suffix {suffix!r} — not converted")
     return paths, extract_dir
 
 
@@ -137,7 +167,10 @@ def _gpkg_layer_reader(state: int, mg_dir: Path):
     return reader
 
 
-def _build_marco_geo_state(state: int, reader, out_dir: Path, suffixes: list[str]) -> list[Path]:
+def _build_marco_geo_state(
+    state: int, reader, out_dir: Path, suffixes: list[str],
+    period: str = MG_LEGACY_PERIOD,
+) -> list[Path]:
     """Convert one state's MGN layers to geoparquet. ``reader(suffix)`` returns a
     GeoDataFrame or None (layer absent). Returns the files written."""
     code = STATE_CODE_FMT(state)
@@ -148,7 +181,7 @@ def _build_marco_geo_state(state: int, reader, out_dir: Path, suffixes: list[str
             print(f"  ! {code}{suffix}: layer not present — skipped")
             continue
         gdf = _normalize(gdf)
-        out_path = out_dir / f"mg_{suffix}_{code}.parquet"
+        out_path = out_dir / mg_filename(suffix, state, period)
         gdf.to_parquet(out_path, compression="zstd")
         written.append(out_path)
         print(f"  wrote {out_path.name}  ({out_path.stat().st_size // 1024} KB, "
@@ -169,6 +202,10 @@ def main() -> None:
         "--states", nargs="+", type=int, default=list(range(1, 33)),
         metavar="N", help="State codes to process (default: all 32)",
     )
+    state_periods = sorted(p for p, e in MG_EDITIONS.items() if e.layout == "state")
+    parser.add_argument("--period", default=MG_LEGACY_PERIOD, choices=state_periods,
+                        help=f"MG edition to build (default {MG_LEGACY_PERIOD}); "
+                             "national-ZIP editions are not supported yet")
     parser.add_argument("--layers", nargs="+", default=_ALL_SUFFIXES, metavar="SUFFIX",
                         help=f"Layer suffixes to convert (default: all {len(_ALL_SUFFIXES)})")
     parser.add_argument("--output", type=Path, default=_DEFAULT_OUT, metavar="DIR",
@@ -190,6 +227,8 @@ def main() -> None:
                         help="Skip updating registry.txt")
     parser.set_defaults(registry_update=True, cleanup_raw=True)
     args = parser.parse_args()
+    if args.local_gpkg_dir is not None and args.period != MG_LEGACY_PERIOD:
+        parser.error("--local-gpkg-dir only applies to the 2020 frame")
 
     args.output.mkdir(parents=True, exist_ok=True)
 
@@ -198,14 +237,15 @@ def main() -> None:
         print(f"\n=== State {state:02d} ===")
         if args.local_gpkg_dir is not None:
             reader = _gpkg_layer_reader(state, args.local_gpkg_dir)
-            written += _build_marco_geo_state(state, reader, args.output, args.layers)
+            written += _build_marco_geo_state(state, reader, args.output, args.layers,
+                                              args.period)
         else:
             paths, extract_dir = _inegi_layer_paths(
-                state, args.cache_dir, args.raw_dir, args.retries
+                state, args.cache_dir, args.raw_dir, args.retries, args.period
             )
             written += _build_marco_geo_state(
                 state, lambda s: gpd.read_file(paths[s]) if s in paths else None,
-                args.output, args.layers,
+                args.output, args.layers, args.period,
             )
             if args.cleanup_raw:
                 shutil.rmtree(extract_dir, ignore_errors=True)
@@ -216,7 +256,7 @@ def main() -> None:
     print("\nDone.")
     print(
         "\nNext steps:\n"
-        "  1. python scripts/upload_release.py upload core_mg --clobber   # then mg-rest\n"
+        "  1. python scripts/upload_hf.py upload\n"
         f"  2. Commit {args.registry}."
     )
 
