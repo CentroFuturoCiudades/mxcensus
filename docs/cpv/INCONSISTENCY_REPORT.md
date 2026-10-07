@@ -6,36 +6,36 @@ Schema groups are assigned **per table** (tables drift independently); group ids
 
 ## viviendas
 
-Groups: 1. Latest: `g01`. Files: 3. Rows: 847,286.
+Groups: 1. Latest: `g01`. Files: 32. Rows: 7,340,046.
 
 | edition | group | files | states | rows |
 |---|---|---|---|---|
-| 2025 | g01 | 3 | 01, 09, 15 | 847,286 |
+| 2025 | g01 | 32 | all 32 | 7,340,046 |
 
 ### Schema groups
-- **g01** — 87 cols, 3 file(s), editions ['2025']
+- **g01** — 87 cols, 32 file(s), editions ['2025']
 
 ## personas
 
-Groups: 1. Latest: `g01`. Files: 3. Rows: 2,915,884.
+Groups: 1. Latest: `g01`. Files: 32. Rows: 25,222,336.
 
 | edition | group | files | states | rows |
 |---|---|---|---|---|
-| 2025 | g01 | 3 | 01, 09, 15 | 2,915,884 |
+| 2025 | g01 | 32 | all 32 | 25,222,336 |
 
 ### Schema groups
-- **g01** — 92 cols, 3 file(s), editions ['2025']
+- **g01** — 92 cols, 32 file(s), editions ['2025']
 
 ## migrantes
 
-Groups: 1. Latest: `g01`. Files: 3. Rows: 22,519.
+Groups: 1. Latest: `g01`. Files: 32. Rows: 362,679.
 
 | edition | group | files | states | rows |
 |---|---|---|---|---|
-| 2025 | g01 | 3 | 01, 09, 15 | 22,519 |
+| 2025 | g01 | 32 | all 32 | 362,679 |
 
 ### Schema groups
-- **g01** — 27 cols, 3 file(s), editions ['2025']
+- **g01** — 27 cols, 32 file(s), editions ['2025']
 
 ## estimaciones
 
@@ -50,6 +50,4 @@ Groups: 1. Latest: `g01`. Files: 1. Rows: 13,880.
 
 ## Missing (catalog vs mirror)
 
-- 2025/viviendas: 29 file(s) — 02, 03, 04, 05, 06, 07, 08, 10, 11, 12, 13, 14, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32
-- 2025/personas: 29 file(s) — 02, 03, 04, 05, 06, 07, 08, 10, 11, 12, 13, 14, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32
-- 2025/migrantes: 29 file(s) — 02, 03, 04, 05, 06, 07, 08, 10, 11, 12, 13, 14, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32
+None — every catalog file of the editions on disk is present.

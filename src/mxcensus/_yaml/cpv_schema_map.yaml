@@ -5,7 +5,7 @@ viviendas:
   groups:
     g01:
       n_columns: 87
-      files: 3
+      files: 32
       periods:
       - '2025'
       columns:
@@ -103,7 +103,7 @@ personas:
   groups:
     g01:
       n_columns: 92
-      files: 3
+      files: 32
       periods:
       - '2025'
       columns:
@@ -206,7 +206,7 @@ migrantes:
   groups:
     g01:
       n_columns: 27
-      files: 3
+      files: 32
       periods:
       - '2025'
       columns:
