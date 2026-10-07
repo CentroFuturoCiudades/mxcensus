@@ -9,14 +9,14 @@ import pandera.pandas as pa
 import pytest
 
 from mxcensus import _schema_groups as sg
-from mxcensus import denue, enigh, enoe
+from mxcensus import cpv, denue, enigh, enoe
 
 
 def test_fingerprint_is_order_sensitive_and_shared():
     a = sg.fingerprint(["x", "y"])
     assert a == sg.fingerprint(("x", "y")) and a != sg.fingerprint(["y", "x"])
     assert len(a) == 64
-    for mod in (denue, enoe, enigh):
+    for mod in (denue, enoe, enigh, cpv):
         assert mod._fingerprint(["x", "y"]) == a
 
 
@@ -89,6 +89,8 @@ def test_family_wrappers_share_implementation():
         enoe._validate(schema, bad, "lbl")
     with pytest.warns(UserWarning, match="^ENIGH lbl"):
         enigh._validate(schema, bad, "lbl")
+    with pytest.warns(UserWarning, match="^CPV lbl"):
+        cpv._validate(schema, bad, "lbl")
 
 
 # --- labelled frames (label_frame / build_labelled_schema / validate_raise) -------------

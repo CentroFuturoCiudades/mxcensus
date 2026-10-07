@@ -1,0 +1,4536 @@
+CVEGEO:
+  Descripción: Clave geoestadística integrada. Microdatos — entidad + municipio (5 dígitos); estimaciones
+    — entidad + municipio + localidad (9 dígitos), con 00/000/0000 para los totales nacional, estatal
+    y municipal.
+  Tipo: string
+  Longitud: 5 / 9
+CVE_ENT:
+  Descripción: Clave del Área Geoestadística Estatal (01-32; 00 = total nacional en las estimaciones)
+  Tipo: string
+  Longitud: '2'
+NOM_ENT:
+  Descripción: Nombre del Área Geoestadística Estatal
+  Definición: Nombre oficial de la entidad federativa
+  Tipo: string
+  Longitud: '50'
+  Rangos: Alfanumérico
+CVE_MUN:
+  Descripción: Clave del Área Geoestadística Municipal (001-570; en las estimaciones 000 = total estatal
+    y 997 = localidades de menos de 50 000 habitantes de la entidad)
+  Tipo: string
+  Longitud: '3'
+NOM_MUN:
+  Descripción: Nombre del Área Geoestadística Municipal
+  Definición: Nombre oficial del municipio o demarcación territorial en el caso de la Ciudad de México
+  Tipo: string
+  Longitud: '50'
+  Rangos: Alfanumérico
+CVE_LOC:
+  Descripción: Clave de la localidad de 50 000 y más habitantes (estimaciones); 0000 = total del municipio,
+    9997 = localidades de menos de 50 000 habitantes de la entidad
+  Tipo: string
+  Longitud: '4'
+NOM_LOC:
+  Descripción: Nombre de la localidad de 50 000 y más habitantes
+  Definición: Nombre con el que se reconoce a la localidad dado por la ley o la costumbre
+  Tipo: string
+  Longitud: '50'
+  Rangos: Alfanumérico
+ESTIMADOR:
+  Descripción: Tipo de estimador de cada renglón de las estimaciones (cinco renglones por área geográfica;
+    los límites de confianza son al 90 por ciento)
+  Tipo: categorical
+  Longitud: '50'
+  Categorías:
+    Valor: Valor
+    Error estándar: Error estándar
+    Límite inferior de confianza: Límite inferior de confianza
+    Límite superior de confianza: Límite superior de confianza
+    Coeficiente de variación: Coeficiente de variación
+POBTOT:
+  Descripción: Población en viviendas particulares habitadas
+  Definición: Total de personas que residen habitualmente en el país, la entidad federativa, el municipio
+    o la demarcación territorial y la localidad de 50 000 y más habitantes. Incluye a la población que
+    no especificó su edad
+  Tipo: numeric
+  Longitud: '9'
+  Rangos: 0 … 999999999
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+POBFEM:
+  Descripción: Mujeres
+  Definición: Total de mujeres que residen habitualmente en el país, la entidad federativa, el municipio
+    o la demarcación territorial y la localidad de 50 000 y más habitantes. Incluye a la población que
+    no especificó su edad
+  Tipo: numeric
+  Longitud: '9'
+  Rangos: 0 … 999999999
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+POBMAS:
+  Descripción: Hombres
+  Definición: Total de hombres que residen habitualmente en el país, la entidad federativa, el municipio
+    o la demarcación territorial y la localidad de 50 000 y más habitantes. Incluye a la población que
+    no especificó su edad
+  Tipo: numeric
+  Longitud: '9'
+  Rangos: 0 … 999999999
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+P_3YMAS:
+  Descripción: Población de 3 años y más
+  Definición: Personas de sexo mujer u hombre de 3 a 130 años de edad
+  Tipo: numeric
+  Longitud: '9'
+  Rangos: 0 … 999999999
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+P_3YMAS_F:
+  Descripción: Mujeres de 3 años y más
+  Definición: Personas de sexo mujer de 3 a 130 años de edad
+  Tipo: numeric
+  Longitud: '9'
+  Rangos: 0 … 999999999
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+P_3YMAS_M:
+  Descripción: Hombres de 3 años y más
+  Definición: Personas de sexo hombre de 3 a 130 años de edad
+  Tipo: numeric
+  Longitud: '9'
+  Rangos: 0 … 999999999
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+P_5YMAS:
+  Descripción: Población de 5 años y más
+  Definición: Personas de sexo mujer u hombre de 5 a 130 años de edad
+  Tipo: numeric
+  Longitud: '9'
+  Rangos: 0 … 999999999
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+P_5YMAS_F:
+  Descripción: Mujeres de 5 años y más
+  Definición: Personas de sexo mujer de 5 a 130 años de edad
+  Tipo: numeric
+  Longitud: '9'
+  Rangos: 0 … 999999999
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+P_5YMAS_M:
+  Descripción: Hombres de 5 años y más
+  Definición: Personas de sexo hombre de 5 a 130 años de edad
+  Tipo: numeric
+  Longitud: '9'
+  Rangos: 0 … 999999999
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+P_12YMAS:
+  Descripción: Población de 12 años y más
+  Definición: Personas de sexo mujer u hombre de 12 a 130 años de edad
+  Tipo: numeric
+  Longitud: '9'
+  Rangos: 0 … 999999999
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+P_12YMAS_F:
+  Descripción: Mujeres de 12 años y más
+  Definición: Personas de sexo mujer de 12 a 130 años de edad
+  Tipo: numeric
+  Longitud: '9'
+  Rangos: 0 … 999999999
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+P_12YMAS_M:
+  Descripción: Hombres de 12 años y más
+  Definición: Personas de sexo hombre de 12 a 130 años de edad
+  Tipo: numeric
+  Longitud: '9'
+  Rangos: 0 … 999999999
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+P_15YMAS:
+  Descripción: Población de 15 años y más
+  Definición: Personas de sexo mujer u hombre de 15 a 130 años de edad
+  Tipo: numeric
+  Longitud: '9'
+  Rangos: 0 … 999999999
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+P_15YMAS_F:
+  Descripción: Mujeres de 15 años y más
+  Definición: Personas de sexo mujer de 15 a 130 años de edad
+  Tipo: numeric
+  Longitud: '9'
+  Rangos: 0 … 999999999
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+P_15YMAS_M:
+  Descripción: Hombres de 15 años y más
+  Definición: Personas de sexo hombre de 15 a 130 años de edad
+  Tipo: numeric
+  Longitud: '9'
+  Rangos: 0 … 999999999
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+PCN_P_0A4:
+  Descripción: Porcentaje de población de 0 a 4 años
+  Definición: Número de personas de 0 a 4 años de edad por cada cien personas de 0 a 130 años de edad
+  Tipo: numeric
+  Longitud: '6'
+  Decimales: '2'
+  Rangos: 0 … 100.00
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+PCN_P_0A4_F:
+  Descripción: Porcentaje de mujeres de 0 a 4 años
+  Definición: Número de mujeres de 0 a 4 años de edad por cada cien personas de 0 a 130 años de edad
+  Tipo: numeric
+  Longitud: '6'
+  Decimales: '2'
+  Rangos: 0 … 100.00
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+PCN_P_0A4_M:
+  Descripción: Porcentaje de hombres de 0 a 4 años
+  Definición: Número de hombres de 0 a 4 años de edad por cada cien personas de 0 a 130 años de edad
+  Tipo: numeric
+  Longitud: '6'
+  Decimales: '2'
+  Rangos: 0 … 100.00
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+PCN_P_5A9:
+  Descripción: Porcentaje de población de 5 a 9 años
+  Definición: Número de personas de 5 a 9 años de edad por cada cien personas de 0 a 130 años de edad
+  Tipo: numeric
+  Longitud: '6'
+  Decimales: '2'
+  Rangos: 0 … 100.00
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+PCN_P_5A9_F:
+  Descripción: Porcentaje de mujeres de 5 a 9 años
+  Definición: Número de mujeres de 5 a 9 años de edad por cada cien personas de 0 a 130 años de edad
+  Tipo: numeric
+  Longitud: '6'
+  Decimales: '2'
+  Rangos: 0 … 100.00
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+PCN_P_5A9_M:
+  Descripción: Porcentaje de hombres de 5 a 9 años
+  Definición: Número de hombres de 5 a 9 años de edad por cada cien personas de 0 a 130 años de edad
+  Tipo: numeric
+  Longitud: '6'
+  Decimales: '2'
+  Rangos: 0 … 100.00
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+PCN_P_10A14:
+  Descripción: Porcentaje de población de 10 a 14 años
+  Definición: Número de personas de 10 a 14 años de edad por cada cien personas de 0 a 130 años de edad
+  Tipo: numeric
+  Longitud: '6'
+  Decimales: '2'
+  Rangos: 0 … 100.00
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+PCN_P_10A14_F:
+  Descripción: Porcentaje de mujeres de 10 a 14 años
+  Definición: Número de mujeres de 10 a 14 años de edad por cada cien personas de 0 a 130 años de edad
+  Tipo: numeric
+  Longitud: '6'
+  Decimales: '2'
+  Rangos: 0 … 100.00
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+PCN_P_10A14_M:
+  Descripción: Porcentaje de hombres de 10 a 14 años
+  Definición: Número de hombres de 10 a 14 años de edad por cada cien personas de 0 a 130 años de edad
+  Tipo: numeric
+  Longitud: '6'
+  Decimales: '2'
+  Rangos: 0 … 100.00
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+PCN_P_15A19:
+  Descripción: Porcentaje de población de 15 a 19 años
+  Definición: Número de personas de 15 a 19 años de edad por cada cien personas de 0 a 130 años de edad
+  Tipo: numeric
+  Longitud: '6'
+  Decimales: '2'
+  Rangos: 0 … 100.00
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+PCN_P_15A19_F:
+  Descripción: Porcentaje de mujeres de 15 a 19 años
+  Definición: Número de mujeres de 15 a 19 años de edad por cada cien personas de 0 a 130 años de edad
+  Tipo: numeric
+  Longitud: '6'
+  Decimales: '2'
+  Rangos: 0 … 100.00
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+PCN_P_15A19_M:
+  Descripción: Porcentaje de hombres de 15 a 19 años
+  Definición: Número de hombres de 15 a 19 años de edad por cada cien personas de 0 a 130 años de edad
+  Tipo: numeric
+  Longitud: '6'
+  Decimales: '2'
+  Rangos: 0 … 100.00
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+PCN_P_20A24:
+  Descripción: Porcentaje de población de 20 a 24 años
+  Definición: Número de personas de 20 a 24 años de edad por cada cien personas de 0 a 130 años de edad
+  Tipo: numeric
+  Longitud: '6'
+  Decimales: '2'
+  Rangos: 0 … 100.00
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+PCN_P_20A24_F:
+  Descripción: Porcentaje de mujeres de 20 a 24 años
+  Definición: Número de mujeres de 20 a 24 años de edad por cada cien personas de 0 a 130 años de edad
+  Tipo: numeric
+  Longitud: '6'
+  Decimales: '2'
+  Rangos: 0 … 100.00
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+PCN_P_20A24_M:
+  Descripción: Porcentaje de hombres de 20 a 24 años
+  Definición: Número de hombres de 20 a 24 años de edad por cada cien personas de 0 a 130 años de edad
+  Tipo: numeric
+  Longitud: '6'
+  Decimales: '2'
+  Rangos: 0 … 100.00
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+PCN_P_25A29:
+  Descripción: Porcentaje de población de 25 a 29 años
+  Definición: Número de personas de 25 a 29 años de edad por cada cien personas de 0 a 130 años de edad
+  Tipo: numeric
+  Longitud: '6'
+  Decimales: '2'
+  Rangos: 0 … 100.00
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+PCN_P_25A29_F:
+  Descripción: Porcentaje de mujeres de 25 a 29 años
+  Definición: Número de mujeres de 25 a 29 años de edad por cada cien personas de 0 a 130 años de edad
+  Tipo: numeric
+  Longitud: '6'
+  Decimales: '2'
+  Rangos: 0 … 100.00
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+PCN_P_25A29_M:
+  Descripción: Porcentaje de hombres de 25 a 29 años
+  Definición: Número de hombres de 25 a 29 años de edad por cada cien personas de 0 a 130 años de edad
+  Tipo: numeric
+  Longitud: '6'
+  Decimales: '2'
+  Rangos: 0 … 100.00
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+PCN_P_30A34:
+  Descripción: Porcentaje de población de 30 a 34 años
+  Definición: Número de personas de 30 a 34 años de edad por cada cien personas de 0 a 130 años de edad
+  Tipo: numeric
+  Longitud: '6'
+  Decimales: '2'
+  Rangos: 0 … 100.00
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+PCN_P_30A34_F:
+  Descripción: Porcentaje de mujeres de 30 a 34 años
+  Definición: Número de mujeres de 30 a 34 años de edad por cada cien personas de 0 a 130 años de edad
+  Tipo: numeric
+  Longitud: '6'
+  Decimales: '2'
+  Rangos: 0 … 100.00
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+PCN_P_30A34_M:
+  Descripción: Porcentaje de hombres de 30 a 34 años
+  Definición: Número de hombres de 30 a 34 años de edad por cada cien personas de 0 a 130 años de edad
+  Tipo: numeric
+  Longitud: '6'
+  Decimales: '2'
+  Rangos: 0 … 100.00
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+PCN_P_35A39:
+  Descripción: Porcentaje de población de 35 a 39 años
+  Definición: Número de personas de 35 a 39 años de edad por cada cien personas de 0 a 130 años de edad
+  Tipo: numeric
+  Longitud: '6'
+  Decimales: '2'
+  Rangos: 0 … 100.00
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+PCN_P_35A39_F:
+  Descripción: Porcentaje de mujeres de 35 a 39 años
+  Definición: Número de mujeres de 35 a 39 años de edad por cada cien personas de 0 a 130 años de edad
+  Tipo: numeric
+  Longitud: '6'
+  Decimales: '2'
+  Rangos: 0 … 100.00
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+PCN_P_35A39_M:
+  Descripción: Porcentaje de hombres de 35 a 39 años
+  Definición: Número de hombres de 35 a 39 años de edad por cada cien personas de 0 a 130 años de edad
+  Tipo: numeric
+  Longitud: '6'
+  Decimales: '2'
+  Rangos: 0 … 100.00
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+PCN_P_40A44:
+  Descripción: Porcentaje de población de 40 a 44 años
+  Definición: Número de personas de 40 a 44 años de edad por cada cien personas de 0 a 130 años de edad
+  Tipo: numeric
+  Longitud: '6'
+  Decimales: '2'
+  Rangos: 0 … 100.00
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+PCN_P_40A44_F:
+  Descripción: Porcentaje de mujeres de 40 a 44 años
+  Definición: Número de mujeres de 40 a 44 años de edad por cada cien personas de 0 a 130 años de edad
+  Tipo: numeric
+  Longitud: '6'
+  Decimales: '2'
+  Rangos: 0 … 100.00
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+PCN_P_40A44_M:
+  Descripción: Porcentaje de hombres de 40 a 44 años
+  Definición: Número de hombres de 40 a 44 años de edad por cada cien personas de 0 a 130 años de edad
+  Tipo: numeric
+  Longitud: '6'
+  Decimales: '2'
+  Rangos: 0 … 100.00
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+PCN_P_45A49:
+  Descripción: Porcentaje de población de 45 a 49 años
+  Definición: Número de personas de 45 a 49 años de edad por cada cien personas de 0 a 130 años de edad
+  Tipo: numeric
+  Longitud: '6'
+  Decimales: '2'
+  Rangos: 0 … 100.00
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+PCN_P_45A49_F:
+  Descripción: Porcentaje de mujeres de 45 a 49 años
+  Definición: Número de mujeres de 45 a 49 años de edad por cada cien personas de 0 a 130 años de edad
+  Tipo: numeric
+  Longitud: '6'
+  Decimales: '2'
+  Rangos: 0 … 100.00
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+PCN_P_45A49_M:
+  Descripción: Porcentaje de hombres de 45 a 49 años
+  Definición: Número de hombres de 45 a 49 años de edad por cada cien personas de 0 a 130 años de edad
+  Tipo: numeric
+  Longitud: '6'
+  Decimales: '2'
+  Rangos: 0 … 100.00
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+PCN_P_50A54:
+  Descripción: Porcentaje de población de 50 a 54 años
+  Definición: Número de personas de 50 a 54 años de edad por cada cien personas de 0 a 130 años de edad
+  Tipo: numeric
+  Longitud: '6'
+  Decimales: '2'
+  Rangos: 0 … 100.00
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+PCN_P_50A54_F:
+  Descripción: Porcentaje de mujeres de 50 a 54 años
+  Definición: Número de mujeres de 50 a 54 años de edad por cada cien personas de 0 a 130 años de edad
+  Tipo: numeric
+  Longitud: '6'
+  Decimales: '2'
+  Rangos: 0 … 100.00
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+PCN_P_50A54_M:
+  Descripción: Porcentaje de hombres de 50 a 54 años
+  Definición: Número de hombres de 50 a 54 años de edad por cada cien personas de 0 a 130 años de edad
+  Tipo: numeric
+  Longitud: '6'
+  Decimales: '2'
+  Rangos: 0 … 100.00
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+PCN_P_55A59:
+  Descripción: Porcentaje de población de 55 a 59 años
+  Definición: Número de personas de 55 a 59 años de edad por cada cien personas de 0 a 130 años de edad
+  Tipo: numeric
+  Longitud: '6'
+  Decimales: '2'
+  Rangos: 0 … 100.00
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+PCN_P_55A59_F:
+  Descripción: Porcentaje de mujeres de 55 a 59 años
+  Definición: Número de mujeres de 55 a 59 años de edad por cada cien personas de 0 a 130 años de edad
+  Tipo: numeric
+  Longitud: '6'
+  Decimales: '2'
+  Rangos: 0 … 100.00
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+PCN_P_55A59_M:
+  Descripción: Porcentaje de hombres de 55 a 59 años
+  Definición: Número de hombres de 55 a 59 años de edad por cada cien personas de 0 a 130 años de edad
+  Tipo: numeric
+  Longitud: '6'
+  Decimales: '2'
+  Rangos: 0 … 100.00
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+PCN_P_60A64:
+  Descripción: Porcentaje de población de 60 a 64 años
+  Definición: Número de personas de 60 a 64 años de edad por cada cien personas de 0 a 130 años de edad
+  Tipo: numeric
+  Longitud: '6'
+  Decimales: '2'
+  Rangos: 0 … 100.00
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+PCN_P_60A64_F:
+  Descripción: Porcentaje de mujeres de 60 a 64 años
+  Definición: Número de mujeres de 60 a 64 años de edad por cada cien personas de 0 a 130 años de edad
+  Tipo: numeric
+  Longitud: '6'
+  Decimales: '2'
+  Rangos: 0 … 100.00
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+PCN_P_60A64_M:
+  Descripción: Porcentaje de hombres de 60 a 64 años
+  Definición: Número de hombres de 60 a 64 años de edad por cada cien personas de 0 a 130 años de edad
+  Tipo: numeric
+  Longitud: '6'
+  Decimales: '2'
+  Rangos: 0 … 100.00
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+PCN_P_65A69:
+  Descripción: Porcentaje de población de 65 a 69 años
+  Definición: Número de personas de 65 a 69 años de edad por cada cien personas de 0 a 130 años de edad
+  Tipo: numeric
+  Longitud: '6'
+  Decimales: '2'
+  Rangos: 0 … 100.00
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+PCN_P_65A69_F:
+  Descripción: Porcentaje de mujeres de 65 a 69 años
+  Definición: Número de mujeres de 65 a 69 años de edad por cada cien personas de 0 a 130 años de edad
+  Tipo: numeric
+  Longitud: '6'
+  Decimales: '2'
+  Rangos: 0 … 100.00
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+PCN_P_65A69_M:
+  Descripción: Porcentaje de hombres de 65 a 69 años
+  Definición: Número de hombres de 65 a 69 años de edad por cada cien personas de 0 a 130 años de edad
+  Tipo: numeric
+  Longitud: '6'
+  Decimales: '2'
+  Rangos: 0 … 100.00
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+PCN_P_70A74:
+  Descripción: Porcentaje de población de 70 a 74 años
+  Definición: Número de personas de 70 a 74 años de edad por cada cien personas de 0 a 130 años de edad
+  Tipo: numeric
+  Longitud: '6'
+  Decimales: '2'
+  Rangos: 0 … 100.00
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+PCN_P_70A74_F:
+  Descripción: Porcentaje de mujeres de 70 a 74 años
+  Definición: Número de mujeres de 70 a 74 años de edad por cada cien personas de 0 a 130 años de edad
+  Tipo: numeric
+  Longitud: '6'
+  Decimales: '2'
+  Rangos: 0 … 100.00
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+PCN_P_70A74_M:
+  Descripción: Porcentaje de hombres de 70 a 74 años
+  Definición: Número de hombres de 70 a 74 años de edad por cada cien personas de 0 a 130 años de edad
+  Tipo: numeric
+  Longitud: '6'
+  Decimales: '2'
+  Rangos: 0 … 100.00
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+PCN_P_75YMAS:
+  Descripción: Porcentaje de población de 75 años y más
+  Definición: Número de personas de 75 a 130 años de edad por cada cien personas de 0 a 130 años de edad
+  Tipo: numeric
+  Longitud: '6'
+  Decimales: '2'
+  Rangos: 0 … 100.00
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+PCN_P_75YMAS_F:
+  Descripción: Porcentaje de mujeres de 75 años y más
+  Definición: Número de mujeres de 75 a 130 años de edad por cada cien personas de 0 a 130 años de edad
+  Tipo: numeric
+  Longitud: '6'
+  Decimales: '2'
+  Rangos: 0 … 100.00
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+PCN_P_75YMAS_M:
+  Descripción: Porcentaje de hombres de 75 años y más
+  Definición: Número de hombres de 75 a 130 años de edad por cada cien personas de 0 a 130 años de edad
+  Tipo: numeric
+  Longitud: '6'
+  Decimales: '2'
+  Rangos: 0 … 100.00
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+P_6A14:
+  Descripción: Población de 6 a 14 años
+  Definición: Personas de sexo mujer u hombre de 6 a 14 años de edad
+  Tipo: numeric
+  Longitud: '9'
+  Rangos: 0 … 999999999
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+P_6A14_F:
+  Descripción: Mujeres de 6 a 14 años
+  Definición: Personas de sexo mujer de 6 a 14 años de edad
+  Tipo: numeric
+  Longitud: '9'
+  Rangos: 0 … 999999999
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+P_6A14_M:
+  Descripción: Hombres de 6 a 14 años
+  Definición: Personas de sexo hombre de 6 a 14 años de edad
+  Tipo: numeric
+  Longitud: '9'
+  Rangos: 0 … 999999999
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+POB0_14:
+  Descripción: Población de 0 a 14 años
+  Definición: Personas de sexo mujer u hombre de 0 a 14 años de edad
+  Tipo: numeric
+  Longitud: '9'
+  Rangos: 0 … 999999999
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+POB0_14_F:
+  Descripción: Mujeres de 0 a 14 años
+  Definición: Personas de sexo mujer de 0 a 14 años de edad
+  Tipo: numeric
+  Longitud: '9'
+  Rangos: 0 … 999999999
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+POB0_14_M:
+  Descripción: Hombres de 0 a 14 años
+  Definición: Personas de sexo hombre de 0 a 14 años de edad
+  Tipo: numeric
+  Longitud: '9'
+  Rangos: 0 … 999999999
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+POB15_64:
+  Descripción: Población de 15 a 64 años
+  Definición: Personas de sexo mujer u hombre de 15 a 64 años de edad
+  Tipo: numeric
+  Longitud: '9'
+  Rangos: 0 … 999999999
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+POB65_MAS:
+  Descripción: Población de 65 años y más
+  Definición: Personas de sexo mujer u hombre de 65 a 130 años de edad
+  Tipo: numeric
+  Longitud: '9'
+  Rangos: 0 … 999999999
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+P_15A49_F:
+  Descripción: Mujeres de 15 a 49 años
+  Definición: Personas de sexo mujer de 15 a 49 años de edad
+  Tipo: numeric
+  Longitud: '9'
+  Rangos: 0 … 999999999
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+REL_H_M:
+  Descripción: Relación hombres-mujeres
+  Definición: Número de personas de sexo hombre por cada cien personas de sexo mujer.
+  Tipo: numeric
+  Longitud: '6'
+  Decimales: '2'
+  Rangos: 0 … 999.99
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+MEDIANA_POBTOT:
+  Descripción: Edad mediana de la población
+  Definición: Edad que divide a las personas de sexo mujer u hombre en dos grupos numéricamente iguales,
+    es decir, la mitad de las personas de sexo mujer u hombre tiene menos de esa edad y la otra mitad
+    tiene más edad que la mediana
+  Tipo: numeric
+  Longitud: '6'
+  Decimales: '2'
+  Rangos: 0 … 130.00
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+MEDIANA_F:
+  Descripción: Edad mediana de las mujeres
+  Definición: Edad que divide a las personas de sexo mujer en dos grupos numéricamente iguales, es decir,
+    la mitad de las personas de sexo mujer tiene menos de esa edad y la otra mitad tiene más edad que
+    la mediana
+  Tipo: numeric
+  Longitud: '6'
+  Decimales: '2'
+  Rangos: 0 … 130.00
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+MEDIANA_M:
+  Descripción: Edad mediana de los hombres
+  Definición: Edad que divide a las personas de sexo hombre en dos grupos numéricamente iguales, es decir,
+    la mitad de las personas de sexo hombre tiene menos de esa edad y la otra mitad tiene más edad que
+    la mediana
+  Tipo: numeric
+  Longitud: '6'
+  Decimales: '2'
+  Rangos: 0 … 130.00
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+INDICE_ENV:
+  Descripción: Índice de envejecimiento de la población
+  Definición: Número de personas de sexo mujer u hombre de 60 a 130 años de edad por cada cien personas
+    de sexo mujer u hombre de 0 a 14 años de edad
+  Tipo: numeric
+  Longitud: '6'
+  Decimales: '2'
+  Rangos: 0 … 999.99
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+INDICE_ENV_F:
+  Descripción: Índice de envejecimiento de las mujeres
+  Definición: Número de personas de sexo mujer de 60 a 130 años de edad por cada cien personas de sexo
+    mujer de 0 a 14 años de edad
+  Tipo: numeric
+  Longitud: '6'
+  Decimales: '2'
+  Rangos: 0 … 999.99
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+INDICE_ENV_M:
+  Descripción: Índice de envejecimiento de los hombres
+  Definición: Número de personas de sexo hombre de 60 a 130 años de edad por cada cien personas de sexo
+    hombre de 0 a 14 años de edad
+  Tipo: numeric
+  Longitud: '6'
+  Decimales: '2'
+  Rangos: 0 … 999.99
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+RAZON_DEP_TOT:
+  Descripción: Razón de dependencia total
+  Definición: Indicador que muestra la cantidad de personas de sexo mujer u hombre de 0 a 14 años y de
+    65 a 130 años por cada cien personas de sexo mujer u hombre de 15 a 64 años
+  Tipo: numeric
+  Longitud: '6'
+  Decimales: '2'
+  Rangos: 0 … 999.99
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+RAZON_DEP_INF:
+  Descripción: Razón de dependencia infantil
+  Definición: Indicador que muestra la cantidad de personas de sexo mujer u hombre de 0 a 14 años por
+    cada cien personas de sexo mujer u hombre de 15 a 64 años
+  Tipo: numeric
+  Longitud: '6'
+  Decimales: '2'
+  Rangos: 0 … 999.99
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+RAZON_DEP_VEJ:
+  Descripción: Razón de dependencia de vejez
+  Definición: Indicador que muestra la cantidad de personas de sexo mujer u hombre de 65 a 130 años de
+    edad por cada cien personas de sexo mujer u hombre de 15 a 64 años
+  Tipo: numeric
+  Longitud: '6'
+  Decimales: '2'
+  Rangos: 0 … 999.99
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+PROM_HNV:
+  Descripción: Promedio de hijas o hijos nacidos vivos de las mujeres de 12 años y más
+  Definición: Resultado de dividir el total de hijas o hijos nacidos vivos de las mujeres de 12 a 130
+    años de edad, entre total de las mujeres de 12 a 130 años de edad que especificaron el número de hijas
+    o hijos nacidos vivos
+  Tipo: numeric
+  Longitud: '6'
+  Decimales: '2'
+  Rangos: 0 … 999.99
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+TGF:
+  Descripción: Tasa Global de Fecundidad (TGF) de las mujeres de 15 a 49 años
+  Definición: Número de hijas o hijos nacidos vivos de mujeres de 15 a 49 años durante 2024, por cada
+    mil mujeres de 15 a 49 años que especificaron el número de hijas o hijos nacidos vivos
+  Tipo: numeric
+  Longitud: '6'
+  Decimales: '2'
+  Rangos: 0 … 999.99
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+PCN_HF:
+  Descripción: Porcentaje de hijas o hijos fallecidos de las mujeres de 12 años y más
+  Definición: Es la proporción de hijas o hijos fallecidos de las mujeres de 12 a 130 años de edad, respecto
+    al total de hijas o hijos nacidos vivos de las mujeres de 12 a 130 años de edad, multiplicado por
+    cien. Excluye a las hijas o hijos nacidos vivos cuando las hijas o hijos fallecidos no fueron especificados
+  Tipo: numeric
+  Longitud: '6'
+  Decimales: '2'
+  Rangos: 0 … 100.00
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+PCN_PNACENT:
+  Descripción: Porcentaje de población nacida en la misma entidad
+  Definición: Número de personas que nacieron en la misma entidad por cada cien personas
+  Tipo: numeric
+  Longitud: '6'
+  Decimales: '2'
+  Rangos: 0 … 100.00
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+PCN_PNACENT_F:
+  Descripción: Porcentaje de mujeres nacidas en la misma entidad
+  Definición: Número de mujeres que nacieron en la misma entidad por cada cien mujeres
+  Tipo: numeric
+  Longitud: '6'
+  Decimales: '2'
+  Rangos: 0 … 100.00
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+PCN_PNACENT_M:
+  Descripción: Porcentaje de hombres nacidos en la misma entidad
+  Definición: Número de hombres que nacieron en la misma entidad por cada cien hombres
+  Tipo: numeric
+  Longitud: '6'
+  Decimales: '2'
+  Rangos: 0 … 100.00
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+PCN_PNACOE:
+  Descripción: Porcentaje de población nacida en otra entidad
+  Definición: Número de personas que nacieron en otra entidad por cada cien personas
+  Tipo: numeric
+  Longitud: '6'
+  Decimales: '2'
+  Rangos: 0 … 100.00
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+PCN_PNACOE_F:
+  Descripción: Porcentaje de mujeres nacidas en otra entidad
+  Definición: Número de mujeres que nacieron en otra entidad por cada cien mujeres
+  Tipo: numeric
+  Longitud: '6'
+  Decimales: '2'
+  Rangos: 0 … 100.00
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+PCN_PNACOE_M:
+  Descripción: Porcentaje de hombres nacidos en otra entidad
+  Definición: Número de hombres que nacieron en otra entidad por cada cien hombres
+  Tipo: numeric
+  Longitud: '6'
+  Decimales: '2'
+  Rangos: 0 … 100.00
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+PCN_PNACOP:
+  Descripción: Porcentaje de población nacida en otro país
+  Definición: Número de personas que nacieron en otro país por cada cien personas
+  Tipo: numeric
+  Longitud: '6'
+  Decimales: '2'
+  Rangos: 0 … 100.00
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+PCN_PNACOP_F:
+  Descripción: Porcentaje de mujeres nacidas en otro país
+  Definición: Número de mujeres que nacieron en otro país por cada cien mujeres
+  Tipo: numeric
+  Longitud: '6'
+  Decimales: '2'
+  Rangos: 0 … 100.00
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+PCN_PNACOP_M:
+  Descripción: Porcentaje de hombres nacidos en otro país
+  Definición: Número de hombres que nacieron en otro país por cada cien hombres
+  Tipo: numeric
+  Longitud: '6'
+  Decimales: '2'
+  Rangos: 0 … 100.00
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+PNACOP:
+  Descripción: Población nacida en otro país
+  Definición: Número de personas que nacieron en otro país
+  Tipo: numeric
+  Longitud: '9'
+  Rangos: 0 … 999999999
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+PCN_PNACOP_NAC:
+  Descripción: Porcentaje de población nacida en otro país que tiene nacionalidad mexicana
+  Definición: Número de personas que nacieron en otro país y tienen nacionalidad mexicana por cada cien
+    personas que nacieron en otro país
+  Tipo: numeric
+  Longitud: '6'
+  Decimales: '2'
+  Rangos: 0 … 100.00
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+PCN_PNACOP_NONAC:
+  Descripción: Porcentaje de población nacida en otro país que no tiene nacionalidad mexicana
+  Definición: Número de personas que nacieron en otro país y no tienen nacionalidad mexicana por cada
+    cien personas que nacieron en otro país
+  Tipo: numeric
+  Longitud: '6'
+  Decimales: '2'
+  Rangos: 0 … 100.00
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+PCN_PRESM20:
+  Descripción: Porcentaje de población que residía en el mismo municipio o demarcación territorial en
+    octubre de 2020
+  Definición: Número de personas de 5 a 130 años de edad en 2025 que en 2020 residían en el mismo municipio
+    o demarcación territorial por cada 100 personas de 5 a 130 años de edad
+  Tipo: numeric
+  Longitud: '6'
+  Decimales: '2'
+  Rangos: 0 … 100.00
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+PCN_PRESOM20:
+  Descripción: Porcentaje de población que residía en la misma entidad pero en otro municipio o demarcación
+    territorial en octubre de 2020
+  Definición: Número de personas de 5 a 130 años de edad en 2025 que en 2020 residían en la misma entidad
+    federativa pero en otro mismo municipio o demarcación territorial por cada 100 personas de 5 a 130
+    años de edad.
+  Tipo: numeric
+  Longitud: '6'
+  Decimales: '2'
+  Rangos: 0 … 100.00
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+PCN_PRESE20:
+  Descripción: Porcentaje de población que residía en la misma entidad en octubre de 2020
+  Definición: Número de personas de 5 a 130 años de edad en 2025 que en 2020 residían en la misma entidad
+    federativa por cada 100 personas de 5 a 130 años de edad. Incluye a la población que no especificó
+    el municipio o demarcación territorial en el que residían en 2020
+  Tipo: numeric
+  Longitud: '6'
+  Decimales: '2'
+  Rangos: 0 … 100.00
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+PCN_PRESOE20:
+  Descripción: Porcentaje de población que residía en otra entidad en octubre de 2020
+  Definición: Número de personas de 5 a 130 años de edad en 2025 que en 2020 residían en otra entidad
+    federativa por cada 100 personas de 5 a 130 años de edad
+  Tipo: numeric
+  Longitud: '6'
+  Decimales: '2'
+  Rangos: 0 … 100.00
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+PCN_PRESEUA20:
+  Descripción: Porcentaje de población que residía en los Estados Unidos de América en octubre de 2020
+  Definición: Número de personas de 5 a 130 años de edad en 2025 que en 2020 residían en los Estados Unidos
+    de América por cada 100 personas de 5 a 130 años de edad
+  Tipo: numeric
+  Longitud: '6'
+  Decimales: '2'
+  Rangos: 0 … 100.00
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+PCN_PRESOP20:
+  Descripción: Porcentaje de población que residía en un país distinto de Estados Unidos de América en
+    octubre de 2020
+  Definición: Número de personas de 5 a 130 años de edad en 2025 que en 2020 residían en otro país que
+    no fue Estados Unidos de América por cada 100 personas de 5 a 130 años de edad
+  Tipo: numeric
+  Longitud: '6'
+  Decimales: '2'
+  Rangos: 0 … 100.00
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+PCN_POB_IND:
+  Descripción: Porcentaje de población que se considera indígena
+  Definición: Número de personas que se consideran indígenas por cada cien personas
+  Tipo: numeric
+  Longitud: '6'
+  Decimales: '2'
+  Rangos: 0 … 100.00
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+PCN_POB_IND_F:
+  Descripción: Porcentaje de mujeres que se consideran indígenas
+  Definición: Número de mujeres que se consideran indígenas por cada cien mujeres
+  Tipo: numeric
+  Longitud: '6'
+  Decimales: '2'
+  Rangos: 0 … 100.00
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+PCN_POB_IND_M:
+  Descripción: Porcentaje de hombres que se consideran indígenas
+  Definición: Número de hombres que se consideran indígenas por cada cien hombres
+  Tipo: numeric
+  Longitud: '6'
+  Decimales: '2'
+  Rangos: 0 … 100.00
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+PCN_P3YM_HLI:
+  Descripción: Porcentaje de población de 3 años y más que habla lengua indígena
+  Definición: Número de personas de 3 a 130 años de edad que hablan lengua indígena por cada cien personas
+    de 3 a 130 años de edad
+  Tipo: numeric
+  Longitud: '6'
+  Decimales: '2'
+  Rangos: 0 … 100.00
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+PCN_P3YM_HLI_F:
+  Descripción: Porcentaje de mujeres de 3 años y más que hablan lengua indígena
+  Definición: Número de mujeres de 3 a 130 años de edad que hablan lengua indígena por cada cien mujeres
+    de 3 a 130 años de edad
+  Tipo: numeric
+  Longitud: '6'
+  Decimales: '2'
+  Rangos: 0 … 100.00
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+PCN_P3YM_HLI_M:
+  Descripción: Porcentaje de hombres de 3 años y más que hablan lengua indígena
+  Definición: Número de hombres de 3 a 130 años de edad que hablan lengua indígena por cada cien hombres
+    de 3 a 130 años de edad
+  Tipo: numeric
+  Longitud: '6'
+  Decimales: '2'
+  Rangos: 0 … 100.00
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+PCN_P3HLINHE:
+  Descripción: Porcentaje de población de 3 años y más que habla lengua indígena y no habla español
+  Definición: Número de personas de 3 a 130 años de edad que hablan lengua indígena y no hablan español
+    por cada cien personas de 3 a 130 años de edad que hablan lengua indígena
+  Tipo: numeric
+  Longitud: '6'
+  Decimales: '2'
+  Rangos: 0 … 100.00
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+PCN_P3HLINHE_F:
+  Descripción: Porcentaje de mujeres de 3 años y más que hablan lengua indígena y no hablan español
+  Definición: Número de mujeres de 3 a 130 años de edad que hablan lengua indígena y no hablan español
+    por cada cien mujeres de 3 a 130 años de edad que hablan lengua indígena
+  Tipo: numeric
+  Longitud: '6'
+  Decimales: '2'
+  Rangos: 0 … 100.00
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+PCN_P3HLINHE_M:
+  Descripción: Porcentaje de hombres de 3 años y más que hablan lengua indígena y no hablan español
+  Definición: Número de hombres de 3 a 130 años de edad que hablan lengua indígena y no hablan español
+    por cada cien hombres de 3 a 130 años de edad que hablan lengua indígena
+  Tipo: numeric
+  Longitud: '6'
+  Decimales: '2'
+  Rangos: 0 … 100.00
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+PCN_P3HLI_HE:
+  Descripción: Porcentaje de población de 3 años y más que habla lengua indígena y habla español
+  Definición: Número de personas de 3 a 130 años de edad que hablan lengua indígena y hablan español por
+    cada cien personas de 3 a 130 años de edad que hablan lengua indígena
+  Tipo: numeric
+  Longitud: '6'
+  Decimales: '2'
+  Rangos: 0 … 100.00
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+PCN_P3HLI_HE_F:
+  Descripción: Porcentaje de mujeres de 3 años y más que hablan lengua indígena y hablan español
+  Definición: Número de mujeres de 3 a 130 años de edad que hablan lengua indígena y hablan español por
+    cada cien mujeres de 3 a 130 años de edad que hablan lengua indígena
+  Tipo: numeric
+  Longitud: '6'
+  Decimales: '2'
+  Rangos: 0 … 100.00
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+PCN_P3HLI_HE_M:
+  Descripción: Porcentaje de hombres de 3 años y más que hablan lengua indígena y hablan español
+  Definición: Número de hombres de 3 a 130 años de edad que hablan lengua indígena y hablan español por
+    cada cien hombres de 3 a 130 años de edad que hablan lengua indígena
+  Tipo: numeric
+  Longitud: '6'
+  Decimales: '2'
+  Rangos: 0 … 100.00
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+PCN_P3NHLI_CLI:
+  Descripción: Porcentaje de población de 3 años y más que no habla alguna lengua indígena pero comprende
+    alguna lengua indígena
+  Definición: Número de personas de 3 a 130 años de edad que no hablan lengua indígena pero comprenden
+    alguna lengua indígena por cada cien personas de 3 a 130 años de edad que no hablan lengua indígena
+  Tipo: numeric
+  Longitud: '6'
+  Decimales: '2'
+  Rangos: 0 … 100.00
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+HOG_IND:
+  Descripción: Hogares indígenas
+  Definición: Hogares con al menos un hablante de lengua indígena con parentesco jefa o jefe, esposa(o)
+    o compañera(o), madre o padre, suegra(o)
+  Tipo: numeric
+  Longitud: '9'
+  Rangos: 0 … 999999999
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+PHOG_IND:
+  Descripción: Población en hogares indígenas
+  Definición: Personas que residen en un hogar indígena
+  Tipo: numeric
+  Longitud: '9'
+  Rangos: 0 … 999999999
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+PCN_POB_AFRO:
+  Descripción: Porcentaje de población que se considera afromexicana o afrodescendiente
+  Definición: Número de personas que se consideran afromexicanas o afrodescendientes por cada cien personas
+  Tipo: numeric
+  Longitud: '6'
+  Decimales: '2'
+  Rangos: 0 … 100.00
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+PCN_POB_AFRO_F:
+  Descripción: Porcentaje de mujeres que se consideran afromexicanas o afrodescendientes
+  Definición: Número de mujeres que se consideran afromexicanas o afrodescendientes por cada cien mujeres
+  Tipo: numeric
+  Longitud: '6'
+  Decimales: '2'
+  Rangos: 0 … 100.00
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+PCN_POB_AFRO_M:
+  Descripción: Porcentaje de hombres que se consideran afromexicanos o afrodescendientes
+  Definición: Número de hombres que se consideran afromexicanos o afrodescendientes por cada cien hombres
+  Tipo: numeric
+  Longitud: '6'
+  Decimales: '2'
+  Rangos: 0 … 100.00
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+HOG_AFRO:
+  Descripción: Hogares afromexicanos o afrodescendientes
+  Definición: Hogares con al menos una persona que se considera afromexicana o afrodescendiente con parentesco
+    jefa o jefe, esposa(o) o compañera(o), madre o padre, suegra(o)
+  Tipo: numeric
+  Longitud: '9'
+  Rangos: 0 … 999999999
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+PHOG_AFRO:
+  Descripción: Población en hogares afromexicanos o afrodescendientes
+  Definición: Personas que residen en un hogar afromexicano o afrodescendiente
+  Tipo: numeric
+  Longitud: '9'
+  Rangos: 0 … 999999999
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+PCON_DISC:
+  Descripción: Población con discapacidad
+  Definición: 'Personas que realizan con mucha dificultad o no pueden realizar al menos una de las siguientes
+    actividades: Ver, aun usando lentes; Oír, aun usando aparato auditivo; Caminar, subir o bajar; Recordar
+    o concentrarse; Bañarse, vestirse o comer; Hablar o comunicarse'
+  Tipo: numeric
+  Longitud: '9'
+  Rangos: 0 … 999999999
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+PCN_PCON_DISC_F:
+  Descripción: Porcentaje de mujeres con discapacidad
+  Definición: 'Número de mujeres que realizan con mucha dificultad o no pueden realizar al menos una de
+    las siguientes actividades: Ver, aun usando lentes; Oír, aun usando aparato auditivo; Caminar, subir
+    o bajar; Recordar o concentrarse; Bañarse, vestirse o comer; Hablar o comunicarse, por cada cien personas
+    con discapacidad'
+  Tipo: numeric
+  Longitud: '6'
+  Decimales: '2'
+  Rangos: 0 … 100.00
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+PCN_PCON_DISC_M:
+  Descripción: Porcentaje de hombres con discapacidad
+  Definición: 'Número de hombres que realizan con mucha dificultad o no pueden realizar al menos una de
+    las siguientes actividades: Ver, aun usando lentes; Oír, aun usando aparato auditivo; Caminar, subir
+    o bajar; Recordar o concentrarse; Bañarse, vestirse o comer; Hablar o comunicarse, por cada cien personas
+    con discapacidad'
+  Tipo: numeric
+  Longitud: '6'
+  Decimales: '2'
+  Rangos: 0 … 100.00
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+PCN_PCON_DISC0A14:
+  Descripción: Porcentaje de población de 0 a 14 años con discapacidad
+  Definición: Número de personas de 0 a 14 años de edad con discapacidad por cada cien personas de 0 a
+    130 años de edad con discapacidad
+  Tipo: numeric
+  Longitud: '6'
+  Decimales: '2'
+  Rangos: 0 … 100.00
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+PCN_PCON_DISC15A29:
+  Descripción: Porcentaje de población de 15 a 29 años con discapacidad
+  Definición: Número de personas de 15 a 29 años de edad con discapacidad por cada cien personas de 0
+    a 130 años de edad con discapacidad
+  Tipo: numeric
+  Longitud: '6'
+  Decimales: '2'
+  Rangos: 0 … 100.00
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+PCN_PCON_DISC30A59:
+  Descripción: Porcentaje de población de 30 a 59 años con discapacidad
+  Definición: Número de personas de 30 a 59 años de edad con discapacidad por cada cien personas de 0
+    a 130 años de edad con discapacidad
+  Tipo: numeric
+  Longitud: '6'
+  Decimales: '2'
+  Rangos: 0 … 100.00
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+PCN_PCON_DISC60YM:
+  Descripción: Porcentaje de población de 60 años y más con discapacidad
+  Definición: Número de personas de 60 a 130 años de edad con discapacidad por cada cien personas de 0
+    a 130 años de edad con discapacidad
+  Tipo: numeric
+  Longitud: '6'
+  Decimales: '2'
+  Rangos: 0 … 100.00
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+PCN_PCDISC_VIS:
+  Descripción: Porcentaje de población con discapacidad para ver aun usando lentes
+  Definición: Número de personas que tienen mucha dificultad o no pueden ver, aun usando lentes, por cada
+    cien personas con discapacidad
+  Tipo: numeric
+  Longitud: '6'
+  Decimales: '2'
+  Rangos: 0 … 100.00
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+PCN_PCDISC_AUD:
+  Descripción: Porcentaje de población con discapacidad para oír aun usando aparato auditivo
+  Definición: Número de personas que tienen mucha dificultad o no pueden oír aun usando aparato auditivo,
+    por cada cien personas con discapacidad
+  Tipo: numeric
+  Longitud: '6'
+  Decimales: '2'
+  Rangos: 0 … 100.00
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+PCN_PCDISC_MOT:
+  Descripción: Porcentaje de población con discapacidad para caminar, subir o bajar
+  Definición: Número de personas que tienen mucha dificultad o no pueden caminar, subir o bajar, por cada
+    cien personas con discapacidad
+  Tipo: numeric
+  Longitud: '6'
+  Decimales: '2'
+  Rangos: 0 … 100.00
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+PCN_PCDISC_MEN:
+  Descripción: Porcentaje de población con discapacidad para recordar o concentrarse
+  Definición: Número de personas que tienen mucha dificultad o no pueden recordar o concentrarse, por
+    cada cien personas con discapacidad
+  Tipo: numeric
+  Longitud: '6'
+  Decimales: '2'
+  Rangos: 0 … 100.00
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+PCN_PCDISC_MOT2:
+  Descripción: Porcentaje de población con discapacidad para bañarse, vestirse o comer
+  Definición: Número de personas que tienen mucha dificultad o no pueden bañarse, vestirse o comer, por
+    cada cien personas con discapacidad
+  Tipo: numeric
+  Longitud: '6'
+  Decimales: '2'
+  Rangos: 0 … 100.00
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+PCN_PCDISC_LENG:
+  Descripción: Porcentaje de población con discapacidad para hablar o comunicarse
+  Definición: Número de personas que tienen mucha dificultad o no pueden hablar o comunicarse, por cada
+    cien personas con discapacidad
+  Tipo: numeric
+  Longitud: '6'
+  Decimales: '2'
+  Rangos: 0 … 100.00
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+PCON_LIMI:
+  Descripción: Población con limitación
+  Definición: 'Personas que realizan con poca dificultad al menos una de las siguientes actividades: Ver,
+    aun usando lentes; Oír, aun usando aparato auditivo; Caminar, subir o bajar; Recordar o concentrarse;
+    Bañarse, vestirse o comer; Hablar o comunicarse'
+  Tipo: numeric
+  Longitud: '9'
+  Rangos: 0 … 999999999
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+PCN_PCLIM_VIS:
+  Descripción: Porcentaje de población con limitación para ver, aun usando lentes
+  Definición: Número de personas que tienen poca dificultad para ver, aun usando lentes, por cada cien
+    personas con limitación
+  Tipo: numeric
+  Longitud: '6'
+  Decimales: '2'
+  Rangos: 0 … 100.00
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+PCN_PCLIM_OAUD:
+  Descripción: Porcentaje de población con limitación para oír, aun usando aparato auditivo
+  Definición: Número de personas que tienen poca dificultad para oír aun usando aparato auditivo, por
+    cada cien personas con limitación
+  Tipo: numeric
+  Longitud: '6'
+  Decimales: '2'
+  Rangos: 0 … 100.00
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+PCN_PCLIM_CSB:
+  Descripción: Porcentaje de población con limitación para caminar, subir o bajar
+  Definición: Número de personas que tienen poca dificultad para caminar, subir o bajar, por cada cien
+    personas con limitación
+  Tipo: numeric
+  Longitud: '6'
+  Decimales: '2'
+  Rangos: 0 … 100.00
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+PCN_PCLIM_RE_CO:
+  Descripción: Porcentaje de población con limitación para recordar o concentrarse
+  Definición: Número de personas que tienen poca dificultad para recordar o concentrarse, por cada cien
+    personas con limitación
+  Tipo: numeric
+  Longitud: '6'
+  Decimales: '2'
+  Rangos: 0 … 100.00
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+PCN_PCLIM_MOT2:
+  Descripción: Porcentaje de población con limitación para vestirse, bañarse o comer
+  Definición: Número de personas que tienen poca dificultad para bañarse, vestirse o comer, por cada cien
+    personas con limitación
+  Tipo: numeric
+  Longitud: '6'
+  Decimales: '2'
+  Rangos: 0 … 100.00
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+PCN_PCLIM_HACO:
+  Descripción: Porcentaje de población con limitación para hablar o comunicarse
+  Definición: Número de personas que tienen poca dificultad para hablar o comunicarse, por cada cien personas
+    con limitación
+  Tipo: numeric
+  Longitud: '6'
+  Decimales: '2'
+  Rangos: 0 … 100.00
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+PCLIM_PMEN:
+  Descripción: Población con algún problema o condición mental
+  Definición: Personas que tienen algún problema o condición mental.
+  Tipo: numeric
+  Longitud: '9'
+  Rangos: 0 … 999999999
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+PSIND_LIM:
+  Descripción: Población sin discapacidad, limitación, problema o condición mental
+  Definición: 'Personas que no tienen ninguna dificultad para realizar las siguientes actividades: Ver,
+    aun usando lentes; Oír, aun usando aparato auditivo; Caminar, subir o bajar; Recordar o concentrarse;
+    Bañarse, vestirse o comer; Hablar o comunicarse; o tienen algún problema o condición mental.'
+  Tipo: numeric
+  Longitud: '9'
+  Rangos: 0 … 999999999
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+PCN_P3YM_ASIS:
+  Descripción: Porcentaje de población de 3 años y más que asiste a la escuela
+  Definición: Número de personas de 3 a 130 años de edad que asisten a la escuela por cada cien personas
+    de 3 a 130 años de edad
+  Tipo: numeric
+  Longitud: '6'
+  Decimales: '2'
+  Rangos: 0 … 100.00
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+PCN_P6A14_NOA:
+  Descripción: Porcentaje de población de 6 a 14 años que no asiste a la escuela
+  Definición: Número de personas de 6 a 14 años de edad que no asisten a la escuela por cada cien personas
+    de 6 a 14 años de edad
+  Tipo: numeric
+  Longitud: '6'
+  Decimales: '2'
+  Rangos: 0 … 100.00
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+PCN_P6A14_NOA_F:
+  Descripción: Porcentaje de mujeres de 6 a 14 años que no asiste a la escuela
+  Definición: Número de mujeres de 6 a 14 años de edad que no asisten a la escuela por cada cien mujeres
+    de 6 a 14 años de edad
+  Tipo: numeric
+  Longitud: '6'
+  Decimales: '2'
+  Rangos: 0 … 100.00
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+PCN_P6A14_NOA_M:
+  Descripción: Porcentaje de hombres de 6 a 14 años que no asiste a la escuela
+  Definición: Número de hombres de 6 a 14 años de edad que no asisten a la escuela por cada cien hombres
+    de 6 a 14 años de edad
+  Tipo: numeric
+  Longitud: '6'
+  Decimales: '2'
+  Rangos: 0 … 100.00
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+PNC_P6A14AN:
+  Descripción: Porcentaje de población de 6 a 14 años que no sabe leer y escribir
+  Definición: Número de personas de 6 a 14 años de edad que no saben leer y escribir por cada cien personas
+    de 6 a 14 años de edad
+  Tipo: numeric
+  Longitud: '6'
+  Decimales: '2'
+  Rangos: 0 … 100.00
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+PNC_P6A14AN_F:
+  Descripción: Porcentaje de mujeres de 6 a 14 años que no sabe leer y escribir
+  Definición: Número de mujeres de 6 a 14 años de edad que no saben leer y escribir por cada cien mujeres
+    de 6 a 14 años de edad
+  Tipo: numeric
+  Longitud: '6'
+  Decimales: '2'
+  Rangos: 0 … 100.00
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+PNC_P6A14AN_M:
+  Descripción: Porcentaje de hombres de 6 a 14 años que no sabe leer y escribir
+  Definición: Número de hombres de 6 a 14 años de edad que no saben leer y escribir por cada cien hombres
+    de 6 a 14 años de edad
+  Tipo: numeric
+  Longitud: '6'
+  Decimales: '2'
+  Rangos: 0 … 100.00
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+PCN_P15YM_AN:
+  Descripción: Porcentaje de población de 15 años y más analfabeta
+  Definición: Número de personas de 15 a 130 años de edad analfabetas por cada cien personas de 15 a 130
+    años de edad
+  Tipo: numeric
+  Longitud: '6'
+  Decimales: '2'
+  Rangos: 0 … 100.00
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+PCN_P15YM_AN_F:
+  Descripción: Porcentaje de mujeres de 15 años y más analfabetas
+  Definición: Número de mujeres de 15 a 130 años de edad analfabetas por cada cien mujeres de 15 a 130
+    años de edad
+  Tipo: numeric
+  Longitud: '6'
+  Decimales: '2'
+  Rangos: 0 … 100.00
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+PCN_P15YM_AN_M:
+  Descripción: Porcentaje de hombres de 15 años y más analfabetas
+  Definición: Número de hombres de 15 a 130 años de edad analfabetas por cada cien hombres de 15 a 130
+    años de edad
+  Tipo: numeric
+  Longitud: '6'
+  Decimales: '2'
+  Rangos: 0 … 100.00
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+PCN_P15YM_SE:
+  Descripción: Porcentaje de población de 15 años y más sin instrucción
+  Definición: Número de personas de 15 a 130 años de edad sin instrucción por cada cien personas de 15
+    a 130 años de edad. Incluye a la población que tiene al menos un grado aprobado en preescolar
+  Tipo: numeric
+  Longitud: '6'
+  Decimales: '2'
+  Rangos: 0 … 100.00
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+PCN_P15YM_EB:
+  Descripción: Porcentaje de población de 15 años y más con educación básica
+  Definición: Número de personas de 15 a 130 años de edad con educación básica por cada cien personas
+    de 15 a 130 años de edad. Incluye a la población con al menos un grado aprobado de primaria o secundaria,
+    o con estudios técnicos o comerciales con antecedente de educación primaria
+  Tipo: numeric
+  Longitud: '6'
+  Decimales: '2'
+  Rangos: 0 … 100.00
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+PCN_P15YM_EMS:
+  Descripción: Porcentaje de población de 15 años y más con educación media superior
+  Definición: Número de personas de 15 a 130 años de edad con educación media superior por cada cien personas
+    de 15 a 130 años de edad. Incluye a la población que tiene al menos un grado aprobado en estudios
+    técnicos o comerciales con secundaria terminada, preparatoria o bachillerato (general o tecnológico)
+    o normal básica con primaria o secundaria terminada
+  Tipo: numeric
+  Longitud: '6'
+  Decimales: '2'
+  Rangos: 0 … 100.00
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+PCN_P15YM_ES:
+  Descripción: Porcentaje de población de 15 años y más con educación superior
+  Definición: Número de personas de 15 a 130 años de edad con educación superior por cada cien personas
+    de 15 a 130 años de edad. Incluye a la población que tiene al menos un grado aprobado en estudios
+    técnicos o comerciales con preparatoria terminada, licenciatura, normal de licenciatura o equivalente
+  Tipo: numeric
+  Longitud: '6'
+  Decimales: '2'
+  Rangos: 0 … 100.00
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+PCN_P15YM_POS:
+  Descripción: Porcentaje de población de 15 años y más con posgrado
+  Definición: Número de personas de 15 a 130 años de edad con posgrado por cada cien personas de 15 a
+    130 años de edad. Incluye a la población que tiene al menos un grado aprobado en especialidad, maestría
+    o doctorado
+  Tipo: numeric
+  Longitud: '6'
+  Decimales: '2'
+  Rangos: 0 … 100.00
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+GRAPROES:
+  Descripción: Grado promedio de escolaridad de la población de 15 años y más
+  Definición: Número de grados de escolaridad aprobados de las personas de 15 a 130 años de edad entre
+    el total de personas de 15 a 130 años de edad que especificaron sus grados de escolaridad aprobados
+  Tipo: numeric
+  Longitud: '5'
+  Decimales: '2'
+  Rangos: 0 … 20.00
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+GRAPROES_F:
+  Descripción: Grado promedio de escolaridad de las mujeres de 15 años y más
+  Definición: Número de grados de escolaridad aprobados de las mujeres de 15 a 130 años de edad entre
+    el total de mujeres de 15 a 130 años de edad que especificaron sus grados de escolaridad aprobados
+  Tipo: numeric
+  Longitud: '5'
+  Decimales: '2'
+  Rangos: 0 … 20.00
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+GRAPROES_M:
+  Descripción: Grado promedio de escolaridad de los hombres de 15 años y más
+  Definición: Número de grados de escolaridad aprobados de los hombres de 15 a 130 años de edad entre
+    el total de hombres de 15 a 130 años de edad que especificaron sus grados de escolaridad aprobados
+  Tipo: numeric
+  Longitud: '5'
+  Decimales: '2'
+  Rangos: 0 … 20.00
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+PCN_PEA:
+  Descripción: Porcentaje de población de 12 años y más económicamente activa
+  Definición: Número de personas de 12 a 130 años de edad que en la semana de referencia tuvieron un vínculo
+    con la actividad económica o buscaron tenerlo por cada cien personas de 12 a 130 años de edad
+  Tipo: numeric
+  Longitud: '6'
+  Decimales: '2'
+  Rangos: 0 … 100.00
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+PCN_PEA_F:
+  Descripción: Porcentaje de mujeres de 12 años y más económicamente activas respecto a la población de
+    12 años y más económicamente activa
+  Definición: Número de mujeres de 12 a 130 años de edad que en la semana de referencia tuvieron un vínculo
+    con la actividad económica o buscaron tenerlo por cada cien personas de 12 a 130 años de edad que
+    en la semana de referencia tuvieron un vínculo con la actividad económica o buscaron tenerlo
+  Tipo: numeric
+  Longitud: '6'
+  Decimales: '2'
+  Rangos: 0 … 100.00
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+PCN_PEA_M:
+  Descripción: Porcentaje de hombres de 12 años y más económicamente activos respecto a la población de
+    12 años y más económicamente activa
+  Definición: Número de hombres de 12 a 130 años de edad que en la semana de referencia tuvieron un vínculo
+    con la actividad económica o buscaron tenerlo por cada cien personas de 12 a 130 años de edad que
+    en la semana de referencia tuvieron un vínculo con la actividad económica o buscaron tenerlo
+  Tipo: numeric
+  Longitud: '6'
+  Decimales: '2'
+  Rangos: 0 … 100.00
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+PCN_PE_INAC:
+  Descripción: Porcentaje de población de 12 años y más no económicamente activa
+  Definición: Número de personas de 12 a 130 años de edad que en la semana de referencia únicamente realizaron
+    actividades no económicas y no buscaron trabajo por cada cien personas de 12 a 130 años de edad
+  Tipo: numeric
+  Longitud: '6'
+  Decimales: '2'
+  Rangos: 0 … 100.00
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+PCN_PE_INAC_F:
+  Descripción: Porcentaje de mujeres de 12 años y más no económicamente activas respecto a la población
+    de 12 años y más no económicamente activa
+  Definición: Número de mujeres de 12 a 130 años de edad que en la semana de referencia únicamente realizaron
+    actividades no económicas y no buscaron trabajo por cada cien personas de 12 a 130 años de edad que
+    en la semana de referencia únicamente realizaron actividades no económicas y no buscaron trabajo
+  Tipo: numeric
+  Longitud: '6'
+  Decimales: '2'
+  Rangos: 0 … 100.00
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+PCN_PE_INAC_M:
+  Descripción: Porcentaje de hombres de 12 años y más no económicamente activos respecto a la población
+    de 12 años y más no económicamente activa
+  Definición: Número de hombres de 12 a 130 años de edad que en la semana de referencia únicamente realizaron
+    actividades no económicas y no buscaron trabajo por cada cien personas de 12 a 130 años de edad que
+    en la semana de referencia únicamente realizaron actividades no económicas y no buscaron trabajo
+  Tipo: numeric
+  Longitud: '6'
+  Decimales: '2'
+  Rangos: 0 … 100.00
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+POCUPADA:
+  Descripción: Población de 12 años y más económicamente activa ocupada
+  Definición: Número de personas de 12 a 130 años de edad que en la semana de referencia tuvieron un vínculo
+    con la actividad económica
+  Tipo: numeric
+  Longitud: '9'
+  Rangos: 0 … 999999999
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+PCN_POCUPADA:
+  Descripción: Porcentaje de población de 12 años y más económicamente activa ocupada
+  Definición: Número de personas de 12 a 130 años de edad que en la semana de referencia tuvieron un vínculo
+    con la actividad económica por cada cien personas de 12 a 130 años de edad que en la semana de referencia
+    tuvieron un vínculo con la actividad económica o buscaron tenerlo
+  Tipo: numeric
+  Longitud: '6'
+  Decimales: '2'
+  Rangos: 0 … 100.00
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+PCN_POCUPADA_F:
+  Descripción: Porcentaje de mujeres de 12 años y más económicamente activas ocupadas
+  Definición: Número de mujeres de 12 a 130 años de edad que en la semana de referencia tuvieron un vínculo
+    con la actividad económica por cada cien mujeres de 12 a 130 años de edad que en la semana de referencia
+    tuvieron un vínculo con la actividad económica o buscaron tenerlo
+  Tipo: numeric
+  Longitud: '6'
+  Decimales: '2'
+  Rangos: 0 … 100.00
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+PCN_POCUPADA_M:
+  Descripción: Porcentaje de hombres de 12 años y más económicamente activos ocupados
+  Definición: Número de hombres de 12 a 130 años de edad que en la semana de referencia tuvieron un vínculo
+    con la actividad económica por cada cien hombres de 12 a 130 años de edad que en la semana de referencia
+    tuvieron un vínculo con la actividad económica o buscaron tenerlo
+  Tipo: numeric
+  Longitud: '6'
+  Decimales: '2'
+  Rangos: 0 … 100.00
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+PCN_PDESOCUP:
+  Descripción: Porcentaje de población de 12 años y más económicamente activa desocupada
+  Definición: Número de personas de 12 a 130 años de edad que no estando ocupadas buscaron trabajo en
+    la semana de referencia por cada cien personas de 12 a 130 años de edad que en la semana de referencia
+    tuvieron un vínculo con la actividad económica o buscaron tenerlo
+  Tipo: numeric
+  Longitud: '6'
+  Decimales: '2'
+  Rangos: 0 … 100.00
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+PCN_PDESOCUP_F:
+  Descripción: Porcentaje de mujeres de 12 años y más económicamente activas desocupadas
+  Definición: Número de mujeres de 12 a 130 años de edad que no estando ocupadas buscaron trabajo en la
+    semana de referencia por cada cien mujeres de 12 a 130 años de edad que en la semana de referencia
+    tuvieron un vínculo con la actividad económica o buscaron tenerlo
+  Tipo: numeric
+  Longitud: '6'
+  Decimales: '2'
+  Rangos: 0 … 100.00
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+PCN_PDESOCUP_M:
+  Descripción: Porcentaje de hombres de 12 años y más económicamente activos desocupados
+  Definición: Número de hombres de 12 a 130 años de edad que no estando ocupados buscaron trabajo en la
+    semana de referencia por cada cien hombres 12 a 130 años de edad que en la semana de referencia tuvieron
+    un vínculo con la actividad económica o buscaron tenerlo
+  Tipo: numeric
+  Longitud: '6'
+  Decimales: '2'
+  Rangos: 0 … 100.00
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+PCN_POCUP_ASA:
+  Descripción: Porcentaje de población de 12 años y más ocupada que son trabajadores asalariados
+  Definición: Número de personas de 12 a 130 años de edad que en la semana de referencia tuvieron un vínculo
+    con la actividad económica que son empleados, obreros, jornaleros, peones y ayudantes con pago y trabajan
+    para un patrón o empleador del sector público o privado y que reciben un pago, sueldo, salario o jornal
+    por cada cien personas de 12 a 130 años de edad que en la semana de referencia tuvieron un vínculo
+    con la actividad económica
+  Tipo: numeric
+  Longitud: '6'
+  Decimales: '2'
+  Rangos: 0 … 100.00
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+PCN_POCUP_EMP:
+  Descripción: Porcentaje de población de 12 años y más ocupada que son empleadores
+  Definición: Número de personas de 12 a 130 años de edad que en la semana de referencia tuvieron un vínculo
+    con la actividad económica que son patrones o empleadores, trabajan en su propio negocio y que contrató
+    a uno o más trabajadores a cambio de un pago, salario o jornal por cada cien personas de 12 a 130
+    años de edad que en la semana de referencia tuvieron un vínculo con la actividad económica
+  Tipo: numeric
+  Longitud: '6'
+  Decimales: '2'
+  Rangos: 0 … 100.00
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+PCN_POCUP_CPRO:
+  Descripción: Porcentaje de población de 12 años y más ocupada que son trabajadores por cuenta propia
+  Definición: Número de personas de 12 a 130 años de edad que en la semana de referencia tuvieron un vínculo
+    con la actividad económica que son trabajadores por cuenta propia, y trabajaron en su propio negocio,
+    empresa, establecimiento o predio agrícola y no contrataron a trabajadores a cambio de un pago, aunque
+    sí pudieron recibir ayuda de parte de trabajadores sin pago, sean o no familiares por cada cien personas
+    de 12 a 130 años de edad que en la semana de referencia tuvieron un vínculo con la actividad económica
+  Tipo: numeric
+  Longitud: '6'
+  Decimales: '2'
+  Rangos: 0 … 100.00
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+PCN_POCUP_SPAG:
+  Descripción: Porcentaje de población de 12 años y más ocupada que son trabajadores sin pago
+  Definición: Número de personas de 12 a 130 años de edad que en la semana de referencia tuvieron un vínculo
+    con la actividad económica que son trabajadores sin pago, que ayudan o trabajan en un negocio, empresa
+    o establecimiento familiar o no familiar, sin recibir pago alguno por cada cien personas de 12 a 130
+    años de edad que en la semana de referencia tuvieron un vínculo con la actividad económica
+  Tipo: numeric
+  Longitud: '6'
+  Decimales: '2'
+  Rangos: 0 … 100.00
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+PDER_SS:
+  Descripción: Población afiliada a servicios de salud
+  Definición: Número de personas afiliadas a servicios médicos en alguna institución de salud pública
+    o privada. Incluye a la población con afiliación o acceso a servicios médicos en el IMSS, ISSSTE,
+    ISSSTE estatal, PEMEX, Defensa o Marina, un seguro privado, el IMSS-Bienestar o un centro de salud,
+    hospital o instituto público de salud (federal o estatal, incluyendo INSABI y Seguro Popular)
+  Tipo: numeric
+  Longitud: '9'
+  Rangos: 0 … 999999999
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+PCN_PDER_SS:
+  Descripción: Porcentaje de población afiliada a servicios de salud
+  Definición: Número de personas afiliadas a servicios médicos en alguna institución de salud pública
+    o privada por cada cien personas. Incluye a la población con afiliación o acceso a servicios médicos
+    en el IMSS, ISSSTE, ISSSTE estatal, PEMEX, Defensa o Marina, un seguro privado, el IMSS-Bienestar
+    o un centro de salud, hospital o instituto público de salud (federal o estatal, incluyendo INSABI
+    y Seguro Popular)
+  Tipo: numeric
+  Longitud: '6'
+  Decimales: '2'
+  Rangos: 0 … 100.00
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+PCN_PSINDER:
+  Descripción: Porcentaje de población no afiliada a servicios de salud
+  Definición: Número de personas no afiliadas a servicios médicos en alguna institución de salud pública
+    o privada por cada cien personas
+  Tipo: numeric
+  Longitud: '6'
+  Decimales: '2'
+  Rangos: 0 … 100.00
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+PCN_PcSSyRecAc:
+  Descripción: Porcentaje de población afiliada o con reconocimiento del acceso a servicios públicos de
+    salud
+  Definición: Número de personas afiliadas a alguna institución que brinda servicios de salud (pública
+    o privada) o que reconoce que, en caso de requerir atención médica, tendría acceso a un instituto
+    público de salud (federal o estatal) por cada cien personas. Incluye a la población afiliada y aquella
+    que aun cuando declara no estar afiliada, reconoce que en caso de requerir atención médica, tendría
+    acceso a un instituto público de salud (federal o estatal)
+  Tipo: numeric
+  Longitud: '6'
+  Decimales: '2'
+  Rangos: 0 … 100.00
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+PCN_PDER_IMSS:
+  Descripción: Porcentaje de población afiliada a IMSS
+  Definición: Número de personas que tienen derecho a servicios médicos del Instituto Mexicano del Seguro
+    Social por cada cien personas con derecho a servicios médicos en instituciones de seguridad social,
+    públicas o privadas
+  Tipo: numeric
+  Longitud: '6'
+  Decimales: '2'
+  Rangos: 0 … 100.00
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+PCN_PDER_ISTE:
+  Descripción: Porcentaje de población afiliada a ISSSTE
+  Definición: Número de personas que tienen derecho a servicios médicos del Instituto de Seguridad y Servicios
+    Sociales de los Trabajadores del Estado o de alguna institución del ISSSTE de alcance estatal por
+    cada cien personas con derecho a servicios médicos en instituciones de seguridad social, públicas
+    o privadas
+  Tipo: numeric
+  Longitud: '6'
+  Decimales: '2'
+  Rangos: 0 … 100.00
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+PCN_PAFIL_PDOM:
+  Descripción: Porcentaje de población afiliada a Pemex, la Defensa o la Marina
+  Definición: Número de personas que tienen derecho a servicios médicos en los hospitales de Petróleos
+    Mexicanos, la Secretaría de la Defensa Nacional y la Secretaría de Marina por cada cien personas con
+    derecho a servicios médicos en instituciones de seguridad social, públicas o privadas
+  Tipo: numeric
+  Longitud: '6'
+  Decimales: '2'
+  Rangos: 0 … 100.00
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+PCN_PDER_IMSSB:
+  Descripción: Porcentaje de población afiliada o con acceso a IMSS-BIENESTAR (IMSS-PROSPERA)
+  Definición: Número de personas que a través del programa IMSS-BIENESTAR (IMSS-PROSPERA) tienen acceso
+    a servicios médicos en las clínicas y hospitales pertenecientes a este programa por cada cien personas
+    con derecho a servicios médicos en instituciones de seguridad social, públicas o privadas
+  Tipo: numeric
+  Longitud: '6'
+  Decimales: '2'
+  Rangos: 0 … 100.00
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+PCN_PAFIL_IPUB:
+  Descripción: Porcentaje de población afiliada o con acceso a un centro de salud, hospital o instituto
+    público de salud
+  Definición: Número de personas que tienen acceso a servicios médicos por estar inscritas en el Seguro
+    Popular, INSABI o por parte del Sistema de Protección Social en Salud que brinda la Secretaría de
+    Salud por cada cien personas con derecho a servicios médicos en instituciones de seguridad social,
+    públicas o privadas
+  Tipo: numeric
+  Longitud: '6'
+  Decimales: '2'
+  Rangos: 0 … 100.00
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+PCN_PAFIL_IPRIV:
+  Descripción: Porcentaje de población afiliada a seguro privado
+  Definición: Número de personas que tienen derecho o acceso a servicios médicos en instituciones de seguros
+    privados por cada cien personas con derecho a servicios médicos en instituciones de seguridad social,
+    públicas o privadas
+  Tipo: numeric
+  Longitud: '6'
+  Decimales: '2'
+  Rangos: 0 … 100.00
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+PCN_PAFIL_OTRAI:
+  Descripción: Porcentaje de población afiliada a otra institución
+  Definición: Número de personas que tienen derecho o acceso a servicios médicos en cualquier otra institución
+    de salud pública o privada por cada cien personas con derecho a servicios médicos en instituciones
+    de seguridad social, públicas o privadas
+  Tipo: numeric
+  Longitud: '6'
+  Decimales: '2'
+  Rangos: 0 … 100.00
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+PUSU_SS:
+  Descripción: Población que es usuaria de servicios de salud
+  Definición: Número de personas que son usuarias de servicios médicos en instituciones de salud públicas
+    o privadas
+  Tipo: numeric
+  Longitud: '9'
+  Rangos: 0 … 999999999
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+PCN_PUSU_IMSS:
+  Descripción: Porcentaje de población que es usuaria de IMSS
+  Definición: Número de personas que son usuarias de servicios médicos del Instituto Mexicano del Seguro
+    Social por cada cien personas que son usuarias de servicios médicos en instituciones de salud públicas
+    o privadas
+  Tipo: numeric
+  Longitud: '6'
+  Decimales: '2'
+  Rangos: 0 … 100.00
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+PCN_PUSU_ISTE:
+  Descripción: Porcentaje de población que es usuaria de ISSSTE
+  Definición: Número de personas que son usuarias de servicios médicos del Instituto de Seguridad y Servicios
+    Sociales de los Trabajadores del Estado o de alguna institución del ISSSTE de alcance estatal por
+    cada cien personas que son usuarias de servicios médicos en instituciones de salud públicas o privadas
+  Tipo: numeric
+  Longitud: '6'
+  Decimales: '2'
+  Rangos: 0 … 100.00
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+PCN_PUSU_PDOM:
+  Descripción: Porcentaje de población que es usuaria de Pemex, la Defensa o la Marina
+  Definición: Número de personas que son usuarias de servicios médicos en los hospitales de Petróleos
+    Mexicanos, la Secretaría de la Defensa Nacional y la Secretaría de Marina por cada cien personas que
+    son usuarias de servicios médicos en instituciones de salud públicas o privadas
+  Tipo: numeric
+  Longitud: '6'
+  Decimales: '2'
+  Rangos: 0 … 100.00
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+PCN_PUSU_IMSSB:
+  Descripción: Porcentaje de población que es usuaria de IMSS BIENESTAR (IMSS-PROSPERA)
+  Definición: Número de personas que son usuarias de servicios médicos en las unidades del IMSS-BIENESTAR
+    (IMSS-PROSPERA) por cada cien personas que son usuarias de servicios médicos en instituciones de salud
+    públicas o privadas
+  Tipo: numeric
+  Longitud: '6'
+  Decimales: '2'
+  Rangos: 0 … 100.00
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+PCN_PUSU_IPUB:
+  Descripción: Porcentaje de población que es usuaria de un centro de salud, hospital o instituto público
+    de salud (federal o estatal)
+  Definición: Número de personas que son usuarias de servicios médicos en las clínicas y hospitales de
+    la Secretaría de Salud, Seguro popular o en el Instituto de Salud para el Bienestar (INSABI) por cada
+    cien personas que son usuarias de servicios médicos en instituciones de salud públicas o privadas
+  Tipo: numeric
+  Longitud: '6'
+  Decimales: '2'
+  Rangos: 0 … 100.00
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+PCN_PUSU_IPRIV:
+  Descripción: Porcentaje de población que es usuaria de un consultorio, clínica u hospital privado
+  Definición: Número de personas que son usuarias de servicios médicos en establecimientos de salud privados
+    por cada cien personas que son usuarias de servicios médicos en instituciones de salud públicas o
+    privadas
+  Tipo: numeric
+  Longitud: '6'
+  Decimales: '2'
+  Rangos: 0 … 100.00
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+PCN_PUSU_CFARM:
+  Descripción: Porcentaje de población que es usuaria de un consultorio de farmacia
+  Definición: Número de personas que son usuarias de servicios médicos en consultorios de farmacia por
+    cada cien personas que son usuarias de servicios médicos en instituciones de salud públicas o privadas
+  Tipo: numeric
+  Longitud: '6'
+  Decimales: '2'
+  Rangos: 0 … 100.00
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+PCN_PUSU_OTRAI:
+  Descripción: Porcentaje de población que es usuaria de otra institución
+  Definición: Número de personas que son usuarias de servicios médicos en cualquier otra institución de
+    salud pública o privada por cada cien personas que son usuarias de servicios médicos en instituciones
+    de salud públicas o privadas
+  Tipo: numeric
+  Longitud: '6'
+  Decimales: '2'
+  Rangos: 0 … 100.00
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+PCN_PASIS_ENT:
+  Descripción: Porcentaje de población de 3 años y más que asiste a la escuela en la misma entidad
+  Definición: Número de personas de 3 a 130 años de edad que asisten a un centro educativo ubicado en
+    la misma entidad federativa de residencia por cada cien personas de 3 a 130 años de edad que asisten
+    a la escuela
+  Tipo: numeric
+  Longitud: '6'
+  Decimales: '2'
+  Rangos: 0 … 100.00
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+PCN_PASIS_OENT:
+  Descripción: Porcentaje de población de 3 años y más que asiste a la escuela en otra entidad o país
+  Definición: Número de personas de 3 a 130 años de edad que asisten a un centro educativo ubicado en
+    otra entidad o país diferente al de residencia por cada cien personas de 3 a 130 años de edad que
+    asisten a la escuela
+  Tipo: numeric
+  Longitud: '6'
+  Decimales: '2'
+  Rangos: 0 … 100.00
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+PCN_PASIS_15MIN:
+  Descripción: Porcentaje de población de 3 años y más que tarda hasta 15 minutos en trasladarse a la
+    escuela
+  Definición: Número de personas de 3 a 130 años de edad que tardan hasta 15 minutos en trasladarse a
+    la escuela por cada cien personas de 3 a 130 años de edad que asisten a la escuela
+  Tipo: numeric
+  Longitud: '6'
+  Decimales: '2'
+  Rangos: 0 … 100.00
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+PCN_PASIS_30MIN:
+  Descripción: Porcentaje de población de 3 años y más que tarda de 16 a 30 minutos en trasladarse a la
+    escuela
+  Definición: Número de personas de 3 a 130 años de edad que tardan de 16 a 30 minutos en trasladarse
+    a la escuela por cada cien personas de 3 a 130 años de edad que asisten a la escuela
+  Tipo: numeric
+  Longitud: '6'
+  Decimales: '2'
+  Rangos: 0 … 100.00
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+PCN_PASIS_1HOR:
+  Descripción: Porcentaje de población de 3 años y más que tarda de 31 minutos a 1 hora en trasladarse
+    a la escuela
+  Definición: Número de personas de 3 a 130 años de edad que tardan de 31 minutos hasta una hora en trasladarse
+    a la escuela por cada cien personas de 3 a 130 años de edad que asisten a la escuela
+  Tipo: numeric
+  Longitud: '6'
+  Decimales: '2'
+  Rangos: 0 … 100.00
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+PCN_PASIS_1HYM:
+  Descripción: Porcentaje de población de 3 años y más que tarda más de 1 hora en trasladarse a la escuela
+  Definición: Número de personas de 3 a 130 años de edad que tardan más de una hora en trasladarse a la
+    escuela por cada cien personas de 3 a 130 años de edad que asisten a la escuela
+  Tipo: numeric
+  Longitud: '6'
+  Decimales: '2'
+  Rangos: 0 … 100.00
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+PCN_PASIS_CAM:
+  Descripción: Porcentaje de población de 3 años y más que se traslada a la escuela caminando
+  Definición: Número de personas de 3 a 130 años de edad que asisten a la escuela y se trasladan a su
+    centro educativo caminando por cada cien personas de 3 a 130 años de edad que asisten a la escuela
+    y se trasladan al lugar de asistencia a la escuela
+  Tipo: numeric
+  Longitud: '6'
+  Decimales: '2'
+  Rangos: 0 … 100.00
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+PCN_PASIS_BICI:
+  Descripción: Porcentaje de población de 3 años y más que se traslada a la escuela en bicicleta
+  Definición: Número de personas de 3 a 130 años de edad que asisten a la escuela y se trasladan a su
+    centro educativo en bicicleta por cada cien personas de 3 a 130 años de edad que asisten y se trasladan
+    al lugar de asistencia a la escuela
+  Tipo: numeric
+  Longitud: '6'
+  Decimales: '2'
+  Rangos: 0 … 100.00
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+PCN_PASIS_MET:
+  Descripción: Porcentaje de población de 3 años y más que se traslada a la escuela en metro o metrobús
+  Definición: Número de personas de 3 a 130 años de edad que asisten a la escuela y se trasladan a su
+    centro educativo en metro o metrobús por cada cien personas de 3 a 130 años de edad que asisten y
+    se trasladan al lugar de asistencia a la escuela
+  Tipo: numeric
+  Longitud: '6'
+  Decimales: '2'
+  Rangos: 0 … 100.00
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+PCN_PASIS_TROL:
+  Descripción: Porcentaje de población de 3 años y más que se traslada a la escuela en trolebús, camión,
+    autobús, combi o colectivo
+  Definición: Número de personas de 3 a 130 años de edad que asisten a la escuela y se trasladan a su
+    centro educativo en trolebús, camión, autobús, combi o colectivo por cada cien personas de 3 a 130
+    años de edad que asisten y se trasladan al lugar de asistencia a la escuela
+  Tipo: numeric
+  Longitud: '6'
+  Decimales: '2'
+  Rangos: 0 … 100.00
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+PCN_PASIS_TESC:
+  Descripción: Porcentaje de población de 3 años y más que se traslada a la escuela en transporte escolar
+  Definición: Número de personas de 3 a 130 años de edad que asisten a la escuela y se trasladan a su
+    centro educativo en transporte escolar por cada cien personas de 3 a 130 años de edad que asisten
+    y se trasladan al lugar de asistencia a la escuela
+  Tipo: numeric
+  Longitud: '6'
+  Decimales: '2'
+  Rangos: 0 … 100.00
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+PCN_PASIS_TAXI:
+  Descripción: Porcentaje de población de 3 años y más que se traslada a la escuela en taxi
+  Definición: Número de personas de 3 a 130 años de edad que asisten a la escuela y se trasladan a su
+    centro educativo en taxi por cada cien personas de 3 a 130 años de edad que asisten y se trasladan
+    al lugar de asistencia a la escuela
+  Tipo: numeric
+  Longitud: '6'
+  Decimales: '2'
+  Rangos: 0 … 100.00
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+PCN_PASIS_MOTO:
+  Descripción: Porcentaje de población de 3 años y más que se traslada a la escuela en motocicleta o motoneta
+  Definición: Número de personas de 3 a 130 años de edad que asisten a la escuela y se trasladan a su
+    centro educativo en motocicleta o motoneta por cada cien personas de 3 a 130 años de edad que asisten
+    y se trasladan al lugar de asistencia a la escuela
+  Tipo: numeric
+  Longitud: '6'
+  Decimales: '2'
+  Rangos: 0 … 100.00
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+PCN_PASIS_AUTO:
+  Descripción: Porcentaje de población de 3 años y más que se traslada a la escuela en automóvil o camioneta
+  Definición: Número de personas de 3 a 130 años de edad que asisten a la escuela y se trasladan a su
+    centro educativo en automóvil o camioneta por cada cien personas de 3 a 130 años de edad que asisten
+    y se trasladan al lugar de asistencia a la escuela
+  Tipo: numeric
+  Longitud: '6'
+  Decimales: '2'
+  Rangos: 0 … 100.00
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+PCN_PASIS_OMED:
+  Descripción: Porcentaje de población de 3 años y más que se traslada a la escuela en otro medio
+  Definición: Número de personas de 3 a 130 años de edad que asisten a la escuela y se trasladan a su
+    centro educativo en un medio de traslado diferente a los enumerados anteriormente por cada cien personas
+    de 3 a 130 años de edad que asisten y se trasladan al lugar de asistencia a la escuela
+  Tipo: numeric
+  Longitud: '6'
+  Decimales: '2'
+  Rangos: 0 … 100.00
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+PCN_POCUP_ENT:
+  Descripción: Porcentaje de población ocupada de 12 años y más que trabaja en la misma entidad
+  Definición: Número de personas de 12 a 130 años de edad ocupadas cuyo lugar de trabajo se ubica en la
+    misma entidad federativa de residencia por cada cien personas de 12 a 130 años de edad ocupadas
+  Tipo: numeric
+  Longitud: '6'
+  Decimales: '2'
+  Rangos: 0 … 100.00
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+PCN_POCUP_OENT:
+  Descripción: Porcentaje de población ocupada de 12 años y más que trabaja en otra entidad o país
+  Definición: Número de personas de 12 a 130 años de edad ocupadas cuyo lugar de trabajo se ubica en otra
+    entidad o país distinto al de residencia por cada cien personas de 12 a 130 años de edad ocupadas
+  Tipo: numeric
+  Longitud: '6'
+  Decimales: '2'
+  Rangos: 0 … 100.00
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+PCN_POCUP_15MIN:
+  Descripción: Porcentaje de población ocupada de 12 años y más que tarda hasta 15 minutos en trasladarse
+    al lugar de trabajo
+  Definición: Número de personas de 12 a 130 años de edad ocupadas que tardan hasta 15 minutos en trasladarse
+    de su domicilio al lugar de trabajo por cada cien personas de 12 a 130 años de edad ocupadas
+  Tipo: numeric
+  Longitud: '6'
+  Decimales: '2'
+  Rangos: 0 … 100.00
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+PCN_POCUP_30MIN:
+  Descripción: Porcentaje de población ocupada de 12 años y más que tarda de 16 a 30 minutos en trasladarse
+    al lugar de trabajo
+  Definición: Número de personas de 12 a 130 años de edad ocupadas que tardan de 16 a 30 minutos en trasladarse
+    de su domicilio al lugar de trabajo por cada cien personas de 12 a 130 años de edad ocupadas
+  Tipo: numeric
+  Longitud: '6'
+  Decimales: '2'
+  Rangos: 0 … 100.00
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+PCN_POCUP_1HOR:
+  Descripción: Porcentaje de población ocupada de 12 años y más que tarda de 31 minutos a 1 hora en trasladarse
+    al lugar de trabajo
+  Definición: Número de personas de 12 a 130 años de edad ocupadas que tardan de 31 minutos a una hora
+    en trasladarse de su domicilio al lugar de trabajo por cada cien personas de 12 a 130 años de edad
+    ocupadas
+  Tipo: numeric
+  Longitud: '6'
+  Decimales: '2'
+  Rangos: 0 … 100.00
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+PCN_POCUP_2HOR:
+  Descripción: Porcentaje de población ocupada de 12 años y más que tarda más de 1 hora y hasta 2 horas
+    en trasladarse al lugar de trabajo
+  Definición: Número de personas de 12 a 130 años de edad ocupadas que tardan más de una y hasta dos horas
+    en trasladarse de su domicilio al lugar de trabajo por cada cien personas de 12 a 130 años de edad
+    ocupadas
+  Tipo: numeric
+  Longitud: '6'
+  Decimales: '2'
+  Rangos: 0 … 100.00
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+PCN_POCUP_2HYM:
+  Descripción: Porcentaje de población ocupada de 12 años y más que tarda más de 2 horas en trasladarse
+    al lugar de trabajo
+  Definición: Número de personas de 12 a 130 años de edad ocupadas que tardan más de dos horas en trasladarse
+    de su domicilio al lugar de trabajo por cada cien personas de 12 a 130 años de edad ocupadas
+  Tipo: numeric
+  Longitud: '6'
+  Decimales: '2'
+  Rangos: 0 … 100.00
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+PCN_POCUP_CAM:
+  Descripción: Porcentaje de población ocupada de 12 años y más que se traslada al trabajo caminando
+  Definición: Número de personas de 12 a 130 años de edad ocupadas que se trasladan al lugar de trabajo
+    caminando por cada cien personas de 12 a 130 años de edad ocupadas que se trasladan al lugar de trabajo
+  Tipo: numeric
+  Longitud: '6'
+  Decimales: '2'
+  Rangos: 0 … 100.00
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+PCN_POCUP_BICI:
+  Descripción: Porcentaje de población ocupada de 12 años y más que se traslada al trabajo en bicicleta
+  Definición: Número de personas de 12 a 130 años de edad ocupadas que se trasladan al lugar de trabajo
+    en bicicleta por cada cien personas de 12 a 130 años de edad ocupadas que se trasladan al lugar de
+    trabajo
+  Tipo: numeric
+  Longitud: '6'
+  Decimales: '2'
+  Rangos: 0 … 100.00
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+PCN_POCUP_MET:
+  Descripción: Porcentaje de población ocupada de 12 años y más que se traslada al trabajo en metro o
+    metrobús
+  Definición: Número de personas de 12 a 130 años de edad ocupadas que se trasladan al lugar de trabajo
+    en metro o metrobús por cada cien personas de 12 a 130 años de edad ocupadas que se trasladan al lugar
+    de trabajo
+  Tipo: numeric
+  Longitud: '6'
+  Decimales: '2'
+  Rangos: 0 … 100.00
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+PCN_POCUP_TROL:
+  Descripción: Porcentaje de población ocupada de 12 años y más que se traslada al trabajo en trolebús,
+    camión, autobús, combi o colectivo
+  Definición: Número de personas de 12 a 130 años de edad ocupadas que se trasladan al lugar de trabajo
+    en trolebús, camión, autobús, combi o colectivo por cada cien personas de 12 a 130 años de edad ocupadas
+    que se trasladan al lugar de trabajo
+  Tipo: numeric
+  Longitud: '6'
+  Decimales: '2'
+  Rangos: 0 … 100.00
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+PCN_POCUP_TPER:
+  Descripción: Porcentaje de población ocupada de 12 años y más que se traslada al trabajo en transporte
+    de personal
+  Definición: Número de personas de 12 a 130 años de edad ocupadas que se trasladan al lugar de trabajo
+    en transporte de personal por cada cien personas de 12 a 130 años de edad ocupadas que se trasladan
+    al lugar de trabajo
+  Tipo: numeric
+  Longitud: '6'
+  Decimales: '2'
+  Rangos: 0 … 100.00
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+PCN_POCUP_TAXI:
+  Descripción: Porcentaje de población ocupada de 12 años y más que se traslada al trabajo en taxi
+  Definición: Número de personas de 12 a 130 años de edad ocupadas que se trasladan al lugar de trabajo
+    en taxi por cada cien personas de 12 a 130 años de edad ocupadas que se trasladan al lugar de trabajo
+  Tipo: numeric
+  Longitud: '6'
+  Decimales: '2'
+  Rangos: 0 … 100.00
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+PCN_POCUP_MOTO:
+  Descripción: Porcentaje de población ocupada de 12 años y más que se traslada al trabajo en motocicleta
+    o motoneta
+  Definición: Número de personas de 12 a 130 años de edad ocupadas que se trasladan al lugar de trabajo
+    en motocicleta o motoneta por cada cien personas de 12 a 130 años de edad ocupadas que se trasladan
+    al lugar de trabajo
+  Tipo: numeric
+  Longitud: '6'
+  Decimales: '2'
+  Rangos: 0 … 100.00
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+PCN_POCUP_AUTO:
+  Descripción: Porcentaje de población ocupada de 12 años y más que se traslada al trabajo en automóvil
+    o camioneta
+  Definición: Número de personas de 12 a 130 años de edad ocupadas que se trasladan al lugar de trabajo
+    en automóvil o camioneta por cada cien personas de 12 a 130 años de edad ocupadas que se trasladan
+    al lugar de trabajo
+  Tipo: numeric
+  Longitud: '6'
+  Decimales: '2'
+  Rangos: 0 … 100.00
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+PCN_POCUP_OMED:
+  Descripción: Porcentaje de población ocupada de 12 años y más que se traslada al trabajo en otro medio
+  Definición: Número de personas de 12 a 130 años de edad ocupadas que se trasladan al lugar de trabajo
+    en un medio de traslado diferente a los enumerados anteriormente por cada cien personas de 12 a 130
+    años de edad ocupadas que se trasladan al lugar de trabajo
+  Tipo: numeric
+  Longitud: '6'
+  Decimales: '2'
+  Rangos: 0 … 100.00
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+PCN_P12YM_SOLT:
+  Descripción: Porcentaje de población de 12 años y más soltera
+  Definición: Número de personas de 12 a 130 años de edad solteras por cada cien personas de 12 a 130
+    años de edad
+  Tipo: numeric
+  Longitud: '6'
+  Decimales: '2'
+  Rangos: 0 … 100.00
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+PCN_P12YM_SOLT_F:
+  Descripción: Porcentaje de mujeres de 12 años y más solteras
+  Definición: Número de mujeres de 12 a 130 años de edad solteras por cada cien mujeres de 12 a 130 años
+    de edad
+  Tipo: numeric
+  Longitud: '6'
+  Decimales: '2'
+  Rangos: 0 … 100.00
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+PCN_P12YM_SOLT_M:
+  Descripción: Porcentaje de hombres de 12 años y más solteros
+  Definición: Número de hombres de 12 a 130 años de edad solteros por cada cien hombres de 12 a 130 años
+    de edad
+  Tipo: numeric
+  Longitud: '6'
+  Decimales: '2'
+  Rangos: 0 … 100.00
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+PCN_P12YM_CUL:
+  Descripción: Porcentaje de población de 12 años y más casada o en unión libre
+  Definición: Número de personas de 12 a 130 años de edad casadas solo por el civil; casadas solo religiosamente
+    o; casadas por el civil y religiosamente o en unión libre por cada cien personas de 12 a 130 años
+    de edad
+  Tipo: numeric
+  Longitud: '6'
+  Decimales: '2'
+  Rangos: 0 … 100.00
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+PCN_P12YM_CUL_F:
+  Descripción: Porcentaje de mujeres de 12 años y más casadas o en unión libre
+  Definición: Número de mujeres de 12 a 130 años de edad casadas solo por el civil; casadas solo religiosamente
+    o; casadas por el civil y religiosamente o en unión libre por cada cien mujeres de 12 a 130 años de
+    edad
+  Tipo: numeric
+  Longitud: '6'
+  Decimales: '2'
+  Rangos: 0 … 100.00
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+PCN_P12YM_CUL_M:
+  Descripción: Porcentaje de hombres de 12 años y más casados o en unión libre
+  Definición: Número de hombres de 12 a 130 años de edad casados solo por el civil; casados solo religiosamente
+    o; casados por el civil y religiosamente o en unión libre por cada cien hombres de 12 a 130 años de
+    edad
+  Tipo: numeric
+  Longitud: '6'
+  Decimales: '2'
+  Rangos: 0 … 100.00
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+PCN_P12YM_SEPA:
+  Descripción: Porcentaje de población de 12 años y más separada, divorciada o viuda
+  Definición: Número de personas de 12 a 130 años de edad que están separadas, divorciadas o viudas por
+    cada cien personas de 12 a 130 años de edad
+  Tipo: numeric
+  Longitud: '6'
+  Decimales: '2'
+  Rangos: 0 … 100.00
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+PCN_P12YM_SEPA_F:
+  Descripción: Porcentaje de mujeres de 12 años y más separadas, divorciadas o viudas
+  Definición: Número de mujeres de 12 a 130 años de edad que están separadas, divorciadas o viudas por
+    cada cien mujeres de 12 a 130 años de edad
+  Tipo: numeric
+  Longitud: '6'
+  Decimales: '2'
+  Rangos: 0 … 100.00
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+PCN_P12YM_SEPA_M:
+  Descripción: Porcentaje de hombres de 12 años y más separados, divorciados o viudos
+  Definición: Número de hombres de 12 a 130 años de edad que están separados, divorciados o viudos por
+    cada cien hombres de 12 a 130 años de edad
+  Tipo: numeric
+  Longitud: '6'
+  Decimales: '2'
+  Rangos: 0 … 100.00
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+TOTHOG:
+  Descripción: Hogares
+  Definición: Número de hogares que residen en viviendas particulares habitadas. El hogar es la unidad
+    formada por una o más personas, vinculadas o no por lazos de parentesco, que residen habitualmente
+    en la misma vivienda particular habitada
+  Tipo: numeric
+  Longitud: '9'
+  Rangos: 0 … 999999999
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+HOGJEF_F:
+  Descripción: Hogares con persona de referencia mujer
+  Definición: Número de hogares que residen en viviendas particulares habitadas con persona de referencia
+    mujer El hogar es la unidad formada por una o más personas, vinculadas o no por lazos de parentesco,
+    que residen habitualmente en la misma vivienda particular habitada
+  Tipo: numeric
+  Longitud: '9'
+  Rangos: 0 … 999999999
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+HOGJEF_M:
+  Descripción: Hogares con persona de referencia hombre
+  Definición: Número de hogares que residen en viviendas particulares habitadas con persona de referencia
+    hombre El hogar es la unidad formada por una o más personas, vinculadas o no por lazos de parentesco,
+    que residen habitualmente en la misma vivienda particular habitada
+  Tipo: numeric
+  Longitud: '9'
+  Rangos: 0 … 999999999
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+POBHOG:
+  Descripción: Población en hogares
+  Definición: Número de personas en hogares que residen en viviendas particulares habitadas El hogar es
+    la unidad formada por una o más personas, vinculadas o no por lazos de parentesco, que residen habitualmente
+    en la misma vivienda particular habitada
+  Tipo: numeric
+  Longitud: '9'
+  Rangos: 0 … 999999999
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+PHOGJEF_F:
+  Descripción: Población en hogares con persona de referencia mujer
+  Definición: Número de personas en hogares que residen en viviendas particulares habitadas con persona
+    de referencia mujer El hogar es la unidad formada por una o más personas, vinculadas o no por lazos
+    de parentesco, que residen habitualmente en la misma vivienda particular habitada
+  Tipo: numeric
+  Longitud: '9'
+  Rangos: 0 … 999999999
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+PHOGJEF_M:
+  Descripción: Población en hogares con persona de referencia hombre
+  Definición: Número de personas en hogares que residen en viviendas particulares habitadas con persona
+    de referencia hombre El hogar es la unidad formada por una o más personas, vinculadas o no por lazos
+    de parentesco, que residen habitualmente en la misma vivienda particular habitada
+  Tipo: numeric
+  Longitud: '9'
+  Rangos: 0 … 999999999
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+PCN_HOG_FAM:
+  Descripción: Porcentaje de hogares familiares
+  Definición: Número de hogares de clase nuclear, ampliado, compuesto o no especificado de tipo familiar
+    por cada cien hogares que residen en viviendas particulares habitadas El hogar es la unidad formada
+    por una o más personas, vinculadas o no por lazos de parentesco, que residen habitualmente en la misma
+    vivienda particular habitada
+  Tipo: numeric
+  Longitud: '6'
+  Decimales: '2'
+  Rangos: 0 … 100.00
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+PCN_POBHOG_FAM:
+  Descripción: Porcentaje de población en hogares familiares
+  Definición: Número de personas en hogares de clase nuclear, ampliado, compuesto o no especificado de
+    tipo familiar por cada cien personas en hogares que residen en viviendas particulares habitadas El
+    hogar es la unidad formada por una o más personas, vinculadas o no por lazos de parentesco, que residen
+    habitualmente en la misma vivienda particular habitada
+  Tipo: numeric
+  Longitud: '6'
+  Decimales: '2'
+  Rangos: 0 … 100.00
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+PCN_HOG_NFAM:
+  Descripción: Porcentaje de hogares no familiares
+  Definición: Número de hogares de tipo unipersonales y de corresidentes por cada cien hogares que residen
+    en viviendas particulares El hogar es la unidad formada por una o más personas, vinculadas o no por
+    lazos de parentesco, que residen habitualmente en la misma vivienda particular habitada
+  Tipo: numeric
+  Longitud: '6'
+  Decimales: '2'
+  Rangos: 0 … 100.00
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+PCN_POBHOG_NFAM:
+  Descripción: Porcentaje de población en hogares no familiares
+  Definición: Número de personas en hogares de tipo unipersonales y de corresidentes por cada cien personas
+    en hogares que residen en viviendas particulares El hogar es la unidad formada por una o más personas,
+    vinculadas o no por lazos de parentesco, que residen habitualmente en la misma vivienda particular
+    habitada
+  Tipo: numeric
+  Longitud: '6'
+  Decimales: '2'
+  Rangos: 0 … 100.00
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+PCN_HOG_PERC:
+  Descripción: Porcentaje de hogares donde alguno de sus integrantes percibe ingresos monetarios de fuentes
+    distintas al trabajo
+  Definición: Número de hogares donde al menos un integrante percibe ingresos monetarios de programas
+    de gobierno; por jubilación o pensión; de alguien que vive en otra vivienda dentro del país o de alguien
+    que vive en otro país por cada cien hogares que residen en viviendas particulares habitadas. El hogar
+    es la unidad formada por una o más personas, vinculadas o no por lazos de parentesco, que residen
+    habitualmente en la misma vivienda particular habitada
+  Tipo: numeric
+  Longitud: '6'
+  Decimales: '2'
+  Rangos: 0 … 100.00
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+PCN_HOG_NPERC:
+  Descripción: Porcentaje de hogares donde los integrantes no perciben ingresos monetarios de fuentes
+    distintas al trabajo
+  Definición: Número de hogares en los que ningún integrante percibe ingresos monetarios de fuentes distintas
+    al trabajo por cada cien hogares que residen en viviendas particulares habitadas. El hogar es la unidad
+    formada por una o más personas, vinculadas o no por lazos de parentesco, que residen habitualmente
+    en la misma vivienda particular habitada
+  Tipo: numeric
+  Longitud: '6'
+  Decimales: '2'
+  Rangos: 0 … 100.00
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+PCN_HOG_GOB:
+  Descripción: Porcentaje de hogares donde alguno de sus integrantes percibe ingresos monetarios de programas
+    de gobierno
+  Definición: Número de hogares donde al menos un integrante percibe ingresos monetarios de programas
+    de gobierno por cada cien hogares que residen en viviendas particulares habitadas. Considera las fuentes
+    de ingresos monetarios que los integrantes del hogar reciben a través de programas sociales del gobierno
+    federal o estatal. Estos incluyen becas para estudiantes, pensiones para adultos mayores o para personas
+    con discapacidad, así como apoyos destinados a jóvenes o a campesinos, entre otros programas. El hogar
+    es la unidad formada por una o más personas, vinculadas o no por lazos de parentesco, que residen
+    habitualmente en la misma vivienda particular habitada
+  Tipo: numeric
+  Longitud: '6'
+  Decimales: '2'
+  Rangos: 0 … 100.00
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+PCN_HOG_JUB:
+  Descripción: Porcentaje de hogares donde alguno de sus integrantes percibe ingresos monetarios de jubilación
+    o pensión
+  Definición: Número de hogares donde al menos un integrante percibe ingresos monetarios por jubilación
+    o pensión por cada cien hogares que residen en viviendas particulares habitadas. El hogar es la unidad
+    formada por una o más personas, vinculadas o no por lazos de parentesco, que residen habitualmente
+    en la misma vivienda particular habitada
+  Tipo: numeric
+  Longitud: '6'
+  Decimales: '2'
+  Rangos: 0 … 100.00
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+PCN_HOG_OVIV:
+  Descripción: Porcentaje de hogares donde alguno de sus integrantes percibe ingresos monetarios de alguna
+    persona que vive en otra vivienda dentro del país
+  Definición: Número de hogares donde al menos un integrante percibe ingresos monetarios de alguna persona
+    que vive en otra vivienda dentro del país por cada cien hogares que residen en viviendas particulares
+    habitadas. El hogar es la unidad formada por una o más personas, vinculadas o no por lazos de parentesco,
+    que residen habitualmente en la misma vivienda particular habitada
+  Tipo: numeric
+  Longitud: '6'
+  Decimales: '2'
+  Rangos: 0 … 100.00
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+PCN_HOG_OPAIS:
+  Descripción: Porcentaje de hogares donde alguno de sus integrantes percibe ingresos monetarios de alguna
+    persona que vive en otro país
+  Definición: Número de hogares donde al menos un integrante percibe ingresos monetarios de alguna persona
+    que vive en otro país por cada cien hogares que residen en viviendas particulares habitadas. El hogar
+    es la unidad formada por una o más personas, vinculadas o no por lazos de parentesco, que residen
+    habitualmente en la misma vivienda particular habitada
+  Tipo: numeric
+  Longitud: '6'
+  Decimales: '2'
+  Rangos: 0 … 100.00
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+PCN_HOG_ALIM_N:
+  Descripción: Porcentaje de hogares donde no hubo acceso a los alimentos por falta de dinero o recursos
+    en los últimos tres meses
+  Definición: Número de hogares donde no hubo acceso a los alimentos por falta de dinero o recursos en
+    los últimos tres meses por cada cien hogares que residen en viviendas particulares habitadas. El hogar
+    es la unidad formada por una o más personas, vinculadas o no por lazos de parentesco, que residen
+    habitualmente en la misma vivienda particular habitada
+  Tipo: numeric
+  Longitud: '6'
+  Decimales: '2'
+  Rangos: 0 … 100.00
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+PCN_HOG_ALIM:
+  Descripción: Porcentaje de hogares donde hubo acceso a los alimentos en los últimos tres meses
+  Definición: Número de hogares en donde sus integrantes tuvieron acceso a los alimentos en los últimos
+    tres meses por cada cien hogares que residen en viviendas particulares habitadas. El hogar es la unidad
+    formada por una o más personas, vinculadas o no por lazos de parentesco, que residen habitualmente
+    en la misma vivienda particular habitada
+  Tipo: numeric
+  Longitud: '6'
+  Decimales: '2'
+  Rangos: 0 … 100.00
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+PCN_ALIM_ADL1:
+  Descripción: Porcentaje de hogares en donde algún integrante de 18 años y más tuvo una alimentación
+    basada en muy poca variedad de alimentos por falta de dinero o recursos en los últimos 3 meses
+  Definición: Número de hogares en donde algún integrante de 18 años y más tuvo una alimentación basada
+    en muy poca variedad de alimentos por falta de dinero o recursos en los últimos tres meses por cada
+    cien hogares que residen en viviendas particulares habitadas. El hogar es la unidad formada por una
+    o más personas, vinculadas o no por lazos de parentesco, que residen habitualmente en la misma vivienda
+    particular habitada
+  Tipo: numeric
+  Longitud: '6'
+  Decimales: '2'
+  Rangos: 0 … 100.00
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+PCN_ALIM_ADL2:
+  Descripción: Porcentaje de hogares en donde algún integrante de 18 años y más dejó de desayunar, comer
+    o cenar por falta de dinero o recursos en los últimos 3 meses
+  Definición: Número de hogares en donde algún integrante de 18 años y más dejó de desayunar, comer o
+    cenar por falta de dinero o recursos en los últimos tres meses por cada cien hogares que residen en
+    viviendas particulares habitadas. El hogar es la unidad formada por una o más personas, vinculadas
+    o no por lazos de parentesco, que residen habitualmente en la misma vivienda particular habitada
+  Tipo: numeric
+  Longitud: '6'
+  Decimales: '2'
+  Rangos: 0 … 100.00
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+PCN_ALIM_ADL3:
+  Descripción: Porcentaje de hogares en donde algún integrante de 18 años y más comió menos de lo que
+    debían comer por falta de dinero o recursos en los últimos 3 meses
+  Definición: Número de hogares en donde algún integrante de 18 años y más comió menos de lo que debía
+    comer por falta de dinero o recursos en los últimos tres meses por cada cien hogares que residen en
+    viviendas particulares habitadas. El hogar es la unidad formada por una o más personas, vinculadas
+    o no por lazos de parentesco, que residen habitualmente en la misma vivienda particular habitada
+  Tipo: numeric
+  Longitud: '6'
+  Decimales: '2'
+  Rangos: 0 … 100.00
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+PCN_ING_ADL1:
+  Descripción: Porcentaje de hogares en donde algún integrante de 18 años y más sintió hambre pero no
+    comió por falta de dinero o recursos en los últimos 3 meses
+  Definición: Número de hogares en donde algún integrante de 18 años y más sintió hambre pero no comió
+    por falta de dinero o recursos en los últimos tres meses por cada cien hogares que residen en viviendas
+    particulares habitadas. El hogar es la unidad formada por una o más personas, vinculadas o no por
+    lazos de parentesco, que residen habitualmente en la misma vivienda particular habitada
+  Tipo: numeric
+  Longitud: '6'
+  Decimales: '2'
+  Rangos: 0 … 100.00
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+PCN_ING_ADL2:
+  Descripción: Porcentaje de hogares en donde algún integrante de 18 años y más comió una vez al día o
+    dejó de comer todo un día por falta de dinero o recursos en los últimos 3 meses
+  Definición: Número de hogares en donde algún integrante de 18 años y más comió una vez al día o dejó
+    de comer todo un día por falta de dinero o recursos en los últimos tres meses por cada cien hogares
+    que residen en viviendas particulares habitadas. El hogar es la unidad formada por una o más personas,
+    vinculadas o no por lazos de parentesco, que residen habitualmente en la misma vivienda particular
+    habitada
+  Tipo: numeric
+  Longitud: '6'
+  Decimales: '2'
+  Rangos: 0 … 100.00
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+HOG_MEN_ALIM:
+  Descripción: Hogares con menores de edad
+  Definición: Número de hogares en los que reside al menos una persona menor de 18 años. Se excluyen los
+    hogares conformados únicamente por una persona menor de edad, así como aquellos integrados por la
+    persona de referencia y su pareja, ambos menores de edad, ya que estos se consideran hogares de personas
+    adultas. El hogar es la unidad formada por una o más personas, vinculadas o no por lazos de parentesco,
+    que residen habitualmente en la misma vivienda particular habitada
+  Tipo: numeric
+  Longitud: '9'
+  Rangos: 0 … 999999999
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+PCN_ALIM_MEN1:
+  Descripción: Porcentaje de hogares donde algún integrante menor de 18 años tuvo una alimentación basada
+    en muy poca variedad de alimentos por falta de dinero o recursos en los últimos 3 meses
+  Definición: Número de hogares donde algún integrante menor de 18 años tuvo una alimentación basada en
+    muy poca variedad de alimentos por falta de dinero o recursos en los últimos tres meses por cada cien
+    hogares en los que reside al menos una persona menor de 18 años. Se excluyen los hogares conformados
+    únicamente por una persona menor de edad, así como aquellos integrados por la persona de referencia
+    y su pareja, ambos menores de edad, ya que estos se consideran hogares de personas adultas. El hogar
+    es la unidad formada por una o más personas, vinculadas o no por lazos de parentesco, que residen
+    habitualmente en la misma vivienda particular habitada
+  Tipo: numeric
+  Longitud: '6'
+  Decimales: '2'
+  Rangos: 0 … 100.00
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+PCN_ALIM_MEN2:
+  Descripción: Porcentaje de hogares donde algún integrante menor de 18 años comió menos de lo que debían
+    comer por falta de dinero o recursos en los últimos 3 meses
+  Definición: Número de hogares en donde algún integrante menor de 18 años comió menos de lo que debía
+    comer por falta de dinero o recursos en los últimos tres meses por cada cien hogares en los que reside
+    al menos una persona menor de 18 años. Se excluyen los hogares conformados únicamente por una persona
+    menor de edad, así como aquellos integrados por la persona de referencia y su pareja, ambos menores
+    de edad, ya que estos se consideran hogares de personas adultas. El hogar es la unidad formada por
+    una o más personas, vinculadas o no por lazos de parentesco, que residen habitualmente en la misma
+    vivienda particular habitada
+  Tipo: numeric
+  Longitud: '6'
+  Decimales: '2'
+  Rangos: 0 … 100.00
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+PCN_ALIM_MEN3:
+  Descripción: Porcentaje de hogares donde algún integrante menor de 18 años tuvo que disminuir la cantidad
+    servida en las comidas por falta de dinero o recursos en los últimos 3 meses
+  Definición: Número de hogares en donde a algún integrante menor de 18 años se le tuvo que disminuir
+    la cantidad servida en las comidas por falta de dinero o recursos en los últimos tres meses por cada
+    cien hogares en los que reside al menos una persona menor de 18 años. Se excluyen los hogares conformados
+    únicamente por una persona menor de edad, así como aquellos integrados por la persona de referencia
+    y su pareja, ambos menores de edad, ya que estos se consideran hogares de personas adultas. El hogar
+    es la unidad formada por una o más personas, vinculadas o no por lazos de parentesco, que residen
+    habitualmente en la misma vivienda particular habitada
+  Tipo: numeric
+  Longitud: '6'
+  Decimales: '2'
+  Rangos: 0 … 100.00
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+PCN_ING_MEN1:
+  Descripción: Porcentaje de hogares donde algún integrante menor de 18 años sintió hambre pero no comió
+    por falta de dinero o recursos en los últimos 3 meses
+  Definición: Número de hogares en donde algún integrante menor de 18 años sintió hambre pero no comió
+    por falta de dinero o recursos en los últimos tres meses por cada cien hogares en los que reside al
+    menos una persona menor de 18 años. Se excluyen los hogares conformados únicamente por una persona
+    menor de edad, así como aquellos integrados por la persona de referencia y su pareja, ambos menores
+    de edad, ya que estos se consideran hogares de personas adultas. El hogar es la unidad formada por
+    una o más personas, vinculadas o no por lazos de parentesco, que residen habitualmente en la misma
+    vivienda particular habitada
+  Tipo: numeric
+  Longitud: '6'
+  Decimales: '2'
+  Rangos: 0 … 100.00
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+PCN_ING_MEN2:
+  Descripción: Porcentaje de hogares donde algún integrante menor de 18 años se acostó con hambre por
+    falta de dinero o recursos en los últimos 3 meses
+  Definición: Número de hogares en donde algún integrante menor de 18 años se tuvo que acostar con hambre
+    por falta de dinero o recursos en los últimos tres meses por cada cien hogares en los que reside al
+    menos una persona menor de 18 años. Se excluyen los hogares conformados únicamente por una persona
+    menor de edad, así como aquellos integrados por la persona de referencia y su pareja, ambos menores
+    de edad, ya que estos se consideran hogares de personas adultas. El hogar es la unidad formada por
+    una o más personas, vinculadas o no por lazos de parentesco, que residen habitualmente en la misma
+    vivienda particular habitada
+  Tipo: numeric
+  Longitud: '6'
+  Decimales: '2'
+  Rangos: 0 … 100.00
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+PCN_ING_MEN3:
+  Descripción: Porcentaje de hogares donde algún integrante menor de 18 años comió una vez al día o dejó
+    de comer todo un día por falta de dinero o recursos en los últimos 3 meses
+  Definición: Número de hogares en donde algún integrante menor de 18 años comió una vez al día o dejó
+    de comer todo un día por falta de dinero o recursos en los últimos tres meses por cada cien hogares
+    en los que reside al menos una persona menor de 18 años. Se excluyen los hogares conformados únicamente
+    por una persona menor de edad, así como aquellos integrados por la persona de referencia y su pareja,
+    ambos menores de edad, ya que estos se consideran hogares de personas adultas. El hogar es la unidad
+    formada por una o más personas, vinculadas o no por lazos de parentesco, que residen habitualmente
+    en la misma vivienda particular habitada
+  Tipo: numeric
+  Longitud: '6'
+  Decimales: '2'
+  Rangos: 0 … 100.00
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+PCN_DESP_INSEG:
+  Descripción: Porcentaje de hogares en donde al menos uno de sus integrantes se vio forzado a cambiar
+    de residencia por inseguridad delictiva o violencia
+  Definición: Número de hogares en donde al menos uno de sus integrantes experimentó desplazamiento forzado
+    interno entre octubre de 2020 y octubre de 2025 por inseguridad delictiva o violencia por cada cien
+    hogares que residen en viviendas particulares habitadas. El hogar es la unidad formada por una o más
+    personas, vinculadas o no por lazos de parentesco, que residen habitualmente en la misma vivienda
+    particular habitada
+  Tipo: numeric
+  Longitud: '6'
+  Decimales: '2'
+  Rangos: 0 … 100.00
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+PCN_DESP_CATAS:
+  Descripción: Porcentaje de hogares en donde al menos uno de sus integrantes se vio forzado a cambiar
+    de residencia por catástrofes naturales o de origen humano
+  Definición: Número de hogares en donde al menos uno de sus integrantes experimentó desplazamiento forzado
+    interno entre octubre de 2020 y octubre de 2025 por catástrofes naturales o de origen humano por cada
+    cien hogares que residen en viviendas particulares habitadas. El hogar es la unidad formada por una
+    o más personas, vinculadas o no por lazos de parentesco, que residen habitualmente en la misma vivienda
+    particular habitada
+  Tipo: numeric
+  Longitud: '6'
+  Decimales: '2'
+  Rangos: 0 … 100.00
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+VIVPARHAB:
+  Descripción: Viviendas particulares habitadas
+  Definición: Número de viviendas particulares habitadas clasificadas como casa única en el terreno, casa
+    que comparte terreno con otra(s), casa dúplex, departamento en edificio, vivienda en vecindad o cuartería,
+    vivienda en cuarto de azotea de un edificio, local no construido para habitación, vivienda móvil,
+    refugio o clase no especificada
+  Tipo: numeric
+  Longitud: '9'
+  Rangos: 0 … 999999999
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+VIVPARHAB_C:
+  Descripción: Viviendas particulares habitadas con características
+  Definición: 'Número de viviendas particulares habitadas a las que se les captan sus características,
+    clasificadas como: casa única en el terreno; casa que comparte terreno con otra(s); casa dúplex; departamento
+    en edificio; vivienda en vecindad o cuartería; vivienda en cuarto de azotea de un edificio y clase
+    no especificada. Excluye la información de los locales no construidos para habitación, las viviendas
+    móviles y los refugios'
+  Tipo: numeric
+  Longitud: '9'
+  Rangos: 0 … 999999999
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+OCUPVIVPAR:
+  Descripción: Ocupantes en viviendas particulares habitadas
+  Definición: Número de personas que residen en viviendas particulares habitadas clasificadas como casa
+    única en el terreno, casa que comparte terreno con otra(s), casa dúplex, departamento en edificio,
+    vivienda en vecindad o cuartería, vivienda en cuarto de azotea de un edificio, local no construido
+    para habitación, vivienda móvil, refugio o clase no especificada
+  Tipo: numeric
+  Longitud: '9'
+  Rangos: 0 … 999999999
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+PROM_OCUP:
+  Descripción: Promedio de ocupantes por vivienda
+  Definición: 'Número de personas que residen en viviendas particulares habitadas respecto al total de
+    esas viviendas. Comprende las viviendas particulares habitadas a las que se les captan sus características,
+    clasificadas como: casa única en el terreno; casa que comparte terreno con otra(s); casa dúplex; departamento
+    en edificio; vivienda en vecindad o cuartería; vivienda en cuarto de azotea de un edificio y clase
+    no especificada. Excluye la información de los locales no construidos para habitación, las viviendas
+    móviles y los refugios'
+  Tipo: numeric
+  Longitud: '6'
+  Decimales: '2'
+  Rangos: 0 … 100.00
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+PRO_OCUP_C:
+  Descripción: Promedio de ocupantes por cuarto en viviendas particulares habitadas
+  Definición: 'Número de personas que residen en viviendas particulares habitadas respecto al total de
+    cuartos de esas viviendas. Se consideran únicamente las viviendas donde se especificó el número de
+    cuartos. Comprende las viviendas particulares habitadas a las que se les captan sus características,
+    clasificadas como: casa única en el terreno; casa que comparte terreno con otra(s); casa dúplex; departamento
+    en edificio; vivienda en vecindad o cuartería; vivienda en cuarto de azotea de un edificio y clase
+    no especificada. Excluye la información de los locales no construidos para habitación, las viviendas
+    móviles y los refugios'
+  Tipo: numeric
+  Longitud: '6'
+  Decimales: '2'
+  Rangos: 0 … 100.00
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+PCN_VPH_2_5OCU:
+  Descripción: Porcentaje de viviendas particulares habitadas con más de 2.5 ocupantes por cuarto
+  Definición: 'Número de viviendas particulares habitadas con más de 2.5 ocupantes por cuarto por cada
+    cien viviendas particulares habitadas. Comprende las viviendas particulares habitadas a las que se
+    les captan sus características, clasificadas como: casa única en el terreno; casa que comparte terreno
+    con otra(s); casa dúplex; departamento en edificio; vivienda en vecindad o cuartería; vivienda en
+    cuarto de azotea de un edificio y clase no especificada. Excluye la información de los locales no
+    construidos para habitación, las viviendas móviles y los refugios'
+  Tipo: numeric
+  Longitud: '6'
+  Decimales: '2'
+  Rangos: 0 … 100.00
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+PCN_VPH_PDESH:
+  Descripción: Porcentaje de viviendas particulares habitadas con paredes de material de desecho o lámina
+    de cartón
+  Definición: 'Número de viviendas donde la mayor parte de las paredes son de material de desecho o lámina
+    de cartón por cada cien viviendas. Comprende las viviendas particulares habitadas a las que se les
+    captan sus características, clasificadas como: casa única en el terreno; casa que comparte terreno
+    con otra(s); casa dúplex; departamento en edificio; vivienda en vecindad o cuartería; vivienda en
+    cuarto de azotea de un edificio y clase no especificada. Excluye la información de los locales no
+    construidos para habitación, las viviendas móviles y los refugios'
+  Tipo: numeric
+  Longitud: '6'
+  Decimales: '2'
+  Rangos: 0 … 100.00
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+PCN_VPH_PASB:
+  Descripción: Porcentaje de viviendas particulares habitadas con paredes de lámina de asbesto o metálica,
+    carrizo, bambú o palma, embarro o bajareque
+  Definición: 'Número de viviendas donde la mayor parte de las paredes son de lámina de asbesto o metálica,
+    carrizo, bambú o palma, embarro o bajareque por cada cien viviendas. Comprende las viviendas particulares
+    habitadas a las que se les captan sus características, clasificadas como: casa única en el terreno;
+    casa que comparte terreno con otra(s); casa dúplex; departamento en edificio; vivienda en vecindad
+    o cuartería; vivienda en cuarto de azotea de un edificio y clase no especificada. Excluye la información
+    de los locales no construidos para habitación, las viviendas móviles y los refugios'
+  Tipo: numeric
+  Longitud: '6'
+  Decimales: '2'
+  Rangos: 0 … 100.00
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+PCN_VPH_PMAD:
+  Descripción: Porcentaje de viviendas particulares habitadas con paredes de madera o adobe
+  Definición: 'Número de viviendas donde la mayor parte de las paredes son de madera o adobe por cada
+    cien viviendas. Comprende las viviendas particulares habitadas a las que se les captan sus características,
+    clasificadas como: casa única en el terreno; casa que comparte terreno con otra(s); casa dúplex; departamento
+    en edificio; vivienda en vecindad o cuartería; vivienda en cuarto de azotea de un edificio y clase
+    no especificada. Excluye la información de los locales no construidos para habitación, las viviendas
+    móviles y los refugios'
+  Tipo: numeric
+  Longitud: '6'
+  Decimales: '2'
+  Rangos: 0 … 100.00
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+PCN_VPH_PTAB:
+  Descripción: Porcentaje de viviendas particulares habitadas con paredes de tabique, ladrillo, block,
+    piedra, cantera, cemento o concreto
+  Definición: 'Número de viviendas donde la mayor parte de las paredes son de tabique, ladrillo, block,
+    piedra, cantera, cemento o concreto por cada cien viviendas. Comprende las viviendas particulares
+    habitadas a las que se les captan sus características, clasificadas como: casa única en el terreno;
+    casa que comparte terreno con otra(s); casa dúplex; departamento en edificio; vivienda en vecindad
+    o cuartería; vivienda en cuarto de azotea de un edificio y clase no especificada. Excluye la información
+    de los locales no construidos para habitación, las viviendas móviles y los refugios'
+  Tipo: numeric
+  Longitud: '6'
+  Decimales: '2'
+  Rangos: 0 … 100.00
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+PCN_VPH_TDESH:
+  Descripción: Porcentaje de viviendas particulares habitadas con techos de lámina de cartón o material
+    de desecho
+  Definición: 'Número de viviendas donde la mayor parte de los techos son de material de desecho o lámina
+    de cartón por cada cien viviendas. Comprende las viviendas particulares habitadas a las que se les
+    captan sus características, clasificadas como: casa única en el terreno; casa que comparte terreno
+    con otra(s); casa dúplex; departamento en edificio; vivienda en vecindad o cuartería; vivienda en
+    cuarto de azotea de un edificio y clase no especificada. Excluye la información de los locales no
+    construidos para habitación, las viviendas móviles y los refugios'
+  Tipo: numeric
+  Longitud: '6'
+  Decimales: '2'
+  Rangos: 0 … 100.00
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+PCN_VPH_TASB:
+  Descripción: Porcentaje de viviendas particulares habitadas con techos de lámina metálica, de asbesto
+    o de fibrocemento
+  Definición: 'Número de viviendas donde la mayor parte de los techos son de lámina metálica, de asbesto
+    o fibrocemento por cada cien viviendas. Comprende las viviendas particulares habitadas a las que se
+    les captan sus características, clasificadas como: casa única en el terreno; casa que comparte terreno
+    con otra(s); casa dúplex; departamento en edificio; vivienda en vecindad o cuartería; vivienda en
+    cuarto de azotea de un edificio y clase no especificada. Excluye la información de los locales no
+    construidos para habitación, las viviendas móviles y los refugios'
+  Tipo: numeric
+  Longitud: '6'
+  Decimales: '2'
+  Rangos: 0 … 100.00
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+PCN_VPH_TLOSA:
+  Descripción: Porcentaje de viviendas particulares habitadas con techos de losa de concreto o viguetas
+    con bovedilla
+  Definición: 'Número de viviendas donde la mayor parte de los techos son de losa de concreto o viguetas
+    con bovedilla por cada cien viviendas. Comprende las viviendas particulares habitadas a las que se
+    les captan sus características, clasificadas como: casa única en el terreno; casa que comparte terreno
+    con otra(s); casa dúplex; departamento en edificio; vivienda en vecindad o cuartería; vivienda en
+    cuarto de azotea de un edificio y clase no especificada. Excluye la información de los locales no
+    construidos para habitación, las viviendas móviles y los refugios'
+  Tipo: numeric
+  Longitud: '6'
+  Decimales: '2'
+  Rangos: 0 … 100.00
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+PCN_VPH_TOTRO:
+  Descripción: Porcentaje de viviendas particulares habitadas con techos de palma o paja, madera o tejamanil,
+    terrado con viguería o teja
+  Definición: 'Número de viviendas donde la mayor parte de los techos son de madera o tejamanil, teja,
+    terrado con viguería, palma o paja por cada cien viviendas. Comprende las viviendas particulares habitadas
+    a las que se les captan sus características, clasificadas como: casa única en el terreno; casa que
+    comparte terreno con otra(s); casa dúplex; departamento en edificio; vivienda en vecindad o cuartería;
+    vivienda en cuarto de azotea de un edificio y clase no especificada. Excluye la información de los
+    locales no construidos para habitación, las viviendas móviles y los refugios'
+  Tipo: numeric
+  Longitud: '6'
+  Decimales: '2'
+  Rangos: 0 … 100.00
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+PCN_VPH_PISOTI:
+  Descripción: Porcentaje de viviendas particulares habitadas con piso de tierra
+  Definición: 'Número de viviendas donde la mayor parte de los pisos son de tierra por cada cien viviendas.
+    Comprende las viviendas particulares habitadas a las que se les captan sus características, clasificadas
+    como: casa única en el terreno; casa que comparte terreno con otra(s); casa dúplex; departamento en
+    edificio; vivienda en vecindad o cuartería; vivienda en cuarto de azotea de un edificio y clase no
+    especificada. Excluye la información de los locales no construidos para habitación, las viviendas
+    móviles y los refugios'
+  Tipo: numeric
+  Longitud: '6'
+  Decimales: '2'
+  Rangos: 0 … 100.00
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+PCN_VPH_PISOCEM:
+  Descripción: Porcentaje de viviendas particulares habitadas con piso de cemento o firme
+  Definición: 'Número de viviendas donde la mayor parte de los pisos son de cemento o firme por cada cien
+    viviendas. Comprende las viviendas particulares habitadas a las que se les captan sus características,
+    clasificadas como: casa única en el terreno; casa que comparte terreno con otra(s); casa dúplex; departamento
+    en edificio; vivienda en vecindad o cuartería; vivienda en cuarto de azotea de un edificio y clase
+    no especificada. Excluye la información de los locales no construidos para habitación, las viviendas
+    móviles y los refugios'
+  Tipo: numeric
+  Longitud: '6'
+  Decimales: '2'
+  Rangos: 0 … 100.00
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+PCN_VPH_PISOMAD:
+  Descripción: Porcentaje de viviendas particulares habitadas con piso de madera, mosaico u otro recubrimiento
+  Definición: 'Número de viviendas donde la mayor parte de los pisos son de madera, mosaico u otro recubrimiento
+    por cada cien viviendas. Comprende las viviendas particulares habitadas a las que se les captan sus
+    características, clasificadas como: casa única en el terreno; casa que comparte terreno con otra(s);
+    casa dúplex; departamento en edificio; vivienda en vecindad o cuartería; vivienda en cuarto de azotea
+    de un edificio y clase no especificada. Excluye la información de los locales no construidos para
+    habitación, las viviendas móviles y los refugios'
+  Tipo: numeric
+  Longitud: '6'
+  Decimales: '2'
+  Rangos: 0 … 100.00
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+PCN_VPH_1CUART:
+  Descripción: Porcentaje de viviendas particulares habitadas con solo un cuarto
+  Definición: 'Número de viviendas que tienen en total un cuarto por cada cien viviendas. Comprende las
+    viviendas particulares habitadas a las que se les captan sus características, clasificadas como: casa
+    única en el terreno; casa que comparte terreno con otra(s); casa dúplex; departamento en edificio;
+    vivienda en vecindad o cuartería; vivienda en cuarto de azotea de un edificio y clase no especificada.
+    Excluye la información de los locales no construidos para habitación, las viviendas móviles y los
+    refugios'
+  Tipo: numeric
+  Longitud: '6'
+  Decimales: '2'
+  Rangos: 0 … 100.00
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+PCN_VPH_2CUART:
+  Descripción: Porcentaje de viviendas particulares habitadas con dos cuartos
+  Definición: 'Número de viviendas que tienen en total dos cuartos por cada cien viviendas. Comprende
+    las viviendas particulares habitadas a las que se les captan sus características, clasificadas como:
+    casa única en el terreno; casa que comparte terreno con otra(s); casa dúplex; departamento en edificio;
+    vivienda en vecindad o cuartería; vivienda en cuarto de azotea de un edificio y clase no especificada.
+    Excluye la información de los locales no construidos para habitación, las viviendas móviles y los
+    refugios'
+  Tipo: numeric
+  Longitud: '6'
+  Decimales: '2'
+  Rangos: 0 … 100.00
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+PCN_VPH_3YMASC:
+  Descripción: Porcentaje de viviendas particulares habitadas con tres cuartos y más
+  Definición: 'Número de viviendas que tienen en total de tres a veinticinco cuartos por cada cien viviendas.
+    Comprende las viviendas particulares habitadas a las que se les captan sus características, clasificadas
+    como: casa única en el terreno; casa que comparte terreno con otra(s); casa dúplex; departamento en
+    edificio; vivienda en vecindad o cuartería; vivienda en cuarto de azotea de un edificio y clase no
+    especificada. Excluye la información de los locales no construidos para habitación, las viviendas
+    móviles y los refugios'
+  Tipo: numeric
+  Longitud: '6'
+  Decimales: '2'
+  Rangos: 0 … 100.00
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+PCN_VPH_1DOR:
+  Descripción: Porcentaje de viviendas particulares habitadas con un dormitorio
+  Definición: 'Número de viviendas que tienen en total un dormitorio por cada cien viviendas. Comprende
+    las viviendas particulares habitadas a las que se les captan sus características, clasificadas como:
+    casa única en el terreno; casa que comparte terreno con otra(s); casa dúplex; departamento en edificio;
+    vivienda en vecindad o cuartería; vivienda en cuarto de azotea de un edificio y clase no especificada.
+    Excluye la información de los locales no construidos para habitación, las viviendas móviles y los
+    refugios'
+  Tipo: numeric
+  Longitud: '6'
+  Decimales: '2'
+  Rangos: 0 … 100.00
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+PCN_VPH_2YMASD:
+  Descripción: Porcentaje de viviendas particulares habitadas con dos dormitorios y más
+  Definición: 'Número de viviendas que tienen en total de dos a veinticinco dormitorios por cada cien
+    viviendas. Comprende las viviendas particulares habitadas a las que se les captan sus características,
+    clasificadas como: casa única en el terreno; casa que comparte terreno con otra(s); casa dúplex; departamento
+    en edificio; vivienda en vecindad o cuartería; vivienda en cuarto de azotea de un edificio y clase
+    no especificada. Excluye la información de los locales no construidos para habitación, las viviendas
+    móviles y los refugios'
+  Tipo: numeric
+  Longitud: '6'
+  Decimales: '2'
+  Rangos: 0 … 100.00
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+PCN_VPH_CINT:
+  Descripción: Porcentaje de viviendas particulares habitadas en las que sus ocupantes cocinan al interior
+    de la vivienda
+  Definición: 'Número de viviendas donde los ocupantes preparan los alimentos al interior de esta por
+    cada cien viviendas. Comprende las viviendas particulares habitadas a las que se les captan sus características,
+    clasificadas como: casa única en el terreno; casa que comparte terreno con otra(s); casa dúplex; departamento
+    en edificio; vivienda en vecindad o cuartería; vivienda en cuarto de azotea de un edificio y clase
+    no especificada. Excluye la información de los locales no construidos para habitación, las viviendas
+    móviles y los refugios'
+  Tipo: numeric
+  Longitud: '6'
+  Decimales: '2'
+  Rangos: 0 … 100.00
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+PCN_VPH_CSEP:
+  Descripción: Porcentaje de viviendas particulares habitadas en las que sus ocupantes cocinan en un cuarto
+    separado de la vivienda
+  Definición: 'Número de viviendas donde los ocupantes preparan los alimentos en un cuarto separado de
+    la vivienda por cada cien viviendas. Comprende las viviendas particulares habitadas a las que se les
+    captan sus características, clasificadas como: casa única en el terreno; casa que comparte terreno
+    con otra(s); casa dúplex; departamento en edificio; vivienda en vecindad o cuartería; vivienda en
+    cuarto de azotea de un edificio y clase no especificada. Excluye la información de los locales no
+    construidos para habitación, las viviendas móviles y los refugios'
+  Tipo: numeric
+  Longitud: '6'
+  Decimales: '2'
+  Rangos: 0 … 100.00
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+PCN_VPH_COTRO:
+  Descripción: Porcentaje de viviendas particulares habitadas en las que sus ocupantes cocinan en otro
+    espacio o no tienen un espacio para cocinar
+  Definición: 'Número de viviendas donde los ocupantes preparan los alimentos en un pasillo o corredor
+    fuera de la vivienda, en un tejabán o techito, al aire libre o no tienen espacio para cocinar por
+    cada cien viviendas. Comprende las viviendas particulares habitadas a las que se les captan sus características,
+    clasificadas como: casa única en el terreno; casa que comparte terreno con otra(s); casa dúplex; departamento
+    en edificio; vivienda en vecindad o cuartería; vivienda en cuarto de azotea de un edificio y clase
+    no especificada. Excluye la información de los locales no construidos para habitación, las viviendas
+    móviles y los refugios'
+  Tipo: numeric
+  Longitud: '6'
+  Decimales: '2'
+  Rangos: 0 … 100.00
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+PCN_VPH_COMGAS:
+  Descripción: Porcentaje de viviendas particulares habitadas donde se usa gas como combustible para cocinar
+  Definición: 'Número de viviendas donde utilizan gas como combustible para cocinar por cada cien viviendas.
+    Comprende las viviendas particulares habitadas a las que se les captan sus características, clasificadas
+    como: casa única en el terreno; casa que comparte terreno con otra(s); casa dúplex; departamento en
+    edificio; vivienda en vecindad o cuartería; vivienda en cuarto de azotea de un edificio y clase no
+    especificada. Excluye la información de los locales no construidos para habitación, las viviendas
+    móviles y los refugios'
+  Tipo: numeric
+  Longitud: '6'
+  Decimales: '2'
+  Rangos: 0 … 100.00
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+PCN_VPH_COMELE:
+  Descripción: Porcentaje de viviendas particulares habitadas donde se usa la electricidad como combustible
+    para cocinar
+  Definición: 'Número de viviendas donde utilizan electricidad como combustible para cocinar por cada
+    cien viviendas. Comprende las viviendas particulares habitadas a las que se les captan sus características,
+    clasificadas como: casa única en el terreno; casa que comparte terreno con otra(s); casa dúplex; departamento
+    en edificio; vivienda en vecindad o cuartería; vivienda en cuarto de azotea de un edificio y clase
+    no especificada. Excluye la información de los locales no construidos para habitación, las viviendas
+    móviles y los refugios'
+  Tipo: numeric
+  Longitud: '6'
+  Decimales: '2'
+  Rangos: 0 … 100.00
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+PCN_VPH_C_ELEC:
+  Descripción: Porcentaje de viviendas particulares habitadas donde se dispone de energía eléctrica
+  Definición: 'Número de viviendas donde se dispone de energía eléctrica por cada cien viviendas. Comprende
+    las viviendas particulares habitadas a las que se les captan sus características, clasificadas como:
+    casa única en el terreno; casa que comparte terreno con otra(s); casa dúplex; departamento en edificio;
+    vivienda en vecindad o cuartería; vivienda en cuarto de azotea de un edificio y clase no especificada.
+    Excluye la información de los locales no construidos para habitación, las viviendas móviles y los
+    refugios'
+  Tipo: numeric
+  Longitud: '6'
+  Decimales: '2'
+  Rangos: 0 … 100.00
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+PCN_VPH_AGUADV:
+  Descripción: Porcentaje de viviendas particulares habitadas donde se dispone de agua entubada en el
+    ámbito de la vivienda
+  Definición: 'Número de viviendas donde se dispone de agua entubada en el interior de la vivienda o solo
+    en el patio o terreno por cada cien viviendas. Comprende las viviendas particulares habitadas a las
+    que se les captan sus características, clasificadas como: casa única en el terreno; casa que comparte
+    terreno con otra(s); casa dúplex; departamento en edificio; vivienda en vecindad o cuartería; vivienda
+    en cuarto de azotea de un edificio y clase no especificada. Excluye la información de los locales
+    no construidos para habitación, las viviendas móviles y los refugios'
+  Tipo: numeric
+  Longitud: '6'
+  Decimales: '2'
+  Rangos: 0 … 100.00
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+PCN_VPH_DRENAJ:
+  Descripción: Porcentaje de viviendas particulares habitadas donde se dispone de drenaje
+  Definición: 'Número de viviendas donde se dispone de drenaje conectado a la red pública, a una fosa
+    séptica o tanque séptico (biodigestor), una tubería que va a dar a una barranca o grieta, río, lago
+    o mar por cada cien viviendas. Comprende las viviendas particulares habitadas a las que se les captan
+    sus características, clasificadas como: casa única en el terreno; casa que comparte terreno con otra(s);
+    casa dúplex; departamento en edificio; vivienda en vecindad o cuartería; vivienda en cuarto de azotea
+    de un edificio y clase no especificada. Excluye la información de los locales no construidos para
+    habitación, las viviendas móviles y los refugios'
+  Tipo: numeric
+  Longitud: '6'
+  Decimales: '2'
+  Rangos: 0 … 100.00
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+PCN_VPH_C_SERV:
+  Descripción: Porcentaje de viviendas particulares habitadas que disponen de energía eléctrica, agua
+    entubada de la red pública y drenaje
+  Definición: 'Número de viviendas que disponen de energía eléctrica, de agua entubada en el interior
+    de la vivienda o solo en el patio o terreno y de drenaje conectado a la red pública, a una fosa séptica
+    o tanque séptico (biodigestor), una tubería que va a dar a una barranca o grieta, río, lago o mar
+    por cada cien viviendas. Comprende las viviendas particulares habitadas a las que se les captan sus
+    características, clasificadas como: casa única en el terreno; casa que comparte terreno con otra(s);
+    casa dúplex; departamento en edificio; vivienda en vecindad o cuartería; vivienda en cuarto de azotea
+    de un edificio y clase no especificada. Excluye la información de los locales no construidos para
+    habitación, las viviendas móviles y los refugios'
+  Tipo: numeric
+  Longitud: '6'
+  Decimales: '2'
+  Rangos: 0 … 100.00
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+PCN_VPH_EXCSA:
+  Descripción: Porcentaje de viviendas particulares habitadas donde se dispone de sanitario
+  Definición: 'Número de viviendas donde se dispone de taza de baño (escusado o sanitario) o letrina (pozo
+    u hoyo) por cada cien viviendas. Comprende las viviendas particulares habitadas a las que se les captan
+    sus características, clasificadas como: casa única en el terreno; casa que comparte terreno con otra(s);
+    casa dúplex; departamento en edificio; vivienda en vecindad o cuartería; vivienda en cuarto de azotea
+    de un edificio y clase no especificada. Excluye la información de los locales no construidos para
+    habitación, las viviendas móviles y los refugios'
+  Tipo: numeric
+  Longitud: '6'
+  Decimales: '2'
+  Rangos: 0 … 100.00
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+PCN_VPH_DSADMA:
+  Descripción: Porcentaje de viviendas particulares donde se dispone de drenaje y sanitario con admisión
+    de agua
+  Definición: 'Número de viviendas donde se dispone de drenaje conectado a la red pública, a una fosa
+    séptica o tanque séptico (biodigestor), una tubería que va a dar a una barranca o grieta, río, lago
+    o mar y taza de baño (escusado o sanitario) o letrina (pozo u hoyo) con descarga directa de agua o
+    le echan con una cubeta por cada cien viviendas. Comprende las viviendas particulares habitadas a
+    las que se les captan sus características, clasificadas como: casa única en el terreno; casa que comparte
+    terreno con otra(s); casa dúplex; departamento en edificio; vivienda en vecindad o cuartería; vivienda
+    en cuarto de azotea de un edificio y clase no especificada. Excluye la información de los locales
+    no construidos para habitación, las viviendas móviles y los refugios'
+  Tipo: numeric
+  Longitud: '6'
+  Decimales: '2'
+  Rangos: 0 … 100.00
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+PCN_VPH_TINACO:
+  Descripción: Porcentaje de viviendas particulares habitadas donde se dispone de tinaco
+  Definición: 'Número de viviendas donde se dispone de tinaco por cada cien viviendas. Comprende las viviendas
+    particulares habitadas a las que se les captan sus características, clasificadas como: casa única
+    en el terreno; casa que comparte terreno con otra(s); casa dúplex; departamento en edificio; vivienda
+    en vecindad o cuartería; vivienda en cuarto de azotea de un edificio y clase no especificada. Excluye
+    la información de los locales no construidos para habitación, las viviendas móviles y los refugios'
+  Tipo: numeric
+  Longitud: '6'
+  Decimales: '2'
+  Rangos: 0 … 100.00
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+PCN_VPH_CISTER:
+  Descripción: Porcentaje de viviendas particulares habitadas donde se dispone de cisterna o aljibe
+  Definición: 'Número de viviendas donde se dispone de cisterna o aljibe por cada cien viviendas. Comprende
+    las viviendas particulares habitadas a las que se les captan sus características, clasificadas como:
+    casa única en el terreno; casa que comparte terreno con otra(s); casa dúplex; departamento en edificio;
+    vivienda en vecindad o cuartería; vivienda en cuarto de azotea de un edificio y clase no especificada.
+    Excluye la información de los locales no construidos para habitación, las viviendas móviles y los
+    refugios'
+  Tipo: numeric
+  Longitud: '6'
+  Decimales: '2'
+  Rangos: 0 … 100.00
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+PCN_VPH_BOMBA:
+  Descripción: Porcentaje de viviendas particulares habitadas donde se dispone de bomba de agua
+  Definición: 'Número de viviendas donde se dispone de bomba de agua por cada cien viviendas. Comprende
+    las viviendas particulares habitadas a las que se les captan sus características, clasificadas como:
+    casa única en el terreno; casa que comparte terreno con otra(s); casa dúplex; departamento en edificio;
+    vivienda en vecindad o cuartería; vivienda en cuarto de azotea de un edificio y clase no especificada.
+    Excluye la información de los locales no construidos para habitación, las viviendas móviles y los
+    refugios'
+  Tipo: numeric
+  Longitud: '6'
+  Decimales: '2'
+  Rangos: 0 … 100.00
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+PCN_VPH_REGA:
+  Descripción: Porcentaje de viviendas particulares habitadas donde se dispone de regadera
+  Definición: 'Número de viviendas donde se dispone de regadera por cada cien viviendas. Comprende las
+    viviendas particulares habitadas a las que se les captan sus características, clasificadas como: casa
+    única en el terreno; casa que comparte terreno con otra(s); casa dúplex; departamento en edificio;
+    vivienda en vecindad o cuartería; vivienda en cuarto de azotea de un edificio y clase no especificada.
+    Excluye la información de los locales no construidos para habitación, las viviendas móviles y los
+    refugios'
+  Tipo: numeric
+  Longitud: '6'
+  Decimales: '2'
+  Rangos: 0 … 100.00
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+PCN_VPH_BOILER:
+  Descripción: Porcentaje de viviendas particulares habitadas donde se dispone de boiler o calentador
+    de agua (gas, eléctrico, leña)
+  Definición: 'Número de viviendas donde se dispone de boiler o calentador de agua (gas, eléctrico, leña)
+    por cada cien viviendas. Comprende las viviendas particulares habitadas a las que se les captan sus
+    características, clasificadas como: casa única en el terreno; casa que comparte terreno con otra(s);
+    casa dúplex; departamento en edificio; vivienda en vecindad o cuartería; vivienda en cuarto de azotea
+    de un edificio y clase no especificada. Excluye la información de los locales no construidos para
+    habitación, las viviendas móviles y los refugios'
+  Tipo: numeric
+  Longitud: '6'
+  Decimales: '2'
+  Rangos: 0 … 100.00
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+PCN_VPH_SOLAR:
+  Descripción: Porcentaje de viviendas particulares habitadas donde se dispone de calentador solar de
+    agua
+  Definición: 'Número de viviendas donde se dispone de calentador solar de agua por cada cien viviendas.
+    Comprende las viviendas particulares habitadas a las que se les captan sus características, clasificadas
+    como: casa única en el terreno; casa que comparte terreno con otra(s); casa dúplex; departamento en
+    edificio; vivienda en vecindad o cuartería; vivienda en cuarto de azotea de un edificio y clase no
+    especificada. Excluye la información de los locales no construidos para habitación, las viviendas
+    móviles y los refugios'
+  Tipo: numeric
+  Longitud: '6'
+  Decimales: '2'
+  Rangos: 0 … 100.00
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+PCN_VPH_AIRE:
+  Descripción: Porcentaje de viviendas particulares habitadas donde se dispone de aire acondicionado
+  Definición: 'Número de viviendas donde se dispone de aire acondicionado por cada cien viviendas. Comprende
+    las viviendas particulares habitadas a las que se les captan sus características, clasificadas como:
+    casa única en el terreno; casa que comparte terreno con otra(s); casa dúplex; departamento en edificio;
+    vivienda en vecindad o cuartería; vivienda en cuarto de azotea de un edificio y clase no especificada.
+    Excluye la información de los locales no construidos para habitación, las viviendas móviles y los
+    refugios'
+  Tipo: numeric
+  Longitud: '6'
+  Decimales: '2'
+  Rangos: 0 … 100.00
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+PCN_VPH_PANEL:
+  Descripción: Porcentaje de viviendas particulares habitadas donde se dispone de panel solar
+  Definición: 'Número de viviendas donde se dispone de panel solar por cada cien viviendas. Comprende
+    las viviendas particulares habitadas a las que se les captan sus características, clasificadas como:
+    casa única en el terreno; casa que comparte terreno con otra(s); casa dúplex; departamento en edificio;
+    vivienda en vecindad o cuartería; vivienda en cuarto de azotea de un edificio y clase no especificada.
+    Excluye la información de los locales no construidos para habitación, las viviendas móviles y los
+    refugios'
+  Tipo: numeric
+  Longitud: '6'
+  Decimales: '2'
+  Rangos: 0 … 100.00
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+PCN_VPH_ORGANI:
+  Descripción: Porcentaje de viviendas particulares habitadas donde se separan los residuos en orgánicos
+    e inorgánicos
+  Definición: 'Número de viviendas donde separan los residuos en orgánicos e inorgánicos por cada cien
+    viviendas. Comprende las viviendas particulares habitadas a las que se les captan sus características,
+    clasificadas como: casa única en el terreno; casa que comparte terreno con otra(s); casa dúplex; departamento
+    en edificio; vivienda en vecindad o cuartería; vivienda en cuarto de azotea de un edificio y clase
+    no especificada. Excluye la información de los locales no construidos para habitación, las viviendas
+    móviles y los refugios'
+  Tipo: numeric
+  Longitud: '6'
+  Decimales: '2'
+  Rangos: 0 … 100.00
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+PCN_VPH_ANIMAL:
+  Descripción: Porcentaje de viviendas particulares habitadas donde reutilizan los residuos para alimentar
+    animales
+  Definición: 'Número de viviendas donde reutilizan los residuos para alimentar animales por cada cien
+    viviendas. Comprende las viviendas particulares habitadas a las que se les captan sus características,
+    clasificadas como: casa única en el terreno; casa que comparte terreno con otra(s); casa dúplex; departamento
+    en edificio; vivienda en vecindad o cuartería; vivienda en cuarto de azotea de un edificio y clase
+    no especificada. Excluye la información de los locales no construidos para habitación, las viviendas
+    móviles y los refugios'
+  Tipo: numeric
+  Longitud: '6'
+  Decimales: '2'
+  Rangos: 0 … 100.00
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+PCN_VPH_PLANTA:
+  Descripción: Porcentaje de viviendas particulares habitadas donde reutilizan los residuos para echarlos
+    a las plantas
+  Definición: 'Número de viviendas donde reutilizan los residuos para echarlos a las plantas por cada
+    cien viviendas. Comprende las viviendas particulares habitadas a las que se les captan sus características,
+    clasificadas como: casa única en el terreno; casa que comparte terreno con otra(s); casa dúplex; departamento
+    en edificio; vivienda en vecindad o cuartería; vivienda en cuarto de azotea de un edificio y clase
+    no especificada. Excluye la información de los locales no construidos para habitación, las viviendas
+    móviles y los refugios'
+  Tipo: numeric
+  Longitud: '6'
+  Decimales: '2'
+  Rangos: 0 … 100.00
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+PCN_VPH_VENDER:
+  Descripción: Porcentaje de viviendas particulares habitadas donde separan los residuos para vender,
+    regalar, donar o reutilizar
+  Definición: 'Número de viviendas donde separan los residuos para vender, regalar, donar o reutilizar
+    por cada cien viviendas. Comprende las viviendas particulares habitadas a las que se les captan sus
+    características, clasificadas como: casa única en el terreno; casa que comparte terreno con otra(s);
+    casa dúplex; departamento en edificio; vivienda en vecindad o cuartería; vivienda en cuarto de azotea
+    de un edificio y clase no especificada. Excluye la información de los locales no construidos para
+    habitación, las viviendas móviles y los refugios'
+  Tipo: numeric
+  Longitud: '6'
+  Decimales: '2'
+  Rangos: 0 … 100.00
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+PCN_VPH_CAMBASU:
+  Descripción: Porcentaje de viviendas particulares habitadas donde le dan los residuos sólidos a un camión
+    o carrito recolector de basura
+  Definición: 'Número de viviendas en las que sus ocupantes le dan los residuos sólidos a un camión o
+    carrito recolector de basura por cada cien viviendas. Comprende las viviendas particulares habitadas
+    a las que se les captan sus características, clasificadas como: casa única en el terreno; casa que
+    comparte terreno con otra(s); casa dúplex; departamento en edificio; vivienda en vecindad o cuartería;
+    vivienda en cuarto de azotea de un edificio y clase no especificada. Excluye la información de los
+    locales no construidos para habitación, las viviendas móviles y los refugios'
+  Tipo: numeric
+  Longitud: '6'
+  Decimales: '2'
+  Rangos: 0 … 100.00
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+PCN_VPH_CNTBASU:
+  Descripción: Porcentaje de viviendas particulares habitadas donde dejan los residuos sólidos en un contenedor
+    o depósito
+  Definición: 'Número de viviendas en las que sus ocupantes dejan los residuos sólidos en un contenedor
+    o depósito por cada cien viviendas. Comprende las viviendas particulares habitadas a las que se les
+    captan sus características, clasificadas como: casa única en el terreno; casa que comparte terreno
+    con otra(s); casa dúplex; departamento en edificio; vivienda en vecindad o cuartería; vivienda en
+    cuarto de azotea de un edificio y clase no especificada. Excluye la información de los locales no
+    construidos para habitación, las viviendas móviles y los refugios'
+  Tipo: numeric
+  Longitud: '6'
+  Decimales: '2'
+  Rangos: 0 … 100.00
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+PCN_VPH_ELIMBAS:
+  Descripción: Porcentaje de viviendas particulares habitadas donde eliminan los residuos sólidos de otra
+    forma
+  Definición: 'Número de viviendas en las que sus ocupantes queman o entierran los residuos sólidos, los
+    tiran a un basurero público, calle, baldío, barranca, ríos, lagos o los tiran al mar por cada cien
+    viviendas. Comprende las viviendas particulares habitadas a las que se les captan sus características,
+    clasificadas como: casa única en el terreno; casa que comparte terreno con otra(s); casa dúplex; departamento
+    en edificio; vivienda en vecindad o cuartería; vivienda en cuarto de azotea de un edificio y clase
+    no especificada. Excluye la información de los locales no construidos para habitación, las viviendas
+    móviles y los refugios'
+  Tipo: numeric
+  Longitud: '6'
+  Decimales: '2'
+  Rangos: 0 … 100.00
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+PCN_VPH_REFRI:
+  Descripción: Porcentaje de viviendas particulares habitadas donde se dispone de refrigerador
+  Definición: 'Número de viviendas donde se dispone de refrigerador por cada cien viviendas. Comprende
+    las viviendas particulares habitadas a las que se les captan sus características, clasificadas como:
+    casa única en el terreno; casa que comparte terreno con otra(s); casa dúplex; departamento en edificio;
+    vivienda en vecindad o cuartería; vivienda en cuarto de azotea de un edificio y clase no especificada.
+    Excluye la información de los locales no construidos para habitación, las viviendas móviles y los
+    refugios'
+  Tipo: numeric
+  Longitud: '6'
+  Decimales: '2'
+  Rangos: 0 … 100.00
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+PCN_VPH_LAVAD:
+  Descripción: Porcentaje de viviendas particulares habitadas donde se dispone de lavadora
+  Definición: 'Número de viviendas donde se dispone de lavadora por cada cien viviendas. Comprende las
+    viviendas particulares habitadas a las que se les captan sus características, clasificadas como: casa
+    única en el terreno; casa que comparte terreno con otra(s); casa dúplex; departamento en edificio;
+    vivienda en vecindad o cuartería; vivienda en cuarto de azotea de un edificio y clase no especificada.
+    Excluye la información de los locales no construidos para habitación, las viviendas móviles y los
+    refugios'
+  Tipo: numeric
+  Longitud: '6'
+  Decimales: '2'
+  Rangos: 0 … 100.00
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+PCN_VPH_HMICRO:
+  Descripción: Porcentaje de viviendas particulares habitadas donde se dispone de horno de microondas
+  Definición: 'Número de viviendas donde se dispone de horno de microondas por cada cien viviendas. Comprende
+    las viviendas particulares habitadas a las que se les captan sus características, clasificadas como:
+    casa única en el terreno; casa que comparte terreno con otra(s); casa dúplex; departamento en edificio;
+    vivienda en vecindad o cuartería; vivienda en cuarto de azotea de un edificio y clase no especificada.
+    Excluye la información de los locales no construidos para habitación, las viviendas móviles y los
+    refugios'
+  Tipo: numeric
+  Longitud: '6'
+  Decimales: '2'
+  Rangos: 0 … 100.00
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+PCN_VPH_AUTOM:
+  Descripción: Porcentaje de viviendas particulares habitadas donde se dispone de automóvil o camioneta
+  Definición: 'Número de viviendas donde se dispone de automóvil o camioneta por cada cien viviendas.
+    Comprende las viviendas particulares habitadas a las que se les captan sus características, clasificadas
+    como: casa única en el terreno; casa que comparte terreno con otra(s); casa dúplex; departamento en
+    edificio; vivienda en vecindad o cuartería; vivienda en cuarto de azotea de un edificio y clase no
+    especificada. Excluye la información de los locales no construidos para habitación, las viviendas
+    móviles y los refugios'
+  Tipo: numeric
+  Longitud: '6'
+  Decimales: '2'
+  Rangos: 0 … 100.00
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+PCN_VPH_MOTO:
+  Descripción: Porcentaje de viviendas particulares habitadas donde se dispone de motocicleta o motoneta
+  Definición: 'Número de viviendas donde se dispone de motocicleta o motoneta por cada cien viviendas.
+    Comprende las viviendas particulares habitadas a las que se les captan sus características, clasificadas
+    como: casa única en el terreno; casa que comparte terreno con otra(s); casa dúplex; departamento en
+    edificio; vivienda en vecindad o cuartería; vivienda en cuarto de azotea de un edificio y clase no
+    especificada. Excluye la información de los locales no construidos para habitación, las viviendas
+    móviles y los refugios'
+  Tipo: numeric
+  Longitud: '6'
+  Decimales: '2'
+  Rangos: 0 … 100.00
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+PCN_VPH_BICI:
+  Descripción: Porcentaje de viviendas particulares habitadas donde se dispone de bicicleta como medio
+    de transporte
+  Definición: 'Número de viviendas donde se dispone de bicicleta como medio de transporte por cada cien
+    viviendas. Comprende las viviendas particulares habitadas a las que se les captan sus características,
+    clasificadas como: casa única en el terreno; casa que comparte terreno con otra(s); casa dúplex; departamento
+    en edificio; vivienda en vecindad o cuartería; vivienda en cuarto de azotea de un edificio y clase
+    no especificada. Excluye la información de los locales no construidos para habitación, las viviendas
+    móviles y los refugios'
+  Tipo: numeric
+  Longitud: '6'
+  Decimales: '2'
+  Rangos: 0 … 100.00
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+PCN_VPH_RADIO:
+  Descripción: Porcentaje de viviendas particulares habitadas donde se dispone de dispositivo para oír
+    radio
+  Definición: 'Número de viviendas donde se dispone de dispositivo para oír radio por cada cien viviendas.
+    Comprende las viviendas particulares habitadas a las que se les captan sus características, clasificadas
+    como: casa única en el terreno; casa que comparte terreno con otra(s); casa dúplex; departamento en
+    edificio; vivienda en vecindad o cuartería; vivienda en cuarto de azotea de un edificio y clase no
+    especificada. Excluye la información de los locales no construidos para habitación, las viviendas
+    móviles y los refugios'
+  Tipo: numeric
+  Longitud: '6'
+  Decimales: '2'
+  Rangos: 0 … 100.00
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+PCN_VPH_TV:
+  Descripción: Porcentaje de viviendas particulares habitadas donde se dispone de televisor
+  Definición: 'Número de viviendas donde se dispone de televisor por cada cien viviendas. Comprende las
+    viviendas particulares habitadas a las que se les captan sus características, clasificadas como: casa
+    única en el terreno; casa que comparte terreno con otra(s); casa dúplex; departamento en edificio;
+    vivienda en vecindad o cuartería; vivienda en cuarto de azotea de un edificio y clase no especificada.
+    Excluye la información de los locales no construidos para habitación, las viviendas móviles y los
+    refugios'
+  Tipo: numeric
+  Longitud: '6'
+  Decimales: '2'
+  Rangos: 0 … 100.00
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+PCN_VPH_PC:
+  Descripción: Porcentaje de viviendas particulares habitadas donde se dispone de computadora, laptop
+    o Tablet
+  Definición: 'Número de viviendas donde se dispone de computadora, laptop o Tablet por cada cien viviendas.
+    Comprende las viviendas particulares habitadas a las que se les captan sus características, clasificadas
+    como: casa única en el terreno; casa que comparte terreno con otra(s); casa dúplex; departamento en
+    edificio; vivienda en vecindad o cuartería; vivienda en cuarto de azotea de un edificio y clase no
+    especificada. Excluye la información de los locales no construidos para habitación, las viviendas
+    móviles y los refugios'
+  Tipo: numeric
+  Longitud: '6'
+  Decimales: '2'
+  Rangos: 0 … 100.00
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+PCN_VPH_TELEF:
+  Descripción: Porcentaje de viviendas particulares habitadas donde se dispone de línea telefónica fija
+  Definición: 'Número de viviendas donde se dispone de línea telefónica fija por cada cien viviendas.
+    Comprende las viviendas particulares habitadas a las que se les captan sus características, clasificadas
+    como: casa única en el terreno; casa que comparte terreno con otra(s); casa dúplex; departamento en
+    edificio; vivienda en vecindad o cuartería; vivienda en cuarto de azotea de un edificio y clase no
+    especificada. Excluye la información de los locales no construidos para habitación, las viviendas
+    móviles y los refugios'
+  Tipo: numeric
+  Longitud: '6'
+  Decimales: '2'
+  Rangos: 0 … 100.00
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+PCN_VPH_CEL:
+  Descripción: Porcentaje de viviendas particulares habitadas donde se dispone de teléfono celular
+  Definición: 'Número de viviendas donde se dispone de teléfono celular por cada cien viviendas. Comprende
+    las viviendas particulares habitadas a las que se les captan sus características, clasificadas como:
+    casa única en el terreno; casa que comparte terreno con otra(s); casa dúplex; departamento en edificio;
+    vivienda en vecindad o cuartería; vivienda en cuarto de azotea de un edificio y clase no especificada.
+    Excluye la información de los locales no construidos para habitación, las viviendas móviles y los
+    refugios'
+  Tipo: numeric
+  Longitud: '6'
+  Decimales: '2'
+  Rangos: 0 … 100.00
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+PCN_VPH_INTER:
+  Descripción: Porcentaje de viviendas particulares habitadas donde se dispone de Internet
+  Definición: 'Número de viviendas donde se dispone de Internet por cada cien viviendas. Comprende las
+    viviendas particulares habitadas a las que se les captan sus características, clasificadas como: casa
+    única en el terreno; casa que comparte terreno con otra(s); casa dúplex; departamento en edificio;
+    vivienda en vecindad o cuartería; vivienda en cuarto de azotea de un edificio y clase no especificada.
+    Excluye la información de los locales no construidos para habitación, las viviendas móviles y los
+    refugios'
+  Tipo: numeric
+  Longitud: '6'
+  Decimales: '2'
+  Rangos: 0 … 100.00
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+PCN_VPH_TVP:
+  Descripción: Porcentaje de viviendas particulares habitadas donde se dispone de televisión de paga (cable
+    o satelital)
+  Definición: 'Número de viviendas donde se dispone de televisión de paga (cable o satelital) por cada
+    cien viviendas. Comprende las viviendas particulares habitadas a las que se les captan sus características,
+    clasificadas como: casa única en el terreno; casa que comparte terreno con otra(s); casa dúplex; departamento
+    en edificio; vivienda en vecindad o cuartería; vivienda en cuarto de azotea de un edificio y clase
+    no especificada. Excluye la información de los locales no construidos para habitación, las viviendas
+    móviles y los refugios'
+  Tipo: numeric
+  Longitud: '6'
+  Decimales: '2'
+  Rangos: 0 … 100.00
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+PCN_VPH_PROPIA:
+  Descripción: Porcentaje de viviendas particulares habitadas donde vive la persona que es dueña o propietaria
+  Definición: 'Número de viviendas donde vive la persona que es dueña o propietaria o la están pagando
+    por cada cien viviendas. Comprende las viviendas particulares habitadas a las que se les captan sus
+    características, clasificadas como: casa única en el terreno; casa que comparte terreno con otra(s);
+    casa dúplex; departamento en edificio; vivienda en vecindad o cuartería; vivienda en cuarto de azotea
+    de un edificio y clase no especificada. Excluye la información de los locales no construidos para
+    habitación, las viviendas móviles y los refugios'
+  Tipo: numeric
+  Longitud: '6'
+  Decimales: '2'
+  Rangos: 0 … 100.00
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+PCN_VPH_ALQUI:
+  Descripción: Porcentaje de viviendas particulares habitadas que son alquiladas
+  Definición: 'Número de viviendas cuyos residentes la ocupan a cambio de un pago convenido o renta por
+    cada cien viviendas. Comprende las viviendas particulares habitadas a las que se les captan sus características,
+    clasificadas como: casa única en el terreno; casa que comparte terreno con otra(s); casa dúplex; departamento
+    en edificio; vivienda en vecindad o cuartería; vivienda en cuarto de azotea de un edificio y clase
+    no especificada. Excluye la información de los locales no construidos para habitación, las viviendas
+    móviles y los refugios'
+  Tipo: numeric
+  Longitud: '6'
+  Decimales: '2'
+  Rangos: 0 … 100.00
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+PCN_VPH_PREST:
+  Descripción: Porcentaje de viviendas particulares habitadas que son prestadas
+  Definición: 'Número de viviendas donde los residentes manifiestan que no es de su propiedad y hacen
+    uso de ella en calidad de préstamo por parte de un familiar o amigo que vive en otra vivienda; o por
+    parte de una empresa o institución, como prestación laboral por cada cien viviendas. Comprende las
+    viviendas particulares habitadas a las que se les captan sus características, clasificadas como: casa
+    única en el terreno; casa que comparte terreno con otra(s); casa dúplex; departamento en edificio;
+    vivienda en vecindad o cuartería; vivienda en cuarto de azotea de un edificio y clase no especificada.
+    Excluye la información de los locales no construidos para habitación, las viviendas móviles y los
+    refugios'
+  Tipo: numeric
+  Longitud: '6'
+  Decimales: '2'
+  Rangos: 0 … 100.00
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+PCN_VPH_OTRASIT:
+  Descripción: Porcentaje de viviendas particulares habitadas en otra situación de tenencia
+  Definición: 'Número de viviendas donde sus residentes manifiestan que está intestada, en litigio o en
+    otra situación de tenencia por cada cien viviendas. Comprende las viviendas particulares habitadas
+    a las que se les captan sus características, clasificadas como: casa única en el terreno; casa que
+    comparte terreno con otra(s); casa dúplex; departamento en edificio; vivienda en vecindad o cuartería;
+    vivienda en cuarto de azotea de un edificio y clase no especificada. Excluye la información de los
+    locales no construidos para habitación, las viviendas móviles y los refugios'
+  Tipo: numeric
+  Longitud: '6'
+  Decimales: '2'
+  Rangos: 0 … 100.00
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+PCN_VPH_PROPRESI:
+  Descripción: Porcentaje de viviendas particulares habitadas propias con escrituras a nombre de la persona
+    propietaria residente
+  Definición: 'Número de viviendas propias que cuentan con escrituras o título de propiedad a nombre de
+    alguna de las personas residentes por cada cien viviendas propias. Comprende las viviendas particulares
+    habitadas a las que se les captan sus características, clasificadas como: casa única en el terreno;
+    casa que comparte terreno con otra(s); casa dúplex; departamento en edificio; vivienda en vecindad
+    o cuartería; vivienda en cuarto de azotea de un edificio y clase no especificada. Excluye la información
+    de los locales no construidos para habitación, las viviendas móviles y los refugios'
+  Tipo: numeric
+  Longitud: '6'
+  Decimales: '2'
+  Rangos: 0 … 100.00
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+PCN_VPH_PERNORES:
+  Descripción: Porcentaje de viviendas particulares habitadas propias con escrituras a nombre de otra
+    persona
+  Definición: 'Número de viviendas propias que cuentan con escrituras o título de propiedad, pero están
+    a nombre de una persona que no reside en la vivienda o ya falleció por cada cien viviendas propias.
+    Comprende las viviendas particulares habitadas a las que se les captan sus características, clasificadas
+    como: casa única en el terreno; casa que comparte terreno con otra(s); casa dúplex; departamento en
+    edificio; vivienda en vecindad o cuartería; vivienda en cuarto de azotea de un edificio y clase no
+    especificada. Excluye la información de los locales no construidos para habitación, las viviendas
+    móviles y los refugios'
+  Tipo: numeric
+  Longitud: '6'
+  Decimales: '2'
+  Rangos: 0 … 100.00
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+PCN_VPH_NOESCRI:
+  Descripción: Porcentaje de viviendas particulares habitadas propias de las que no existen escrituras
+  Definición: 'Número de viviendas propias que no tienen escrituras o título de propiedad, están en trámite
+    o solo tienen un recibo de contrato de compraventa por cada cien viviendas propias. Comprende las
+    viviendas particulares habitadas a las que se les captan sus características, clasificadas como: casa
+    única en el terreno; casa que comparte terreno con otra(s); casa dúplex; departamento en edificio;
+    vivienda en vecindad o cuartería; vivienda en cuarto de azotea de un edificio y clase no especificada.
+    Excluye la información de los locales no construidos para habitación, las viviendas móviles y los
+    refugios'
+  Tipo: numeric
+  Longitud: '6'
+  Decimales: '2'
+  Rangos: 0 … 100.00
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente
+PCN_VPH_ESCRIDES:
+  Descripción: Porcentaje de viviendas particulares habitadas propias de las que se desconoce la existencia
+    de escrituras
+  Definición: 'Número de viviendas propias de las cuales se desconoce la existencia de escrituras por
+    cada cien viviendas propias. Comprende las viviendas particulares habitadas a las que se les captan
+    sus características, clasificadas como: casa única en el terreno; casa que comparte terreno con otra(s);
+    casa dúplex; departamento en edificio; vivienda en vecindad o cuartería; vivienda en cuarto de azotea
+    de un edificio y clase no especificada. Excluye la información de los locales no construidos para
+    habitación, las viviendas móviles y los refugios'
+  Tipo: numeric
+  Longitud: '6'
+  Decimales: '2'
+  Rangos: 0 … 100.00
+  Categorías: {}
+  Especiales:
+    NA: No aplica
+    MI: No disponible por muestra insuficiente

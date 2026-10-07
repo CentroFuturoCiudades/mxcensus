@@ -84,6 +84,26 @@ def variables_enigh_core() -> dict:
     return _load_yaml("variables_enigh_core.yaml")
 
 
+def variables_cpv(table: str, schema_id: str) -> dict:
+    """Variable dictionary for one CPV-family (table, schema group), e.g.
+    ``variables_cpv("personas", "g01")``. Entries come from INEGI's dictionary (FD workbook
+    or DDI) reconciled with the data, except for the core variables, which carry the
+    hand-curated entries (see :func:`variables_cpv_core`)."""
+    return _load_yaml(f"variables_cpv_{table}_{schema_id}.yaml")
+
+
+def cpv_schema_map() -> dict:
+    """CPV-family schema map, namespaced per table (``viviendas``/``personas``/…); each
+    table maps fingerprints→group, group→columns (+ periods/states), and its ``latest``."""
+    return _load_yaml("cpv_schema_map.yaml")
+
+
+def variables_cpv_core() -> dict:
+    """Hand-curated CPV-family core dictionary: record keys, geography, sample design,
+    expansion factor, dwelling class, sex and age, and the estimaciones ``ESTIMADOR``."""
+    return _load_yaml("variables_cpv_core.yaml")
+
+
 def constraints_personas() -> dict:
     return _load_yaml("constraints_personas.yaml")
 

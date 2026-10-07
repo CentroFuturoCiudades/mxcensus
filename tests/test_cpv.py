@@ -400,3 +400,346 @@ def test_build_cli_guards(capsys):
         _bcpv.main(["--periods", "2010", "--states", "1"])   # DBF edition not enabled
     with pytest.raises(SystemExit):
         _bcpv.main(["--dry-run", "--states", "33"])
+
+
+# --- unit 1b: dictionaries (scripts/_dict_fd.py), schema map, group schemas ------------
+
+import zipfile  # noqa: E402
+
+import pandas as pd  # noqa: E402
+import pandera.pandas as pa  # noqa: E402
+
+import _dict_fd as _fd  # noqa: E402
+import mxcensus  # noqa: E402
+from mxcensus import _schema_groups as sg  # noqa: E402
+from mxcensus._resources import cpv_schema_map, variables_cpv, variables_cpv_core  # noqa: E402
+from mxcensus.cpv import _WEIGHTS, _code_rule, _fingerprint, _group_of, _group_schema  # noqa: E402
+
+_SM = cpv_schema_map()
+_TABLE_GROUPS = [(t, g) for t in TABLES if t in _SM for g in _SM[t]["groups"]]
+
+
+def _xlsx(path, sheets: dict) -> None:
+    """A minimal workbook (the parts ``read_xlsx`` reads): text as shared strings, ints as
+    literal values, a ``("inline", text)`` tuple as an inline string, ``None`` as no cell."""
+    shared, sheet_xml = [], []
+    for rows in sheets.values():
+        out = []
+        for i, row in enumerate(rows, 1):
+            cells = []
+            for j, v in enumerate(row):
+                ref = f"{chr(65 + j)}{i}"
+                if v is None:
+                    continue
+                if isinstance(v, tuple):
+                    cells.append(f'<c r="{ref}" t="inlineStr"><is><t>{v[1]}</t></is></c>')
+                elif isinstance(v, int):
+                    cells.append(f'<c r="{ref}"><v>{v}</v></c>')
+                else:
+                    shared.append(v)
+                    cells.append(f'<c r="{ref}" t="s"><v>{len(shared) - 1}</v></c>')
+            out.append(f'<row r="{i}">{"".join(cells)}</row>')
+        sheet_xml.append("".join(out))
+    ns = 'xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"'
+    rns = 'xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"'
+    with zipfile.ZipFile(path, "w") as z:
+        z.writestr("xl/workbook.xml", f'<workbook {ns} {rns}><sheets>' + "".join(
+            f'<sheet name="{n}" sheetId="{k}" r:id="rId{k}"/>' for k, n in enumerate(sheets, 1))
+            + "</sheets></workbook>")
+        z.writestr("xl/_rels/workbook.xml.rels",
+                   '<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">'
+                   + "".join(f'<Relationship Id="rId{k}" Target="worksheets/sheet{k}.xml"/>'
+                             for k in range(1, len(sheets) + 1)) + "</Relationships>")
+        z.writestr("xl/sharedStrings.xml", f"<sst {ns}>" + "".join(
+            f"<si><r><t>{s[:2]}</t></r><r><t>{s[2:]}</t></r></si>" for s in shared) + "</sst>")
+        for k, body in enumerate(sheet_xml, 1):
+            z.writestr(f"xl/worksheets/sheet{k}.xml", f"<worksheet {ns}><sheetData>{body}"
+                       "</sheetData></worksheet>")
+
+
+_HDR = [None, "Cons.", "Descripción", "Mnemónico", "Pregunta y categoría", "Tipo",
+        "Rango válido", "Longitud"]
+_FD_SHEETS = {
+    "Índice": [[None, "ENCUESTA"], [None, "Cons.", "Nombre de la tabla/Hoja"]],
+    "PERSONAS": [
+        [None, None, "ENCUESTA INTERCENSAL 2025"],
+        _HDR,
+        [None, "LISTA DE PERSONAS"],                                         # section
+        [None, 1, "Sexo", "SEXO", "(NOMBRE) es:", "Carácter", "{1, 3}", 1],
+        [None, None, None, None, "Hombre", None, 1],
+        [None, None, None, None, "Mujer", None, 3],
+        [None, 2, "Edad", "EDAD", "¿Cuántos años?", "Numérico", "{0..130, 999}", 3],
+        [None, None, None, None, "Menos de un año", None, "0"],
+        [None, None, None, None, "Años", None, "1..130"],
+        [None, None, None, None, "No especificado", None, "999"],
+        [None, None, "Dificultad", "--", "¿Cuánta dificultad tiene para:"],  # stem ('--')
+        [None, 3, "Ver", "DIS_VER", "ver?", "Carácter", "{1, 2, 9, Nulo}", 1],
+        [None, None, " ", None, "Sí", None, "1"],                            # stray blank C
+        [None, None, None, None, "No", None, "2"],
+        [None, None, None, None, "No especificado", None, "9"],
+        [None, None, None, None, "Blanco por pase", None, "Nulo"],
+        [None, None, None, None, None, None, None, 4],                       # subtotal
+        [None, 4, "Madre", "IDENT_MADRE", "¿La madre:", "Carácter", "{01..03, 97, 99}", 2],
+        [None, None, None, None, "¿Quién es?", None, "01..03"],
+        [None, None, None, None, "ya falleció?", None, "97"],
+        [None, None, None, None, "No especificado", None, "99"],
+        [None, 5, "Parentesco", "PARENTESCO", "¿Qué es?", "Carácter",
+         "{101..201, 999}\n(Según clasificador de parentesco)", 3],
+        [None, None, None, None, "Clave de parentesco", None, "101..201"],
+        [None, None, None, None, "No especificado", None, "999"],
+        [None, 6, "Ocupación", "OCUPACION_C", "¿Ocupación?", "Carácter",
+         "{111..989, 999} (Según clasificador de ocupación)", 3],
+        [None, None, None, None, "Clave", None, "111.. 989"],
+        [None, None, None, None, "No especificado", None, "999"],
+        [None, 7, "Ingreso", "INGTRMEN", ("inline", "¿Cuánto gana?"), "Numérico",
+         "{0..999998, 999999, Nulo}", 6],
+        [None, None, None, None, "No recibe", None, "0"],
+        [None, None, None, None, "Ingresos especificados", None, "1..999997"],
+        [None, None, None, None, "Ingresos mayores a 999,997", None, "999998"],
+        [None, None, None, None, "No especificado", None, "999999"],
+        [None, 8, "Año", "FECHA_NAC_A", "¿Año?", "Carácter", "{1925..2025, 9999}", 4],
+        [None, None, None, None, "Año", None, "1925..2025"],
+        [None, None, None, None, "No especificado", None, "9999"],
+        [None, 9, "Factor", "FACTOR", "Factor", "Numérico", "{1..99999}", 5],
+        [None, 10, "Localidad", "LOC50K", "Clave", "Carácter", "{0000..9999}", 4],
+        [None, None, None, None, "Menor de 50 000", None, "0000"],
+        [None, None, None, None, "Mayor", None, "0001..9999"],
+        [None, None, None, None, None, None, "TOTAL DE CARACTERES: ", 42],
+    ],
+}
+
+
+def _catalog_zip(path):
+    with zipfile.ZipFile(path, "w") as z:
+        z.writestr("PARENTESCO.csv", "﻿CLAVE,DESCRIPCION\n101,Jefa(e)\n201,Esposa(o)\n999,NE\n")
+        z.writestr("OCUPACION.csv", "﻿CLAVE,DESCRIPCION\n111,Funcionarios\n112,Directores\n")
+        z.writestr("MUNICIPIO.csv", "﻿CVE_ENT,DESC_ENT,CVE_MUN,DESC_MUN\n001,Ags,001,Ags\n")
+        z.writestr("ENTIDAD_PAIS.csv", "﻿CLAVE,DESCRIPCION\n001,Aguascalientes\n")
+        z.writestr("ENTIDAD.csv", "﻿CLAVE,DESCRIPCION\n01,Aguascalientes\n")
+
+
+def test_read_xlsx_and_catalogs(tmp_path):
+    _xlsx(tmp_path / "fd.xlsx", _FD_SHEETS)
+    book = _fd.read_xlsx(tmp_path / "fd.xlsx")
+    assert list(book) == ["Índice", "PERSONAS"]
+    rows = book["PERSONAS"]
+    assert rows[1] == dict(zip("BCDEFGH", _HDR[1:]))        # shared strings (rich-text runs)
+    assert rows[3]["B"] == "1" and rows[3]["H"] == "1"       # literal values
+    assert rows[12] == {"E": "Sí", "G": "1"}                 # whitespace-only cell dropped
+    _catalog_zip(tmp_path / "cat.zip")
+    cats = _fd.read_catalogs(tmp_path / "cat.zip")
+    assert cats["PARENTESCO"] == {"101": "Jefa(e)", "201": "Esposa(o)", "999": "NE"}
+    assert cats["MUNICIPIO"] == {"001001": "Ags"}             # entity + municipality key
+    assert _fd.match_catalog("entidad federativa y país", cats) == "ENTIDAD_PAIS"
+    assert _fd.match_catalog("ocupación", cats) == "OCUPACION"
+    assert _fd.match_catalog("religión", cats) is None
+
+
+def test_parse_fd_xlsx(tmp_path):
+    _xlsx(tmp_path / "fd.xlsx", _FD_SHEETS)
+    _catalog_zip(tmp_path / "cat.zip")
+    doc = _fd.parse_fd_xlsx(tmp_path / "fd.xlsx", _fd.read_catalogs(tmp_path / "cat.zip"))
+    assert list(doc) == ["personas"]                          # Índice has no Mnemónico
+    p = doc["personas"]
+    assert "--" not in p and list(p)[:3] == ["SEXO", "EDAD", "DIS_VER"]
+    assert p["SEXO"]["Categorías"] == {"1": "Hombre", "3": "Mujer"}
+    assert p["EDAD"]["Tipo"] == "numeric" and p["EDAD"]["Rango"] == [0, 130]
+    assert p["EDAD"]["Especiales"] == {"999": "No especificado"}
+    assert p["DIS_VER"]["Pregunta"] == "¿Cuánta dificultad tiene para: ver?"   # stem prefixed
+    assert p["DIS_VER"]["Categorías"] == {"1": "Sí", "2": "No"}               # Nulo skipped
+    assert p["DIS_VER"]["Especiales"] == {"9": "No especificado"}
+    assert list(p["IDENT_MADRE"]["Categorías"]) == ["01", "02", "03", "97"]   # identity, in order
+    assert p["PARENTESCO"]["Catálogo"] == "PARENTESCO"
+    assert p["PARENTESCO"]["Categorías"] == {"101": "Jefa(e)", "201": "Esposa(o)"}
+    assert p["OCUPACION_C"]["Categorías"] == {"111": "Funcionarios", "112": "Directores"}
+    ing = p["INGTRMEN"]                                       # 0 and the top-code are values
+    assert ing["Pregunta"] == "¿Cuánto gana?" and ing["Rango"] == [0, 999998]
+    assert ing["Especiales"] == {"999999": "No especificado"}
+    assert p["FECHA_NAC_A"]["Rango"] == [1925, 2025] and len(p["FECHA_NAC_A"]["Categorías"]) == 101
+    assert p["FACTOR"]["Rango"] == [1, 99999]                 # header-only numeric
+    loc = p["LOC50K"]                                         # a range too wide to enumerate
+    assert loc["Tipo"] == "string" and not loc["Categorías"] and "0000 = Menor" in loc["Nota"]
+    # without the catalogs, a classified range is left unenumerated, with a note
+    bare = _fd.parse_fd_xlsx(tmp_path / "fd.xlsx")["personas"]
+    assert bare["OCUPACION_C"]["Tipo"] == "string" and "no disponible" in bare["OCUPACION_C"]["Nota"]
+
+
+def test_fd_entry_rules(tmp_path):
+    _xlsx(tmp_path / "fd.xlsx", _FD_SHEETS)
+    _catalog_zip(tmp_path / "cat.zip")
+    p = _fd.parse_fd_xlsx(tmp_path / "fd.xlsx", _fd.read_catalogs(tmp_path / "cat.zip"))["personas"]
+    e, src = _fd.fd_entry("PARENTESCO", {"101", "999"}, None, p["PARENTESCO"], 64)
+    assert src == "fd" and e["Tipo"] == "categorical" and e["Catálogo"] == "PARENTESCO"
+    e, src = _fd.fd_entry("OCUPACION_C", None, None, p["OCUPACION_C"], 1)   # catalog > threshold
+    assert src == "fd" and e["Tipo"] == "string" and "Categorías" not in e
+    assert e["Especiales"] == {"999": "No especificado"} and "OCUPACION" in e["Nota"]
+    e, src = _fd.fd_entry("EDAD", None, None, p["EDAD"], 64)
+    assert e["Tipo"] == "numeric" and e["Rango"] == [0, 130]                 # FD range kept
+    e, src = _fd.fd_entry("FECHA_NAC_A", None, None, p["FECHA_NAC_A"], 64)  # 101 years → number
+    assert e["Tipo"] == "numeric" and e["Rango"] == [1925, 2025] and e["Especiales"] == {"9999": "No especificado"}
+    e, src = _fd.fd_entry("SEXO", {"1", "3", "5"}, None, p["SEXO"], 64)      # undocumented code
+    assert src == "fd+data" and e["Categorías"]["5"] == "5" and "el FD" in e["Nota"]
+    e, src = _fd.fd_entry("SEXO", {"1"}, {"Tipo": "string"}, p["SEXO"], 64)  # core wins
+    assert (e, src) == ({"Tipo": "string"}, "core")
+    e, src = _fd.fd_entry("NEW", {"a"}, None, None, 64)
+    assert src == "data" and e["Categorías"] == {"a": "a"}
+
+
+def test_parse_indicator_csv(tmp_path):
+    path = tmp_path / "dicc.csv"
+    path.write_text(
+        "DESCRIPTOR DE LA BASE DE DATOS,,,,,\n,,,,,\n"
+        "Cons.,Indicador,Descripción,Mnemónico,Rangos,Long.\n"
+        "IDENTIFICACIÓN GEOGRÁFICA,,,,,\n"
+        "1,Clave estatal,Código de la entidad,CVE_ENT,00…32,2\n"
+        "2,Tipo de estimador,\"Valor, error…\",ESTIMADOR,Alfanumérico,50\n"
+        "3,Población,Total de personas,POBTOT,0 … 999999999,9\n"
+        "4,Porcentaje,Por cada cien,PCN_X,0 … 100.00,6\n"
+        ",,,,,\nNota: Incluye todas las localidades.,,,,,\nNA: No aplica.,,,,,\n"
+        "MI: No disponible por muestra insuficiente.,,,,,\n* Municipio censado.,,,,,\n",
+        encoding="utf-8")
+    d = _fd.parse_indicator_csv(path)
+    assert list(d) == ["CVE_ENT", "ESTIMADOR", "POBTOT", "PCN_X"]
+    assert d["CVE_ENT"]["Tipo"] == "string" and d["ESTIMADOR"]["Tipo"] == "string"
+    assert d["POBTOT"]["Tipo"] == "numeric" and "Decimales" not in d["POBTOT"]
+    assert d["PCN_X"]["Decimales"] == "2" and d["PCN_X"]["Rango"] == []
+    assert d["PCN_X"]["Especiales"] == {"NA": "No aplica",
+                                        "MI": "No disponible por muestra insuficiente"}
+    assert d["PCN_X"]["Descripción"] == "Porcentaje" and d["PCN_X"]["Definición"] == "Por cada cien"
+    e, src = _fd.fd_entry("PCN_X", None, None, d["PCN_X"], 0)
+    assert e["Tipo"] == "numeric" and e["Decimales"] == "2" and e["Rangos"] == "0 … 100.00"
+    assert "Rango" not in e                         # the column mixes the five estimators
+
+
+def test_group_schemas_partial_states_and_latest():
+    def rec(period, state, cols):
+        return {"table": "personas", "period": period, "state": state, "columns": cols,
+                "fingerprint": _fingerprint(cols), "rows": 1}
+    a, b = ["X", "Y"], ["X", "Y", "Z"]
+    doc = _bcpv._group_schemas([rec("2025", 9, b), rec("2025", 1, a), rec("2020", 1, b),
+                                rec("2025", 2, b)])["personas"]
+    assert doc["fingerprints"] == {_fingerprint(b): "g01", _fingerprint(a): "g02"}
+    g1, g2 = doc["groups"]["g01"], doc["groups"]["g02"]
+    assert g1["periods"] == ["2020", "2025"] and g1["files"] == 3
+    assert g1["states"] == {"2025": [2, 9]} and g2["states"] == {"2025": [1]}
+    assert doc["latest"] == "g01"                   # majority of the newest edition
+    whole = _bcpv._group_schemas([rec("2025", 1, a), rec("2025", 2, a)])["personas"]
+    assert "states" not in whole["groups"]["g01"]
+
+
+def test_mirror_files_and_thresholds(tmp_path):
+    for n in ("cpv_personas_2025_01.parquet", "cpv_estimaciones_2025.parquet",
+              "cpv_x.parquet", "enigh_poblacion_2024.parquet"):
+        (tmp_path / n).touch()
+    assert [p.name for p in _bcpv._mirror_files(tmp_path)] == [
+        "cpv_estimaciones_2025.parquet", "cpv_personas_2025_01.parquet"]
+    assert _bcpv._TABLE_THRESHOLD == {"estimaciones": 0}
+
+
+# --- the bundled schema map / dictionaries --------------------------------------------
+
+def _cols(table, gid):
+    return _SM[table]["groups"][gid]["columns"]
+
+
+def _valid_value(table: str, gid: str, col: str) -> str:
+    """A value that should pass ``_group_schema(table, gid)`` for ``col``."""
+    if col in _WEIGHTS:
+        return "1"
+    meta = variables_cpv(table, gid).get(col) or {}
+    cats = meta.get("Categorías") or {}
+    if cats:
+        return next(iter(cats))
+    if sg.norm_tipo(meta) == "numeric":
+        rng = meta.get("Rango") or []
+        return str(rng[0]) if rng else "1"
+    if _code_rule(col, meta) is not None:
+        width = str(meta.get("Longitud") or "")
+        return "0" * int(width) if meta.get("Catálogo") and width.isdigit() else "01"
+    return "x"
+
+
+def _valid_frame(table, gid, rows=3):
+    return pd.DataFrame({c: [_valid_value(table, gid, c)] * rows for c in _cols(table, gid)},
+                        dtype=str)
+
+
+def test_schema_map_per_table():
+    assert _SM and set(_SM) <= set(TABLES)
+    for t in _SM:
+        assert set(_SM[t]) == {"latest", "fingerprints", "groups"}
+        assert _SM[t]["latest"] in _SM[t]["groups"]
+        for gid, g in _SM[t]["groups"].items():
+            assert g["n_columns"] == len(g["columns"]) and g["files"] >= 1
+            assert set(g) <= {"n_columns", "files", "periods", "states", "columns"}
+            assert set(g.get("states", {})) <= set(g["periods"])
+
+
+@pytest.mark.parametrize("table,gid", _TABLE_GROUPS)
+def test_fingerprint_round_trips(table, gid):
+    fp = _fingerprint(_cols(table, gid))
+    assert _SM[table]["fingerprints"][fp] == gid
+    assert _group_of(table, _valid_frame(table, gid)) == gid
+
+
+def test_group_of_unknown_raises():
+    with pytest.raises(ValueError, match="CPV file schema not found in cpv_schema_map.yaml"):
+        _group_of("personas", pd.DataFrame({"zzz": ["1"]}))
+
+
+@pytest.mark.parametrize("table,gid", _TABLE_GROUPS)
+def test_group_schema_accepts_valid_frame(table, gid):
+    _group_schema(table, gid).validate(_valid_frame(table, gid), lazy=True)
+
+
+@pytest.mark.parametrize("col,bad", [("SEXO", "2"), ("EDAD", "131"), ("FACTOR", "abc"),
+                                     ("CVE_ENT", "x1"), ("OCUPACION_C", "12")])
+def test_group_schema_rejects(col, bad):
+    gid = _SM["personas"]["latest"]
+    f = _valid_frame("personas", gid)
+    f[col] = [bad] * len(f)
+    with pytest.raises(pa.errors.SchemaErrors, match=col):
+        _group_schema("personas", gid).validate(f, lazy=True)
+
+
+def test_estimaciones_sentinels():
+    gid = _SM["estimaciones"]["latest"]
+    f = _valid_frame("estimaciones", gid, rows=2)
+    f["POBTOT"] = ["NA", "1234"]
+    f["PCN_P_0A4"] = ["MI", "12.50"]
+    _group_schema("estimaciones", gid).validate(f, lazy=True)
+    f["POBTOT"] = ["ZZ", "1"]
+    with pytest.raises(pa.errors.SchemaErrors, match="POBTOT"):
+        _group_schema("estimaciones", gid).validate(f, lazy=True)
+
+
+def test_core_yaml_contract():
+    core = variables_cpv_core()
+    for name, meta in core.items():
+        assert name == name.upper(), name
+        assert meta.get("Tipo") in ("categorical", "numeric", "string"), name
+        if meta.get("Ordenada"):
+            assert meta.get("Categorías"), name
+        if "Rango" in meta:
+            assert len(meta["Rango"]) == 2 and meta["Rango"][0] <= meta["Rango"][1], name
+        cats, special = meta.get("Categorías") or {}, meta.get("Especiales") or {}
+        assert not set(cats) & set(special), name
+        labels = list(cats.values()) + list(special.values())
+        assert len(labels) == len(set(labels)), f"{name}: duplicate labels"
+        assert all(isinstance(k, str) for k in [*cats, *special]), name
+    assert core["SEXO"]["Categorías"] == {"1": "Hombre", "3": "Mujer"}
+    assert core["TAMLOC"]["Ordenada"] and core["EDAD"]["Especiales"] == {"999": "No especificado"}
+    # the core is copied verbatim into every generated group that has the column
+    for table, gid in _TABLE_GROUPS:
+        v = variables_cpv(table, gid)
+        for col in set(core) & set(v):
+            assert v[col] == core[col], (table, gid, col)
+
+
+def test_generated_dictionaries_cover_every_column():
+    for table, gid in _TABLE_GROUPS:
+        v = variables_cpv(table, gid)
+        assert list(v) == _cols(table, gid), (table, gid)
+        for col, meta in v.items():
+            assert sg.norm_tipo(meta) in ("categorical", "numeric", "string")
+            assert meta.get("Descripción"), (table, gid, col)   # nothing left undocumented

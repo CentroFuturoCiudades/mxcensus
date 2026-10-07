@@ -332,18 +332,19 @@ def observed_values(paths, columns, threshold: int) -> dict[str, set[str] | None
 
 
 def group_entries(columns, observed: dict, core: dict, doc: dict | None,
-                  threshold: int) -> tuple[dict, dict]:
+                  threshold: int, entry_fn=dictionary_entry) -> tuple[dict, dict]:
     """Entries for one schema group: ``({col: entry}, {col: source})``.
 
     ``doc`` is the DDI dictionary chosen for the group (``{VARNAME: meta}``; names matched
     case-insensitively, the data's spelling is kept), or ``None`` when no codebook
-    documents it.
+    documents it. ``entry_fn`` builds each entry (:func:`dictionary_entry`; the census FD
+    dictionaries use ``_dict_fd.fd_entry``).
     """
     docl = {k.lower(): v for k, v in (doc or {}).items()}
     entries, sources = {}, {}
     for col in columns:
-        entry, src = dictionary_entry(col, observed.get(col), core.get(col),
-                                      docl.get(col.lower()), threshold)
+        entry, src = entry_fn(col, observed.get(col), core.get(col),
+                              docl.get(col.lower()), threshold)
         entries[col], sources[col] = entry, src
     return entries, sources
 
