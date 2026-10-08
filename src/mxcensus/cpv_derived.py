@@ -24,6 +24,10 @@ therefore equal the legacy ones (tested state by state). Two differences, both d
   loaders only create the observed ones). As in the legacy loaders, a blank second or
   third item sets the ``…_Blanco por pase`` dummy.
 
+Two columns are new: ``DISCAPACIDAD``/``LIMITACION``, INEGI's definitions of disability and
+limitation (code 8, «degree unknown», is a disability; a limitation excludes the disabled).
+The legacy ``DIS_CON``/``DIS_LIMI`` count otherwise and are kept as they are.
+
 **Editions.** Censo 2020 and EIC 2025 (same questionnaire family) get every derivation
 whose sources exist; 2025 lacks ``RELIGION`` and ``IDENT_HIJO``. EIC 2015 and Censo 2010
 get only the derivations whose source items have identical code lists
@@ -75,6 +79,9 @@ _ALIASES = {"ENT": ("ENT", "CVE_ENT")}
 
 _BLANK = -1  # a blank (not asked) code, as the legacy dictionaries spell it
 _DUMMY = pd.CategoricalDtype([0, 1])
+# Derived columns the legacy loaders do not have (the others take the legacy dtype).
+_DTYPES = {"DISCAPACIDAD": pd.CategoricalDtype(["Sí", "No", "No especificado"]),
+           "LIMITACION": pd.CategoricalDtype(["Sí", "No", "No especificado"])}
 _DIS_ITEMS = ("DIS_VER", "DIS_OIR", "DIS_CAMINAR", "DIS_RECORDAR", "DIS_BANARSE", "DIS_HABLAR")
 
 # DHSERSAL1/2 code (2020) → dummy; 1–6 are public institutions, 1–8 any affiliation.
@@ -117,7 +124,7 @@ def _legacy_dtypes(table: str) -> dict:
 
 
 def _as(values, table: str, name: str) -> pd.Series:
-    return pd.Series(values).astype(_legacy_dtypes(table)[name])
+    return pd.Series(values).astype(_DTYPES.get(name) or _legacy_dtypes(table)[name])
 
 
 def _mapped(codes: pd.Series, table: str, var: str, name: str) -> pd.Series:
@@ -197,6 +204,21 @@ def _dis(src):
     return out
 
 
+def _dis_inegi(src):
+    """INEGI's definitions (the EIC 2025 estimates, matched exactly): a disability is much
+    difficulty, not being able, or a difficulty of unknown degree (code 8) in at least one
+    activity; a limitation is some difficulty (2) in at least one, without a disability."""
+    items = src[list(_DIS_ITEMS)]
+    disabled = items.isin([3, 4, 8]).any(axis=1)
+    limited = items.eq(2).any(axis=1) & ~disabled
+    unspecified = items.eq(9).any(axis=1)
+    return {"DISCAPACIDAD": _as(np.select([disabled, unspecified], ["Sí", "No especificado"],
+                                          "No"), "personas", "DISCAPACIDAD"),
+            "LIMITACION": _as(np.select([limited, disabled, unspecified],
+                                        ["Sí", "No", "No especificado"], "No"),
+                              "personas", "LIMITACION")}
+
+
 def _dhsersal(src):
     d1, d2 = src["DHSERSAL1"], src["DHSERSAL2"]
     has = {code: d1.eq(code) | d2.eq(code) for code in _DHSERSAL}
@@ -269,6 +291,7 @@ def _registry() -> tuple[_Derivation, ...]:
         D(per, ("ACTIVIDADES_C_COARSE",), ("ACTIVIDADES_C",), _NEW,
           _coarse("ACTIVIDADES_C", "ACTIVIDADES_C_COARSE", 100)),
         D(per, ("DIS_CON", "DIS_LIMI"), _DIS_ITEMS, _NEW, _dis),
+        D(per, ("DISCAPACIDAD", "LIMITACION"), _DIS_ITEMS, _NEW, _dis_inegi),
         D(per, (*_DHSERSAL.values(), "DHSERSAL_PUB", "DHSERSAL_AFIL"),
           ("DHSERSAL1", "DHSERSAL2"), _NEW, _dhsersal),
         D(per, _dummy_names(per, _ESC, "MED_TRASLADO_ESC"), _ESC, _NEW,
@@ -331,9 +354,10 @@ def derived_dtypes(table: str, period: str | int) -> dict[str, pd.CategoricalDty
     out = {}
     for d in _derivations(table, str(period)):
         for col in d.columns:
-            out[col] = _DUMMY if col.startswith(("DHSERSAL_", "MED_TRASLADO_",
-                                                 "FINANCIAMIENTO_")) \
-                else _legacy_dtypes(table)[col]
+            if col.startswith(("DHSERSAL_", "MED_TRASLADO_", "FINANCIAMIENTO_")):
+                out[col] = _DUMMY
+            else:
+                out[col] = _DTYPES.get(col) or _legacy_dtypes(table)[col]
     return out
 
 
@@ -442,14 +466,21 @@ def _base_constraints(table: str) -> dict:
     return constraints_personas() if table == "personas" else constraints_viviendas()
 
 
+# Indicators whose CPV cells replace the legacy ones: INEGI's disability definitions.
+_CELLS = {"personas": {"PCON_DISC": {"DISCAPACIDAD": ["Sí"]},
+                       "PCON_LIMI": {"LIMITACION": ["Sí"]}}}
+
+
 @functools.cache
 def _cpv_constraints(table: str) -> dict:
-    """The legacy constraints in the CPV vocabulary: neutral DHSERSAL names, FD labels."""
+    """The legacy constraints in the CPV vocabulary: neutral DHSERSAL names, FD labels,
+    INEGI's disability flags (:data:`_CELLS`)."""
     relabel = _relabels(table)
     out = {}
     for ind, cells in _base_constraints(table).items():
         out[ind] = {DHSERSAL_RENAMES.get(var, var): [relabel.get(var, {}).get(c, c) for c in cats]
                     for var, cats in (cells or {}).items()}
+    out.update(_CELLS.get(table, {}))
     return out
 
 
@@ -494,7 +525,8 @@ def cpv_constraints(table: str, period: str | int) -> dict:
 
     The legacy sets (``constraints_personas``/``constraints_viviendas``: Censo 2020 ITER
     indicator → the microdata cells it counts) in the CPV vocabulary — the neutral
-    ``DHSERSAL_*`` names, the Censo 2020 dictionary's labels — keeping the indicators that
+    ``DHSERSAL_*`` names, the Censo 2020 dictionary's labels, ``PCON_DISC``/``PCON_LIMI``
+    on INEGI's ``DISCAPACIDAD``/``LIMITACION`` flags — keeping the indicators that
     (1) the edition publishes (its ITER, through ``cpv_iter_crosswalk`` — for 2010 only
     the indicators comparable with 2020's —; the EIC 2025's national estimates) and (2)
     whose variables and

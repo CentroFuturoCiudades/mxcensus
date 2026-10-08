@@ -264,22 +264,13 @@ _LEGACY_STATES = [s for s in _AGG_STATES["2020"]
                   if all((_MIRROR / f"{d}_{s:02d}.parquet").exists() for d in ("iter", "resargebub"))]
 
 
-# The frozen legacy load_census raises in these states (aggregate.impute_collective's
-# ``if diff == 0`` on a reserved total: TypeError, boolean value of NA is ambiguous); there
-# the legacy chain is compared with its imputation swapped for the NA-safe port.
-_LEGACY_NA_STATES = {8, 15, 16}
-
-
 @pytest.mark.parametrize("state", _LEGACY_STATES)
-def test_census_2020_equals_legacy(local_mirror, monkeypatch, state):
+def test_census_2020_equals_legacy(local_mirror, state):
     """The 3c gate: ``load_cpv_census(2020, state)`` = the legacy ``load_census(state)``
-    (values, columns, missing pattern), once its integer codes are padded strings."""
-    from mxcensus import aggregate
+    (values, columns, missing pattern), once its integer codes are padded strings. States
+    08, 15 and 16 have a reserved coarse total, which crashed the legacy collective
+    imputation until 6c (``if diff == 0`` on ``pd.NA``)."""
     new = mxcensus.load_cpv_census(2020, state=state)
-    if state in _LEGACY_NA_STATES:
-        with pytest.raises(TypeError, match="boolean value of NA is ambiguous"):
-            mxcensus.load_census(state=state)
-        monkeypatch.setattr(aggregate, "impute_collective", ca._impute_collective)
     old = mxcensus.load_census(state=state)
     for a, b in zip(new, old):
         b = _legacy_aligned(b)
@@ -290,7 +281,8 @@ def test_census_2020_equals_legacy(local_mirror, monkeypatch, state):
 def _collective_frames():
     """A municipality → locality pair for the collective imputation: municipality 001's
     collective population is all in locality 0001 (so 0002's missing POBHOG = its POBTOT),
-    002's is not accounted for, and 003's total is reserved (the legacy loop raises)."""
+    002's is not accounted for, and 003's total is reserved (the legacy loop raised on it
+    before 6c)."""
     mun = pd.DataFrame({"POBTOT": [100, 50, 30], "POBHOG": [90, 40, pd.NA],
                         "TVIVHAB": [20, 10, 6], "TOTHOG": [20, 10, 6]},
                        index=pd.MultiIndex.from_tuples([("01", m) for m in ("001", "002", "003")],
@@ -314,8 +306,7 @@ def test_impute_collective_na_safe():
     assert out.loc[("01", "001", "0002"), "TOTHOG"] == 4
     assert pd.isna(out.loc[("01", "002", "0002"), "POBHOG"])        # 5 unaccounted for
     assert pd.isna(out.loc[("01", "003", "0001"), "POBHOG"])        # reserved total: nothing
-    with pytest.raises(TypeError, match="boolean value of NA is ambiguous"):
-        aggregate.impute_collective(mun, loc)                        # the frozen legacy loop
+    assert aggregate.impute_collective(mun, loc).equals(out)        # the legacy loop, NA-safe
     known = mun.index[:2]                                            # without the NA total
     fine = loc[loc.index.droplevel("CVE_LOC").isin(known)]
     legacy = aggregate.impute_collective(mun.loc[known], fine)

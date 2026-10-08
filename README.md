@@ -116,7 +116,7 @@ The `cpv` family holds every census, conteo and intercensal survey INEGI has pub
 | **Censo 2010** (cuestionario ampliado) | `viviendas`, `personas`, `migrantes` | `iter`, `ageb` | `FACTOR` |
 | **II Conteo 2005** (sample) | `viviendas`, `hogares`, `personas` | `iter` | none |
 | **XII Censo General 2000** (sample) | `viviendas`, `personas`, `migrantes` | `iter` | `FACTOR` |
-| **Conteo 1995** (sample) | `personas`, `migrantes` | `iter` | `FAC_POB`, `FAC_VIV`, `FAC_PROM` |
+| **Conteo 1995** (sample) | `personas`, `migrantes` | `iter` | `FAC_POB`, `FAC_VIV`, `FAC_PROM`¹ |
 | **XI Censo General 1990** (10% sample) | `personas` | `iter` | none |
 
 The EIC 2025 is representative of all 2,478 municipalities and the 233 localities of 50k+
@@ -127,6 +127,10 @@ zero-padded codes and the aggregates' `*`/`N/D`/`N/A` markers kept. The legacy l
 (`load_census`, `load_extended_*`) and their files are unchanged. The 1990 and 1995 samples
 are person files (each person carries the dwelling's items), and the 1990–2005 samples have
 no key column: `ID_VIV`, `ID_HOG`, `ID_PERSONA` are derived from INEGI's composite parts.
+
+¹ `FAC_POB` weights persons, `FAC_VIV` dwellings, households and emigrants, `FAC_PROM` the
+health-coverage and disability items; with `harmonize=True` the persons' `FACTOR` is
+`FAC_POB` and the emigrants' `FAC_VIV`.
 
 ```python
 # Analysis-ready, labelled frames indexed by the record key (ID_VIV ⊂ ID_PERSONA / ID_MII)
@@ -186,10 +190,13 @@ Only the core (keys, geography, sample design, `FACTOR`, `CLAVIVP`, `SEXO`, `EDA
 `derived=True` adds the analysis columns of the legacy `load_extended_*` loaders, computed
 from the raw codes: `EDAD_CAT`, `EDUC`, `CONACT_CAT`, `SITUA_CONYUGAL_CAT`, the health
 coverage (`DHSERSAL_*`), commute (`MED_TRASLADO_*`) and financing (`FINANCIAMIENTO_*`)
-dummies, `DIS_CON`/`DIS_LIMI`, the income and room bins… For Censo 2020 they equal the
-legacy columns; the EIC 2025 gets the same columns through a recode of the items INEGI
-renumbered (`SITUA_CONYUGAL`, `DHSERSAL`, two country codes), and EIC 2015 / Censo 2010
-the ones whose items kept their codes (`cpv_derivations()` lists them per edition).
+dummies, `DIS_CON`/`DIS_LIMI`, the income and room bins… plus `DISCAPACIDAD`/`LIMITACION`,
+INEGI's own definitions of disability and limitation (the legacy `DIS_CON`/`DIS_LIMI` count
+a difficulty of unknown degree as unspecified, and the disabled as limited too). For Censo
+2020 the columns equal `load_extended_*`'s; the EIC 2025 gets the same columns through a
+recode of the items INEGI renumbered (`SITUA_CONYUGAL`, `DHSERSAL`, two country codes), and
+EIC 2015 / Censo 2010 the ones whose items kept their codes (`cpv_derivations()` lists them
+per edition).
 `cpv_constraints(table, period)` filters the census constraint sets (ITER indicator →
 microdata cells) to the indicators an edition publishes and can reproduce, for
 `get_tables_dict`:

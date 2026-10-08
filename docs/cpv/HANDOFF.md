@@ -1,96 +1,51 @@
 # CPV family — session handoff
 
-**Status (2026-10-08, evening): every unit of the plan is done (0–6b) and every edition is
-released.**
-- **Released** (registered, uploaded, fetchable): every edition 1990–2025 (897 `cpv_`
-  files) and the Marco Geoestadístico 1995–2025 frames. The release batch of 3a–5b
-  (`STEP_6b.md` §Release batch) took the registry from 2695 to **3751** entries; the
-  1,056 files were rebuilt on `wsl` byte-identical to the Mac's. `verify`: 3751 ok, 0
-  missing.
-- **6b**: `derived=True` on `load_cpv_personas/viviendas/survey` adds the legacy
-  `load_extended_*` columns:
-  - 2020 equals legacy in all 32 states;
-  - 2025 through a recode of the renumbered items;
-  - 2015/2010 only the items with identical codes.
+**Status (2026-10-08, night): the CPV family is complete and released. Units 0–6c are done,
+`cpv-integration` is merged into `main` and tagged v0.7.0. No unit is queued.**
+- **Released** (registered, uploaded, verified): every edition 1990–2025 (897 `cpv_` files)
+  and the Marco Geoestadístico 1995–2025 frames; registry **3751** entries
+  (`STEP_6b.md` §Release batch).
+- **Derived columns** (6b): `derived=True` on `load_cpv_personas/viviendas/survey`.
+  `cpv_constraints(table, period)` gives the constraints per edition (`STEP_6b.md`).
+- **6c** (review of every pending decision with the user, `STEP_6c.md`):
+  - the legacy `load_census` loads all 32 states (NA guard in `aggregate.impute_collective`);
+  - `harmonize=True` gives the Conteo 1995 a `FACTOR`;
+  - INEGI-definition `DISCAPACIDAD`/`LIMITACION` columns, used by the CPV constraints;
+  - the 17 other overnight decisions of 3b–6a are confirmed.
 
-  `cpv_constraints(table, period)` filters the census constraints per edition; the
-  EIC 2025 cells equal its estimates.
-- Branch `cpv-integration` at **v0.7.0**, pushed. **`main` stays at v0.6.0**: the user
-  wants to review before the merge.
-
-Design: [`PLAN.md`](PLAN.md) (unit table: all ✅). Recent units:
-- [`STEP_6b.md`](STEP_6b.md): derived columns, the recode table, constraints per edition,
-  the disability-definition finding, the release batch;
-- [`STEP_6a.md`](STEP_6a.md): the municipal lineage, stable units;
-- [`STEP_5b.md`](STEP_5b.md) … [`STEP_0_probe.md`](STEP_0_probe.md).
+Design: [`PLAN.md`](PLAN.md) (unit table: all ✅). Recent units: [`STEP_6c.md`](STEP_6c.md),
+[`STEP_6b.md`](STEP_6b.md), [`STEP_6a.md`](STEP_6a.md), … [`STEP_0_probe.md`](STEP_0_probe.md).
 
 **Host state.** The Mac and `wsl:~/mxcensus` both hold the full mirror (3751 registered
-files) and are at the same commit. `wsl:~/mxcensus3c` (3c's code copy) can be deleted.
+files). `wsl:~/mxcensus3c` (3c's code copy) can be deleted.
 
 ## Kickoff prompt for the next session
 
-> Continue the CPV census-family work in this repo (branch cpv-integration). Read
-> docs/cpv/HANDOFF.md first. Every planned unit is done; start with the open questions
-> there (review of the overnight decisions, merging into main + tag v0.7.0, the
-> disability flags) and agree the next unit with me before implementing it, following the
-> session protocol in docs/cpv/PLAN.md. Use .venv/bin/python, not uv run. Run wsl tasks
-> without asking; ask me before committing, pushing, installing packages or uploading.
+> Continue the CPV census-family work in this repo (branch cpv-integration; main = v0.7.0).
+> Read docs/cpv/HANDOFF.md first. Every planned unit is done; agree the next unit with me
+> (candidates in HANDOFF §Next) before implementing it, following the session protocol in
+> docs/cpv/PLAN.md. Use .venv/bin/python, not uv run. Run wsl tasks without asking; ask me
+> before committing, pushing, installing packages or uploading.
 
-## Next: decided with the user
+## Next: candidates (none decided)
 
-No unit is queued. Candidates, roughly by value:
-
-1. **Review and merge**: the user reviews the overnight decisions (below) and the 6b
-   design, then `cpv-integration` → `main` (fast-forward) and tag v0.7.0, as in 2b.
-2. **Disability flags (6b finding).** The legacy `DIS_CON`/`DIS_LIMI` are not INEGI's
-   definitions. INEGI counts code 8 («degree unknown») as a disability and keeps the
-   disabled out of «limitación» (`STEP_6b.md` §Finding). Options:
-   - add INEGI-definition flags next to the legacy ones;
-   - or change the constraints `PCON_DISC`/`PCON_LIMI`/`PSIND_LIM` for the CPV set only.
-
-   The legacy loader must stay as is (2020 = legacy).
-3. **6c: the 2015/2010 recoded items.** Add the editions and `_RECODE` entries:
+1. **6d: the 2015/2010 recoded items in `cpv_derived`.** Add the editions and `_RECODE`
+   entries:
    - `DHSERSAL` 2015 (reordered codes, no IMSS-BIENESTAR) and 2010 (8 codes + 9);
-   - `CONACT` 2015 (other scheme: 10–16 work, 20 searched, 31–35 inactive);
+   - `CONACT` 2015 (10–16 work, 20 searched, 31–35 inactive);
    - `SITUA_CONYUGAL` 2015 (5 = casada, 6 = soltera);
    - `EDUC` 2015 (`ESCOLARI` numeric) and 2010 (other `NIVACAD` levels);
    - the 2015 commute items (7 coarser codes: the dummies do not map one to one);
    - the 2010 limitation items `DISCAP1–8`.
 
    Each needs a reviewed mapping, like the 2025 one.
-4. **3d leftover**: identify the EIC 2015 geographic frame (`STEP_3d.md`).
+2. **`PSIND_LIM`'s exact rule.** The 2025 estimate is 1,263,545 for state 01; the closest
+   rule tried gives 1,263,337.
+3. **The EIC 2015 geographic frame** (3d leftover, `STEP_3d.md`).
 
 ## Open questions for the user
 
-- Merge `cpv-integration` into `main` and tag v0.7.0 (held after the release batch).
-- The disability flags (above).
-- Decisions taken overnight without the user, for their review:
-  - (3b) a stdlib DBF reader instead of `dbfread`; national keys for 2010 under
-    `harmonize=True`; the core `Periodos` key;
-  - (3c) `load_cpv_census`; the one-frame-with-`NIVEL` design of `load_cpv_iter`/
-    `load_cpv_ageb`; the crosswalk review flags;
-  - (3c verification) the NA-safe port of the collective imputation, which leaves the
-    legacy `load_census` broken in states 08/15/16; the 2010 `TVIVHAB` allowance;
-  - (4a) the derived 2000/2005 keys. 2000's persons are numbered **in file order** (it has
-    no person number), and 2005's `ID_VIV` is padded to 12 digits.
-  - (4a) the household level (`ID_HOG`) in the 2000/2005 indices; CGPV 2000's `viviendas`
-    has one row per household; `load_cpv_survey` stays a 3-tuple and `load_cpv_hogares` is
-    separate.
-  - (4a) the core `Recodificar` key (2000/2005 `SEXO` 2 → 3, applied by `harmonize=True`).
-  - (4a) the 2000 weight check is a bound against the ITER, not an equality.
-  - (4b) the crosswalk's automatic description pairs (renamed by `harmonize=True`) and the
-    reviewed keep-name pairs; `Renombrar` as a list of editions.
-  - (4b) `load_cpv_iter` repairs INEGI's two broken 2000 ITER rows (the mirror keeps them).
-  - (4b) MG 2005's entities/municipalities take the AGEB layer's CRS (no `.prj`).
-  - (5a) poppler's `pdftotext` as a build-time tool for the 1990/1995 descriptors (instead
-    of installing `cryptography` for `pypdf`).
-  - (5a) the 1995 national ITER total (90,638,604) is pinned as published in the ITER,
-    not the Conteo's headline figure.
-  - (5b) 1995 `datgen95` → `personas` (not `hogares`); 1990's keys from folio occurrences
-    in file order; 1995's three weights kept as named; the 1990/1995 FD ranges reconciled
-    with the data (`_RANGES_FROM_DATA`).
-  - (6a) the municipal crosswalk from MG polygon overlays (not AGEEML), units joining
-    each new municipality with parents ≥10% of its area within its state.
+None pending: every decision of units 3b–6b was settled on 2026-10-08 (`STEP_6c.md`).
 
 ## Gotchas (carry forward)
 
@@ -138,9 +93,9 @@ No unit is queued. Candidates, roughly by value:
 - **Legacy files** were built with pandas' default NA strings **plus `na_values=["N/D"]`**.
   `N/D` and `N/A` are NaN there and kept verbatim in `cpv_*`; the comparator
   (`_LEGACY_NA`) knows. State 01 has no `N/D`, so only a 32-state run covers it.
-- **The legacy `load_census` crashes in states 08/15/16** (`impute_collective`'s
-  `if pd.NA == 0`). `load_cpv_census` uses the NA-safe port; the equality test swaps it into
-  the legacy chain for those states.
+- **The legacy `load_census` crashed in states 08/15/16** (a reserved coarse total made
+  `impute_collective`'s difference `pd.NA`). 6c added the NA guard to `aggregate.py`;
+  the legacy chain now equals `load_cpv_census(2020)` in all 32 states, unpatched.
 - **`_labels_for`** compares only `_LABEL_KEYS`. Between 2020 and 2025, 7/22/5
   (viviendas/personas/migrantes) shared columns label differently.
 - **Core scope**: a core entry with `Tablas` applies only to those tables (`_in_scope`;
@@ -221,3 +176,7 @@ No unit is queued. Candidates, roughly by value:
   files.
 - **Tailscale SSH can demand a re-login at any time.** A hanging `ssh wsl` that prints a
   login URL needs the user.
+- **1995's `FACTOR`** exists only under `harmonize=True` (`cpv._FACTOR_FROM`: persons
+  `FAC_POB`, emigrants `FAC_VIV`); raw 1995 frames keep only the three estimators.
+- **Disability flags**: `DISCAPACIDAD`/`LIMITACION` are INEGI's definitions (the CPV
+  constraints use them); `DIS_CON`/`DIS_LIMI` are the legacy ones, kept for 2020 = legacy.

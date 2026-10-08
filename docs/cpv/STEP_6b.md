@@ -106,6 +106,9 @@ column or constraint, so nothing was needed.
 
 ## Finding: the legacy disability flags are not INEGI's definitions
 
+*Resolved in 6c (`STEP_6c.md`): INEGI-definition `DISCAPACIDAD`/`LIMITACION` columns, used by
+the CPV constraints.*
+
 The three remaining 2025 indicators differ (state 01):
 
 | indicator | microdata | published | INEGI's rule, found by fitting |

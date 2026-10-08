@@ -126,6 +126,8 @@ def test_derive_persons_2025_recodes():
     assert first["EDUC"] == "Primaria_com" and second["EDUC"] == "Blanco por pase"
     assert first["DIS_CON"] == "Sí" and first["DIS_LIMI"] == "No"
     assert second["DIS_CON"] == "No" and second["DIS_LIMI"] == "Sí"
+    assert (first["DISCAPACIDAD"], first["LIMITACION"]) == ("Sí", "No")
+    assert (second["DISCAPACIDAD"], second["LIMITACION"]) == ("No", "Sí")
     # 2025's 05 is IMSS-BIENESTAR, its 06 the public health centres (2020: the reverse)
     assert (first["DHSERSAL_IMSS_BIENESTAR"], first["DHSERSAL_SALUD_PUBLICA"]) == (1, 0)
     assert (second["DHSERSAL_IMSS_BIENESTAR"], second["DHSERSAL_SALUD_PUBLICA"]) == (0, 1)
@@ -145,6 +147,20 @@ def test_derive_persons_2025_recodes():
     for col, dtype in d.derived_dtypes("personas", "2025").items():
         assert out[col].dtype == dtype, col
     assert out["EDAD_CAT"].cat.ordered
+
+
+def test_disability_flags_inegi_vs_legacy():
+    """INEGI's rules: code 8 («degree unknown») is a disability; a limitation (some
+    difficulty) excludes the disabled. The legacy flags count otherwise."""
+    df = _persons_2025().iloc[[0, 0, 0]].reset_index(drop=True)
+    df[list(d._DIS_ITEMS)] = [["1", "8", "1", "1", "1", "1"],     # degree unknown
+                              ["2", "3", "1", "1", "1", "1"],     # some and much difficulty
+                              ["2", "9", "1", "1", "1", "1"]]     # some + unspecified
+    out = d.derive(df, "personas", 2025)
+    assert list(out["DISCAPACIDAD"]) == ["Sí", "Sí", "No especificado"]
+    assert list(out["LIMITACION"]) == ["No", "No", "Sí"]
+    assert list(out["DIS_CON"]) == ["No especificado", "Sí", "No especificado"]
+    assert list(out["DIS_LIMI"]) == ["No especificado", "Sí", "Sí"]
 
 
 def test_derive_2020_has_no_recode():
@@ -203,6 +219,8 @@ def test_cpv_constraints_per_edition():
     assert set(mxcensus.cpv_constraints("viviendas", 2025)) == {"TOTHOG", "HOGJEF_F", "HOGJEF_M"}
     c20 = mxcensus.cpv_constraints("personas", 2020)
     assert c20["PDER_SEGP"] == {"DHSERSAL_SALUD_PUBLICA": [1]}        # neutral DHSERSAL name
+    assert c20["PCON_DISC"] == {"DISCAPACIDAD": ["Sí"]}                # INEGI's definitions
+    assert c20["PCON_LIMI"] == {"LIMITACION": ["Sí"]}
     v20 = mxcensus.cpv_constraints("viviendas", 2020)
     assert "dentro de la vivienda?" in v20["VPH_AGUADV"]["AGUA_ENTUBADA"]   # the FD's wording
     for period in ("2010", "2020", "2025"):                            # categories all exist
@@ -256,7 +274,7 @@ def test_derived_2020_equals_legacy(local_mirror, table, state):
         assert new[col].astype(object).equals(legacy[col].astype(object)), col
         if not col.startswith(("DHSERSAL_", "MED_TRASLADO_", "FINANCIAMIENTO_")):
             assert new[col].dtype == legacy[col].dtype, col
-    for col in set(new.columns) - set(shared):
+    for col in set(new.columns) - set(shared) - set(d._DTYPES):     # unobserved codes' dummies
         assert (new[col].astype(int) == 0).all(), col
 
 
@@ -294,18 +312,17 @@ def test_crosstab_per_edition(local_mirror, period):
         assert mxcensus.get_tables_dict(mxcensus.cpv_constraints("viviendas", period), viv.dtypes)
 
 
-# The legacy DIS_CON/DIS_LIMI and the PSIND_LIM cells follow the legacy definitions, not
-# INEGI's (which counts code 8, «degree unknown», as a disability and keeps the disabled out
-# of «limitación»): their estimates differ.
-_DEFINITIONS_DIFFER = {"PCON_DISC", "PCON_LIMI", "PSIND_LIM"}
+# PSIND_LIM's cells (no difficulty in any activity, no mental condition) are the legacy
+# definition; INEGI's exact rule is not known, and its estimate differs (STEP_6b.md).
+_DEFINITIONS_DIFFER = {"PSIND_LIM"}
 
 
 @_REAL_SKIP
 @pytest.mark.parametrize("table", ["personas", "viviendas"])
 def test_eic2025_constraints_equal_estimates(local_mirror, table):
     """EIC 2025: Σ ``FACTOR`` over each constraint's cells equals the published state
-    estimate exactly (the factors are calibrated to them), but for the disability
-    indicators whose definitions differ."""
+    estimate exactly (the factors are calibrated to them), ``PCON_DISC``/``PCON_LIMI``
+    through INEGI's ``DISCAPACIDAD``/``LIMITACION``; not ``PSIND_LIM``."""
     loader = mxcensus.load_cpv_personas if table == "personas" else mxcensus.load_cpv_viviendas
     frame = loader(2025, state=1, derived=True)
     est = mxcensus.load_cpv_estimaciones(survey_path=_MIRROR / "cpv_estimaciones_2025.parquet",
@@ -321,4 +338,4 @@ def test_eic2025_constraints_equal_estimates(local_mirror, table):
         else:
             assert total == round(est[ind].iloc[0]), ind
             checked += 1
-    assert checked == {"personas": 22, "viviendas": 3}[table]
+    assert checked == {"personas": 24, "viviendas": 3}[table]

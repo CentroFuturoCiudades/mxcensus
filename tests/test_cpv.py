@@ -3132,6 +3132,33 @@ def test_load_cpv_1990_1995_real(local_mirror):
     assert str(p95["P3_6"].dtype) == "Int64" and p95["P3_6"].max() <= 98
 
 
+@pytest.mark.filterwarnings("ignore:.*lacks core column")   # keyless synthetic frames
+def test_harmonize_1995_factor():
+    """``harmonize=True`` gives the Conteo 1995 a ``FACTOR``: the table's estimator
+    (``FAC_POB`` persons, ``FAC_VIV`` emigrants), inserted before it; idempotent; an
+    edition with its own ``FACTOR`` is untouched."""
+    per = pd.DataFrame({"ENT": ["01"], "FAC_POB": ["12"], "FAC_VIV": ["10"], "FAC_PROM": ["11"]})
+    out = _cpv._harmonize(per, "personas", periods=("1995",))
+    assert list(out.columns[-4:]) == ["FACTOR", "FAC_POB", "FAC_VIV", "FAC_PROM"]
+    assert out["FACTOR"].tolist() == [12]
+    assert _cpv._harmonize(out, "personas", periods=("1995",)).equals(out)
+    mig = _cpv._harmonize(pd.DataFrame({"ENT": ["01"], "FAC_VIV": ["7"]}), "migrantes",
+                          periods=("1995",))
+    assert mig["FACTOR"].tolist() == [7]
+    own = _cpv._harmonize(pd.DataFrame({"ENT": ["01"], "FACTOR": ["3"], "FAC_POB": ["9"]}),
+                          "personas", periods=("2020",))
+    assert own["FACTOR"].tolist() == [3]
+
+
+@pytest.mark.skipif(not _REAL_1995, reason="no local 1995 mirror")
+def test_harmonize_1995_factor_real(local_mirror):
+    per = mxcensus.load_cpv_personas(1995, state=1, harmonize=True)
+    mig = mxcensus.load_cpv_migrantes(1995, state=1, harmonize=True)
+    assert (per["FACTOR"] == per["FAC_POB"]).all() and int(per["FACTOR"].sum()) == 858_971
+    assert (mig["FACTOR"] == mig["FAC_VIV"]).all()
+    assert "FACTOR" not in mxcensus.load_cpv(table="personas", period=1995, state=1)
+
+
 @pytest.mark.skipif(len(_STATES_9095) < 32, reason="needs all 32 states of 1990 and 1995")
 def test_cpv_1990_1995_national_real():
     rows90, pob95, viv95 = 0, 0, 0

@@ -89,6 +89,9 @@ from mxcensus.data._cpv_catalog import (
 
 # Expansion weight — validated as numeric.
 _WEIGHTS = {"FACTOR", "FAC_POB", "FAC_VIV", "FAC_PROM"}   # Conteo 1995: three estimators
+# The Conteo 1995's estimator for each table's unit, copied to ``FACTOR`` by
+# ``harmonize=True`` (FAC_PROM, for health coverage and disability, has no FACTOR copy).
+_FACTOR_FROM = {"personas": "FAC_POB", "migrantes": "FAC_VIV"}
 
 # Keys and geographic codes: digit strings (their width is edition-specific, so only the
 # all-digits shape is checked here; key widths are checked by the data tests). CPV 2020
@@ -469,7 +472,9 @@ def _harmonize(df: pd.DataFrame, table: str, label: str = "",
     ``1``…``9``, 2000/2005's ``SEXO`` ``2`` = mujer → ``3``) → the keys of an edition without key columns (CGPV 2000, Conteo 2005,
     :func:`_composite_keys`) → derive ``CVEGEO`` from the leading
     :data:`_GEO_PARTS` the frame carries (inserted first) or, when present, **check** it
-    against them (a mismatch warns) → numeric ``FACTOR``. A missing required core column
+    against them (a mismatch warns) → numeric ``FACTOR`` (the Conteo 1995's has none: a
+    copy of the table's estimator, ``FAC_POB`` for persons and ``FAC_VIV`` for emigrants,
+    :data:`_FACTOR_FROM`, inserted before it). A missing required core column
     warns (the rename map may be stale). ``periods`` are the frame's editions (its schema
     group's; ``None`` = unknown: no edition-specific step). Column order and every other
     value are kept, so it is idempotent and, for 2025, the identity up to the ``FACTOR``
@@ -507,6 +512,9 @@ def _harmonize(df: pd.DataFrame, table: str, label: str = "",
                               f"in {bad} row(s).", stacklevel=3)
         else:
             out.insert(0, "CVEGEO", geo)
+    source = _FACTOR_FROM.get(table)
+    if "FACTOR" not in out.columns and source in out.columns:     # Conteo 1995
+        out.insert(out.columns.get_loc(source), "FACTOR", out[source])
     if "FACTOR" in out.columns:
         out["FACTOR"] = pd.to_numeric(out["FACTOR"], errors="coerce")
     missing = sorted(_required(table) - set(out.columns))
@@ -835,7 +843,9 @@ def load_cpv_personas(
     a numeric ``FACTOR``, indexed by the person key ``(ID_VIV, ID_PERSONA)`` — in 1995,
     2000 and 2005 ``(ID_VIV, ID_HOG, ID_PERSONA)``, persons nested in households (2005 and
     1990 have no weight; 1995 has three, ``FAC_POB`` for persons, ``FAC_VIV`` for dwellings
-    and households, ``FAC_PROM`` for health coverage and disability; 2000's persons are
+    and households, ``FAC_PROM`` for health coverage and disability — ``harmonize=True``
+    adds ``FACTOR`` = ``FAC_POB``, so weight 1995's health and disability items with
+    ``FAC_PROM``; 2000's persons are
     unnumbered, so ``ID_PERSONA`` counts them in file order, :func:`_composite_keys`). In
     1990 and 1995 this is the only microdata table: each person carries the dwelling's
     (and household's) items.
@@ -865,8 +875,9 @@ def load_cpv_migrantes(
 
     Emigrants hang from the dwelling, not from a person. A returned emigrant who lives in
     the dwelling again (``MCONRESACT`` = Sí) carries their number in the person list in
-    ``MPERLS``, which joins ``(ID_VIV, NUMPER)`` of :func:`load_cpv_personas`. Labelled by
-    default (``labels``, see :func:`load_cpv_viviendas`).
+    ``MPERLS``, which joins ``(ID_VIV, NUMPER)`` of :func:`load_cpv_personas`. The Conteo
+    1995's emigrants carry the dwelling weight ``FAC_VIV`` (``harmonize=True`` copies it to
+    ``FACTOR``). Labelled by default (``labels``, see :func:`load_cpv_viviendas`).
     """
     return _load_level("migrantes", period, state, harmonize, labels)
 

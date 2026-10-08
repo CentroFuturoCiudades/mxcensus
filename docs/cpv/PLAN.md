@@ -30,6 +30,7 @@ unit.
 | **5b** | 1990 + 1995 samples, MG 1995; upload | 5a | ✅ done 2026-10-08 on the Mac (`STEP_5b.md`): 96 files (1995 `datgen95` is a person file → `personas`); `--validate` 0/897; FDs from encrypted PDFs (poppler; `parse_fd_1990_text`/`parse_fd_1995_text`), ranges reconciled with the data; 1990 keys via folio occurrences; 1995's three weights; MG 1995 (64 files); uploaded in the release batch |
 | **6a** | Cross-year geographic crosswalk (AGEEML / Archivo Histórico de Localidades) | 5 | ✅ done 2026-10-08 (`STEP_6a.md`): municipal lineage from the MG polygons 1995–2025 (50 new codes, none retired; `cpv_mun_lineage.yaml`, `scripts/build_geo_crosswalk.py`); `cpv_mun_lineage()`, `cpv_municipal_units(start, end)`; localities not covered |
 | **6b** | Port `load_extended_*` derived columns onto labelled frames; `crosstabs` per edition | 6a | ✅ done 2026-10-08 (`STEP_6b.md`): `cpv_derived` (`derived=True`; 2020 = legacy in 32 states; 2025 via `_RECODE`; 2015/2010 identical items), `cpv_constraints` per edition (2025 cells = estimates); the release batch went first: registry 2695 → 3751, 1,056 files uploaded, v0.7.0 |
+| **6c** | Review of the pending decisions (3b–6b) with the user; follow-ups | 6b | ✅ done 2026-10-08 (`STEP_6c.md`): legacy `impute_collective` NA guard (`load_census` loads all 32 states), `FACTOR` for harmonized 1995 frames, INEGI's `DISCAPACIDAD`/`LIMITACION` (+ the CPV constraints); 17 overnight decisions confirmed; then `main` = v0.7.0 |
 
 ### Session protocol
 

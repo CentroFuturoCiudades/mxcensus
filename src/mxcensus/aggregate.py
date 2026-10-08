@@ -287,7 +287,8 @@ def impute_collective(df_coarse, df_fine):
 
     If the difference between the coarse-grained collective counts and the
     sum of fine-grained counts is zero, missing values in fine-grained
-    household counts are filled assuming zero collective population.
+    household counts are filled assuming zero collective population. A
+    difference that is itself missing (a reserved coarse total) imputes nothing.
 
     Parameters
     ----------
@@ -307,7 +308,8 @@ def impute_collective(df_coarse, df_fine):
         df_coarse[tot_cols] - df_fine.groupby(df_coarse.index.names)[tot_cols].sum()
     )
     for idx_coarse in df_coarse.index:
-        if df_diff.loc[idx_coarse, "POBCOL"] == 0:
+        diff = df_diff.loc[idx_coarse, "POBCOL"]
+        if pd.notna(diff) and diff == 0:
             df_fine.loc[idx_coarse, "POBHOG"] = (
                 df_fine.loc[idx_coarse, "POBHOG"]
                 .mask(
@@ -316,7 +318,8 @@ def impute_collective(df_coarse, df_fine):
                 )
                 .values
             )
-        if df_diff.loc[idx_coarse, "TOTCOL"] == 0:
+        diff = df_diff.loc[idx_coarse, "TOTCOL"]
+        if pd.notna(diff) and diff == 0:
             df_fine.loc[idx_coarse, "TOTHOG"] = (
                 df_fine.loc[idx_coarse, "TOTHOG"]
                 .mask(
