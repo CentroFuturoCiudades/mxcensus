@@ -1,11 +1,12 @@
 # CPV family — session handoff
 
-**Status (2026-10-08, late night): units 0–6d are done. `main` = v0.7.0 (through 6c); 6d is
-committed on `cpv-integration` only (code and docs, no data). No unit is queued.**
+**Status (2026-10-08): units 0–6e are done. `main` = v0.7.0 (through 6c); 6d and 6e are on
+`cpv-integration` (code and docs, no data); the user chose to merge them together at the
+end of 6e (ask first; v0.7.1 is the user's call). No unit is queued.**
 - **Released** (registered, uploaded, verified): every edition 1990–2025 (897 `cpv_` files)
   and the Marco Geoestadístico 1995–2025 frames; registry **3751** entries
   (`STEP_6b.md` §Release batch).
-- **Derived columns** (6b, 6d): `derived=True` on `load_cpv_personas/viviendas/survey`;
+- **Derived columns** (6b, 6d, 6e): `derived=True` on `load_cpv_personas/viviendas/survey`;
   `cpv_constraints(table, period)` gives the constraints per edition (`STEP_6b.md`).
 - **6c** (review of every pending decision with the user, `STEP_6c.md`): legacy NA guard,
   1995 `FACTOR`, INEGI's `DISCAPACIDAD`/`LIMITACION`.
@@ -13,14 +14,19 @@ committed on `cpv-integration` only (code and docs, no data). No unit is queued.
   `SITUA_CONYUGAL` (2010 from `ESTCON`) and `NIVACAD`; no `DHSERSAL_IMSS_BIENESTAR` in
   2010/2015; 2015's own commute dummies; 2010's `LIM_ACTIVIDAD`; 2010 constraints 91 → 126,
   with the 2010 ITER's own limitation indicators (`_EDITION_CELLS`).
-- **Merge**: `cpv-integration` is one commit ahead of `main`. Merging (and whether 6d is
-  worth a v0.7.1) is the user's call.
+- **6e** (`STEP_6e.md`): 2015/2010 birthplace and residence five years earlier (2010 from
+  its split entity/country items), the partner pointer (2010 from its pointer pairs), 2015
+  `IDENT_MADRE/PADRE_CAT`, new `MADRE_EN_VIVIENDA`/`PADRE_EN_VIVIENDA` (2010–2025), 2015's
+  own `FINANCIAMIENTO_*` dummies; 2010 constraints 126 → 138. Checked against INEGI's
+  tabulados in all 32 states.
+- **Merge**: see the status line.
 
-Design: [`PLAN.md`](PLAN.md) (unit table: all ✅). Recent units: [`STEP_6d.md`](STEP_6d.md),
+Design: [`PLAN.md`](PLAN.md) (unit table: all ✅). Recent units: [`STEP_6e.md`](STEP_6e.md),
+[`STEP_6d.md`](STEP_6d.md),
 [`STEP_6c.md`](STEP_6c.md), [`STEP_6b.md`](STEP_6b.md), … [`STEP_0_probe.md`](STEP_0_probe.md).
 
 **Host state.** The Mac and `wsl:~/mxcensus` both hold the full mirror (3751 registered
-files); `wsl:~/mxcensus` is at v0.7.0 (pull before running 6d code there).
+files); `wsl:~/mxcensus` is at v0.7.0 (pull before running 6d/6e code there).
 `wsl:~/mxcensus3c` (3c's code copy) can be deleted.
 
 ## Kickoff prompt for the next session
@@ -33,15 +39,12 @@ files); `wsl:~/mxcensus` is at v0.7.0 (pull before running 6d code there).
 
 ## Next: candidates (none decided)
 
-1. **More 2015/2010 derived items** (6d left them; each needs a reviewed mapping):
-   - birthplace / residence 5 years before: 2015 `ENT_PAIS_NAC`, `ENT_PAIS_RES10`; 2010
-     `LNACEDO_C`/`LNACPAIS_C`, `RES05EDO_C`/`RES05PAI_C` (catalogs to compare with 2020's);
-   - parents/partner in the dwelling: 2015 `IDENT_MADRE`/`PADRE`/`PAREJA` (person-number
-     pointers, other sentinels); 2010 `IDMADREC`/`IDPADREC`/`IDCONYUGEC`;
-   - 2015 `FINANCIAMIENTO` (one item, not three);
+1. **The rest of the 2015/2010 derived items** (6e did migration, pointers, financing):
    - occupation/activity coarse codes: 2015/2010 use older SINCO/SCIAN (2010: other
-     catalogs), so `*_COARSE` needs a catalog bridge;
-   - 2010 religion (`OTRAREL_C`, a catalog; the 2010 ITER has `PCATOLICA`/`PSIN_RELIG`).
+     catalogs, `TC_OCUPACION_2010`/`TC_SCIAN_2010`), so `OCUPACION_C_COARSE`/
+     `ACTIVIDADES_C_COARSE` need a catalog bridge to 2020's coarse groups;
+   - 2010 religion (`OTRAREL_C`, catalog `TC_RELIGION_2010`; the 2010 ITER has
+     `PCATOLICA`/`PSIN_RELIG`, so constraints would follow). 2015 asked no religion.
 2. **`PSIND_LIM`'s exact rule.** The 2025 estimate is 1,263,545 for state 01; the closest
    rule tried gives 1,263,337.
 3. **The EIC 2015 geographic frame** (3d leftover, `STEP_3d.md`).
@@ -49,7 +52,7 @@ files); `wsl:~/mxcensus` is at v0.7.0 (pull before running 6d code there).
 
 ## Open questions for the user
 
-None pending: every decision of units 3b–6b was settled on 2026-10-08 (`STEP_6c.md`).
+None pending: 6e's decisions were taken with the user (`STEP_6e.md` §Decisions).
 
 ## Gotchas (carry forward)
 
@@ -194,6 +197,21 @@ None pending: every decision of units 3b–6b was settled on 2026-10-08 (`STEP_6
   `_OWN_CODES`). A new edition or recode needs its rows there.
 - **Unknown codes raise everywhere** (6d): the dummy sets and `DHSERSAL` mark a row with an
   unlisted code missing (`_as_dummies`), so `derive` reports it like the other columns.
+- **Unspecified state** (6e): the derived `ENT_PAIS_*_CAT` send it to `OtraEnt` in every
+  edition (the legacy 2020 rule for 997; 2010's entity 999 recodes to 997). INEGI's
+  tabulados count it as «No especificado» (2015 birthplace: 252 persons, 2010 residence:
+  1,690), so a tabulado comparison must move that group first
+  (`test_migration_equals_tabulados`). Country «insufficiently specified» is `OtroPais`
+  in both.
+- **2010 pointer pairs** (6e): `IDMADRE`/`IDPADRE`/`IDCONYUGE` = row (up to 96) or 99 «row
+  not given»; `…C` = 88 «not here», 99 NE, blank when the person lives here. «99 + blank
+  code» means lives here (`_pointer_2010`); that is why 2010's co-residence NE share
+  (0.6%) is below 2015's (2.2%).
+- **INEGI's tabulados as checks** (6e): EIC 2015 `intercensal/2015/tabulados/NN_tema.xls`
+  (`04_migracion`, `14_vivienda`, `01_poblacion`…; estimator «Valor», percentages with 6
+  decimals) and Censo 2010 ampliado `ccpv/2010/tabulados/Ampliado/NN_NNA_ESTATAL.xls`
+  («Parámetro», full precision). Read with `scripts/_dict_fd.read_xls`; a wrong name comes
+  back as HTTP 200 + `text/html`. Their «5 años y más» leaves out unspecified ages.
 - **2010 limitation ≠ 2020 disability.** 2010 asked yes/no per activity (`DISCAP1`–`8`);
   its ITER `PCLIM_VIS`/`PCLIM_MOT2` share 2020's names with another concept (crosswalk
   `Comparable: false`). `_EDITION_CELLS` adds them for 2010 on 2010's own items, whatever

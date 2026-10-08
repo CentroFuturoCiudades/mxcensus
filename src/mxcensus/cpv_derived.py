@@ -24,21 +24,34 @@ therefore equal the legacy ones (tested state by state). Two differences, both d
   loaders only create the observed ones). As in the legacy loaders, a blank second or
   third item sets the ``…_Blanco por pase`` dummy.
 
-Two columns are new: ``DISCAPACIDAD``/``LIMITACION``, INEGI's definitions of disability and
-limitation (code 8, «degree unknown», is a disability; a limitation excludes the disabled).
-The legacy ``DIS_CON``/``DIS_LIMI`` count otherwise and are kept as they are.
+Four columns are new: ``DISCAPACIDAD``/``LIMITACION``, INEGI's definitions of disability
+and limitation (code 8, «degree unknown», is a disability; a limitation excludes the
+disabled; the legacy ``DIS_CON``/``DIS_LIMI`` count otherwise and are kept as they are),
+and ``MADRE_EN_VIVIENDA``/``PADRE_EN_VIVIENDA`` (whether the mother/father lives in the
+dwelling: the one part of ``IDENT_MADRE``/``IDENT_PADRE`` Censo 2010 also asked).
 
 **Editions.** Censo 2020 and EIC 2025 (same questionnaire family) get every derivation
 whose sources exist; 2025 lacks ``RELIGION`` and ``IDENT_HIJO``. EIC 2015 and Censo 2010
 get the derivations whose source items map onto the 2020 codes (:data:`_RECODE`; 2010
-reads its marital status from ``ESTCON``), with three edition-specific sets:
+reads its marital status from ``ESTCON``, 2015 its residence five years earlier from
+``ENT_PAIS_RES10``), with these edition-specific sets:
 
 - ``DHSERSAL_*`` without ``DHSERSAL_IMSS_BIENESTAR`` (neither edition offered
   IMSS-PROSPERA/BIENESTAR);
 - the EIC 2015 commute dummies, one per 2015 code (7 modes): the 2020 names where the mode
   is the same, 2015's wording for the three modes 2020 splits;
+- the EIC 2015 financing dummies, one per code of its one item: the 2020 names where the
+  source is the same, 2015's wording for «INFONAVIT, FOVISSSTE o PEMEX»;
 - Censo 2010's ``LIM_ACTIVIDAD`` («limitación en la actividad», ``DISCAP1``–``DISCAP8``):
-  another question than 2020's difficulty scale, so no ``DIS_*``/``DISCAPACIDAD`` there.
+  another question than 2020's difficulty scale, so no ``DIS_*``/``DISCAPACIDAD`` there;
+- Censo 2010's birthplace and residence in 2005, each split in an entity and a country
+  item (``LNACEDO_C``/``LNACPAIS_C``, ``RES05EDO_C``/``RES05PAI_C``), and its co-residence
+  pointer pairs (row number + code item: ``IDMADRE``/``IDMADREC``…), which give
+  ``IDENT_PAREJA_CAT`` and the two co-residence flags but not ``IDENT_MADRE_CAT``/
+  ``IDENT_PADRE_CAT`` (its «no vive aquí» merges 2020's other dwelling, dead, unknown).
+
+An unspecified entity (2020: 997) counts as ``OtraEnt`` in every edition, the legacy rule;
+INEGI's tabulados count it as not specified (a few hundred persons per edition).
 
 :func:`cpv_derivations` lists the columns per edition. The check that the source codes
 match after the recode is a test (``tests/test_cpv_derived.py``).
@@ -95,6 +108,8 @@ _RECODE: dict[str, dict[str, dict[int, int]]] = {
         # 5 = casada(o), not split into civil/religious (2020: 05–07, all «casado»);
         # 6 = soltera(o).
         "SITUA_CONYUGAL": {6: 8},
+        # «¿Dónde vive la pareja?»: 98 = does not know where, so not in this dwelling (96).
+        "IDENT_PAREJA": {98: 96},
     },
     "2010": {
         # 6 = private, 7 = other, 8 = no entitlement, 9 = not specified (2020: 07, 08, 09, 99);
@@ -104,18 +119,27 @@ _RECODE: dict[str, dict[str, dict[int, int]]] = {
         # 04 = either bachillerato (2020: 04/05), 05 = normal básica (09), then normal de
         # licenciatura, licenciatura, maestría, doctorado (10, 11, 13, 14); no especialidad.
         "NIVACAD": {5: 9, 9: 10, 10: 11, 11: 13, 12: 14},
+        # Birthplace and residence in 2005: an entity item and a country item. Entity 999 =
+        # entity not specified (2020: 997), 900 = topic omitted (999); country 600 =
+        # insufficiently specified (998), 700 = «México (país)» (997), 999 = country not
+        # specified (998).
+        "LNACEDO_C": {900: 999, 999: 997},
+        "RES05EDO_C": {900: 999, 999: 997},
+        "LNACPAIS_C": {600: 998, 700: 997, 999: 998},
+        "RES05PAI_C": {600: 998, 700: 997, 999: 998},
     },
 }
 
 # A source read under another name in some editions or under harmonize=True.
-_ALIASES = {"ENT": ("ENT", "CVE_ENT"), "SITUA_CONYUGAL": ("SITUA_CONYUGAL", "ESTCON")}
+_ALIASES = {"ENT": ("ENT", "CVE_ENT"), "SITUA_CONYUGAL": ("SITUA_CONYUGAL", "ESTCON"),
+            "ENT_PAIS_RES_5A": ("ENT_PAIS_RES_5A", "ENT_PAIS_RES10")}
 
 _BLANK = -1  # a blank (not asked) code, as the legacy dictionaries spell it
 _DUMMY = pd.CategoricalDtype([0, 1])
 # Derived columns the legacy loaders do not have (the others take the legacy dtype).
-_DTYPES = {"DISCAPACIDAD": pd.CategoricalDtype(["Sí", "No", "No especificado"]),
-           "LIMITACION": pd.CategoricalDtype(["Sí", "No", "No especificado"]),
-           "LIM_ACTIVIDAD": pd.CategoricalDtype(["Sí", "No", "No especificado"])}
+_YES_NO = pd.CategoricalDtype(["Sí", "No", "No especificado"])
+_DTYPES = {"DISCAPACIDAD": _YES_NO, "LIMITACION": _YES_NO, "LIM_ACTIVIDAD": _YES_NO,
+           "MADRE_EN_VIVIENDA": _YES_NO, "PADRE_EN_VIVIENDA": _YES_NO}
 _DIS_ITEMS = ("DIS_VER", "DIS_OIR", "DIS_CAMINAR", "DIS_RECORDAR", "DIS_BANARSE", "DIS_HABLAR")
 # Censo 2010: one item per activity (DISCAP1–7, its code or blank), DISCAP8 = none (17) or
 # not specified (99).
@@ -318,6 +342,19 @@ def _traslado_2015(item: str) -> dict[int, str]:
             for code in sorted({*_TRASLADO_2015_OWN, *same}, key=lambda c: (c == _BLANK, c))}
 
 
+# EIC 2015's one financing item (one answer) → the 2020 code where the source is the same;
+# its 1 merges INFONAVIT, FOVISSSTE and PEMEX (2020: 1–3) and keeps 2015's wording.
+_FINANCIAMIENTO_2015_SAME = {2: 4, 3: 5, 4: 6, 5: 7, 6: 8, 9: 9, _BLANK: _BLANK}
+
+
+@functools.cache
+def _financiamiento_2015() -> dict[int, str]:
+    """EIC 2015 financing code → dummy label (the 2020 label where the source is the same)."""
+    legacy = _legacy_map("viviendas", "FINANCIAMIENTO1")
+    return {1: "INFONAVIT, FOVISSSTE o PEMEX",
+            **{code: legacy[ref] for code, ref in _FINANCIAMIENTO_2015_SAME.items()}}
+
+
 def _lim_actividad(src):
     """Censo 2010's «limitación en la actividad» (its ITER's ``PCON_LIM``/``PSIN_LIM``): a
     difficulty in at least one activity (``DISCAP1``–``DISCAP7``), none (``DISCAP8`` = 17)
@@ -335,11 +372,41 @@ def _cat(table: str, var: str, name: str):
     return fn
 
 
-def _ent_pais_cat(var: str, name: str):
-    """Entity or country → ``OtraEnt``/``OtroPais``/…, ``EstaEnt`` for the person's entity."""
+def _ent_pais_cat(var: str, name: str, abroad: str | None = None):
+    """Entity or country → ``OtraEnt``/``OtroPais``/…, ``EstaEnt`` for the person's entity
+    (Censo 2010 splits the answer: the entity item ``var``, else the country item
+    ``abroad``)."""
     def fn(src):
-        cat = _mapped(src[var], "personas", name, name)
-        return {name: cat.mask(src[var].eq(src["ENT"]), "EstaEnt")}
+        code = src[var] if abroad is None else src[var].fillna(src[abroad])
+        cat = _mapped(code, "personas", name, name)
+        return {name: cat.mask(code.eq(src["ENT"]), "EstaEnt")}
+    return fn
+
+
+def _pointer_2010(number: pd.Series, code: pd.Series) -> pd.Series:
+    """Censo 2010's pointer pair («en esta vivienda, ¿vive…? ¿Quién es?»: the row number,
+    99 when the row was not given, and the code item: 88 not here, 99 not specified) → a
+    2020 pointer code: 1 (a row of this dwelling), 96 (not here), 99; blank when both are
+    blank (not asked). Any other code becomes -99, which no category takes."""
+    out = code.replace({88: 96}).mask(code.isna() & number.notna(), 1)
+    return out.where(code.isna() | code.isin([88, 99]), -99)
+
+
+def _pareja_2010(src):
+    code = _pointer_2010(src["IDCONYUGE"], src["IDCONYUGEC"])
+    return {"IDENT_PAREJA_CAT": _mapped(code, "personas", "IDENT_PAREJA_CAT",
+                                        "IDENT_PAREJA_CAT")}
+
+
+def _en_vivienda(name: str, item: str, code_item: str | None = None):
+    """Whether the mother or father lives in the dwelling, from the 2020 pointer codes: a
+    row number 01–54 (Sí), 96–98 another dwelling, dead or unknown (No), 99 (No
+    especificado). Censo 2010 (``code_item``) reads its pair through :func:`_pointer_2010`."""
+    def fn(src):
+        codes = src[item] if code_item is None else _pointer_2010(src[item], src[code_item])
+        values = np.select([codes.between(1, 54), codes.isin([96, 97, 98]), codes.eq(99)],
+                           ["Sí", "No", "No especificado"], None)
+        return {name: _as(values, "personas", name)}
     return fn
 
 
@@ -359,6 +426,7 @@ class _Derivation:
 
 _NEW = ("2020", "2025")
 _OLD = ("2010", "2015")
+_SINCE_2015 = ("2015", "2020", "2025")
 _ALL = ("2010", "2015", "2020", "2025")
 _ESC = ("MED_TRASLADO_ESC1", "MED_TRASLADO_ESC2", "MED_TRASLADO_ESC3")
 _TRAB = ("MED_TRASLADO_TRAB1", "MED_TRASLADO_TRAB2", "MED_TRASLADO_TRAB3")
@@ -370,6 +438,7 @@ def _registry() -> tuple[_Derivation, ...]:
     D = _Derivation
     per, viv = "personas", "viviendas"
     esc15, trab15 = _traslado_2015(_ESC[0]), _traslado_2015(_TRAB[0])
+    fin15 = _financiamiento_2015()
     return (
         D(per, ("EDAD_CAT",), ("EDAD",), _ALL, _edad_cat),
         D(per, ("INGTRMEN_CAT",), ("INGTRMEN",), _ALL, _ingtrmen_cat),
@@ -397,21 +466,34 @@ def _registry() -> tuple[_Derivation, ...]:
         D(per, ("CONACT_CAT",), ("CONACT",), _ALL, _cat(per, "CONACT", "CONACT_CAT")),
         D(per, ("SITUA_CONYUGAL_CAT",), ("SITUA_CONYUGAL",), _ALL,
           _cat(per, "SITUA_CONYUGAL", "SITUA_CONYUGAL_CAT")),
-        D(per, ("ENT_PAIS_NAC_CAT",), ("ENT_PAIS_NAC", "ENT"), _NEW,
+        D(per, ("ENT_PAIS_NAC_CAT",), ("ENT_PAIS_NAC", "ENT"), _SINCE_2015,
           _ent_pais_cat("ENT_PAIS_NAC", "ENT_PAIS_NAC_CAT")),
-        D(per, ("ENT_PAIS_RES_CAT",), ("ENT_PAIS_RES_5A", "ENT"), _NEW,
+        D(per, ("ENT_PAIS_NAC_CAT",), ("LNACEDO_C", "LNACPAIS_C", "ENT"), ("2010",),
+          _ent_pais_cat("LNACEDO_C", "ENT_PAIS_NAC_CAT", abroad="LNACPAIS_C")),
+        D(per, ("ENT_PAIS_RES_CAT",), ("ENT_PAIS_RES_5A", "ENT"), _SINCE_2015,
           _ent_pais_cat("ENT_PAIS_RES_5A", "ENT_PAIS_RES_CAT")),
-        D(per, ("IDENT_MADRE_CAT",), ("IDENT_MADRE",), _NEW,
+        D(per, ("ENT_PAIS_RES_CAT",), ("RES05EDO_C", "RES05PAI_C", "ENT"), ("2010",),
+          _ent_pais_cat("RES05EDO_C", "ENT_PAIS_RES_CAT", abroad="RES05PAI_C")),
+        D(per, ("IDENT_MADRE_CAT",), ("IDENT_MADRE",), _SINCE_2015,
           _cat(per, "IDENT_MADRE", "IDENT_MADRE_CAT")),
-        D(per, ("IDENT_PADRE_CAT",), ("IDENT_PADRE",), _NEW,
+        D(per, ("IDENT_PADRE_CAT",), ("IDENT_PADRE",), _SINCE_2015,
           _cat(per, "IDENT_PADRE", "IDENT_PADRE_CAT")),
-        D(per, ("IDENT_PAREJA_CAT",), ("IDENT_PAREJA",), _NEW,
+        D(per, ("IDENT_PAREJA_CAT",), ("IDENT_PAREJA",), _SINCE_2015,
           _cat(per, "IDENT_PAREJA", "IDENT_PAREJA_CAT")),
+        D(per, ("IDENT_PAREJA_CAT",), ("IDCONYUGE", "IDCONYUGEC"), ("2010",), _pareja_2010),
+        D(per, ("MADRE_EN_VIVIENDA",), ("IDENT_MADRE",), _SINCE_2015,
+          _en_vivienda("MADRE_EN_VIVIENDA", "IDENT_MADRE")),
+        D(per, ("MADRE_EN_VIVIENDA",), ("IDMADRE", "IDMADREC"), ("2010",),
+          _en_vivienda("MADRE_EN_VIVIENDA", "IDMADRE", "IDMADREC")),
+        D(per, ("PADRE_EN_VIVIENDA",), ("IDENT_PADRE",), _SINCE_2015,
+          _en_vivienda("PADRE_EN_VIVIENDA", "IDENT_PADRE")),
+        D(per, ("PADRE_EN_VIVIENDA",), ("IDPADRE", "IDPADREC"), ("2010",),
+          _en_vivienda("PADRE_EN_VIVIENDA", "IDPADRE", "IDPADREC")),
         D(per, ("IDENT_HIJO_CAT",), ("IDENT_HIJO",), ("2020",),
           _cat(per, "IDENT_HIJO", "IDENT_HIJO_CAT")),
         D(per, ("RELIGION_CAT",), ("RELIGION",), ("2020",),
           _cat(per, "RELIGION", "RELIGION_CAT")),
-        D(viv, ("CLAVIVP_CAT",), ("CLAVIVP",), ("2015", "2020", "2025"),
+        D(viv, ("CLAVIVP_CAT",), ("CLAVIVP",), _SINCE_2015,
           _cat(viv, "CLAVIVP", "CLAVIVP_CAT")),
         D(viv, ("CUADORM_CAT",), ("CUADORM",), _ALL, _cat(viv, "CUADORM", "CUADORM_CAT")),
         D(viv, ("TOTCUART_CAT",), ("TOTCUART",), _ALL, _cat(viv, "TOTCUART", "TOTCUART_CAT")),
@@ -419,6 +501,9 @@ def _registry() -> tuple[_Derivation, ...]:
         D(viv, ("INGTRHOG_CAT",), ("INGTRHOG",), _ALL, _ingtrhog_cat),
         D(viv, _dummy_names(viv, _FIN, "FINANCIAMIENTO"), _FIN, _NEW,
           _dummies(viv, _FIN, "FINANCIAMIENTO")),
+        D(viv, _dummy_names(viv, ("FINANCIAMIENTO",), "FINANCIAMIENTO", fin15),
+          ("FINANCIAMIENTO",), ("2015",),
+          _dummies(viv, ("FINANCIAMIENTO",), "FINANCIAMIENTO", fin15)),
     )
 
 

@@ -1,4 +1,5 @@
-"""CPV derived columns (``mxcensus.cpv_derived``, units 6b/6d) and the constraints per edition.
+"""CPV derived columns (``mxcensus.cpv_derived``, units 6b/6d/6e) and the constraints per
+edition.
 
 Offline: the registry's source codes per edition (the bundled dictionaries), ``derive`` on
 synthetic raw frames, ``cpv_derivations``/``cpv_constraints``. Real data (skipped without
@@ -57,6 +58,8 @@ _GAPS = {
     ("2010", "NIVACAD"): {5, 12},              # one bachillerato code, no especialidad
     ("2015", "CONACT"): set(range(13, 20)),    # rescued by activity (11–15 → 10), not status
     ("2015", "SITUA_CONYUGAL"): {6, 7},        # casada(o) not split by civil/religious
+    # 2015's FD declares only 999; 997/998 are rows of its catalog (TC_ENTIDAD_PAIS_2015)
+    ("2015", "ENT_PAIS_NAC"): {997, 998}, ("2015", "ENT_PAIS_RES_5A"): {997, 998},
 }
 _EXTRAS = {
     ("2010", "DHSERSAL2"): {1}, ("2015", "DHSERSAL2"): {1},       # IMSS as the 2nd option
@@ -68,9 +71,18 @@ _OWN_CODES = {
        for items in (d._ESC, d._TRAB) for item in items},
     **{("2010", f"DISCAP{i}"): {9 + i} for i in range(1, 8)},
     ("2010", "DISCAP8"): {17, 99},
+    # Censo 2010's split birthplace/residence: entity items (001–032, 900 topic omitted,
+    # 999), country items (catalog TC_PAIS_2010, no sentinel in the FD)
+    **{("2010", item): {*range(1, 33), 900, 999} for item in ("LNACEDO_C", "RES05EDO_C")},
+    **{("2010", item): set() for item in ("LNACPAIS_C", "RES05PAI_C")},
+    # its pointer pairs: the row number (99 = row not given), the code (88 not here, 99)
+    **{("2010", item): {99} for item in ("IDMADRE", "IDPADRE", "IDCONYUGE")},
+    **{("2010", item): {88, 99} for item in ("IDMADREC", "IDPADREC", "IDCONYUGEC")},
+    ("2015", "FINANCIAMIENTO"): set(d._financiamiento_2015()) - {d._BLANK},
 }
 _LATER_OPTIONS = {*d._ESC[1:], *d._TRAB[1:]}      # list fewer codes (options are ordered)
-_NUMERIC_CODES = {"ESCOLARI"}     # numeric in 2010/2015, categorical in 2020 (same values)
+# Numeric in 2010/2015, categorical in 2020 (same values; the pointers: row numbers).
+_NUMERIC_CODES = {"ESCOLARI", "IDENT_MADRE", "IDENT_PADRE", "IDENT_PAREJA"}
 
 
 @pytest.mark.parametrize("table,period,source", sorted(set(_CASES)))
@@ -82,8 +94,10 @@ def test_source_codes_match_2020(table, period, source):
     name = next(a for a in d._ALIASES.get(source, (source,)) if a in labels)
     new = labels[name]
     if (period, source) in _OWN_CODES:
-        codes, own = set(_codes(new)[1]), _OWN_CODES[period, source]
+        tipo, codes = _codes(new)
+        own = _OWN_CODES[period, source]
         assert codes <= own if source in _LATER_OPTIONS else codes == own
+        assert tipo != "string" or new.get("Catálogo")
         return
     ref = variables_cpv_labels(table, _gid(table, "2020"))[source]
     expand = source in _NUMERIC_CODES
@@ -115,6 +129,10 @@ def test_recode_tables():
     assert {r15["CONACT"][c] for c in range(11, 16)} == {10} and r15["CONACT"][20] == 30
     assert r15["SITUA_CONYUGAL"] == {6: 8}
     assert r10["NIVACAD"][5] == 9 and r10["NIVACAD"][12] == 14
+    assert r15["IDENT_PAREJA"] == {98: 96}                            # «no sabe» dónde: No
+    assert r10["LNACEDO_C"] == r10["RES05EDO_C"] == {900: 999, 999: 997}
+    assert r10["LNACPAIS_C"] == r10["RES05PAI_C"]
+    assert set(r10["LNACPAIS_C"].values()) == {997, 998}
 
 
 def test_cpv_derivations_listing():
@@ -133,14 +151,23 @@ def test_cpv_derivations_listing():
     commute = {f"{prefix}_{label}" for prefix, item in (("MED_TRASLADO_ESC", d._ESC[0]),
                                                         ("MED_TRASLADO_TRAB", d._TRAB[0]))
                for label in d._traslado_2015(item).values()}
+    migration = {"ENT_PAIS_NAC_CAT", "ENT_PAIS_RES_CAT"}
+    coresidence = {"IDENT_PAREJA_CAT", "MADRE_EN_VIVIENDA", "PADRE_EN_VIVIENDA"}
     assert p15 == {"EDAD_CAT", "INGTRMEN_CAT", "EDUC", "CONACT_CAT", "SITUA_CONYUGAL_CAT",
+                   "IDENT_MADRE_CAT", "IDENT_PADRE_CAT", *migration, *coresidence,
                    *dhsersal, *commute}
     assert {"MED_TRASLADO_ESC_Caminando", "MED_TRASLADO_TRAB_Transporte de personal"} <= p15 & p20
+    assert {"MADRE_EN_VIVIENDA", "PADRE_EN_VIVIENDA"} <= p20 & p25
     assert set(mxcensus.cpv_derivations("personas", 2010)["COLUMN"]) == {
         "EDAD_CAT", "INGTRMEN_CAT", "HORTRA_CAT", "EDUC", "CONACT_CAT", "SITUA_CONYUGAL_CAT",
-        "LIM_ACTIVIDAD", *dhsersal}
+        "LIM_ACTIVIDAD", *migration, *coresidence, *dhsersal}
     assert set(mxcensus.cpv_derivations("viviendas", 2010)["COLUMN"]) == {
         "CUADORM_CAT", "TOTCUART_CAT", "DRENAJE_CAT", "INGTRHOG_CAT"}
+    v15 = set(mxcensus.cpv_derivations("viviendas", 2015)["COLUMN"])
+    assert v15 == {"CLAVIVP_CAT", "CUADORM_CAT", "TOTCUART_CAT", "DRENAJE_CAT", "INGTRHOG_CAT",
+                   *(f"FINANCIAMIENTO_{v}" for v in d._financiamiento_2015().values())}
+    v20 = set(mxcensus.cpv_derivations("viviendas", 2020)["COLUMN"])
+    assert {"FINANCIAMIENTO_Banco", "FINANCIAMIENTO_FONHAPO"} <= v15 & v20
     assert mxcensus.cpv_derivations("personas", 2005).empty
     with pytest.raises(ValueError, match="migrantes"):
         d.derived_dtypes("migrantes", "2025")
@@ -197,6 +224,8 @@ def test_derive_persons_2025_recodes():
     assert (first["IDENT_MADRE_CAT"], first["IDENT_PADRE_CAT"]) == ("Vive en esta vivienda",
                                                                     "Ya falleció")
     assert first["IDENT_PAREJA_CAT"] == "No" and second["IDENT_MADRE_CAT"] == "No sabe"
+    assert list(out["MADRE_EN_VIVIENDA"]) == ["Sí", "No"]           # 02; 98 = no sabe
+    assert list(out["PADRE_EN_VIVIENDA"]) == ["No", "No"]           # 97 falleció; 96
     for col, dtype in d.derived_dtypes("personas", "2025").items():
         assert out[col].dtype == dtype, col
     assert out["EDAD_CAT"].cat.ordered
@@ -230,14 +259,22 @@ def test_derive_2020_has_no_recode():
 
 def test_derive_dwellings_and_older_editions():
     viv = pd.DataFrame({"CLAVIVP": ["1", "7"], "CUADORM": ["1", "03"], "TOTCUART": ["2", "99"],
-                        "DRENAJE": ["5", ""], "INGTRHOG": ["0", "999999"]}, dtype="str")
+                        "DRENAJE": ["5", ""], "INGTRHOG": ["0", "999999"],
+                        "FINANCIAMIENTO": ["1", ""]}, dtype="str")
     out = d.derive(viv, "viviendas", 2015)
     assert list(out["CLAVIVP_CAT"]) == ["Vivienda", "Otro"]
     assert list(out["CUADORM_CAT"]) == ["1", "2+"]
     assert list(out["TOTCUART_CAT"]) == ["2", "No especificado"]
     assert list(out["DRENAJE_CAT"]) == ["No", "Blanco por pase"]
     assert list(out["INGTRHOG_CAT"]) == ["No recibe ingresos", "No especificado"]
-    assert "CLAVIVP_CAT" not in d.derive(viv.drop(columns="CLAVIVP"), "viviendas", 2010)
+    # 2015's one financing item: its own dummies (1 merges INFONAVIT, FOVISSSTE and PEMEX)
+    assert list(out["FINANCIAMIENTO_INFONAVIT, FOVISSSTE o PEMEX"]) == [1, 0]
+    assert list(out["FINANCIAMIENTO_Blanco por pase"]) == [0, 1]
+    assert "FINANCIAMIENTO_INFONAVIT" not in out
+    for col, dtype in d.derived_dtypes("viviendas", "2015").items():
+        assert out[col].dtype == dtype, col
+    assert "CLAVIVP_CAT" not in d.derive(viv.drop(columns=["CLAVIVP", "FINANCIAMIENTO"]),
+                                         "viviendas", 2010)
 
 
 def _persons_2015() -> pd.DataFrame:
@@ -248,7 +285,10 @@ def _persons_2015() -> pd.DataFrame:
         "CONACT": ["13", "20"], "SITUA_CONYUGAL": ["5", "6"],
         "MED_TRASLADO_ESC1": ["", ""], "MED_TRASLADO_ESC2": ["", ""],
         "MED_TRASLADO_ESC3": ["", ""], "MED_TRASLADO_TRAB1": ["1", "6"],
-        "MED_TRASLADO_TRAB2": ["3", ""], "MED_TRASLADO_TRAB3": ["", ""]}, dtype="str")
+        "MED_TRASLADO_TRAB2": ["3", ""], "MED_TRASLADO_TRAB3": ["", ""], "ENT": ["01", "01"],
+        "ENT_PAIS_NAC": ["014", "221"], "ENT_PAIS_RES10": ["001", "997"],
+        "IDENT_MADRE": ["3", "98"], "IDENT_PADRE": ["97", "99"],
+        "IDENT_PAREJA": ["98", ""]}, dtype="str")
 
 
 def test_derive_persons_2015_recodes():
@@ -270,18 +310,30 @@ def test_derive_persons_2015_recodes():
     assert (second["MED_TRASLADO_TRAB_Caminando"], first["MED_TRASLADO_TRAB_Caminando"]) == (1, 0)
     assert first["MED_TRASLADO_ESC_Blanco por pase"] == 1
     assert "MED_TRASLADO_TRAB_Trolebús" not in out
+    assert list(out["ENT_PAIS_NAC_CAT"]) == ["OtraEnt", "OtroPais"]
+    assert list(out["ENT_PAIS_RES_CAT"]) == ["EstaEnt", "OtraEnt"]   # ENT_PAIS_RES10; 997
+    assert list(out["IDENT_MADRE_CAT"]) == ["Vive en esta vivienda", "No sabe"]   # un-padded
+    assert list(out["IDENT_PADRE_CAT"]) == ["Ya falleció", "No especificado"]
+    assert list(out["IDENT_PAREJA_CAT"]) == ["No", "Blanco por pase"]  # 98: no sabe dónde
+    assert list(out["MADRE_EN_VIVIENDA"]) == ["Sí", "No"]
+    assert list(out["PADRE_EN_VIVIENDA"]) == ["No", "No especificado"]
     for col, dtype in d.derived_dtypes("personas", "2015").items():
         assert out[col].dtype == dtype, col
 
 
 def _persons_2010() -> pd.DataFrame:
     """Three Censo 2010 persons (raw codes; "" = blank): a child, an adult with two
-    limitations, an unspecified elder."""
+    limitations born abroad, an unspecified elder."""
     df = pd.DataFrame({
-        "EDAD": ["005", "040", "081"], "INGTRMEN": ["", "5000", ""], "HORTRA": ["", "168", ""],
+        "EDAD": ["004", "040", "081"], "INGTRMEN": ["", "5000", ""], "HORTRA": ["", "168", ""],
         "NIVACAD": ["01", "05", "99"], "ESCOLARI": ["02", "03", "99"],
         "DHSERSAL1": ["8", "5", "9"], "DHSERSAL2": ["", "6", ""], "CONACT": ["", "10", "80"],
-        "ESTCON": ["", "8", "4"], "DISCAP8": ["17", "", "99"]}, dtype="str")
+        "ESTCON": ["", "1", "4"], "DISCAP8": ["17", "", "99"], "ENT": ["09", "09", "09"],
+        "LNACEDO_C": ["009", "", "999"], "LNACPAIS_C": ["", "221", ""],
+        "RES05EDO_C": ["", "", "900"], "RES05PAI_C": ["", "600", ""],
+        "IDMADRE": ["02", "", "99"], "IDMADREC": ["", "88", "99"],
+        "IDPADRE": ["99", "", ""], "IDPADREC": ["", "88", "88"],
+        "IDCONYUGE": ["", "57", ""], "IDCONYUGEC": ["", "", ""]}, dtype="str")
     for i in range(1, 8):
         df[f"DISCAP{i}"] = ""
     df.loc[1, ["DISCAP2", "DISCAP7"]] = ["11", "16"]
@@ -294,12 +346,24 @@ def test_derive_persons_2010_recodes():
     assert list(out["EDUC"]) == ["Sin Educación", "Posbásica", "No especificado"]
     assert list(out["HORTRA_CAT"]) == ["Blanco por pase", "81YMAS", "Blanco por pase"]
     assert list(out["CONACT_CAT"]) == ["Blanco por pase", "Trabaja", "No trabaja"]
-    assert list(out["SITUA_CONYUGAL_CAT"]) == ["Blanco por pase", "soltero", "separado"]  # ESTCON
+    assert list(out["SITUA_CONYUGAL_CAT"]) == ["Blanco por pase", "casado", "separado"]  # ESTCON
     assert list(out["LIM_ACTIVIDAD"]) == ["No", "Sí", "No especificado"]
     assert list(out["DHSERSAL_No afiliado"]) == [1, 0, 0]                 # 8: no entitlement
     assert list(out["DHSERSAL_SALUD_PUBLICA"]) == list(out["DHSERSAL_Privado"]) == [0, 1, 0]
     assert list(out["DHSERSAL_AFIL"]) == [0, 1, 0]                        # 9: not specified
     assert "DIS_CON" not in out and "DHSERSAL_IMSS_BIENESTAR" not in out
+    # birthplace and 2005 residence: the entity item, else the country item; entity 999 →
+    # 997 (OtraEnt), 900 (topic omitted) → No especificado, country 600 → OtroPais
+    assert list(out["ENT_PAIS_NAC_CAT"]) == ["EstaEnt", "OtroPais", "OtraEnt"]
+    assert list(out["ENT_PAIS_RES_CAT"]) == ["Blanco por pase", "OtroPais", "No especificado"]
+    # pointer pairs: a row (99 = row not given; above 54 too) → Sí, 88 → No, 99/99 → NE
+    assert list(out["MADRE_EN_VIVIENDA"]) == ["Sí", "No", "No especificado"]
+    assert list(out["PADRE_EN_VIVIENDA"]) == ["Sí", "No", "No"]
+    assert list(out["IDENT_PAREJA_CAT"]) == ["Blanco por pase", "Sí", "Blanco por pase"]
+    pareja = d.derive(_persons_2010().assign(IDCONYUGE=["", "99", "99"],
+                                             IDCONYUGEC=["88", "", "99"]), "personas", 2010)
+    assert list(pareja["IDENT_PAREJA_CAT"]) == ["No", "Sí", "No especificado"]
+    assert "IDENT_MADRE_CAT" not in out                    # 88 merges 2020's 96/97/98
     for col, dtype in d.derived_dtypes("personas", "2010").items():
         assert out[col].dtype == dtype, col
 
@@ -312,6 +376,11 @@ def test_derive_older_editions_unknown_codes():
             d.derive(_persons_2015().assign(**{col: [value, "2"]}), "personas", 2015)
     with pytest.raises(ValueError, match="LIM_ACTIVIDAD"):                # no DISCAP answer
         d.derive(_persons_2010().assign(DISCAP8=["17", "", ""]), "personas", 2010)
+    with pytest.raises(ValueError, match="MADRE_EN_VIVIENDA"):            # an unknown code
+        d.derive(_persons_2010().assign(IDMADREC=["77", "88", "99"]), "personas", 2010)
+    with pytest.raises(ValueError, match="ENT_PAIS_NAC_CAT"):             # neither item
+        d.derive(_persons_2010().assign(LNACPAIS_C=["", "", ""],
+                                        LNACEDO_C=["009", "", "999"]), "personas", 2010)
     with pytest.raises(ValueError, match="EDUC"):                          # Doctorado, 7th year
         d.derive(_persons_2010().assign(NIVACAD=["12", "05", "99"], ESCOLARI=["07", "03", "99"]),
                  "personas", 2010)
@@ -345,6 +414,8 @@ def test_cpv_constraints_per_edition():
     own = d._EDITION_CELLS["personas", "2010"]                         # 2010's own limitation
     assert {ind: p10[ind] for ind in own} == own
     assert p10["PCLIM_VIS"] == {"DISCAP2": ["Ver, aun usando lentes"]}
+    assert p10["PNACOE"] == {"ENT_PAIS_NAC_CAT": ["OtraEnt"]}          # 6e: migration
+    assert {"PNACENT_F", "PRES2015", "PRESOE15_M"} <= set(p10)        # 2010: PRES2005 …
     assert "PCON_LIM" not in mxcensus.cpv_constraints("personas", 2020)
     assert mxcensus.cpv_constraints("viviendas", 2010) == {}          # no CLAVIVP_CAT in 2010
     p25 = mxcensus.cpv_constraints("personas", 2025)
@@ -446,6 +517,70 @@ def test_crosstab_per_edition(local_mirror, period):
     if period == "2020":
         viv = mxcensus.load_cpv_viviendas(period, state=1, derived=True)
         assert mxcensus.get_tables_dict(mxcensus.cpv_constraints("viviendas", period), viv.dtypes)
+
+
+# INEGI's tabulados, row «Total»: the population and its percentages by birthplace (this
+# entity, another, abroad — the US plus other countries —, not specified) or by residence
+# five years earlier (same entity, another entity or country, not specified; ages 5–130).
+# EIC 2015 «04_migracion.xls» sheets 02/05 (estimator «Valor», 6 decimals); Censo 2010
+# ampliado «04_02A_ESTATAL.xls» («Parámetro»). Last: Σ FACTOR of the persons whose entity
+# is not specified. All 32 states and the nation: STEP_6e.md.
+_TABULADOS = {
+    ("2015", 5, "ENT_PAIS_NAC_CAT"): (2_954_915, (86.274224, 12.513456, 0.659816 + 0.132051,
+                                                  0.420452), 14),
+    ("2015", 5, "ENT_PAIS_RES_CAT"): (2_678_545, (96.43773, 2.793084, 0.769186), 0),
+    ("2010", 2, "ENT_PAIS_RES_CAT"): (2_831_647, (91.4524303347133, 7.98701250544294,
+                                                  0.56055715984372), 143),
+}
+# «Entity not specified» (raw item and code): OtraEnt in the derived columns (the legacy
+# 2020 rule for 997, kept in every edition), «No especificado» in INEGI's tabulados.
+_UNSPECIFIED_ENTITY = {("2015", "ENT_PAIS_NAC_CAT"): ("ENT_PAIS_NAC", "997"),
+                       ("2015", "ENT_PAIS_RES_CAT"): ("ENT_PAIS_RES10", "997"),
+                       ("2010", "ENT_PAIS_RES_CAT"): ("RES05EDO_C", "999")}
+
+
+@_REAL_SKIP
+@pytest.mark.parametrize("period,state,col", sorted(_TABULADOS))
+def test_migration_equals_tabulados(local_mirror, period, state, col):
+    """Σ ``FACTOR`` by birthplace / residence five years earlier equals INEGI's tabulado,
+    once the persons whose entity is not specified count as «No especificado»."""
+    per = mxcensus.load_cpv_personas(period, state=state, derived=True, labels=False)
+    item, code = _UNSPECIFIED_ENTITY[period, col]
+    cat = per[col].astype(object).mask(per[item].eq(code), "No especificado")
+    if col == "ENT_PAIS_RES_CAT":
+        keep = pd.to_numeric(per["EDAD"]).between(5, 130)
+        per, cat = per[keep], cat[keep]
+        groups = (["EstaEnt"], ["OtraEnt", "OtroPais"], ["No especificado"])
+    else:
+        groups = (["EstaEnt"], ["OtraEnt"], ["OtroPais"], ["No especificado"])
+    total, published, unspecified = _TABULADOS[period, state, col]
+    assert round(per["FACTOR"].sum()) == total
+    shares = [100 * per.loc[cat.isin(g), "FACTOR"].sum() / total for g in groups]
+    assert shares == pytest.approx(published, abs=1.5e-6 if period == "2015" else 1e-9)
+    assert per.loc[per[item].eq(code), "FACTOR"].sum() == unspecified
+    assert (per.loc[per[item].eq(code), col] == "OtraEnt").all()
+
+
+# EIC 2015 «14_vivienda.xls» sheet 18 («Valor», «01 Aguascalientes»): the owned dwellings
+# bought or built, and their percentages by financing in the order of 2015's codes
+# (INFONAVIT/FOVISSSTE/PEMEX, FONHAPO, banks, other institution, a relative or another
+# person, own resources, not specified). All 32 states and the nation: STEP_6e.md.
+_FINANCIAMIENTO_2015_01 = (207_736, (35.2485847421727, 0.32733854507644, 7.12057611583933,
+                                     5.56908768821966, 1.21644779912966, 50.2801632841683,
+                                     0.23780182539376))
+
+
+@_REAL_SKIP
+def test_financing_2015_equals_tabulado(local_mirror):
+    """The EIC 2015 financing dummies (one item, one answer) reproduce INEGI's tabulado."""
+    viv = mxcensus.load_cpv_viviendas(2015, state=1, derived=True)
+    labels = [v for k, v in d._financiamiento_2015().items() if k != d._BLANK]
+    counts = [viv.loc[viv[f"FINANCIAMIENTO_{v}"] == 1, "FACTOR"].sum() for v in labels]
+    total, published = _FINANCIAMIENTO_2015_01
+    assert sum(counts) == total
+    assert [100 * c / total for c in counts] == pytest.approx(published, abs=1e-9)
+    dummies = viv[[f"FINANCIAMIENTO_{v}" for v in d._financiamiento_2015().values()]]
+    assert (dummies.astype(int).sum(axis=1) == 1).all()             # exactly one per dwelling
 
 
 # PSIND_LIM's cells (no difficulty in any activity, no mental condition) are the legacy

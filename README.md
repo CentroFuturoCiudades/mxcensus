@@ -192,16 +192,24 @@ from the raw codes: `EDAD_CAT`, `EDUC`, `CONACT_CAT`, `SITUA_CONYUGAL_CAT`, the 
 coverage (`DHSERSAL_*`), commute (`MED_TRASLADO_*`) and financing (`FINANCIAMIENTO_*`)
 dummies, `DIS_CON`/`DIS_LIMI`, the income and room bins… plus `DISCAPACIDAD`/`LIMITACION`,
 INEGI's own definitions of disability and limitation (the legacy `DIS_CON`/`DIS_LIMI` count
-a difficulty of unknown degree as unspecified, and the disabled as limited too). For Censo
+a difficulty of unknown degree as unspecified, and the disabled as limited too), and
+`MADRE_EN_VIVIENDA`/`PADRE_EN_VIVIENDA` (whether the mother/father lives in the dwelling). For Censo
 2020 the columns equal `load_extended_*`'s; the EIC 2025 gets the same columns through a
 recode of the items INEGI renumbered (`SITUA_CONYUGAL`, `DHSERSAL`, two country codes).
 EIC 2015 and Censo 2010 get the columns whose items map onto the 2020 codes (age, income,
-education, activity, marital status, health coverage; `cpv_derivations()` lists them per
-edition), with three differences. Neither edition has `DHSERSAL_IMSS_BIENESTAR`, because
+education, activity, marital status, health coverage, birthplace and residence five years
+earlier, the partner and parents in the dwelling; `cpv_derivations()` lists them per
+edition), with these differences. Neither edition has `DHSERSAL_IMSS_BIENESTAR`, because
 neither asked about IMSS-PROSPERA/BIENESTAR. The EIC 2015 commute dummies follow its 7
-modes, with 2015's wording for the three that 2020 splits. Censo 2010 measured disability
-with another question, so it gets its own `LIM_ACTIVIDAD` («limitación en la actividad»)
-instead of `DIS_*`/`DISCAPACIDAD`.
+modes, with 2015's wording for the three that 2020 splits, and its financing dummies follow
+its one item, whose first code merges INFONAVIT, FOVISSSTE and PEMEX. Censo 2010 measured
+disability with another question, so it gets its own `LIM_ACTIVIDAD` («limitación en la
+actividad») instead of `DIS_*`/`DISCAPACIDAD`; it asked only whether the mother/father
+lives in the dwelling, so it gets the co-residence flags but not `IDENT_MADRE_CAT`/
+`IDENT_PADRE_CAT`. The EIC 2015 birthplace and residence columns reproduce INEGI's
+tabulados in every state, and Censo 2010's residence reproduces its ampliado tabulado, up to
+the few hundred persons whose state is not specified: INEGI counts them as not specified,
+the derived columns as another state (the legacy 2020 rule, kept in every edition).
 `cpv_constraints(table, period)` filters the census constraint sets (ITER indicator →
 microdata cells) to the indicators an edition publishes and can reproduce, for
 `get_tables_dict`. For Censo 2010 it adds the ITER's own limitation indicators (`PCON_LIM`,
