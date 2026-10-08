@@ -2,7 +2,8 @@
 
 **Status (2026-10-08, overnight): every edition 1990–2025 is built and validated (units
 0–5b; 3d half done) and 6a added the cross-year municipal crosswalk. Every release
-(registry + upload) waits for `wsl`. Next: unit 6b.**
+(registry + upload) waits for `wsl`. The overnight run stopped before 6b: it needs the
+user's decisions (§Next unit). Next: the release batch once `wsl` is back, then 6b.**
 - **Released** (registered, uploaded, fetchable): the Encuesta Intercensal 2025 and the
   Censo 2020.
 - **Built, not registered or uploaded**:
@@ -78,7 +79,37 @@ Branch: `cpv-integration`, version **0.6.0** (`main` = `v0.6.0`). The registry s
 
 ## Next unit — 6b: derived columns on the labelled frames; crosstabs per edition
 
-Gate: tests (`PLAN.md` §Phase 6).
+Gate: tests (`PLAN.md` §Phase 6). **Not started: it needs decisions first.** The overnight
+probe (2026-10-08) compared the source items of the legacy derived columns across
+editions. It used the CPV dictionaries: codes plus labels folded for case and accents.
+- **The same as 2020 in 2025**: `EDAD`, `INGTRMEN`, `HORTRA`, `NIVACAD`, `ESCOLARI`,
+  `MED_TRASLADO_ESC*`/`TRAB*`, `OCUPACION_C`, `ACTIVIDADES_C`; and in `viviendas`
+  `INGTRHOG`, `FORMA_ADQUI`, `FINANCIAMIENTO1`, `CUADORM`, `TOTCUART`. These derive
+  identically: `EDAD_CAT`, `INGTRMEN_CAT`, `HORTRA_CAT`, `EDUC`, the commute dummies, the
+  coarse occupation/activity, the income bins.
+- **Wording only** (the same codes and meaning): `DIS_*` (code 8 «discapacidad» →
+  «dificultad»), `CONACT` (13/14/16/20/60; 70 reworded).
+- **Recoded in 2025**, a decision per item:
+  - `DHSERSAL1/2`: 05 was Seguro Popular/INSABI and is IMSS-BIENESTAR in 2025; 06 was
+    IMSS-PROSPERA/BIENESTAR and is «un centro de salud … (incluye INSABI y Seguro
+    Popular)» in 2025. The legacy dummies `DHSERSAL_Popular_…`/`DHSERSAL_IMSS_Prospera/
+    Bienestar` need a mapping or new names.
+  - `SITUA_CONYUGAL`: 1–9 became 01–09/99, and «separada(o)» splits in two (02 from a
+    union, 03 from a marriage).
+  - `viviendas.TENENCIA`: 2025 inserts 2 «la están pagando» and 5 «intestada o en
+    litigio», shifting the rest.
+- **2015 and 2010** differ much more: no `DIS_*` (2010 has its own limitation items),
+  other `DHSERSAL`, `NIVACAD`/`ESCOLARI` and commute codes. Support them only item by item.
+- **The legacy preprocessor** (`extended_personas.preprocessor`) cannot simply be re-run:
+  2025 lacks `RELIGION`, `REGIS_NAC` and others it maps.
+
+**Recommended design** (to confirm with the user):
+- A registry of derivations in `cpv_derived.py`: name, source items, function on raw codes,
+  and the editions verified, with the check above as a test.
+- 2020 reproduces the legacy columns exactly: test against `load_extended_personas`.
+- 2025 gets the identical and wording-only groups now, and the recoded items once mapped.
+
+Steps:
 
 1. **Read** `extended_personas.py` / `extended_viviendas.py` (frozen, 2020 only, pinned by
    `tests/test_census_legacy.py`). List their derived columns: `EDAD_CAT`, health-coverage
