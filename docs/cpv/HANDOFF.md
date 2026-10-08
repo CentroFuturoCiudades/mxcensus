@@ -1,139 +1,107 @@
 # CPV family — session handoff
 
-**Status (2026-10-07): units 0, 1a–1e, 2a, 2b and 3a are complete.**
+**Status (2026-10-07, overnight): units 0, 1a–1e, 2a, 2b, 3a and 3b are complete.**
 - The Encuesta Intercensal 2025 and the **Censo 2020** are released: registered, uploaded
   and fetchable (`mxcensus fetch N --dataset cpv --edition 2020`).
-- **The Encuesta Intercensal 2015 is built** (unit 3a, `STEP_3a.md`):
-  - 64 `cpv_{viviendas,personas}_2015_NN` files sit on `wsl`, **not registered or
-    uploaded** — 3a–3d upload together in 3d;
-  - `--validate` reports 0/321 failures;
-  - every Σ `FACTOR` equals INEGI's tabulados exactly (32 states + nation; dwellings,
-    population, men, women).
-- **Next is unit 3b**: the Censo 2010 microdata (DBF).
+- **EIC 2015** (3a, `STEP_3a.md`) and the **Censo 2010 microdata** (3b, `STEP_3b.md`) are
+  built on `wsl`: 64 + 96 files, **not registered or uploaded** (3a–3d upload together in
+  3d). `--validate` reports 0/417 failures, and every Σ `FACTOR` equals INEGI's tabulados
+  exactly.
+- **Next is unit 3c**: the ITER/AGEB aggregates of 2020 + 2010.
 
-Design: [`PLAN.md`](PLAN.md) (unit table and session protocol at the top). What 3a did:
-[`STEP_3a.md`](STEP_3a.md). Earlier units: [`STEP_2b.md`](STEP_2b.md) (2020↔2025
-harmonization, legacy equality, release), [`STEP_2a.md`](STEP_2a.md) (CPV 2020 build, FD
-dictionary), [`STEP_1e.md`](STEP_1e.md) (registry, upload, CLI), [`STEP_1d.md`](STEP_1d.md)
-(MG 2025, `load_mg`), [`STEP_1c.md`](STEP_1c.md) (loaders), [`STEP_1b.md`](STEP_1b.md)
-(dictionaries), [`STEP_1a.md`](STEP_1a.md) (build), [`STEP_0_probe.md`](STEP_0_probe.md)
-(URLs, members, editions).
+The user asked (2026-10-07, before going to sleep) for **all remaining phases** to run in
+that session without their input, and allowed commits, pushes and HF uploads (not package
+installs). If a fresh session resumes, it keeps that authorization for this overnight run
+only. Check with the user if in doubt.
+
+Design: [`PLAN.md`](PLAN.md) (unit table and session protocol at the top). Recent units:
+[`STEP_3b.md`](STEP_3b.md) (CPV 2010 DBF microdata, national keys, core `Periodos`),
+[`STEP_3a.md`](STEP_3a.md) (EIC 2015, stdlib `.xls` reader), [`STEP_2b.md`](STEP_2b.md),
+[`STEP_2a.md`](STEP_2a.md), [`STEP_1e.md`](STEP_1e.md) … [`STEP_0_probe.md`](STEP_0_probe.md).
 
 Branch: `cpv-integration`, version **0.6.0** (`main` = `v0.6.0`, EIC 2025 + CPV 2020). The
-registry still has **2695 entries**; 3a added none.
+registry still has **2695 entries**; 3a and 3b added none.
 
 **Host state.**
-- `wsl:~/mxcensus` holds the full mirror (now with the 64 EIC 2015 files), the 2015 ZIPs
-  in `data/cache/`, the dictionaries in `data/dict/fd/2015/` + `data/dict/ddi/214.xml`, and
-  the logs (`build_cpv_2015.log`, `check_2015.log`, `validate_3a.log`, `pytest_3a.log`).
-- The Mac has EIC 2015 state 01, CPV 2020 state 01, EIC 2025 states 01/09/15 plus the
-  estimaciones, all 128 legacy census files, and `data/dict/fd/2015/`.
-- **If 3a's commit is pushed, clean `wsl` before pulling.** 3a's `scp`'d copies make its
-  tree dirty, and the two new `g03` YAMLs are untracked there:
+- `wsl:~/mxcensus` holds the full mirror, now with the EIC 2015 and CPV 2010 microdata
+  files. Its dictionaries are in `data/dict/fd/{2010,2015}/` and `data/dict/ddi/{71,214}.xml`;
+  logs are `build_cpv_{2015,2010}.log`, `check_{2015,2010}.log`, `validate_3{a,b}.log` and
+  `pytest_3{a,b}.log`.
+- The Mac has state 01 of every edition built, the legacy census files, and
+  `data/dict/fd/{2010,2015}/`.
+- 3a is pushed. 3b's files were `scp`'d to `wsl` (working tree dirty there; HEAD = 3a). After
+  3b's commit is pushed, clean `wsl` before pulling:
   ```bash
   git checkout -- .
-  rm src/mxcensus/_yaml/variables_cpv_{viviendas,personas}_g03.yaml
+  rm scripts/_dbf.py src/mxcensus/_yaml/variables_cpv_{viviendas,personas}_g0{4,5}.yaml \
+     src/mxcensus/_yaml/variables_cpv_migrantes_g0{3,4}.yaml
   git pull --ff-only
   ```
-  Check `git status` / `git log --oneline -3` on both hosts before starting.
 
 ## Kickoff prompt for the next session
 
 > Continue the CPV census-family integration in this repo (branch cpv-integration).
 > Read docs/cpv/HANDOFF.md first, then the parts of docs/cpv/PLAN.md it points to,
-> and execute the next unit (3b: Censo 2010 microdata — DBF reader (ask me: dbfread build
-> extra or a stdlib reader), probe the state-01 ZIP and its code pages, dictionary from the
-> FD .xls (read_xls) + DBF catalogs, cross-checked against RNM DDI 71, a national ID_VIV,
-> FACTOR joined onto personas, ID_PER/ID_MIN/TAM_LOC renames, full build and metadata on
-> wsl, --validate 0, Σ FACTOR vs INEGI's published 2010 totals) following the session
-> protocol at the top of PLAN.md. Use .venv/bin/python, not uv run. Run wsl tasks without
-> asking; ask me before committing, pushing, installing packages or uploading. When the
-> unit's gate is met, write docs/cpv/STEP_3b.md, tick the unit table, rewrite HANDOFF.md for
-> unit 3c, update the memory note, ask me before committing, and give me the next handoff
-> prompt.
+> and execute the next unit (3c: the ITER/AGEB aggregates of CPV 2020 + 2010 — fix the
+> CSV header read for 2010's BOM-quoted headers, build the 2010 ITER/AGEB, their indicator
+> dictionaries and sentinels, load_cpv_iter/load_cpv_ageb with the level split, censoring
+> and zero imputation on string codes, a load_cpv_census that reproduces the legacy
+> load_census for 2020 (equality over 32 states on wsl), and cpv_iter_crosswalk.yaml
+> 2010 ↔ 2020) following the session protocol at the top of PLAN.md. Use .venv/bin/python,
+> not uv run. Run wsl tasks without asking; ask me before committing, pushing, installing
+> packages or uploading. When the unit's gate is met, write docs/cpv/STEP_3c.md, tick the
+> unit table, rewrite HANDOFF.md for unit 3d, update the memory note, ask me before
+> committing, and give me the next handoff prompt.
 
-## Next unit — 3b: Censo de Población y Vivienda 2010 (microdata)
+## Next unit — 3c: ITER/AGEB aggregates (2020 + 2010)
 
-Gate: `build_cpv.py --validate` reports 0 failures over every CPV file (2010 + 2015 + 2020
-+ 2025), and Σ `FACTOR` matches INEGI's published 2010 totals (inhabited private dwellings
-and their population). No registry or upload (3d).
+Gate: the 2020 output of the new aggregate loaders equals the legacy `load_census(state)`
+after dtype alignment (all 32 states on `wsl`), and `--validate` reports 0 failures with the
+2010 ITER/AGEB included.
 
-1. **Read first**:
-   - `PLAN.md` Phase 3 (the 2010 bullets) and the edition matrix row;
-   - `STEP_0_probe.md` §Microdata structure (2010: `Viviendas_01`/`Personas_01`/
-     `Migrantes_01.dbf`; `ID_VIV` C8, `ID_PER` C9, `ID_MIN` C7; `FACTOR` N8 in viviendas
-     and migrantes only; DBF code-page bytes 0x00/0x03);
-   - `STEP_3a.md` (the stdlib `.xls` reader, the 2015 FD conventions, `_CODE_PAD`);
-   - `CpvEdition("2010")` in `_cpv_catalog.py`.
-2. **DBF reader — ask the user first.**
-   - The plan says `dbfread(raw=True)` as a maintainer-only `build` extra (the user
-     anticipated it in 1b).
-   - Since then the user chose stdlib readers for `.xlsx` and `.xls`. A dBASE III reader
-     is small (32-byte header, 32-byte field descriptors, fixed-width records, deletion
-     flag) and fits that line.
-   - Either way, decode by code page (cp850 vs latin-1/cp1252: the header byte is
-     0x00/0x03, so check the bytes), strip only the fixed-width padding, keep every value
-     a string, and skip deleted records (count them).
-   - **Memory**: build Arrow columns per field, not row dicts. Personas for state 15 have
-     millions of rows.
-3. **Probe (Mac)**: `build_cpv.py --dry-run --periods 2010 --states 1`, then fetch
-   `MC2010_01_dbf.zip`:
-   - field names, types and widths; the code page;
-   - `ID_VIV` uniqueness within the state and across two states;
-   - geography (`ENT`/`MUN`/`LOC`? widths), `TAM_LOC`, `COBERTURA`/`ESTRATO`/`UPM`;
-   - whether personas really carry no `FACTOR`.
-4. **Dictionary**:
-   - The FD `doc/diccionario_cuestionario_ampliado.xls` should parse with `_dict_fd.parse_fd`
-     (`read_xls`). Check its layout against 2015's conventions.
-   - The catalogs `doc/catalogos_2010_dbf.zip` are DBF, so `read_catalogs` needs a DBF
-     branch (same reader).
-   - DDI 71: probe it as 2a/3a did and compare `EDAD`, `PARENTESCO`, ranges and sentinels.
-     So far the FDs have won.
-   - Re-check that the 2015/2020/2025 parses stay byte-identical: dump them before
-     changing `_dict_fd` (`STEP_3a.md` §`_dict_fd`).
-5. **Keys and harmonization** (`cpv.py`):
-   - **`ID_VIV` is 8 characters and unique only within a state.** Raw loads of several
-     states must not collide: the dwelling key spec needs the entity, or `harmonize=True`
-     must build a national `ID_VIV` (e.g. `ENT` + something) **before** `_CODE_PAD` pads
-     it. Otherwise `zfill(12)` invents a wrong entity prefix. Decide and document it.
-   - `_RENAME_CORE` += `ID_PER` → `ID_PERSONA`, `ID_MIN` → `ID_MII`, `TAM_LOC` → `TAMLOC`,
-     once the codes are verified. The key specs already alias `ID_PER`/`ID_MIN`.
-   - **Personas have no `FACTOR`.** The analysis-ready personas loader must join the
-     dwelling's `FACTOR`, like ENIGH's `_attach_factor`. Σ `FACTOR` over persons then
-     checks the population total.
-6. **Build**:
-   - `_ENABLED += ("2010",)` once the DBF path exists; the DBF tables go through a new
-     reader branch in `_build_zip`.
-   - The 2010 `iter`/`ageb` are CSV (lower-case headers). Building them in 3b is cheap and
-     lets 3c start from data. Decide whether to include them (`--tables`) or leave them to
-     3c; the plan puts their *loaders* in 3c.
-   - Smoke-build state 01 on the Mac, then the full build on `wsl` (`run_in_background` +
-     a log).
-7. **Metadata on `wsl`, in order**: `--dictionary --periods 2010`, `--schema-map`,
-   `--report-only`, delete the stale `variables_cpv_{viviendas,personas,migrantes}_g0*.yaml`,
-   `--variables`, `--validate --jobs 16`.
-   - **Gids shift again**: 2010 joins first, so viviendas/personas become 2010 = `g01`
-     … 2025 = `g04`, and migrantes 2010 = `g01`, 2020 = `g02`, 2025 = `g03`.
-   - Update the README `variables_cpv` examples and the tests' expectations. Tests take
-     gids from `_gid(table, period)`; `test_schema_map_2015_groups` lists the period
-     sequence and needs the new first group.
-8. **Data checks and tests**:
-   - Σ `FACTOR` per state and nationally vs INEGI's published 2010 cuestionario ampliado
-     totals: find the tabulados (`idBiinegi` 487, `tipodocto=5`; `read_xls` reads them).
-   - Keys unique and nested, `ENT` = file state, `FACTOR` constant within the dwelling.
-   - `tests/test_cpv.py`: the 2010 build plan, the groups, planted rejections, the DBF
-     reader (synthetic DBF bytes, as 3a's `_xls` writer), and `_REAL` state-01 loads.
+1. **2010 ITER/AGEB build** (`STEP_3b.md` §Findings for 3c):
+   - `build_cpv._read_header` must strip the BOM **before** `csv.reader` parses, since
+     2010's header is `\ufeff"entidad",…`.
+   - Then `--periods 2010 --tables iter ageb` on `wsl`.
+   - The indicator dictionaries are already fetched (`data/dict/fd/2010/diccionario_datos_
+     {iter,ageb}.csv`, from `fd_*.csv`, cp1252, some mnemonics with trailing junk such as
+     `vph_pc\xa0`). Check that `parse_indicator_csv` reads them.
+   - Enumerate the non-numeric cells (`*`, `N/D`…) over 32 states for
+     `_AGG_SPECIALS["2010"]`.
+   - Gids for `iter`/`ageb` become 2010 = `g01`, 2020 = `g02`.
+2. **Loaders** (`cpv_aggregates.py`):
+   - `load_cpv_iter(period=None, *, state, nivel=None, impute=True)`: harmonized names,
+     labelled counts (`*` → NA), index `(CVE_ENT, CVE_MUN, CVE_LOC)`, an ordered `NIVEL`
+     (`estatal`/`municipal`/`agregado` = `CVE_LOC` 9998/9999/`localidad`).
+   - `load_cpv_ageb(...)`: the same with `(…, CVE_AGEB, CVE_MZA)`, `NIVEL` up to `manzana`.
+   - The zero imputation ports `aggregate.impute_zeros_univariate` (municipality →
+     localities).
+   - A draft of the `NIVEL` helpers is in the session scratchpad and has to be rewritten.
+3. **`load_cpv_census(period=None, *, state)`**:
+   - It reproduces `aggregate.load_census` on the `cpv_` files and string codes: the level
+     split, the block quick-imputation, `add_collective_cols`, the zero imputations and
+     the sanity checks (ported: the legacy `sanity_checks` hard-codes `ENTIDAD`/`MUN`).
+   - The generic legacy helpers (`add_collective_cols`, `impute_zeros_univariate`) can be
+     imported, since they are index-name agnostic. `aggregate.py` itself stays frozen.
+   - Test: equal to `load_census(state)` after casting the index codes to int (state 01 on
+     the Mac; all 32 on `wsl`).
+4. **`cpv_iter_crosswalk.yaml`** (canonical 2020 mnemonic → 2010 source):
+   - 185 names are shared; check their descriptions (generated draft + hand review).
+   - Leave out the changed concepts (`PRES2005`/`PRES2015`, the disability block).
+   - Use it when stacking 2010 + 2020 aggregates (`harmonize=True`).
+5. Tests, docs (`STEP_3c.md`, PLAN tick, HANDOFF for 3d), commit + push.
 
 ## Open questions for the user
 
-- **DBF reader**: the `dbfread` build extra (plan) or a stdlib reader (step 2).
-- Commits, pushes and uploads: ask before each (the user's standing instruction for this
-  family). wsl runs need no permission.
+- None blocking. Decisions taken overnight without the user, for their review:
+  - a stdlib DBF reader instead of `dbfread` (3b);
+  - national keys for 2010 under `harmonize=True` (3b);
+  - the core `Periodos` key (3b).
 
 ## Gotchas (carry forward)
 
 - **CPV gids are chronological** and shift whenever an older edition joins (3a: 2015 =
-  `g01`; 3b: 2010 = `g01`). Code and tests take gids from `cpv_schema_map()` /
+  `g01`; 3b: 2010 = `g01`/`g02`, state 15's lower-case `tam_loc` making its own group). Code and tests take gids from `cpv_schema_map()` /
   `_gid(table, period)`; never hard-code one.
 - **The FD workbooks beat the RNM DDIs** so far: 632 (2020) and 214 (2015) are Nesstar
   exports with collapsed ranges, wrong code lists and no missing flags. `ddi_id` is
@@ -149,6 +117,10 @@ and their population). No registry or upload (3d).
 - **Unpadded 2015 codes**: `ID_VIV` (11 digits in states 01–09), `ID_PERSONA`, `CLAVIVP`.
   The core `CLAVIVP` `Alias` covers raw validation and labels; `harmonize=True` pads all
   three (`cpv._CODE_PAD`).
+- **CPV 2010 keys are state-scoped serials.** Keyed loaders refuse several states unless
+  `harmonize=True`, which builds national keys (`cpv._national_keys`). The core `CLAVIVP`
+  carries `Periodos` (2015–2025), and `TAM_LOC` (4 classes) is not `TAMLOC`.
+- **`scripts/_dbf.py`** sniffs cp1252/cp850 from the bytes; INEGI's driver byte lies.
 - **Harmonization is table-scoped** (`_renames(table)` = `_RENAME_CORE` + `_RENAME_TABLE`):
   - the 2015/2020 `ENT`/`MUN` → `CVE_*` everywhere;
   - `ENTIDAD`/`LOC` only in ITER/AGEB, and `AGEB`/`MZA` → `CVE_AGEB`/`CVE_MZA` only in AGEB.

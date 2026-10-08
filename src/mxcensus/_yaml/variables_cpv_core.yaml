@@ -13,7 +13,10 @@
 # microdata: every entry below that a 2020 table carries has the same codes there) and the
 # Encuesta Intercensal 2015 (eic2015_fd.xls + the 2015 microdata: the same codes, except
 # that the 2015 CSVs drop leading zeros — ID_VIV/ID_PERSONA in states 01-09 and CLAVIVP,
-# whose Alias maps 1…9 onto 01…09; harmonize=True pads all three).
+# whose Alias maps 1…9 onto 01…09; harmonize=True pads all three) and the Censo 2010
+# cuestionario ampliado (diccionario_cuestionario_ampliado.xls + the 2010 DBF microdata: the
+# same codes for every entry below except CLAVIVP — another classification, so it carries
+# Periodos — and the keys, which are state-scoped serials that harmonize=True rebuilds).
 #
 # Entry contract (shared with the ENOE/ENIGH cores and the generated files; read by
 # mxcensus._schema_groups):
@@ -30,6 +33,10 @@
 #   Tablas       (CPV only) the tables the entry applies to; default every table that has
 #                the column. TAMLOC is the microdata's 5-class locality size — the 2020
 #                ITER's TAMLOC is a different, 14-class scale and keeps its own entry.
+#   Periodos     (CPV only) the editions whose codes the entry was verified for; default
+#                every edition. Outside them the column keeps its own dictionary entry, is
+#                not padded by harmonize=True and is not checked against the core (CPV 2010's
+#                CLAVIVP 1…7 is another classification than 2015-2025's 01…09).
 # The generated CPV files may also carry informative keys that no code reads: Catálogo
 # (the INEGI classification catalog that enumerates a coded string — occupation, activity,
 # country…), Definición and Rangos (an aggregate indicator's definition and its verbatim
@@ -45,19 +52,24 @@
 ID_VIV:
   Descripción: Identificador único de la vivienda (2015, 2020 y 2025 — 12 dígitos; los dos
     primeros son la entidad, así que es único en todo el país). Los CSV de 2015 lo escriben
-    sin el cero inicial de las entidades 01-09 (11 dígitos); harmonize=True lo rellena.
+    sin el cero inicial de las entidades 01-09 (11 dígitos); harmonize=True lo rellena. En
+    2010 es un consecutivo de 8 dígitos único sólo dentro de la entidad; harmonize=True le
+    antepone la entidad (entidad + consecutivo a 10 dígitos).
   Tipo: string
   Longitud: '12'
 ID_PERSONA:
   Descripción: Identificador único de la persona — ID_VIV más el número de persona (2020 y
     2025 — 17 dígitos; 2015 — 14, sin el cero inicial de las entidades 01-09 en los CSV;
-    harmonize=True lo rellena)
+    harmonize=True lo rellena). 2010 trae ID_PER, un consecutivo de 9 dígitos único dentro de
+    la entidad; harmonize=True deriva ID_PERSONA = ID_VIV + NUMPER (5 dígitos, 17 en total).
   Tipo: string
   Longitud: 14 / 17
 ID_MII:
   Descripción: Identificador único del emigrante internacional (tabla de migrantes; 2020 y
     2025 — 14 dígitos, ID_VIV + número de emigrante). Los migrantes cuelgan de la vivienda
-    (ID_VIV), no de una persona.
+    (ID_VIV), no de una persona. 2010 trae ID_MIN, un consecutivo de 7 dígitos único dentro
+    de la entidad; harmonize=True deriva ID_MII = ID_VIV + el orden del emigrante en la
+    vivienda según ID_MIN (2 dígitos).
   Tipo: string
   Longitud: '14'
 
@@ -72,14 +84,14 @@ CVEGEO:
   Longitud: 5 / 9 / 16
 CVE_ENT:
   Descripción: Clave del Área Geoestadística Estatal (01-32; 00 = total nacional en las
-    estimaciones). En 2015 y 2020 se llama ENT en los microdatos; en 2020, ENTIDAD en el ITER
-    y el AGEB.
+    estimaciones). En 2010, 2015 y 2020 se llama ENT en los microdatos; en 2020, ENTIDAD en
+    el ITER y el AGEB.
   Tipo: string
   Longitud: '2'
 CVE_MUN:
   Descripción: Clave del Área Geoestadística Municipal (001-570; 000 = total estatal en las
     estimaciones, el ITER y el AGEB; 997 = localidades de menos de 50 000 habitantes de la
-    entidad en las estimaciones). En 2015 y 2020 se llama MUN.
+    entidad en las estimaciones). En 2010, 2015 y 2020 se llama MUN.
   Tipo: string
   Longitud: '3'
 LOC50K:
@@ -105,7 +117,8 @@ CVE_MZA:
   Tipo: string
   Longitud: '3'
 TAMLOC:
-  Descripción: Tamaño de localidad (microdatos)
+  Descripción: Tamaño de localidad (microdatos de 2015, 2020 y 2025; los de 2010 traen
+    TAM_LOC, una escala de cuatro clases que junta 15 000-99 999 habitantes y no se renombra)
   Tipo: categorical
   Longitud: '1'
   Tablas: [viviendas, personas, migrantes]
@@ -128,14 +141,14 @@ COBERTURA:
     '2': Municipio muestreado
     '3': Municipio con muestra insuficiente
 ESTRATO:
-  Descripción: Estrato de diseño muestral (alfanumérico, p. ej. 01-001-05 en 2015,
-    01-001-0000-03 en 2020 y 15-001-0000-030 en 2025)
+  Descripción: Estrato de diseño muestral (alfanumérico, p. ej. 400-01-001-0003 en 2010,
+    01-001-05 en 2015, 01-001-0000-03 en 2020 y 15-001-0000-030 en 2025)
   Tipo: string
   Longitud: 9 / 14 / 15
 UPM:
-  Descripción: Unidad Primaria de Muestreo (6 dígitos en 2015, 5 en 2020 y 2025)
+  Descripción: Unidad Primaria de Muestreo (4 dígitos en 2010, 6 en 2015, 5 en 2020 y 2025)
   Tipo: string
-  Longitud: 5 / 6
+  Longitud: 4 / 5 / 6
 FACTOR:
   Descripción: Factor de expansión (constante dentro de la vivienda; calibrado a las
     estimaciones publicadas — Σ FACTOR = población / viviendas particulares habitadas)
@@ -150,7 +163,10 @@ TIPO_REG:
     '0': Encuestado
     '1': Imputado
 
-# --- dwelling class (in every microdata table of 2020 and 2025; viviendas in 2015) -----------
+# --- dwelling class (in every microdata table of 2020 and 2025; viviendas in 2015) ----------
+# 2010 (every table) classifies dwellings differently (1 casa independiente, 2 departamento,
+# 3 vecindad, 4 cuarto de azotea, 5 local no construido, 6 móvil, 7 refugio, 9 no
+# especificado): its CLAVIVP keeps the 2010 dictionary entry (Periodos).
 CLAVIVP:
   Descripción: Clase de vivienda particular. Las clases 07 (local no construido para
     habitación) y 09 (refugio) no tienen características de la vivienda (bloque PAREDES…
@@ -159,6 +175,7 @@ CLAVIVP:
     edificio».
   Tipo: categorical
   Longitud: '2'
+  Periodos: ['2015', '2020', '2025']
   Categorías:
     '01': Casa única en el terreno
     '02': Casa que comparte terreno con otra(s)
@@ -184,7 +201,7 @@ CLAVIVP:
 
 # --- demographics ---------------------------------------------------------------------------
 SEXO:
-  Descripción: Sexo (códigos 1 y 3 en 2015, 2020 y 2025)
+  Descripción: Sexo (códigos 1 y 3 en 2010, 2015, 2020 y 2025)
   Pregunta: (NOMBRE) es hombre. (NOMBRE) es mujer.
   Tipo: categorical
   Longitud: '1'
@@ -192,7 +209,8 @@ SEXO:
     '1': Hombre
     '3': Mujer
 EDAD:
-  Descripción: Edad en años cumplidos (0 = menos de un año; en 2015, 110 = 110 y más)
+  Descripción: Edad en años cumplidos (0 = menos de un año; en 2015, 110 = 110 y más; 2010 la
+    escribe con tres dígitos, 000-130)
   Pregunta: ¿Cuántos años cumplidos tiene (NOMBRE)?
   Tipo: numeric
   Longitud: '3'

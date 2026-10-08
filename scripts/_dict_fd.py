@@ -40,6 +40,7 @@ import xml.etree.ElementTree as ET
 import zipfile
 from pathlib import Path
 
+import _dbf
 import _dict_ddi as ddi
 
 _M = "{http://schemas.openxmlformats.org/spreadsheetml/2006/main}"
@@ -55,7 +56,7 @@ _CATALOG_RE = re.compile(r"seg[uú]n\s+clasificador\s+de\s+([^)]+)", re.IGNORECA
 _SENTINEL_RE = re.compile(r"\bno especificad|^no sabe\b", re.IGNORECASE)
 # A numeric code above the valid range that is itself a value: a top-code.
 _TOPCODE_RE = re.compile(r"\bmayor(es)? a\b|^más de\b|\by más\b", re.IGNORECASE)
-_NULL_CODES = {"nulo"}
+_NULL_CODES = {"nulo", "b"}    # CPV 2010/EIC 2015 write the blank cell "b" («Blanco por pase»)
 # A code row labelled «Blanco (por pase)» marks the blank cell whatever its code (``Nulo``;
 # EIC 2015 also writes ``b``).
 _BLANK_RE = re.compile(r"^blanco\b", re.IGNORECASE)
@@ -377,8 +378,9 @@ def _xls_rows(raw: bytes) -> list[list[str]]:
 def read_catalogs(zip_path: Path) -> dict[str, dict[str, str]]:
     """``{catalog stem: {code: label}}`` from a ZIP of INEGI classification tables.
 
-    The members are CSVs (EIC 2025, CPV 2020) or one-sheet ``.xls`` workbooks (EIC 2015:
-    ``TC_PARENTESCO_2015.xls`` …). The code is the concatenation of the ``CLAVE``/
+    The members are CSVs (EIC 2025, CPV 2020), one-sheet ``.xls`` workbooks (EIC 2015:
+    ``TC_PARENTESCO_2015.xls`` …) or DBF tables (CPV 2010: ``TC_PARENTESCO_2010.DBF`` …,
+    :mod:`_dbf`). The code is the concatenation of the ``CLAVE``/
     ``CLAVE_*``/``CVE_*`` columns (``MUNICIPIO.csv`` → entidad+municipio) and the label the
     last ``DESC*`` column (else the last ``NOM*``); codes keep their spelling. A member
     without such columns (EIC 2015's ``TC_ESCOACUM_2015``, a reference table) is skipped.
@@ -395,6 +397,10 @@ def read_catalogs(zip_path: Path) -> dict[str, dict[str, str]]:
                 rows = list(csv.reader(io.StringIO(text)))
             elif name.lower().endswith(".xls"):
                 rows = _xls_rows(raw)
+            elif name.lower().endswith(".dbf"):
+                table = _dbf.read_dbf(raw).table
+                rows = [table.column_names] + [[v or "" for v in r.values()]
+                                               for r in table.to_pylist()]
             else:
                 continue
             if not rows:
@@ -507,9 +513,26 @@ def _enumerated(var: dict) -> bool:
     return bool(header) and header <= {_code_key(c) for c, _ in rows}
 
 
+def _quantity(var: dict) -> bool:
+    """For an FD without a ``Tipo`` column (CPV 2010): whether a variable is a number.
+
+    It is when a code row is a labelled range (``01..25 Número de dormitorios``,
+    ``{000001..999997} Ingresos especificados``) or, with no code rows, when its header
+    holds a range plus a sentinel (``EDAD {000..130,999}``) or an unpadded range (``MPERA
+    {0..99}``). A zero-padded header range alone is a code space (``ENT {01..32}``,
+    ``MUN {001..570}``); single labelled codes are categories.
+    """
+    if any(isinstance(c, tuple) and label for c, label in var["rows"]):
+        return True
+    if var["rows"]:
+        return False
+    codes = _header_codes(var["code"])
+    ranges = [c for c in codes if isinstance(c, tuple)]
+    return bool(ranges) and (len(codes) > len(ranges) or not any(r[2] for r in ranges))
+
+
 def _finish(var: dict, catalogs: dict | None) -> dict:
     """Turn a variable's raw code rows into ``parse_ddi``-shaped meta."""
-    numeric = _fold(var["tipo"]).startswith("numer") and not _enumerated(var)
     header = var["code"]
     nota = []
     # The catalog note sits in the header, or in a code row of its own (CPV 2020 ESCOACUM).
@@ -526,6 +549,10 @@ def _finish(var: dict, catalogs: dict | None) -> dict:
             catalog, from_ref = stem, True
         elif not stem:
             nota.append(f"clasificador «{ref}» no disponible")
+    if var.get("typed", True):
+        numeric = _fold(var["tipo"]).startswith("numer") and not _enumerated(var)
+    else:
+        numeric = catalog is None and _quantity(var)
     rows = var["rows"] or [(c, "") for c in _header_codes(header)]
     ranges = [c for c, _ in rows if isinstance(c, tuple)]
     if numeric and not ranges:  # code rows list only labelled values: the header has the range
@@ -613,13 +640,15 @@ def parse_fd(path: Path, catalogs: dict[str, dict[str, str]] | None = None
             continue
         vars_: dict[str, dict] = {}
         current, stem = None, None
+        typed = "tipo" in cols                # CPV 2010's FD has no Tipo column
         for row in rows[i + 1:]:
-            get = {field: row.get(col, "") for field, col in cols.items()}
+            get = {field: row.get(cols[field], "") if field in cols else ""
+                   for field in _FD_HEADERS.values()}
             if _VARNAME_RE.match(get["var"]):
                 label = get["label"]
                 if stem and label[:1].islower():
                     label = f"{stem} {label}"
-                current = {**get, "label": label, "rows": [], "refs": []}
+                current = {**get, "label": label, "rows": [], "refs": [], "typed": typed}
                 vars_[get["var"]] = current
             elif get["code"] and get["label"] and current is not None:
                 if _CATALOG_RE.search(get["code"]):  # "(Según Clasificador de …)" as a row

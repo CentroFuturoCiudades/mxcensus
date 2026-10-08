@@ -14,10 +14,13 @@ empty cells null, zstd.
 
 Microdata files are large (Estado de México personas ≈ 0.5 GB of CSV), so CSVs are read with
 ``pyarrow.csv`` (not ``pandas.read_csv(dtype=str)``, whose object strings would need tens of
-GB) and the encoding is sniffed by streaming the bytes.
+GB) and the encoding is sniffed by streaming the bytes. DBF members (CPV 2010 and older) are
+memory-mapped and decoded one field at a time by the stdlib reader ``scripts/_dbf.py``, into
+the same all-``string`` faithful-raw form (fixed-width padding trimmed, deleted records
+dropped).
 
-Only editions in ``_ENABLED`` build (the CSV editions: EIC 2015, CPV 2020, EIC 2025); ``--dry-run``
-previews any edition.
+Only editions in ``_ENABLED`` build (CPV 2010 — DBF —, EIC 2015, CPV 2020, EIC 2025);
+``--dry-run`` previews any edition.
 
 Dry run (URLs + member patterns, no download):
     .venv/bin/python scripts/build_cpv.py --dry-run --periods 2025
@@ -56,6 +59,7 @@ import pyarrow.parquet as pq
 import yaml
 
 import _build_common as bc
+import _dbf
 import _dict_ddi as ddi
 import _dict_fd as fd
 from mxcensus._schema_groups import fingerprint
@@ -89,9 +93,9 @@ _DEFAULT_REGISTRY = _REPO_ROOT / "src" / "mxcensus" / "data" / "registry.txt"
 _DEFAULT_DICT_DIR = _REPO_ROOT / "data" / "dict" / "fd"
 _DEFAULT_DDI_DIR = _REPO_ROOT / "data" / "dict" / "ddi"
 
-# Editions whose build is enabled (docs/cpv/PLAN.md unit table). DBF editions (2010 and
-# earlier) need their own reader (unit 3b+); they stay dry-run-only until then.
-_ENABLED = ("2015", "2020", "2025")
+# Editions whose build is enabled (docs/cpv/PLAN.md unit table). The DBF editions are read by
+# scripts/_dbf.py (2010 since unit 3b); the older ones stay dry-run-only until their unit.
+_ENABLED = ("2010", "2015", "2020", "2025")
 
 _HIGH_BYTES = bytes(range(0x80, 0x100))
 _CHUNK = 1 << 24  # 16 MiB
@@ -275,8 +279,14 @@ def _build_zip(edition: CpvEdition, product: str, state: int | None,
             infos.append({**base, "table": table, "status": "missing", "member": names})
             continue
         out_path = out_dir / edition.filename(table, state)
+        deleted = 0
         try:
-            arrow, enc = _read_csv_arrow(extract_dir / member)
+            if member.lower().endswith(".dbf"):
+                dbf = _dbf.read_dbf(extract_dir / member)
+                arrow, enc, deleted = dbf.table, dbf.encoding, dbf.deleted
+                del dbf
+            else:
+                arrow, enc = _read_csv_arrow(extract_dir / member)
             info = _table_to_parquet(arrow, out_path)
             del arrow
         except Exception as exc:  # unparsable CSV: report, keep sweeping
@@ -285,7 +295,8 @@ def _build_zip(edition: CpvEdition, product: str, state: int | None,
                           "error": f"{type(exc).__name__}: {exc}"})
             continue
         info.update({**base, "table": table, "member": member, "encoding": enc,
-                     "file": out_path.name, "status": "ok", "peak_rss_mb": _peak_rss_mb()})
+                     "deleted": deleted, "file": out_path.name, "status": "ok",
+                     "peak_rss_mb": _peak_rss_mb()})
         infos.append(info)
     if cleanup_raw:  # bound disk use: drop extracted CSVs once converted
         shutil.rmtree(extract_dir, ignore_errors=True)
@@ -446,8 +457,11 @@ def _write_report(out_dir: Path, report_path: Path) -> dict:
 # The FD is an .xlsx (2020, 2025) or a legacy .xls (2015), both read with the standard
 # library (scripts/_dict_fd.py); RNM DDI codebooks are fetched for reference only.
 
-# Aggregate products ship their indicator dictionary inside the data ZIP.
-_INDICATOR_DICT_RE = re.compile(r"(^|/)diccionario_datos[^/]*\.csv$", re.IGNORECASE)
+# Aggregate products ship their indicator dictionary inside the data ZIP: a
+# ``diccionario_datos*.csv`` (2020, 2025) or any CSV in a ``diccionario_de_datos/`` folder
+# (CPV 2010: ``fd_iter_cpv2010.csv``).
+_INDICATOR_DICT_RE = re.compile(r"(^|/)(diccionario_datos[^/]*|diccionario_de_datos/[^/]+)\.csv$",
+                                re.IGNORECASE)
 # Per-table --cat-threshold override: the aggregate cells are numbers (and their sentinel
 # codes), never worth enumerating as categories.
 _TABLE_THRESHOLD = {"estimaciones": 0, "iter": 0, "ageb": 0}
@@ -562,7 +576,8 @@ def _write_variables_yaml(out_dir: Path, map_path: Path, yaml_dir: Path,
     """Write one ``variables_cpv_{table}_{gNN}.yaml`` per (table, schema group).
 
     Per column, in priority: the hand-curated ``variables_cpv_core.yaml`` entry (verbatim,
-    when in scope for the table — ``Tablas``, :func:`mxcensus.cpv._in_scope`);
+    when in scope for the table and the group's editions — ``Tablas``/``Periodos``,
+    :func:`mxcensus.cpv._in_scope`);
     INEGI's dictionary entry (FD workbook / indicator CSV) reconciled against the codes
     observed in the group's files (:func:`_dict_fd.fd_entry`); else the data-enumerated
     identity map. Observed values are read one column at a time
@@ -584,8 +599,8 @@ def _write_variables_yaml(out_dir: Path, map_path: Path, yaml_dir: Path,
     n = 0
     for table, td in schema_map.items():
         thr = _TABLE_THRESHOLD.get(table, threshold)
-        core_t = {c: m for c, m in core.items() if _in_scope(m, table)}
         for gid, g in td["groups"].items():
+            core_t = {c: m for c, m in core.items() if _in_scope(m, table, g["periods"])}
             paths = files.get((table, gid), [])
             observed = ddi.observed_values(paths, g["columns"], thr)
             doc, prov = _doc_for(dict_dir, table, g["periods"])
@@ -810,9 +825,10 @@ def main(argv: list[str] | None = None) -> int:
                 continue  # table not published for this edition (by catalog)
             if st == "ok":
                 written += 1
+                dropped = f", {info['deleted']} deleted record(s) dropped" if info["deleted"] else ""
                 print(f"  {where}: {info['rows']:,} rows, {info['cols']} cols, "
                       f"enc={info['encoding']}, {info['size_kb'] / 1024:.1f} MB "
-                      f"(peak RSS {info['peak_rss_mb']:,.0f} MB)", flush=True)
+                      f"(peak RSS {info['peak_rss_mb']:,.0f} MB){dropped}", flush=True)
             else:
                 failed += 1
                 print(f"  ! {where}: {st.upper()} — {info.get('error') or info.get('member')}",

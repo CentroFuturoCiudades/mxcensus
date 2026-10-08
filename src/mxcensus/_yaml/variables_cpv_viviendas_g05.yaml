@@ -1,0 +1,1053 @@
+CVEGEO:
+  Descripción: Clave geoestadística integrada, la concatenación de las claves geográficas que lleva la
+    tabla (como en el Marco Geoestadístico). Microdatos — entidad + municipio (5 dígitos); estimaciones
+    e ITER — + localidad (9); AGEB — + AGEB + manzana (16). Los renglones de totales llevan sus partes
+    en cero (00/000/0000/0000/000). Los archivos de 2020 no la traen; harmonize=True la deriva.
+  Tipo: string
+  Longitud: 5 / 9 / 16
+CVE_ENT:
+  Descripción: Clave del Área Geoestadística Estatal (01-32; 00 = total nacional en las estimaciones).
+    En 2010, 2015 y 2020 se llama ENT en los microdatos; en 2020, ENTIDAD en el ITER y el AGEB.
+  Tipo: string
+  Longitud: '2'
+CVE_MUN:
+  Descripción: Clave del Área Geoestadística Municipal (001-570; 000 = total estatal en las estimaciones,
+    el ITER y el AGEB; 997 = localidades de menos de 50 000 habitantes de la entidad en las estimaciones).
+    En 2010, 2015 y 2020 se llama MUN.
+  Tipo: string
+  Longitud: '3'
+LOC50K:
+  Descripción: Clave de la localidad de 50 000 y más habitantes dentro del municipio; 0000 = localidad
+    de menos de 50 000 habitantes
+  Tipo: string
+  Longitud: '4'
+ID_VIV:
+  Descripción: Identificador único de la vivienda (2015, 2020 y 2025 — 12 dígitos; los dos primeros son
+    la entidad, así que es único en todo el país). Los CSV de 2015 lo escriben sin el cero inicial de
+    las entidades 01-09 (11 dígitos); harmonize=True lo rellena. En 2010 es un consecutivo de 8 dígitos
+    único sólo dentro de la entidad; harmonize=True le antepone la entidad (entidad + consecutivo a 10
+    dígitos).
+  Tipo: string
+  Longitud: '12'
+TIPO_REG:
+  Descripción: Registro imputado — identificador de registros imputados
+  Tipo: categorical
+  Longitud: '1'
+  Categorías:
+    '0': Encuestado
+    '1': Imputado
+COBERTURA:
+  Descripción: Tipo de cobertura en el municipio (EIC 2015, cuestionario ampliado del Censo 2020 y EIC
+    2025)
+  Tipo: categorical
+  Longitud: '1'
+  Categorías:
+    '1': Municipio censado
+    '2': Municipio muestreado
+    '3': Municipio con muestra insuficiente
+ESTRATO:
+  Descripción: Estrato de diseño muestral (alfanumérico, p. ej. 400-01-001-0003 en 2010, 01-001-05 en
+    2015, 01-001-0000-03 en 2020 y 15-001-0000-030 en 2025)
+  Tipo: string
+  Longitud: 9 / 14 / 15
+UPM:
+  Descripción: Unidad Primaria de Muestreo (4 dígitos en 2010, 6 en 2015, 5 en 2020 y 2025)
+  Tipo: string
+  Longitud: 4 / 5 / 6
+FACTOR:
+  Descripción: Factor de expansión (constante dentro de la vivienda; calibrado a las estimaciones publicadas
+    — Σ FACTOR = población / viviendas particulares habitadas)
+  Tipo: numeric
+  Longitud: '5'
+  Rango:
+  - 1
+  - 99999
+CLAVIVP:
+  Descripción: Clase de vivienda particular. Las clases 07 (local no construido para habitación) y 09
+    (refugio) no tienen características de la vivienda (bloque PAREDES… SERV_TV_PAGA vacío). En 2015 los
+    códigos van sin cero inicial (1…9, 99) y INEGI rotula la clase 03 «Casa dúplex, triple o cuádruple»
+    y la 06 «Cuarto en la azotea de un edificio».
+  Tipo: categorical
+  Longitud: '2'
+  Periodos:
+  - '2015'
+  - '2020'
+  - '2025'
+  Categorías:
+    '01': Casa única en el terreno
+    '02': Casa que comparte terreno con otra(s)
+    '03': Casa dúplex
+    '04': Departamento en edificio
+    '05': Vivienda en vecindad o cuartería
+    '06': Vivienda en cuarto de azotea de un edificio
+    '07': Local no construido para habitación
+    08: Vivienda móvil
+    09: Refugio
+  Especiales:
+    '99': No especificado de vivienda particular
+  Alias:
+    '1': '01'
+    '2': '02'
+    '3': '03'
+    '4': '04'
+    '5': '05'
+    '6': '06'
+    '7': '07'
+    '8': 08
+    '9': 09
+PAREDES:
+  Descripción: Paredes
+  Pregunta: ¿De qué material es la mayor parte de las paredes o muros de esta vivienda?
+  Tipo: categorical
+  Longitud: '1'
+  Categorías:
+    '1': Material de desecho
+    '2': Lámina de cartón
+    '3': Lámina de asbesto o metálica
+    '4': Carrizo, bambú o palma
+    '5': Embarro o bajareque
+    '6': Madera
+    '7': Adobe
+    '8': Tabique, ladrillo, block, piedra, cantera, cemento o concreto
+  Especiales:
+    '9': No especificado
+TECHOS:
+  Descripción: Techos
+  Pregunta: ¿De qué material es la mayor parte del techo de esta vivienda?
+  Tipo: categorical
+  Longitud: '2'
+  Categorías:
+    '01': Material de desecho
+    '02': Lámina de cartón
+    '03': Lámina metálica
+    '04': Lámina de asbesto
+    '05': Lámina de fibrocemento
+    '06': Palma o paja
+    '07': Madera o tejamanil
+    08: Terrado con viguería
+    09: Teja
+    '10': Losa de concreto o viguetas con bovedilla
+  Especiales:
+    '99': No especificado
+PISOS:
+  Descripción: Pisos
+  Pregunta: ¿De qué material es la mayor parte del piso de esta vivienda?
+  Tipo: categorical
+  Longitud: '1'
+  Categorías:
+    '1': Tierra
+    '2': Cemento o firme
+    '3': Madera, mosaico u otro recubrimiento
+  Especiales:
+    '9': No especificado
+COCINA:
+  Descripción: Cocina
+  Pregunta: ¿Esta vivienda tiene un cuarto para cocinar?
+  Tipo: categorical
+  Longitud: '1'
+  Categorías:
+    '1': Sí
+    '3': 'No'
+  Especiales:
+    '9': No especificado
+CUADORM:
+  Descripción: Dormitorios
+  Pregunta: ¿Cuántos cuartos se usan para dormir sin contar pasillos?
+  Tipo: numeric
+  Longitud: '2'
+  Rango:
+  - 1
+  - 25
+  Categorías: {}
+  Especiales:
+    '99': No especificado
+TOTCUART:
+  Descripción: Cuartos
+  Pregunta: ¿Cuántos cuartos tiene en total esta vivienda contando la cocina? (No cuente pasillos ni baños)
+  Tipo: numeric
+  Longitud: '2'
+  Rango:
+  - 1
+  - 25
+  Categorías: {}
+  Especiales:
+    '99': No especificado
+LUG_COC:
+  Descripción: Lugar donde cocinan
+  Pregunta: '¿El espacio para cocinar o preparar alimentos está:'
+  Tipo: categorical
+  Longitud: '1'
+  Categorías:
+    '1': al interior de la vivienda?
+    '2': en un cuarto separado de la vivienda?
+    '3': en un pasillo o corredor fuera de la vivienda?
+    '4': en un tejabán o techito?
+    '5': al aire libre?
+    '6': ¿No tiene un espacio para cocinar?
+  Especiales:
+    '9': No especificado
+COMBUSTIBLE:
+  Descripción: Combustible
+  Pregunta: '¿El combustible que más usan para cocinar es:'
+  Tipo: categorical
+  Longitud: '1'
+  Categorías:
+    '1': leña o carbón?
+    '2': gas?
+    '3': electricidad?
+    '4': ¿Otro combustible?
+    '5': ¿No cocinan?
+  Especiales:
+    '9': No especificado
+ESTUFA:
+  Descripción: Fogón con chimenea
+  Pregunta: '¿El fogón (anafre, estufa, comal) donde cocinan con leña o carbón:'
+  Tipo: categorical
+  Longitud: '1'
+  Categorías:
+    '1': tiene un tubo o chimenea para sacar el humo?
+    '3': no tiene tubo o chimenea para sacar el humo?
+  Especiales:
+    '9': No especificado
+ELECTRICIDAD:
+  Descripción: Electricidad
+  Pregunta: ¿Hay luz eléctrica en esta vivienda?
+  Tipo: categorical
+  Longitud: '1'
+  Categorías:
+    '1': Sí
+    '3': 'No'
+  Especiales:
+    '9': No especificado
+AGUA_ENTUBADA:
+  Descripción: Agua entubada
+  Pregunta: '¿El agua la obtienen de llaves o mangueras que están:'
+  Tipo: categorical
+  Longitud: '1'
+  Categorías:
+    '1': dentro de la vivienda?
+    '2': solo en el patio o terreno?
+    '3': ¿No tienen agua entubada?
+  Especiales:
+    '9': No especificado
+ABA_AGUA_ENTU:
+  Descripción: Abastecimiento de agua
+  Pregunta: '¿El agua que usan en su vivienda proviene:'
+  Tipo: categorical
+  Longitud: '1'
+  Categorías:
+    '1': del servicio público de agua?
+    '2': de un pozo comunitario?
+    '3': de un pozo particular?
+    '4': de una pipa?
+    '5': de otra vivienda?
+    '6': de la lluvia?
+    '7': de otro lugar?
+  Especiales:
+    '9': No especificado
+ABA_AGUA_NO_ENTU:
+  Descripción: Agua no entubada
+  Pregunta: 'Entonces, ¿acarrean el agua de:'
+  Tipo: categorical
+  Longitud: '1'
+  Categorías:
+    '1': un pozo?
+    '2': una llave comunitaria?
+    '3': otra vivienda?
+    '4': un río, arroyo o lago?
+    '5': ¿La trae una pipa?
+    '6': ¿La captan de la lluvia?
+  Especiales:
+    '9': No especificado
+TINACO:
+  Descripción: Tinaco (Equipamiento)
+  Pregunta: '¿En esta vivienda tienen: tinaco?'
+  Tipo: categorical
+  Longitud: '1'
+  Categorías:
+    '1': Sí
+    '2': 'No'
+  Especiales:
+    '9': No especificado
+CISTERNA:
+  Descripción: Cisterna o aljibe (Equipamiento)
+  Pregunta: '¿En esta vivienda tienen: cisterna o aljibe?'
+  Tipo: categorical
+  Longitud: '1'
+  Categorías:
+    '3': Sí
+    '4': 'No'
+  Especiales:
+    '9': No especificado
+BOMBA_AGUA:
+  Descripción: Bomba de agua (Equipamiento)
+  Pregunta: '¿En esta vivienda tienen: bomba de agua?'
+  Tipo: categorical
+  Longitud: '1'
+  Categorías:
+    '5': Sí
+    '6': 'No'
+  Especiales:
+    '9': No especificado
+REGADERA:
+  Descripción: Regadera (Equipamiento)
+  Pregunta: '¿En esta vivienda tienen: regadera?'
+  Tipo: categorical
+  Longitud: '1'
+  Categorías:
+    '7': Sí
+    '8': 'No'
+  Especiales:
+    '9': No especificado
+BOILER:
+  Descripción: Boiler o calentador de agua (Equipamiento)
+  Pregunta: '¿En esta vivienda tienen: boiler o calentador de agua? (Gas, eléctrico, leña)'
+  Tipo: categorical
+  Longitud: '1'
+  Categorías:
+    '1': Sí
+    '2': 'No'
+  Especiales:
+    '9': No especificado
+CALENTADOR_SOLAR:
+  Descripción: Calentador solar de agua (Equipamiento)
+  Pregunta: '¿En esta vivienda tienen: calentador solar de agua?'
+  Tipo: categorical
+  Longitud: '1'
+  Categorías:
+    '3': Sí
+    '4': 'No'
+  Especiales:
+    '9': No especificado
+AIRE_ACON:
+  Descripción: Aire acondicionado (Equipamiento)
+  Pregunta: '¿En esta vivienda tienen: aire acondicionado?'
+  Tipo: categorical
+  Longitud: '1'
+  Categorías:
+    '5': Sí
+    '6': 'No'
+  Especiales:
+    '9': No especificado
+PANEL_SOLAR:
+  Descripción: Panel solar para tener electricidad (Equipamiento)
+  Pregunta: '¿En esta vivienda tienen: panel solar para tener electricidad?'
+  Tipo: categorical
+  Longitud: '1'
+  Categorías:
+    '7': Sí
+    '8': 'No'
+  Especiales:
+    '9': No especificado
+SERSAN:
+  Descripción: Sanitario
+  Pregunta: '¿Tienen:'
+  Tipo: categorical
+  Longitud: '1'
+  Categorías:
+    '1': taza de baño (excusado o sanitario)?
+    '2': letrina (pozo u hoyo)?
+    '3': ¿No tienen taza de baño ni letrina?
+  Especiales:
+    '9': No especificado
+CONAGUA:
+  Descripción: Admisión de agua en el sanitario
+  Pregunta: '¿La taza de baño (letrina):'
+  Tipo: categorical
+  Longitud: '1'
+  Categorías:
+    '1': tiene descarga directa de agua?
+    '2': le echan agua con cubeta?
+    '3': ¿No se le puede echar agua?
+  Especiales:
+    '9': No especificado
+DRENAJE:
+  Descripción: Drenaje
+  Pregunta: '¿Esta vivienda tiene drenaje o desagüe conectado a:'
+  Tipo: categorical
+  Longitud: '1'
+  Categorías:
+    '1': la red pública?
+    '2': una fosa séptica o tanque séptico (biodigestor)?
+    '3': una tubería que va a dar a una barranca o grieta?
+    '4': una tubería que va a dar a un río, lago o mar?
+    '5': ¿No tiene drenaje?
+  Especiales:
+    '9': No especificado
+SEPARACION1:
+  Descripción: Separación de basura orgánica e inorgánica
+  Pregunta: '¿En esta vivienda acostumbran: separar la basura en orgánica e inorgánica?'
+  Tipo: categorical
+  Longitud: '1'
+  Categorías:
+    '1': Sí
+    '2': 'No'
+  Especiales:
+    '9': No especificado
+SEPARACION2:
+  Descripción: Separación de desperdicios para alimentar animales
+  Pregunta: '¿En esta vivienda acostumbran: separar desperdicios para alimentar animales?'
+  Tipo: categorical
+  Longitud: '1'
+  Categorías:
+    '3': Sí
+    '4': 'No'
+  Especiales:
+    '9': No especificado
+SEPARACION3:
+  Descripción: Separación de desperdicios para echarlos a las plantas
+  Pregunta: '¿En esta vivienda acostumbran: separar desperdicios para echarlos a las plantas?'
+  Tipo: categorical
+  Longitud: '1'
+  Categorías:
+    '5': Sí
+    '6': 'No'
+  Especiales:
+    '9': No especificado
+SEPARACION4:
+  Descripción: Separación de desperdicios para vender, regalar, donar o reutilizar
+  Pregunta: '¿En esta vivienda acostumbran: separar cartón, latas o plástico para vender, regalar, donar
+    o reutilizar?'
+  Tipo: categorical
+  Longitud: '1'
+  Categorías:
+    '7': Sí
+    '8': 'No'
+  Especiales:
+    '9': No especificado
+DESTINO_BAS:
+  Descripción: Eliminación de basura
+  Pregunta: '¿La basura de esta vivienda:'
+  Tipo: categorical
+  Longitud: '1'
+  Categorías:
+    '1': se la dan a un camión o carrito recolector de basura?
+    '2': la dejan en un contenedor o depósito?
+    '3': la queman?
+    '4': la entierran?
+    '5': la llevan al basurero público?
+    '6': la tiran en otro lugar? (Calle, baldío, barranca, río)
+  Especiales:
+    '9': No especificado
+REFRIGERADOR:
+  Descripción: Refrigerador (Bienes y TIC)
+  Pregunta: '¿En esta vivienda tienen: refrigerador?'
+  Tipo: categorical
+  Longitud: '1'
+  Categorías:
+    '1': Sí
+    '2': 'No'
+  Especiales:
+    '9': No especificado
+LAVADORA:
+  Descripción: Lavadora (Bienes y TIC)
+  Pregunta: '¿En esta vivienda tienen: lavadora?'
+  Tipo: categorical
+  Longitud: '1'
+  Categorías:
+    '3': Sí
+    '4': 'No'
+  Especiales:
+    '9': No especificado
+HORNO:
+  Descripción: Horno de microondas (Bienes y TIC)
+  Pregunta: '¿En esta vivienda tienen: horno de microondas?'
+  Tipo: categorical
+  Longitud: '1'
+  Categorías:
+    '5': Sí
+    '6': 'No'
+  Especiales:
+    '9': No especificado
+AUTOPROP:
+  Descripción: Automóvil o camioneta (Bienes y TIC)
+  Pregunta: '¿En esta vivienda tienen: automóvil o camioneta?'
+  Tipo: categorical
+  Longitud: '1'
+  Categorías:
+    '7': Sí
+    '8': 'No'
+  Especiales:
+    '9': No especificado
+MOTOCICLETA:
+  Descripción: Motocicleta o motoneta (Bienes y TIC)
+  Pregunta: '¿En esta vivienda tienen: motocicleta o motoneta?'
+  Tipo: categorical
+  Longitud: '1'
+  Categorías:
+    '1': Sí
+    '2': 'No'
+  Especiales:
+    '9': No especificado
+BICICLETA:
+  Descripción: Bicicleta como medio de transporte (Bienes y TIC)
+  Pregunta: '¿En esta vivienda tienen: bicicleta que se utilice como medio de transporte?'
+  Tipo: categorical
+  Longitud: '1'
+  Categorías:
+    '3': Sí
+    '4': 'No'
+  Especiales:
+    '9': No especificado
+RADIO:
+  Descripción: Radio (Bienes y TIC)
+  Pregunta: '¿En esta vivienda tienen: algún aparato o dispositivo para oír radio?'
+  Tipo: categorical
+  Longitud: '1'
+  Categorías:
+    '5': Sí
+    '6': 'No'
+  Especiales:
+    '9': No especificado
+TELEVISOR:
+  Descripción: Televisor (Bienes y TIC)
+  Pregunta: '¿En esta vivienda tienen: televisor?'
+  Tipo: categorical
+  Longitud: '1'
+  Categorías:
+    '7': Sí
+    '8': 'No'
+  Especiales:
+    '9': No especificado
+COMPUTADORA:
+  Descripción: Computadora, laptop o tablet (Bienes y TIC)
+  Pregunta: '¿En esta vivienda tienen: computadora, laptop o tablet?'
+  Tipo: categorical
+  Longitud: '1'
+  Categorías:
+    '1': Sí
+    '2': 'No'
+  Especiales:
+    '9': No especificado
+TELEFONO:
+  Descripción: Línea telefónica fija (Bienes y TIC)
+  Pregunta: '¿En esta vivienda tienen: línea telefónica fija?'
+  Tipo: categorical
+  Longitud: '1'
+  Categorías:
+    '3': Sí
+    '4': 'No'
+  Especiales:
+    '9': No especificado
+CELULAR:
+  Descripción: Teléfono celular (Bienes y TIC)
+  Pregunta: '¿En esta vivienda tienen: teléfono celular?'
+  Tipo: categorical
+  Longitud: '1'
+  Categorías:
+    '5': Sí
+    '6': 'No'
+  Especiales:
+    '9': No especificado
+INTERNET:
+  Descripción: Internet (Bienes y TIC)
+  Pregunta: '¿En esta vivienda tienen: internet?'
+  Tipo: categorical
+  Longitud: '1'
+  Categorías:
+    '7': Sí
+    '8': 'No'
+  Especiales:
+    '9': No especificado
+SERV_TV_PAGA:
+  Descripción: Servicio de televisión de paga (Bienes y TIC)
+  Pregunta: '¿En esta vivienda tienen: servicio de televisión de paga? (Cable o satelital)'
+  Tipo: categorical
+  Longitud: '1'
+  Categorías:
+    '1': Sí
+    '2': 'No'
+  Especiales:
+    '9': No especificado
+TENENCIA:
+  Descripción: Tenencia
+  Pregunta: '¿En esta vivienda:'
+  Tipo: categorical
+  Longitud: '1'
+  Categorías:
+    '1': vive la persona que es dueña o propietaria?
+    '2': vive la persona que es dueña pero la están pagando?
+    '3': se paga renta?
+    '4': ¿Es de un familiar o les prestan la vivienda?
+    '5': ¿Está intestada o en litigio?
+    '6': ¿La ocupan en otra situación?
+  Especiales:
+    '9': No especificado
+ESCRITURAS:
+  Descripción: Escritura o título
+  Pregunta: '¿Esta vivienda cuenta con escrituras o título de propiedad:'
+  Tipo: categorical
+  Longitud: '1'
+  Categorías:
+    '1': a nombre de la persona dueña o propietaria?
+    '2': a nombre de otra persona?
+    '3': ¿No tiene escrituras?
+  Especiales:
+    '8': No sabe
+    '9': No especificado
+FORMA_ADQUI:
+  Descripción: Adquisición
+  Pregunta: '¿La persona dueña o propietaria de esta vivienda:'
+  Tipo: categorical
+  Longitud: '1'
+  Categorías:
+    '1': la compró hecha?
+    '2': la mandó construir?
+    '3': la construyó ella (él) misma(o) o familiares?
+    '4': la heredó?
+    '5': la recibió como apoyo del gobierno?
+    '6': ¿La obtuvo de otra manera?
+  Especiales:
+    '9': No especificado
+FINANCIAMIENTO1:
+  Descripción: Financiamiento (opción 1)
+  Pregunta: 'Para pagar o construir esta vivienda, ¿le dio crédito:'
+  Tipo: categorical
+  Longitud: '1'
+  Categorías:
+    '1': INFONAVIT?
+    '2': FOVISSSTE?
+    '3': PEMEX?
+    '4': FONHAPO?
+    '5': un banco?
+    '6': otra institución?
+    '7': ¿Le prestó un familiar, amiga(o) o prestamista?
+    '8': ¿Usó sus propios recursos?
+  Especiales:
+    '9': No especificado
+FINANCIAMIENTO2:
+  Descripción: Financiamiento (opción 2)
+  Pregunta: 'Para pagar o construir esta vivienda, ¿le dio crédito:'
+  Tipo: categorical
+  Longitud: '1'
+  Categorías:
+    '2': FOVISSSTE?
+    '3': PEMEX?
+    '4': FONHAPO?
+    '5': un banco?
+    '6': otra institución?
+    '7': ¿Le prestó un familiar, amiga(o) o prestamista?
+    '8': ¿Usó sus propios recursos?
+FINANCIAMIENTO3:
+  Descripción: Financiamiento (opción 3)
+  Pregunta: 'Para pagar o construir esta vivienda, ¿le dio crédito:'
+  Tipo: categorical
+  Longitud: '1'
+  Categorías:
+    '3': PEMEX?
+    '4': FONHAPO?
+    '5': un banco?
+    '6': otra institución?
+    '7': ¿Le prestó un familiar, amiga(o) o prestamista?
+    '8': ¿Usó sus propios recursos?
+NUMPERS:
+  Descripción: Número de personas en la vivienda
+  Pregunta: Número de personas en la vivienda
+  Tipo: numeric
+  Longitud: '2'
+  Rango:
+  - 1
+  - 54
+  Categorías: {}
+DUE1_NUM:
+  Descripción: Número de la primera persona dueña o propietaria
+  Pregunta: Número de persona
+  Tipo: categorical
+  Longitud: '2'
+  Categorías:
+    '01': '01'
+    '02': '02'
+    '03': '03'
+    '04': '04'
+    '05': '05'
+    '06': '06'
+    '07': '07'
+    08: 08
+    09: 09
+    '10': '10'
+    '11': '11'
+    '12': '12'
+    '13': '13'
+    '14': '14'
+    '15': '15'
+    '16': '16'
+    '17': '17'
+    '18': '18'
+    '19': '19'
+    '20': '20'
+    '21': '21'
+    '22': '22'
+    '23': '23'
+    '24': '24'
+    '25': '25'
+    '26': '26'
+    '27': '27'
+    '28': '28'
+    '29': '29'
+    '30': '30'
+    '31': '31'
+    '32': '32'
+    '33': '33'
+    '34': '34'
+    '35': '35'
+    '36': '36'
+    '37': '37'
+    '38': '38'
+    '39': '39'
+    '40': '40'
+    '41': '41'
+    '42': '42'
+    '43': '43'
+    '44': '44'
+    '45': '45'
+    '46': '46'
+    '47': '47'
+    '48': '48'
+    '49': '49'
+    '50': '50'
+    '51': '51'
+    '52': '52'
+    '53': '53'
+    '54': '54'
+    '98': No vive en esta vivienda
+  Especiales:
+    '99': No especificado
+DUE2_NUM:
+  Descripción: Número de la segunda persona dueña o propietaria
+  Pregunta: Número de persona
+  Tipo: categorical
+  Longitud: '2'
+  Categorías:
+    '02': '02'
+    '03': '03'
+    '04': '04'
+    '05': '05'
+    '06': '06'
+    '07': '07'
+    08: 08
+    09: 09
+    '10': '10'
+    '11': '11'
+    '12': '12'
+    '13': '13'
+    '14': '14'
+    '15': '15'
+    '16': '16'
+    '17': '17'
+    '18': '18'
+    '19': '19'
+    '20': '20'
+    '21': '21'
+    '22': '22'
+    '23': '23'
+    '24': '24'
+    '25': '25'
+    '26': '26'
+    '27': '27'
+    '28': '28'
+    '29': '29'
+    '30': '30'
+    '31': '31'
+    '32': '32'
+    '33': '33'
+    '34': '34'
+    '35': '35'
+    '36': '36'
+    '37': '37'
+    '38': '38'
+    '39': '39'
+    '40': '40'
+    '41': '41'
+    '42': '42'
+    '43': '43'
+    '44': '44'
+    '45': '45'
+    '46': '46'
+    '47': '47'
+    '48': '48'
+    '49': '49'
+    '50': '50'
+    '51': '51'
+    '52': '52'
+    '53': '53'
+    '54': '54'
+MCONMIG:
+  Descripción: Condición de migración internacional
+  Pregunta: Durante los últimos 5 años, esto es, de octubre de 2020 a la fecha, ¿alguna persona que vive
+    o vivía con ustedes (en esta vivienda) se fue a vivir a otro país?
+  Tipo: categorical
+  Longitud: '1'
+  Categorías:
+    '1': Sí
+    '3': 'No'
+  Especiales:
+    '9': No especificado
+MNUMPERS:
+  Descripción: Número de emigrantes internacionales
+  Pregunta: ¿Cuántas personas?
+  Tipo: numeric
+  Longitud: '2'
+  Rango:
+  - 1
+  - 54
+  Categorías: {}
+INGR_PEROTROPAIS:
+  Descripción: Reciben ingresos de alguien que vive en otro país (Otros ingresos)
+  Pregunta: '¿Alguna persona que vive en esta vivienda recibe dinero: de alguien que vive en otro país?'
+  Tipo: categorical
+  Longitud: '1'
+  Categorías:
+    '1': Sí
+    '2': 'No'
+  Especiales:
+    '9': No especificado
+INGR_PERDENTPAIS:
+  Descripción: Reciben ingresos de alguien que vive en otra vivienda dentro del país (Otros ingresos)
+  Pregunta: '¿Alguna persona que vive en esta vivienda recibe dinero: de alguien que vive en otra vivienda
+    dentro del país?'
+  Tipo: categorical
+  Longitud: '1'
+  Categorías:
+    '3': Sí
+    '4': 'No'
+  Especiales:
+    '9': No especificado
+INGR_AYUGOB:
+  Descripción: Reciben ingresos de programas de gobierno (Otros ingresos)
+  Pregunta: '¿Alguna persona que vive en esta vivienda recibe dinero: de programas de gobierno? Por ejemplo:
+    becas para estudiantes, pensiones para adultos mayores, pensiones para personas con discapacidad,
+    apoyos para jóvenes, apoyo a campesinos, etcétera'
+  Tipo: categorical
+  Longitud: '1'
+  Categorías:
+    '5': Sí
+    '6': 'No'
+  Especiales:
+    '9': No especificado
+INGR_JUBPEN:
+  Descripción: Reciben ingreso por jubilación o pensión (Otros ingresos)
+  Pregunta: '¿Alguna persona que vive en esta vivienda recibe dinero: por jubilación o pensión?'
+  Tipo: categorical
+  Longitud: '1'
+  Categorías:
+    '7': Sí
+    '8': 'No'
+  Especiales:
+    '9': No especificado
+DESP_INSEGURIDAD:
+  Descripción: Desplazamiento forzado interno por inseguridad
+  Pregunta: 'En los últimos 5 años, es decir, de octubre de 2020 a la fecha, ¿usted o alguna persona que
+    vive en esta vivienda se vio obligada o forzada a cambiar su residencia dentro del país por motivos
+    de: inseguridad delictiva o violencia?'
+  Tipo: categorical
+  Longitud: '1'
+  Categorías:
+    '1': Sí
+    '2': 'No'
+  Especiales:
+    '9': No especificado
+DESP_CATASTROFES:
+  Descripción: Desplazamiento forzado interno por catástrofes
+  Pregunta: 'En los últimos 5 años, es decir, de octubre de 2020 a la fecha, ¿usted o alguna persona que
+    vive en esta vivienda se vio obligada o forzada a cambiar su residencia dentro del país por motivos
+    de: catástrofes naturales o de origen humano?'
+  Tipo: categorical
+  Longitud: '1'
+  Categorías:
+    '3': Sí
+    '4': 'No'
+  Especiales:
+    '9': No especificado
+ALIMENTACION:
+  Descripción: Acceso a los alimentos en la vivienda
+  Pregunta: En los últimos tres meses, por falta de dinero o recursos, ¿alguna vez se quedaron sin comida?
+  Tipo: categorical
+  Longitud: '1'
+  Categorías:
+    '1': Sí
+    '3': 'No'
+  Especiales:
+    '9': No especificado
+ALIM_ADL1:
+  Descripción: Tuvieron poca variedad de alimentos (Alimentación de los adultos)
+  Pregunta: 'En los últimos tres meses, ¿alguna vez usted o algún adulto en su vivienda: por falta de
+    dinero o recursos, tuvieron una alimentación basada en muy poca variedad de alimentos?'
+  Tipo: categorical
+  Longitud: '1'
+  Categorías:
+    '1': Sí
+    '2': 'No'
+  Especiales:
+    '9': No especificado
+ALIM_ADL2:
+  Descripción: Dejaron de desayunar, comer o cenar (Alimentación de los adultos)
+  Pregunta: 'En los últimos tres meses, ¿alguna vez usted o algún adulto en su vivienda: por falta de
+    dinero o recursos, dejaron de desayunar, comer o cenar?'
+  Tipo: categorical
+  Longitud: '1'
+  Categorías:
+    '3': Sí
+    '4': 'No'
+  Especiales:
+    '9': No especificado
+ALIM_ADL3:
+  Descripción: Comieron menos de lo que usted piensa debían comer (Alimentación de los adultos)
+  Pregunta: 'En los últimos tres meses, ¿alguna vez usted o algún adulto en su vivienda: por falta de
+    dinero o recursos, comieron menos de lo que usted piensa que debían comer?'
+  Tipo: categorical
+  Longitud: '1'
+  Categorías:
+    '5': Sí
+    '6': 'No'
+  Especiales:
+    '9': No especificado
+ING_ALIM_ADL1:
+  Descripción: Sintieron hambre pero no comieron (Ingesta de alimentos de los adultos)
+  Pregunta: 'En los últimos tres meses, ¿alguna vez usted o algún adulto en su vivienda: por falta de
+    dinero o recursos, sintieron hambre pero no comieron?'
+  Tipo: categorical
+  Longitud: '1'
+  Categorías:
+    '1': Sí
+    '2': 'No'
+  Especiales:
+    '9': No especificado
+ING_ALIM_ADL2:
+  Descripción: Solo comieron una vez al día o dejaron de comer todo un día (Ingesta de alimentos de los
+    adultos)
+  Pregunta: 'En los últimos tres meses, ¿alguna vez usted o algún adulto en su vivienda: por falta de
+    dinero o recursos, solo comieron una vez al día o dejaron de comer todo un día?'
+  Tipo: categorical
+  Longitud: '1'
+  Categorías:
+    '3': Sí
+    '4': 'No'
+  Especiales:
+    '9': No especificado
+ALIM_MEN1:
+  Descripción: Tuvo poca variedad de alimentos (Alimentación de los menores de 18 años)
+  Pregunta: 'En los últimos tres meses, ¿alguna vez algún menor de 18 años de edad en su vivienda: por
+    falta de dinero o recursos, tuvo una alimentación basada en muy poca variedad de alimentos?'
+  Tipo: categorical
+  Longitud: '1'
+  Categorías:
+    '1': Sí
+    '2': 'No'
+  Especiales:
+    '9': No especificado
+ALIM_MEN2:
+  Descripción: Comió menos (Alimentación de los menores de 18 años)
+  Pregunta: 'En los últimos tres meses, ¿alguna vez algún menor de 18 años de edad en su vivienda: por
+    falta de dinero o recursos, comió menos de lo que debía comer?'
+  Tipo: categorical
+  Longitud: '1'
+  Categorías:
+    '3': Sí
+    '4': 'No'
+  Especiales:
+    '9': No especificado
+ALIM_MEN3:
+  Descripción: Disminuyó la cantidad de comida (Alimentación de los menores de 18 años)
+  Pregunta: 'En los últimos tres meses, ¿alguna vez algún menor de 18 años de edad en su vivienda: por
+    falta de dinero o recursos, le tuvieron que disminuir la cantidad servida en las comidas?'
+  Tipo: categorical
+  Longitud: '1'
+  Categorías:
+    '5': Sí
+    '6': 'No'
+  Especiales:
+    '9': No especificado
+ING_ALIM_MEN1:
+  Descripción: Sintió hambre pero no comió (Ingesta de alimentos de los menores de 18 años)
+  Pregunta: 'En los últimos tres meses, ¿alguna vez algún menor de 18 años de edad en su vivienda: por
+    falta de dinero o recursos, sintió hambre pero no comió?'
+  Tipo: categorical
+  Longitud: '1'
+  Categorías:
+    '1': Sí
+    '2': 'No'
+  Especiales:
+    '9': No especificado
+ING_ALIM_MEN2:
+  Descripción: Se acostó con hambre (Ingesta de alimentos de los menores de 18 años)
+  Pregunta: 'En los últimos tres meses, ¿alguna vez algún menor de 18 años de edad en su vivienda: por
+    falta de dinero o recursos, se acostó con hambre?'
+  Tipo: categorical
+  Longitud: '1'
+  Categorías:
+    '3': Sí
+    '4': 'No'
+  Especiales:
+    '9': No especificado
+ING_ALIM_MEN3:
+  Descripción: Comió solo una vez o dejó de comer (Ingesta de alimentos de los menores de 18 años)
+  Pregunta: 'En los últimos tres meses, ¿alguna vez algún menor de 18 años de edad en su vivienda: por
+    falta de dinero o recursos, comió una vez al día o dejó de comer todo un día?'
+  Tipo: categorical
+  Longitud: '1'
+  Categorías:
+    '5': Sí
+    '6': 'No'
+  Especiales:
+    '9': No especificado
+TIPOHOG:
+  Descripción: Tipo de hogar
+  Pregunta: Tipo de hogar
+  Tipo: categorical
+  Longitud: '1'
+  Categorías:
+    '1': Hogar Nuclear (Familiar)
+    '2': Hogar Ampliado (Familiar)
+    '3': Hogar Compuesto (Familiar)
+    '5': Hogar unipersonal (No familiar)
+    '6': Hogar corresidente (No familiar)
+    '9': No se sabe la composición
+  Especiales:
+    '4': Hogar no especificado (Familiar)
+INGTRHOG:
+  Descripción: Ingresos por trabajo en el hogar
+  Pregunta: Ingresos mensuales por trabajo en el hogar
+  Tipo: numeric
+  Longitud: '6'
+  Rango:
+  - 0
+  - 999998
+  Categorías: {}
+  Especiales:
+    '999999': No especificado
+  Nota: 0 = No recibe Ingresos; 999998 = Ingresos mayores a 999,997
+JEFE_SEXO:
+  Descripción: Sexo de la persona de referencia (jefa o jefe de la vivienda)
+  Pregunta: Sexo de la persona de referencia
+  Tipo: categorical
+  Longitud: '1'
+  Categorías:
+    '1': Hombre
+    '3': Mujer
+JEFE_EDAD:
+  Descripción: Edad de la persona de referencia (jefa o jefe de la vivienda)
+  Pregunta: Edad de la persona de referencia
+  Tipo: numeric
+  Longitud: '3'
+  Rango:
+  - 12
+  - 130
+  Categorías: {}
+  Especiales:
+    '999': No especificado
+TAMLOC:
+  Descripción: Tamaño de localidad (microdatos de 2015, 2020 y 2025; los de 2010 traen TAM_LOC, una escala
+    de cuatro clases que junta 15 000-99 999 habitantes y no se renombra)
+  Tipo: categorical
+  Longitud: '1'
+  Tablas:
+  - viviendas
+  - personas
+  - migrantes
+  Ordenada: true
+  Categorías:
+    '1': Menos de 2 500 habitantes
+    '2': De 2 500 a 14 999 habitantes
+    '3': De 15 000 a 49 999 habitantes
+    '4': De 50 000 a 99 999 habitantes
+    '5': 100 000 y más habitantes

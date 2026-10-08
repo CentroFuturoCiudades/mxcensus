@@ -78,9 +78,9 @@ _WEIGHTS = {"FACTOR"}
 # Keys and geographic codes: digit strings (their width is edition-specific, so only the
 # all-digits shape is checked here; key widths are checked by the data tests). CPV 2020
 # spells the microdata geography ENT/MUN and the aggregates' ENTIDAD/MUN/LOC/MZA.
-_DIGIT_CODES = frozenset({"ID_VIV", "ID_PERSONA", "ID_MII", "CVEGEO", "CVE_ENT", "CVE_MUN",
-                          "LOC50K", "CVE_LOC", "CVE_MZA", "ENT", "MUN", "ENTIDAD", "LOC",
-                          "MZA"})
+_DIGIT_CODES = frozenset({"ID_VIV", "ID_PERSONA", "ID_MII", "ID_PER", "ID_MIN", "CVEGEO",
+                          "CVE_ENT", "CVE_MUN", "LOC50K", "CVE_LOC", "CVE_MZA", "ENT", "MUN",
+                          "ENTIDAD", "LOC", "MZA"})
 # Coded strings with their own shape: the urban AGEB key is three digits and a check
 # character (0-9 or A-P); 0000 marks the ITER/AGEB total rows.
 _AGEB_RE = r"\d{3}[0-9A-P]"
@@ -88,7 +88,10 @@ _CODE_REGEX = {"AGEB": rf"^{_AGEB_RE}$", "CVE_AGEB": rf"^{_AGEB_RE}$"}
 
 # Record keys (alias tuples: canonical name first, then the CPV 2010 spellings). Persons
 # and international emigrants are siblings under the dwelling, so both keys extend the
-# dwelling key and the three frames of :func:`load_cpv_survey` align on ``ID_VIV``.
+# dwelling key and the three frames of :func:`load_cpv_survey` align on ``ID_VIV``. CPV
+# 2010's raw keys are serials unique within a state only (``ID_VIV`` 8 digits, ``ID_PER``
+# 9, ``ID_MIN`` 7): one state per raw keyed call, or ``harmonize=True``, which builds
+# national keys nested like 2020's (:func:`_national_keys`).
 _DWELLING_KEY_SPEC: list[tuple[str, ...]] = [("ID_VIV",)]
 _PERSON_KEY_SPEC: list[tuple[str, ...]] = _DWELLING_KEY_SPEC + [("ID_PERSONA", "ID_PER")]
 _MIGRANT_KEY_SPEC: list[tuple[str, ...]] = _DWELLING_KEY_SPEC + [("ID_MII", "ID_MIN")]
@@ -105,11 +108,13 @@ _KEY_SPEC: dict[str, list[tuple[str, ...]]] = {
 # emigrant's own record), so ``(ID_VIV, IDENT_MADRE)`` joins ``(ID_VIV, NUMPER)`` directly.
 # Person numbers 01-54 are their own labels (2015: the numbers 1-54); the codes from 96 up
 # (lives elsewhere, deceased, no partner, not a resident, don't know, not specified) are
-# documented in the dictionary.
+# documented in the dictionary. CPV 2010 spells them IDMADRE/IDPADRE/IDCONYUGE (01-98; its
+# 88 "lives elsewhere" is a separate IDMADREC/… column) and names the informant (NUMINF).
 _GEO_CODES = ("CVEGEO", "CVE_ENT", "CVE_MUN", "LOC50K", "CVE_LOC", "CVE_AGEB", "CVE_MZA",
               "ENT", "MUN", "ENTIDAD", "LOC", "AGEB", "MZA")
 _POINTERS = ("NUMPER", "IDENT_MADRE", "IDENT_PADRE", "IDENT_PAREJA", "DUE1_NUM", "DUE2_NUM",
-             "MPER", "MPERLS", "NUM_DUE_VIV1", "NUM_DUE_VIV2", "NUM_DUE_TERR")
+             "MPER", "MPERLS", "NUM_DUE_VIV1", "NUM_DUE_VIV2", "NUM_DUE_TERR", "IDMADRE",
+             "IDPADRE", "IDCONYUGE", "NUMINF")
 _KEY_COLUMNS = frozenset(c for spec in _KEY_SPEC.values() for aliases in spec for c in aliases)
 _SKIP = _KEY_COLUMNS | frozenset(_GEO_CODES) | frozenset(_POINTERS)
 
@@ -145,16 +150,28 @@ def _group_schema(table: str, gid: str) -> pa.DataFrameSchema:
                                   column_rule=lambda c: _code_rule(c, variables.get(c) or {}))
 
 
-def _in_scope(meta: dict, table: str) -> bool:
-    """Whether a core entry applies to ``table``: its ``Tablas`` list, else every table
+def _in_scope(meta: dict, table: str, periods: Iterable | None = None) -> bool:
+    """Whether a core entry applies to ``table`` — its ``Tablas`` list, else every table
     that has the column (the ITER's ``TAMLOC`` is a 14-class size scale, not the microdata's
-    five classes)."""
-    return table in (meta.get("Tablas") or (table,))
+    five classes) — and to the editions ``periods`` (a schema group's): its ``Periodos``
+    list, the editions whose codes it was verified for, else every edition (CPV 2010's
+    ``CLAVIVP`` is another classification). ``periods=None`` checks the table only."""
+    if table not in (meta.get("Tablas") or (table,)):
+        return False
+    editions = {str(p) for p in meta.get("Periodos") or ()}
+    return not editions or periods is None or {str(p) for p in periods} <= editions
 
 
-def _core_for(table: str) -> dict:
-    """The core entries that apply to ``table`` (:func:`_in_scope`)."""
-    return {c: m for c, m in variables_cpv_core().items() if _in_scope(m, table)}
+def _group_periods(table: str, gid: str) -> tuple[str, ...] | None:
+    """The editions a schema group covers (``cpv_schema_map``); ``None`` for a group the
+    map does not know (then no edition-specific rule applies)."""
+    group = (cpv_schema_map().get(table) or {}).get("groups", {}).get(gid)
+    return tuple(group["periods"]) if group else None
+
+
+def _core_for(table: str, periods: Iterable | None = None) -> dict:
+    """The core entries that apply to ``table`` in ``periods`` (:func:`_in_scope`)."""
+    return {c: m for c, m in variables_cpv_core().items() if _in_scope(m, table, periods)}
 
 
 def _group_of(table: str, df: pd.DataFrame) -> str:
@@ -178,9 +195,10 @@ def _validate(schema: pa.DataFrameSchema, frame: pd.DataFrame, label: str) -> No
 # it covers (docs/cpv/PLAN.md §Harmonization): CPV 2020 spells the microdata geography
 # ENT/MUN (same codes, zero-padded as 2025's). The aggregates spell the entity ENTIDAD and
 # the locality LOC, names a future microdata table may use for something else, so those
-# renames are scoped to the ITER/AGEB (as ENIGH's per-table map). EIC 2015 spells the
-# microdata geography as 2020 does (ENT/MUN, zero-padded). CPV 2010 will add
-# ID_PER→ID_PERSONA, ID_MIN→ID_MII and TAM_LOC→TAMLOC (unit 3b).
+# renames are scoped to the ITER/AGEB (as ENIGH's per-table map). EIC 2015 and CPV 2010
+# spell the microdata geography as 2020 does (ENT/MUN, zero-padded). CPV 2010's
+# TAM_LOC is NOT renamed onto TAMLOC: it has four classes (15 000-99 999 inhabitants in one)
+# where 2015-2025 have five. Its keys are rebuilt instead of renamed (_national_keys).
 _RENAME_CORE: dict[str, str] = {"ENT": "CVE_ENT", "MUN": "CVE_MUN"}
 _RENAME_AGG: dict[str, str] = {"ENTIDAD": "CVE_ENT", "LOC": "CVE_LOC"}
 _RENAME_TABLE: dict[str, dict[str, str]] = {
@@ -195,7 +213,11 @@ _GEO_PAD: dict[str, int] = {"CVE_ENT": 2, "CVE_MUN": 3, "LOC50K": 4, "CVE_LOC": 
 # ``{010010000001..}``) and ``ID_PERSONA`` = ``ID_VIV`` + a 2-digit person number has 13
 # (14 elsewhere; 2020/2025 person keys have 17 digits); ``CLAVIVP`` is ``1``…``9`` (its core
 # ``Alias`` maps those spellings for labelling and validation).
+# A column is padded only for the editions its core entry covers (``Periodos``): CPV 2010's
+# CLAVIVP 1…9 is another classification, not the 01…09 written short.
 _CODE_PAD: dict[str, int] = {"ID_VIV": 12, "ID_PERSONA": 14, "CLAVIVP": 2}
+# Editions whose raw keys are unique within a state only.
+_STATE_SCOPED_KEYS = frozenset({"2010"})
 # CVEGEO is the concatenation of the leading geographic parts a table carries, as in the
 # Marco Geoestadístico: entity + municipality in the microdata (5 characters), + locality
 # in the estimaciones and the ITER (9), + AGEB + block in the AGEB file (16). Total rows
@@ -226,16 +248,46 @@ def _required(table: str) -> set[str]:
     return {"CVE_ENT", *(aliases[0] for aliases in _KEY_SPEC.get(table, []))}
 
 
-def _harmonize(df: pd.DataFrame, table: str, label: str = "") -> pd.DataFrame:
+def _national_keys(out: pd.DataFrame, table: str) -> pd.DataFrame:
+    """CPV 2010's keys made national and nested like 2020's (harmonized frames only).
+
+    The raw keys are serials unique within a state: ``ID_VIV`` (8 digits), ``ID_PER`` (9)
+    and ``ID_MIN`` (7). The harmonized ``ID_VIV`` is the entity followed by the serial
+    zero-padded to 10 digits (12 in all, first two the entity, as in 2015-2025);
+    ``ID_PERSONA`` = ``ID_VIV`` + the 5-digit ``NUMPER`` (unique within the dwelling: 17
+    digits, as in 2020/2025); ``ID_MII`` = ``ID_VIV`` + the emigrant's 2-digit rank in the
+    dwelling by ``ID_MIN`` (2010's ``MPERA`` repeats within a dwelling). ``ID_PER`` and
+    ``ID_MIN`` stay verbatim. A key already 12 digits long is left as is (idempotent).
+    """
+    local = out["ID_VIV"].str.len() < 12
+    if not local.any():
+        return out
+    out["ID_VIV"] = out["ID_VIV"].where(~local, out["CVE_ENT"] + out["ID_VIV"].str.zfill(10))
+    if "ID_PER" in out.columns and "ID_PERSONA" not in out.columns:
+        out.insert(out.columns.get_loc("ID_PER") + 1, "ID_PERSONA",
+                   out["ID_VIV"] + out["NUMPER"].str.zfill(5))
+    if "ID_MIN" in out.columns and "ID_MII" not in out.columns:
+        rank = (pd.to_numeric(out["ID_MIN"]).groupby(out["ID_VIV"]).rank(method="first")
+                .astype(int).astype(str).str.zfill(2))
+        out.insert(out.columns.get_loc("ID_MIN") + 1, "ID_MII", out["ID_VIV"] + rank)
+    return out
+
+
+def _harmonize(df: pd.DataFrame, table: str, label: str = "",
+               periods: Iterable | None = None) -> pd.DataFrame:
     """Canonicalize one raw CPV frame's core across editions.
 
     Steps: upper-case names → the core renames of ``table`` (:func:`_renames`; refusing a
-    frame that already carries both a source and its target) → zero-pad the geographic
-    codes, the keys and ``CLAVIVP`` (:data:`_GEO_PAD`, :data:`_CODE_PAD`) → derive ``CVEGEO`` from the leading :data:`_GEO_PARTS` the
-    frame carries (inserted first) or, when present, **check** it against them (a mismatch
-    warns) → numeric ``FACTOR``. A missing required core column warns (the rename map may be
-    stale). Column order and every other value are kept, so it is idempotent and, for 2025,
-    the identity up to the ``FACTOR`` dtype; a renamed column keeps its position.
+    frame that already carries both a source and its target) → national keys for an
+    edition whose keys are state-scoped (CPV 2010, :func:`_national_keys`) → zero-pad the
+    geographic codes, the keys and ``CLAVIVP`` (:data:`_GEO_PAD`, :data:`_CODE_PAD`; a code
+    only in the editions its core entry covers) → derive ``CVEGEO`` from the leading
+    :data:`_GEO_PARTS` the frame carries (inserted first) or, when present, **check** it
+    against them (a mismatch warns) → numeric ``FACTOR``. A missing required core column
+    warns (the rename map may be stale). ``periods`` are the frame's editions (its schema
+    group's; ``None`` = unknown: no edition-specific step). Column order and every other
+    value are kept, so it is idempotent and, for 2025, the identity up to the ``FACTOR``
+    dtype; a renamed column keeps its position.
     """
     out = df.copy()
     out.columns = [c.upper() for c in out.columns]
@@ -248,8 +300,12 @@ def _harmonize(df: pd.DataFrame, table: str, label: str = "") -> pd.DataFrame:
             f"exist for {clash}; the frame mixes editions or was already harmonized differently."
         )
     out = out.rename(columns=rename)
+    if periods is not None and {str(p) for p in periods} & _STATE_SCOPED_KEYS \
+            and {"ID_VIV", "CVE_ENT"} <= set(out.columns):
+        out = _national_keys(out, table)
+    core = _core_for(table, periods)
     for col, width in (_GEO_PAD | _CODE_PAD).items():
-        if col in out.columns:
+        if col in out.columns and (col in _GEO_PAD or col in core):
             out[col] = _zfill_codes(out[col], width)
     parts = list(itertools.takewhile(out.columns.__contains__, _GEO_PARTS))
     if len(parts) >= 2:
@@ -271,17 +327,18 @@ def _harmonize(df: pd.DataFrame, table: str, label: str = "") -> pd.DataFrame:
 
 
 @functools.cache
-def _latest_schema(table: str) -> pa.DataFrameSchema:
+def _latest_schema(table: str, periods: tuple[str, ...] | None = None) -> pa.DataFrameSchema:
     """Tight-where-safe Pandera schema for a **harmonized** CPV frame of ``table``.
 
     Built from the hand-curated core: categoricals get ``isin`` on their codes, numerics and
     the weight are numeric, the geographic codes get width regexes; only the entity and the
     table's record key are required (:func:`_required`). ``strict=False``: every non-core
-    column passes through.
+    column passes through. ``periods`` (the frame's editions) leaves out the core entries
+    not verified for them (``Periodos``: CPV 2010's ``CLAVIVP`` stays its own column).
     """
     required = _required(table)
     schema = {}
-    for col, meta in _core_for(table).items():
+    for col, meta in _core_for(table, periods).items():
         req = col in required
         tipo = _sg.norm_tipo(meta)
         if col in _WEIGHTS or tipo == "numeric":
@@ -303,11 +360,11 @@ def _latest_schema(table: str) -> pa.DataFrameSchema:
 def variables_cpv_labels(table: str, gid: str) -> dict:
     """The labelling dictionary of one CPV ``(table, schema group)``: the per-group
     variables overlaid by :func:`~mxcensus.variables_cpv_core` (the entries in scope for
-    ``table``, see :func:`_in_scope`), keyed by both the raw and
+    ``table`` and the group's editions, see :func:`_in_scope`), keyed by both the raw and
     the harmonized column names (upper case, :func:`_renames`)."""
     rename = _renames(table)
     merged: dict = {}
-    for src in (variables_cpv(table, gid), _core_for(table)):
+    for src in (variables_cpv(table, gid), _core_for(table, _group_periods(table, gid))):
         for col, meta in src.items():
             merged[col] = meta
             merged[rename.get(col.upper(), col.upper())] = meta
@@ -436,8 +493,9 @@ def _load_cpv_raw(
         label = f"{table} {where} ({gid})"
         _validate(_group_schema(table, gid), df, f"{label} raw")
         if harmonize:
-            df = _harmonize(df, table, label)
-            _validate(_latest_schema(table), df, f"{label} harmonized")
+            periods = _group_periods(table, gid)
+            df = _harmonize(df, table, label, periods)
+            _validate(_latest_schema(table, periods), df, f"{label} harmonized")
         frames.append(df)
         gids.append(gid)
 
@@ -509,6 +567,13 @@ def _index_level(df: pd.DataFrame, spec: list[tuple[str, ...]]) -> pd.DataFrame:
 
 def _load_level(table: str, period, state, harmonize: bool, labels: bool) -> pd.DataFrame:
     """Raw ``table`` → numeric ``FACTOR``, labelled (``labels``), indexed by its level key."""
+    states = _states(state)
+    if not harmonize and states and len(states) > 1 and table not in NATIONAL_TABLES \
+            and _edition(table, period).period in _STATE_SCOPED_KEYS:
+        raise ValueError(f"CPV {table} {_edition(table, period).label}: the record keys are "
+                         f"unique within a state only, so states {states} cannot share one "
+                         f"index; load them one at a time or pass harmonize=True (national "
+                         f"keys).")
     df, gids, label = _load_cpv_raw(table=table, period=period, state=state,
                                     harmonize=harmonize)
     spec = _KEY_SPEC[table]

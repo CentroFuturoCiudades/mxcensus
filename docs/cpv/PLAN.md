@@ -21,7 +21,7 @@ unit.
 | **2a** | CPV 2020 into the family (`viviendas`/`personas`/**`migrantes`**, `iter`, `ageb` as `cpv_*_2020_NN`); 2020 dictionary (RNM DDI probe, else FD xlsx) | 1 | ✅ done 2026-10-07 (`STEP_2a.md`): 160 files on `wsl`, `--validate` 0/257; dictionary = FD xlsx (DDI 632 found but incomplete); 2020 gids `g01`, 2025 → `g02`; core `Tablas` scope |
 | **2b** | 2020↔2025 core harmonization; raw-vs-harmonized and legacy-equality tests; upload | 2a | ✅ done 2026-10-07 (`STEP_2b.md`): rows/Σ `FACTOR` identical raw vs harmonized (2020 + 2025, 32 states); 2020 files = legacy cell by cell (32 states); ITER/AGEB geography harmonized too; registry 2535 → 2695, uploaded + verified; v0.6.0 |
 | **3a** | EIC 2015 (`TR_VIVIENDA`/`TR_PERSONA`, DDI 214) | 2 | ✅ done 2026-10-07 (`STEP_3a.md`): 64 files on `wsl`, `--validate` 0/321; Σ `FACTOR` = INEGI's tabulados exactly (32 states + nation, dwellings, population, men, women); dictionary = the FD `.xls` + `TC_*` catalogs via a stdlib BIFF8 reader (DDI 214 incomplete — user's choice); 2015 = `g01` |
-| **3b** | CPV 2010 microdata (DBF via `dbfread(raw=True)`, code pages, DDI 71, `ID_PER`/`ID_MIN`, state-scoped `ID_VIV`) | 3a | validate 0 |
+| **3b** | CPV 2010 microdata (DBF via `dbfread(raw=True)`, code pages, DDI 71, `ID_PER`/`ID_MIN`, state-scoped `ID_VIV`) | 3a | ✅ done 2026-10-07 (`STEP_3b.md`): 96 files on `wsl`, `--validate` 0/417; Σ `FACTOR` = the CA tabulados exactly (outside `CLAVIVP` 5–7); stdlib DBF reader `scripts/_dbf.py` (no `dbfread`); FD `.xls` (no Tipo column) + DBF catalogs; national keys under `harmonize=True`; core `Periodos` |
 | **3c** | Aggregates `load_cpv_iter`/`load_cpv_ageb` (2020 + 2010), `cpv_iter_crosswalk.yaml`, equality with legacy `load_census` | 3b | 2020 equality test passes |
 | **3d** | MG 2010 v5.0 (national ZIP → per-state split); identify the 2015 frame; upload 3a–3d | 3c | uploaded |
 | **4a** | 2000 + 2005 microdata (composite keys, `hogares` level, unweighted 2005) | 3 | validate 0 |
@@ -79,7 +79,7 @@ conteo and intercensal edition back to 1990 the same way ENIGH takes editions.
 | 1995 | conteo | `cpv95_{NN}_dbf` (`datgen95` = household record → `hogares`, `migint95`) · `FAC_POB/FAC_VIV/FAC_PROM` · none | DBF/TXT | — | — | municipal 1995 `702825292836` (national ZIP) |
 | 2000 | censo | `cgpv2000_{NN}_dbf` (`VHO_F`/`PER_F`/`MIN_F`) · `FACTOR` · DDI 141 | CSV `cgpv2000_iter_{NN}` | — | — | municipal 2000 `702825292843` (national ZIP) |
 | 2005 | conteo | `cpv2005_{NN}_dbf` (`trvmue`/`trhmue`/`trpmue`) · **no weight** · DDI 140 | CSV `cpv2005_iter_{NN}` | — | — | municipal 2005 `702825292850` (national ZIP) |
-| 2010 | censo | `mpv/MC2010_{NN}_dbf` (Viviendas/Personas/Migrantes) · `FACTOR` · DDI 71 | CSV `iter_{NN}_2010` (lowercase) | CSV `resageburb_{NN}_2010` | — | v5.0 `702825292812` (national ZIP) |
+| 2010 | censo | `mpv/MC2010_{NN}_dbf` (Viviendas/Personas/Migrantes; cp1252; state-scoped keys) · `FACTOR` · FD `.xls` + DBF catalogs (DDI 71 exists, incomplete — unused) | CSV `iter_{NN}_2010` (lowercase) | CSV `resageburb_{NN}_2010` | — | v5.0 `702825292812` (national ZIP) |
 | 2015 | intercensal | `eic2015_{NN}_csv` (`TR_VIVIENDA`/`TR_PERSONA`, no migrantes; cp1252; unpadded keys) · `FACTOR` · FD `.xls` + `eic2015_catalogos.zip` (DDI 214 exists, incomplete — unused) | — | — | — | probe (MG 2014 v6.2?) |
 | 2020 | censo | `Censo2020_CA_{abbr}_csv` (+ `Migrantes`) · `FACTOR` · FD xlsx (DDI 632 exists, incomplete — unused) | CSV | CSV | — | legacy `mg_{sfx}_NN` |
 | 2025 | intercensal | `eic2025_micro_{NN}_csv` · `FACTOR` · FD xlsx | — | — | `estimaciones` (`conjunto_de_datos_eic2025_105`, cp1252) | EIC 2025 `794551196649` |
@@ -154,9 +154,14 @@ prefix are shared.
 
 **Harmonization (core-only; the canonical spelling is the latest edition's uppercase)**:
 - Uppercase all names.
-- Rename `ENT→CVE_ENT`, `MUN→CVE_MUN`, `ID_PER→ID_PERSONA`, `ID_MIN→ID_MII`, `TAM_LOC→TAMLOC`
-  (2b added the first two; the aggregates' `ENTIDAD`/`LOC`/`AGEB`/`MZA` renames are
-  table-scoped).
+- Rename `ENT→CVE_ENT`, `MUN→CVE_MUN` (2b; the aggregates' `ENTIDAD`/`LOC`/`AGEB`/`MZA` renames
+  are table-scoped). (3b) `ID_PER`/`ID_MIN` are **not** renamed: 2010's keys are serials unique
+  within a state, so `harmonize=True` builds national, nested keys instead
+  (`ID_VIV` = entity + serial, `ID_PERSONA` = `ID_VIV` + `NUMPER`, `ID_MII` = `ID_VIV` +
+  rank); `TAM_LOC` is **not** renamed onto `TAMLOC` (4 classes vs 5).
+- (3b) A core entry may carry `Periodos`, the editions its codes were verified for (2010's
+  `CLAVIVP` is another classification): outside them the column keeps its own dictionary,
+  is not padded and is not checked against the core.
 - Zero-pad `CVE_ENT` (2), `CVE_MUN` (3), `LOC50K`/`CVE_LOC` (4) and `CVE_MZA` (3). Derive
   `CVEGEO` from the leading geographic parts (5/9/16 characters), or check it when present.
 - (3a) Zero-pad `ID_VIV` (12), `ID_PERSONA` (≥ 14) and `CLAVIVP` (2): the EIC 2015 CSVs
@@ -243,8 +248,8 @@ prefix are shared.
    - README: a new `### Census & intercensal (multi-year)` section, and generalise the "2020 Census"
      title.
    - Counts in CLAUDE.md and `docs/hf_bucket_readme.md`; generalise the pyproject description.
-   - No `build` extra yet: the FD workbook is read with the stdlib (1b). `dbfread` will need one
-     in 3b.
+   - No `build` extra: the FD workbooks are read with the stdlib (1b, 3a), and so are the DBFs
+     (3b: `scripts/_dbf.py` instead of the planned `dbfread`).
 
 ### Phase 2 — CPV 2020 into the family
 - Rebuild the 2020 CA tables (`viviendas`/`personas`/**`migrantes`**), `iter` and `ageb` as
@@ -269,6 +274,7 @@ prefix are shared.
   the `TC_*.xls` catalogs, read by a stdlib BIFF8 reader; DDI 214 recorded only.)
 - 2010:
   - Microdata DBF read with `dbfread(raw=True)`, decoded by code page, fixed-width padding stripped only.
+    (3b: a stdlib reader, `scripts/_dbf.py`, with the same contract.)
   - DDI 71; `ID_PER`/`ID_MIN` aliases.
 - **Aggregates:**
   - `cpv_aggregates.load_cpv_iter(period=None, *, state, nivel=None)` and `load_cpv_ageb(...)`.

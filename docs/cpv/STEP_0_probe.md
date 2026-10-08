@@ -76,7 +76,7 @@ The aggregate ZIPs (ITER/AGEB 2000–2020, estimaciones 2025) carry their own
 | period | file → table | rows (AGS) | keys | weight | DBF code-page byte |
 |---|---|---|---|---|---|
 | 2010 | `Viviendas_01` → viviendas | 16,572 | `ENT`, `ID_VIV` (C8) | `FACTOR` N8 | 0x00 |
-| 2010 | `Personas_01` → personas | 69,804 | + `ID_PER` (C9) | — (in viviendas) | 0x03 |
+| 2010 | `Personas_01` → personas | 69,804 | + `ID_PER` (C9) | `FACTOR` N8 (3b: the probe first missed it) | 0x03 |
 | 2010 | `Migrantes_01` → migrantes | 1,268 | `ID_VIV`, `ID_MIN` (C7) | `FACTOR` | 0x00 |
 | 2005 | `trvmue` / `trhmue` / `trpmue` | 24,562 / 25,217 / 106,171 | `ENT`,`MUN`,`CONS_MUN`,`CONS_VIV` (+`CONS_HOG`, +`CONS_PER`) | **none** | 0x02 (cp850) |
 | 2000 | `VHO_F` (viv+hogar) / `PER_F` / `MIN_F` | 19,132 / 87,507 / 2,950 | `ENT`,`MUN`,`LOC`,`NUMVIV`,`NUMHOG` (+ person/migrant no. — find at 4a) | `FACTOR` C5 | 0x00 |

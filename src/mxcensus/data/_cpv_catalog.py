@@ -265,8 +265,10 @@ EDITIONS: list[CpvEdition] = [
                  "migrantes": r"Migrantes_{nn}\.dbf", "iter": r"iter_{nn}_cpv2010\.csv",
                  "ageb": r"resultados_ageb_urbana_{nn}_cpv2010\.csv"},
         fmt="dbf", ddi_id=71, biinegi_id=487, mg_period="2010",
-        notes="microdata DBF only (ID_VIV 8 chars — unique within a state only; ID_PER, "
-              "ID_MIN); ITER/AGEB CSV headers lowercase",
+        notes="microdata DBF only, cp1252 (scripts/_dbf.py); keys are serials unique within "
+              "a state only (ID_VIV 8, ID_PER 9, ID_MIN 7 — harmonize=True builds national "
+              "keys); FACTOR in every table; TAM_LOC has 4 classes (not TAMLOC); dictionary = "
+              "the FD .xls (no Tipo column) + DBF catalogs; ITER/AGEB CSV headers lowercase",
     ),
     CpvEdition(
         period="2015", year=2015, kind="intercensal",
