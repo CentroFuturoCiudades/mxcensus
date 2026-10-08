@@ -48,12 +48,14 @@ LOC50K:
   Tipo: string
   Longitud: '4'
 ID_VIV:
-  Descripción: Identificador único de la vivienda (2020 y 2025 — 12 dígitos; los dos primeros son la entidad,
-    así que es único en todo el país)
+  Descripción: Identificador único de la vivienda (2015, 2020 y 2025 — 12 dígitos; los dos primeros son
+    la entidad, así que es único en todo el país). Los CSV de 2015 lo escriben sin el cero inicial de
+    las entidades 01-09 (11 dígitos); harmonize=True lo rellena.
   Tipo: string
   Longitud: '12'
 COBERTURA:
-  Descripción: Tipo de cobertura en el municipio (cuestionario ampliado del Censo 2020 y EIC 2025)
+  Descripción: Tipo de cobertura en el municipio (EIC 2015, cuestionario ampliado del Censo 2020 y EIC
+    2025)
   Tipo: categorical
   Longitud: '1'
   Categorías:
@@ -61,14 +63,14 @@ COBERTURA:
     '2': Municipio muestreado
     '3': Municipio con muestra insuficiente
 ESTRATO:
-  Descripción: Estrato de diseño muestral (alfanumérico, p. ej. 01-001-0000-03 en 2020 y 15-001-0000-030
-    en 2025)
+  Descripción: Estrato de diseño muestral (alfanumérico, p. ej. 01-001-05 en 2015, 01-001-0000-03 en 2020
+    y 15-001-0000-030 en 2025)
   Tipo: string
-  Longitud: 14 / 15
+  Longitud: 9 / 14 / 15
 UPM:
-  Descripción: Unidad Primaria de Muestreo
+  Descripción: Unidad Primaria de Muestreo (6 dígitos en 2015, 5 en 2020 y 2025)
   Tipo: string
-  Longitud: '5'
+  Longitud: 5 / 6
 FACTOR:
   Descripción: Factor de expansión (constante dentro de la vivienda; calibrado a las estimaciones publicadas
     — Σ FACTOR = población / viviendas particulares habitadas)
@@ -79,7 +81,9 @@ FACTOR:
   - 99999
 CLAVIVP:
   Descripción: Clase de vivienda particular. Las clases 07 (local no construido para habitación) y 09
-    (refugio) no tienen características de la vivienda (bloque PAREDES… SERV_TV_PAGA vacío).
+    (refugio) no tienen características de la vivienda (bloque PAREDES… SERV_TV_PAGA vacío). En 2015 los
+    códigos van sin cero inicial (1…9, 99) y INEGI rotula la clase 03 «Casa dúplex, triple o cuádruple»
+    y la 06 «Cuarto en la azotea de un edificio».
   Tipo: categorical
   Longitud: '2'
   Categorías:
@@ -94,6 +98,16 @@ CLAVIVP:
     09: Refugio
   Especiales:
     '99': No especificado de vivienda particular
+  Alias:
+    '1': '01'
+    '2': '02'
+    '3': '03'
+    '4': '04'
+    '5': '05'
+    '6': '06'
+    '7': '07'
+    '8': 08
+    '9': 09
 ID_MII:
   Descripción: Identificador único del emigrante internacional (tabla de migrantes; 2020 y 2025 — 14 dígitos,
     ID_VIV + número de emigrante). Los migrantes cuelgan de la vivienda (ID_VIV), no de una persona.

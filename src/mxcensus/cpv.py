@@ -8,11 +8,13 @@ and ``docs/cpv/PLAN.md``). Like ENOE/ENIGH, every mirrored file is fingerprinted
 Pandera schema built from that group's ``variables_cpv_{table}_{gid}.yaml``.
 
 Editions built so far: the **Encuesta Intercensal 2025** (``viviendas``, ``personas``,
-``migrantes`` per state; ``estimaciones`` national — see :mod:`mxcensus.cpv_aggregates`) and
+``migrantes`` per state; ``estimaciones`` national — see :mod:`mxcensus.cpv_aggregates`),
 the **Censo de Población y Vivienda 2020** (the cuestionario ampliado's ``viviendas``,
 ``personas``, ``migrantes`` and the ``iter``/``ageb`` aggregates, per state; raw names as
 INEGI spells them — ``ENT``/``MUN`` in the microdata, ``ENTIDAD``/``MUN``/``LOC`` in the
-aggregates).
+aggregates) and the **Encuesta Intercensal 2015** (``viviendas`` and ``personas`` per state,
+no migrant table; ``ENT``/``MUN`` as in 2020, keys and most codes written without their
+zero-padding).
 
 Public API:
 
@@ -30,11 +32,12 @@ states one by one and concatenates them. On a national table it filters rows on
 ``CVE_ENT``.
 
 ``harmonize=True`` applies the cross-edition **core** canonicalization (:func:`_harmonize`):
-upper-case names, the core renames (2020 ``ENT``/``MUN`` → ``CVE_ENT``/``CVE_MUN``; in the
-ITER/AGEB also ``ENTIDAD``/``LOC``/``AGEB``/``MZA`` → ``CVE_ENT``/``CVE_LOC``/``CVE_AGEB``/
-``CVE_MZA``), zero-padded geography, ``CVEGEO`` derived or checked, numeric ``FACTOR``;
-every other column is kept verbatim. For 2025 — the canonical edition — it changes nothing
-but the ``FACTOR`` dtype.
+upper-case names, the core renames (2015/2020 ``ENT``/``MUN`` → ``CVE_ENT``/``CVE_MUN``; in
+the ITER/AGEB also ``ENTIDAD``/``LOC``/``AGEB``/``MZA`` → ``CVE_ENT``/``CVE_LOC``/``CVE_AGEB``/
+``CVE_MZA``), zero-padded geography, keys and ``CLAVIVP`` (2015 writes ``ID_VIV`` without
+the leading zero of states 01–09 and ``CLAVIVP`` as ``1``…``9``), ``CVEGEO`` derived or
+checked, numeric ``FACTOR``; every other column is kept verbatim. For 2025 — the canonical
+edition — it changes nothing but the ``FACTOR`` dtype.
 
 Each call loads **one edition**. To stack editions, load each with ``harmonize=True`` and
 concatenate, keeping the edition as an index level::
@@ -98,14 +101,15 @@ _KEY_SPEC: dict[str, list[tuple[str, ...]]] = {
 # Columns ``labels=True`` leaves as raw strings: the keys and geographic codes (joinable
 # across tables and with the Marco Geoestadístico), and the person-number pointers — a
 # person's number in the dwelling's list (``NUMPER``) and the fields that point at one
-# (mother, father, partner, the dwelling's owners, a returned emigrant's own record), so
-# ``(ID_VIV, IDENT_MADRE)`` joins ``(ID_VIV, NUMPER)`` directly. Person numbers 01-54 are
-# their own labels; the codes from 96 up (lives elsewhere, deceased, no partner, not a
-# resident, don't know, not specified) are documented in the dictionary.
+# (mother, father, partner, the dwelling's or — 2015 — the farmland's owners, a returned
+# emigrant's own record), so ``(ID_VIV, IDENT_MADRE)`` joins ``(ID_VIV, NUMPER)`` directly.
+# Person numbers 01-54 are their own labels (2015: the numbers 1-54); the codes from 96 up
+# (lives elsewhere, deceased, no partner, not a resident, don't know, not specified) are
+# documented in the dictionary.
 _GEO_CODES = ("CVEGEO", "CVE_ENT", "CVE_MUN", "LOC50K", "CVE_LOC", "CVE_AGEB", "CVE_MZA",
               "ENT", "MUN", "ENTIDAD", "LOC", "AGEB", "MZA")
 _POINTERS = ("NUMPER", "IDENT_MADRE", "IDENT_PADRE", "IDENT_PAREJA", "DUE1_NUM", "DUE2_NUM",
-             "MPER", "MPERLS")
+             "MPER", "MPERLS", "NUM_DUE_VIV1", "NUM_DUE_VIV2", "NUM_DUE_TERR")
 _KEY_COLUMNS = frozenset(c for spec in _KEY_SPEC.values() for aliases in spec for c in aliases)
 _SKIP = _KEY_COLUMNS | frozenset(_GEO_CODES) | frozenset(_POINTERS)
 
@@ -174,7 +178,8 @@ def _validate(schema: pa.DataFrameSchema, frame: pd.DataFrame, label: str) -> No
 # it covers (docs/cpv/PLAN.md §Harmonization): CPV 2020 spells the microdata geography
 # ENT/MUN (same codes, zero-padded as 2025's). The aggregates spell the entity ENTIDAD and
 # the locality LOC, names a future microdata table may use for something else, so those
-# renames are scoped to the ITER/AGEB (as ENIGH's per-table map). CPV 2010 will add
+# renames are scoped to the ITER/AGEB (as ENIGH's per-table map). EIC 2015 spells the
+# microdata geography as 2020 does (ENT/MUN, zero-padded). CPV 2010 will add
 # ID_PER→ID_PERSONA, ID_MIN→ID_MII and TAM_LOC→TAMLOC (unit 3b).
 _RENAME_CORE: dict[str, str] = {"ENT": "CVE_ENT", "MUN": "CVE_MUN"}
 _RENAME_AGG: dict[str, str] = {"ENTIDAD": "CVE_ENT", "LOC": "CVE_LOC"}
@@ -184,6 +189,13 @@ _RENAME_TABLE: dict[str, dict[str, str]] = {
 }
 _GEO_PAD: dict[str, int] = {"CVE_ENT": 2, "CVE_MUN": 3, "LOC50K": 4, "CVE_LOC": 4,
                             "CVE_AGEB": 4, "CVE_MZA": 3}
+# Other core codes zero-padded to their canonical width (``zfill`` only lengthens, so it is a
+# no-op on editions already padded). The EIC 2015 CSVs write numbers without their leading
+# zeros: ``ID_VIV`` has 11 digits in states 01-09 (its FD documents 12,
+# ``{010010000001..}``) and ``ID_PERSONA`` = ``ID_VIV`` + a 2-digit person number has 13
+# (14 elsewhere; 2020/2025 person keys have 17 digits); ``CLAVIVP`` is ``1``…``9`` (its core
+# ``Alias`` maps those spellings for labelling and validation).
+_CODE_PAD: dict[str, int] = {"ID_VIV": 12, "ID_PERSONA": 14, "CLAVIVP": 2}
 # CVEGEO is the concatenation of the leading geographic parts a table carries, as in the
 # Marco Geoestadístico: entity + municipality in the microdata (5 characters), + locality
 # in the estimaciones and the ITER (9), + AGEB + block in the AGEB file (16). Total rows
@@ -219,7 +231,7 @@ def _harmonize(df: pd.DataFrame, table: str, label: str = "") -> pd.DataFrame:
 
     Steps: upper-case names → the core renames of ``table`` (:func:`_renames`; refusing a
     frame that already carries both a source and its target) → zero-pad the geographic
-    codes (:data:`_GEO_PAD`) → derive ``CVEGEO`` from the leading :data:`_GEO_PARTS` the
+    codes, the keys and ``CLAVIVP`` (:data:`_GEO_PAD`, :data:`_CODE_PAD`) → derive ``CVEGEO`` from the leading :data:`_GEO_PARTS` the
     frame carries (inserted first) or, when present, **check** it against them (a mismatch
     warns) → numeric ``FACTOR``. A missing required core column warns (the rename map may be
     stale). Column order and every other value are kept, so it is idempotent and, for 2025,
@@ -236,7 +248,7 @@ def _harmonize(df: pd.DataFrame, table: str, label: str = "") -> pd.DataFrame:
             f"exist for {clash}; the frame mixes editions or was already harmonized differently."
         )
     out = out.rename(columns=rename)
-    for col, width in _GEO_PAD.items():
+    for col, width in (_GEO_PAD | _CODE_PAD).items():
         if col in out.columns:
             out[col] = _zfill_codes(out[col], width)
     parts = list(itertools.takewhile(out.columns.__contains__, _GEO_PARTS))

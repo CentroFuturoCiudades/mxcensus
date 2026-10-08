@@ -356,10 +356,10 @@ mxcensus.variables_enigh("concentradohogar", "g06")   # ENIGH variables for a (t
 mxcensus.variables_enigh_core()    # ENIGH analytical-core labels (clase_hog, educa_jefe, …)
 mxcensus.variables_enigh_labels("poblacion", "g08")   # merged dictionary (core over DDI)
 mxcensus.cpv_schema_map()          # CPV-family per-table schema groups (viviendas/personas/…)
-mxcensus.variables_cpv("personas", "g02")   # CPV variables for a (table, schema group): g02 = EIC 2025
-mxcensus.variables_cpv("personas", "g01")   # g01 = Censo 2020 (gids are chronological per table)
+mxcensus.variables_cpv("personas", "g03")   # CPV variables for a (table, schema group): g03 = EIC 2025
+mxcensus.variables_cpv("personas", "g02")   # g02 = Censo 2020, g01 = EIC 2015 (chronological per table)
 mxcensus.variables_cpv_core()      # CPV analytical-core labels (keys, geography, SEXO, EDAD, …)
-mxcensus.variables_cpv_labels("personas", "g02")   # merged dictionary (core over the FD)
+mxcensus.variables_cpv_labels("personas", "g03")   # merged dictionary (core over the FD)
 ```
 
 The ENOE and ENIGH per-group dictionaries carry a human-readable `Descripción`, the

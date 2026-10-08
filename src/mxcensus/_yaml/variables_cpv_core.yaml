@@ -8,9 +8,12 @@
 # maintained by hand and takes precedence over them, in every table that has the column.
 # It is NEVER regenerated. A variable joins the core only after its codes are verified in
 # every edition it covers; so far the core is verified for the Encuesta Intercensal 2025
-# (eic2025_micro_fd.xlsx + the 2025 microdata and estimaciones files) and the Censo 2020
+# (eic2025_micro_fd.xlsx + the 2025 microdata and estimaciones files), the Censo 2020
 # cuestionario ampliado (diccionario_cuestionario_ampliado_cpv2020.xlsx + the 2020
-# microdata: every entry below that a 2020 table carries has the same codes there).
+# microdata: every entry below that a 2020 table carries has the same codes there) and the
+# Encuesta Intercensal 2015 (eic2015_fd.xls + the 2015 microdata: the same codes, except
+# that the 2015 CSVs drop leading zeros — ID_VIV/ID_PERSONA in states 01-09 and CLAVIVP,
+# whose Alias maps 1…9 onto 01…09; harmonize=True pads all three).
 #
 # Entry contract (shared with the ENOE/ENIGH cores and the generated files; read by
 # mxcensus._schema_groups):
@@ -40,15 +43,17 @@
 
 # --- record keys: dwelling ⊃ person; dwelling ⊃ international emigrant ------------------
 ID_VIV:
-  Descripción: Identificador único de la vivienda (2020 y 2025 — 12 dígitos; los dos
-    primeros son la entidad, así que es único en todo el país)
+  Descripción: Identificador único de la vivienda (2015, 2020 y 2025 — 12 dígitos; los dos
+    primeros son la entidad, así que es único en todo el país). Los CSV de 2015 lo escriben
+    sin el cero inicial de las entidades 01-09 (11 dígitos); harmonize=True lo rellena.
   Tipo: string
   Longitud: '12'
 ID_PERSONA:
-  Descripción: Identificador único de la persona (2020 y 2025 — 17 dígitos; los primeros
-    12 son ID_VIV)
+  Descripción: Identificador único de la persona — ID_VIV más el número de persona (2020 y
+    2025 — 17 dígitos; 2015 — 14, sin el cero inicial de las entidades 01-09 en los CSV;
+    harmonize=True lo rellena)
   Tipo: string
-  Longitud: '17'
+  Longitud: 14 / 17
 ID_MII:
   Descripción: Identificador único del emigrante internacional (tabla de migrantes; 2020 y
     2025 — 14 dígitos, ID_VIV + número de emigrante). Los migrantes cuelgan de la vivienda
@@ -67,13 +72,14 @@ CVEGEO:
   Longitud: 5 / 9 / 16
 CVE_ENT:
   Descripción: Clave del Área Geoestadística Estatal (01-32; 00 = total nacional en las
-    estimaciones). En 2020 se llama ENT en los microdatos y ENTIDAD en el ITER y el AGEB.
+    estimaciones). En 2015 y 2020 se llama ENT en los microdatos; en 2020, ENTIDAD en el ITER
+    y el AGEB.
   Tipo: string
   Longitud: '2'
 CVE_MUN:
   Descripción: Clave del Área Geoestadística Municipal (001-570; 000 = total estatal en las
     estimaciones, el ITER y el AGEB; 997 = localidades de menos de 50 000 habitantes de la
-    entidad en las estimaciones). En 2020 se llama MUN.
+    entidad en las estimaciones). En 2015 y 2020 se llama MUN.
   Tipo: string
   Longitud: '3'
 LOC50K:
@@ -113,8 +119,8 @@ TAMLOC:
 
 # --- sample design and expansion factor ----------------------------------------------------
 COBERTURA:
-  Descripción: Tipo de cobertura en el municipio (cuestionario ampliado del Censo 2020 y
-    EIC 2025)
+  Descripción: Tipo de cobertura en el municipio (EIC 2015, cuestionario ampliado del Censo
+    2020 y EIC 2025)
   Tipo: categorical
   Longitud: '1'
   Categorías:
@@ -122,14 +128,14 @@ COBERTURA:
     '2': Municipio muestreado
     '3': Municipio con muestra insuficiente
 ESTRATO:
-  Descripción: Estrato de diseño muestral (alfanumérico, p. ej. 01-001-0000-03 en 2020 y
-    15-001-0000-030 en 2025)
+  Descripción: Estrato de diseño muestral (alfanumérico, p. ej. 01-001-05 en 2015,
+    01-001-0000-03 en 2020 y 15-001-0000-030 en 2025)
   Tipo: string
-  Longitud: 14 / 15
+  Longitud: 9 / 14 / 15
 UPM:
-  Descripción: Unidad Primaria de Muestreo
+  Descripción: Unidad Primaria de Muestreo (6 dígitos en 2015, 5 en 2020 y 2025)
   Tipo: string
-  Longitud: '5'
+  Longitud: 5 / 6
 FACTOR:
   Descripción: Factor de expansión (constante dentro de la vivienda; calibrado a las
     estimaciones publicadas — Σ FACTOR = población / viviendas particulares habitadas)
@@ -144,11 +150,13 @@ TIPO_REG:
     '0': Encuestado
     '1': Imputado
 
-# --- dwelling class (in every microdata table, 2020 and 2025) --------------------------------
+# --- dwelling class (in every microdata table of 2020 and 2025; viviendas in 2015) -----------
 CLAVIVP:
   Descripción: Clase de vivienda particular. Las clases 07 (local no construido para
     habitación) y 09 (refugio) no tienen características de la vivienda (bloque PAREDES…
-    SERV_TV_PAGA vacío).
+    SERV_TV_PAGA vacío). En 2015 los códigos van sin cero inicial (1…9, 99) y INEGI rotula
+    la clase 03 «Casa dúplex, triple o cuádruple» y la 06 «Cuarto en la azotea de un
+    edificio».
   Tipo: categorical
   Longitud: '2'
   Categorías:
@@ -163,10 +171,20 @@ CLAVIVP:
     '09': Refugio
   Especiales:
     '99': No especificado de vivienda particular
+  Alias:
+    '1': '01'
+    '2': '02'
+    '3': '03'
+    '4': '04'
+    '5': '05'
+    '6': '06'
+    '7': '07'
+    '8': '08'
+    '9': '09'
 
 # --- demographics ---------------------------------------------------------------------------
 SEXO:
-  Descripción: Sexo (códigos 1 y 3, como en el Censo 2020)
+  Descripción: Sexo (códigos 1 y 3 en 2015, 2020 y 2025)
   Pregunta: (NOMBRE) es hombre. (NOMBRE) es mujer.
   Tipo: categorical
   Longitud: '1'
@@ -174,7 +192,7 @@ SEXO:
     '1': Hombre
     '3': Mujer
 EDAD:
-  Descripción: Edad en años cumplidos (0 = menos de un año)
+  Descripción: Edad en años cumplidos (0 = menos de un año; en 2015, 110 = 110 y más)
   Pregunta: ¿Cuántos años cumplidos tiene (NOMBRE)?
   Tipo: numeric
   Longitud: '3'

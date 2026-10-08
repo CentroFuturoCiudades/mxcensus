@@ -1,10 +1,105 @@
 viviendas:
-  latest: g02
+  latest: g03
   fingerprints:
-    e66c1319d87f7d8e80b97302b8b30a9d6be44bb5c55a9ac1dce4cc0566c618c5: g01
-    f363a2e501e33e0c00ab8ad5a23902229641bff80daac4abaa39a9b3c137d8c6: g02
+    198f0f5bccd8e39dc081a8154fb6072a77d5f16ffe9b8cdbec833e395855f4f2: g01
+    e66c1319d87f7d8e80b97302b8b30a9d6be44bb5c55a9ac1dce4cc0566c618c5: g02
+    f363a2e501e33e0c00ab8ad5a23902229641bff80daac4abaa39a9b3c137d8c6: g03
   groups:
     g01:
+      n_columns: 88
+      files: 32
+      periods:
+      - '2015'
+      columns:
+      - ID_VIV
+      - ENT
+      - NOM_ENT
+      - MUN
+      - NOM_MUN
+      - LOC50K
+      - NOM_LOC
+      - COBERTURA
+      - ESTRATO
+      - UPM
+      - FACTOR
+      - CLAVIVP
+      - PAREDES
+      - TECHOS
+      - PISOS
+      - CUADORM
+      - TOTCUART
+      - COCINA
+      - LUGAR_COCINA
+      - COMBUSTIBLE
+      - ESTUFA
+      - ELECTRICIDAD
+      - FOCOS
+      - FOCOS_AHORRA
+      - AGUA_ENTUBADA
+      - ABA_AGUA_ENTU
+      - ABA_AGUA_NO_ENTU
+      - TINACO
+      - CISTERNA
+      - BOMBA_AGUA
+      - REGADERA
+      - BOILER
+      - CALENTADOR_SOLAR
+      - AIRE_ACON
+      - PANEL_SOLAR
+      - SERSAN
+      - CONAGUA
+      - USOEXC
+      - DRENAJE
+      - DESTINO_BASURA
+      - SEPARA_BASURA
+      - SEPARA_ALI
+      - SEPARA_ABO
+      - SEPARA_VEN
+      - REFRIGERADOR
+      - LAVADORA
+      - HORNO
+      - AUTOPROP
+      - RADIO
+      - TELEVISOR
+      - TELEVISOR_PP
+      - COMPUTADORA
+      - TELEFONO
+      - CELULAR
+      - INTERNET
+      - SERV_TV_PAGA
+      - TENENCIA
+      - NUM_DUE_VIV1
+      - NUM_DUE_VIV2
+      - ESCRITURAS_VIV
+      - FORMA_ADQUI
+      - FINANCIAMIENTO
+      - DEUDA
+      - NUMPERS
+      - INGR_PEROTROPAIS
+      - INGR_PERDENTPAIS
+      - INGR_AYUGOB
+      - INGR_JUBPEN
+      - TERRENO_AGROPE
+      - TERRENO_VIVERO
+      - NUM_DUE_TERR
+      - ALIM_ADU1
+      - ALIM_ADU2
+      - ALIM_ADU3
+      - ING_ALIM_ADU1
+      - ING_ALIM_ADU2
+      - ING_ALIM_ADU3
+      - ALIM_MEN1
+      - ALIM_MEN2
+      - ALIM_MEN3
+      - ING_ALIM_MEN1
+      - ING_ALIM_MEN2
+      - ING_ALIM_MEN3
+      - TAMLOC
+      - TIPOHOG
+      - JEFE_SEXO
+      - JEFE_EDAD
+      - INGTRHOG
+    g02:
       n_columns: 83
       files: 32
       periods:
@@ -93,7 +188,7 @@ viviendas:
       - JEFE_SEXO
       - JEFE_EDAD
       - TAMLOC
-    g02:
+    g03:
       n_columns: 87
       files: 32
       periods:
@@ -187,12 +282,105 @@ viviendas:
       - JEFE_EDAD
       - TAMLOC
 personas:
-  latest: g02
+  latest: g03
   fingerprints:
-    f17c70978ffde6feaebae05711d93ab795be978b61b2814b847c850ab03ad8b4: g01
-    a97c35aad05e9117f41acc66d0476b0147f135cfc8f8b04e7b2698d811351ee0: g02
+    dd6a44775c6c76b55172b60fbd2c7120c84cd9f5c39255b7e79a4e9054ae2323: g01
+    f17c70978ffde6feaebae05711d93ab795be978b61b2814b847c850ab03ad8b4: g02
+    a97c35aad05e9117f41acc66d0476b0147f135cfc8f8b04e7b2698d811351ee0: g03
   groups:
     g01:
+      n_columns: 86
+      files: 32
+      periods:
+      - '2015'
+      columns:
+      - ID_VIV
+      - ID_PERSONA
+      - ENT
+      - NOM_ENT
+      - MUN
+      - NOM_MUN
+      - LOC50K
+      - NOM_LOC
+      - COBERTURA
+      - ESTRATO
+      - UPM
+      - FACTOR
+      - NUMPER
+      - SEXO
+      - EDAD
+      - PARENT
+      - PARENT_OTRO_C
+      - IDENT_MADRE
+      - IDENT_PADRE
+      - SERSALUD
+      - AFRODES
+      - ACTA_NAC
+      - DHSERSAL1
+      - DHSERSAL2
+      - PERTE_INDIGENA
+      - ENT_PAIS_NAC
+      - NACIONALIDAD
+      - HLENGUA
+      - QDIALECT_C
+      - QDIALECT_INALI
+      - HESPANOL
+      - ELENGUA
+      - ASISTEN
+      - MUN_ASI
+      - NOM_MUN_ASI
+      - ENT_PAIS_ASI
+      - TIE_TRASLADO_ESCU
+      - MED_TRASLADO_ESC1
+      - MED_TRASLADO_ESC2
+      - MED_TRASLADO_ESC3
+      - ESCOLARI
+      - NIVACAD
+      - ALFABET
+      - ESCOACUM
+      - MUN_RES10
+      - NOM_MUN_RES10
+      - ENT_PAIS_RES10
+      - SITUA_CONYUGAL
+      - IDENT_PAREJA
+      - CONACT
+      - OCUPACION_C
+      - SITUACION_TRAB
+      - AGUINALDO
+      - VACACIONES
+      - SERVICIO_MEDICO
+      - UTILIDADES
+      - INCAP_SUELDO
+      - SAR_AFORE
+      - CREDITO_VIVIENDA
+      - INGTRMEN
+      - ACTIVIDADES_C
+      - MUN_TRAB
+      - NOM_MUN_TRAB
+      - ENT_PAIS_TRAB
+      - TIE_TRASLADO_TRAB
+      - MED_TRASLADO_TRAB1
+      - MED_TRASLADO_TRAB2
+      - MED_TRASLADO_TRAB3
+      - ACTI_SIN_PAGO1
+      - ACTI_SIN_PAGO2
+      - ACTI_SIN_PAGO3
+      - ACTI_SIN_PAGO4
+      - ACTI_SIN_PAGO5
+      - ACTI_SIN_PAGO6
+      - ACTI_SIN_PAGO7
+      - ACTI_SIN_PAGO8
+      - HIJOS_NAC_VIVOS
+      - HIJOS_FALLECIDOS
+      - HIJOS_SOBREVIV
+      - FECHA_NAC_M
+      - FECHA_NAC_A
+      - SOBREVIVENCIA
+      - EDAD_MORIR_D
+      - EDAD_MORIR_M
+      - EDAD_MORIR_A
+      - TAMLOC
+    g02:
       n_columns: 91
       files: 32
       periods:
@@ -289,7 +477,7 @@ personas:
       - EDAD_MORIR_A
       - EDAD_MORIR_TD
       - TAMLOC
-    g02:
+    g03:
       n_columns: 92
       files: 32
       periods:

@@ -60,7 +60,7 @@ Not mirrored (out of scope or redundant): national microdata ZIPs (`_00_`, 762 M
 |---|---|---|---|
 | 2025 | `microdatos/eic2025_micro_fd.xlsx` (sheets Índice, MODELO LÓGICO, VIVIENDAS, PERSONAS, MIGRANTES) | `microdatos/889463931966_csv.zip` | none (highest RNM id 1151 on 2026-10-07; re-check at unit 1b) |
 | 2020 | `microdatos/diccionario_cuestionario_ampliado_cpv2020.xlsx` | `microdatos/Censo2020_clasificaciones_CPV_csv.zip` | not located — probe at 2a |
-| 2015 | `doc/eic2015_fd.xls` | — | 214 |
+| 2015 | `doc/eic2015_fd.xls` (legacy BIFF8) | `doc/eic2015_catalogos.zip` (`TC_*.xls`; not in the listing API — found in unit 3a) | 214 (incomplete; unused, `STEP_3a.md`) |
 | 2010 | `doc/diccionario_cuestionario_ampliado.xls` | `doc/catalogos_2010_dbf.zip` | 71 |
 | 2005 | `doc/fd_muestra_2005.xls` | `doc/catalogos_muestra_2005.xls` | 140 |
 | 2000 | `doc/fd_muestra_censal_2000_pdf.zip` | — | 141 |

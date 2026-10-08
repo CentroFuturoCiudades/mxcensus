@@ -540,7 +540,7 @@ def test_read_xlsx_and_catalogs(tmp_path):
 def test_parse_fd_xlsx(tmp_path):
     _xlsx(tmp_path / "fd.xlsx", _FD_SHEETS)
     _catalog_zip(tmp_path / "cat.zip")
-    doc = _fd.parse_fd_xlsx(tmp_path / "fd.xlsx", _fd.read_catalogs(tmp_path / "cat.zip"))
+    doc = _fd.parse_fd(tmp_path / "fd.xlsx", _fd.read_catalogs(tmp_path / "cat.zip"))
     assert list(doc) == ["personas"]                          # Índice has no Mnemónico
     p = doc["personas"]
     assert "--" not in p and list(p)[:3] == ["SEXO", "EDAD", "DIS_VER"]
@@ -562,14 +562,14 @@ def test_parse_fd_xlsx(tmp_path):
     loc = p["LOC50K"]                                         # a range too wide to enumerate
     assert loc["Tipo"] == "string" and not loc["Categorías"] and "0000 = Menor" in loc["Nota"]
     # without the catalogs, a classified range is left unenumerated, with a note
-    bare = _fd.parse_fd_xlsx(tmp_path / "fd.xlsx")["personas"]
+    bare = _fd.parse_fd(tmp_path / "fd.xlsx")["personas"]
     assert bare["OCUPACION_C"]["Tipo"] == "string" and "no disponible" in bare["OCUPACION_C"]["Nota"]
 
 
 def test_fd_entry_rules(tmp_path):
     _xlsx(tmp_path / "fd.xlsx", _FD_SHEETS)
     _catalog_zip(tmp_path / "cat.zip")
-    p = _fd.parse_fd_xlsx(tmp_path / "fd.xlsx", _fd.read_catalogs(tmp_path / "cat.zip"))["personas"]
+    p = _fd.parse_fd(tmp_path / "fd.xlsx", _fd.read_catalogs(tmp_path / "cat.zip"))["personas"]
     e, src = _fd.fd_entry("PARENTESCO", {"101", "999"}, None, p["PARENTESCO"], 64)
     assert src == "fd" and e["Tipo"] == "categorical" and e["Catálogo"] == "PARENTESCO"
     e, src = _fd.fd_entry("OCUPACION_C", None, None, p["OCUPACION_C"], 1)   # catalog > threshold
@@ -849,7 +849,11 @@ def test_key_specs_nest_and_skip():
         for table, gid in _TABLE_GROUPS:              # in every edition that has it
             if ptr not in _cols(table, gid):
                 continue
-            cats = variables_cpv(table, gid)[ptr]["Categorías"]
+            meta = variables_cpv(table, gid)[ptr]
+            if sg.norm_tipo(meta) == "numeric":       # EIC 2015: the number 1-54 itself
+                assert meta["Rango"] == [1, 54] and all(int(k) > 54 for k in meta.get("Especiales") or {})
+                continue
+            cats = meta["Categorías"]
             assert all((k == v) == (int(k) <= 54) for k, v in cats.items()), (ptr, gid)
             assert sum(int(k) <= 54 for k in cats) >= 50, (ptr, gid)
 
@@ -1355,7 +1359,7 @@ def test_parse_fd_xlsx_2020_layout(tmp_path):
         z.writestr("PARENTESCO.csv", "CLAVE,DESCRIPCION\n101,Jefa(e)\n201,Esposa(o)\n")
         z.writestr("RELIGION.csv", "CLAVE,DESCRIPCION\n1101,Católica\n3101,Sin religión\n")
         z.writestr("ESCOACUM.csv", "CLAVE,DESCRIPCION\n0,0 grados\n24,24 grados\n")
-    p = _fd.parse_fd_xlsx(tmp_path / "fd.xlsx", _fd.read_catalogs(tmp_path / "c.zip"))["personas"]
+    p = _fd.parse_fd(tmp_path / "fd.xlsx", _fd.read_catalogs(tmp_path / "c.zip"))["personas"]
     assert p["PARENTESCO"]["Catálogo"] == "PARENTESCO"       # note wrapped over two lines
     assert p["PARENTESCO"]["Categorías"] == {"101": "Jefa(e)", "201": "Esposa(o)"}
     rel = p["RELIGION"]                                       # a single code keeps its label
@@ -1397,12 +1401,20 @@ def test_build_plan_2020():
     assert e20.ddi_id == 632 and e20.zip_filename("microdatos", 1) == "Censo2020_CA_ags_csv.zip"
 
 
+def _gid(table: str, period: str) -> str:
+    """The schema group holding ``table`` for ``period`` (gids shift as editions join)."""
+    return next(g for g, m in _SM[table]["groups"].items() if period in m["periods"])
+
+
 def test_schema_map_2020_groups():
-    """Gids are chronological: the 2020 groups come first, the newest edition stays latest."""
+    """Gids are chronological: an older edition's groups come first (2015 joined in unit 3a),
+    the newest edition stays latest."""
     for table in ("viviendas", "personas", "migrantes"):
         groups = _SM[table]["groups"]
-        assert groups["g01"]["periods"] == ["2020"] and groups["g01"]["files"] == 32
-        assert _SM[table]["latest"] == "g02" and groups["g02"]["periods"] == ["2025"]
+        g20, g25 = _gid(table, "2020"), _gid(table, "2025")
+        assert groups[g20]["periods"] == ["2020"] and groups[g20]["files"] == 32
+        assert _SM[table]["latest"] == g25 and groups[g25]["periods"] == ["2025"]
+        assert list(groups).index(g20) == list(groups).index(g25) - 1
     for table, n in (("iter", 286), ("ageb", 230)):
         g = _SM[table]["groups"]
         assert list(g) == ["g01"] and g["g01"]["periods"] == ["2020"]
@@ -1429,10 +1441,11 @@ def test_core_scope():
     ("ageb", "MZA", "0a1"), ("ageb", "REL_H_M", "N/E"),
 ])
 def test_group_schema_2020_rejects(table, col, bad):
-    f = _valid_frame(table, "g01")
+    gid = _gid(table, "2020")
+    f = _valid_frame(table, gid)
     f[col] = [bad] * len(f)
     with pytest.raises(pa.errors.SchemaErrors, match=col):
-        _group_schema(table, "g01").validate(f, lazy=True)
+        _group_schema(table, gid).validate(f, lazy=True)
 
 
 def test_group_schema_2020_sentinels():
@@ -1491,17 +1504,19 @@ def test_load_cpv_2020_aggregates_real(local_mirror):
 
 # --- unit 2b: 2020 ↔ 2025 harmonization; equality with the legacy 2020 files --------------
 
-_SURVEY = ("viviendas", "personas", "migrantes")     # the 2020 and 2025 microdata
+_SURVEY = ("viviendas", "personas", "migrantes")     # the microdata tables (2015: no migrantes)
 
-_HARM_STATES = [(p, s) for p in ("2020", "2025") for s in range(1, 33)
-                if all((_MIRROR / cpv_filename(t, p, s)).exists() for t in _SURVEY)]
+_HARM_STATES = [(p, s) for p in ("2015", "2020", "2025") for s in range(1, 33)
+                if all((_MIRROR / cpv_filename(t, p, s)).exists()
+                       for t in _SURVEY if get_edition(p).has(t))]
 
 
 @pytest.mark.parametrize("period,state", _HARM_STATES)
 def test_raw_vs_harmonized_totals_real(period, state):
     """Harmonizing renames and pads the core only: same rows and Σ FACTOR, raw ENT/MUN =
-    harmonized CVE_ENT/CVE_MUN, CVEGEO = CVE_ENT + CVE_MUN, every other column verbatim."""
-    for table in _SURVEY:
+    harmonized CVE_ENT/CVE_MUN, CVEGEO = CVE_ENT + CVE_MUN, the keys and CLAVIVP zero-padded
+    (a change in 2015 only), every other column verbatim."""
+    for table in (t for t in _SURVEY if get_edition(period).has(t)):
         raw = pd.read_parquet(_MIRROR / cpv_filename(table, period, state))
         ctx = _no_warnings()
         harm = _cpv._harmonize(raw, table)
@@ -1510,9 +1525,21 @@ def test_raw_vs_harmonized_totals_real(period, state):
         assert harm["FACTOR"].sum() == pd.to_numeric(raw["FACTOR"]).sum()
         assert set(harm["CVE_ENT"]) == {f"{state:02d}"}
         assert (harm["CVEGEO"] == harm["CVE_ENT"] + harm["CVE_MUN"]).all()
-        renamed = {"ENT": "CVE_ENT", "MUN": "CVE_MUN"} if period == "2020" else {}
-        assert harm.drop(columns=["CVEGEO", "FACTOR"] if renamed else ["FACTOR"]).equals(
-            raw.rename(columns=renamed).drop(columns="FACTOR"))
+        assert harm["ID_VIV"].str.fullmatch(r"\d{12}").all()
+        assert (harm["ID_VIV"].str[:2] == harm["CVE_ENT"]).all()
+        if "ID_PERSONA" in harm:
+            assert (harm["ID_PERSONA"].str[:12] == harm["ID_VIV"]).all()
+        padded = [c for c in _cpv._CODE_PAD if c in raw]
+        for col in padded:                    # same numbers, now at least the canonical width
+            a, b = raw[col].dropna(), harm[col].dropna()
+            assert a.index.equals(b.index) and (a.astype(int) == b.astype(int)).all()
+            assert b.str.len().min() >= _cpv._CODE_PAD[col]
+            if period != "2015":
+                assert harm[col].equals(raw[col])               # already canonical
+        renamed = {"ENT": "CVE_ENT", "MUN": "CVE_MUN"} if period != "2025" else {}
+        drop = ["CVEGEO", "FACTOR", *padded] if renamed else ["FACTOR", *padded]
+        assert harm.drop(columns=drop).equals(
+            raw.rename(columns=renamed).drop(columns=["FACTOR", *padded]))
 
 
 @_REAL_2020_SKIP
@@ -1600,3 +1627,568 @@ def test_cpv_2020_equals_legacy(table, state):
     assert list(raw.columns) == list(legacy.columns) and len(raw) == len(legacy)
     assert all(str(t) == "str" for t in raw.dtypes)
     assert _legacy_mismatches(legacy, raw) == {}
+
+
+# --- unit 3a: EIC 2015 (legacy .xls dictionary, unpadded codes) -----------------------------
+
+import struct  # noqa: E402
+
+_OLE_FREE, _OLE_END, _OLE_FATSECT = 0xFFFFFFFF, 0xFFFFFFFE, 0xFFFFFFFD
+
+
+def _ole(stream: bytes, name: str = "Workbook", cutoff: int = 4096) -> bytes:
+    """A minimal OLE2 compound file (version 3, 512-byte sectors) holding one stream; a
+    stream below ``cutoff`` goes into the mini stream, as Excel stores a small workbook."""
+    ssz, mssz = 512, 64
+    sectors: list[bytes] = []
+    fat: list[int] = []
+
+    def alloc(data: bytes) -> int:
+        start, n = len(sectors), -(-len(data) // ssz)
+        for k in range(n):
+            sectors.append(data[k * ssz:(k + 1) * ssz].ljust(ssz, b"\0"))
+            fat.append(start + k + 1 if k < n - 1 else _OLE_END)
+        return start
+
+    mini_start, mfat_start, n_mfat, root_size = _OLE_END, _OLE_END, 0, 0
+    if len(stream) < cutoff:
+        n = -(-len(stream) // mssz)
+        mfat = struct.pack(f"<{n}I", *(k + 1 if k < n - 1 else _OLE_END for k in range(n)))
+        mini_start, root_size = alloc(stream.ljust(n * mssz, b"\0")), n * mssz
+        n_mfat = -(-len(mfat) // ssz)
+        mfat_start = alloc(mfat.ljust(n_mfat * ssz, b"\xff"))
+        stream_start = 0
+    else:
+        stream_start = alloc(stream)
+
+    def entry(ename, etype, start, size, child=_OLE_FREE):
+        raw = ename.encode("utf-16-le") + b"\0\0"
+        return (raw.ljust(64, b"\0") + struct.pack("<HBB", len(raw), etype, 1)
+                + struct.pack("<III", _OLE_FREE, _OLE_FREE, child) + b"\0" * 36
+                + struct.pack("<IQ", start, size))
+
+    dir_start = alloc(entry("Root Entry", 5, mini_start, root_size, child=1)
+                      + entry(name, 2, stream_start, len(stream)) + b"\0" * 256)
+    n_fat = 1
+    while -(-(len(fat) + n_fat) // (ssz // 4)) > n_fat:
+        n_fat += 1
+    fat_start = len(sectors)
+    fat += [_OLE_FATSECT] * n_fat
+    fat += [_OLE_FREE] * (n_fat * ssz // 4 - len(fat))
+    for k in range(n_fat):
+        sectors.append(struct.pack(f"<{ssz // 4}I", *fat[k * ssz // 4:(k + 1) * ssz // 4]))
+    difat = [fat_start + k for k in range(n_fat)] + [_OLE_FREE] * (109 - n_fat)
+    header = (bytes.fromhex("D0CF11E0A1B11AE1") + b"\0" * 16
+              + struct.pack("<5H", 0x3E, 3, 0xFFFE, 9, 6) + b"\0" * 6
+              + struct.pack("<9I", 0, n_fat, dir_start, 0, cutoff, mfat_start, n_mfat,
+                            _OLE_END, 0)
+              + struct.pack("<109I", *difat))
+    return header + b"".join(sectors)
+
+
+def _biff(rid: int, body: bytes) -> bytes:
+    return struct.pack("<HH", rid, len(body)) + body
+
+
+def _biff_str(text: str, len_size: int = 2) -> bytes:
+    wide = any(ord(c) > 255 for c in text)
+    return (len(text).to_bytes(len_size, "little") + bytes([wide])
+            + text.encode("utf-16-le" if wide else "latin-1"))
+
+
+def _biff_sst(strings: list[str], limit: int) -> bytes:
+    """SST + CONTINUE records of at most ``limit`` bytes; a string whose characters cross a
+    record boundary resumes with an option byte for its next segment (compressed when the
+    segment fits latin-1, so the encoding can switch mid-string). The first string carries
+    two rich-text runs, which may themselves cross a boundary (no option byte there)."""
+    records, buf = [], bytearray(struct.pack("<II", len(strings), len(strings)))
+
+    def flush():
+        records.append(bytes(buf))
+        buf.clear()
+
+    for k, text in enumerate(strings):
+        wide = any(ord(c) > 255 for c in text)
+        head = len(text).to_bytes(2, "little") + bytes([wide | (0x08 if k == 0 else 0)])
+        head += struct.pack("<H", 2) if k == 0 else b""
+        if len(buf) + len(head) + 2 > limit:
+            flush()
+        buf += head
+        i = 0
+        while i < len(text):
+            room = (limit - len(buf)) // (2 if wide else 1)
+            if room <= 0:
+                flush()
+                wide = any(ord(c) > 255 for c in text[i:i + limit - 1])
+                buf.append(wide)
+                continue
+            part = text[i:i + room]
+            buf += part.encode("utf-16-le" if wide else "latin-1")
+            i += len(part)
+        if k == 0:
+            for byte in struct.pack("<4H", 0, 1, 1, 2):
+                if len(buf) >= limit:
+                    flush()
+                buf.append(byte)
+    flush()
+    return _biff(0x00FC, records[0]) + b"".join(_biff(0x003C, r) for r in records[1:])
+
+
+def _rk(n: int, div100: bool = False) -> int:
+    return ((n & 0x3FFFFFFF) << 2) | 0x02 | div100
+
+
+def _xls(sheets: dict, cutoff: int = 4096, sst_limit: int = 8224) -> bytes:
+    """A BIFF8 ``.xls`` (the records ``_dict_fd.read_xls`` reads). A cell is ``None`` (no
+    cell), a ``str`` (LABELSST), an ``int`` (RK; a run of ints on a row is one MULRK), a
+    ``float`` (RK ×100 when it has at most two decimals, else NUMBER), ``("label", text)``
+    (LABEL), ``("formula", value)`` (FORMULA with that cached result; a STRING record
+    follows a text result) or ``("chart",)`` (an embedded chart substream whose cell must be
+    ignored). A chart sheet is appended to the workbook (skipped by the reader)."""
+    strings = sorted({c for rows in sheets.values() for r in rows for c in r
+                      if isinstance(c, str)})
+    index = {s: k for k, s in enumerate(strings)}
+    bof = lambda dt: _biff(0x0809, struct.pack("<4H2I", 0x0600, dt, 0, 0, 0, 0))  # noqa: E731
+    eof = _biff(0x000A, b"")
+    bodies = []
+    for rows in sheets.values():
+        out = bof(0x0010)
+        for r, row in enumerate(rows):
+            c = 0
+            while c < len(row):
+                v = row[c]
+                if isinstance(v, int):
+                    end = c
+                    while end < len(row) and isinstance(row[end], int):
+                        end += 1
+                    if end - c > 1:
+                        cells = b"".join(struct.pack("<HI", 0, _rk(x)) for x in row[c:end])
+                        out += _biff(0x00BD, struct.pack("<HH", r, c) + cells
+                                     + struct.pack("<H", end - 1))
+                        c = end
+                        continue
+                    out += _biff(0x027E, struct.pack("<3HI", r, c, 0, _rk(v)))
+                elif isinstance(v, float) and round(v * 100) == v * 100:
+                    out += _biff(0x027E, struct.pack("<3HI", r, c, 0, _rk(round(v * 100), True)))
+                elif isinstance(v, float):
+                    out += _biff(0x0203, struct.pack("<3Hd", r, c, 0, v))
+                elif isinstance(v, str):
+                    out += _biff(0x00FD, struct.pack("<3HI", r, c, 0, index[v]))
+                elif v and v[0] == "label":
+                    out += _biff(0x0204, struct.pack("<3H", r, c, 0) + _biff_str(v[1]))
+                elif v and v[0] == "formula":
+                    text = isinstance(v[1], str)
+                    res = bytes([0, 0, 0, 0, 0, 0, 0xFF, 0xFF]) if text else struct.pack("<d", v[1])
+                    out += _biff(0x0006, struct.pack("<3H", r, c, 0) + res + struct.pack("<HIH", 0, 0, 0))
+                    out += _biff(0x0207, _biff_str(v[1])) if text else b""
+                elif v and v[0] == "chart":
+                    out += bof(0x0020) + _biff(0x00FD, struct.pack("<3HI", r, c, 0, 0)) + eof
+                c += 1
+        bodies.append(out + eof)
+    bodies.append(bof(0x0020) + eof)                                     # a chart sheet
+    kinds = [0] * len(sheets) + [2]
+    sst = _biff_sst(strings, sst_limit)
+
+    def globals_(offsets):
+        return (bof(0x0005) + b"".join(
+            _biff(0x0085, struct.pack("<IBB", off, 0, kind) + _biff_str(name, len_size=1))
+            for name, kind, off in zip([*sheets, "Gráfico1"], kinds, offsets)) + sst + eof)
+
+    pos = len(globals_([0] * len(kinds)))
+    offsets = []
+    for body in bodies:
+        offsets.append(pos)
+        pos += len(body)
+    return _ole(globals_(offsets) + b"".join(bodies), cutoff=cutoff)
+
+
+_LONG = "Descripción por catálogo ‘larga’ " * 3        # latin-1 and wider characters
+_XLS_SHEETS = {
+    "TR_Persona": [
+        ["Cons.", "Mnemónico", None, "Rango Válido"],
+        [1, 2, 3, 4.25, 1993.5, 0.1],                    # MULRK, RK ×100, NUMBER
+        ["  ", ("label", "Inline ñ"), ("formula", "texto"), ("formula", 7.0), ("chart",)],
+        [_LONG, "Ver catálogo", None, "{01..32}"],
+    ],
+    "Índice": [["Tabla", -5]],
+}
+_XLS_EXPECTED = {
+    "TR_Persona": [
+        {"A": "Cons.", "B": "Mnemónico", "D": "Rango Válido"},
+        {"A": "1", "B": "2", "C": "3", "D": "4.25", "E": "1993.5", "F": "0.1"},
+        {"B": "Inline ñ", "C": "texto", "D": "7"},          # blank text and the chart dropped
+        {"A": _LONG.strip(), "B": "Ver catálogo", "D": "{01..32}"},
+    ],
+    "Índice": [{"A": "Tabla", "B": "-5"}],
+}
+
+
+@pytest.mark.parametrize("cutoff,sst_limit", [(4096, 8224), (4096, 23), (64, 23), (64, 31)])
+def test_read_xls_cells_strings_and_containers(tmp_path, cutoff, sst_limit):
+    """Mini-stream and regular-sector storage; SST strings split across CONTINUE records
+    (option byte switching encodings, rich-text runs crossing a boundary)."""
+    data = _xls(_XLS_SHEETS, cutoff=cutoff, sst_limit=sst_limit)
+    assert _fd.read_xls(data) == _XLS_EXPECTED
+    (tmp_path / "fd.xls").write_bytes(data)
+    assert _fd.read_xls(tmp_path / "fd.xls") == _fd.read_workbook(tmp_path / "fd.xls") == _XLS_EXPECTED
+
+
+def test_read_xls_large_stream_and_errors(tmp_path):
+    big = {"S": [[i, f"r{i}", i + 0.5] for i in range(400)]}          # > the 4 KiB cutoff
+    rows = _fd.read_xls(_xls(big))["S"]
+    assert len(rows) == 400 and rows[-1] == {"A": "399", "B": "r399", "C": "399.5"}
+    with pytest.raises(ValueError, match="not an OLE2"):
+        _fd.read_xls(b"PK\x03\x04 not a workbook")
+    with pytest.raises(LookupError, match="no 'Workbook' stream"):
+        _fd.read_xls(_ole(b"x" * 100, name="Book"))
+    _xlsx(tmp_path / "a.xlsx", {"H": [["x", 1]]})
+    assert _fd.read_workbook(tmp_path / "a.xlsx") == {"H": [{"A": "x", "B": "1"}]}
+    (tmp_path / "bad.xls").write_bytes(b"<!DOCTYPE html>")
+    with pytest.raises(ValueError, match="neither an .xlsx"):
+        _fd.read_workbook(tmp_path / "bad.xls")
+
+
+def test_read_catalogs_xls_members(tmp_path):
+    """EIC 2015 ships its catalogs as one-sheet .xls workbooks (``eic2015_catalogos.zip``)."""
+    with zipfile.ZipFile(tmp_path / "cat.zip", "w") as z:
+        z.writestr("TC_PARENTESCO_2015.xls", _xls({"TC_PARENTESCO_2015": [
+            ["CLAVE", "DESCRIPCION"], ["101", "Jefa o jefe"], ["201", "Esposa o esposo"]]}))
+        z.writestr("TC_MUNICIPIO_2015.xls", _xls({"TC_MUNICIPIO_2015": [
+            ["CLAVE_ENT", "DESCRIPCION_ENT", "CLAVE_MUN", "DESCRIPCION_MUN"],
+            ["001", "Aguascalientes", "002", "Asientos"]]}))
+        z.writestr("TC_ESCOACUM_2015.xls", _xls({"TC_ESCOACUM_2015": [   # reference table
+            ["NIVEL_ESCOLARIDAD", "GRADO_ESCOLARIDAD", "ESCOLARIDAD_ACUMULADA"],
+            ["Primaria", 1, 1]]}))
+        z.writestr("Indice y estructura de catalogos.xls", _xls({"x": [["Catálogo"]]}))
+        z.writestr("OCUPACION.csv", "CLAVE,DESCRIPCION\n111,Funcionarios\n")
+    cats = _fd.read_catalogs(tmp_path / "cat.zip")
+    assert cats == {"TC_PARENTESCO_2015": {"101": "Jefa o jefe", "201": "Esposa o esposo"},
+                    "TC_MUNICIPIO_2015": {"001002": "Asientos"},
+                    "OCUPACION": {"111": "Funcionarios"}}
+
+
+_HDR15 = [None, "Cons.", "Descripción", "Mnemónico", "Pregunta y categoría", "Rango Válido",
+          "Tipo", "Longitud"]                            # 2015: the range before the type
+_FD_2015 = {
+    "TR_Persona": [
+        [None, "ENCUESTA INTERCENSAL 2015"],
+        [None, "TABLA: TR_PERSONA"],
+        _HDR15,
+        [None, None, "LLAVE ÚNICA"],                                       # section (col C)
+        [None, 1, "Identificador", "ID_PERSONA", "Identificador", "{01001000000101 ... "
+         "32058999999954}", "Numérico", 14],
+        [None, 2, "1. Sexo", "SEXO", "Sexo", "{1,3}", "Numérico", 1],          # coded, «Numérico»
+        [None, None, None, None, "Hombre", "1"],
+        [None, None, None, None, "Mujer", "3"],
+        [None, 3, "2. Edad", "EDAD", "¿Cuántos años?", "{0..110,999}", "Numérico", 3],
+        [None, None, None, None, "Años cumplidos", "0..109"],
+        [None, None, None, None, "110 y más años cumplidos", "110"],
+        [None, None, None, None, "No especificado", "999"],
+        [None, 4, "Tamaño", "TAMLOC", "Tamaño de localidad", "{1…3}", "Numérico", 1],
+        [None, None, None, None, "Menos de 2 500", "1"],
+        [None, None, None, None, "2 500 a 14 999", "2"],
+        [None, None, None, None, "15 000 y más", "3"],
+        [None, 5, "Parentesco", "PARENT_OTRO_C", "Otro parentesco", "Ver catálogo", "Caracter", 3],
+        [None, None, None, None, "Descripción por catálogo", "TC_PARENTESCO_2015"],
+        [None, None, None, None, "No especificado", "999"],
+        [None, None, None, None, "Blanco", "Nulo"],
+        [None, 6, "Municipio", "NOM_MUN_ASI", "Nombre", "{Alfanumérico}", "Caracter", 80],
+        [None, None, None, None, "Nombre del municipio", "TC_MUNICIPIO_2015"],
+        [None, None, None, None, "Blanco por pase", "Nulo"],
+        [None, 7, "Ocupación", "OCUPACION_C", "¿Ocupación?", "Ver catálogo", "Caracter", 3],
+        [None, None, None, None, "Descripción por catálogo", "TC_OCUPACION_2015"],
+        [None, None, None, None, "No especificado", "999"],
+        [None, 8, "Escolaridad", "ESCOACUM", "Escolaridad", "{0…25, 99}", "Numérico", 2],
+        [None, None, None, None, "Descripción por tabla de referencia", "TC_ESCOACUM_2015"],
+        [None, None, None, None, "No especificado", "99"],
+        [None, None, None, None, "Blanco por pase", "b"],                 # INEGI's typo
+        [None, 9, "Electricidad", "ELECTRICIDAD", "¿Luz?", "{5,7,9,Nulo}", "Numérico", 1],
+        [None, None, None, None, "Sí", "5"],
+        [None, None, None, None, "No", "7"],
+        [None, None, None, None, "No especificado", "9"],
+        [None, None, None, None, "Blanco por pase", "Nulo"],
+        [None, None, None, None, None, None, None, 380],                  # subtotal
+    ],
+    "Modelo de datos": [["ENCUESTA INTERCENSAL 2015"], [None, "TR_PERSONA"]],
+}
+
+
+def _catalogs_2015():
+    return {"TC_PARENTESCO_2015": {"101": "Jefa o jefe", "201": "Esposa o esposo"},
+            "TC_OCUPACION_2015": {"111": "Funcionarios", "112": "Presidentes"}}
+
+
+def test_parse_fd_2015_layout(tmp_path):
+    (tmp_path / "fd.xls").write_bytes(_xls(_FD_2015))
+    doc = _fd.parse_fd(tmp_path / "fd.xls", _catalogs_2015())
+    assert list(doc) == ["tr_persona"]                    # «Modelo de datos» has no header
+    p = doc["tr_persona"]
+    assert p["SEXO"]["Tipo"] == "string" and p["SEXO"]["Categorías"] == {"1": "Hombre", "3": "Mujer"}
+    assert p["TAMLOC"]["Categorías"] == {"1": "Menos de 2 500", "2": "2 500 a 14 999",
+                                         "3": "15 000 y más"}
+    assert p["ELECTRICIDAD"]["Categorías"] == {"5": "Sí", "7": "No"}
+    assert p["ELECTRICIDAD"]["Especiales"] == {"9": "No especificado"}
+    assert p["EDAD"]["Tipo"] == "numeric" and p["EDAD"]["Rango"] == [0, 110]
+    assert p["EDAD"]["Especiales"] == {"999": "No especificado"}
+    par = p["PARENT_OTRO_C"]                              # the TC_ row names the catalog
+    assert par["Catálogo"] == "TC_PARENTESCO_2015"
+    assert par["Categorías"] == {"101": "Jefa o jefe", "201": "Esposa o esposo"}
+    assert par["Especiales"] == {"999": "No especificado"}
+    nom = p["NOM_MUN_ASI"]                                # a name column: a note, no catalog
+    assert nom["Tipo"] == "string" and not nom["Categorías"] and "Catálogo" not in nom
+    assert nom["Nota"] == "Nombre del municipio: TC_MUNICIPIO_2015"
+    esc = p["ESCOACUM"]                                   # 'b' (Blanco por pase) is no code
+    assert esc["Tipo"] == "numeric" and esc["Rango"] == [0, 25]
+    assert esc["Especiales"] == {"99": "No especificado"} and "TC_ESCOACUM_2015" in esc["Nota"]
+    e, src = _fd.fd_entry("SEXO", {"1", "3"}, None, p["SEXO"], 64)
+    assert src == "fd" and e["Tipo"] == "categorical"
+    e, src = _fd.fd_entry("OCUPACION_C", None, None, p["OCUPACION_C"], 1)
+    assert e["Tipo"] == "string" and e["Catálogo"] == "TC_OCUPACION_2015"
+    bare = _fd.parse_fd(tmp_path / "fd.xls")["tr_persona"]       # catalogs not fetched
+    assert "Catálogo" not in bare["OCUPACION_C"]
+    assert "«TC_OCUPACION_2015» no disponible" in bare["OCUPACION_C"]["Nota"]
+
+
+def test_enumerated_rule():
+    """A «Numérico» variable is categorical when its rows label every header code singly."""
+    row = lambda code, rows: {"code": code, "rows": rows}            # noqa: E731
+    assert _fd._enumerated(row("{1,3}", [("1", "Hombre"), ("3", "Mujer")]))
+    assert _fd._enumerated(row("{1…2, 9, Nulo}", [("1", "a"), ("2", "b"), ("9", "NE")]))
+    assert not _fd._enumerated(row("{0..130, 999}", [("0", "Menos de un año")]))  # EIC 2025 EDAD
+    assert not _fd._enumerated(row("{0..109}", [((0, 109, 0), "Años")]))          # a range row
+    assert not _fd._enumerated(row("{1,3}", [("1", "Hombre"), ("3", "")]))         # unlabelled
+    assert not _fd._enumerated(row("{1..999}", [("1", "a")]))                       # too wide
+    assert not _fd._enumerated(row("Ver catálogo", [("999", "No especificado")]))
+
+
+def test_fd_docs_2015_sheets_map_to_tables(tmp_path):
+    d = tmp_path / "2015"
+    d.mkdir()
+    (d / "eic2015_fd.xls").write_bytes(_xls(_FD_2015))
+    with zipfile.ZipFile(d / "eic2015_catalogos.zip", "w") as z:
+        z.writestr("TC_PARENTESCO_2015.xls", _xls({"T": [["CLAVE", "DESCRIPCION"],
+                                                         ["101", "Jefa o jefe"]]}))
+    docs = _bcpv._fd_docs(tmp_path, "2015")
+    assert list(docs) == ["personas"]
+    assert docs["personas"]["PARENT_OTRO_C"]["Categorías"] == {"101": "Jefa o jefe"}
+    doc, prov = _bcpv._doc_for(tmp_path, "personas", ["2015"])
+    assert prov == "FD 2015/personas" and "SEXO" in doc
+
+
+def test_build_plan_2015():
+    assert "2015" in _bcpv._ENABLED
+    e15 = get_edition("2015")
+    full = _bcpv._plan([e15], list(TABLES), list(range(1, 33)))
+    assert len(full) == 32 and sum(len(j[3]) for j in full) == 64     # viviendas + personas
+    assert {j[1] for j in full} == {"microdatos"} and e15.zip_filename("microdatos", 1) == "eic2015_01_csv.zip"
+    assert e15.ddi_id == 214 and not e15.has("migrantes")
+    assert DICTIONARY_URLS["2015"] == {"fd": "doc/eic2015_fd.xls",
+                                       "catalogos": "doc/eic2015_catalogos.zip"}
+    assert dictionary_url("2015", "catalogos").endswith("intercensal/2015/doc/eic2015_catalogos.zip")
+
+
+def test_schema_map_2015_groups():
+    """2015 joined first: viviendas/personas 2015 = g01, 2020 = g02, 2025 = g03 (latest);
+    the migrant table, which 2015 lacks, keeps 2020 = g01 and 2025 = g02."""
+    for table, n in (("viviendas", 88), ("personas", 86)):
+        g = _SM[table]["groups"]
+        assert [g[x]["periods"] for x in g] == [["2015"], ["2020"], ["2025"]]
+        assert g["g01"]["n_columns"] == n and g["g01"]["files"] == 32
+        assert _SM[table]["latest"] == "g03"
+    assert [m["periods"] for m in _SM["migrantes"]["groups"].values()] == [["2020"], ["2025"]]
+
+
+@pytest.mark.parametrize("table,col,bad", [
+    ("personas", "SEXO", "2"), ("personas", "EDAD", "131"), ("personas", "PARENT", "10"),
+    ("personas", "PARENT_OTRO_C", "102"), ("personas", "OCUPACION_C", "12"),
+    ("personas", "ACTIVIDADES_C", "111"), ("personas", "MUN_ASI", "1"), ("personas", "ENT", "33"),
+    ("personas", "ESCOACUM", "26"), ("personas", "TAMLOC", "6"), ("personas", "IDENT_MADRE", "55"),
+    ("personas", "NIVACAD", "15"), ("personas", "ID_PERSONA", "x1"),
+    ("viviendas", "CLAVIVP", "10"), ("viviendas", "ELECTRICIDAD", "6"),
+    ("viviendas", "NUM_DUE_VIV1", "55"), ("viviendas", "INGTRHOG", "abc"),
+    ("viviendas", "COBERTURA", "4"), ("viviendas", "MUN", "0a1"),
+])
+def test_group_schema_2015_rejects(table, col, bad):
+    gid = _gid(table, "2015")
+    f = _valid_frame(table, gid)
+    f[col] = [bad] * len(f)
+    with pytest.raises(pa.errors.SchemaErrors, match=col):
+        _group_schema(table, gid).validate(f, lazy=True)
+
+
+def test_group_schema_2015_accepts_unpadded_codes_and_sentinels():
+    v = _valid_frame("viviendas", _gid("viviendas", "2015"), rows=4)
+    v["CLAVIVP"] = ["1", "01", "9", "99"]                 # 2015 spelling, canonical, sentinel
+    v["ID_VIV"] = ["10010000001", "320010000001", "1", "2"]
+    v["NUM_DUE_VIV1"] = ["1", "54", "99", None]
+    v["INGTRHOG"] = ["0", "999998", "999999", None]
+    _group_schema("viviendas", _gid("viviendas", "2015")).validate(v, lazy=True)
+    p = _valid_frame("personas", _gid("personas", "2015"), rows=4)
+    p["EDAD"], p["IDENT_MADRE"] = ["0", "110", "999", "45"], ["1", "96", "97", "99"]
+    p["QDIALECT_INALI"], p["OCUPACION_C"] = ["0205", "9000", None, None], ["813", "999", None, None]
+    _group_schema("personas", _gid("personas", "2015")).validate(p, lazy=True)
+
+
+def test_harmonize_2015_pads_keys_and_clavivp():
+    v = _valid_frame("viviendas", _gid("viviendas", "2015"), rows=3)
+    v["ENT"], v["MUN"] = ["01", "01", "01"], ["001", "011", "011"]
+    v["ID_VIV"] = ["10010000001", "10110000002", "10110000003"]
+    v["CLAVIVP"] = ["1", "9", "99"]
+    p = _valid_frame("personas", _gid("personas", "2015"), rows=3)
+    p["ENT"], p["MUN"] = v["ENT"], v["MUN"]
+    p["ID_VIV"] = v["ID_VIV"]
+    p["ID_PERSONA"] = [i + "01" for i in v["ID_VIV"]]
+    ctx = _no_warnings()
+    hv, hp = _cpv._harmonize(v, "viviendas"), _cpv._harmonize(p, "personas")
+    ctx.__exit__(None, None, None)
+    assert list(hv["ID_VIV"]) == ["010010000001", "010110000002", "010110000003"]
+    assert list(hp["ID_PERSONA"]) == ["01001000000101", "01011000000201", "01011000000301"]
+    assert list(hv["CLAVIVP"]) == ["01", "09", "99"] and list(hv["CVEGEO"]) == ["01001", "01011", "01011"]
+    assert (hv["ID_VIV"].str[:5] == hv["CVEGEO"]).all()
+    assert list(hv.columns[:3]) == ["CVEGEO", "ID_VIV", "CVE_ENT"]
+    for t, h in (("viviendas", hv), ("personas", hp)):
+        _cpv._latest_schema(t).validate(h, lazy=True)
+        assert _cpv._harmonize(h, t).equals(h)                           # idempotent
+
+
+_REAL_2015 = (_MIRROR / "cpv_personas_2015_01.parquet").exists()
+_REAL_2015_SKIP = pytest.mark.skipif(not _REAL_2015, reason="no local EIC 2015 mirror")
+
+# INEGI, Encuesta Intercensal 2015, tabulados predefinidos (dated 24/10/2016;
+# intercensal/2015/tabulados/14_vivienda.xls sheet 02 and 01_poblacion.xls sheet 02, row
+# «Total», estimator «Valor»): inhabited private dwellings, their population, men, women.
+_PUBLISHED_2015 = {
+    1: (334_589, 1_312_544, 640_091, 672_453), 2: (967_863, 3_315_766, 1_650_341, 1_665_425),
+    3: (209_834, 712_029, 359_137, 352_892), 4: (244_471, 899_931, 441_276, 458_655),
+    5: (809_275, 2_954_915, 1_462_612, 1_492_303), 6: (205_243, 711_235, 350_791, 360_444),
+    7: (1_239_007, 5_217_908, 2_536_721, 2_681_187),
+    8: (1_033_658, 3_556_574, 1_752_275, 1_804_299),
+    9: (2_601_323, 8_918_653, 4_231_650, 4_687_003),
+    10: (455_989, 1_754_754, 860_382, 894_372),
+    11: (1_443_035, 5_853_677, 2_826_369, 3_027_308),
+    12: (895_157, 3_533_251, 1_699_059, 1_834_192),
+    13: (757_252, 2_858_359, 1_369_025, 1_489_334),
+    14: (2_059_987, 7_844_830, 3_835_069, 4_009_761),
+    15: (4_168_206, 16_187_608, 7_834_068, 8_353_540),
+    16: (1_191_884, 4_584_471, 2_209_747, 2_374_724),
+    17: (523_984, 1_903_811, 914_906, 988_905), 18: (332_553, 1_181_050, 586_000, 595_050),
+    19: (1_393_542, 5_119_504, 2_541_857, 2_577_647),
+    20: (1_043_527, 3_967_889, 1_888_678, 2_079_211),
+    21: (1_554_026, 6_168_883, 2_943_677, 3_225_206),
+    22: (533_596, 2_038_372, 993_436, 1_044_936), 23: (441_200, 1_501_562, 751_538, 750_024),
+    24: (710_233, 2_717_820, 1_317_525, 1_400_295),
+    25: (806_237, 2_966_321, 1_464_085, 1_502_236),
+    26: (814_820, 2_850_330, 1_410_419, 1_439_911),
+    27: (646_448, 2_395_272, 1_171_592, 1_223_680),
+    28: (987_184, 3_441_698, 1_692_186, 1_749_512), 29: (310_504, 1_272_847, 614_565, 658_282),
+    30: (2_251_217, 8_112_505, 3_909_140, 4_203_365),
+    31: (565_015, 2_097_175, 1_027_548, 1_069_627), 32: (418_850, 1_579_209, 770_368, 808_841),
+}
+_NATIONAL_2015 = (31_949_709, 119_530_753, 58_056_133, 61_474_620)
+_STATES_2015 = [s for s in range(1, 33) if all(
+    (_MIRROR / cpv_filename(t, "2015", s)).exists() for t in ("viviendas", "personas"))]
+
+
+def test_published_2015_add_up():
+    totals = tuple(sum(v[k] for v in _PUBLISHED_2015.values()) for k in range(4))
+    assert totals == _NATIONAL_2015 and totals[1] == totals[2] + totals[3]
+
+
+@pytest.mark.parametrize("state", _STATES_2015)
+def test_eic2015_data_checks_by_state(state):
+    """Σ FACTOR = INEGI's published totals exactly (dwellings, population, men, women); keys
+    unique and nested (ID_PERSONA = ID_VIV + the 2-digit NUMPER); FACTOR constant within the
+    dwelling; ENT = the file's state; NUMPERS = the dwelling's person records."""
+    v = _read_mirror_2015("viviendas", state, ["ID_VIV", "ENT", "MUN", "FACTOR", "NUMPERS",
+                                               "COBERTURA"])
+    p = _read_mirror_2015("personas", state, ["ID_VIV", "ID_PERSONA", "ENT", "FACTOR", "SEXO",
+                                              "NUMPER"])
+    vf, pf = v["FACTOR"].astype(int), p["FACTOR"].astype(int)
+    published = (int(vf.sum()), int(pf.sum()), int(pf[p["SEXO"] == "1"].sum()),
+                 int(pf[p["SEXO"] == "3"].sum()))
+    assert published == _PUBLISHED_2015[state]
+    ent = f"{state:02d}"
+    assert (v["ENT"] == ent).all() and (p["ENT"] == ent).all()
+    assert v["ID_VIV"].is_unique and p["ID_PERSONA"].is_unique
+    assert (p["ID_PERSONA"].str[:-2] == p["ID_VIV"]).all()
+    assert (p["ID_PERSONA"].str[-2:].astype(int) == p["NUMPER"].astype(int)).all()
+    assert (v["ID_VIV"].str.zfill(12).str[:5] == v["ENT"] + v["MUN"]).all()
+    assert p["ID_VIV"].isin(v["ID_VIV"]).all() and v["ID_VIV"].isin(p["ID_VIV"]).all()
+    assert (p["FACTOR"].to_numpy() == p["ID_VIV"].map(v.set_index("ID_VIV")["FACTOR"]).to_numpy()).all()
+    counts = p.groupby("ID_VIV").size()
+    assert (v.set_index("ID_VIV")["NUMPERS"].astype(int) == counts.reindex(v["ID_VIV"]).to_numpy()).all()
+    assert (v.groupby("MUN")["COBERTURA"].nunique() == 1).all()
+
+
+def _read_mirror_2015(table: str, state: int, columns: list[str]) -> pd.DataFrame:
+    return pd.read_parquet(_MIRROR / cpv_filename(table, "2015", state), columns=columns)
+
+
+@pytest.mark.skipif(len(_STATES_2015) < 32, reason="needs all 32 states of EIC 2015 (the wsl mirror)")
+def test_eic2015_national_real():
+    tot = [0, 0, 0, 0]
+    for s in range(1, 33):
+        v = _read_mirror_2015("viviendas", s, ["FACTOR"])
+        p = _read_mirror_2015("personas", s, ["FACTOR", "SEXO"])
+        f = p["FACTOR"].astype(int)
+        for k, x in enumerate((v["FACTOR"].astype(int).sum(), f.sum(),
+                               f[p["SEXO"] == "1"].sum(), f[p["SEXO"] == "3"].sum())):
+            tot[k] += int(x)
+    assert tuple(tot) == _NATIONAL_2015
+
+
+@_REAL_2015_SKIP
+def test_load_cpv_2015_real(local_mirror):
+    ctx = _no_warnings()
+    raw = mxcensus.load_cpv(table="personas", period=2015, state=1)
+    v, p, m = mxcensus.load_cpv_survey(2015, state=1)
+    hv, hp, hm = mxcensus.load_cpv_survey(2015, state=1, harmonize=True)
+    ctx.__exit__(None, None, None)
+    assert raw.shape == (177_853, 86) and all(str(t) == "str" for t in raw.dtypes)
+    assert m is None and hm is None                                    # no migrant table
+    assert (len(v), len(p)) == (43_613, 177_853) and v.index.is_unique and p.index.is_unique
+    pv = p.index.get_level_values("ID_VIV")
+    assert pv.isin(v.index).all() and set(pv.str.len()) == {11}       # raw: unpadded state 01
+    assert (p["FACTOR"].to_numpy() == v["FACTOR"].reindex(pv).to_numpy()).all()
+    assert (v["FACTOR"].sum(), p["FACTOR"].sum()) == _PUBLISHED_2015[1][:2]
+    assert p["SEXO"].cat.categories.tolist() == ["Hombre", "Mujer"]
+    assert "Casa única en el terreno" in v["CLAVIVP"].cat.categories   # '1' via the Alias
+    assert v["CLAVIVP"].notna().all() and v["TAMLOC"].cat.ordered
+    assert str(p["EDAD"].dtype) == "Int64" and p["EDAD"].max() <= 110
+    assert "Esposa(o) o pareja" in p["PARENT"].cat.categories and str(p["ESCOACUM"].dtype) == "Int64"
+    assert str(p["OCUPACION_C"].dtype) == "str" and str(p["NUMPER"].dtype) == "str"
+    assert str(v["NUM_DUE_VIV1"].dtype) == "str" and str(p["NOM_MUN"].dtype) == "str"
+    # harmonized: the 2025 names, keys padded to 12/14 digits, CLAVIVP to 2
+    assert set(hv.index.str.len()) == {12} and (hv.index.str[:2] == "01").all()
+    assert set(hp.index.get_level_values("ID_PERSONA").str.len()) == {14}
+    assert list(hv.columns[:3]) == ["CVEGEO", "CVE_ENT", "NOM_ENT"]
+    assert (hv["CLAVIVP"].astype(str) == v["CLAVIVP"].astype(str).to_numpy()).all()
+    assert (hv["FACTOR"].sum(), hp["FACTOR"].sum()) == _PUBLISHED_2015[1][:2]
+    both = pd.concat({"2015": mxcensus.load_cpv_personas(2015, state=1, harmonize=True, labels=False),
+                      "2025": mxcensus.load_cpv_personas(2025, state=1, harmonize=True, labels=False)},
+                     names=["PERIOD"])
+    assert both.index.names == ["PERIOD", "ID_VIV", "ID_PERSONA"] and both.index.is_unique
+    core = ["CVEGEO", "CVE_ENT", "CVE_MUN", "LOC50K", "COBERTURA", "ESTRATO", "UPM", "FACTOR",
+            "SEXO", "EDAD", "TAMLOC"]
+    assert both[core].notna().all().all()
+    _cpv._latest_schema("personas").validate(both.reset_index(), lazy=True)
+
+
+_FD_2015_REAL = Path(__file__).resolve().parent.parent / "data" / "dict" / "fd" / "2015"
+
+
+@pytest.mark.skipif(not (_FD_2015_REAL / "eic2015_fd.xls").exists(),
+                    reason="EIC 2015 FD not fetched (build_cpv.py --dictionary --periods 2015)")
+def test_fd_2015_real():
+    """INEGI's own workbook and catalogs (legacy .xls) parse into every 2015 column."""
+    cats = _fd.read_catalogs(_FD_2015_REAL / "eic2015_catalogos.zip")
+    assert {"TC_PARENTESCO_2015", "TC_OCUPACION_2015", "TC_MUNICIPIO_2015"} <= set(cats)
+    assert len(cats["TC_MUNICIPIO_2015"]) == 2_490
+    doc = _bcpv._fd_docs(_FD_2015_REAL.parent, "2015")
+    for table in ("viviendas", "personas"):
+        assert list(doc[table]) == _cols(table, _gid(table, "2015"))
+    p = doc["personas"]
+    assert p["EDAD"]["Rango"] == [0, 110] and p["EDAD"]["Especiales"] == {"999": "No especificado"}
+    assert p["CONACT"]["Tipo"] == "string" and len(p["CONACT"]["Categorías"]) == 13
+    assert p["PARENT_OTRO_C"]["Catálogo"] == "TC_PARENTESCO_2015"
+    assert len(p["PARENT_OTRO_C"]["Categorías"]) == 47

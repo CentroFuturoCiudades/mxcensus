@@ -16,7 +16,8 @@ Microdata files are large (Estado de México personas ≈ 0.5 GB of CSV), so CSV
 ``pyarrow.csv`` (not ``pandas.read_csv(dtype=str)``, whose object strings would need tens of
 GB) and the encoding is sniffed by streaming the bytes.
 
-Only editions in ``_ENABLED`` build (unit 1a: EIC 2025); ``--dry-run`` previews any edition.
+Only editions in ``_ENABLED`` build (the CSV editions: EIC 2015, CPV 2020, EIC 2025); ``--dry-run``
+previews any edition.
 
 Dry run (URLs + member patterns, no download):
     .venv/bin/python scripts/build_cpv.py --dry-run --periods 2025
@@ -90,7 +91,7 @@ _DEFAULT_DDI_DIR = _REPO_ROOT / "data" / "dict" / "ddi"
 
 # Editions whose build is enabled (docs/cpv/PLAN.md unit table). DBF editions (2010 and
 # earlier) need their own reader (unit 3b+); they stay dry-run-only until then.
-_ENABLED = ("2020", "2025")
+_ENABLED = ("2015", "2020", "2025")
 
 _HIGH_BYTES = bytes(range(0x80, 0x100))
 _CHUNK = 1 << 24  # 16 MiB
@@ -442,6 +443,8 @@ def _write_report(out_dir: Path, report_path: Path) -> dict:
 
 
 # --- dictionaries (FD workbook + classification catalogs + indicator CSVs) -----------------
+# The FD is an .xlsx (2020, 2025) or a legacy .xls (2015), both read with the standard
+# library (scripts/_dict_fd.py); RNM DDI codebooks are fetched for reference only.
 
 # Aggregate products ship their indicator dictionary inside the data ZIP.
 _INDICATOR_DICT_RE = re.compile(r"(^|/)diccionario_datos[^/]*\.csv$", re.IGNORECASE)
@@ -467,8 +470,8 @@ def _indicator_dict_path(dict_dir: Path, period: str, table: str) -> Path:
 
 def _download(url: str, dest: Path, retries: int) -> Path:
     """Fetch one documentation file into ``dest`` (once). ZIP-based formats (xlsx, zip)
-    are CRC-verified; anything else is rejected when INEGI answers with an HTML page
-    (its soft-404)."""
+    are CRC-verified; anything else (a legacy ``.xls``) is rejected when INEGI answers with
+    an HTML page (its soft-404)."""
     if dest.suffix.lower() in (".zip", ".xlsx"):
         return bc.fetch_zip_verified(url, dest.parent, dest.name, retries)
     path = bc.fetch_zip(url, dest.parent, dest.name)
@@ -483,8 +486,10 @@ def _fetch_dictionaries(dict_dir: Path, periods: list[str], cache_dir: Path,
     """Download each edition's dictionary sources into ``dict_dir/{period}/``.
 
     - the documentation files of ``DICTIONARY_URLS`` (EIC 2025: the FD workbook
-      ``eic2025_micro_fd.xlsx`` and the classification catalogs ``889463931966_csv.zip``);
-    - the RNM DDI codebook when the edition has one (``ddi_id``) into ``ddi_dir``;
+      ``eic2025_micro_fd.xlsx`` and the classification catalogs ``889463931966_csv.zip``;
+      EIC 2015: ``eic2015_fd.xls`` and ``eic2015_catalogos.zip``);
+    - the RNM DDI codebook when the edition has one (``ddi_id``) into ``ddi_dir`` (2015's
+      214 and 2020's 632 are fetched for reference; the FD workbooks are complete);
     - each aggregate table's ``diccionario_datos_*.csv``, copied out of its product ZIP
       (fetched into ``cache_dir`` if the build has not cached it) as
       ``diccionario_datos_{table}.csv``.
@@ -518,17 +523,24 @@ def _fetch_dictionaries(dict_dir: Path, periods: list[str], cache_dir: Path,
     return paths
 
 
+# FD sheet stem → canonical table, where INEGI names the sheet after its own table
+# (EIC 2015: TR_Vivienda, TR_Persona); other sheets are named after the table already.
+_FD_SHEET_TABLE = {"tr_vivienda": "viviendas", "tr_persona": "personas"}
+
+
 @functools.cache
 def _fd_docs(dict_dir: Path, period: str) -> dict:
-    """The edition's FD workbook parsed (``{stem: {VAR: meta}}``), its classification
-    catalogs applied; ``{}`` when no workbook was fetched."""
+    """The edition's FD workbook (``.xlsx``, or the legacy ``.xls`` of 2015) parsed into
+    ``{table: {VAR: meta}}``, its classification catalogs applied; ``{}`` when no workbook
+    was fetched."""
     rel = DICTIONARY_URLS.get(period, {})
     book = dict_dir / period / rel.get("fd", "").rsplit("/", 1)[-1]
-    if not rel.get("fd", "").endswith(".xlsx") or not book.exists():
+    if not rel.get("fd", "").endswith((".xlsx", ".xls")) or not book.exists():
         return {}
     cat = dict_dir / period / rel.get("catalogos", "").rsplit("/", 1)[-1]
     catalogs = fd.read_catalogs(cat) if cat.suffix == ".zip" and cat.exists() else None
-    return fd.parse_fd_xlsx(book, catalogs)
+    return {_FD_SHEET_TABLE.get(stem, stem): doc
+            for stem, doc in fd.parse_fd(book, catalogs).items()}
 
 
 def _doc_for(dict_dir: Path, table: str, periods: list[str]) -> tuple[dict | None, str]:

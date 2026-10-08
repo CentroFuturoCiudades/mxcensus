@@ -91,7 +91,7 @@ class CpvEdition:
     weighted: bool = True       # microdata carry an expansion factor
     fmt: str = "csv"            # microdata format: "csv" | "dbf"
     ddi_id: int | None = None   # INEGI RNM DDI catalog id (None = none located; fetched by
-                                # build_cpv.py --dictionary — 2020 builds from its FD xlsx)
+                                # build_cpv.py --dictionary — 2015/2020 build from their FD)
     biinegi_id: int | None = None  # INEGI file-listing API id (idBiinegi)
     mg_period: str | None = None   # Marco Geoestadístico edition framing it (_catalog.MG_EDITIONS)
     notes: str = ""
@@ -275,7 +275,10 @@ EDITIONS: list[CpvEdition] = [
         urls={"microdatos": "microdatos/eic2015_{nn}_csv.zip"},
         members={"viviendas": r"TR_VIVIENDA{nn}\.csv", "personas": r"TR_PERSONA{nn}\.csv"},
         ddi_id=214, biinegi_id=1714, mg_period=None,
-        notes="no migrantes table, no ITER/AGEB; MG frame not yet identified",
+        notes="no migrantes table, no ITER/AGEB; MG frame not yet identified; CSVs cp1252; "
+              "keys unpadded (ID_VIV 11-12 digits); dictionary = the FD .xls + the TC_* "
+              "catalogs (RNM DDI 214 is a Nesstar export with incomplete value labels — "
+              "kept for reference, not used)",
     ),
     CpvEdition(
         period="2020", year=2020, kind="censo",
@@ -320,7 +323,9 @@ DICTIONARY_URLS: dict[str, dict[str, str]] = {
              "catalogos": "microdatos/889463931966_csv.zip"},
     "2020": {"fd": "microdatos/diccionario_cuestionario_ampliado_cpv2020.xlsx",
              "catalogos": "microdatos/Censo2020_clasificaciones_CPV_csv.zip"},
-    "2015": {"fd": "doc/eic2015_fd.xls"},
+    "2015": {"fd": "doc/eic2015_fd.xls",  # legacy BIFF8 (scripts/_dict_fd.read_xls)
+             # not in the file-listing API; found by URL (2026-10-07): TC_*.xls catalogs
+             "catalogos": "doc/eic2015_catalogos.zip"},
     "2010": {"fd": "doc/diccionario_cuestionario_ampliado.xls",
              "catalogos": "doc/catalogos_2010_dbf.zip"},
     "2005": {"fd": "doc/fd_muestra_2005.xls", "catalogos": "doc/catalogos_muestra_2005.xls"},
