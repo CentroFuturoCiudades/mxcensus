@@ -1,13 +1,14 @@
 # CPV family — session handoff
 
-**Status (2026-10-08): units 0–6h are done. `main` = v0.7.1 (through 6e); `cpv-integration`
+**Status (2026-10-08): units 0–6i are done. `main` = v0.7.1 (through 6e); `cpv-integration`
 is ahead by the units of this session (6f onward), committed locally, not pushed. The user
-asked for the four post-6e candidates in one session, one unit each: 6f, 6g and 6h (done),
-6i the 2000/2005 derived columns.**
+asked for the four post-6e candidates in one session, one unit each (6f–6i, all done). No
+unit is queued.**
 - **Released** (registered, uploaded, verified): every edition 1990–2025 (897 `cpv_` files)
   and the Marco Geoestadístico 1995–2025 frames, incl. the EIC 2015's (6h); registry
   **4148** entries (`STEP_6b.md` §Release batch, `STEP_6h.md`).
-- **Derived columns** (6b, 6d, 6e, 6f): `derived=True` on `load_cpv_personas/viviendas/survey`;
+- **Derived columns** (6b, 6d, 6e, 6f, 6i): `derived=True` on `load_cpv_personas/viviendas/survey`
+  for every edition 2000–2025;
   `cpv_constraints(table, period)` gives the constraints per edition (`STEP_6b.md`).
 - **6c** (review of every pending decision with the user, `STEP_6c.md`): legacy NA guard,
   1995 `FACTOR`, INEGI's `DISCAPACIDAD`/`LIMITACION`.
@@ -30,8 +31,11 @@ asked for the four post-6e candidates in one session, one unit each: 6f, 6g and 
 - **6h** (`STEP_6h.md`): the EIC 2015 frame = INEGI's «Cartografía geoestadística urbana y
   rural amanzanada. Cierre de la Encuesta Intercensal 2015» (a UPC per state), MG period
   2015: 397 files, registry 3751 → 4148 (upload: the follow-up commit); the lineage's 2015 step.
+- **6i** (`STEP_6i.md`): CGPV 2000 and Conteo 2005 derived columns (2000: 17 + 5, 2005:
+  13 + 4) and constraints (2000: 29 + 4, 2005: 38 + 8); 2000 checked against INEGI's sample
+  tabulados (within 0.02 points outside Chiapas).
 
-Design: [`PLAN.md`](PLAN.md). Recent units: [`STEP_6h.md`](STEP_6h.md), [`STEP_6g.md`](STEP_6g.md), [`STEP_6f.md`](STEP_6f.md), [`STEP_6e.md`](STEP_6e.md),
+Design: [`PLAN.md`](PLAN.md). Recent units: [`STEP_6i.md`](STEP_6i.md), [`STEP_6h.md`](STEP_6h.md), [`STEP_6g.md`](STEP_6g.md), [`STEP_6f.md`](STEP_6f.md), [`STEP_6e.md`](STEP_6e.md),
 [`STEP_6d.md`](STEP_6d.md),
 [`STEP_6c.md`](STEP_6c.md), [`STEP_6b.md`](STEP_6b.md), … [`STEP_0_probe.md`](STEP_0_probe.md).
 
@@ -48,9 +52,17 @@ files; the MG 2015 files were built on the Mac and copied to `wsl` for the uploa
 > docs/cpv/PLAN.md. Use .venv/bin/python, not uv run. Run wsl tasks without asking; ask me
 > before committing, pushing, installing packages or uploading.
 
-## Next: this session's remaining units
+## Next: candidates (none decided)
 
-1. **6i — derived columns for 2000/2005** (their items differ the most).
+1. **Push / merge / version**: `cpv-integration` is ahead of `main` (v0.7.1) by 6f–6i,
+   committed locally, not pushed (the user's call: push, merge into `main`, bump to 0.8.0?).
+   `wsl:~/mxcensus` is at v0.7.0: pull before running new code there.
+2. **The 2005 FD's `':'` category** in `GRA_APRO` (`STEP_6i.md` §Follow-ups): a `_dict_fd`
+   fix + `--variables` (keep the 2010–2025 parses byte-identical).
+3. **1990/1995 derived columns** (person files only; their items differ the most), and a
+   2000 occupation bridge (CMO → SINCO, no published table).
+4. **A BIFF5 reader in `_dict_fd`** (the CGPV 2000 tabulados are Excel 95 workbooks; 6i
+   used a scratch reader) if the 2000 checks become tests beyond state 01.
 
 ## Open questions for the user
 
@@ -195,6 +207,13 @@ None pending: 6e's decisions were taken with the user (`STEP_6e.md` §Decisions)
   (the CPV constraints `PCON_DISC`/`PCON_LIMI`/`PSIND_LIM` use them; `SIN_DISC_LIM` is NE
   only when all seven answers are 9); `DIS_CON`/`DIS_LIMI` and the legacy YAML's
   `PSIND_LIM` cells are the legacy ones, kept for 2020 = legacy.
+- **2000/2005 derived columns** (6i): education from the level-and-antecedent items
+  (2000 `NIVACAD` + `ANTESC`, never-schooled 5–29 via `NIVELACAD` 00; 2005 `NIVANTES` +
+  `GRA_APRO`), coverage from one item per institution (`_DHSERSAL_ITEMS`), 2000 religion
+  with its own «Blanco por pase» dtype (`_period_dtypes`), 2000 `TOTCUART` counts the
+  kitchen (its rooms tabulado does not). The 2000 sample does not reproduce its tabulados
+  cell for cell (weights): compare within ~0.02 points, Chiapas worse. The 2000 tabulados
+  are BIFF5 (`_dict_fd.read_xls` reads BIFF8 only).
 - **Occupation codes** (6f): 2010 `OCUACTIV_C` is 4-digit (CUO 2010 ≈ SINCO 2011), 2015
   3-digit SINCO 2011, 2020/2025 3-digit SINCO 2019; the coarse group is the first two
   digits, group 59 (dropped by SINCO 2019) → 52. INEGI's tabulados leave out persons of

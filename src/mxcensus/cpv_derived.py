@@ -58,6 +58,12 @@ The coarse occupation is SINCO's two-digit group, labelled as in SINCO 2019; the
 group 59, which SINCO 2019 dropped, joins 52 (:data:`_RECODE`). The coarse activity is the
 SCIAN sector, the same in the 2010, 2015 and 2020 catalogs (2010's item: ``ACTTRAB_C``).
 
+CGPV 2000 and the Conteo 2005 (unweighted) get the columns their items allow: age,
+education (from their level-and-antecedent items), health coverage (one item per
+institution: :data:`_DHSERSAL_ITEMS`), residence five years earlier, dwelling class, rooms
+and drainage; 2000 also income, hours, activity, sector (SCIAN subsector), marital status,
+birthplace and religion (asked of the 5+: its ``RELIGION_CAT`` adds «Blanco por pase»).
+
 An unspecified entity (2020: 997) counts as ``OtraEnt`` in every edition, the legacy rule;
 INEGI's tabulados count it as not specified (a few hundred persons per edition).
 
@@ -142,12 +148,46 @@ _RECODE: dict[str, dict[str, dict[int, int]]] = {
         # The 4-digit SINCO of 2010 (TC_OCUPACION_2010): 5999 is group 59 (as 2015's 599).
         "OCUACTIV_C": {5999: 5299},
     },
+    "2000": {
+        # 14 student, 15 home duties, 16 retired found working by the activity check; 40
+        # student, 50 home duties, 60 retired (2020: 15, 16, 14 and 50, 60, 40).
+        "CONACT": {14: 15, 15: 16, 16: 14, 40: 50, 50: 60, 60: 40},
+        # Level: normal (5; its antecedent is primaria or secundaria) 9, profesional (7) 11,
+        # maestría o doctorado (8) 13, not specified (9) 99; técnica (6) by its antecedent
+        # (_educ_2000).
+        "NIVACAD": {5: 9, 7: 11, 8: 13, 9: 99},
+        "ESCOLARI": {9: 99},
+        # Birthplace and residence in 1995: 600 = «otro país, no se sabe cuál» (2020: 998).
+        "ENT_PAIS_NAC": {600: 998},
+        "ENT_PAIS_RES_5A": {600: 998},
+        # Dwelling class (CLAVIV): casa independiente (2020: casa única en el terreno),
+        # departamento, vecindad, azotea, local no construido para habitación, vivienda
+        # móvil, refugio, not specified.
+        "CLAVIVP": {2: 4, 3: 5, 4: 6, 5: 7, 6: 8, 7: 9, 9: 99},
+        # 26 rooms (2020's code list stops at 25; both «3+»).
+        "TOTCUART": {26: 25},
+    },
+    "2005": {
+        # Level and antecedent (NIVANTES), as 2000's; 84 maestría, 94/95 doctorado.
+        "NIVANTES": {10: 1, 20: 2, 30: 3, 40: 4, 51: 9, 52: 9, 61: 6, 62: 7, 63: 8, 73: 11,
+                     84: 13, 94: 14, 95: 14, 99: 99},
+        "GRA_APRO": {9: 99},
+        # Residence in October 2000 (LURE2000): 033 entity not sufficiently specified
+        # (2020: 997), 201 the United States (221), 600 another country (998).
+        "ENT_PAIS_RES_5A": {33: 997, 201: 221, 600: 998},
+        # Dwelling class (CLAVIVPA): 2000's classes.
+        "CLAVIVP": {2: 4, 3: 5, 4: 6, 5: 7, 6: 8, 7: 9, 9: 99},
+    },
 }
 
 # A source read under another name in some editions or under harmonize=True.
 _ALIASES = {"ENT": ("ENT", "CVE_ENT"), "SITUA_CONYUGAL": ("SITUA_CONYUGAL", "ESTCON"),
-            "ENT_PAIS_RES_5A": ("ENT_PAIS_RES_5A", "ENT_PAIS_RES10"),
-            "ACTIVIDADES_C": ("ACTIVIDADES_C", "ACTTRAB_C")}
+            "ENT_PAIS_NAC": ("ENT_PAIS_NAC", "LNACEDO_C"),
+            "ENT_PAIS_RES_5A": ("ENT_PAIS_RES_5A", "ENT_PAIS_RES10", "RES95EDO_C", "LURE2000"),
+            "ACTIVIDADES_C": ("ACTIVIDADES_C", "ACTTRAB_C"),
+            "INGTRMEN": ("INGTRMEN", "INGRESOS"),
+            "CLAVIVP": ("CLAVIVP", "CLAVIV", "CLAVIVPA"), "CUADORM": ("CUADORM", "CUARDOM"),
+            "TOTCUART": ("TOTCUART", "NUMCUAR"), "DRENAJE": ("DRENAJE", "DIS_DREN")}
 
 _BLANK = -1  # a blank (not asked) code, as the legacy dictionaries spell it
 _DUMMY = pd.CategoricalDtype([0, 1])
@@ -264,6 +304,30 @@ def _educ(src):
     return {"EDUC": _as(key.map(_educ_map()), "personas", "EDUC")}
 
 
+def _educ_2000(src):
+    """CGPV 2000's ``EDUC``: its level (recoded by :data:`_RECODE`) with the antecedent
+    (``ANTESC``) of técnica studies — after primaria (2020: 6, «Primaria_com»), secundaria
+    (7) or preparatoria (8); persons aged 5–29 who never attended school have no level but
+    ``NIVELACAD`` 00, «sin instrucción» (2020: level and grade 0)."""
+    nivacad, escolari = src["NIVACAD"], src["ESCOLARI"]
+    tecnica = nivacad.eq(6)
+    nivacad = nivacad.mask(tecnica, src["ANTESC"].map({1: 6, 2: 7, 3: 8}))
+    none = nivacad.isna() & ~tecnica & src["NIVELACAD"].eq(0)
+    nivacad, escolari = nivacad.mask(none, 0), escolari.mask(none, 0)
+    # técnica after preparatoria: 2020's list stops at grade 4 (2000 records 5; «Posbásica»)
+    escolari = escolari.mask(nivacad.eq(8) & escolari.between(5, 8), 4)
+    return _educ(pd.DataFrame({"NIVACAD": nivacad, "ESCOLARI": escolari}))
+
+
+def _educ_2005(src):
+    """Conteo 2005's ``EDUC``: level and antecedent (``NIVANTES``, recoded to 2020's
+    ``NIVACAD``) and grade (``GRA_APRO``); «sin escolaridad» has no grade (2020: 0), and a
+    grade without a level is «No especificado»."""
+    nivacad, escolari = src["NIVANTES"], src["GRA_APRO"]
+    escolari = escolari.mask(nivacad.eq(0) & escolari.isna(), 0).mask(nivacad.eq(99), 99)
+    return _educ(pd.DataFrame({"NIVACAD": nivacad, "ESCOLARI": escolari}))
+
+
 def _coarse(var: str, name: str, divisor: int):
     def fn(src):
         return {name: _mapped(np.floor(src[var] / divisor), "personas", name, name)}
@@ -327,6 +391,46 @@ def _dhsersal(codes: tuple[int, ...]):
         out["DHSERSAL_AFIL"] = pd.concat([has[c] for c in codes if c <= 8], axis=1).any(axis=1)
         known = [*codes, 99]
         unknown = (d1.notna() & ~d1.isin(known)) | (d2.notna() & ~d2.isin(known))
+        return _as_dummies(out, unknown)
+    return fn
+
+
+# CGPV 2000 and Conteo 2005 ask one item per institution: item → {its code: the 2020
+# DHSERSAL code}. 2000: IMSS 9 = coverage not known at all (2020: 99), OTRINS_V 4 = covered
+# by an institution not named (INEGI's 2000 tabulados count it as «otra institución»), no
+# Seguro Popular, private or state institutions (in «otra»). 2005: OTRA_INS 1 = the state
+# governments' institutions (2020: 03, ISSSTE estatal), 2 another institution (08), 3 private
+# institutions with subrogated services (07, private), 9 an institution not named (08).
+_DHSERSAL_ITEMS = {
+    "2000": {"IMSS": {1: 1, 9: 99}, "ISSSTE": {2: 2}, "PEMEX": {3: 4}, "OTRINS_V": {4: 8},
+             "NOTIEDER": {5: 9}},
+    "2005": {"IMSS": {1: 1}, "ISSSTE": {1: 2}, "PEMEX": {1: 4}, "SEGU_POP": {1: 5},
+             "INST_PRI": {1: 7}, "OTRA_INS": {1: 3, 2: 8, 3: 7, 9: 8},
+             "SIN_DERE": {6: 9, 9: 99}},
+}
+
+
+def _dhsersal_codes(period: str) -> tuple[int, ...]:
+    return tuple(sorted({c for m in _DHSERSAL_ITEMS[period].values() for c in m.values()
+                         if c in _DHSERSAL}))
+
+
+def _dhsersal_items(period: str):
+    """The 2020 dummies from an edition's one-item-per-institution coverage."""
+    items, codes = _DHSERSAL_ITEMS[period], _dhsersal_codes(period)
+
+    def fn(src):
+        has = {code: pd.Series(False, index=src.index) for code in codes}
+        unknown = pd.Series(False, index=src.index)
+        for item, mapping in items.items():
+            v = src[item]
+            unknown |= v.notna() & ~v.isin(list(mapping))
+            for raw, code in mapping.items():
+                if code in has:
+                    has[code] |= v.eq(raw)
+        out = {_DHSERSAL[code]: has[code] for code in codes}
+        out["DHSERSAL_PUB"] = pd.concat([has[c] for c in codes if c <= 6], axis=1).any(axis=1)
+        out["DHSERSAL_AFIL"] = pd.concat([has[c] for c in codes if c <= 8], axis=1).any(axis=1)
         return _as_dummies(out, unknown)
     return fn
 
@@ -464,6 +568,32 @@ def _religion_2010(src):
     return {"RELIGION_CAT": _mapped(code2020, "personas", "RELIGION_CAT", "RELIGION_CAT")}
 
 
+# CGPV 2000 religion (OTRAREL_C, 4 digits, asked of persons aged 5+): its FD makes 0001
+# católica and 9100 ninguna; the first digit is the group of INEGI's 2000 classification,
+# whose tabulados' groups these reproduce: 1 protestantes y evangélicas, 2 bíblicas no
+# evangélicas (2020: both «Protestante/cristiano evangélico»), 3–8 and 9001 otras
+# religiones, 9999 not specified. Under 5: «Blanco por pase», a category of 2000 only.
+def _religion_2000(src):
+    code = src["OTRAREL_C"]
+    code2020 = pd.Series(np.select(
+        [code.eq(1), code.eq(9100), code.eq(9999), code.eq(9001), code.between(1101, 1999),
+         code.between(2000, 2999), code.between(3000, 8999)],
+        [1101, 3101, 9999, 2901, 1326, 1331, 2901], np.nan), index=code.index)
+    labels = code2020.map(_legacy_map("personas", "RELIGION_CAT"))
+    labels = labels.mask(code.isna(), "Blanco por pase")
+    return {"RELIGION_CAT": labels.astype(_period_dtypes("personas", "2000")["RELIGION_CAT"])}
+
+
+@functools.cache
+def _period_dtypes(table: str, period: str) -> dict[str, pd.CategoricalDtype]:
+    """Derived columns whose categories differ in an edition: CGPV 2000 asked religion of
+    persons aged 5+ only, so its ``RELIGION_CAT`` adds «Blanco por pase»."""
+    if (table, period) == ("personas", "2000"):
+        cats = list(_legacy_dtypes("personas")["RELIGION_CAT"].categories)
+        return {"RELIGION_CAT": pd.CategoricalDtype([*cats, "Blanco por pase"])}
+    return {}
+
+
 def _ingtrhog_cat(src):
     return {"INGTRHOG_CAT": _cut(src["INGTRHOG"], "viviendas", "INGTRHOG_CAT", _INCOME_BINS,
                                  _INCOME_LABELS, right=False, blank=2e6)}
@@ -482,6 +612,8 @@ _NEW = ("2020", "2025")
 _OLD = ("2010", "2015")
 _SINCE_2015 = ("2015", "2020", "2025")
 _ALL = ("2010", "2015", "2020", "2025")
+_SINCE_2000 = ("2000", *_ALL)                  # the editions with a sample's full person record
+_EVERY = ("2000", "2005", *_ALL)
 _ESC = ("MED_TRASLADO_ESC1", "MED_TRASLADO_ESC2", "MED_TRASLADO_ESC3")
 _TRAB = ("MED_TRASLADO_TRAB1", "MED_TRASLADO_TRAB2", "MED_TRASLADO_TRAB3")
 _FIN = ("FINANCIAMIENTO1", "FINANCIAMIENTO2", "FINANCIAMIENTO3")
@@ -494,16 +626,21 @@ def _registry() -> tuple[_Derivation, ...]:
     esc15, trab15 = _traslado_2015(_ESC[0]), _traslado_2015(_TRAB[0])
     fin15 = _financiamiento_2015()
     return (
-        D(per, ("EDAD_CAT",), ("EDAD",), _ALL, _edad_cat),
-        D(per, ("INGTRMEN_CAT",), ("INGTRMEN",), _ALL, _ingtrmen_cat),
-        D(per, ("HORTRA_CAT",), ("HORTRA",), ("2010", "2020", "2025"), _hortra_cat),
+        D(per, ("EDAD_CAT",), ("EDAD",), _EVERY, _edad_cat),
+        D(per, ("INGTRMEN_CAT",), ("INGTRMEN",), _SINCE_2000, _ingtrmen_cat),
+        D(per, ("HORTRA_CAT",), ("HORTRA",), ("2000", "2010", "2020", "2025"), _hortra_cat),
         D(per, ("EDUC",), ("NIVACAD", "ESCOLARI"), _ALL, _educ),
+        D(per, ("EDUC",), ("NIVACAD", "ANTESC", "ESCOLARI", "NIVELACAD"), ("2000",),
+          _educ_2000),
+        D(per, ("EDUC",), ("NIVANTES", "GRA_APRO"), ("2005",), _educ_2005),
         D(per, ("OCUPACION_C_COARSE",), ("OCUPACION_C",), _SINCE_2015,
           _coarse("OCUPACION_C", "OCUPACION_C_COARSE", 10)),
         D(per, ("OCUPACION_C_COARSE",), ("OCUACTIV_C",), ("2010",),
           _coarse("OCUACTIV_C", "OCUPACION_C_COARSE", 100)),
         D(per, ("ACTIVIDADES_C_COARSE",), ("ACTIVIDADES_C",), _ALL,
           _coarse("ACTIVIDADES_C", "ACTIVIDADES_C_COARSE", 100)),
+        D(per, ("ACTIVIDADES_C_COARSE",), ("ACTTRAB_C",), ("2000",),      # SCIAN subsector
+          _coarse("ACTTRAB_C", "ACTIVIDADES_C_COARSE", 10)),
         D(per, ("DIS_CON", "DIS_LIMI"), _DIS_ITEMS, _NEW, _dis),
         D(per, ("DISCAPACIDAD", "LIMITACION"), _DIS_ITEMS, _NEW, _dis_inegi),
         D(per, ("SIN_DISC_LIM",), (*_DIS_ITEMS, "DIS_MENTAL"), _NEW, _sin_disc_lim),
@@ -512,6 +649,8 @@ def _registry() -> tuple[_Derivation, ...]:
           _dhsersal(tuple(_DHSERSAL))),
         D(per, _dhsersal_names(_DHSERSAL_NO_BIENESTAR), ("DHSERSAL1", "DHSERSAL2"), _OLD,
           _dhsersal(_DHSERSAL_NO_BIENESTAR)),
+        *(D(per, _dhsersal_names(_dhsersal_codes(p)), tuple(_DHSERSAL_ITEMS[p]), (p,),
+            _dhsersal_items(p)) for p in ("2000", "2005")),
         D(per, _dummy_names(per, _ESC, "MED_TRASLADO_ESC"), _ESC, _NEW,
           _dummies(per, _ESC, "MED_TRASLADO_ESC")),
         D(per, _dummy_names(per, _ESC, "MED_TRASLADO_ESC", esc15), _ESC, ("2015",),
@@ -520,14 +659,14 @@ def _registry() -> tuple[_Derivation, ...]:
           _dummies(per, _TRAB, "MED_TRASLADO_TRAB")),
         D(per, _dummy_names(per, _TRAB, "MED_TRASLADO_TRAB", trab15), _TRAB, ("2015",),
           _dummies(per, _TRAB, "MED_TRASLADO_TRAB", trab15)),
-        D(per, ("CONACT_CAT",), ("CONACT",), _ALL, _cat(per, "CONACT", "CONACT_CAT")),
-        D(per, ("SITUA_CONYUGAL_CAT",), ("SITUA_CONYUGAL",), _ALL,
+        D(per, ("CONACT_CAT",), ("CONACT",), _SINCE_2000, _cat(per, "CONACT", "CONACT_CAT")),
+        D(per, ("SITUA_CONYUGAL_CAT",), ("SITUA_CONYUGAL",), _SINCE_2000,
           _cat(per, "SITUA_CONYUGAL", "SITUA_CONYUGAL_CAT")),
-        D(per, ("ENT_PAIS_NAC_CAT",), ("ENT_PAIS_NAC", "ENT"), _SINCE_2015,
+        D(per, ("ENT_PAIS_NAC_CAT",), ("ENT_PAIS_NAC", "ENT"), ("2000", *_SINCE_2015),
           _ent_pais_cat("ENT_PAIS_NAC", "ENT_PAIS_NAC_CAT")),
         D(per, ("ENT_PAIS_NAC_CAT",), ("LNACEDO_C", "LNACPAIS_C", "ENT"), ("2010",),
           _ent_pais_cat("LNACEDO_C", "ENT_PAIS_NAC_CAT", abroad="LNACPAIS_C")),
-        D(per, ("ENT_PAIS_RES_CAT",), ("ENT_PAIS_RES_5A", "ENT"), _SINCE_2015,
+        D(per, ("ENT_PAIS_RES_CAT",), ("ENT_PAIS_RES_5A", "ENT"), ("2000", "2005", *_SINCE_2015),
           _ent_pais_cat("ENT_PAIS_RES_5A", "ENT_PAIS_RES_CAT")),
         D(per, ("ENT_PAIS_RES_CAT",), ("RES05EDO_C", "RES05PAI_C", "ENT"), ("2010",),
           _ent_pais_cat("RES05EDO_C", "ENT_PAIS_RES_CAT", abroad="RES05PAI_C")),
@@ -551,12 +690,14 @@ def _registry() -> tuple[_Derivation, ...]:
         D(per, ("RELIGION_CAT",), ("RELIGION",), ("2020",),
           _cat(per, "RELIGION", "RELIGION_CAT")),
         D(per, ("RELIGION_CAT",), ("OTRAREL_C",), ("2010",), _religion_2010),
-        D(viv, ("CLAVIVP_CAT",), ("CLAVIVP",), _SINCE_2015,
+        D(per, ("RELIGION_CAT",), ("OTRAREL_C",), ("2000",), _religion_2000),
+        D(viv, ("CLAVIVP_CAT",), ("CLAVIVP",), ("2000", "2005", *_SINCE_2015),
           _cat(viv, "CLAVIVP", "CLAVIVP_CAT")),
-        D(viv, ("CUADORM_CAT",), ("CUADORM",), _ALL, _cat(viv, "CUADORM", "CUADORM_CAT")),
-        D(viv, ("TOTCUART_CAT",), ("TOTCUART",), _ALL, _cat(viv, "TOTCUART", "TOTCUART_CAT")),
-        D(viv, ("DRENAJE_CAT",), ("DRENAJE",), _ALL, _cat(viv, "DRENAJE", "DRENAJE_CAT")),
-        D(viv, ("INGTRHOG_CAT",), ("INGTRHOG",), _ALL, _ingtrhog_cat),
+        D(viv, ("CUADORM_CAT",), ("CUADORM",), _EVERY, _cat(viv, "CUADORM", "CUADORM_CAT")),
+        D(viv, ("TOTCUART_CAT",), ("TOTCUART",), _EVERY,
+          _cat(viv, "TOTCUART", "TOTCUART_CAT")),
+        D(viv, ("DRENAJE_CAT",), ("DRENAJE",), _EVERY, _cat(viv, "DRENAJE", "DRENAJE_CAT")),
+        D(viv, ("INGTRHOG_CAT",), ("INGTRHOG",), _SINCE_2000, _ingtrhog_cat),
         D(viv, _dummy_names(viv, _FIN, "FINANCIAMIENTO"), _FIN, _NEW,
           _dummies(viv, _FIN, "FINANCIAMIENTO")),
         D(viv, _dummy_names(viv, ("FINANCIAMIENTO",), "FINANCIAMIENTO", fin15),
@@ -591,12 +732,13 @@ def cpv_derivations(table: str | None = None, period: str | int | None = None) -
 def derived_dtypes(table: str, period: str | int) -> dict[str, pd.CategoricalDtype]:
     """The dtype of each derived column of ``table`` in ``period`` (all categorical)."""
     out = {}
+    own = _period_dtypes(table, str(period))
     for d in _derivations(table, str(period)):
         for col in d.columns:
             if col.startswith(("DHSERSAL_", "MED_TRASLADO_", "FINANCIAMIENTO_")):
                 out[col] = _DUMMY
             else:
-                out[col] = _DTYPES.get(col) or _legacy_dtypes(table)[col]
+                out[col] = own.get(col) or _DTYPES.get(col) or _legacy_dtypes(table)[col]
     return out
 
 

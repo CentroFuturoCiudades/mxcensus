@@ -39,8 +39,8 @@ def _codes(meta: dict, *, numeric_range: bool = False) -> tuple[str, frozenset[i
 
     tipo = _sg.norm_tipo(meta)
     keys = {int(k) for k in (meta.get("Especiales") or {})}
-    if tipo == "categorical":
-        keys |= {int(k) for k in (meta.get("Categorías") or {})}
+    if tipo == "categorical":           # the 2005 FD's «1 : 8» ellipsis row left a ':' key
+        keys |= {int(k) for k in (meta.get("Categorías") or {}) if str(k).lstrip("-").isdigit()}
     elif numeric_range and tipo == "numeric" and meta.get("Rango"):
         lo, hi = meta["Rango"]
         keys |= set(range(int(lo), int(hi) + 1))
@@ -61,6 +61,12 @@ _GAPS = {
     # 2015's FD declares only 999; 997/998 are rows of its catalog (TC_ENTIDAD_PAIS_2015)
     ("2015", "ENT_PAIS_NAC"): {997, 998}, ("2015", "ENT_PAIS_RES_5A"): {997, 998},
     ("2010", "ACTIVIDADES_C"): {9999},         # ACTTRAB_C: a row of TC_SCIAN_2010, no sentinel
+    ("2000", "CONACT"): {17},                  # no «limitación, rescued by the activity check»
+    # 2000: no bachillerato tecnológico, normal de licenciatura, especialidad, doctorado (in
+    # maestría); técnica (6) splits into 6/7/8 by its antecedent (_educ_2000)
+    ("2000", "NIVACAD"): {5, 7, 8, 10, 12, 14},
+    # 2000/2005 dwelling classes: one «casa independiente» (2020: 1–3 by terrain/dúplex)
+    ("2000", "CLAVIVP"): {2, 3}, ("2005", "CLAVIVP"): {2, 3},
 }
 _EXTRAS = {
     ("2010", "DHSERSAL2"): {1}, ("2015", "DHSERSAL2"): {1},       # IMSS as the 2nd option
@@ -83,7 +89,28 @@ _OWN_CODES = {
     # 2010's 4-digit occupation and 6-digit religion: catalogs, no sentinel in the FD
     # (test_catalog_codes_derive reads the catalogs)
     ("2010", "OCUACTIV_C"): set(), ("2010", "OTRAREL_C"): set(),
+    # CGPV 2000 (6i): the SCIAN subsector (110–939) and 999; normal/técnica antecedent; level
+    # and antecedent; one item per institution; religion (0001, 1101–9001, 9100, 9999: the
+    # FD declares the last two); the income, hours, birthplace and 1995 residence items are
+    # text in its FD (entity 001–032, country 100–535 as 2020, 600 country unknown, 999)
+    ("2000", "ACTTRAB_C"): {999}, ("2000", "ANTESC"): {1, 2, 3, 9},
+    ("2000", "NIVELACAD"): {0, 10, 20, 30, 40, 51, 52, 61, 62, 63, 73, 80, 90},
+    ("2000", "IMSS"): {1, 9}, ("2000", "ISSSTE"): {2}, ("2000", "PEMEX"): {3},
+    ("2000", "OTRINS_V"): {4}, ("2000", "NOTIEDER"): {5}, ("2000", "OTRAREL_C"): {9100, 9999},
+    ("2000", "INGTRMEN"): set(), ("2000", "HORTRA"): set(),
+    ("2000", "ENT_PAIS_NAC"): {600, 999}, ("2000", "ENT_PAIS_RES_5A"): {600, 999},
+    ("viviendas", "2000", "INGTRHOG"): set(),
+    # Conteo 2005: level and antecedent (0–95, 99), grade (1–8, 9), one item per institution,
+    # residence in 2000 (001–033, 201 the US, 600, 999)
+    ("2005", "NIVANTES"): {99}, ("2005", "GRA_APRO"): set(range(1, 10)),
+    ("2005", "IMSS"): {1}, ("2005", "ISSSTE"): {1}, ("2005", "PEMEX"): {1},
+    ("2005", "SEGU_POP"): {1}, ("2005", "INST_PRI"): {1}, ("2005", "OTRA_INS"): {1, 2, 3, 9},
+    ("2005", "SIN_DERE"): {6, 9}, ("2005", "ENT_PAIS_RES_5A"): {*range(1, 34), 201, 600, 999},
 }
+# Own-code text items without a catalog in their edition's FD (the code layout is stated in
+# its notes, quoted above).
+_NO_CATALOG = {("2000", "INGTRMEN"), ("2000", "HORTRA"), ("2000", "ENT_PAIS_NAC"),
+               ("2000", "ENT_PAIS_RES_5A"), ("2000", "INGTRHOG")}
 _LATER_OPTIONS = {*d._ESC[1:], *d._TRAB[1:]}      # list fewer codes (options are ordered)
 # Numeric in 2010/2015, categorical in 2020 (same values; the pointers: row numbers).
 _NUMERIC_CODES = {"ESCOLARI", "IDENT_MADRE", "IDENT_PADRE", "IDENT_PAREJA"}
@@ -97,11 +124,12 @@ def test_source_codes_match_2020(table, period, source):
     labels = variables_cpv_labels(table, _gid(table, period))
     name = next(a for a in d._ALIASES.get(source, (source,)) if a in labels)
     new = labels[name]
-    if (period, source) in _OWN_CODES:
+    key = (table, period, source) if (table, period, source) in _OWN_CODES else (period, source)
+    if key in _OWN_CODES:
         tipo, codes = _codes(new)
-        own = _OWN_CODES[period, source]
+        own = _OWN_CODES[key]
         assert codes <= own if source in _LATER_OPTIONS else codes == own
-        assert tipo != "string" or new.get("Catálogo")
+        assert tipo != "string" or new.get("Catálogo") or (period, source) in _NO_CATALOG
         return
     ref = variables_cpv_labels(table, _gid(table, "2020"))[source]
     expand = source in _NUMERIC_CODES
@@ -231,7 +259,19 @@ def test_cpv_derivations_listing():
                    *(f"FINANCIAMIENTO_{v}" for v in d._financiamiento_2015().values())}
     v20 = set(mxcensus.cpv_derivations("viviendas", 2020)["COLUMN"])
     assert {"FINANCIAMIENTO_Banco", "FINANCIAMIENTO_FONHAPO"} <= v15 & v20
-    assert mxcensus.cpv_derivations("personas", 2005).empty
+    dhs2000 = {"DHSERSAL_IMSS", "DHSERSAL_ISSSTE", "DHSERSAL_P_D_M", "DHSERSAL_Otro",
+               "DHSERSAL_No afiliado", "DHSERSAL_PUB", "DHSERSAL_AFIL"}
+    assert set(mxcensus.cpv_derivations("personas", 2000)["COLUMN"]) == {     # 6i
+        "EDAD_CAT", "INGTRMEN_CAT", "HORTRA_CAT", "EDUC", "ACTIVIDADES_C_COARSE",
+        "CONACT_CAT", "SITUA_CONYUGAL_CAT", *migration, "RELIGION_CAT", *dhs2000}
+    assert set(mxcensus.cpv_derivations("personas", 2005)["COLUMN"]) == {
+        "EDAD_CAT", "EDUC", "ENT_PAIS_RES_CAT", *dhs2000, "DHSERSAL_ISSSTE_E",
+        "DHSERSAL_SALUD_PUBLICA", "DHSERSAL_Privado"}
+    assert set(mxcensus.cpv_derivations("viviendas", 2000)["COLUMN"]) == {
+        "CLAVIVP_CAT", "CUADORM_CAT", "TOTCUART_CAT", "DRENAJE_CAT", "INGTRHOG_CAT"}
+    assert set(mxcensus.cpv_derivations("viviendas", 2005)["COLUMN"]) == {
+        "CLAVIVP_CAT", "CUADORM_CAT", "TOTCUART_CAT", "DRENAJE_CAT"}
+    assert mxcensus.cpv_derivations("personas", 1995).empty
     with pytest.raises(ValueError, match="migrantes"):
         d.derived_dtypes("migrantes", "2025")
 
@@ -466,6 +506,88 @@ def test_derive_persons_2010_recodes():
         assert out[col].dtype == dtype, col
 
 
+def _persons_2000() -> pd.DataFrame:
+    """Four CGPV 2000 persons (raw codes; "" = blank): an adult with técnica after primaria,
+    one never schooled (no level, NIVELACAD 00), a child under 5, one with unknown coverage."""
+    return pd.DataFrame({
+        "EDAD": ["040", "020", "003", "070"], "INGRESOS": ["004500", "", "", "999999"],
+        "HORTRA": ["048", "", "", "999"], "NIVACAD": ["6", "", "", "8"],
+        "ANTESC": ["1", "", "", ""], "ESCOLARI": ["2", "", "", "9"],
+        "NIVELACAD": ["61", "00", "", "80"], "CONACT": ["14", "40", "", "60"],
+        "ESTCON": ["1", "8", "", "4"], "IMSS": ["1", "", "", "9"], "ISSSTE": ["", "", "2", ""],
+        "PEMEX": ["", "", "", ""], "OTRINS_V": ["4", "", "", ""],
+        "NOTIEDER": ["", "5", "", ""], "ENT": ["01", "01", "01", "01"],
+        "LNACEDO_C": ["001", "014", "221", "600"], "RES95EDO_C": ["001", "999", "", "600"],
+        "ACTTRAB_C": ["311", "", "", "999"], "OTRAREL_C": ["0001", "2002", "", "9100"],
+    }, dtype="str")
+
+
+def test_derive_persons_2000_recodes():
+    out = d.derive(_persons_2000(), "personas", 2000)
+    # técnica after primaria = 2020's 6 («Primaria_com»); never schooled; under 5; maestría
+    assert list(out["EDUC"]) == ["Primaria_com", "Sin Educación", "Blanco por pase", "Posbásica"]
+    assert list(out["CONACT_CAT"]) == ["Trabaja", "No trabaja", "Blanco por pase", "No trabaja"]
+    assert list(out["SITUA_CONYUGAL_CAT"]) == ["casado", "soltero", "Blanco por pase", "separado"]
+    assert list(out["INGTRMEN_CAT"]) == ["1,000-4,999", "Blanco por pase", "Blanco por pase",
+                                         "No especificado"]
+    assert list(out["HORTRA_CAT"])[::3] == ["41-48", "No especificado"]
+    # one item per institution: IMSS + other, none, ISSSTE, coverage not known (IMSS 9)
+    assert list(out["DHSERSAL_IMSS"]) == [1, 0, 0, 0] and list(out["DHSERSAL_Otro"]) == [1, 0, 0, 0]
+    assert list(out["DHSERSAL_No afiliado"]) == [0, 1, 0, 0]
+    assert list(out["DHSERSAL_AFIL"]) == [1, 0, 1, 0] and list(out["DHSERSAL_PUB"]) == [1, 0, 1, 0]
+    assert "DHSERSAL_SALUD_PUBLICA" not in out and "DHSERSAL_Privado" not in out
+    assert list(out["ENT_PAIS_NAC_CAT"]) == ["EstaEnt", "OtraEnt", "OtroPais", "OtroPais"]
+    assert list(out["ENT_PAIS_RES_CAT"]) == ["EstaEnt", "No especificado", "Blanco por pase",
+                                             "OtroPais"]
+    assert list(out["ACTIVIDADES_C_COARSE"])[0] == "Industrias manufactureras"   # subsector 311
+    # religion: 0001 católica, 2xxx bíblicas (2020: evangelical), under 5, 9100 ninguna
+    assert list(out["RELIGION_CAT"]) == ["Católica", "Protestante/cristiano evangélico",
+                                         "Blanco por pase",
+                                         "Sin religión / Sin adscripción religiosa"]
+    for col, dtype in d.derived_dtypes("personas", "2000").items():
+        assert out[col].dtype == dtype, col
+    assert "Blanco por pase" not in d.derived_dtypes("personas", "2020")["RELIGION_CAT"].categories
+    with pytest.raises(ValueError, match="RELIGION_CAT"):                 # no such group
+        d.derive(_persons_2000().assign(OTRAREL_C=["0001", "0500", "", "9100"]), "personas", 2000)
+    with pytest.raises(ValueError, match="DHSERSAL_"):                    # an unknown code
+        d.derive(_persons_2000().assign(ISSSTE=["", "", "7", ""]), "personas", 2000)
+
+
+def test_derive_persons_2005_recodes():
+    df = pd.DataFrame({
+        "EDAD": ["035", "002", "060"], "NIVANTES": ["62", "", "99"], "GRA_APRO": ["2", "", "3"],
+        "IMSS": ["", "", ""], "ISSSTE": ["", "", ""], "PEMEX": ["", "", ""],
+        "SEGU_POP": ["1", "", ""], "INST_PRI": ["", "", ""], "OTRA_INS": ["1", "", "3"],
+        "SIN_DERE": ["", "9", ""], "ENT": ["09", "09", "09"],
+        "LURE2000": ["201", "", "033"]}, dtype="str")
+    out = d.derive(df, "personas", 2005)
+    # técnica after secundaria (62 → 7); under 5; a grade without a level
+    assert list(out["EDUC"]) == ["Posbásica", "Blanco por pase", "No especificado"]
+    # Seguro Popular + state institution (OTRA_INS 1 → ISSSTE estatal); NE; subrogated private
+    assert list(out["DHSERSAL_SALUD_PUBLICA"]) == [1, 0, 0]
+    assert list(out["DHSERSAL_ISSSTE_E"]) == [1, 0, 0] and list(out["DHSERSAL_Privado"]) == [0, 0, 1]
+    assert list(out["DHSERSAL_AFIL"]) == [1, 0, 1] and list(out["DHSERSAL_PUB"]) == [1, 0, 0]
+    assert list(out["DHSERSAL_No afiliado"]) == [0, 0, 0]
+    # residence in 2000: the United States (201 → 221), not asked (under 5), entity 033 → 997
+    assert list(out["ENT_PAIS_RES_CAT"]) == ["OtroPais", "Blanco por pase", "OtraEnt"]
+    for col, dtype in d.derived_dtypes("personas", "2005").items():
+        assert out[col].dtype == dtype, col
+
+
+def test_derive_dwellings_2000_2005():
+    v00 = pd.DataFrame({"CLAVIV": ["01", "05"], "CUADORM": ["01", "99"], "TOTCUART": ["26", "01"],
+                        "DRENAJE": ["5", "9"], "INGTRHOG": ["000000", "999999"]}, dtype="str")
+    out = d.derive(v00, "viviendas", 2000)
+    assert list(out["CLAVIVP_CAT"]) == ["Vivienda", "Otro"]          # 05 local no construido
+    assert list(out["TOTCUART_CAT"]) == ["3+", "1"] and list(out["CUADORM_CAT"]) == ["1", "No especificado"]
+    assert list(out["DRENAJE_CAT"]) == ["No", "No especificado"]
+    v05 = pd.DataFrame({"CLAVIVPA": ["2", "7"], "CUARDOM": ["02", "01"], "NUMCUAR": ["03", "02"],
+                        "DIS_DREN": ["1", "5"]}, dtype="str")
+    out = d.derive(v05, "viviendas", 2005)
+    assert list(out["CLAVIVP_CAT"]) == ["Vivienda", "Otro"]          # 7 refugio
+    assert list(out["TOTCUART_CAT"]) == ["3+", "2"] and list(out["DRENAJE_CAT"]) == ["Sí", "No"]
+
+
 def test_derive_older_editions_unknown_codes():
     """A code outside an edition's list raises, also for the dummy sets and the 2010 flag."""
     for col, value, name in (("MED_TRASLADO_TRAB1", "8", "MED_TRASLADO_TRAB_"),
@@ -499,7 +621,7 @@ def test_derive_errors():
     with pytest.raises(ValueError, match="hogares"):
         d.derive(df, "hogares", 2005)
     with pytest.warns(UserWarning, match="no derived columns"):
-        assert d.derive(df, "personas", 2005).equals(df)
+        assert d.derive(df, "personas", 1995).equals(df)
 
 
 # --- constraints per edition ----------------------------------------------------------------
@@ -533,7 +655,12 @@ def test_cpv_constraints_per_edition():
     assert c20["PSIND_LIM"] == p25["PSIND_LIM"] == {"SIN_DISC_LIM": ["Sí"]}   # 6g
     v20 = mxcensus.cpv_constraints("viviendas", 2020)
     assert "dentro de la vivienda?" in v20["VPH_AGUADV"]["AGUA_ENTUBADA"]   # the FD's wording
-    for period in ("2010", "2020", "2025"):                            # categories all exist
+    p00, p05 = (mxcensus.cpv_constraints("personas", p) for p in (2000, 2005))   # 6i
+    assert {"PCATOLICA", "PDER_SS", "PSINDER", "P12YM_CASA", "PEA", "PNACOE"} <= set(p00)
+    assert {"PDER_ISTE", "PSINDER", "PRESOE15", "P15YM_SE"} <= set(p05)
+    assert set(mxcensus.cpv_constraints("viviendas", 2000)) == {
+        "TOTHOG", "VPH_1CUART", "VPH_1DOR", "VPH_DRENAJ"}
+    for period in ("2000", "2005", "2010", "2020", "2025"):            # categories all exist
         cats = d._categories("personas", period)
         for cells in mxcensus.cpv_constraints("personas", period).values():
             assert all(set(c) <= set(cats[v]) for v, c in cells.items())
@@ -589,7 +716,7 @@ def test_derived_2020_equals_legacy(local_mirror, table, state):
 
 
 @_REAL_SKIP
-@pytest.mark.parametrize("period", ["2010", "2015", "2020", "2025"])
+@pytest.mark.parametrize("period", ["2000", "2005", "2010", "2015", "2020", "2025"])
 def test_derived_editions_real(local_mirror, period):
     """``derived=True`` on each edition: the declared columns, their dtypes, no missing
     value; the same columns with or without labels and harmonization."""
@@ -607,7 +734,7 @@ def test_derived_editions_real(local_mirror, period):
 
 
 @_REAL_SKIP
-@pytest.mark.parametrize("period", ["2010", "2020", "2025"])
+@pytest.mark.parametrize("period", ["2000", "2005", "2010", "2020", "2025"])
 def test_crosstab_per_edition(local_mirror, period):
     """One table per edition: the constraints build ``get_tables_dict`` against the derived
     frame's dtypes, and the age × sex table fills."""
@@ -743,3 +870,49 @@ def test_eic2025_constraints_equal_estimates(local_mirror, table):
         assert round(frame.loc[mask, "FACTOR"].sum()) == round(est[ind].iloc[0]), ind
         checked += 1
     assert checked == {"personas": 25, "viviendas": 3}[table]
+
+
+# INEGI's CGPV 2000 ampliado tabulados (C2K*.xls, the sample; percentages with 2 decimals),
+# «01 Aguascalientes», total: birthplace (this entity / another or abroad / NE), coverage
+# (not covered, covered — % of all —, then IMSS, ISSSTE, PEMEX-Defensa-Marina, other — % of
+# the covered —, NE), religion of the 5+ (católica, protestant and evangelical + other
+# biblical, other, none, NE), activity of the 12+ (PEA % of all, employed and unemployed %
+# of the PEA, inactive, NE). Every state, both sexes and the nation agree within 0.02 points
+# outside Chiapas (weights): STEP_6i.md.
+_C2K_01 = {
+    "MI01": (79.03, 20.51, 0.46),
+    "SS04": (43.96, 54.56, 86.54, 13.69, 0.75, 0.22, 1.48),
+    "RE02": (96.07, 1.79 + 0.66, 0.1, 0.89, 0.49),
+    "EM01": (51.65, 98.88, 1.12, 48.05, 0.3),
+}
+
+
+@_REAL_SKIP
+def test_2000_equals_tabulados(local_mirror):
+    """CGPV 2000 derived columns reproduce INEGI's ampliado tabulados (state 01)."""
+    p = mxcensus.load_cpv_personas(2000, state=1, derived=True, labels=False)
+    w = pd.to_numeric(p["FACTOR"])
+    age = pd.to_numeric(p["EDAD"], errors="coerce")
+    share = lambda m, base: 100 * w[m].sum() / w[base].sum()
+    every = w.notna()
+    nac = p["ENT_PAIS_NAC_CAT"].astype(str)
+    got = {"MI01": (share(nac.eq("EstaEnt"), every), share(nac.isin(["OtraEnt", "OtroPais"]), every),
+                    share(nac.eq("No especificado"), every))}
+    dummy = {c: p[c].astype(int).eq(1) for c in p if c.startswith("DHSERSAL_")}
+    afil, none = dummy["DHSERSAL_AFIL"], dummy["DHSERSAL_No afiliado"]
+    got["SS04"] = (share(none, every), share(afil, every),
+                   *(share(dummy[c], afil) for c in ("DHSERSAL_IMSS", "DHSERSAL_ISSSTE",
+                                                     "DHSERSAL_P_D_M", "DHSERSAL_Otro")),
+                   share(~afil & ~none, every))
+    five, rel = age.between(5, 130), p["RELIGION_CAT"].astype(str)
+    got["RE02"] = tuple(share(five & rel.eq(c), five) for c in (
+        "Católica", "Protestante/cristiano evangélico", "Otros credos",
+        "Sin religión / Sin adscripción religiosa", "No especificado"))
+    twelve, act = age.between(12, 130), p["CONACT_CAT"].astype(str)
+    pea = twelve & act.isin(["Trabaja", "Buscó trabajo"])
+    got["EM01"] = (share(pea, twelve), share(twelve & act.eq("Trabaja"), pea),
+                   share(twelve & act.eq("Buscó trabajo"), pea),
+                   share(twelve & act.eq("No trabaja"), twelve),
+                   share(twelve & act.eq("No especificado"), twelve))
+    for table, published in _C2K_01.items():
+        assert got[table] == pytest.approx(published, abs=0.02), table

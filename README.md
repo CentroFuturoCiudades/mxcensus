@@ -199,10 +199,12 @@ persons with all seven answers unspecified are left out; it reproduces every EIC
 `MADRE_EN_VIVIENDA`/`PADRE_EN_VIVIENDA` (whether the mother/father lives in the dwelling). For Censo
 2020 the columns equal `load_extended_*`'s; the EIC 2025 gets the same columns through a
 recode of the items INEGI renumbered (`SITUA_CONYUGAL`, `DHSERSAL`, two country codes).
-EIC 2015 and Censo 2010 get the columns whose items map onto the 2020 codes (age, income,
+EIC 2015, Censo 2010, CGPV 2000 and Conteo 2005 get the columns whose items map onto the
+2020 codes (age, income,
 education, activity, occupation and economic sector, marital status, health coverage,
 birthplace and residence five years earlier, the partner and parents in the dwelling, and
-religion in 2010; `cpv_derivations()` lists them per edition), with these differences. Neither edition has `DHSERSAL_IMSS_BIENESTAR`, because
+religion in 2010 and 2000; `cpv_derivations()` lists them per edition; 2005 has age,
+education, health coverage and residence five years earlier), with these differences. Neither edition has `DHSERSAL_IMSS_BIENESTAR`, because
 neither asked about IMSS-PROSPERA/BIENESTAR. The EIC 2015 commute dummies follow its 7
 modes, with 2015's wording for the three that 2020 splits, and its financing dummies follow
 its one item, whose first code merges INFONAVIT, FOVISSSTE and PEMEX. Censo 2010 measured
@@ -218,7 +220,11 @@ The coarse occupation (`OCUPACION_C_COARSE`) is the SINCO two-digit group in eve
 its few 2010/2015 workers join group 52, where SINCO 2019 put them. The coarse activity is
 the SCIAN sector. Both reproduce INEGI's 2010 and 2015 tabulados by occupational division
 and sector in every state. Censo 2010's religion follows 2020's grouping, which counts the
-neo-Israelite movements as evangelical (the 2010 ITER: other religions).
+neo-Israelite movements as evangelical (the 2010 ITER: other religions). CGPV 2000 asked
+religion of persons aged 5 and over only, so its `RELIGION_CAT` has a «Blanco por pase»
+category for the under-5s, and its health coverage (one question per institution) has no
+Seguro Popular or private columns; the Conteo 2005 adds them. The CGPV 2000 columns
+reproduce INEGI's sample tabulados to within a few hundredths of a point.
 `cpv_constraints(table, period)` filters the census constraint sets (ITER indicator →
 microdata cells) to the indicators an edition publishes and can reproduce, for
 `get_tables_dict`. For Censo 2010 it adds the ITER's own limitation indicators (`PCON_LIM`,
