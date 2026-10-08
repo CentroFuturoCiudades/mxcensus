@@ -48,7 +48,14 @@ reads its marital status from ``ESTCON``, 2015 its residence five years earlier 
   item (``LNACEDO_C``/``LNACPAIS_C``, ``RES05EDO_C``/``RES05PAI_C``), and its co-residence
   pointer pairs (row number + code item: ``IDMADRE``/``IDMADREC``…), which give
   ``IDENT_PAREJA_CAT`` and the two co-residence flags but not ``IDENT_MADRE_CAT``/
-  ``IDENT_PADRE_CAT`` (its «no vive aquí» merges 2020's other dwelling, dead, unknown).
+  ``IDENT_PADRE_CAT`` (its «no vive aquí» merges 2020's other dwelling, dead, unknown);
+- Censo 2010's 4-digit occupation (``OCUACTIV_C``) and its religion (``OTRAREL_C``, six
+  digits), each with its own catalog: the occupation's first two digits are the SINCO
+  group, the religion's group gives ``RELIGION_CAT`` (:data:`_RELIGION_2010`).
+
+The coarse occupation is SINCO's two-digit group, labelled as in SINCO 2019; the 2010/2015
+group 59, which SINCO 2019 dropped, joins 52 (:data:`_RECODE`). The coarse activity is the
+SCIAN sector, the same in the 2010, 2015 and 2020 catalogs (2010's item: ``ACTTRAB_C``).
 
 An unspecified entity (2020: 997) counts as ``OtraEnt`` in every edition, the legacy rule;
 INEGI's tabulados count it as not specified (a few hundred persons per edition).
@@ -110,6 +117,10 @@ _RECODE: dict[str, dict[str, dict[int, int]]] = {
         "SITUA_CONYUGAL": {6: 8},
         # «¿Dónde vive la pareja?»: 98 = does not know where, so not in this dwelling (96).
         "IDENT_PAREJA": {98: 96},
+        # SINCO 2011's only subgroup of its group 59 («Otras ocupaciones en servicios
+        # personales y vigilancia, no clasificadas anteriormente»): SINCO 2019 dropped the
+        # group and added 529 «Otros trabajadores en servicios personales no clasificados».
+        "OCUPACION_C": {599: 529},
     },
     "2010": {
         # 6 = private, 7 = other, 8 = no entitlement, 9 = not specified (2020: 07, 08, 09, 99);
@@ -127,12 +138,15 @@ _RECODE: dict[str, dict[str, dict[int, int]]] = {
         "RES05EDO_C": {900: 999, 999: 997},
         "LNACPAIS_C": {600: 998, 700: 997, 999: 998},
         "RES05PAI_C": {600: 998, 700: 997, 999: 998},
+        # The 4-digit SINCO of 2010 (TC_OCUPACION_2010): 5999 is group 59 (as 2015's 599).
+        "OCUACTIV_C": {5999: 5299},
     },
 }
 
 # A source read under another name in some editions or under harmonize=True.
 _ALIASES = {"ENT": ("ENT", "CVE_ENT"), "SITUA_CONYUGAL": ("SITUA_CONYUGAL", "ESTCON"),
-            "ENT_PAIS_RES_5A": ("ENT_PAIS_RES_5A", "ENT_PAIS_RES10")}
+            "ENT_PAIS_RES_5A": ("ENT_PAIS_RES_5A", "ENT_PAIS_RES10"),
+            "ACTIVIDADES_C": ("ACTIVIDADES_C", "ACTTRAB_C")}
 
 _BLANK = -1  # a blank (not asked) code, as the legacy dictionaries spell it
 _DUMMY = pd.CategoricalDtype([0, 1])
@@ -410,6 +424,30 @@ def _en_vivienda(name: str, item: str, code_item: str | None = None):
     return fn
 
 
+# Censo 2010 religion (``OTRAREL_C``; catalog TC_RELIGION_2010, six digits, the first two
+# the group) → a Censo 2020 code of the same ``RELIGION_CAT`` group: 11 católica, 12 ortodoxa
+# (and 1207xx «cristianos tradicionalistas»), 13 protestantes históricas, 14 pentecostales y
+# evangélicas, 15 bíblicas diferentes de evangélicas, 21–29 the other credos (origen
+# oriental, judaico, islámico, New Age, esotéricas, raíces étnicas, espiritualistas, otros
+# movimientos, cultos populares), 31 sin religión, 99 no especificada.
+_RELIGION_2010 = {11: 1101, 12: 1201, 13: 1307, 14: 1326, 15: 1331, 21: 2303, 22: 2101,
+                  23: 2201, 24: 2401, 25: 2401, 26: 2501, 27: 2701, 28: 2901, 29: 2801,
+                  31: 3101, 99: 9999}
+# Codes whose 2020 counterpart is not their group's: the neo-Israelite movements (2010 a
+# judaic credo, its ITER's POTRAS_REL; 2020's 1325, an evangelical church — 2020's grouping
+# is kept) and «sin adscripción religiosa» (2020's 3104).
+_RELIGION_2010_CODES = {220100: 1325, 310100: 3104}
+
+
+def _religion_2010(src):
+    """Censo 2010's religion → ``RELIGION_CAT`` (:data:`_RELIGION_2010`); a code of another
+    group is left missing (:func:`derive` reports it)."""
+    code = src["OTRAREL_C"]
+    group = code.where(code.between(100000, 999999)) // 10000
+    code2020 = code.map(_RELIGION_2010_CODES).fillna(group.map(_RELIGION_2010))
+    return {"RELIGION_CAT": _mapped(code2020, "personas", "RELIGION_CAT", "RELIGION_CAT")}
+
+
 def _ingtrhog_cat(src):
     return {"INGTRHOG_CAT": _cut(src["INGTRHOG"], "viviendas", "INGTRHOG_CAT", _INCOME_BINS,
                                  _INCOME_LABELS, right=False, blank=2e6)}
@@ -444,9 +482,11 @@ def _registry() -> tuple[_Derivation, ...]:
         D(per, ("INGTRMEN_CAT",), ("INGTRMEN",), _ALL, _ingtrmen_cat),
         D(per, ("HORTRA_CAT",), ("HORTRA",), ("2010", "2020", "2025"), _hortra_cat),
         D(per, ("EDUC",), ("NIVACAD", "ESCOLARI"), _ALL, _educ),
-        D(per, ("OCUPACION_C_COARSE",), ("OCUPACION_C",), _NEW,
+        D(per, ("OCUPACION_C_COARSE",), ("OCUPACION_C",), _SINCE_2015,
           _coarse("OCUPACION_C", "OCUPACION_C_COARSE", 10)),
-        D(per, ("ACTIVIDADES_C_COARSE",), ("ACTIVIDADES_C",), _NEW,
+        D(per, ("OCUPACION_C_COARSE",), ("OCUACTIV_C",), ("2010",),
+          _coarse("OCUACTIV_C", "OCUPACION_C_COARSE", 100)),
+        D(per, ("ACTIVIDADES_C_COARSE",), ("ACTIVIDADES_C",), _ALL,
           _coarse("ACTIVIDADES_C", "ACTIVIDADES_C_COARSE", 100)),
         D(per, ("DIS_CON", "DIS_LIMI"), _DIS_ITEMS, _NEW, _dis),
         D(per, ("DISCAPACIDAD", "LIMITACION"), _DIS_ITEMS, _NEW, _dis_inegi),
@@ -493,6 +533,7 @@ def _registry() -> tuple[_Derivation, ...]:
           _cat(per, "IDENT_HIJO", "IDENT_HIJO_CAT")),
         D(per, ("RELIGION_CAT",), ("RELIGION",), ("2020",),
           _cat(per, "RELIGION", "RELIGION_CAT")),
+        D(per, ("RELIGION_CAT",), ("OTRAREL_C",), ("2010",), _religion_2010),
         D(viv, ("CLAVIVP_CAT",), ("CLAVIVP",), _SINCE_2015,
           _cat(viv, "CLAVIVP", "CLAVIVP_CAT")),
         D(viv, ("CUADORM_CAT",), ("CUADORM",), _ALL, _cat(viv, "CUADORM", "CUADORM_CAT")),
@@ -652,9 +693,12 @@ _CELLS = {"personas": {"PCON_DISC": {"DISCAPACIDAD": ["Sí"]},
                        "PCON_LIMI": {"LIMITACION": ["Sí"]}}}
 
 # Indicators an edition publishes under its own definition, on its own items: Censo 2010's
-# limitation in activity (its PCLIM_VIS/PCLIM_MOT2 share 2020's names, not their concept).
+# limitation in activity (its PCLIM_VIS/PCLIM_MOT2 share 2020's names, not their concept)
+# and its protestant, evangelical and other biblical religions (2020's protestant/evangelical
+# group, which also holds the neo-Israelite movements its ITER counts in POTRAS_REL).
 _EDITION_CELLS = {
     ("personas", "2010"): {
+        "PNCATOLICA": {"RELIGION_CAT": ["Protestante/cristiano evangélico"]},
         "PCON_LIM": {"LIM_ACTIVIDAD": ["Sí"]},
         "PSIN_LIM": {"LIM_ACTIVIDAD": ["No"]},
         "PCLIM_MOT": {"DISCAP1": ["Caminar, moverse, subir o bajar"]},

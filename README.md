@@ -197,9 +197,9 @@ a difficulty of unknown degree as unspecified, and the disabled as limited too),
 2020 the columns equal `load_extended_*`'s; the EIC 2025 gets the same columns through a
 recode of the items INEGI renumbered (`SITUA_CONYUGAL`, `DHSERSAL`, two country codes).
 EIC 2015 and Censo 2010 get the columns whose items map onto the 2020 codes (age, income,
-education, activity, marital status, health coverage, birthplace and residence five years
-earlier, the partner and parents in the dwelling; `cpv_derivations()` lists them per
-edition), with these differences. Neither edition has `DHSERSAL_IMSS_BIENESTAR`, because
+education, activity, occupation and economic sector, marital status, health coverage,
+birthplace and residence five years earlier, the partner and parents in the dwelling, and
+religion in 2010; `cpv_derivations()` lists them per edition), with these differences. Neither edition has `DHSERSAL_IMSS_BIENESTAR`, because
 neither asked about IMSS-PROSPERA/BIENESTAR. The EIC 2015 commute dummies follow its 7
 modes, with 2015's wording for the three that 2020 splits, and its financing dummies follow
 its one item, whose first code merges INFONAVIT, FOVISSSTE and PEMEX. Censo 2010 measured
@@ -210,10 +210,16 @@ lives in the dwelling, so it gets the co-residence flags but not `IDENT_MADRE_CA
 tabulados in every state, and Censo 2010's residence reproduces its ampliado tabulado, up to
 the few hundred persons whose state is not specified: INEGI counts them as not specified,
 the derived columns as another state (the legacy 2020 rule, kept in every edition).
+The coarse occupation (`OCUPACION_C_COARSE`) is the SINCO two-digit group in every edition
+(Censo 2010 codes four digits, EIC 2015 three, as 2020); SINCO 2019 dropped group 59, so
+its few 2010/2015 workers join group 52, where SINCO 2019 put them. The coarse activity is
+the SCIAN sector. Both reproduce INEGI's 2010 and 2015 tabulados by occupational division
+and sector in every state. Censo 2010's religion follows 2020's grouping, which counts the
+neo-Israelite movements as evangelical (the 2010 ITER: other religions).
 `cpv_constraints(table, period)` filters the census constraint sets (ITER indicator →
 microdata cells) to the indicators an edition publishes and can reproduce, for
 `get_tables_dict`. For Censo 2010 it adds the ITER's own limitation indicators (`PCON_LIM`,
-`PSIN_LIM`, `PCLIM_*`):
+`PSIN_LIM`, `PCLIM_*`) and religion groups (`PNCATOLICA`):
 
 ```python
 per = mxcensus.load_cpv_personas(2025, state=1, derived=True)

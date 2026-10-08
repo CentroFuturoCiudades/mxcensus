@@ -33,6 +33,14 @@ unit.
 | **6c** | Review of the pending decisions (3b–6b) with the user; follow-ups | 6b | ✅ done 2026-10-08 (`STEP_6c.md`): legacy `impute_collective` NA guard (`load_census` loads all 32 states), `FACTOR` for harmonized 1995 frames, INEGI's `DISCAPACIDAD`/`LIMITACION` (+ the CPV constraints); 17 overnight decisions confirmed; then `main` = v0.7.0 |
 | **6d** | The 2015/2010 recoded items in `cpv_derived` (`DHSERSAL`, `CONACT`, `SITUA_CONYUGAL`, `EDUC`, 2015 commute, 2010 `DISCAP`) | 6c | ✅ done 2026-10-08 (`STEP_6d.md`): reviewed recodes (+ 2010 `ESTCON`), no `DHSERSAL_IMSS_BIENESTAR` before 2020, 2015's own commute dummies, 2010 `LIM_ACTIVIDAD` + the 2010 ITER's limitation constraints (`_EDITION_CELLS`); 2015 personas 2 → 33 derived columns, 2010 4 → 17; 2010 constraints 91 → 126; 32-state sweep clean |
 | **6e** | The 2015/2010 birthplace, residence five years earlier, parent/partner pointers; 2015 `FINANCIAMIENTO` | 6d | ✅ done 2026-10-08 (`STEP_6e.md`): 2010's split entity/country items and pointer pairs, new `MADRE_EN_VIVIENDA`/`PADRE_EN_VIVIENDA` (2010–2025), 2015's own financing dummies; 2015 personas 33 → 40, viviendas 5 → 13, 2010 personas 17 → 22; 2010 constraints 126 → 138; 2015 migration/financing and 2010 residence = INEGI's tabulados in all 32 states (up to the unspecified-state group, legacy rule kept); 32-state sweep clean |
+| **6f** | The 2015/2010 coarse occupation/activity (SINCO/SCIAN bridges) and 2010 religion | 6e | ✅ done 2026-10-08 (`STEP_6f.md`): SINCO two-digit group (2010: 4 digits; group 59 → 52, as SINCO 2019), SCIAN sector, 2010 `RELIGION_CAT` by its catalog's groups (neo-Israelites → evangelical, 2020's grouping, user's choice); 2015 personas 40 → 42, 2010 22 → 25; 2010 constraints 138 → 142 (`PNCATOLICA` own cell); occupation/activity = INEGI's 2015 and 2010 tabulados in all 32 states, exactly |
+| **6g** | `PSIND_LIM`'s exact rule | 6f | |
+| **6h** | The EIC 2015 geographic frame (3d leftover) | 6g | |
+| **6i** | Derived columns for 2000/2005 | 6h | |
+
+The user asked (2026-10-08, afternoon) for all four post-6e candidates in one session, one
+unit each (6f–6i), with a local commit per unit; push, merge, version and upload wait for
+the user.
 
 ### Session protocol
 

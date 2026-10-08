@@ -1,11 +1,13 @@
 # CPV family — session handoff
 
-**Status (2026-10-08): units 0–6e are done. `main` = `cpv-integration` = v0.7.1 (through
-6e; 6d + 6e are code and docs only, no data). No unit is queued.**
+**Status (2026-10-08): units 0–6f are done. `main` = v0.7.1 (through 6e); `cpv-integration`
+is ahead by the units of this session (6f onward), committed locally, not pushed. The user
+asked for the four post-6e candidates in one session, one unit each: 6f (done), 6g
+`PSIND_LIM`, 6h the EIC 2015 frame, 6i the 2000/2005 derived columns.**
 - **Released** (registered, uploaded, verified): every edition 1990–2025 (897 `cpv_` files)
   and the Marco Geoestadístico 1995–2025 frames; registry **3751** entries
   (`STEP_6b.md` §Release batch).
-- **Derived columns** (6b, 6d, 6e): `derived=True` on `load_cpv_personas/viviendas/survey`;
+- **Derived columns** (6b, 6d, 6e, 6f): `derived=True` on `load_cpv_personas/viviendas/survey`;
   `cpv_constraints(table, period)` gives the constraints per edition (`STEP_6b.md`).
 - **6c** (review of every pending decision with the user, `STEP_6c.md`): legacy NA guard,
   1995 `FACTOR`, INEGI's `DISCAPACIDAD`/`LIMITACION`.
@@ -18,9 +20,12 @@
   `IDENT_MADRE/PADRE_CAT`, new `MADRE_EN_VIVIENDA`/`PADRE_EN_VIVIENDA` (2010–2025), 2015's
   own `FINANCIAMIENTO_*` dummies; 2010 constraints 126 → 138. Checked against INEGI's
   tabulados in all 32 states.
-- **Merge**: see the status line.
+- **6f** (`STEP_6f.md`): 2015/2010 `OCUPACION_C_COARSE` (SINCO group; 59 → 52, as SINCO
+  2019) and `ACTIVIDADES_C_COARSE` (SCIAN sector), both = INEGI's 2015/2010 tabulados by
+  division and sector in all 32 states; 2010 `RELIGION_CAT` (2020's grouping: the
+  neo-Israelites are evangelical); 2010 constraints 138 → 142.
 
-Design: [`PLAN.md`](PLAN.md) (unit table: all ✅). Recent units: [`STEP_6e.md`](STEP_6e.md),
+Design: [`PLAN.md`](PLAN.md). Recent units: [`STEP_6f.md`](STEP_6f.md), [`STEP_6e.md`](STEP_6e.md),
 [`STEP_6d.md`](STEP_6d.md),
 [`STEP_6c.md`](STEP_6c.md), [`STEP_6b.md`](STEP_6b.md), … [`STEP_0_probe.md`](STEP_0_probe.md).
 
@@ -30,24 +35,22 @@ files); `wsl:~/mxcensus` is at v0.7.0 (pull v0.7.1 before running 6d/6e code the
 
 ## Kickoff prompt for the next session
 
-> Continue the CPV census-family work in this repo (branch cpv-integration; main = v0.7.0).
+> Continue the CPV census-family work in this repo (branch cpv-integration; main = v0.7.1).
 > Read docs/cpv/HANDOFF.md first. Every planned unit is done; agree the next unit with me
 > (candidates in HANDOFF §Next) before implementing it, following the session protocol in
 > docs/cpv/PLAN.md. Use .venv/bin/python, not uv run. Run wsl tasks without asking; ask me
 > before committing, pushing, installing packages or uploading.
 
-## Next: candidates (none decided)
+## Next: this session's remaining units
 
-1. **The rest of the 2015/2010 derived items** (6e did migration, pointers, financing):
-   - occupation/activity coarse codes: 2015/2010 use older SINCO/SCIAN (2010: other
-     catalogs, `TC_OCUPACION_2010`/`TC_SCIAN_2010`), so `OCUPACION_C_COARSE`/
-     `ACTIVIDADES_C_COARSE` need a catalog bridge to 2020's coarse groups;
-   - 2010 religion (`OTRAREL_C`, catalog `TC_RELIGION_2010`; the 2010 ITER has
-     `PCATOLICA`/`PSIN_RELIG`, so constraints would follow). 2015 asked no religion.
-2. **`PSIND_LIM`'s exact rule.** The 2025 estimate is 1,263,545 for state 01; the closest
-   rule tried gives 1,263,337.
-3. **The EIC 2015 geographic frame** (3d leftover, `STEP_3d.md`).
-4. **Derived columns for 2000/2005** (none yet; their items differ the most).
+1. **6g — `PSIND_LIM`'s exact rule** (found: not disabled, not limited, no mental condition,
+   leaving out persons whose six items and `DIS_MENTAL` are all unspecified; exact in all 32
+   states, 2,471 municipalities and the nation of the EIC 2025). To do: a derived flag and
+   the CPV cell.
+2. **6h — the EIC 2015 frame** (3d leftover, `STEP_3d.md`): MG 2014 v6.2 (Aug 2014, 2,457
+   municipalities = the EIC 2015's) is the likely frame; its UPC is unknown. Candidates
+   downloadable: MG 2013 v6.0 (702825292829), MG junio 2016 (702825217341).
+3. **6i — derived columns for 2000/2005** (their items differ the most).
 
 ## Open questions for the user
 

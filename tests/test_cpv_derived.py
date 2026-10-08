@@ -60,6 +60,7 @@ _GAPS = {
     ("2015", "SITUA_CONYUGAL"): {6, 7},        # casada(o) not split by civil/religious
     # 2015's FD declares only 999; 997/998 are rows of its catalog (TC_ENTIDAD_PAIS_2015)
     ("2015", "ENT_PAIS_NAC"): {997, 998}, ("2015", "ENT_PAIS_RES_5A"): {997, 998},
+    ("2010", "ACTIVIDADES_C"): {9999},         # ACTTRAB_C: a row of TC_SCIAN_2010, no sentinel
 }
 _EXTRAS = {
     ("2010", "DHSERSAL2"): {1}, ("2015", "DHSERSAL2"): {1},       # IMSS as the 2nd option
@@ -79,6 +80,9 @@ _OWN_CODES = {
     **{("2010", item): {99} for item in ("IDMADRE", "IDPADRE", "IDCONYUGE")},
     **{("2010", item): {88, 99} for item in ("IDMADREC", "IDPADREC", "IDCONYUGEC")},
     ("2015", "FINANCIAMIENTO"): set(d._financiamiento_2015()) - {d._BLANK},
+    # 2010's 4-digit occupation and 6-digit religion: catalogs, no sentinel in the FD
+    # (test_catalog_codes_derive reads the catalogs)
+    ("2010", "OCUACTIV_C"): set(), ("2010", "OTRAREL_C"): set(),
 }
 _LATER_OPTIONS = {*d._ESC[1:], *d._TRAB[1:]}      # list fewer codes (options are ordered)
 # Numeric in 2010/2015, categorical in 2020 (same values; the pointers: row numbers).
@@ -133,6 +137,64 @@ def test_recode_tables():
     assert r10["LNACEDO_C"] == r10["RES05EDO_C"] == {900: 999, 999: 997}
     assert r10["LNACPAIS_C"] == r10["RES05PAI_C"]
     assert set(r10["LNACPAIS_C"].values()) == {997, 998}
+    # SINCO 2019 dropped group 59: 2015's 599 and 2010's 5999 join 52 (529)
+    assert r15["OCUPACION_C"] == {599: 529} and r10["OCUACTIV_C"] == {5999: 5299}
+
+
+_FD = Path(__file__).resolve().parent.parent / "data" / "dict" / "fd"
+# The catalog-coded sources: (edition, catalog ZIP, catalog, raw item).
+_CATALOGS = [
+    ("2010", "catalogos_2010_dbf.zip", "TC_OCUPACION_2010", "OCUACTIV_C"),
+    ("2010", "catalogos_2010_dbf.zip", "TC_SCIAN_2010", "ACTTRAB_C"),
+    ("2010", "catalogos_2010_dbf.zip", "TC_RELIGION_2010", "OTRAREL_C"),
+    ("2015", "eic2015_catalogos.zip", "TC_OCUPACION_2015", "OCUPACION_C"),
+    ("2015", "eic2015_catalogos.zip", "TC_SECTOR_2015", "ACTIVIDADES_C"),
+    ("2020", "Censo2020_clasificaciones_CPV_csv.zip", "OCUPACION", "OCUPACION_C"),
+    ("2020", "Censo2020_clasificaciones_CPV_csv.zip", "ACTIVIDAD", "ACTIVIDADES_C"),
+    ("2020", "Censo2020_clasificaciones_CPV_csv.zip", "RELIGION", "RELIGION"),
+]
+
+
+def _catalog(period: str, zip_name: str, stem: str) -> dict[str, str]:
+    import sys
+
+    sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "scripts"))
+    import _dict_fd
+
+    return _dict_fd.read_catalogs(_FD / period / zip_name)[stem]
+
+
+@pytest.mark.parametrize("period,zip_name,stem,item", _CATALOGS)
+def test_catalog_codes_derive(period, zip_name, stem, item):
+    """Every code of an edition's occupation, activity and religion catalogs (INEGI's
+    classification tables, ``build_cpv.py --dictionary``) has a derived category."""
+    if not (_FD / period / zip_name).exists():
+        pytest.skip(f"{period} catalogs not fetched (build_cpv.py --dictionary)")
+    codes = pd.Series(sorted(_catalog(period, zip_name, stem)))
+    derivations = [dv for dv in d._derivations("personas", period)
+                   if any(item in d._ALIASES.get(s, (s,)) for s in dv.sources)]
+    assert len(derivations) == 1
+    dv = derivations[0]
+    (source,) = dv.sources
+    src = pd.DataFrame({source: d._codes(codes, d._RECODE.get(period, {}).get(source))})
+    ((name, values),) = dv.func(src).items()
+    assert values.notna().all(), codes[values.isna().to_numpy()].tolist()
+    assert "Blanco por pase" not in set(values)
+    if item in ("OCUACTIV_C", "OCUPACION_C"):              # SINCO's group, 59 → 52
+        width = len(codes[0])
+        groups = {c: int(c[:2]) for c in codes}
+        assert set(groups.values()) - {59} <= set(d._legacy_map("personas", name))
+        if period != "2020":
+            assert {c for c, g in groups.items() if g == 59} == {"5" + "9" * (width - 1)}
+    if item == "OTRAREL_C":                                 # the 2010 ITER's groups (6f)
+        by = pd.Series(codes.str[:2].to_numpy(), index=values.astype(str).to_numpy())
+        assert set(by["Católica"]) == {"11"}
+        assert set(by["Protestante/cristiano evangélico"]) == {"13", "14", "15", "22"}
+        assert set(by["Otros credos"]) == {"12", *(str(g) for g in range(21, 30))}
+        assert set(by["Sin religión / Sin adscripción religiosa"]) == {"31"}
+        neo = codes[values.astype(str).eq("Protestante/cristiano evangélico").to_numpy()
+                    & codes.str.startswith("22").to_numpy()]
+        assert neo.tolist() == ["220100"]                  # neo-Israelites: 2020's grouping
 
 
 def test_cpv_derivations_listing():
@@ -153,14 +215,15 @@ def test_cpv_derivations_listing():
                for label in d._traslado_2015(item).values()}
     migration = {"ENT_PAIS_NAC_CAT", "ENT_PAIS_RES_CAT"}
     coresidence = {"IDENT_PAREJA_CAT", "MADRE_EN_VIVIENDA", "PADRE_EN_VIVIENDA"}
+    coarse = {"OCUPACION_C_COARSE", "ACTIVIDADES_C_COARSE"}
     assert p15 == {"EDAD_CAT", "INGTRMEN_CAT", "EDUC", "CONACT_CAT", "SITUA_CONYUGAL_CAT",
                    "IDENT_MADRE_CAT", "IDENT_PADRE_CAT", *migration, *coresidence,
-                   *dhsersal, *commute}
+                   *dhsersal, *commute, *coarse}
     assert {"MED_TRASLADO_ESC_Caminando", "MED_TRASLADO_TRAB_Transporte de personal"} <= p15 & p20
     assert {"MADRE_EN_VIVIENDA", "PADRE_EN_VIVIENDA"} <= p20 & p25
     assert set(mxcensus.cpv_derivations("personas", 2010)["COLUMN"]) == {
         "EDAD_CAT", "INGTRMEN_CAT", "HORTRA_CAT", "EDUC", "CONACT_CAT", "SITUA_CONYUGAL_CAT",
-        "LIM_ACTIVIDAD", *migration, *coresidence, *dhsersal}
+        "LIM_ACTIVIDAD", "RELIGION_CAT", *migration, *coresidence, *dhsersal, *coarse}
     assert set(mxcensus.cpv_derivations("viviendas", 2010)["COLUMN"]) == {
         "CUADORM_CAT", "TOTCUART_CAT", "DRENAJE_CAT", "INGTRHOG_CAT"}
     v15 = set(mxcensus.cpv_derivations("viviendas", 2015)["COLUMN"])
@@ -288,7 +351,8 @@ def _persons_2015() -> pd.DataFrame:
         "MED_TRASLADO_TRAB2": ["3", ""], "MED_TRASLADO_TRAB3": ["", ""], "ENT": ["01", "01"],
         "ENT_PAIS_NAC": ["014", "221"], "ENT_PAIS_RES10": ["001", "997"],
         "IDENT_MADRE": ["3", "98"], "IDENT_PADRE": ["97", "99"],
-        "IDENT_PAREJA": ["98", ""]}, dtype="str")
+        "IDENT_PAREJA": ["98", ""], "OCUPACION_C": ["599", ""],
+        "ACTIVIDADES_C": ["9399", ""]}, dtype="str")
 
 
 def test_derive_persons_2015_recodes():
@@ -317,6 +381,10 @@ def test_derive_persons_2015_recodes():
     assert list(out["IDENT_PAREJA_CAT"]) == ["No", "Blanco por pase"]  # 98: no sabe dónde
     assert list(out["MADRE_EN_VIVIENDA"]) == ["Sí", "No"]
     assert list(out["PADRE_EN_VIVIENDA"]) == ["No", "No especificado"]
+    # SINCO 2011's 599 (group 59, gone in SINCO 2019) → 52; the SCIAN sector of 9399
+    assert list(out["OCUPACION_C_COARSE"]) == [
+        "Trabajadores en cuidados personales y del hogar", "Blanco por pase"]
+    assert out.loc[0, "ACTIVIDADES_C_COARSE"].startswith("Actividades legislativas")
     for col, dtype in d.derived_dtypes("personas", "2015").items():
         assert out[col].dtype == dtype, col
 
@@ -333,7 +401,9 @@ def _persons_2010() -> pd.DataFrame:
         "RES05EDO_C": ["", "", "900"], "RES05PAI_C": ["", "600", ""],
         "IDMADRE": ["02", "", "99"], "IDMADREC": ["", "88", "99"],
         "IDPADRE": ["99", "", ""], "IDPADREC": ["", "88", "88"],
-        "IDCONYUGE": ["", "57", ""], "IDCONYUGEC": ["", "", ""]}, dtype="str")
+        "IDCONYUGE": ["", "57", ""], "IDCONYUGEC": ["", "", ""],
+        "OCUACTIV_C": ["", "5999", "9888"], "ACTTRAB_C": ["", "3110", "9999"],
+        "OTRAREL_C": ["110300", "220100", "310100"]}, dtype="str")
     for i in range(1, 8):
         df[f"DISCAP{i}"] = ""
     df.loc[1, ["DISCAP2", "DISCAP7"]] = ["11", "16"]
@@ -364,6 +434,15 @@ def test_derive_persons_2010_recodes():
                                              IDCONYUGEC=["88", "", "99"]), "personas", 2010)
     assert list(pareja["IDENT_PAREJA_CAT"]) == ["No", "Sí", "No especificado"]
     assert "IDENT_MADRE_CAT" not in out                    # 88 merges 2020's 96/97/98
+    # 4-digit SINCO: the first two digits (5999: group 59 → 52); SCIAN sector (ACTTRAB_C)
+    assert list(out["OCUPACION_C_COARSE"]) == [
+        "Blanco por pase", "Trabajadores en cuidados personales y del hogar",
+        "Otros trabajadores en actividades elementales y de apoyo, no clasificados anteriormente"]
+    assert list(out["ACTIVIDADES_C_COARSE"]) == ["Blanco por pase", "Industrias manufactureras",
+                                                 "No especificado"]
+    # religion by 2010 group; the neo-Israelite movements (220100) as in 2020 (evangelical)
+    assert list(out["RELIGION_CAT"]) == ["Católica", "Protestante/cristiano evangélico",
+                                         "Sin religión / Sin adscripción religiosa"]
     for col, dtype in d.derived_dtypes("personas", "2010").items():
         assert out[col].dtype == dtype, col
 
@@ -384,6 +463,10 @@ def test_derive_older_editions_unknown_codes():
     with pytest.raises(ValueError, match="EDUC"):                          # Doctorado, 7th year
         d.derive(_persons_2010().assign(NIVACAD=["12", "05", "99"], ESCOLARI=["07", "03", "99"]),
                  "personas", 2010)
+    for code in ("410000", "1101", ""):                   # no such group; 2020's code; blank
+        with pytest.raises(ValueError, match="RELIGION_CAT"):
+            d.derive(_persons_2010().assign(OTRAREL_C=["110300", code, "310100"]),
+                     "personas", 2010)
 
 
 def test_derive_errors():
@@ -416,6 +499,9 @@ def test_cpv_constraints_per_edition():
     assert p10["PCLIM_VIS"] == {"DISCAP2": ["Ver, aun usando lentes"]}
     assert p10["PNACOE"] == {"ENT_PAIS_NAC_CAT": ["OtraEnt"]}          # 6e: migration
     assert {"PNACENT_F", "PRES2015", "PRESOE15_M"} <= set(p10)        # 2010: PRES2005 …
+    assert {"PCATOLICA", "POTRAS_REL", "PSIN_RELIG"} <= set(p10)       # 6f: 2010 religion
+    assert p10["PNCATOLICA"] == {"RELIGION_CAT": ["Protestante/cristiano evangélico"]}
+    assert "PRO_CRIEVA" not in p10 and "PNCATOLICA" not in mxcensus.cpv_constraints("personas", 2020)
     assert "PCON_LIM" not in mxcensus.cpv_constraints("personas", 2020)
     assert mxcensus.cpv_constraints("viviendas", 2010) == {}          # no CLAVIVP_CAT in 2010
     p25 = mxcensus.cpv_constraints("personas", 2025)
@@ -581,6 +667,41 @@ def test_financing_2015_equals_tabulado(local_mirror):
     assert [100 * c / total for c in counts] == pytest.approx(published, abs=1e-9)
     dummies = viv[[f"FINANCIAMIENTO_{v}" for v in d._financiamiento_2015().values()]]
     assert (dummies.astype(int).sum(axis=1) == 1).all()             # exactly one per dwelling
+
+
+# INEGI's tabulados, row «Total»: the employed aged 12–130 by occupational division (SINCO
+# 2011 / CUO 2010 first digit, 1–9, then not specified) and by grouped SCIAN sector
+# (agriculture; mining, manufacturing, utilities; construction; trade; services; not
+# specified). EIC 2015 «08_caracteristicas_economicas.xls» sheets 06/07 («Valor»); Censo
+# 2010 ampliado «08_02A_ESTATAL.xls»/«08_03A_ESTATAL.xls» («Parámetro»). All 32 states,
+# both sexes and the nation: STEP_6f.md.
+_EMPLOYED = {
+    ("2015", 1): ((17_737, 106_317, 34_706, 76_476, 46_240, 21_391, 59_901, 79_558, 74_660,
+                   2_733), (27_231, 122_717, 41_258, 94_852, 229_978, 3_683)),
+    ("2010", 3): ((20_050, 53_098, 23_149, 41_193, 34_678, 14_175, 34_447, 13_161, 50_540,
+                   2_794), (26_361, 22_555, 27_655, 54_657, 153_251, 2_806)),
+}
+_SECTORS = ({11}, {21, 22, 31, 32, 33}, {23}, {43, 46},
+            {48, 49, 51, 52, 53, 54, 55, 56, 61, 62, 71, 72, 81, 93}, {99})
+
+
+@_REAL_SKIP
+@pytest.mark.parametrize("period,state", sorted(_EMPLOYED))
+def test_occupation_activity_equal_tabulados(local_mirror, period, state):
+    """The coarse occupation and activity reproduce INEGI's tabulados (SINCO's group 59,
+    gone in SINCO 2019, stays in division 5 as 52)."""
+    per = mxcensus.load_cpv_personas(period, state=state, derived=True, labels=False)
+    emp = per[per["OCUPACION_C_COARSE"].ne("Blanco por pase")
+              & pd.to_numeric(per["EDAD"]).between(12, 130)]
+    code = {name: emp[name].astype(str).map(
+                {v: k for k, v in d._legacy_map("personas", name).items()}).astype(int)
+            for name in ("OCUPACION_C_COARSE", "ACTIVIDADES_C_COARSE")}
+    occ = code["OCUPACION_C_COARSE"]
+    division = occ.floordiv(10).where(occ.ne(99), 10)
+    divisions = tuple(round(emp.loc[division.eq(i), "FACTOR"].sum()) for i in range(1, 11))
+    sectors = tuple(round(emp.loc[code["ACTIVIDADES_C_COARSE"].isin(g), "FACTOR"].sum())
+                    for g in _SECTORS)
+    assert (divisions, sectors) == _EMPLOYED[period, state]
 
 
 # PSIND_LIM's cells (no difficulty in any activity, no mental condition) are the legacy
