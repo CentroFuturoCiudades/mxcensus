@@ -1,18 +1,18 @@
 # CPV family — session handoff
 
-**Status (2026-10-07, overnight): units 0–3b are complete; 3c is code-complete with its
-32-state verification on `wsl` pending.**
+**Status (2026-10-08, overnight): units 0–3c are complete. 3c's 32-state verification ran
+on the Mac, which now holds the full CPV mirror (`STEP_3c.md` §Verification).**
 - The Encuesta Intercensal 2025 and the **Censo 2020** are released: registered, uploaded
   and fetchable.
 - **EIC 2015** (3a), the **Censo 2010 microdata** (3b) and the **2010 ITER/AGEB** (3c) are
   built on `wsl` (64 + 96 + 64 files), **not registered or uploaded**; 3a–3d upload
   together in 3d. Every Σ `FACTOR` equals INEGI's tabulados exactly.
 - 3c added `load_cpv_iter`/`load_cpv_ageb`/`load_cpv_census` and `cpv_iter_crosswalk.yaml`.
-  `load_cpv_census(2020, state=1)` equals the legacy `load_census(state=1)`.
+  `load_cpv_census(2020)` equals the legacy `load_census` in all 32 states.
 - **`wsl` became unreachable mid-3c**: Tailscale SSH asks for an interactive re-login
   (`ssh wsl` prints a `login.tailscale.com/a/…` URL). **The user must re-authenticate**:
-  run `ssh wsl` in a terminal and open the URL. Then finish §Pending 3c verification below
-  before starting 3d.
+  run `ssh wsl` in a terminal and open the URL. Uploads need `wsl` (the Mac has no HF
+  client or token).
 
 The user asked (2026-10-07, before going to sleep) for all remaining phases to run in that
 session without their input, and allowed commits, pushes and HF uploads (not package
@@ -35,35 +35,19 @@ Branch: `cpv-integration`, version **0.6.0** (`main` = `v0.6.0`). The registry s
 - The Mac has state 01 of every edition, all 2010/2015/2020 dictionaries in `data/dict/fd/`,
   and the commits.
 
-## Pending 3c verification (first thing once `wsl` is reachable)
+## 3c verification — done on the Mac
 
-1. Bring `wsl:~/mxcensus` to the pushed branch:
-   ```bash
-   git checkout -- . && git clean -n          # review, then:
-   rm scripts/_dbf.py src/mxcensus/_yaml/variables_cpv_{viviendas,personas}_g0{4,5}.yaml \
-      src/mxcensus/_yaml/variables_cpv_migrantes_g0{3,4}.yaml
-   git pull --ff-only
-   ```
-2. On `wsl`, in order:
-   - `build_cpv.py --variables`: the 2010 ITER dictionary changed with the `TAMLOC` type;
-   - `--report-only`;
-   - `--validate --jobs 16`: expect 0/481;
-   - `--crosswalk`: it must equal the committed one; `git diff` must be empty for the
-     crosswalk, the schema map and the 19 YAMLs.
-
-   Commit the regenerated reports.
-3. The CPV tests over all 32 states (`tests/test_cpv.py tests/test_cpv_aggregates.py
-   tests/test_schema_groups.py tests/test_cli.py`, `run_in_background`, about 2 h). This is
-   the gate: `test_census_2020_equals_legacy` for every state. Also check 3b's run log
-   `pytest_3b.log` (it was started before the outage).
-4. Write the `wsl` results into `STEP_3c.md`/`STEP_3b.md`, tick 3c, push.
+`wsl` stayed unreachable, so the Mac got the full mirror (2020/2025 from the bucket, 2010/2015
+rebuilt from INEGI) and ran the checks there: metadata byte-identical, `--validate` 0/481,
+the 32-state CPV tests (`STEP_3c.md` §Verification). `wsl:~/mxcensus` still needs to be
+brought to the branch before its next use (`git checkout -- . && git pull --ff-only`, after
+removing the untracked 3b files listed in `git status`), and `~/mxcensus3c` can be deleted.
 
 ## Kickoff prompt for the next session
 
 > Continue the CPV census-family integration in this repo (branch cpv-integration).
 > Read docs/cpv/HANDOFF.md first, then the parts of docs/cpv/PLAN.md it points to.
-> First finish the pending 3c verification on wsl (HANDOFF §Pending 3c verification),
-> then execute unit 3d (MG 2010 v5.0 national ZIP → per-state mg_*_2010_NN; identify the
+> Execute unit 3d (MG 2010 v5.0 national ZIP → per-state mg_*_2010_NN; identify the
 > EIC 2015 frame; registry for 3a–3d; HF upload + verify; clean-cache fetch; CLI/README/
 > CLAUDE.md for 2010/2015; version bump) following the session protocol at the top of
 > PLAN.md. Use .venv/bin/python, not uv run. Run wsl tasks without asking; ask me before

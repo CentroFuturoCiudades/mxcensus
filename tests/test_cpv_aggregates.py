@@ -256,16 +256,88 @@ _LEGACY_STATES = [s for s in _AGG_STATES["2020"]
                   if all((_MIRROR / f"{d}_{s:02d}.parquet").exists() for d in ("iter", "resargebub"))]
 
 
+# The frozen legacy load_census raises in these states (aggregate.impute_collective's
+# ``if diff == 0`` on a reserved total: TypeError, boolean value of NA is ambiguous); there
+# the legacy chain is compared with its imputation swapped for the NA-safe port.
+_LEGACY_NA_STATES = {8, 15, 16}
+
+
 @pytest.mark.parametrize("state", _LEGACY_STATES)
-def test_census_2020_equals_legacy(local_mirror, state):
+def test_census_2020_equals_legacy(local_mirror, monkeypatch, state):
     """The 3c gate: ``load_cpv_census(2020, state)`` = the legacy ``load_census(state)``
     (values, columns, missing pattern), once its integer codes are padded strings."""
+    from mxcensus import aggregate
     new = mxcensus.load_cpv_census(2020, state=state)
+    if state in _LEGACY_NA_STATES:
+        with pytest.raises(TypeError, match="boolean value of NA is ambiguous"):
+            mxcensus.load_census(state=state)
+        monkeypatch.setattr(aggregate, "impute_collective", ca._impute_collective)
     old = mxcensus.load_census(state=state)
     for a, b in zip(new, old):
         b = _legacy_aligned(b)
         assert list(a.columns) == list(b.columns) and a.index.equals(b.index)
         assert a.equals(b)
+
+
+def _collective_frames():
+    """A municipality → locality pair for the collective imputation: municipality 001's
+    collective population is all in locality 0001 (so 0002's missing POBHOG = its POBTOT),
+    002's is not accounted for, and 003's total is reserved (the legacy loop raises)."""
+    mun = pd.DataFrame({"POBTOT": [100, 50, 30], "POBHOG": [90, 40, pd.NA],
+                        "TVIVHAB": [20, 10, 6], "TOTHOG": [20, 10, 6]},
+                       index=pd.MultiIndex.from_tuples([("01", m) for m in ("001", "002", "003")],
+                                                       names=["CVE_ENT", "CVE_MUN"])).astype("Int64")
+    loc = pd.DataFrame({"POBTOT": [80, 20, 45, 5, 30], "POBHOG": [70, pd.NA, 40, pd.NA, pd.NA],
+                        "TVIVHAB": [16, 4, 9, 1, 6], "TOTHOG": [16, pd.NA, 9, 1, 6]},
+                       index=pd.MultiIndex.from_tuples(
+                           [("01", "001", "0001"), ("01", "001", "0002"), ("01", "002", "0001"),
+                            ("01", "002", "0002"), ("01", "003", "0001")],
+                           names=["CVE_ENT", "CVE_MUN", "CVE_LOC"])).astype("Int64")
+    for df in (mun, loc):
+        df["POBCOL"], df["TOTCOL"] = df.POBTOT - df.POBHOG, df.TVIVHAB - df.TOTHOG
+    return mun, loc
+
+
+def test_impute_collective_na_safe():
+    from mxcensus import aggregate
+    mun, loc = _collective_frames()
+    out = ca._impute_collective(mun, loc)
+    assert out.loc[("01", "001", "0002"), "POBHOG"] == 20            # forced: no collective
+    assert out.loc[("01", "001", "0002"), "TOTHOG"] == 4
+    assert pd.isna(out.loc[("01", "002", "0002"), "POBHOG"])        # 5 unaccounted for
+    assert pd.isna(out.loc[("01", "003", "0001"), "POBHOG"])        # reserved total: nothing
+    with pytest.raises(TypeError, match="boolean value of NA is ambiguous"):
+        aggregate.impute_collective(mun, loc)                        # the frozen legacy loop
+    known = mun.index[:2]                                            # without the NA total
+    fine = loc[loc.index.droplevel("CVE_LOC").isin(known)]
+    legacy = aggregate.impute_collective(mun.loc[known], fine)
+    assert ca._impute_collective(mun.loc[known], fine).equals(legacy)
+
+
+def test_census_checks_2010_tvivhab_shortfall():
+    """2010's AGEBs may count fewer inhabited dwellings than their locality, never more;
+    population and dwellings must add up exactly (2020: all three)."""
+    idx = pd.MultiIndex.from_tuples([("01", "001", "0001")], names=["CVE_ENT", "CVE_MUN", "CVE_LOC"])
+    st = pd.DataFrame({"POBTOT": [10], "VIVTOT": [5], "TVIVHAB": [4]},
+                      index=pd.Index(["01"], name="CVE_ENT")).astype("Int64")
+    mun = pd.DataFrame(st.to_numpy(), columns=st.columns,
+                       index=pd.MultiIndex.from_tuples([("01", "001")], names=["CVE_ENT", "CVE_MUN"])).astype("Int64")
+    loc = pd.DataFrame(st.to_numpy(), columns=st.columns, index=idx).astype("Int64")
+
+    def agebs(tvivhab):
+        a = pd.DataFrame({"POBTOT": [6, 4], "VIVTOT": [3, 2], "TVIVHAB": tvivhab},
+                         index=pd.MultiIndex.from_tuples([("01", "001", "0001", "0010"),
+                                                          ("01", "001", "0001", "0025")],
+                                                         names=[*idx.names, "CVE_AGEB"]))
+        return a.astype("Int64")
+    it = {"estatal": st, "municipal": mun, "localidad": loc}
+    ag = {"estatal": st, "municipal": mun, "localidad": loc}
+    ca._census_checks("t", it, {**ag, "ageb": agebs([2, 2])}, "2020")
+    ca._census_checks("t", it, {**ag, "ageb": agebs([2, 1])}, "2010")
+    with pytest.raises(ValueError, match="do not add up to their locality's"):
+        ca._census_checks("t", it, {**ag, "ageb": agebs([2, 1])}, "2020")
+    with pytest.raises(ValueError, match="more than their locality's"):
+        ca._census_checks("t", it, {**ag, "ageb": agebs([3, 2])}, "2010")
 
 
 @pytest.mark.parametrize("state", _AGG_STATES["2010"])

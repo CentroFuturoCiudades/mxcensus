@@ -23,7 +23,7 @@ import numpy as np
 import pandas as pd
 
 from mxcensus import _schema_groups as _sg
-from mxcensus.cpv import _SKIP, _labels_for, _load_cpv_raw
+from mxcensus.cpv import _SKIP, _edition, _labels_for, _load_cpv_raw
 
 # ESTIMADOR (INEGI's row label) → short name, in the published row order.
 _ESTIMADOR: dict[str, str] = {
@@ -297,11 +297,52 @@ def _zero_empty_blocks(df: pd.DataFrame) -> pd.DataFrame:
     return out
 
 
-def _census_checks(label: str, it: dict, ag: dict) -> None:
+# Editions whose urban AGEBs count fewer inhabited dwellings (TVIVHAB) than their locality:
+# in CPV 2010, 855 of the 4,525 urban localities, by 1-25 dwellings (never more), while
+# POBTOT and VIVTOT add up exactly everywhere. CPV 2020's AGEBs add up exactly.
+_AGEB_TVIVHAB_SHORT = frozenset({"2010"})
+
+
+def _impute_collective(coarse: pd.DataFrame, fine: pd.DataFrame) -> pd.DataFrame:
+    """``aggregate.impute_collective``, safe for missing values: where a coarse unit's
+    collective population (dwellings) is fully accounted for by its fine units (the
+    difference of the ``POBCOL``/``TOTCOL`` totals is 0), a fine unit's missing ``POBHOG``
+    (``TOTHOG``) is its ``POBTOT`` (``TVIVHAB``); then ``POBCOL``/``TOTCOL`` are recomputed.
+    A difference that is itself missing (a coarse total reserved) imputes nothing — the
+    legacy loop's ``if diff == 0`` raises on it instead (``TypeError: boolean value of NA
+    is ambiguous``, the legacy ``load_census`` of states 08, 15 and 16)."""
+    fine = fine.copy()
+    tot = ["POBTOT", "POBHOG", "POBCOL", "TVIVHAB", "TOTHOG", "TOTCOL"]
+    keys = list(coarse.index.names)
+    diff = coarse[tot] - fine.groupby(level=keys)[tot].sum()
+    parent = fine.index.droplevel(list(range(len(keys), fine.index.nlevels)))
+    for zero, target, source in (("POBCOL", "POBHOG", "POBTOT"), ("TOTCOL", "TOTHOG", "TVIVHAB")):
+        done = diff.index[diff[zero].eq(0).fillna(False).to_numpy(bool)]
+        mask = parent.isin(done.intersection(coarse.index)) & fine[target].isna().to_numpy()
+        fine.loc[mask, target] = fine.loc[mask, source]
+    fine["POBCOL"] = fine["POBTOT"] - fine["POBHOG"]
+    fine["TOTCOL"] = fine["TVIVHAB"] - fine["TOTHOG"]
+    return fine
+
+
+def _add_collective_cols(st, mun, loc, ageb):
+    """``aggregate.add_collective_cols`` with :func:`_impute_collective`: ``POBCOL`` and
+    ``TOTCOL`` on every level, imputed municipality → locality and locality → AGEB."""
+    st, mun, loc, ageb = (df.copy() for df in (st, mun, loc, ageb))
+    for df in (st, mun, loc, ageb):
+        df["POBCOL"] = df["POBTOT"] - df["POBHOG"]
+        df["TOTCOL"] = df["TVIVHAB"] - df["TOTHOG"]
+    loc = _impute_collective(mun, loc)
+    ageb = _impute_collective(loc.loc[ageb.index.droplevel(-1).unique()], ageb)
+    return st, mun, loc, ageb
+
+
+def _census_checks(label: str, it: dict, ag: dict, period: str = "") -> None:
     """``aggregate.sanity_checks`` on string keys: the ITER and AGEB files agree on the
     state, municipalities and (urban) localities; municipalities add up to the state;
     localities add up to their municipality (exactly for the population and dwelling
-    totals, never above it otherwise); urban AGEBs add up to their locality."""
+    totals, never above it otherwise); urban AGEBs add up to their locality (2010's
+    inhabited dwellings may fall short, never above: :data:`_AGEB_TVIVHAB_SHORT`)."""
     def check(ok: bool, what: str) -> None:
         if not ok:
             raise ValueError(f"CPV {label}: census check failed — {what}")
@@ -325,8 +366,13 @@ def _census_checks(label: str, it: dict, ag: dict) -> None:
     check(bool((delta[exact] == 0).all(axis=None)),
           f"localities do not add up to their municipality's {exact}")
     agebs = ag["ageb"].groupby(level=_ITER_INDEX)[exact].sum()
-    check(bool((agebs == it["localidad"].loc[agebs.index, exact]).all(axis=None)),
-          f"AGEBs do not add up to their locality's {exact}")
+    short = ["TVIVHAB"] if str(period) in _AGEB_TVIVHAB_SHORT else []
+    equal = [c for c in exact if c not in short]
+    parent = it["localidad"].loc[agebs.index, exact]
+    check(bool((agebs[equal] == parent[equal]).all(axis=None)),
+          f"AGEBs do not add up to their locality's {equal}")
+    check(bool((agebs[short] <= parent[short]).all(axis=None)),
+          f"AGEBs add up to more than their locality's {short}")
 
 
 def load_cpv_census(
@@ -342,13 +388,14 @@ def load_cpv_census(
     Same steps as the legacy loader: the count columns only (``Int64``; INEGI's reserved
     cells missing); the AGEB file's empty-block fix; collective population and dwellings
     (``POBCOL`` = ``POBTOT`` − ``POBHOG``, ``TOTCOL`` = ``TVIVHAB`` − ``TOTHOG``) added and
-    imputed (``aggregate.add_collective_cols``); missing locality counts imputed from the
+    imputed (``aggregate.add_collective_cols``, safe for reserved totals:
+    :func:`_add_collective_cols`); missing locality counts imputed from the
     municipalities and missing AGEB counts from the localities where the totals force them
     to 0 (``aggregate.impute_zeros_univariate``); the cross-file sanity checks; every level
     restricted to the AGEB file's columns. For 2020 the four frames equal
     ``load_census(state=…)`` once its integer codes are written as INEGI's padded strings.
     """
-    from mxcensus.aggregate import add_collective_cols, impute_zeros_univariate
+    from mxcensus.aggregate import impute_zeros_univariate
 
     it = load_cpv_iter(period, state=state, impute=False)
     ag = _zero_empty_blocks(load_cpv_ageb(period, state=state, impute=False))
@@ -359,11 +406,11 @@ def load_cpv_census(
              for lvl in ("estatal", "municipal", "localidad")}
     agebs = {lvl: ag.loc[ag["NIVEL"] == lvl, ag_cols].droplevel(_AGEB_INDEX[index[lvl]:])
              for lvl in ("estatal", "municipal", "localidad", "ageb")}
-    st, mun, loc, ageb = add_collective_cols(iters["estatal"], iters["municipal"],
-                                             iters["localidad"], agebs["ageb"])
+    st, mun, loc, ageb = _add_collective_cols(iters["estatal"], iters["municipal"],
+                                              iters["localidad"], agebs["ageb"])
     loc = impute_zeros_univariate(mun, loc)
     ageb = impute_zeros_univariate(loc, ageb)
     _census_checks(label, {"estatal": st, "municipal": mun, "localidad": loc},
-                   {**agebs, "ageb": ageb})
+                   {**agebs, "ageb": ageb}, _edition("ageb", period).period)
     cols = ageb.columns
     return st[cols], mun[cols], loc[cols], ageb

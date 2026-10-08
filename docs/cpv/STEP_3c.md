@@ -1,17 +1,17 @@
 # CPV Unit 3c — Census aggregates (ITER, AGEB) for 2020 + 2010
 
-Done **2026-10-07** (overnight, unattended) — **code complete, verification on `wsl`
-pending.** Midway through the unit, Tailscale SSH on `wsl` started demanding an interactive
-re-login (`# Tailscale SSH requires an additional check. To authenticate, visit
-https://login.tailscale.com/a/…`). That needs the user in a browser, so the last `wsl` steps
-could not run. §Pending lists exactly what is left; nothing else depends on them.
+Done **2026-10-07** (overnight, unattended); **verified 2026-10-08 on the Mac**
+(§Verification). Midway through the unit, Tailscale SSH on `wsl` started demanding an
+interactive re-login (`# Tailscale SSH requires an additional check. To authenticate, visit
+https://login.tailscale.com/a/…`), which needs the user in a browser. So the Mac got the
+full mirror instead, and the verification ran there.
 
 Gate status:
-- **2020 output equals the legacy `load_census`** — ✅ on state 01 (Mac): all four levels,
-  values, columns, index and missing pattern. The 32-state run on `wsl` is pending.
-- **`--validate` 0 failures with the 2010 ITER/AGEB included** — ✅ 0/481 on `wsl`, but run
-  before two late fixes (the `TAMLOC` type and the case-insensitive code rules, below). It
-  must run once more on `wsl`; the four state-01 aggregate files pass locally.
+- **2020 output equals the legacy `load_census`** — ✅ in **all 32 states**
+  (`test_census_2020_equals_legacy`, on the Mac): all four levels, values, columns, index
+  and missing pattern.
+- **`--validate` 0 failures with the 2010 ITER/AGEB included** — ✅ **0/481**, re-run on
+  the Mac with the final 3c code.
 
 ## 2010 ITER/AGEB build
 
@@ -71,13 +71,14 @@ All frames are harmonized (`CVE_*` names, string codes, `CVEGEO`) and labelled: 
   `cpv_` files and string keys:
   - the count columns only;
   - the empty-block fix;
-  - `aggregate.add_collective_cols` (`POBCOL`, `TOTCOL` + collective imputation);
+  - `POBCOL`, `TOTCOL` and the collective imputation (`aggregate.add_collective_cols`, as
+    the NA-safe port `_add_collective_cols` since the verification);
   - `impute_zeros_univariate` municipality → locality and locality → AGEB;
   - `aggregate.sanity_checks` ported to `CVE_*` names (`_census_checks`; the legacy one
     hard-codes `ENTIDAD`/`MUN`);
   - every level restricted to the AGEB columns.
 
-  `aggregate.py` is imported, not changed (frozen).
+  `aggregate.py` is imported (`impute_zeros_univariate`), not changed (frozen).
 
 **Results on state 01**:
 - 2020: `load_cpv_census(2020, state=1)` **equals** `load_census(state=1)` once the legacy
@@ -136,15 +137,58 @@ Existing tests take the ITER/AGEB gids from the map (`_gid`).
 Results: Mac full suite **914 passed, 4 skipped** in 7 min 34 s (the 4 warnings are the
 pre-existing DENUE/ENOE ones). The `wsl` 32-state run is pending (§Pending).
 
-## Pending (needs `wsl`, i.e. the Tailscale re-login)
+## Verification (on the Mac, 2026-10-08)
 
-1. Sync 3c's code to `wsl` and regenerate `--variables` (the `TAMLOC` type changed the
-   2010 ITER dictionary) and `--report-only`, then `--validate --jobs 16` (expect 0/481).
-2. Copy the generated `cpv_schema_map.yaml`, the `variables_cpv_{iter,ageb}_g0*.yaml`, the
-   two reports and the crosswalk back. They should equal the locally generated copies
-   committed here (§Process); diff them.
-3. Run the CPV tests over all 32 states on `wsl`, in particular
-   `test_census_2020_equals_legacy` (the 32-state gate) and `test_census_2010_checks`.
+**The mirror.** `wsl` stayed unreachable, so the Mac got the full CPV mirror:
+- 2020 and 2025 (257 files) downloaded from the HF bucket, each checked against its
+  registry SHA-256;
+- 2015 (64 files) and 2010 (160 files, microdata + ITER/AGEB) rebuilt from INEGI with
+  `build_cpv.py` (0 failures).
+
+**The metadata** ran from a git worktree at the 3c commit (`PYTHONPATH` = its `src`), over a
+directory of symlinks to the 481 files of 2010–2025:
+- `--schema-map`, `--variables` and `--crosswalk`: **byte-identical** to the committed
+  map, the 19 dictionaries and the crosswalk. So the rebuilt 2010/2015 files have
+  `wsl`'s columns and values, as far as the generated metadata can tell.
+- `--validate --jobs 12`: **0/481**.
+- `--report-only`: the two reports now include the 2010 ITER/AGEB (they were still 3b's).
+  Their drift lines list 2010's lower-case aggregate headers as added/removed names.
+
+**The tests.** `tests/test_cpv.py`, `tests/test_cpv_aggregates.py` and
+`tests/test_census_legacy.py` ran from the same worktree over all 32 states (plus the
+legacy `iter_`/`resargebub_`/`personas_`/`viviendas_` files). The first run: 645 passed and
+**34 failed**, all in the census chain. That is what the 32-state gate is for: state 01, the
+only one on the Mac before, passes every check. Two bugs, both fixed:
+
+1. **`test_census_2020_equals_legacy` raised `TypeError: boolean value of NA is ambiguous`
+   in states 08, 15 and 16.**
+   - The cause is in the frozen legacy chain: `aggregate.impute_collective` loops
+     `if diff.loc[unit, "POBCOL"] == 0:`, and a reserved (`*`) coarse total makes the
+     difference `pd.NA`.
+   - The legacy `load_census(state=8)` itself raises the same error, so these three
+     states have never loaded with the current pandas.
+   - **Fix**: `load_cpv_census` no longer calls `aggregate.add_collective_cols`. It uses
+     the port `cpv_aggregates._add_collective_cols` / `_impute_collective`: vectorized, and
+     a missing difference imputes nothing. Elsewhere the result equals the legacy
+     function's (tested). `aggregate.py` stays frozen.
+   - **The test** asserts that the legacy loader raises in those states, then compares
+     with the legacy chain with `impute_collective` swapped for the port. All 32 states
+     are equal.
+2. **`test_census_2010_checks` failed in 31 states**: "AGEBs do not add up to their
+   locality's ['POBTOT', 'VIVTOT', 'TVIVHAB']".
+   - Over the 4,525 urban localities of 2010, `POBTOT` and `VIVTOT` add up exactly
+     everywhere. The inhabited dwellings (`TVIVHAB`) of the AGEBs fall **short** of their
+     locality's in 855 localities, by 1–25, and never exceed it.
+   - In 2020 all three add up exactly in every urban locality (5,242).
+   - This is INEGI's data, not a conversion error: the AGEB file's own locality rows equal
+     the ITER's.
+   - **Fix**: `_census_checks(…, period)` keeps the exact check for `POBTOT`/`VIVTOT`. For
+     the editions in `_AGEB_TVIVHAB_SHORT` (2010) it checks `TVIVHAB` as "never above"
+     (unit-tested both ways).
+
+After the fixes, `tests/test_cpv_aggregates.py` over all 32 states: **86 passed** in 11 min
+44 s (two new unit tests among them). `tests/test_cpv.py` and `tests/test_census_legacy.py`
+had no failure in the first run, and the fixes do not touch them.
 
 ## Deviations from the plan
 
@@ -156,7 +200,7 @@ pre-existing DENUE/ENOE ones). The `wsl` 32-state run is pending (§Pending).
 
 ## Process
 
-The 3c metadata ran on `wsl` from a separate code copy (`~/mxcensus3c`, `PYTHONPATH=src`,
+The first 3c metadata run was on `wsl`, from a separate code copy (`~/mxcensus3c`, `PYTHONPATH=src`,
 reading `~/mxcensus/data`), because the 32-state 3b tests were still reading
 `~/mxcensus`'s YAMLs.
 - When the re-login blocked copying the results back, the **schema map and the ITER/AGEB

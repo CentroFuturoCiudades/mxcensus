@@ -1,6 +1,6 @@
 # CPV validation report
 
-Each mirrored file validated against its (table, group) tight schema (`mxcensus.cpv._group_schema`: `isin` on every dictionary-coded column, numbers within `Rango` or a sentinel, digit codes for keys/geography and width-checked catalog codes). Files: 417. Failing: 0.
+Each mirrored file validated against its (table, group) tight schema (`mxcensus.cpv._group_schema`: `isin` on every dictionary-coded column, numbers within `Rango` or a sentinel, digit codes for keys/geography and width-checked catalog codes). Files: 481. Failing: 0.
 
 | table | group | files | rows | failing |
 |---|---|---|---|---|
@@ -18,8 +18,10 @@ Each mirrored file validated against its (table, group) tight schema (`mxcensus.
 | migrantes | g02 | 1 | 6,274 | 0 |
 | migrantes | g03 | 32 | 120,099 | 0 |
 | migrantes | g04 | 32 | 362,679 | 0 |
-| iter | g01 | 32 | 195,659 | 0 |
-| ageb | g01 | 32 | 1,683,504 | 0 |
+| iter | g01 | 32 | 198,485 | 0 |
+| iter | g02 | 32 | 195,659 | 0 |
+| ageb | g01 | 32 | 1,440,175 | 0 |
+| ageb | g02 | 32 | 1,683,504 | 0 |
 | estimaciones | g01 | 1 | 13,880 | 0 |
 
 All files pass their group schema.
