@@ -31,6 +31,7 @@ unit.
 | **6a** | Cross-year geographic crosswalk (AGEEML / Archivo Histórico de Localidades) | 5 | ✅ done 2026-10-08 (`STEP_6a.md`): municipal lineage from the MG polygons 1995–2025 (50 new codes, none retired; `cpv_mun_lineage.yaml`, `scripts/build_geo_crosswalk.py`); `cpv_mun_lineage()`, `cpv_municipal_units(start, end)`; localities not covered |
 | **6b** | Port `load_extended_*` derived columns onto labelled frames; `crosstabs` per edition | 6a | ✅ done 2026-10-08 (`STEP_6b.md`): `cpv_derived` (`derived=True`; 2020 = legacy in 32 states; 2025 via `_RECODE`; 2015/2010 identical items), `cpv_constraints` per edition (2025 cells = estimates); the release batch went first: registry 2695 → 3751, 1,056 files uploaded, v0.7.0 |
 | **6c** | Review of the pending decisions (3b–6b) with the user; follow-ups | 6b | ✅ done 2026-10-08 (`STEP_6c.md`): legacy `impute_collective` NA guard (`load_census` loads all 32 states), `FACTOR` for harmonized 1995 frames, INEGI's `DISCAPACIDAD`/`LIMITACION` (+ the CPV constraints); 17 overnight decisions confirmed; then `main` = v0.7.0 |
+| **6d** | The 2015/2010 recoded items in `cpv_derived` (`DHSERSAL`, `CONACT`, `SITUA_CONYUGAL`, `EDUC`, 2015 commute, 2010 `DISCAP`) | 6c | ✅ done 2026-10-08 (`STEP_6d.md`): reviewed recodes (+ 2010 `ESTCON`), no `DHSERSAL_IMSS_BIENESTAR` before 2020, 2015's own commute dummies, 2010 `LIM_ACTIVIDAD` + the 2010 ITER's limitation constraints (`_EDITION_CELLS`); 2015 personas 2 → 33 derived columns, 2010 4 → 17; 2010 constraints 91 → 126; 32-state sweep clean |
 
 ### Session protocol
 

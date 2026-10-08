@@ -30,13 +30,23 @@ The legacy ``DIS_CON``/``DIS_LIMI`` count otherwise and are kept as they are.
 
 **Editions.** Censo 2020 and EIC 2025 (same questionnaire family) get every derivation
 whose sources exist; 2025 lacks ``RELIGION`` and ``IDENT_HIJO``. EIC 2015 and Censo 2010
-get only the derivations whose source items have identical code lists
-(:func:`cpv_derivations` lists them). The check that the source codes match after the
-recode is a test (``tests/test_cpv_derived.py``).
+get the derivations whose source items map onto the 2020 codes (:data:`_RECODE`; 2010
+reads its marital status from ``ESTCON``), with three edition-specific sets:
+
+- ``DHSERSAL_*`` without ``DHSERSAL_IMSS_BIENESTAR`` (neither edition offered
+  IMSS-PROSPERA/BIENESTAR);
+- the EIC 2015 commute dummies, one per 2015 code (7 modes): the 2020 names where the mode
+  is the same, 2015's wording for the three modes 2020 splits;
+- Censo 2010's ``LIM_ACTIVIDAD`` («limitación en la actividad», ``DISCAP1``–``DISCAP8``):
+  another question than 2020's difficulty scale, so no ``DIS_*``/``DISCAPACIDAD`` there.
+
+:func:`cpv_derivations` lists the columns per edition. The check that the source codes
+match after the recode is a test (``tests/test_cpv_derived.py``).
 
 **Constraints.** :func:`cpv_constraints` filters the legacy constraint sets (ITER
 indicator → microdata cells, ``constraints_*.yaml``) to the indicators an edition can
-reproduce, for :func:`mxcensus.crosstabs.get_tables_dict`.
+reproduce, for :func:`mxcensus.crosstabs.get_tables_dict`, plus the indicators an edition
+publishes under its own definition (:data:`_EDITION_CELLS`: Censo 2010's limitation).
 """
 from __future__ import annotations
 
@@ -72,17 +82,44 @@ _RECODE: dict[str, dict[str, dict[int, int]]] = {
         "ENT_PAIS_NAC": {454: 241, 536: 356},
         "ENT_PAIS_RES_5A": {454: 241, 536: 356},
     },
+    "2015": {
+        # 1 = Seguro Popular (2020: 05) first, then IMSS…otra 2–7 (2020: 01–04, 07, 08),
+        # 8 = not affiliated, 9 = not specified; no IMSS-PROSPERA/BIENESTAR (2020: 06).
+        "DHSERSAL1": {1: 5, 2: 1, 3: 2, 4: 3, 5: 4, 6: 7, 7: 8, 8: 9, 9: 99},
+        "DHSERSAL2": {1: 5, 2: 1, 3: 2, 4: 3, 5: 4, 6: 7, 7: 8, 8: 9, 9: 99},
+        # 10 worked, 11–15 found working by the activity check (2020: 10, 13–19 by declared
+        # status), 16 had a job (20), 20 searched (30), 31–35 student, retired, home duties,
+        # limitation, did not work (50, 40, 60, 70, 80).
+        "CONACT": {11: 10, 12: 10, 13: 10, 14: 10, 15: 10, 16: 20, 20: 30,
+                   31: 50, 32: 40, 33: 60, 34: 70, 35: 80},
+        # 5 = casada(o), not split into civil/religious (2020: 05–07, all «casado»);
+        # 6 = soltera(o).
+        "SITUA_CONYUGAL": {6: 8},
+    },
+    "2010": {
+        # 6 = private, 7 = other, 8 = no entitlement, 9 = not specified (2020: 07, 08, 09, 99);
+        # no IMSS-PROSPERA/BIENESTAR (2020: 06).
+        "DHSERSAL1": {6: 7, 7: 8, 8: 9, 9: 99},
+        "DHSERSAL2": {6: 7, 7: 8, 8: 9, 9: 99},
+        # 04 = either bachillerato (2020: 04/05), 05 = normal básica (09), then normal de
+        # licenciatura, licenciatura, maestría, doctorado (10, 11, 13, 14); no especialidad.
+        "NIVACAD": {5: 9, 9: 10, 10: 11, 11: 13, 12: 14},
+    },
 }
 
 # A source read under another name in some editions or under harmonize=True.
-_ALIASES = {"ENT": ("ENT", "CVE_ENT")}
+_ALIASES = {"ENT": ("ENT", "CVE_ENT"), "SITUA_CONYUGAL": ("SITUA_CONYUGAL", "ESTCON")}
 
 _BLANK = -1  # a blank (not asked) code, as the legacy dictionaries spell it
 _DUMMY = pd.CategoricalDtype([0, 1])
 # Derived columns the legacy loaders do not have (the others take the legacy dtype).
 _DTYPES = {"DISCAPACIDAD": pd.CategoricalDtype(["Sí", "No", "No especificado"]),
-           "LIMITACION": pd.CategoricalDtype(["Sí", "No", "No especificado"])}
+           "LIMITACION": pd.CategoricalDtype(["Sí", "No", "No especificado"]),
+           "LIM_ACTIVIDAD": pd.CategoricalDtype(["Sí", "No", "No especificado"])}
 _DIS_ITEMS = ("DIS_VER", "DIS_OIR", "DIS_CAMINAR", "DIS_RECORDAR", "DIS_BANARSE", "DIS_HABLAR")
+# Censo 2010: one item per activity (DISCAP1–7, its code or blank), DISCAP8 = none (17) or
+# not specified (99).
+_DISCAP_ITEMS = tuple(f"DISCAP{i}" for i in range(1, 9))
 
 # DHSERSAL1/2 code (2020) → dummy; 1–6 are public institutions, 1–8 any affiliation.
 _DHSERSAL = {
@@ -96,6 +133,7 @@ _DHSERSAL = {
     8: "DHSERSAL_Otro",
     9: "DHSERSAL_No afiliado",
 }
+_DHSERSAL_NO_BIENESTAR = tuple(c for c in _DHSERSAL if c != 6)   # 2010, 2015
 #: Legacy dummy name → the neutral name used here (for the legacy constraints and tests).
 DHSERSAL_RENAMES = {
     "DHSERSAL_Popular_NGenración_SBienestar": "DHSERSAL_SALUD_PUBLICA",
@@ -219,27 +257,76 @@ def _dis_inegi(src):
                               "personas", "LIMITACION")}
 
 
-def _dhsersal(src):
-    d1, d2 = src["DHSERSAL1"], src["DHSERSAL2"]
-    has = {code: d1.eq(code) | d2.eq(code) for code in _DHSERSAL}
-    out = {name: has[code] for code, name in _DHSERSAL.items()}
-    out["DHSERSAL_PUB"] = pd.concat([has[c] for c in range(1, 7)], axis=1).any(axis=1)
-    out["DHSERSAL_AFIL"] = pd.concat([has[c] for c in range(1, 9)], axis=1).any(axis=1)
-    return {k: v.astype(int).astype(_DUMMY) for k, v in out.items()}
+def _as_dummies(flags: Mapping[str, pd.Series], unknown: pd.Series) -> dict[str, pd.Series]:
+    """Boolean flags → 0/1 dummies, missing on the ``unknown`` rows (a code no dummy names,
+    which :func:`derive` reports)."""
+    return {k: v.astype(int).astype(_DUMMY).mask(unknown) for k, v in flags.items()}
 
 
-def _dummies(table: str, items: tuple[str, ...], prefix: str):
-    """One 0/1 column per legacy code of ``items[0]`` (labels name the columns): 1 when any
-    of ``items`` has that code (a blank item sets the ``Blanco por pase`` dummy)."""
+def _dhsersal(codes: tuple[int, ...]):
+    """The dummies of the 2020 ``codes`` an edition offers (1–6 public, 1–8 any)."""
     def fn(src):
-        codes = src[list(items)].fillna(_BLANK)
-        return {f"{prefix}_{label}": codes.eq(code).any(axis=1).astype(int).astype(_DUMMY)
-                for code, label in _legacy_map(table, items[0]).items()}
+        d1, d2 = src["DHSERSAL1"], src["DHSERSAL2"]
+        has = {code: d1.eq(code) | d2.eq(code) for code in codes}
+        out = {_DHSERSAL[code]: has[code] for code in codes}
+        out["DHSERSAL_PUB"] = pd.concat([has[c] for c in codes if c <= 6], axis=1).any(axis=1)
+        out["DHSERSAL_AFIL"] = pd.concat([has[c] for c in codes if c <= 8], axis=1).any(axis=1)
+        known = [*codes, 99]
+        unknown = (d1.notna() & ~d1.isin(known)) | (d2.notna() & ~d2.isin(known))
+        return _as_dummies(out, unknown)
     return fn
 
 
-def _dummy_names(table: str, items: tuple[str, ...], prefix: str) -> tuple[str, ...]:
-    return tuple(f"{prefix}_{label}" for label in _legacy_map(table, items[0]).values())
+def _dhsersal_names(codes: tuple[int, ...]) -> tuple[str, ...]:
+    return (*(_DHSERSAL[c] for c in codes), "DHSERSAL_PUB", "DHSERSAL_AFIL")
+
+
+def _dummies(table: str, items: tuple[str, ...], prefix: str,
+             labels: Mapping[int, str] | None = None):
+    """One 0/1 column per code of ``labels`` (default: the legacy map of ``items[0]``; the
+    labels name the columns): 1 when any of ``items`` has that code (a blank item sets the
+    ``Blanco por pase`` dummy)."""
+    def fn(src):
+        codes = src[list(items)].fillna(_BLANK)
+        names = labels or _legacy_map(table, items[0])
+        flags = {f"{prefix}_{label}": codes.eq(code).any(axis=1) for code, label in names.items()}
+        return _as_dummies(flags, ~codes.isin(list(names)).all(axis=1))
+    return fn
+
+
+def _dummy_names(table: str, items: tuple[str, ...], prefix: str,
+                 labels: Mapping[int, str] | None = None) -> tuple[str, ...]:
+    return tuple(f"{prefix}_{label}" for label in (labels or _legacy_map(table, items[0])).values())
+
+
+# EIC 2015 commute code → its Censo 2020 code where the mode is the same (4 = transporte
+# escolar/laboral, 2020's «de personal»). Codes 1–3 merge 2020 modes (camión + both taxis,
+# metro + metrobús, automóvil + motocicleta) and keep 2015's wording; 2020's trolebús has no
+# 2015 code.
+_TRASLADO_2015_SAME = {4: 7, 5: 2, 6: 1, 7: 12, 9: 99, _BLANK: _BLANK}
+_TRASLADO_2015_OWN = {1: "Camión, taxi, combi o colectivo", 2: "Metro, metrobús o tren ligero",
+                      3: "Vehículo particular (automóvil, camioneta o motocicleta)"}
+
+
+@functools.cache
+def _traslado_2015(item: str) -> dict[int, str]:
+    """EIC 2015 commute code → dummy label (the 2020 ``item``'s label where the mode is
+    the same)."""
+    legacy = _legacy_map("personas", item)
+    same = {code: legacy[ref] for code, ref in _TRASLADO_2015_SAME.items()}
+    return {code: _TRASLADO_2015_OWN.get(code) or same[code]
+            for code in sorted({*_TRASLADO_2015_OWN, *same}, key=lambda c: (c == _BLANK, c))}
+
+
+def _lim_actividad(src):
+    """Censo 2010's «limitación en la actividad» (its ITER's ``PCON_LIM``/``PSIN_LIM``): a
+    difficulty in at least one activity (``DISCAP1``–``DISCAP7``), none (``DISCAP8`` = 17)
+    or not specified (99). A row with neither is left missing (:func:`derive` reports it)."""
+    limited = src[list(_DISCAP_ITEMS[:7])].notna().any(axis=1)
+    none = src["DISCAP8"]
+    values = np.select([limited, none.eq(17), none.eq(99)], ["Sí", "No", "No especificado"],
+                       None)
+    return {"LIM_ACTIVIDAD": _as(values, "personas", "LIM_ACTIVIDAD")}
 
 
 def _cat(table: str, var: str, name: str):
@@ -271,6 +358,7 @@ class _Derivation:
 
 
 _NEW = ("2020", "2025")
+_OLD = ("2010", "2015")
 _ALL = ("2010", "2015", "2020", "2025")
 _ESC = ("MED_TRASLADO_ESC1", "MED_TRASLADO_ESC2", "MED_TRASLADO_ESC3")
 _TRAB = ("MED_TRASLADO_TRAB1", "MED_TRASLADO_TRAB2", "MED_TRASLADO_TRAB3")
@@ -281,26 +369,33 @@ _FIN = ("FINANCIAMIENTO1", "FINANCIAMIENTO2", "FINANCIAMIENTO3")
 def _registry() -> tuple[_Derivation, ...]:
     D = _Derivation
     per, viv = "personas", "viviendas"
+    esc15, trab15 = _traslado_2015(_ESC[0]), _traslado_2015(_TRAB[0])
     return (
         D(per, ("EDAD_CAT",), ("EDAD",), _ALL, _edad_cat),
         D(per, ("INGTRMEN_CAT",), ("INGTRMEN",), _ALL, _ingtrmen_cat),
         D(per, ("HORTRA_CAT",), ("HORTRA",), ("2010", "2020", "2025"), _hortra_cat),
-        D(per, ("EDUC",), ("NIVACAD", "ESCOLARI"), _NEW, _educ),
+        D(per, ("EDUC",), ("NIVACAD", "ESCOLARI"), _ALL, _educ),
         D(per, ("OCUPACION_C_COARSE",), ("OCUPACION_C",), _NEW,
           _coarse("OCUPACION_C", "OCUPACION_C_COARSE", 10)),
         D(per, ("ACTIVIDADES_C_COARSE",), ("ACTIVIDADES_C",), _NEW,
           _coarse("ACTIVIDADES_C", "ACTIVIDADES_C_COARSE", 100)),
         D(per, ("DIS_CON", "DIS_LIMI"), _DIS_ITEMS, _NEW, _dis),
         D(per, ("DISCAPACIDAD", "LIMITACION"), _DIS_ITEMS, _NEW, _dis_inegi),
-        D(per, (*_DHSERSAL.values(), "DHSERSAL_PUB", "DHSERSAL_AFIL"),
-          ("DHSERSAL1", "DHSERSAL2"), _NEW, _dhsersal),
+        D(per, ("LIM_ACTIVIDAD",), _DISCAP_ITEMS, ("2010",), _lim_actividad),
+        D(per, _dhsersal_names(tuple(_DHSERSAL)), ("DHSERSAL1", "DHSERSAL2"), _NEW,
+          _dhsersal(tuple(_DHSERSAL))),
+        D(per, _dhsersal_names(_DHSERSAL_NO_BIENESTAR), ("DHSERSAL1", "DHSERSAL2"), _OLD,
+          _dhsersal(_DHSERSAL_NO_BIENESTAR)),
         D(per, _dummy_names(per, _ESC, "MED_TRASLADO_ESC"), _ESC, _NEW,
           _dummies(per, _ESC, "MED_TRASLADO_ESC")),
+        D(per, _dummy_names(per, _ESC, "MED_TRASLADO_ESC", esc15), _ESC, ("2015",),
+          _dummies(per, _ESC, "MED_TRASLADO_ESC", esc15)),
         D(per, _dummy_names(per, _TRAB, "MED_TRASLADO_TRAB"), _TRAB, _NEW,
           _dummies(per, _TRAB, "MED_TRASLADO_TRAB")),
-        D(per, ("CONACT_CAT",), ("CONACT",), ("2010", "2020", "2025"),
-          _cat(per, "CONACT", "CONACT_CAT")),
-        D(per, ("SITUA_CONYUGAL_CAT",), ("SITUA_CONYUGAL",), _NEW,
+        D(per, _dummy_names(per, _TRAB, "MED_TRASLADO_TRAB", trab15), _TRAB, ("2015",),
+          _dummies(per, _TRAB, "MED_TRASLADO_TRAB", trab15)),
+        D(per, ("CONACT_CAT",), ("CONACT",), _ALL, _cat(per, "CONACT", "CONACT_CAT")),
+        D(per, ("SITUA_CONYUGAL_CAT",), ("SITUA_CONYUGAL",), _ALL,
           _cat(per, "SITUA_CONYUGAL", "SITUA_CONYUGAL_CAT")),
         D(per, ("ENT_PAIS_NAC_CAT",), ("ENT_PAIS_NAC", "ENT"), _NEW,
           _ent_pais_cat("ENT_PAIS_NAC", "ENT_PAIS_NAC_CAT")),
@@ -337,9 +432,10 @@ def _derivations(table: str, period: str) -> tuple[_Derivation, ...]:
 def cpv_derivations(table: str | None = None, period: str | int | None = None) -> pd.DataFrame:
     """The derived columns and the editions each one is verified for.
 
-    One row per derived column: ``TABLE``, ``COLUMN``, ``SOURCES`` (the raw items it reads)
-    and ``PERIODS``. ``table``/``period`` filter the rows (``period``: the columns
-    ``derived=True`` adds to that edition's frame).
+    One row per derived column and derivation: ``TABLE``, ``COLUMN``, ``SOURCES`` (the raw
+    items it reads) and ``PERIODS`` (a column computed differently in some editions, such
+    as the 2015 commute dummies, has one row per way). ``table``/``period`` filter the rows
+    (``period``: the columns ``derived=True`` adds to that edition's frame, each once).
     """
     rows = [(d.table, col, ", ".join(d.sources), ", ".join(d.periods))
             for d in _registry() for col in d.columns
@@ -470,6 +566,22 @@ def _base_constraints(table: str) -> dict:
 _CELLS = {"personas": {"PCON_DISC": {"DISCAPACIDAD": ["Sí"]},
                        "PCON_LIMI": {"LIMITACION": ["Sí"]}}}
 
+# Indicators an edition publishes under its own definition, on its own items: Censo 2010's
+# limitation in activity (its PCLIM_VIS/PCLIM_MOT2 share 2020's names, not their concept).
+_EDITION_CELLS = {
+    ("personas", "2010"): {
+        "PCON_LIM": {"LIM_ACTIVIDAD": ["Sí"]},
+        "PSIN_LIM": {"LIM_ACTIVIDAD": ["No"]},
+        "PCLIM_MOT": {"DISCAP1": ["Caminar, moverse, subir o bajar"]},
+        "PCLIM_VIS": {"DISCAP2": ["Ver, aun usando lentes"]},
+        "PCLIM_LENG": {"DISCAP3": ["Hablar, comunicarse o conversar"]},
+        "PCLIM_AUD": {"DISCAP4": ["Oír, aun usando aparato auditivo"]},
+        "PCLIM_MOT2": {"DISCAP5": ["Vestirse, bañarse o comer"]},
+        "PCLIM_MEN": {"DISCAP6": ["Poner atención o aprender cosas sencillas"]},
+        "PCLIM_MEN2": {"DISCAP7": ["Limitación mental"]},
+    },
+}
+
 
 @functools.cache
 def _cpv_constraints(table: str) -> dict:
@@ -485,9 +597,10 @@ def _cpv_constraints(table: str) -> dict:
 
 
 @functools.cache
-def _aggregate_indicators(period: str) -> frozenset[str]:
+def _aggregate_indicators(period: str, comparable: bool = True) -> frozenset[str]:
     """The indicators an edition publishes: its ITER's (through the crosswalk; an older
-    edition's only where comparable) or, for the EIC 2025, its national estimates'."""
+    edition's only where comparable, unless ``comparable=False``) or, for the EIC 2025,
+    its national estimates'."""
     from mxcensus._resources import cpv_iter_crosswalk
     from mxcensus.data._cpv_catalog import get_edition
 
@@ -496,7 +609,8 @@ def _aggregate_indicators(period: str) -> frozenset[str]:
         # ``Comparable: false`` flags the older editions' columns of that name, never the
         # newest edition's own (the canonical definition).
         return frozenset(ind for ind, e in cpv_iter_crosswalk().items()
-                         if e.get(period) and (e.get("Comparable", True) is not False
+                         if e.get(period) and (not comparable
+                                               or e.get("Comparable", True) is not False
                                                or period == max(k for k in e if k.isdigit())))
     if edition.has("estimaciones"):
         from mxcensus._resources import cpv_schema_map
@@ -531,12 +645,16 @@ def cpv_constraints(table: str, period: str | int) -> dict:
     the indicators comparable with 2020's —; the EIC 2025's national estimates) and (2)
     whose variables and
     categories all exist in the edition's labelled frame with ``derived=True``. EIC 2015
-    publishes neither, so it has none. Feed the result and the frame's dtypes to
-    :func:`mxcensus.get_tables_dict`.
+    publishes neither, so it has none. An edition's own definitions (Censo 2010's
+    limitation in activity: ``PCON_LIM``, ``PSIN_LIM``, ``PCLIM_*`` on ``LIM_ACTIVIDAD``
+    and ``DISCAP1``–``DISCAP7``) are added when it publishes the indicator. Feed the
+    result and the frame's dtypes to :func:`mxcensus.get_tables_dict`.
     """
     period = str(period)
-    published = _aggregate_indicators(period)
+    own = _EDITION_CELLS.get((table, period), {})
+    published = _aggregate_indicators(period) | (
+        own.keys() & _aggregate_indicators(period, comparable=False))
     cats = _categories(table, period)
-    return {ind: cells for ind, cells in _cpv_constraints(table).items()
+    return {ind: cells for ind, cells in {**_cpv_constraints(table), **own}.items()
             if ind in published
             and all(var in cats and set(c) <= set(cats[var]) for var, c in cells.items())}

@@ -194,12 +194,18 @@ dummies, `DIS_CON`/`DIS_LIMI`, the income and room bins… plus `DISCAPACIDAD`/`
 INEGI's own definitions of disability and limitation (the legacy `DIS_CON`/`DIS_LIMI` count
 a difficulty of unknown degree as unspecified, and the disabled as limited too). For Censo
 2020 the columns equal `load_extended_*`'s; the EIC 2025 gets the same columns through a
-recode of the items INEGI renumbered (`SITUA_CONYUGAL`, `DHSERSAL`, two country codes), and
-EIC 2015 / Censo 2010 the ones whose items kept their codes (`cpv_derivations()` lists them
-per edition).
+recode of the items INEGI renumbered (`SITUA_CONYUGAL`, `DHSERSAL`, two country codes).
+EIC 2015 and Censo 2010 get the columns whose items map onto the 2020 codes (age, income,
+education, activity, marital status, health coverage; `cpv_derivations()` lists them per
+edition), with three differences. Neither edition has `DHSERSAL_IMSS_BIENESTAR`, because
+neither asked about IMSS-PROSPERA/BIENESTAR. The EIC 2015 commute dummies follow its 7
+modes, with 2015's wording for the three that 2020 splits. Censo 2010 measured disability
+with another question, so it gets its own `LIM_ACTIVIDAD` («limitación en la actividad»)
+instead of `DIS_*`/`DISCAPACIDAD`.
 `cpv_constraints(table, period)` filters the census constraint sets (ITER indicator →
 microdata cells) to the indicators an edition publishes and can reproduce, for
-`get_tables_dict`:
+`get_tables_dict`. For Censo 2010 it adds the ITER's own limitation indicators (`PCON_LIM`,
+`PSIN_LIM`, `PCLIM_*`):
 
 ```python
 per = mxcensus.load_cpv_personas(2025, state=1, derived=True)
