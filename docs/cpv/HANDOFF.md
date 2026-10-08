@@ -1,9 +1,9 @@
 # CPV family — session handoff
 
-**Status (2026-10-08): units 0–6f are done. `main` = v0.7.1 (through 6e); `cpv-integration`
+**Status (2026-10-08): units 0–6g are done. `main` = v0.7.1 (through 6e); `cpv-integration`
 is ahead by the units of this session (6f onward), committed locally, not pushed. The user
-asked for the four post-6e candidates in one session, one unit each: 6f (done), 6g
-`PSIND_LIM`, 6h the EIC 2015 frame, 6i the 2000/2005 derived columns.**
+asked for the four post-6e candidates in one session, one unit each: 6f and 6g (done), 6h
+the EIC 2015 frame, 6i the 2000/2005 derived columns.**
 - **Released** (registered, uploaded, verified): every edition 1990–2025 (897 `cpv_` files)
   and the Marco Geoestadístico 1995–2025 frames; registry **3751** entries
   (`STEP_6b.md` §Release batch).
@@ -24,8 +24,11 @@ asked for the four post-6e candidates in one session, one unit each: 6f (done), 
   2019) and `ACTIVIDADES_C_COARSE` (SCIAN sector), both = INEGI's 2015/2010 tabulados by
   division and sector in all 32 states; 2010 `RELIGION_CAT` (2020's grouping: the
   neo-Israelites are evangelical); 2010 constraints 138 → 142.
+- **6g** (`STEP_6g.md`): INEGI's `PSIND_LIM` rule (no difficulty of any degree, no mental
+  condition; NE only when all seven answers are unspecified) as `SIN_DISC_LIM` (2020/2025)
+  and the CPV `PSIND_LIM` cell; exact in every EIC 2025 state and municipality.
 
-Design: [`PLAN.md`](PLAN.md). Recent units: [`STEP_6f.md`](STEP_6f.md), [`STEP_6e.md`](STEP_6e.md),
+Design: [`PLAN.md`](PLAN.md). Recent units: [`STEP_6g.md`](STEP_6g.md), [`STEP_6f.md`](STEP_6f.md), [`STEP_6e.md`](STEP_6e.md),
 [`STEP_6d.md`](STEP_6d.md),
 [`STEP_6c.md`](STEP_6c.md), [`STEP_6b.md`](STEP_6b.md), … [`STEP_0_probe.md`](STEP_0_probe.md).
 
@@ -43,14 +46,10 @@ files); `wsl:~/mxcensus` is at v0.7.0 (pull v0.7.1 before running 6d/6e code the
 
 ## Next: this session's remaining units
 
-1. **6g — `PSIND_LIM`'s exact rule** (found: not disabled, not limited, no mental condition,
-   leaving out persons whose six items and `DIS_MENTAL` are all unspecified; exact in all 32
-   states, 2,471 municipalities and the nation of the EIC 2025). To do: a derived flag and
-   the CPV cell.
-2. **6h — the EIC 2015 frame** (3d leftover, `STEP_3d.md`): MG 2014 v6.2 (Aug 2014, 2,457
+1. **6h — the EIC 2015 frame** (3d leftover, `STEP_3d.md`): MG 2014 v6.2 (Aug 2014, 2,457
    municipalities = the EIC 2015's) is the likely frame; its UPC is unknown. Candidates
    downloadable: MG 2013 v6.0 (702825292829), MG junio 2016 (702825217341).
-3. **6i — derived columns for 2000/2005** (their items differ the most).
+2. **6i — derived columns for 2000/2005** (their items differ the most).
 
 ## Open questions for the user
 
@@ -187,8 +186,14 @@ None pending: 6e's decisions were taken with the user (`STEP_6e.md` §Decisions)
   login URL needs the user.
 - **1995's `FACTOR`** exists only under `harmonize=True` (`cpv._FACTOR_FROM`: persons
   `FAC_POB`, emigrants `FAC_VIV`); raw 1995 frames keep only the three estimators.
-- **Disability flags**: `DISCAPACIDAD`/`LIMITACION` are INEGI's definitions (the CPV
-  constraints use them); `DIS_CON`/`DIS_LIMI` are the legacy ones, kept for 2020 = legacy.
+- **Disability flags**: `DISCAPACIDAD`/`LIMITACION`/`SIN_DISC_LIM` are INEGI's definitions
+  (the CPV constraints `PCON_DISC`/`PCON_LIMI`/`PSIND_LIM` use them; `SIN_DISC_LIM` is NE
+  only when all seven answers are 9); `DIS_CON`/`DIS_LIMI` and the legacy YAML's
+  `PSIND_LIM` cells are the legacy ones, kept for 2020 = legacy.
+- **Occupation codes** (6f): 2010 `OCUACTIV_C` is 4-digit (CUO 2010 ≈ SINCO 2011), 2015
+  3-digit SINCO 2011, 2020/2025 3-digit SINCO 2019; the coarse group is the first two
+  digits, group 59 (dropped by SINCO 2019) → 52. INEGI's tabulados leave out persons of
+  unspecified age (28,710 employed in 2015).
 - **Edition-specific derivations** (6d): a derived column may have several `_Derivation`s,
   one per set of editions (2010/2015 `DHSERSAL_*` without IMSS-BIENESTAR, 2015's commute
   dummies on its own codes). `cpv_derivations()` then lists a column once per derivation;

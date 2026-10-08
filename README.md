@@ -192,7 +192,10 @@ from the raw codes: `EDAD_CAT`, `EDUC`, `CONACT_CAT`, `SITUA_CONYUGAL_CAT`, the 
 coverage (`DHSERSAL_*`), commute (`MED_TRASLADO_*`) and financing (`FINANCIAMIENTO_*`)
 dummies, `DIS_CON`/`DIS_LIMI`, the income and room bins… plus `DISCAPACIDAD`/`LIMITACION`,
 INEGI's own definitions of disability and limitation (the legacy `DIS_CON`/`DIS_LIMI` count
-a difficulty of unknown degree as unspecified, and the disabled as limited too), and
+a difficulty of unknown degree as unspecified, and the disabled as limited too),
+`SIN_DISC_LIM`, INEGI's population without disability, limitation or mental condition (only
+persons with all seven answers unspecified are left out; it reproduces every EIC 2025
+`PSIND_LIM` estimate), and
 `MADRE_EN_VIVIENDA`/`PADRE_EN_VIVIENDA` (whether the mother/father lives in the dwelling). For Censo
 2020 the columns equal `load_extended_*`'s; the EIC 2025 gets the same columns through a
 recode of the items INEGI renumbered (`SITUA_CONYUGAL`, `DHSERSAL`, two country codes).

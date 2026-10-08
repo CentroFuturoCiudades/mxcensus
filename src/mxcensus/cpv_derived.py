@@ -24,10 +24,11 @@ therefore equal the legacy ones (tested state by state). Two differences, both d
   loaders only create the observed ones). As in the legacy loaders, a blank second or
   third item sets the ``…_Blanco por pase`` dummy.
 
-Four columns are new: ``DISCAPACIDAD``/``LIMITACION``, INEGI's definitions of disability
+Five columns are new: ``DISCAPACIDAD``/``LIMITACION``, INEGI's definitions of disability
 and limitation (code 8, «degree unknown», is a disability; a limitation excludes the
 disabled; the legacy ``DIS_CON``/``DIS_LIMI`` count otherwise and are kept as they are),
-and ``MADRE_EN_VIVIENDA``/``PADRE_EN_VIVIENDA`` (whether the mother/father lives in the
+``SIN_DISC_LIM``, INEGI's population without either or a mental condition (its
+``PSIND_LIM``), and ``MADRE_EN_VIVIENDA``/``PADRE_EN_VIVIENDA`` (whether the mother/father lives in the
 dwelling: the one part of ``IDENT_MADRE``/``IDENT_PADRE`` Censo 2010 also asked).
 
 **Editions.** Censo 2020 and EIC 2025 (same questionnaire family) get every derivation
@@ -152,8 +153,8 @@ _BLANK = -1  # a blank (not asked) code, as the legacy dictionaries spell it
 _DUMMY = pd.CategoricalDtype([0, 1])
 # Derived columns the legacy loaders do not have (the others take the legacy dtype).
 _YES_NO = pd.CategoricalDtype(["Sí", "No", "No especificado"])
-_DTYPES = {"DISCAPACIDAD": _YES_NO, "LIMITACION": _YES_NO, "LIM_ACTIVIDAD": _YES_NO,
-           "MADRE_EN_VIVIENDA": _YES_NO, "PADRE_EN_VIVIENDA": _YES_NO}
+_DTYPES = {"DISCAPACIDAD": _YES_NO, "LIMITACION": _YES_NO, "SIN_DISC_LIM": _YES_NO,
+           "LIM_ACTIVIDAD": _YES_NO, "MADRE_EN_VIVIENDA": _YES_NO, "PADRE_EN_VIVIENDA": _YES_NO}
 _DIS_ITEMS = ("DIS_VER", "DIS_OIR", "DIS_CAMINAR", "DIS_RECORDAR", "DIS_BANARSE", "DIS_HABLAR")
 # Censo 2010: one item per activity (DISCAP1–7, its code or blank), DISCAP8 = none (17) or
 # not specified (99).
@@ -293,6 +294,21 @@ def _dis_inegi(src):
             "LIMITACION": _as(np.select([limited, disabled, unspecified],
                                         ["Sí", "No", "No especificado"], "No"),
                               "personas", "LIMITACION")}
+
+
+def _sin_disc_lim(src):
+    """INEGI's population «sin discapacidad, limitación, problema o condición mental» (the
+    EIC 2025 ``PSIND_LIM``, matched exactly in every state and municipality): no difficulty
+    of any degree (2, 3, 4, 8) in the six activities and no mental condition (``DIS_MENTAL``
+    5). Persons whose seven answers are all unspecified (9) are «No especificado»; one
+    unspecified answer among others counts as none (the legacy ``PSIND_LIM`` cells require
+    all seven to be answered «no»)."""
+    items, mental = src[list(_DIS_ITEMS)], src["DIS_MENTAL"]
+    known = items.isin([1, 2, 3, 4, 8, 9]).all(axis=1) & mental.isin([5, 6, 9])
+    some = items.isin([2, 3, 4, 8]).any(axis=1) | mental.eq(5)
+    unspecified = items.eq(9).all(axis=1) & mental.eq(9)
+    values = np.select([~known, some, unspecified], [None, "No", "No especificado"], "Sí")
+    return {"SIN_DISC_LIM": _as(values, "personas", "SIN_DISC_LIM")}
 
 
 def _as_dummies(flags: Mapping[str, pd.Series], unknown: pd.Series) -> dict[str, pd.Series]:
@@ -490,6 +506,7 @@ def _registry() -> tuple[_Derivation, ...]:
           _coarse("ACTIVIDADES_C", "ACTIVIDADES_C_COARSE", 100)),
         D(per, ("DIS_CON", "DIS_LIMI"), _DIS_ITEMS, _NEW, _dis),
         D(per, ("DISCAPACIDAD", "LIMITACION"), _DIS_ITEMS, _NEW, _dis_inegi),
+        D(per, ("SIN_DISC_LIM",), (*_DIS_ITEMS, "DIS_MENTAL"), _NEW, _sin_disc_lim),
         D(per, ("LIM_ACTIVIDAD",), _DISCAP_ITEMS, ("2010",), _lim_actividad),
         D(per, _dhsersal_names(tuple(_DHSERSAL)), ("DHSERSAL1", "DHSERSAL2"), _NEW,
           _dhsersal(tuple(_DHSERSAL))),
@@ -690,7 +707,8 @@ def _base_constraints(table: str) -> dict:
 
 # Indicators whose CPV cells replace the legacy ones: INEGI's disability definitions.
 _CELLS = {"personas": {"PCON_DISC": {"DISCAPACIDAD": ["Sí"]},
-                       "PCON_LIMI": {"LIMITACION": ["Sí"]}}}
+                       "PCON_LIMI": {"LIMITACION": ["Sí"]},
+                       "PSIND_LIM": {"SIN_DISC_LIM": ["Sí"]}}}
 
 # Indicators an edition publishes under its own definition, on its own items: Censo 2010's
 # limitation in activity (its PCLIM_VIS/PCLIM_MOT2 share 2020's names, not their concept)
@@ -768,15 +786,17 @@ def cpv_constraints(table: str, period: str | int) -> dict:
 
     The legacy sets (``constraints_personas``/``constraints_viviendas``: Censo 2020 ITER
     indicator → the microdata cells it counts) in the CPV vocabulary — the neutral
-    ``DHSERSAL_*`` names, the Censo 2020 dictionary's labels, ``PCON_DISC``/``PCON_LIMI``
-    on INEGI's ``DISCAPACIDAD``/``LIMITACION`` flags — keeping the indicators that
+    ``DHSERSAL_*`` names, the Censo 2020 dictionary's labels, ``PCON_DISC``/``PCON_LIMI``/
+    ``PSIND_LIM`` on INEGI's ``DISCAPACIDAD``/``LIMITACION``/``SIN_DISC_LIM`` flags —
+    keeping the indicators that
     (1) the edition publishes (its ITER, through ``cpv_iter_crosswalk`` — for 2010 only
     the indicators comparable with 2020's —; the EIC 2025's national estimates) and (2)
     whose variables and
     categories all exist in the edition's labelled frame with ``derived=True``. EIC 2015
     publishes neither, so it has none. An edition's own definitions (Censo 2010's
     limitation in activity: ``PCON_LIM``, ``PSIN_LIM``, ``PCLIM_*`` on ``LIM_ACTIVIDAD``
-    and ``DISCAP1``–``DISCAP7``) are added when it publishes the indicator. Feed the
+    and ``DISCAP1``–``DISCAP7``; its religion groups: ``PNCATOLICA``) are added when it
+    publishes the indicator. Feed the
     result and the frame's dtypes to :func:`mxcensus.get_tables_dict`.
     """
     period = str(period)

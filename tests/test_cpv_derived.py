@@ -220,7 +220,7 @@ def test_cpv_derivations_listing():
                    "IDENT_MADRE_CAT", "IDENT_PADRE_CAT", *migration, *coresidence,
                    *dhsersal, *commute, *coarse}
     assert {"MED_TRASLADO_ESC_Caminando", "MED_TRASLADO_TRAB_Transporte de personal"} <= p15 & p20
-    assert {"MADRE_EN_VIVIENDA", "PADRE_EN_VIVIENDA"} <= p20 & p25
+    assert {"MADRE_EN_VIVIENDA", "PADRE_EN_VIVIENDA", "SIN_DISC_LIM"} <= p20 & p25
     assert set(mxcensus.cpv_derivations("personas", 2010)["COLUMN"]) == {
         "EDAD_CAT", "INGTRMEN_CAT", "HORTRA_CAT", "EDUC", "CONACT_CAT", "SITUA_CONYUGAL_CAT",
         "LIM_ACTIVIDAD", "RELIGION_CAT", *migration, *coresidence, *dhsersal, *coarse}
@@ -253,6 +253,7 @@ def _persons_2025() -> pd.DataFrame:
     df = pd.DataFrame(rows, columns=cols, dtype="str")
     for col in ("DIS_OIR", "DIS_CAMINAR", "DIS_RECORDAR", "DIS_BANARSE", "DIS_HABLAR"):
         df[col] = "1"
+    df["DIS_MENTAL"] = ["6", "9"]
     for col in ("MED_TRASLADO_ESC1", "MED_TRASLADO_ESC2", "MED_TRASLADO_ESC3",
                 "MED_TRASLADO_TRAB2", "MED_TRASLADO_TRAB3"):
         df[col] = ""
@@ -271,6 +272,7 @@ def test_derive_persons_2025_recodes():
     assert second["DIS_CON"] == "No" and second["DIS_LIMI"] == "Sí"
     assert (first["DISCAPACIDAD"], first["LIMITACION"]) == ("Sí", "No")
     assert (second["DISCAPACIDAD"], second["LIMITACION"]) == ("No", "Sí")
+    assert list(out["SIN_DISC_LIM"]) == ["No", "No"]
     # 2025's 05 is IMSS-BIENESTAR, its 06 the public health centres (2020: the reverse)
     assert (first["DHSERSAL_IMSS_BIENESTAR"], first["DHSERSAL_SALUD_PUBLICA"]) == (1, 0)
     assert (second["DHSERSAL_IMSS_BIENESTAR"], second["DHSERSAL_SALUD_PUBLICA"]) == (0, 1)
@@ -306,6 +308,23 @@ def test_disability_flags_inegi_vs_legacy():
     assert list(out["LIMITACION"]) == ["No", "No", "Sí"]
     assert list(out["DIS_CON"]) == ["No especificado", "Sí", "No especificado"]
     assert list(out["DIS_LIMI"]) == ["No especificado", "Sí", "Sí"]
+
+
+def test_sin_disc_lim_inegi_rule():
+    """INEGI's PSIND_LIM (6g): no difficulty of any degree, no mental condition; only the
+    persons whose seven answers are all unspecified are «No especificado» — one unspecified
+    answer among «no» answers counts as none, unlike the legacy cells (all seven «no»)."""
+    rows = [("111111", "6", "Sí"), ("191111", "9", "Sí"), ("999999", "6", "Sí"),
+            ("999999", "9", "No especificado"), ("111111", "5", "No"),
+            ("911112", "9", "No"), ("181111", "6", "No")]
+    df = _persons_2025().iloc[[0] * len(rows)].reset_index(drop=True)
+    df[list(d._DIS_ITEMS)] = [list(items) for items, _, _ in rows]
+    df["DIS_MENTAL"] = [mental for _, mental, _ in rows]
+    out = d.derive(df, "personas", 2025)
+    assert list(out["SIN_DISC_LIM"]) == [want for _, _, want in rows]
+    assert out["SIN_DISC_LIM"].dtype == d._YES_NO
+    with pytest.raises(ValueError, match="SIN_DISC_LIM"):           # an unknown code
+        d.derive(df.assign(DIS_MENTAL="7"), "personas", 2025)
 
 
 def test_derive_2020_has_no_recode():
@@ -511,6 +530,7 @@ def test_cpv_constraints_per_edition():
     assert c20["PDER_SEGP"] == {"DHSERSAL_SALUD_PUBLICA": [1]}        # neutral DHSERSAL name
     assert c20["PCON_DISC"] == {"DISCAPACIDAD": ["Sí"]}                # INEGI's definitions
     assert c20["PCON_LIMI"] == {"LIMITACION": ["Sí"]}
+    assert c20["PSIND_LIM"] == p25["PSIND_LIM"] == {"SIN_DISC_LIM": ["Sí"]}   # 6g
     v20 = mxcensus.cpv_constraints("viviendas", 2020)
     assert "dentro de la vivienda?" in v20["VPH_AGUADV"]["AGUA_ENTUBADA"]   # the FD's wording
     for period in ("2010", "2020", "2025"):                            # categories all exist
@@ -704,17 +724,13 @@ def test_occupation_activity_equal_tabulados(local_mirror, period, state):
     assert (divisions, sectors) == _EMPLOYED[period, state]
 
 
-# PSIND_LIM's cells (no difficulty in any activity, no mental condition) are the legacy
-# definition; INEGI's exact rule is not known, and its estimate differs (STEP_6b.md).
-_DEFINITIONS_DIFFER = {"PSIND_LIM"}
-
-
 @_REAL_SKIP
 @pytest.mark.parametrize("table", ["personas", "viviendas"])
 def test_eic2025_constraints_equal_estimates(local_mirror, table):
     """EIC 2025: Σ ``FACTOR`` over each constraint's cells equals the published state
-    estimate exactly (the factors are calibrated to them), ``PCON_DISC``/``PCON_LIMI``
-    through INEGI's ``DISCAPACIDAD``/``LIMITACION``; not ``PSIND_LIM``."""
+    estimate exactly (the factors are calibrated to them), ``PCON_DISC``/``PCON_LIMI``/
+    ``PSIND_LIM`` through INEGI's ``DISCAPACIDAD``/``LIMITACION``/``SIN_DISC_LIM``. All 32
+    states (and ``PSIND_LIM`` in 2,471 municipalities): STEP_6b.md, STEP_6g.md."""
     loader = mxcensus.load_cpv_personas if table == "personas" else mxcensus.load_cpv_viviendas
     frame = loader(2025, state=1, derived=True)
     est = mxcensus.load_cpv_estimaciones(survey_path=_MIRROR / "cpv_estimaciones_2025.parquet",
@@ -724,10 +740,6 @@ def test_eic2025_constraints_equal_estimates(local_mirror, table):
         mask = pd.Series(True, index=frame.index)
         for var, cats in cells.items():
             mask &= frame[var].isin(cats)
-        total = round(frame.loc[mask, "FACTOR"].sum())
-        if ind in _DEFINITIONS_DIFFER:
-            assert total != round(est[ind].iloc[0]), ind
-        else:
-            assert total == round(est[ind].iloc[0]), ind
-            checked += 1
-    assert checked == {"personas": 24, "viviendas": 3}[table]
+        assert round(frame.loc[mask, "FACTOR"].sum()) == round(est[ind].iloc[0]), ind
+        checked += 1
+    assert checked == {"personas": 25, "viviendas": 3}[table]
