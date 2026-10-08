@@ -252,7 +252,25 @@ def test_mg_2025_and_national_editions():
     with pytest.raises(ValueError, match="per state"):
         marco_geo_national_url("2025")
     with pytest.raises(ValueError, match="unknown Marco"):
-        mg_filename("mun", 1, "2015")
+        mg_filename("mun", 1, "2016")
+
+
+def test_mg_2015_products():
+    """The EIC 2015 frame: one product (UPC) per state in INEGI's alphabetical order, 12
+    layers, framing the EIC 2015 (6h)."""
+    from mxcensus.data._catalog import _CINTER_2015, mg_layers
+
+    assert marco_geo_zip_url(1, "2015").endswith("/Cinter_2015/Aguascalientes/702825209025_s.zip")
+    assert marco_geo_zip_url(5, "2015").endswith("/Coahuila_de_Zaragoza/702825209087_s.zip")
+    assert marco_geo_zip_url(9, "2015").endswith("/Distrito_Federal/702825209100_s.zip")
+    assert len(_CINTER_2015) == 32 and len({u for _, u in _CINTER_2015}) == 32
+    for _, upc in _CINTER_2015:                                    # UPC-A check digits
+        d = [int(c) for c in upc]
+        assert (3 * sum(d[0:11:2]) + sum(d[1:11:2]) + d[11]) % 10 == 0, upc
+    assert mg_filename("mun", 9, "2015") == "mg_mun_2015_09.parquet"
+    # 12 layers in every state + ti (territorio insular) in the 13 island states
+    assert len(mg_layers("2015")) == 13 and not {"cd", "pe", "pem"} & set(mg_layers("2015"))
+    assert get_edition("2015").mg_period == "2015"
     # Every edition that names an MG frame points at a known MG edition.
     for e in EDITIONS:
         assert e.mg_period is None or e.mg_period in MG_EDITIONS

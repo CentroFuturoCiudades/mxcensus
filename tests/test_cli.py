@@ -66,6 +66,15 @@ def test_mg_layers_in_registry(fetched):
     assert all(f.endswith("_2025_02.parquet") for f in fetched)
 
 
+def test_mg_2015_frame(fetched):
+    """The EIC 2015 frame (6h): 12 layers, plus ti in an island state."""
+    _cli.main(["fetch", "9", "--dataset", "mg", "--edition", "2015"])
+    assert len(fetched) == 12 and all(f.endswith("_2015_09.parquet") for f in fetched)
+    fetched.clear()
+    _cli.main(["fetch", "2", "--dataset", "mg", "--edition", "2015"])
+    assert len(fetched) == 13 and "mg_ti_2015_02.parquet" in fetched
+
+
 @pytest.mark.parametrize("edition, layers", [
     ("2010", ("ent", "mun", "a", "l", "lpr")),
     ("2005", ("ent", "mun", "a")),
@@ -100,7 +109,7 @@ def test_unmirrored_edition_is_refused(argv, fetched, monkeypatch):
     ["fetch", "--dataset", "enigh", "--edition", "2015"],         # unknown edition
     ["fetch", "--dataset", "cpv"],                                # missing STATE
     ["fetch", "9", "--dataset", "cpv", "--edition", "2016"],      # unknown edition
-    ["fetch", "9", "--dataset", "mg", "--edition", "2015"],       # unknown MG edition
+    ["fetch", "9", "--dataset", "mg", "--edition", "2016"],       # unknown MG edition
     ["fetch", "9", "--dataset", "mg", "--period", "2025"],        # wrong selector
 ])
 def test_argument_errors(argv, fetched):

@@ -17,14 +17,14 @@ from mxcensus.cpv_geo import cpv_mun_lineage, cpv_municipal_units
 from mxcensus.data._catalog import mg_filename
 
 _MIRROR = Path(__file__).resolve().parent.parent / "data" / "parquet"
-_PERIODS = ("1995", "2000", "2005", "2010", "2020", "2025")
+_PERIODS = ("1995", "2000", "2005", "2010", "2015", "2020", "2025")
 
 
 def test_lineage_document():
     doc = lineage_doc()
     assert doc["periodos"] == list(_PERIODS)
     assert doc["municipios"] == {"1995": 2_428, "2000": 2_443, "2005": 2_454, "2010": 2_456,
-                                 "2020": 2_469, "2025": 2_478}
+                                 "2015": 2_457, "2020": 2_469, "2025": 2_478}
     assert len(doc["claves"]) == len(set(doc["claves"])) == doc["municipios"]["2025"]
     lin = cpv_mun_lineage()
     created = lin.groupby(["PERIOD_FROM", "PERIOD_TO"])["CVEGEO"].nunique()
@@ -36,6 +36,8 @@ def test_lineage_document():
     main = lin.sort_values("SHARE_NEW").groupby("CVEGEO").tail(1)
     assert (main["CVEGEO"].str[:2] == main["PARENT"].str[:2]).all()    # its main parent's state
     assert lin.loc[lin["CVEGEO"] == "02007", "PARENT"].tolist() == ["02001", "02002"]
+    # 6h: the EIC 2015 frame dates Bacalar (2011) to 2010 → 2015, the other 12 to 2015 → 2020
+    assert lin.loc[lin["PERIOD_TO"] == "2015", "CVEGEO"].unique().tolist() == ["23010"]
 
 
 def test_municipal_units():
@@ -44,6 +46,8 @@ def test_municipal_units():
     bc = u.set_index("CVEGEO").loc[["02001", "02002", "02007"]]
     assert set(bc["UNIT"]) == {"02001"} and bc.loc["02007", "FIRST"] == "2025"
     assert (u.loc[u["CVEGEO"] == "01001", ["UNIT", "FIRST"]].values == [["01001", "2020"]]).all()
+    assert cpv_municipal_units(2015, 2020).set_index("CVEGEO").loc["23011", "FIRST"] == "2020"
+    assert len(cpv_municipal_units(2015, 2015)) == 2_457
     same = cpv_municipal_units("2000", "2000")
     assert len(same) == 2_443 and (same["UNIT"] == same["CVEGEO"]).all()
     wide = cpv_municipal_units(1995, 2025)

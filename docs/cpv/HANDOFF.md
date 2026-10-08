@@ -1,12 +1,12 @@
 # CPV family — session handoff
 
-**Status (2026-10-08): units 0–6g are done. `main` = v0.7.1 (through 6e); `cpv-integration`
+**Status (2026-10-08): units 0–6h are done. `main` = v0.7.1 (through 6e); `cpv-integration`
 is ahead by the units of this session (6f onward), committed locally, not pushed. The user
-asked for the four post-6e candidates in one session, one unit each: 6f and 6g (done), 6h
-the EIC 2015 frame, 6i the 2000/2005 derived columns.**
+asked for the four post-6e candidates in one session, one unit each: 6f, 6g and 6h (done),
+6i the 2000/2005 derived columns.**
 - **Released** (registered, uploaded, verified): every edition 1990–2025 (897 `cpv_` files)
-  and the Marco Geoestadístico 1995–2025 frames; registry **3751** entries
-  (`STEP_6b.md` §Release batch).
+  and the Marco Geoestadístico 1995–2025 frames, incl. the EIC 2015's (6h); registry
+  **4148** entries (`STEP_6b.md` §Release batch, `STEP_6h.md`).
 - **Derived columns** (6b, 6d, 6e, 6f): `derived=True` on `load_cpv_personas/viviendas/survey`;
   `cpv_constraints(table, period)` gives the constraints per edition (`STEP_6b.md`).
 - **6c** (review of every pending decision with the user, `STEP_6c.md`): legacy NA guard,
@@ -27,13 +27,17 @@ the EIC 2015 frame, 6i the 2000/2005 derived columns.**
 - **6g** (`STEP_6g.md`): INEGI's `PSIND_LIM` rule (no difficulty of any degree, no mental
   condition; NE only when all seven answers are unspecified) as `SIN_DISC_LIM` (2020/2025)
   and the CPV `PSIND_LIM` cell; exact in every EIC 2025 state and municipality.
+- **6h** (`STEP_6h.md`): the EIC 2015 frame = INEGI's «Cartografía geoestadística urbana y
+  rural amanzanada. Cierre de la Encuesta Intercensal 2015» (a UPC per state), MG period
+  2015: 397 files, registry 3751 → 4148 (upload: the follow-up commit); the lineage's 2015 step.
 
-Design: [`PLAN.md`](PLAN.md). Recent units: [`STEP_6g.md`](STEP_6g.md), [`STEP_6f.md`](STEP_6f.md), [`STEP_6e.md`](STEP_6e.md),
+Design: [`PLAN.md`](PLAN.md). Recent units: [`STEP_6h.md`](STEP_6h.md), [`STEP_6g.md`](STEP_6g.md), [`STEP_6f.md`](STEP_6f.md), [`STEP_6e.md`](STEP_6e.md),
 [`STEP_6d.md`](STEP_6d.md),
 [`STEP_6c.md`](STEP_6c.md), [`STEP_6b.md`](STEP_6b.md), … [`STEP_0_probe.md`](STEP_0_probe.md).
 
-**Host state.** The Mac and `wsl:~/mxcensus` both hold the full mirror (3751 registered
-files); `wsl:~/mxcensus` is at v0.7.0 (pull v0.7.1 before running 6d/6e code there).
+**Host state.** The Mac and `wsl:~/mxcensus` both hold the full mirror (4148 registered
+files; the MG 2015 files were built on the Mac and copied to `wsl` for the upload);
+`wsl:~/mxcensus` is at v0.7.0 (pull before running 6d+ code there).
 `wsl:~/mxcensus3c` (3c's code copy) can be deleted.
 
 ## Kickoff prompt for the next session
@@ -46,10 +50,7 @@ files); `wsl:~/mxcensus` is at v0.7.0 (pull v0.7.1 before running 6d/6e code the
 
 ## Next: this session's remaining units
 
-1. **6h — the EIC 2015 frame** (3d leftover, `STEP_3d.md`): MG 2014 v6.2 (Aug 2014, 2,457
-   municipalities = the EIC 2015's) is the likely frame; its UPC is unknown. Candidates
-   downloadable: MG 2013 v6.0 (702825292829), MG junio 2016 (702825217341).
-2. **6i — derived columns for 2000/2005** (their items differ the most).
+1. **6i — derived columns for 2000/2005** (their items differ the most).
 
 ## Open questions for the user
 
@@ -143,6 +144,10 @@ None pending: 6e's decisions were taken with the user (`STEP_6e.md` §Decisions)
 - **Indicator ranges** (4b): `parse_indicator_csv` reads `00..9999999999` (all zeros to
   all nines) as a count, other zero-padded ranges as codes. The averages' decimals come
   from the values (`label_frame` makes non-integral columns `Float64`).
+- **MG 2015** (6h): one INEGI product per state (`MgEdition.products`, UPCs in INEGI's
+  alphabetical order), 12 layers + `ti` (`mg_layers`), island layer named
+  `NNterritorioinsular`, columns differ from 2020's, LCC on ITRF92; Empalme (26025) has a
+  second, empty polygon. INEGI serves ~0.5 MB/s per connection: prefetch in parallel.
 - **MG national editions** (3d/4b): each frame names its codes its own way
   (`_ENTITY_COLUMNS`/`_ENTITY_PREFIX_COLUMNS`); a layer without `.prj` takes the
   edition's declared CRS (`_edition_crs`). Attribute names stay INEGI's.
@@ -179,7 +184,7 @@ None pending: 6e's decisions were taken with the user (`STEP_6e.md` §Decisions)
 - **INEGI throttles `wsl`** at times (~50 kB/s on 2026-10-08). The Mac's `data/cache`
   ZIPs can be copied over (`scp` into `wsl:mxcensus/data/cache/`); the builds read them
   as cached, and the outputs are byte-identical.
-- **Both hosts hold the full mirror** (3751 registered files) since the release batch;
+- **Both hosts hold the full mirror** (4148 registered files) since 6h;
   metadata modes and 32-state tests run on either. The CLI still offers only registered
   files.
 - **Tailscale SSH can demand a re-login at any time.** A hanging `ssh wsl` that prints a

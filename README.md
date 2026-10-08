@@ -97,7 +97,7 @@ mxcensus info           # cache directory and mirror URL
 | **RESARGEBUB** | Urban block | AGEB (urban statistical areas) and MZA (city blocks) |
 | **Cuestionario Ampliado** | Microdata | Individual person and household records |
 | **Censuses & intercensal surveys** (`cpv`) | Microdata + aggregates | Multi-year family, 1990–2025: the census, conteo and intercensal samples (dwellings, households, persons, emigrants per state), the ITER locality counts (1990–2020) and AGEB/block counts (2010, 2020), the EIC 2025 national estimates |
-| **Marco Geoestadístico** | Geometries | INEGI's geostatistical frames as GeoParquet: 2020 and 2025 (15 layers/state + island polygons), 2010 (5 layers) and the municipal frames 1995–2005 |
+| **Marco Geoestadístico** | Geometries | INEGI's geostatistical frames as GeoParquet: 2020 and 2025 (15 layers/state + island polygons), the EIC 2015 frame (12 layers + islands), 2010 (5 layers) and the municipal frames 1995–2005 |
 | **DENUE** | Establishments | Economic-units directory, 25 releases 2010–2026, as point GeoParquet |
 | **ENOE** | Labor force | Quarterly employment-survey microdata, 85 quarters 2005–2026, national (5 tables/quarter) |
 | **ENIGH** | Income & expenditure | Biennial household income/expenditure microdata, 9 editions 2008–2024 (nueva serie 2016+ and the conciliated NCV 2008–2014), national (10–12 tables/edition) |
@@ -234,7 +234,8 @@ The legacy health-coverage dummies `DHSERSAL_Popular_NGenración_SBienestar` and
 `DHSERSAL_IMSS_Prospera/Bienestar` are named `DHSERSAL_SALUD_PUBLICA` and
 `DHSERSAL_IMSS_BIENESTAR` here: the EIC 2025 swapped the two codes and widened the first
 (any public health centre, including INSABI and Seguro Popular).
-Municipalities were created between editions (2,428 in 1995, 2,478 in 2025; none retired):
+Municipalities were created between editions (2,428 in 1995, 2,457 in 2015, 2,478 in 2025;
+none retired):
 `cpv_mun_lineage()` lists each new code with its parents, and
 `cpv_municipal_units(start, end)` maps every municipality to a unit stable between two
 frames, for comparing editions on one geography. Schema groups, reports and the
@@ -391,6 +392,10 @@ frames: the **2020** census frame (`mg_{layer}_{NN}.parquet`) and the **Encuesta
 `mun`, `a`/`ar` (urban/rural AGEBs), `l`/`lpr` (locality polygons/rural locality points),
 `m` (blocks), `fm`, `e`, `cd`, `pe`, `pem`, `sia`, `sil`, `sip`, plus `ti` (island
 territory) in the 13 states with islands (`mxcensus.data._catalog.MG_LAYERS` describes each).
+The **Encuesta Intercensal 2015** frame (`mg_{layer}_2015_{NN}.parquet`) is INEGI's
+«Cartografía geoestadística urbana y rural amanzanada. Cierre de la Encuesta Intercensal
+2015» (cut 30 April 2015): the same layers except `cd`, `pe` and `pem`, and its 2,457
+municipalities are the survey's. Its attribute columns are that product's, not 2020's.
 Older frames, published by INEGI as one national ZIP, are split per state into the same
 names (`mg_{layer}_{period}_{NN}.parquet`, INEGI's attribute names kept): **2010** v5.0
 (`ent`, `mun`, `a`, `l`, `lpr`), the municipal frames **2005** and **2000** (`ent`, `mun`,
@@ -408,7 +413,8 @@ municipalities join the EIC 2025 estimates and microdata on `CVEGEO`. INEGI ship
 Lambert conformal conic projection under two spellings (a custom `MEXICO_ITRF_2008_LCC` WKT
 on most layers, EPSG:6372 on a few), which geopandas treats as different CRSs.
 `load_mg` therefore returns every layer on EPSG:6372 by default, without moving any
-coordinate; pass `crs=None` for the stored CRS.
+coordinate; pass `crs=None` for the stored CRS. The 1995–2015 frames use the same
+projection on ITRF92, which PROJ also converts without moving coordinates.
 
 The convenience wrapper `load_mg_census(state=N)` consumes four 2020 layers (`a` urban
 AGEB, `l` urban locality, `lpr` rural locality points, `ar` rural AGEB) and returns census
@@ -488,6 +494,9 @@ require you to credit INEGI as the author of the data. Use the citation(s):
 > **Fuente: INEGI, Marco Geoestadístico, Censo de Población y Vivienda 2020.**
 >
 > **Fuente: INEGI, Marco Geoestadístico, Encuesta Intercensal 2025.**
+>
+> **Fuente: INEGI, Cartografía Geoestadística Urbana y Rural Amanzanada. Cierre de la
+> Encuesta Intercensal 2015.**
 >
 > **Fuente: INEGI, Directorio Estadístico Nacional de Unidades Económicas (DENUE).**
 >

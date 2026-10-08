@@ -1,7 +1,7 @@
 """Build the cross-edition municipal lineage of the Marco Geoestadístico (maintainer-only).
 
 Writes ``src/mxcensus/_yaml/cpv_mun_lineage.yaml``: for each pair of consecutive MG
-editions (1995, 2000, 2005, 2010, 2020, 2025), every municipality code that appears in
+editions (1995, 2000, 2005, 2010, 2015, 2020, 2025), every municipality code that appears in
 the later one, with the municipalities of the earlier one its territory came from and
 the area shares. The table is derived from the frames' own polygons (``mg_mun_*``, read
 from the local mirror, EPSG:6372 areas). INEGI's AGEEML catalog has the decrees behind
@@ -44,10 +44,10 @@ _DEFAULT_OUTPUT = _REPO_ROOT / "src" / "mxcensus" / "_yaml" / "cpv_mun_lineage.y
 
 # The editions with a municipal frame, oldest first (1990 has none), and where each keeps the
 # municipality's 5-character code.
-_PERIODS = ("1995", "2000", "2005", "2010", "2020", "2025")
+_PERIODS = ("1995", "2000", "2005", "2010", "2015", "2020", "2025")
 _MUN_KEY: dict[str, str | tuple[str, str]] = {
     "1995": ("CVE_ENT", "CVE_MUN"), "2000": "CVEMUNI", "2005": "CVE_CONCA",
-    "2010": ("CVE_ENT", "CVE_MUN"), "2020": "CVEGEO", "2025": "CVEGEO",
+    "2010": ("CVE_ENT", "CVE_MUN"), "2015": "CVEGEO", "2020": "CVEGEO", "2025": "CVEGEO",
 }
 # A parent covers at least this share of the new municipality's area.
 _MIN_SHARE = 0.05

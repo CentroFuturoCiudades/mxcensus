@@ -12,6 +12,7 @@ periodos:
 - '2000'
 - '2005'
 - '2010'
+- '2015'
 - '2020'
 - '2025'
 municipios:
@@ -19,6 +20,7 @@ municipios:
   '2000': 2443
   '2005': 2454
   '2010': 2456
+  '2015': 2457
   '2020': 2469
   '2025': 2478
 parte_minima: 0.05
@@ -2747,13 +2749,20 @@ cambios:
     parte_del_nuevo: 0.053
     parte_del_origen: 0.055
 - desde: '2010'
+  hasta: '2015'
+  CVEGEO: '23010'
+  origen:
+  - CVEGEO: '23004'
+    parte_del_nuevo: 0.976
+    parte_del_origen: 0.369
+- desde: '2015'
   hasta: '2020'
   CVEGEO: '02006'
   origen:
   - CVEGEO: '02001'
     parte_del_nuevo: 0.969
     parte_del_origen: 0.622
-- desde: '2010'
+- desde: '2015'
   hasta: '2020'
   CVEGEO: '04012'
   origen:
@@ -2763,14 +2772,14 @@ cambios:
   - CVEGEO: '04002'
     parte_del_nuevo: 0.09
     parte_del_origen: 0.008
-- desde: '2010'
+- desde: '2015'
   hasta: '2020'
   CVEGEO: '07120'
   origen:
   - CVEGEO: 07080
     parte_del_nuevo: 1.0
     parte_del_origen: 0.257
-- desde: '2010'
+- desde: '2015'
   hasta: '2020'
   CVEGEO: '07121'
   origen:
@@ -2780,14 +2789,14 @@ cambios:
   - CVEGEO: 07091
     parte_del_nuevo: 0.066
     parte_del_origen: 0.121
-- desde: '2010'
+- desde: '2015'
   hasta: '2020'
   CVEGEO: '07122'
   origen:
   - CVEGEO: '07107'
     parte_del_nuevo: 0.994
     parte_del_origen: 0.133
-- desde: '2010'
+- desde: '2015'
   hasta: '2020'
   CVEGEO: '07123'
   origen:
@@ -2797,49 +2806,42 @@ cambios:
   - CVEGEO: '07027'
     parte_del_nuevo: 0.191
     parte_del_origen: 0.05
-- desde: '2010'
+- desde: '2015'
   hasta: '2020'
   CVEGEO: '07124'
   origen:
   - CVEGEO: 07092
     parte_del_nuevo: 0.983
     parte_del_origen: 0.584
-- desde: '2010'
+- desde: '2015'
   hasta: '2020'
   CVEGEO: '07125'
   origen:
   - CVEGEO: 07080
     parte_del_nuevo: 0.996
     parte_del_origen: 0.304
-- desde: '2010'
+- desde: '2015'
   hasta: '2020'
   CVEGEO: '17034'
   origen:
   - CVEGEO: '17015'
     parte_del_nuevo: 1.0
     parte_del_origen: 0.239
-- desde: '2010'
+- desde: '2015'
   hasta: '2020'
   CVEGEO: '17035'
   origen:
   - CVEGEO: '17017'
     parte_del_nuevo: 0.994
     parte_del_origen: 0.206
-- desde: '2010'
+- desde: '2015'
   hasta: '2020'
   CVEGEO: '17036'
   origen:
   - CVEGEO: '17022'
     parte_del_nuevo: 1.0
     parte_del_origen: 0.195
-- desde: '2010'
-  hasta: '2020'
-  CVEGEO: '23010'
-  origen:
-  - CVEGEO: '23004'
-    parte_del_nuevo: 0.976
-    parte_del_origen: 0.369
-- desde: '2010'
+- desde: '2015'
   hasta: '2020'
   CVEGEO: '23011'
   origen:

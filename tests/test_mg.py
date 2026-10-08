@@ -23,6 +23,7 @@ from mxcensus.data._catalog import (
     MG_LAYERS,
     MG_OPTIONAL_LAYERS,
     mg_filename,
+    mg_layers,
 )
 from mxcensus.mg import CANONICAL_CRS
 
@@ -132,6 +133,25 @@ def test_built_files_and_update_registry(tmp_path, capsys):
         sorted(p.name for p in present)
     with pytest.raises(SystemExit):
         _bmg.main(["--update-registry", "--no-registry", "--output", str(out_dir)])
+
+
+def test_edition_layers_2015(tmp_path, capsys):
+    """MG 2015 (the EIC 2015 frame) has 12 layers (+ ti in the island states): a build or
+    registry update of every layer neither expects nor reports the other three (cd, pe,
+    pem); its island layer is spelled «NNterritorioinsular»."""
+    out_dir = tmp_path / "parquet"
+    out_dir.mkdir()
+    for sfx in set(mg_layers("2015")) - MG_OPTIONAL_LAYERS:      # state 01: no islands
+        _mun_frame(1, _PRJ_CUSTOM).to_parquet(out_dir / mg_filename(sfx, 1, "2015"))
+    registry = tmp_path / "registry.txt"
+    registry.write_text("")
+    _bmg.main(["--period", "2015", "--states", "1", "--update-registry",
+               "--output", str(out_dir), "--registry", str(registry)])
+    out = capsys.readouterr().out
+    assert "not built" not in out and "Upserting 12 MG 2015 file(s)" in out
+    assert len(registry.read_text().splitlines()) == 12
+    assert set(mg_layers("2015")) < set(MG_LAYERS) and mg_layers("2020") == tuple(MG_LAYERS)
+    assert _bmg._SUFFIX_ALIASES == {"territorioinsular": "ti"}
 
 
 def test_national_layer_names_and_state_codes():
@@ -254,7 +274,8 @@ def test_load_mg_crs_none_and_reprojection(mg_mirror):
 
 @pytest.mark.parametrize("kwargs, match", [
     (dict(layer="xx", state=1), "unknown Marco Geoestadístico layer"),
-    (dict(layer="mun", state=1, period=2015), "unknown Marco Geoestadístico period"),
+    (dict(layer="mun", state=1, period=2016), "unknown Marco Geoestadístico period"),
+    (dict(layer="cd", state=1, period=2015), "MG 2015 has no 'cd' layer"),
     (dict(layer="mun", state=None), "mirrored per state"),
     (dict(layer="mun", state=33), "state code 1-32"),
     (dict(layer="mun", state=[]), "empty sequence"),
@@ -431,6 +452,44 @@ def test_real_mg_2010_counts(local_mirror):
     mun = mxcensus.load_mg("mun", state=1, period="2010")
     assert len(mun) == 11 and mun.crs.equals(CRS.from_epsg(6372))
     assert set(mun["CVE_ENT"]) == {"01"} and "CVEGEO" not in mun      # 2010: no CVEGEO here
+
+
+# The EIC 2015 frame («Cartografía geoestadística urbana y rural amanzanada. Cierre de la
+# Encuesta Intercensal 2015», 6h): its municipalities are the EIC 2015's 2,457 (Empalme,
+# 26025, ships a second, empty polygon: 2,458 features); 4,546 urban localities and 350
+# island polygons, as its leeme/contenido state; the source CRS is an LCC on ITRF92.
+_MG_2015 = {"ent": 32, "mun": 2_458, "ti": 350, "l": 55_262}
+
+
+def test_real_mg_2015(local_mirror):
+    if not all((_MIRROR / mg_filename(sfx, s, "2015")).exists()
+               for sfx in set(mg_layers("2015")) - MG_OPTIONAL_LAYERS for s in range(1, 33)):
+        pytest.skip("MG 2015 not on disk for all 32 states")
+    import pyarrow.parquet as pq
+
+    def rows(sfx: str) -> int:
+        return sum(pq.read_metadata(p).num_rows for s in range(1, 33)
+                   if (p := _MIRROR / mg_filename(sfx, s, "2015")).exists())
+
+    assert {sfx: rows(sfx) for sfx in _MG_2015} == _MG_2015
+    mun = mxcensus.load_mg("mun", state=list(range(1, 33)), period=2015)
+    assert mun["CVEGEO"].nunique() == 2_457 and mun["CVEGEO"].duplicated().sum() == 1
+    assert mun.loc[mun["CVEGEO"].duplicated(keep=False), "CVEGEO"].unique().tolist() == ["26025"]
+    eic = _MIRROR / "cpv_viviendas_2015_01.parquet"
+    if eic.exists():
+        codes = set()
+        for s in range(1, 33):
+            t = pq.read_table(_MIRROR / f"cpv_viviendas_2015_{s:02d}.parquet",
+                              columns=["ENT", "MUN"]).to_pandas().drop_duplicates()
+            codes |= {f"{int(e):02d}{int(m):03d}" for e, m in zip(t["ENT"], t["MUN"])}
+        assert set(mun["CVEGEO"]) == codes
+    stored = gpd.read_parquet(_MIRROR / mg_filename("mun", 9, "2015"))
+    assert stored.crs.name == "ccl_itrf92" and mun.crs.equals(CRS.from_epsg(6372))
+    loaded = mxcensus.load_mg("mun", state=9, period=2015)
+    assert all(a.equals_exact(b, 0) for a, b in zip(stored.geometry, loaded.geometry))
+    l = pd.concat([pq.read_table(_MIRROR / mg_filename("l", s, "2015"), columns=["AMBITO"])
+                   .to_pandas() for s in range(1, 33)])
+    assert (l["AMBITO"] == "U").sum() == 4_546
 
 
 # The municipal frames of 2000 and 2005 (national ZIPs, three layers each). Their

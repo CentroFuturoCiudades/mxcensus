@@ -4,10 +4,13 @@ This script is for maintainers only — it is NOT part of the installed package.
 
 It downloads INEGI's per-state Marco Geoestadístico shapefile ZIPs for ``--period``
 (default 2020: "Marco Geoestadístico, Censo de Población y Vivienda 2020", UPC
-889463807469; 2025: "…Encuesta Intercensal 2025", UPC 794551196649 — editions in
+889463807469; 2025: "…Encuesta Intercensal 2025", UPC 794551196649; 2015: the EIC 2015's
+"Cartografía geoestadística urbana y rural amanzanada. Cierre de la Encuesta Intercensal
+2015", one product (UPC) per state, 12 layers — editions in
 ``mxcensus.data._catalog.MG_EDITIONS``) and converts each of their layers
 (``_catalog.MG_LAYERS``: 15 in every state, plus ``ti`` — territorio insular — in the
-island states only) to GeoParquet, one file per layer per state, then appends their
+island states only; ``mg_layers(period)`` for an edition with fewer) to GeoParquet, one
+file per layer per state, then appends their
 SHA256 hashes to the package registry alongside the census parquet entries.
 
 File names: 2020 keeps the original period-less ``mg_{suffix}_{NN}.parquet``; every
@@ -79,6 +82,7 @@ from mxcensus.data._catalog import (
     marco_geo_national_url,
     marco_geo_zip_url,
     mg_filename,
+    mg_layers,
 )
 
 # ---------------------------------------------------------------------------
@@ -93,6 +97,8 @@ _DEFAULT_REGISTRY = _REPO_ROOT / "src" / "mxcensus" / "data" / "registry.txt"
 
 # INEGI per-state layer suffixes (file/layer name == f"{code}{suffix}").
 _ALL_SUFFIXES = sorted(MG_LAYERS)
+# A layer an edition names in full: the EIC 2015 frame's «NNterritorioinsular».
+_SUFFIX_ALIASES = {"territorioinsular": "ti"}
 
 # ---------------------------------------------------------------------------
 # Helpers
@@ -152,6 +158,7 @@ def _inegi_layer_paths(
     paths: dict[str, Path] = {}
     for shp in extract_dir.rglob(f"{code}*.shp"):
         suffix = shp.stem[len(code):]            # 01ent -> ent
+        suffix = _SUFFIX_ALIASES.get(suffix, suffix)
         if suffix in _ALL_SUFFIXES:
             paths[suffix] = shp
         else:
@@ -386,6 +393,8 @@ def main(argv: list[str] | None = None) -> None:
         parser.error("--update-registry and --no-registry are mutually exclusive")
 
     national = MG_EDITIONS[args.period].layout == "national"
+    if not national:              # an edition with fewer layers (2015: 12) builds only those
+        args.layers = [s for s in args.layers if s in mg_layers(args.period)]
     if national and args.local_gpkg_dir is not None:
         parser.error("--local-gpkg-dir only applies to the 2020 frame")
     if args.registry_only and national:

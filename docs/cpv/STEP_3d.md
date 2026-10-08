@@ -48,6 +48,9 @@ ITER:
 
 ## The EIC 2015 frame: not identified
 
+*Resolved in 6h (`STEP_6h.md`): INEGI's «Cartografía geoestadística urbana y rural
+amanzanada. Cierre de la Encuesta Intercensal 2015», mirrored as MG period 2015.*
+
 INEGI publishes no frame "for" the Encuesta Intercensal 2015. Its microdata stop at the
 municipality (`ENT`/`MUN`), so only a municipal layer matters. Candidates are the national
 MG of 2014–2016 (versions 6.x; an IDEGEO layer names `mglu2013v6_2`). Two web searches did

@@ -105,16 +105,45 @@ class MgEdition:
     """One Marco Geoestadístico edition, keyed by the census period it frames.
 
     ``layout="state"`` editions ship one ``{code}_{slug}.zip`` per state under
-    ``marcogeo/{upc}/`` (the ``MG_LAYERS``); ``layout="national"`` editions ship a single
-    ``marc_geo/{upc}_s.zip`` that the build splits per state. URLs and slugs verified
-    against INEGI's product API (``…/app/api/productos/interna_v2/ficha/datos?upc=``)
-    on 2026-10-07.
+    ``marcogeo/{upc}/`` (the ``MG_LAYERS``) — or, with ``products``, one product per state,
+    each with its own UPC (``{path}/{upc}_s.zip``); ``layout="national"`` editions ship a
+    single ``marc_geo/{upc}_s.zip`` that the build splits per state. ``layers`` lists the
+    edition's layers when it has fewer than ``MG_LAYERS``. URLs and slugs verified against
+    INEGI's product API (``…/app/api/productos/interna_v2/ficha/datos?upc=``) on
+    2026-10-07 (2015: 2026-10-08).
     """
 
     period: str
     upc: str
     title: str
     layout: str  # "state" | "national"
+    products: tuple[tuple[str, str], ...] = ()  # per state 1–32: (path under geografia/, UPC)
+    layers: tuple[str, ...] = ()                # () = every MG_LAYERS suffix
+
+
+# The EIC 2015 frame: «Cartografía geoestadística urbana y rural amanzanada. Cierre de la
+# Encuesta Intercensal 2015» (cut 30 April 2015), one product per state; UPCs in INEGI's
+# alphabetical order of the state names (Chiapas and Chihuahua before Coahuila).
+_CINTER_2015 = tuple(
+    (f"Cinter_2015/{folder}", upc) for folder, upc in (
+        ("Aguascalientes", "702825209025"), ("Baja_California", "702825209032"),
+        ("Baja_California_Sur", "702825209049"), ("Campeche", "702825209056"),
+        ("Coahuila_de_Zaragoza", "702825209087"), ("Colima", "702825209094"),
+        ("Chiapas", "702825209063"), ("Chihuahua", "702825209070"),
+        ("Distrito_Federal", "702825209100"), ("Durango", "702825209117"),
+        ("Guanajuato", "702825209124"), ("Guerrero", "702825209131"),
+        ("Hidalgo", "702825209148"), ("Jalisco", "702825209155"),
+        ("Mexico", "702825209162"), ("Michoacan_de_Ocampo", "702825209179"),
+        ("Morelos", "702825209186"), ("Nayarit", "702825209193"),
+        ("Nuevo_Leon", "702825209209"), ("Oaxaca", "702825209216"),
+        ("Puebla", "702825209223"), ("Queretaro", "702825209230"),
+        ("Quintana_Roo", "702825209247"), ("San_Luis_Potosi", "702825209254"),
+        ("Sinaloa", "702825209261"), ("Sonora", "702825209278"),
+        ("Tabasco", "702825209285"), ("Tamaulipas", "702825209292"),
+        ("Tlaxcala", "702825209308"), ("Veracruz_de_Ignacio_de_la_Llave", "702825209315"),
+        ("Yucatan", "702825209322"), ("Zacatecas", "702825209339"),
+    )
+)
 
 
 MG_EDITIONS: dict[str, MgEdition] = {
@@ -124,6 +153,10 @@ MG_EDITIONS: dict[str, MgEdition] = {
         MgEdition("2000", "702825292843", "Marco Geoestadístico municipal 2000", "national"),
         MgEdition("2005", "702825292850", "Marco Geoestadístico municipal 2005 v1.0", "national"),
         MgEdition("2010", "702825292812", "Marco Geoestadístico 2010 v5.0", "national"),
+        MgEdition("2015", "", "Cartografía geoestadística urbana y rural amanzanada. Cierre "
+                  "de la Encuesta Intercensal 2015", "state", products=_CINTER_2015,
+                  layers=("ent", "mun", "ar", "a", "l", "lpr", "ti", "m", "fm", "e", "sia",
+                          "sil", "sip")),
         MgEdition("2020", "889463807469",
                   "Marco Geoestadístico, Censo de Población y Vivienda 2020", "state"),
         MgEdition("2025", "794551196649",
@@ -176,7 +209,16 @@ def marco_geo_zip_url(state: int, period: str = MG_LEGACY_PERIOD) -> str:
         raise ValueError(
             f"MG {period} is published as one national ZIP; use marco_geo_national_url()"
         )
+    if ed.products:
+        path, upc = ed.products[state - 1]
+        return f"{_MG_ROOT}/{path}/{upc}_s.zip"
     return f"{_MG_ROOT}/marcogeo/{ed.upc}/{STATE_CODE_FMT(state)}_{STATE_SLUG_MG[state]}.zip"
+
+
+def mg_layers(period: str = MG_LEGACY_PERIOD) -> tuple[str, ...]:
+    """The layer suffixes of an MG edition (``MG_LAYERS`` unless it has fewer)."""
+    ed = _mg_edition(period)
+    return ed.layers or tuple(MG_LAYERS)
 
 
 def marco_geo_national_url(period: str) -> str:

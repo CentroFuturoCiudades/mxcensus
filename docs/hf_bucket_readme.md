@@ -15,6 +15,7 @@ maintained by INEGI.**
 | Censuses, conteos & intercensal surveys (`cpv_{table}_{year}_*`, 1990–2025: microdata `viviendas`/`hogares`/`personas`/`migrantes` and locality/AGEB aggregates `iter`/`ageb` per state, plus the national EIC 2025 `estimaciones`) | 897 | XI Censo General de Población y Vivienda 1990; Conteo de Población y Vivienda 1995; XII Censo General de Población y Vivienda 2000; II Conteo de Población y Vivienda 2005; Censos de Población y Vivienda 2010 and 2020; Encuestas Intercensales 2015 and 2025 (muestras/cuestionario ampliado, ITER, AGEB y manzana urbana, estimaciones) |
 | Marco Geoestadístico 2020 (`mg_{layer}_{NN}`, 15 layers × 32 states + `ti` for 13 island states) | 493 | Marco Geoestadístico, Censo de Población y Vivienda 2020 (UPC 889463807469) |
 | Marco Geoestadístico 2025 (`mg_{layer}_2025_{NN}`, same layers) | 493 | Marco Geoestadístico, Encuesta Intercensal 2025 (UPC 794551196649) |
+| Marco Geoestadístico of the Encuesta Intercensal 2015 (`mg_{layer}_2015_{NN}`, 12 layers × 32 states + `ti` for 13 island states) | 397 | Cartografía geoestadística urbana y rural amanzanada. Cierre de la Encuesta Intercensal 2015 (one product per state, UPC 702825209025–702825209339) |
 | Marco Geoestadístico 2010 (`mg_{ent,mun,a,l,lpr}_2010_{NN}`) | 160 | Marco Geoestadístico 2010 v5.0 (UPC 702825292812) |
 | Municipal Marcos Geoestadísticos 1995–2005 (`mg_{ent,mun}_{1995,2000,2005}_{NN}`, `mg_a_{2000,2005}_{NN}`) | 256 | Marco Geoestadístico municipal 1995, 2000 and 2005 v1.0 (UPC 702825292836, 702825292843, 702825292850) |
 | DENUE economic units (`denue_{YYYYMM}_*`, 25 releases 2010–2026) | 800 | Directorio Estadístico Nacional de Unidades Económicas (DENUE) |
@@ -22,7 +23,7 @@ maintained by INEGI.**
 | ENIGH income/expenditure survey (`enigh_{table}_{year}`, 9 editions 2008–2024 × 10–12 tables) | 99 | Encuesta Nacional de Ingresos y Gastos de los Hogares (ENIGH) |
 
 Files are stored flat at the bucket root as `<name>.parquet`; the full naming scheme and
-schema are documented in the package repository. **Total: 3751 files.**
+schema are documented in the package repository. **Total: 4148 files.**
 
 ## Source & attribution
 
@@ -34,7 +35,8 @@ endorsement. Please cite the original source:
 > Fuente: INEGI. Censos Generales de Población y Vivienda 1990 and 2000; Conteos de
 > Población y Vivienda 1995 and 2005; Censos de Población y Vivienda 2010 and 2020;
 > Encuestas Intercensales 2015 and 2025; Marcos Geoestadísticos 1995, 2000, 2005, 2010,
-> 2020 and 2025; Directorio
+> 2015 (Cartografía Geoestadística Urbana y Rural Amanzanada, Cierre de la Encuesta
+> Intercensal 2015), 2020 and 2025; Directorio
 > Estadístico Nacional de Unidades Económicas (DENUE); Encuesta Nacional de Ocupación y
 > Empleo (ENOE); Encuesta Nacional de Ingresos y Gastos de los Hogares (ENIGH).
 > https://www.inegi.org.mx

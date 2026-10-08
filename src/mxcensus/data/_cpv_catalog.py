@@ -282,8 +282,9 @@ EDITIONS: list[CpvEdition] = [
         program_path="intercensal/2015",
         urls={"microdatos": "microdatos/eic2015_{nn}_csv.zip"},
         members={"viviendas": r"TR_VIVIENDA{nn}\.csv", "personas": r"TR_PERSONA{nn}\.csv"},
-        ddi_id=214, biinegi_id=1714, mg_period=None,
-        notes="no migrantes table, no ITER/AGEB; MG frame not yet identified; CSVs cp1252; "
+        ddi_id=214, biinegi_id=1714, mg_period="2015",
+        notes="no migrantes table, no ITER/AGEB; MG frame = the EIC's own closure "
+              "cartography (MG period 2015, 12 layers); CSVs cp1252; "
               "keys unpadded (ID_VIV 11-12 digits); dictionary = the FD .xls + the TC_* "
               "catalogs (RNM DDI 214 is a Nesstar export with incomplete value labels — "
               "kept for reference, not used)",
