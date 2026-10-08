@@ -134,6 +134,52 @@ def test_built_files_and_update_registry(tmp_path, capsys):
         _bmg.main(["--update-registry", "--no-registry", "--output", str(out_dir)])
 
 
+def test_national_layer_names_and_state_codes():
+    assert [_bmg._national_suffix(n) for n in ("Entidades_2010_5", "municipios_2010_5",
+                                                "AGEB_urb_2010_5", "Localidades_urbanas_2010_5",
+                                                "localidades_rurales_2010_5", "otra_capa")] == \
+        ["ent", "mun", "a", "l", "lpr", None]
+    f = gpd.GeoDataFrame({"CVEGEO": ["0100100010010", "3200100010010"]}, geometry=[None, None])
+    assert list(_bmg._state_codes(f)) == ["01", "32"]               # AGEBs: CVEGEO only
+    f = gpd.GeoDataFrame({"cve_ent": [1, 9]}, geometry=[None, None])
+    assert list(_bmg._state_codes(f)) == ["01", "09"]
+    with pytest.raises(ValueError, match="no entity column"):
+        _bmg._state_codes(gpd.GeoDataFrame({"NOM": ["x"]}, geometry=[None]))
+
+
+def test_build_national_splits_per_state(tmp_path, monkeypatch, capsys):
+    """MG 2010 is one national ZIP of per-layer ZIPs; each layer is split per state."""
+    import zipfile
+    src = tmp_path / "src"
+    src.mkdir()
+    ent = pd.concat([_mun_frame(1, _PRJ_CUSTOM, 1), _mun_frame(2, _PRJ_CUSTOM, 1)])
+    ent = ent.drop(columns="CVE_MUN")
+    ageb = ent.drop(columns="CVE_ENT").assign(CVEGEO=["0100100010010", "0200100010021"])
+    national = tmp_path / "national.zip"
+    with zipfile.ZipFile(national, "w") as outer:
+        for stem, frame in (("Entidades_2010_5", ent), ("AGEB_urb_2010_5", ageb),
+                            ("otra_capa", ent)):
+            frame.to_file(src / f"{stem}.shp")
+            inner = src / f"{stem}.zip"
+            with zipfile.ZipFile(inner, "w") as z:
+                for part in src.glob(f"{stem}.*"):
+                    if part.suffix != ".zip":
+                        z.write(part, part.name)
+            outer.write(inner, inner.name)
+    monkeypatch.setattr(_bmg.bc, "fetch_zip_verified", lambda *a, **k: national)
+    out = tmp_path / "out"
+    out.mkdir()
+    written = _bmg._build_national("2010", [1], ["ent", "mun", "a"], out, tmp_path / "cache",
+                                   tmp_path / "raw", 0)
+    assert sorted(p.name for p in written) == ["mg_a_2010_01.parquet", "mg_ent_2010_01.parquet"]
+    a = gpd.read_parquet(out / "mg_a_2010_01.parquet")
+    assert list(a["CVEGEO"]) == ["0100100010010"] and a.crs.equals(CRS.from_wkt(_PRJ_CUSTOM))
+    assert "otra_capa.shp: no layer suffix" in capsys.readouterr().out
+    assert not (tmp_path / "raw" / "mg" / "2010" / "national").exists()    # cleaned up
+    assert [p.name for p in _bmg._national_built(out, [1, 2], ["ent", "a"], "2010")] == \
+        ["mg_ent_2010_01.parquet", "mg_a_2010_01.parquet"]
+
+
 # --- load_mg (offline) ------------------------------------------------------------------
 
 def test_load_mg_filenames_by_period(mg_mirror):
@@ -331,3 +377,22 @@ def test_real_national_counts_match_contenido(period):
             continue                                  # ti not built on this host
         assert sum(rows(sfx) for sfx in layers) == expected, (period, layers)
     assert rows("ent") == 32
+
+
+# MG 2010 v5.0 is one national ZIP with five layers and no contenido.txt; its counts are
+# checked against the Censo 2010 ITER instead: the same 2,456 municipalities, and 192,244
+# localities (urban polygons + rural points) for the ITER's 192,247 locality rows.
+_MG_2010 = {"ent": 32, "mun": 2_456, "a": 56_195, "l": 4_525, "lpr": 187_719}
+
+
+def test_real_mg_2010_counts(local_mirror):
+    if not all((_MIRROR / mg_filename(sfx, s, "2010")).exists()
+               for sfx in _MG_2010 for s in range(1, 33)):
+        pytest.skip("MG 2010 not on disk for all 32 states")
+    import pyarrow.parquet as pq
+    for sfx, expected in _MG_2010.items():
+        assert sum(pq.read_metadata(_MIRROR / mg_filename(sfx, s, "2010")).num_rows
+                   for s in range(1, 33)) == expected, sfx
+    mun = mxcensus.load_mg("mun", state=1, period="2010")
+    assert len(mun) == 11 and mun.crs.equals(CRS.from_epsg(6372))
+    assert set(mun["CVE_ENT"]) == {"01"} and "CVEGEO" not in mun      # 2010: no CVEGEO here

@@ -13,8 +13,13 @@ SHA256 hashes to the package registry alongside the census parquet entries.
 File names: 2020 keeps the original period-less ``mg_{suffix}_{NN}.parquet``; every
 other period is ``mg_{suffix}_{period}_{NN}.parquet`` (``_catalog.mg_filename``). The
 ZIP cache / extraction dirs are period-qualified the same way, so two editions never
-share a cached ZIP. Editions INEGI publishes as one national ZIP (2010 and the
-1995–2005 municipal frames) are not supported yet — see docs/cpv/PLAN.md.
+share a cached ZIP. Editions INEGI publishes as **one national ZIP** (``layout="national"``:
+the 2010 v5.0 frame and the 1995–2005 municipal frames) are downloaded once; each layer is
+read whole from its nested ZIP (``_NATIONAL_LAYERS`` maps the shapefile name to the suffix)
+and split per state on ``CVE_ENT`` (or ``CVEGEO[:2]`` where the layer has no entity column)
+into the same ``mg_{suffix}_{period}_{NN}`` files. MG 2010 has five layers: ``ent``, ``mun``,
+``a`` (urban AGEBs), ``l`` (urban localities) and ``lpr`` (rural localities, points), in an
+LCC on ITRF92 — the mirror keeps it; ``load_mg``'s default EPSG:6372 is a null shift.
 
 Steps
 -----
@@ -54,6 +59,7 @@ After running
 from __future__ import annotations
 
 import argparse
+import re
 import shutil
 import zipfile
 from pathlib import Path
@@ -70,6 +76,7 @@ from mxcensus.data._catalog import (
     MG_LEGACY_PERIOD,
     MG_OPTIONAL_LAYERS,
     STATE_CODE_FMT,
+    marco_geo_national_url,
     marco_geo_zip_url,
     mg_filename,
 )
@@ -213,6 +220,99 @@ def _built_files(
 
 
 # ---------------------------------------------------------------------------
+# National-ZIP editions (2010 v5.0; 1995–2005 municipal frames)
+# ---------------------------------------------------------------------------
+
+# Shapefile name (case-insensitive prefix) → layer suffix, for the national editions.
+_NATIONAL_LAYERS: tuple[tuple[str, str], ...] = (
+    (r"^entidades", "ent"),
+    (r"^municipios", "mun"),
+    (r"^ageb_urb", "a"),
+    (r"^localidades_urbanas", "l"),
+    (r"^localidades_rurales", "lpr"),
+)
+
+
+def _national_suffix(stem: str) -> str | None:
+    return next((sfx for rx, sfx in _NATIONAL_LAYERS if re.match(rx, stem, re.IGNORECASE)),
+                None)
+
+
+def _national_layer_paths(period: str, cache_dir: Path, raw_dir: Path,
+                          retries: int) -> tuple[dict[str, Path], Path]:
+    """Download (once) the national ZIP of ``period`` and extract its nested ZIPs; return
+    ``({suffix: shp_path}, extract_dir)``. A shapefile no ``_NATIONAL_LAYERS`` entry names
+    is reported and skipped."""
+    zip_path = bc.fetch_zip_verified(marco_geo_national_url(period), cache_dir,
+                                     f"mg_{period}_national.zip", retries)
+    extract_dir = raw_dir / "mg" / period / "national"
+    extract_dir.mkdir(parents=True, exist_ok=True)
+    with zipfile.ZipFile(zip_path) as zf:
+        zf.extractall(extract_dir)
+    for inner in sorted(extract_dir.glob("*.zip")):
+        with zipfile.ZipFile(inner) as zf:
+            zf.extractall(extract_dir / inner.stem)
+    paths: dict[str, Path] = {}
+    for shp in sorted(extract_dir.rglob("*.shp")):
+        suffix = _national_suffix(shp.stem)
+        if suffix is None:
+            print(f"  ! {shp.name}: no layer suffix for this shapefile — not converted")
+        elif suffix in paths:
+            raise RuntimeError(f"two shapefiles for layer {suffix!r}: {paths[suffix]}, {shp}")
+        else:
+            paths[suffix] = shp
+    return paths, extract_dir
+
+
+def _state_codes(gdf: gpd.GeoDataFrame) -> pd.Series:
+    """Each feature's entity code: ``CVE_ENT``, else the first two characters of
+    ``CVEGEO`` (MG 2010's urban AGEBs carry only the 13-character key)."""
+    cols = {c.upper(): c for c in gdf.columns}
+    if "CVE_ENT" in cols:
+        return gdf[cols["CVE_ENT"]].astype(str).str.zfill(2)
+    if "CVEGEO" in cols:
+        return gdf[cols["CVEGEO"]].astype(str).str[:2]
+    raise ValueError(f"no entity column (CVE_ENT/CVEGEO) in {list(gdf.columns)}")
+
+
+def _build_national(period: str, states: list[int], suffixes: list[str], out_dir: Path,
+                    cache_dir: Path, raw_dir: Path, retries: int,
+                    cleanup_raw: bool = True) -> list[Path]:
+    """Split a national-ZIP edition's layers into per-state geoparquet files."""
+    paths, extract_dir = _national_layer_paths(period, cache_dir, raw_dir, retries)
+    wanted = {STATE_CODE_FMT(s) for s in states}
+    written: list[Path] = []
+    for suffix in suffixes:
+        if suffix not in paths:
+            continue                       # the edition has no such layer
+        gdf = _normalize(gpd.read_file(paths[suffix]))
+        codes = _state_codes(gdf)
+        unknown = sorted(set(codes) - {STATE_CODE_FMT(s) for s in range(1, 33)})
+        if unknown:
+            raise ValueError(f"MG {period} {suffix}: entity codes outside 01-32: {unknown}")
+        print(f"  {paths[suffix].name}: {len(gdf):,} features → layer {suffix!r}")
+        for code in sorted(set(codes) & wanted):
+            part = gdf.loc[(codes == code).to_numpy()].reset_index(drop=True)
+            out_path = out_dir / mg_filename(suffix, int(code), period)
+            part.to_parquet(out_path, compression="zstd")
+            written.append(out_path)
+        missing = sorted(wanted - set(codes))
+        if missing:
+            print(f"  ! {suffix}: no features for state(s) {missing}")
+    if cleanup_raw:
+        shutil.rmtree(extract_dir, ignore_errors=True)
+    return written
+
+
+def _national_built(out_dir: Path, states: list[int], suffixes: list[str],
+                    period: str) -> list[Path]:
+    """The files of a national edition already in ``out_dir`` (its layers are a subset
+    of ``MG_LAYERS``, so nothing absent is reported missing)."""
+    return [out_dir / mg_filename(sfx, s, period) for s in states for sfx in suffixes
+            if (out_dir / mg_filename(sfx, s, period)).exists()]
+
+
+# ---------------------------------------------------------------------------
 # CLI
 # ---------------------------------------------------------------------------
 
@@ -225,10 +325,9 @@ def main(argv: list[str] | None = None) -> None:
         "--states", nargs="+", type=int, default=list(range(1, 33)),
         metavar="N", help="State codes to process (default: all 32)",
     )
-    state_periods = sorted(p for p, e in MG_EDITIONS.items() if e.layout == "state")
-    parser.add_argument("--period", default=MG_LEGACY_PERIOD, choices=state_periods,
-                        help=f"MG edition to build (default {MG_LEGACY_PERIOD}); "
-                             "national-ZIP editions are not supported yet")
+    parser.add_argument("--period", default=MG_LEGACY_PERIOD, choices=sorted(MG_EDITIONS),
+                        help=f"MG edition to build (default {MG_LEGACY_PERIOD}); a national-"
+                             "ZIP edition (2010, 1995-2005) is split per state")
     parser.add_argument("--layers", nargs="+", default=_ALL_SUFFIXES, metavar="SUFFIX",
                         help=f"Layer suffixes to convert (default: all {len(_ALL_SUFFIXES)})")
     parser.add_argument("--output", type=Path, default=_DEFAULT_OUT, metavar="DIR",
@@ -258,6 +357,14 @@ def main(argv: list[str] | None = None) -> None:
     if args.registry_only and not args.registry_update:
         parser.error("--update-registry and --no-registry are mutually exclusive")
 
+    national = MG_EDITIONS[args.period].layout == "national"
+    if national and args.local_gpkg_dir is not None:
+        parser.error("--local-gpkg-dir only applies to the 2020 frame")
+    if args.registry_only and national:
+        present = _national_built(args.output, args.states, args.layers, args.period)
+        print(f"Upserting {len(present)} MG {args.period} file(s) into {args.registry}")
+        bc.update_registry(present, args.registry)
+        return
     if args.registry_only:
         present, missing = _built_files(args.output, args.states, args.layers, args.period)
         if missing:
@@ -270,6 +377,14 @@ def main(argv: list[str] | None = None) -> None:
     args.output.mkdir(parents=True, exist_ok=True)
 
     written: list[Path] = []
+    if national:
+        written = _build_national(args.period, args.states, args.layers, args.output,
+                                  args.cache_dir, args.raw_dir, args.retries,
+                                  args.cleanup_raw)
+        if args.registry_update:
+            bc.update_registry(written, args.registry)
+        print(f"\nDone: {len(written)} file(s).")
+        return
     for state in args.states:
         print(f"\n=== State {state:02d} ===")
         if args.local_gpkg_dir is not None:
