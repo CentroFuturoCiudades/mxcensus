@@ -1,11 +1,15 @@
-"""CPV family — aggregate products (national/state/municipal/locality estimates).
+"""CPV family — aggregate products: intercensal estimates and the censuses' ITER/AGEB.
 
-So far one product: the **Encuesta Intercensal 2025 estimates** (``estimaciones``), one
-national file with five rows per geography — the estimate and its standard error, 90 %
-confidence limits and coefficient of variation — for the nation, the 32 states, every
-municipality, the 233 localities of 50 000 or more inhabitants, and each state's remainder
-of smaller localities (``CVE_MUN`` 997 / ``CVE_LOC`` 9997). ITER/AGEB results of the
-censuses join this module in later units (``docs/cpv/PLAN.md`` Phase 3).
+- **Encuesta Intercensal 2025 estimates** (``estimaciones``, :func:`load_cpv_estimaciones`):
+  one national file with five rows per geography — the estimate and its standard error,
+  90 % confidence limits and coefficient of variation — for the nation, the 32 states,
+  every municipality, the 233 localities of 50 000 or more inhabitants, and each state's
+  remainder of smaller localities (``CVE_MUN`` 997 / ``CVE_LOC`` 9997).
+- **Census ITER and AGEB results** (CPV 2010, 2020): :func:`load_cpv_iter` (state,
+  municipality, locality), :func:`load_cpv_ageb` (… urban AGEB and block) and
+  :func:`load_cpv_census`, the port of the legacy :func:`mxcensus.load_census` (four count
+  levels with the collective-population columns and the zero imputation) onto the ``cpv_``
+  files — equal to it for 2020. Indicator names across editions: ``cpv_iter_crosswalk``.
 
 The geography is split on the **string** codes (never cast to int), so the keys stay
 joinable with the microdata (:mod:`mxcensus.cpv`) and the Marco Geoestadístico.
@@ -124,3 +128,242 @@ def load_cpv_estimaciones(
         raise ValueError(f"CPV {label}: the estimates are not unique per {index}.")
     schema = _sg.build_labelled_schema(df.columns, variables, skip=_SKIP)
     return _sg.validate_raise("CPV", schema, df, f"{label} labelled")
+
+
+# ---------------------------------------------------------------------------------------
+# Census aggregates: ITER (localities) and AGEB (urban AGEBs and blocks) — CPV 2010, 2020
+# ---------------------------------------------------------------------------------------
+# Every frame here is harmonized (CVE_* names, zero-padded string codes, CVEGEO) and
+# labelled: counts Int64, ratios Float64, INEGI's reserved cells (``*`` — a locality or
+# block with one or two inhabited dwellings — ``N/D``, ``N/A``) missing.
+
+# Geographic level of an ITER row (``NIVEL``), coarse to fine. ``agregado`` marks the two
+# rows INEGI publishes per state and municipality for the localities of one and of two
+# inhabited dwellings (``CVE_LOC`` 9998 / 9999), which are not listed one by one.
+NIVELES_ITER: tuple[str, ...] = ("estatal", "municipal", "agregado", "localidad")
+# … and of an AGEB-file row.
+NIVELES_AGEB: tuple[str, ...] = ("estatal", "municipal", "localidad", "ageb", "manzana")
+_ITER_INDEX = ["CVE_ENT", "CVE_MUN", "CVE_LOC"]
+_AGEB_INDEX = ["CVE_ENT", "CVE_MUN", "CVE_LOC", "CVE_AGEB", "CVE_MZA"]
+_AGREGADO = ("9998", "9999")
+
+
+def _nivel_iter(df: pd.DataFrame) -> pd.Series:
+    mun, loc = (df[c].to_numpy(dtype=object) for c in ("CVE_MUN", "CVE_LOC"))
+    level = np.select([(mun == "000") & (loc == "0000"), loc == "0000", np.isin(loc, _AGREGADO)],
+                      ["estatal", "municipal", "agregado"], default="localidad")
+    return pd.Series(pd.Categorical(level, categories=NIVELES_ITER, ordered=True), index=df.index)
+
+
+def _nivel_ageb(df: pd.DataFrame) -> pd.Series:
+    mun, loc, ageb, mza = (df[c].to_numpy(dtype=object) for c in _AGEB_INDEX[1:])
+    level = np.select([mun == "000", loc == "0000", ageb == "0000", mza == "000"],
+                      ["estatal", "municipal", "localidad", "ageb"], default="manzana")
+    return pd.Series(pd.Categorical(level, categories=NIVELES_AGEB, ordered=True), index=df.index)
+
+
+def _counts(df: pd.DataFrame) -> list[str]:
+    """The count columns of a labelled aggregate frame (``Int64``)."""
+    return [c for c in df.columns if str(df[c].dtype) == "Int64"]
+
+
+def _impute_zeros(coarse: pd.DataFrame, fine: pd.DataFrame) -> pd.DataFrame:
+    """Fill a fine level's missing counts with 0 where they must be 0 — the port of
+    ``aggregate.impute_zeros_univariate`` onto string keys: for each coarse unit (``coarse``
+    indexed by the leading levels of ``fine``'s index) and count column, when the coarse
+    total already equals the sum of the fine units' known values, every missing fine value
+    of that unit and column is 0."""
+    keys = list(coarse.index.names)
+    cols = [c for c in _counts(fine) if c in coarse.columns]
+    known = fine[cols].groupby(level=keys).sum()
+    exact = (coarse[cols] - known.reindex(coarse.index)).eq(0)
+    exact = exact.reindex(fine.index.droplevel(list(range(len(keys), fine.index.nlevels))))
+    fill = fine[cols].isna().to_numpy() & exact.fillna(False).to_numpy(dtype=bool)
+    out = fine.copy()
+    out[cols] = fine[cols].mask(fill, 0)
+    return out
+
+
+def _load_aggregate(table: str, period, state, survey_path) -> tuple[pd.DataFrame, str]:
+    raw, gids, label = _load_cpv_raw(survey_path, table=table, period=period, state=state,
+                                     harmonize=True)
+    variables = _labels_for(table, gids)
+    df = _sg.label_frame(raw, variables, family="CPV", skip=_SKIP)
+    schema = _sg.build_labelled_schema(df.columns, variables, skip=_SKIP)
+    return _sg.validate_raise("CPV", schema, df, f"{label} labelled"), label
+
+
+def _by_level(df: pd.DataFrame, level: str, index: list[str]) -> pd.DataFrame:
+    return df.loc[df["NIVEL"] == level].set_index(index).sort_index()
+
+
+def load_cpv_iter(
+    period: str | int | None = None,
+    *,
+    state: int | Sequence[int] | None,
+    nivel: str | Sequence[str] | None = None,
+    impute: bool = True,
+    survey_path: Path | None = None,
+) -> pd.DataFrame:
+    """The census **ITER** (principales resultados por localidad) of one or more states:
+    one row per state, municipality and locality, indexed ``(CVE_ENT, CVE_MUN, CVE_LOC)``.
+
+    The frame is harmonized and labelled (see :func:`mxcensus.load_cpv`): counts ``Int64``,
+    ratios and averages ``Float64``, INEGI's reserved cells (``*``: localities of one or two
+    inhabited dwellings; ``N/D``; ``N/A``) missing. An ordered ``NIVEL`` column gives the
+    row's level — ``estatal``, ``municipal``, ``agregado`` (``CVE_LOC`` 9998/9999: the
+    localities of one / two dwellings of the state or municipality, published only as
+    sums) or ``localidad`` — and ``nivel=`` keeps only those levels. The state's and the
+    municipalities' rows are never reserved.
+
+    ``impute=True`` (default) fills the reserved counts that must be 0: when a
+    municipality's total equals the sum of its listed localities' known values, the
+    missing values of that column in its localities are 0 (``aggregate.impute_zeros_
+    univariate`` of the legacy loader).
+
+    ``period`` defaults to the latest census with ITER (2020). The indicators keep each
+    edition's own names (2010 and 2020 share most of them; see ``cpv_iter_crosswalk``).
+    """
+    levels = None if nivel is None else _choice(nivel, NIVELES_ITER, "nivel")
+    df, label = _load_aggregate("iter", period, state, survey_path)
+    df.insert(0, "NIVEL", _nivel_iter(df))
+    if impute:
+        mun = _by_level(df, "municipal", _ITER_INDEX).droplevel("CVE_LOC")
+        loc = _by_level(df, "localidad", _ITER_INDEX)
+        loc = _impute_zeros(mun, loc)
+        df = pd.concat([df.loc[df["NIVEL"] != "localidad"].set_index(_ITER_INDEX), loc])
+    else:
+        df = df.set_index(_ITER_INDEX)
+    df = df.sort_index()
+    if levels is not None:
+        df = df.loc[df["NIVEL"].isin(levels)]
+    if not df.index.is_unique:
+        raise ValueError(f"CPV {label}: the ITER is not unique per {_ITER_INDEX}.")
+    return df
+
+
+# AGEB-file columns a block with no population can only hold as 0 (``aggregate.
+# load_resargebub``'s "quick imputation of weird censored block variables").
+_EMPTY_BLOCK_ZERO = ("TVIVHAB", "VIVPAR_HAB", "VIVPARH_CV", "TVIVPARHAB")
+
+
+def load_cpv_ageb(
+    period: str | int | None = None,
+    *,
+    state: int | Sequence[int] | None,
+    nivel: str | Sequence[str] | None = None,
+    impute: bool = True,
+    survey_path: Path | None = None,
+) -> pd.DataFrame:
+    """The census **AGEB/block** results (urban AGEBs and their blocks) of one or more
+    states, indexed ``(CVE_ENT, CVE_MUN, CVE_LOC, CVE_AGEB, CVE_MZA)``.
+
+    Harmonized and labelled like :func:`load_cpv_iter`; the ordered ``NIVEL`` column is
+    ``estatal``, ``municipal``, ``localidad`` (urban localities only), ``ageb`` or
+    ``manzana``. ``CVEGEO`` (16 characters) is the Marco Geoestadístico's block key; an
+    AGEB row's MG key is its first 13 characters.
+
+    ``impute=True`` (default) fills counts that must be 0: the inhabited-dwelling counts of a
+    row with no population, and — as :func:`load_cpv_iter` does for localities — an AGEB's
+    missing counts when its locality's total already equals the sum of the locality's
+    AGEBs' known values. Blocks are left as published: INEGI's block counts do not add up
+    to their AGEB's in general.
+    """
+    levels = None if nivel is None else _choice(nivel, NIVELES_AGEB, "nivel")
+    df, label = _load_aggregate("ageb", period, state, survey_path)
+    df.insert(0, "NIVEL", _nivel_ageb(df))
+    if impute:
+        df = _zero_empty_blocks(df)
+        loc = _by_level(df, "localidad", _AGEB_INDEX).droplevel(["CVE_AGEB", "CVE_MZA"])
+        ageb = _by_level(df, "ageb", _AGEB_INDEX).droplevel("CVE_MZA")
+        ageb = _impute_zeros(loc, ageb)
+        ageb = ageb.set_index(pd.Index(["000"] * len(ageb), name="CVE_MZA"), append=True)
+        df = pd.concat([df.loc[df["NIVEL"] != "ageb"].set_index(_AGEB_INDEX), ageb])
+    else:
+        df = df.set_index(_AGEB_INDEX)
+    df = df.sort_index()
+    if levels is not None:
+        df = df.loc[df["NIVEL"].isin(levels)]
+    if not df.index.is_unique:
+        raise ValueError(f"CPV {label}: the AGEB file is not unique per {_AGEB_INDEX}.")
+    return df
+
+
+def _zero_empty_blocks(df: pd.DataFrame) -> pd.DataFrame:
+    cols = [c for c in _EMPTY_BLOCK_ZERO if c in df.columns]
+    out = df.copy()
+    empty = out["POBTOT"].eq(0).fillna(False).to_numpy(dtype=bool)
+    out.loc[empty, cols] = 0
+    return out
+
+
+def _census_checks(label: str, it: dict, ag: dict) -> None:
+    """``aggregate.sanity_checks`` on string keys: the ITER and AGEB files agree on the
+    state, municipalities and (urban) localities; municipalities add up to the state;
+    localities add up to their municipality (exactly for the population and dwelling
+    totals, never above it otherwise); urban AGEBs add up to their locality."""
+    def check(ok: bool, what: str) -> None:
+        if not ok:
+            raise ValueError(f"CPV {label}: census check failed — {what}")
+
+    def max_abs(a: pd.DataFrame, b: pd.DataFrame):
+        d = (a - b).abs().max(axis=None)
+        return 0 if pd.isna(d) else d
+
+    exact = ["POBTOT", "VIVTOT", "TVIVHAB"]
+    check(max_abs(ag["estatal"], it["estatal"]) == 0, "AGEB and ITER state rows differ")
+    check(max_abs(it["municipal"], ag["municipal"]) == 0, "AGEB and ITER municipal rows differ")
+    check(not it["municipal"].isna().any(axis=None), "missing values in municipal rows")
+    mun_sum = it["municipal"].groupby(level="CVE_ENT").sum()
+    check(bool((mun_sum.reindex(it["estatal"].index) == it["estatal"]).all(axis=None)),
+          "municipalities do not add up to the state")
+    loc = ag["localidad"]
+    check(max_abs(it["localidad"].loc[loc.index, loc.columns], loc) == 0,
+          "AGEB and ITER urban locality rows differ")
+    delta = it["municipal"] - it["localidad"].groupby(level=["CVE_ENT", "CVE_MUN"]).sum()
+    check(bool((delta >= 0).all(axis=None)), "localities add up to more than their municipality")
+    check(bool((delta[exact] == 0).all(axis=None)),
+          f"localities do not add up to their municipality's {exact}")
+    agebs = ag["ageb"].groupby(level=_ITER_INDEX)[exact].sum()
+    check(bool((agebs == it["localidad"].loc[agebs.index, exact]).all(axis=None)),
+          f"AGEBs do not add up to their locality's {exact}")
+
+
+def load_cpv_census(
+    period: str | int | None = None,
+    *,
+    state: int | Sequence[int] | None,
+) -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame]:
+    """The census counts at four levels — ``(state, municipality, locality, urban AGEB)`` —
+    from the ITER and AGEB files: the port of the legacy :func:`mxcensus.load_census` onto
+    the ``cpv_`` mirror and string keys (``CVE_ENT`` ⊂ ``CVE_MUN`` ⊂ ``CVE_LOC`` ⊂
+    ``CVE_AGEB``), for any census with both products (2020; 2010 in this unit).
+
+    Same steps as the legacy loader: the count columns only (``Int64``; INEGI's reserved
+    cells missing); the AGEB file's empty-block fix; collective population and dwellings
+    (``POBCOL`` = ``POBTOT`` − ``POBHOG``, ``TOTCOL`` = ``TVIVHAB`` − ``TOTHOG``) added and
+    imputed (``aggregate.add_collective_cols``); missing locality counts imputed from the
+    municipalities and missing AGEB counts from the localities where the totals force them
+    to 0 (``aggregate.impute_zeros_univariate``); the cross-file sanity checks; every level
+    restricted to the AGEB file's columns. For 2020 the four frames equal
+    ``load_census(state=…)`` once its integer codes are written as INEGI's padded strings.
+    """
+    from mxcensus.aggregate import add_collective_cols, impute_zeros_univariate
+
+    it = load_cpv_iter(period, state=state, impute=False)
+    ag = _zero_empty_blocks(load_cpv_ageb(period, state=state, impute=False))
+    label = f"census {it['CVEGEO'].iloc[0][:2] if len(it) else ''}"
+    it_cols, ag_cols = _counts(it), _counts(ag)
+    index = {"estatal": 1, "municipal": 2, "localidad": 3, "ageb": 4}
+    iters = {lvl: it.loc[it["NIVEL"] == lvl, it_cols].droplevel(_ITER_INDEX[index[lvl]:])
+             for lvl in ("estatal", "municipal", "localidad")}
+    agebs = {lvl: ag.loc[ag["NIVEL"] == lvl, ag_cols].droplevel(_AGEB_INDEX[index[lvl]:])
+             for lvl in ("estatal", "municipal", "localidad", "ageb")}
+    st, mun, loc, ageb = add_collective_cols(iters["estatal"], iters["municipal"],
+                                             iters["localidad"], agebs["ageb"])
+    loc = impute_zeros_univariate(mun, loc)
+    ageb = impute_zeros_univariate(loc, ageb)
+    _census_checks(label, {"estatal": st, "municipal": mun, "localidad": loc},
+                   {**agebs, "ageb": ageb})
+    cols = ageb.columns
+    return st[cols], mun[cols], loc[cols], ageb

@@ -62,7 +62,12 @@ import pandas as pd
 import pandera.pandas as pa
 
 from mxcensus import _schema_groups as _sg
-from mxcensus._resources import cpv_schema_map, variables_cpv, variables_cpv_core
+from mxcensus._resources import (
+    cpv_iter_crosswalk,
+    cpv_schema_map,
+    variables_cpv,
+    variables_cpv_core,
+)
 from mxcensus.data._cpv_catalog import (
     NATIONAL_TABLES,
     TABLES,
@@ -128,10 +133,12 @@ def _code_rule(col: str, meta: dict) -> pa.Column | None:
     """Raw-string rule for a coded string column: a key/geographic code → digits; a code
     from a classification catalog too large to enumerate (``Catálogo`` + string ``Tipo``:
     occupation, activity, country, municipality, language) → exactly ``Longitud`` digits.
-    ``None`` for any other column."""
-    if col in _CODE_REGEX:
-        return _sg.raw_column(pa.Check.str_matches(_CODE_REGEX[col]))
-    if col in _DIGIT_CODES:
+    ``None`` for any other column. Names match case-insensitively (CPV 2010's ITER/AGEB
+    headers are lower case)."""
+    name = col.upper()
+    if name in _CODE_REGEX:
+        return _sg.raw_column(pa.Check.str_matches(_CODE_REGEX[name]))
+    if name in _DIGIT_CODES:
         return _sg.raw_column(pa.Check.str_matches(r"^\d+$"))
     width = str(meta.get("Longitud") or "").strip()
     if meta.get("Catálogo") and _sg.norm_tipo(meta) == "string" and width.isdigit():
@@ -231,10 +238,24 @@ _GEO_REGEX: dict[str, str] = {
 }
 
 
+@functools.cache
+def _crosswalk_renames(table: str) -> dict[str, str]:
+    """Older ITER/AGEB spellings that harmonize=True renames onto the canonical indicator
+    (``Renombrar`` in ``cpv_iter_crosswalk.yaml``; CPV 2010 ``TAM_LOC`` → ``TAMLOC``)."""
+    out: dict[str, str] = {}
+    for canon, entry in cpv_iter_crosswalk().items():
+        if entry.get("Renombrar") and table in (entry.get("Tablas") or ()):
+            out.update({src: canon for key, src in entry.items()
+                        if str(key).isdigit() and src != canon})
+    return out
+
+
 def _renames(table: str) -> dict[str, str]:
     """The core renames that apply to ``table``: :data:`_RENAME_CORE` plus the table's own
-    (:data:`_RENAME_TABLE`)."""
-    return {**_RENAME_CORE, **_RENAME_TABLE.get(table, {})}
+    (:data:`_RENAME_TABLE`) and, for the census aggregates, the crosswalk's
+    (:func:`_crosswalk_renames`)."""
+    extra = _crosswalk_renames(table) if table in _RENAME_TABLE else {}
+    return {**_RENAME_CORE, **_RENAME_TABLE.get(table, {}), **extra}
 
 
 def _zfill_codes(s: pd.Series, width: int) -> pd.Series:

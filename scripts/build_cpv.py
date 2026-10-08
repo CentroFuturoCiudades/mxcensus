@@ -35,6 +35,7 @@ the map comes first, the dictionaries before the variables, the variables before
     .venv/bin/python scripts/build_cpv.py --report-only      # → docs/cpv/INCONSISTENCY_REPORT.md
     .venv/bin/python scripts/build_cpv.py --variables        # → src/mxcensus/_yaml/variables_cpv_{table}_{gNN}.yaml
     .venv/bin/python scripts/build_cpv.py --validate         # → docs/cpv/VALIDATION_REPORT.md (--jobs N)
+    .venv/bin/python scripts/build_cpv.py --crosswalk        # → src/mxcensus/_yaml/cpv_iter_crosswalk.yaml (2010 ↔ 2020 ITER/AGEB)
     .venv/bin/python scripts/build_cpv.py --update-registry  # → upsert cpv_* hashes into registry.txt
 """
 from __future__ import annotations
@@ -151,11 +152,14 @@ def _sniff_encoding(csv_path: Path, chunk_size: int = _CHUNK) -> str:
 
 
 def _read_header(csv_path: Path, encoding: str) -> list[str]:
-    """The CSV's column names (BOM stripped, as pyarrow strips it)."""
+    """The CSV's column names, the BOM stripped as pyarrow strips it — **before** the CSV
+    parse, so a quoted first name keeps no quotes (CPV 2010: ``\ufeff"entidad",…``)."""
     enc, errors = ("utf-8", "replace") if encoding == "utf-8/replace" else (encoding, "strict")
+    if enc == "utf-8":
+        enc = "utf-8-sig"
     with open(csv_path, encoding=enc, errors=errors, newline="") as f:
         header = next(csv.reader(f), [])
-    if header and header[0].startswith("﻿"):
+    if header and header[0].startswith("\ufeff"):
         header[0] = header[0][1:]
     return header
 
@@ -472,10 +476,29 @@ _TABLE_THRESHOLD = {"estimaciones": 0, "iter": 0, "ageb": 0}
 # which have no size class); ``N/D`` fills every indicator but the population and dwelling
 # totals of 152 localities and 621 blocks; ``N/A`` is a ratio with a zero denominator
 # (REL_H_M, PROM_HNV).
+# CPV 2010 ITER/AGEB (unit 3c, 32 states): ``*`` in 15.8 M ITER and 62.7 M AGEB cells and
+# ``N/D`` in 42 550 / 127 985; no ``N/A``.
 _AGG_SPECIALS: dict[str, dict[str, str]] = {
     "2020": {"*": "Dato reservado por confidencialidad", "N/D": "No disponible",
              "N/A": "No aplica"},
+    "2010": {"*": "Dato reservado por confidencialidad", "N/D": "No disponible"},
 }
+
+
+# Aggregate indicators that are class codes, not quantities: the ITER's 14-class locality
+# size (2020 writes 01..14, a string; CPV 2010's dictionary gives 1..14, read as a number).
+_AGG_CODES = frozenset({"TAMLOC", "TAM_LOC"})
+
+
+def _indicator_doc(path: Path, period: str) -> dict:
+    """An indicator dictionary parsed with the edition's sentinels, the class codes
+    (:data:`_AGG_CODES`) typed as strings."""
+    doc = fd.parse_indicator_csv(path, _AGG_SPECIALS.get(period))
+    for name, meta in doc.items():
+        if name.strip().upper() in _AGG_CODES and meta.get("Tipo") == "numeric":
+            meta.update(Tipo="string", Especiales={})
+            meta.pop("Decimales", None)
+    return doc
 
 
 def _indicator_dict_path(dict_dir: Path, period: str, table: str) -> Path:
@@ -564,8 +587,15 @@ def _doc_for(dict_dir: Path, table: str, periods: list[str]) -> tuple[dict | Non
         if table in AGG_TABLES:
             path = _indicator_dict_path(dict_dir, period, table)
             if path.exists():
-                return (fd.parse_indicator_csv(path, _AGG_SPECIALS.get(period)),
-                        f"{path.name} ({period})")
+                doc = _indicator_doc(path, period)
+                # The AGEB file repeats the ITER's names and codes; CPV 2010's AGEB
+                # dictionary leaves NOM_ENT/NOM_MUN/NOM_LOC out, so the ITER's fill in.
+                fallback = _indicator_dict_path(dict_dir, period, "iter")
+                if table == "ageb" and fallback.exists():
+                    base = _indicator_doc(fallback, period)
+                    lower = {k.lower() for k in doc}
+                    doc = {**doc, **{k: v for k, v in base.items() if k.lower() not in lower}}
+                return doc, f"{path.name} ({period})"
         elif table in (docs := _fd_docs(dict_dir, period)):
             return docs[table], f"FD {period}/{table}"
     return None, "none"
@@ -615,6 +645,109 @@ def _write_variables_yaml(out_dir: Path, map_path: Path, yaml_dir: Path,
             ddi.dump_yaml(entries, yaml_dir / f"variables_cpv_{table}_{gid}.yaml")
             n += 1
     return n
+
+
+# --- ITER/AGEB indicator crosswalk across censuses (cpv_iter_crosswalk.yaml) --------------
+
+_DEFAULT_CROSSWALK = _DEFAULT_YAML_DIR / "cpv_iter_crosswalk.yaml"
+# Censuses whose ITER/AGEB the crosswalk spans (newest first: its names are canonical).
+_XW_PERIODS = ("2020", "2010")
+# Hand-reviewed pairs of differently named indicators (canonical → {period: source}) …
+_XW_PAIRS: dict[str, dict[str, str]] = {
+    "TAMLOC": {"2010": "TAM_LOC"},
+    **{f"PRES2015{s}": {"2010": f"PRES2005{s}"} for s in ("", "_F", "_M")},
+    **{f"PRESOE15{s}": {"2010": f"PRESOE05{s}"} for s in ("", "_F", "_M")},
+}
+# … the ones harmonize=True renames (same indicator, another name) …
+_XW_RENAME = frozenset({"TAMLOC"})
+# … and the notes of the hand review (definition or wording changes between editions).
+_SALUD = ("2010 dice «derechohabiencia», 2020 «afiliación» a servicios de salud (la misma "
+          "pregunta)")
+_JEFATURA = "2010 dice «jefatura», 2020 «persona de referencia» del hogar (el mismo concepto)"
+_XW_NOTES: dict[str, str] = {
+    "TAMLOC": "la misma escala de 14 clases; 2010 la llama TAM_LOC (harmonize=True la renombra)",
+    **{c: _SALUD for c in ("PDER_SS", "PDER_IMSS", "PDER_ISTE", "PDER_ISTEE", "PSINDER")},
+    "PDER_SEGP": ("2010: Seguro Popular o Seguro Médico para una Nueva Generación; 2020: "
+                  "Instituto de Salud para el Bienestar (INSABI) — programas distintos"),
+    **{c: _JEFATURA for c in ("HOGJEF_F", "HOGJEF_M", "PHOGJEF_F", "PHOGJEF_M")},
+    "VPH_PC": "2020 incluye laptop o tablet; 2010 sólo computadora",
+    "PSIN_RELIG": "2020 incluye a la población sin adscripción religiosa (creyente)",
+    **{c: ("residencia cinco años antes: junio de 2005 (2010) / marzo de 2015 (2020); el mismo "
+           "concepto con otra fecha, por eso no se renombra")
+       for c in ("PRES2015", "PRES2015_F", "PRES2015_M", "PRESOE15", "PRESOE15_F", "PRESOE15_M")},
+    **{c: ("2010 mide la limitación en la actividad con otra pregunta; sin equivalente en 2020 "
+           "(PCON_DISC/PCON_LIMI/PSIND_LIM)")
+       for c in ("PCON_LIM", "PCLIM_MOT", "PCLIM_LENG", "PCLIM_AUD", "PCLIM_MEN", "PCLIM_MEN2",
+                 "PSIN_LIM")},
+    **{c: ("el mismo nombre, otro concepto: 2010 cuenta a quien tiene dificultad; 2020 sólo a "
+           "quien tiene poca (mucha dificultad o no poder es discapacidad, PCDISC_*)")
+       for c in ("PCLIM_VIS", "PCLIM_MOT2")},
+    "PNCATOLICA": ("2010: protestantes, evangélicas y bíblicas no evangélicas; 2020 agrupa de otro "
+                   "modo (PRO_CRIEVA: protestante/cristiano evangélico) — sin equivalente exacto"),
+    "PRO_CRIEVA": "2010 agrupa de otro modo (PNCATOLICA incluye las bíblicas no evangélicas)",
+    "POTRAS_REL": ("el contenido depende de la agrupación de cada censo (PNCATOLICA 2010 / "
+                   "PRO_CRIEVA 2020)"),
+}
+# Indicators present in both editions under the same name that measure different things.
+_XW_NOT_COMPARABLE = frozenset({"PCLIM_VIS", "PCLIM_MOT2", "PDER_SEGP"})
+
+
+def _edition_columns(schema_map: dict, table: str, period: str) -> list[str]:
+    """The columns (upper case, in file order) of ``table`` in ``period``'s schema groups."""
+    cols: list[str] = []
+    for g in schema_map.get(table, {}).get("groups", {}).values():
+        if period in g["periods"]:
+            cols += [c.upper() for c in g["columns"] if c.upper() not in cols]
+    return cols
+
+
+def _write_crosswalk(dict_dir: Path, path: Path, map_path: Path = _DEFAULT_SCHEMA_MAP) -> dict:
+    """(Re)write ``cpv_iter_crosswalk.yaml``: every ITER/AGEB column of the censuses in
+    :data:`_XW_PERIODS` (from the schema map, i.e. the data), keyed by its canonical
+    (newest) name, with each edition's source column — the same name when both editions
+    have it, a hand-reviewed pair (:data:`_XW_PAIRS`) otherwise — the tables it appears in,
+    ``Renombrar`` for the pairs ``harmonize=True`` renames, ``Comparable: false`` and the
+    review's ``Nota``. Descriptions come from the indicator dictionaries fetched by
+    ``--dictionary``."""
+    schema_map = yaml.safe_load(map_path.read_text(encoding="utf-8"))
+    docs = {(p, t): {k.strip().upper(): v for k, v in
+                     fd.parse_indicator_csv(_indicator_dict_path(dict_dir, p, t)).items()}
+            for p in _XW_PERIODS for t in ("iter", "ageb")}
+    paired = {src: canon for canon, by in _XW_PAIRS.items() for src in by.values()}
+    out: dict[str, dict] = {}
+    for period in _XW_PERIODS:                       # newest first: canonical names
+        for table in ("iter", "ageb"):
+            for name in _edition_columns(schema_map, table, period):
+                meta = docs[(period, table)].get(name) or {}
+                canon = name if period == _XW_PERIODS[0] else paired.get(name, name)
+                entry = out.setdefault(canon, {"Descripción": meta.get("Descripción", ""),
+                                               "Tablas": []})
+                if not entry["Descripción"]:
+                    entry["Descripción"] = meta.get("Descripción", "")
+                if table not in entry["Tablas"]:
+                    entry["Tablas"].append(table)
+                entry.setdefault(period, name)
+    for canon, entry in out.items():
+        if canon in _XW_RENAME:
+            entry["Renombrar"] = True
+        if canon in _XW_NOT_COMPARABLE:
+            entry["Comparable"] = False
+        if canon in _XW_NOTES:
+            entry["Nota"] = _XW_NOTES[canon]
+    header = ("# CPV census aggregates (ITER, AGEB) — indicator crosswalk across editions.\n"
+              "# Generated by scripts/build_cpv.py --crosswalk from INEGI's indicator\n"
+              "# dictionaries and the hand review in _XW_PAIRS/_XW_RENAME/_XW_NOTES; do not\n"
+              "# edit by hand. Key = canonical (newest edition's) mnemonic; '2010'/'2020' = the\n"
+              "# column of that edition (upper case, as harmonize=True writes it; absent = the\n"
+              "# edition has no such indicator); Renombrar = harmonize=True renames the older\n"
+              "# spelling onto the key; Comparable: false = the same name measures another\n"
+              "# thing in each edition; Nota = a definition or wording change.\n")
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with open(path, "w", encoding="utf-8") as f:
+        f.write(header)
+        yaml.safe_dump(out, f, sort_keys=False, allow_unicode=True, default_flow_style=False,
+                       width=100)
+    return out
 
 
 # --- validation sweep (per file, hard pass/fail; the loaders only warn) --------------------
@@ -750,6 +883,9 @@ def main(argv: list[str] | None = None) -> int:
                       metavar="FILE")
     meta.add_argument("--jobs", type=int, default=1, metavar="N",
                       help="Files validated in parallel (--validate)")
+    meta.add_argument("--crosswalk", action="store_true",
+                      help="(Re)write cpv_iter_crosswalk.yaml from the ITER/AGEB dictionaries")
+    meta.add_argument("--crosswalk-path", type=Path, default=_DEFAULT_CROSSWALK, metavar="FILE")
     meta.add_argument("--update-registry", action="store_true",
                       help="Upsert cpv_* hashes into registry.txt (preserving other entries)")
     meta.add_argument("--registry", type=Path, default=_DEFAULT_REGISTRY, metavar="FILE")
@@ -790,6 +926,10 @@ def main(argv: list[str] | None = None) -> int:
         print(f"Validation report → {args.validate_report}  "
               f"({n_fail}/{n_files} file(s) failed their group schema)")
         return 1 if n_fail else 0
+    if args.crosswalk:
+        doc = _write_crosswalk(args.dict_dir, args.crosswalk_path, args.schema_map_path)
+        print(f"Crosswalk → {args.crosswalk_path}  ({len(doc)} indicators)")
+        return 0
     if args.update_registry:
         bc.update_registry(_mirror_files(args.output), args.registry)
         return 0

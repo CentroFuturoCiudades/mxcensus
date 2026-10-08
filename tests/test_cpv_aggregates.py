@@ -1,0 +1,292 @@
+"""CPV census aggregates (unit 3c): ITER/AGEB loaders, the legacy-equal census builder and
+the 2010 ↔ 2020 indicator crosswalk.
+
+Offline tests use synthetic frames; the ``_REAL`` ones read the local mirror
+(``data/parquet``) — state 01 on the Mac, all 32 states on ``wsl``.
+"""
+from __future__ import annotations
+
+import sys
+import warnings
+from pathlib import Path
+
+import numpy as np
+import pandas as pd
+import pandera.pandas as pa
+import pytest
+
+import mxcensus
+from mxcensus import cpv as _cpv
+from mxcensus import cpv_aggregates as ca
+from mxcensus._resources import cpv_iter_crosswalk, cpv_schema_map, variables_cpv
+from mxcensus.data._cpv_catalog import cpv_filename
+
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "scripts"))
+import build_cpv as _bcpv  # noqa: E402
+
+_SM = cpv_schema_map()
+_MIRROR = Path(__file__).resolve().parent.parent / "data" / "parquet"
+
+
+def _gid(table: str, period: str) -> str:
+    return next(g for g, m in _SM[table]["groups"].items() if period in m["periods"])
+
+
+def _no_warnings():
+    ctx = warnings.catch_warnings()
+    ctx.__enter__()
+    warnings.simplefilter("error")
+    return ctx
+
+
+# --- levels and imputation (synthetic) --------------------------------------------------------
+
+def test_nivel_iter_and_ageb():
+    it = pd.DataFrame({"CVE_MUN": ["000", "000", "001", "001", "001"],
+                       "CVE_LOC": ["0000", "9998", "0000", "0001", "9999"]})
+    assert ca._nivel_iter(it).tolist() == ["estatal", "agregado", "municipal", "localidad",
+                                           "agregado"]
+    assert ca._nivel_iter(it).cat.ordered
+    ag = pd.DataFrame({"CVE_MUN": ["000", "001", "001", "001", "001"],
+                       "CVE_LOC": ["0000", "0000", "0001", "0001", "0001"],
+                       "CVE_AGEB": ["0000", "0000", "0000", "045A", "045A"],
+                       "CVE_MZA": ["000", "000", "000", "000", "012"]})
+    assert ca._nivel_ageb(ag).tolist() == ["estatal", "municipal", "localidad", "ageb", "manzana"]
+
+
+def test_impute_zeros_only_where_forced():
+    """A missing locality count becomes 0 only when the municipality's total already equals
+    the sum of its localities' known values (``impute_zeros_univariate``)."""
+    idx = pd.MultiIndex.from_tuples([("01", "001", "0001"), ("01", "001", "0002"),
+                                     ("01", "002", "0001"), ("01", "002", "0002")],
+                                    names=["CVE_ENT", "CVE_MUN", "CVE_LOC"])
+    loc = pd.DataFrame({"A": pd.array([5, None, 3, None], dtype="Int64"),
+                        "B": pd.array([None, 2, None, None], dtype="Int64"),
+                        "NOM": ["a", "b", "c", "d"]}, index=idx)
+    mun = pd.DataFrame({"A": pd.array([5, 4], dtype="Int64"), "B": pd.array([2, 0], dtype="Int64")},
+                       index=pd.MultiIndex.from_tuples([("01", "001"), ("01", "002")],
+                                                       names=["CVE_ENT", "CVE_MUN"]))
+    out = ca._impute_zeros(mun, loc)
+    assert out["A"].tolist() == [5, 0, 3, pd.NA]       # 001: 5 = 5 → the gap is 0; 002: 4 ≠ 3
+    assert out["B"].tolist() == [0, 2, 0, 0]            # 001: 2 = 2; 002: 0 = 0
+    assert out["NOM"].tolist() == loc["NOM"].tolist()   # non-counts untouched
+    # the legacy function agrees on the same frames
+    from mxcensus.aggregate import impute_zeros_univariate
+    legacy = impute_zeros_univariate(mun, loc[["A", "B"]])
+    assert legacy.equals(out[["A", "B"]])
+
+
+def test_zero_empty_blocks():
+    f = pd.DataFrame({"POBTOT": pd.array([0, 3, None], dtype="Int64"),
+                      "TVIVHAB": pd.array([None, None, None], dtype="Int64"),
+                      "VIVPAR_HAB": pd.array([None, 1, None], dtype="Int64")})
+    out = ca._zero_empty_blocks(f)
+    assert out["TVIVHAB"].tolist() == [0, pd.NA, pd.NA]
+    assert out["VIVPAR_HAB"].tolist() == [0, 1, pd.NA]
+
+
+# --- build: CSV header, dictionaries, sentinels -------------------------------------------------
+
+def test_read_header_bom_before_quote(tmp_path):
+    """CPV 2010's ITER/AGEB CSVs start with a BOM followed by a quoted name."""
+    path = tmp_path / "x.csv"
+    path.write_bytes('﻿"entidad","nom_ent","pobtot"\n01,Ags,10\n'.encode("utf-8"))
+    assert _bcpv._read_header(path, "utf-8") == ["entidad", "nom_ent", "pobtot"]
+    table, enc = _bcpv._read_csv_arrow(path)
+    assert table.column_names == ["entidad", "nom_ent", "pobtot"] and enc == "utf-8"
+
+
+def test_indicator_dictionary_members_and_sentinels():
+    rx = _bcpv._INDICATOR_DICT_RE
+    assert rx.search("iter_01_cpv2010/diccionario_de_datos/fd_iter_cpv2010.csv")
+    assert rx.search("iter_01_cpv2020/diccionario_datos/diccionario_datos_iter_01CSV20.csv")
+    assert not rx.search("iter_01_cpv2010/catalogos/tam_loc.csv")
+    assert not rx.search("iter_01_cpv2010/conjunto_de_datos/iter_01_cpv2010.csv")
+    assert set(_bcpv._AGG_SPECIALS["2010"]) == {"*", "N/D"}
+
+
+def test_indicator_doc_codes_and_ageb_fallback(tmp_path):
+    head = "numero,indicador,descripcion,mnemonico,rangos,longitud\n"
+    d = tmp_path / "2010"
+    d.mkdir()
+    (d / "diccionario_datos_iter.csv").write_text(
+        head + "1,Entidad,Nombre,nom_ent,Alfanumérico,50\n2,Población total,Total,pobtot,"
+        "0..999999999,9\n3,Tamaño de localidad,Clase,tam_loc,1..14,2\n", encoding="cp1252")
+    (d / "diccionario_datos_ageb.csv").write_text(
+        head + "1,Población total,Total,pobtot,0..999999999,9\n", encoding="cp1252")
+    it = _bcpv._indicator_doc(d / "diccionario_datos_iter.csv", "2010")
+    assert it["tam_loc"]["Tipo"] == "string" and not it["tam_loc"]["Especiales"]
+    assert it["pobtot"]["Tipo"] == "numeric" and set(it["pobtot"]["Especiales"]) == {"*", "N/D"}
+    doc, prov = _bcpv._doc_for(tmp_path, "ageb", ["2010"])
+    assert set(doc) == {"pobtot", "nom_ent", "tam_loc"} and prov.startswith("diccionario_datos_ageb")
+
+
+# --- bundled metadata: groups, dictionaries, crosswalk ------------------------------------------
+
+def test_schema_map_aggregate_groups():
+    for table, n10, n20 in (("iter", 200, 286), ("ageb", 198, 230)):
+        g = _SM[table]["groups"]
+        assert [m["periods"] for m in g.values()] == [["2010"], ["2020"]]
+        assert g[_gid(table, "2010")]["n_columns"] == n10 and g[_gid(table, "2020")]["n_columns"] == n20
+        assert all(m["files"] == 32 for m in g.values())
+        assert _SM[table]["latest"] == _gid(table, "2020")
+
+
+def test_aggregate_dictionaries():
+    for table in ("iter", "ageb"):
+        for period in ("2010", "2020"):
+            v = variables_cpv(table, _gid(table, period))
+            pob = next(m for k, m in v.items() if k.upper() == "POBTOT")
+            assert pob["Tipo"] == "numeric" and "*" in pob["Especiales"]
+    tam = {p: next(m for k, m in variables_cpv("iter", _gid("iter", p)).items()
+                   if k.upper() in ("TAMLOC", "TAM_LOC")) for p in ("2010", "2020")}
+    assert all(m["Tipo"] == "string" for m in tam.values())          # a class code
+
+
+def test_crosswalk_covers_every_column_once():
+    xw = cpv_iter_crosswalk()
+    for table in ("iter", "ageb"):
+        for period in ("2010", "2020"):
+            cols = [c.upper() for c in _SM[table]["groups"][_gid(table, period)]["columns"]]
+            sources = [e[period] for e in xw.values() if period in e and table in e["Tablas"]]
+            assert sorted(sources) == sorted(cols), (table, period)
+    assert all(e.get("Descripción") for e in xw.values())
+    renamed = {k: e for k, e in xw.items() if e.get("Renombrar")}
+    assert renamed == {"TAMLOC": xw["TAMLOC"]} and xw["TAMLOC"]["2010"] == "TAM_LOC"
+    assert {k for k, e in xw.items() if e.get("Comparable") is False} == {
+        "PCLIM_VIS", "PCLIM_MOT2", "PDER_SEGP"}
+    assert xw["PRES2015"]["2010"] == "PRES2005" and not xw["PRES2015"].get("Renombrar")
+    assert "2020" not in xw["PCON_LIM"] and "Nota" in xw["PCON_LIM"]
+
+
+def test_crosswalk_renames_are_table_scoped():
+    assert _cpv._renames("iter")["TAM_LOC"] == "TAMLOC"
+    assert "TAM_LOC" not in _cpv._renames("ageb")                   # no locality size there
+    assert "TAM_LOC" not in _cpv._renames("viviendas")              # 2010 microdata: 4 classes
+    h = _cpv._harmonize(pd.DataFrame({"entidad": ["1"], "mun": ["2"], "loc": ["3"],
+                                      "tam_loc": ["5"]}, dtype=str), "iter")
+    assert list(h.columns) == ["CVEGEO", "CVE_ENT", "CVE_MUN", "CVE_LOC", "TAMLOC"]
+
+
+@pytest.mark.parametrize("table,col,bad", [
+    ("iter", "pobtot", "x"), ("iter", "entidad", "1a"), ("iter", "loc", "x001"),
+    ("iter", "vph_pc", "N/A"), ("ageb", "ageb", "01Z1"), ("ageb", "mza", "a12"),
+    ("ageb", "pobfem", "-"),
+])
+def test_group_schema_2010_aggregates_reject(table, col, bad):
+    gid = _gid(table, "2010")
+    cols = _SM[table]["groups"][gid]["columns"]
+    v = variables_cpv(table, gid)
+    row = {}
+    for c in cols:
+        meta = v.get(c) or {}
+        row[c] = {"entidad": "01", "mun": "001", "loc": "0001", "ageb": "0010",
+                  "mza": "001"}.get(c, "1" if meta.get("Tipo") == "numeric" else "x")
+    f = pd.DataFrame([row, row], dtype=str)
+    f["vph_pc"] = "*"                                         # a sentinel passes
+    _cpv._group_schema(table, gid).validate(f, lazy=True)
+    f[col] = bad
+    with pytest.raises(pa.errors.SchemaErrors, match=col):
+        _cpv._group_schema(table, gid).validate(f, lazy=True)
+
+
+# --- real data ----------------------------------------------------------------------------
+
+@pytest.fixture
+def local_mirror(monkeypatch):
+    from mxcensus.data import _registry
+
+    def _fetch(fname, **_):
+        p = _MIRROR / fname
+        if not p.exists():
+            raise FileNotFoundError(p)
+        return str(p)
+
+    monkeypatch.setattr(_registry.POOCH, "fetch", _fetch)
+    return _MIRROR
+
+
+_AGG_STATES = {p: [s for s in range(1, 33) if all((_MIRROR / cpv_filename(t, p, s)).exists()
+                                                   for t in ("iter", "ageb"))]
+               for p in ("2010", "2020")}
+_POBTOT = {("2010", 1): 1_184_996, ("2020", 1): 1_425_607}
+
+
+@pytest.mark.parametrize("period,state", [(p, s) for p in ("2010", "2020")
+                                          for s in _AGG_STATES[p][:1]])
+def test_aggregate_loaders_real(local_mirror, period, state):
+    ctx = _no_warnings()
+    it = mxcensus.load_cpv_iter(period, state=state)
+    raw_it = mxcensus.load_cpv_iter(period, state=state, impute=False)
+    ag = mxcensus.load_cpv_ageb(period, state=state)
+    ctx.__exit__(None, None, None)
+    assert it.index.names == ["CVE_ENT", "CVE_MUN", "CVE_LOC"] and it.index.is_unique
+    assert ag.index.names == ["CVE_ENT", "CVE_MUN", "CVE_LOC", "CVE_AGEB", "CVE_MZA"]
+    assert it["NIVEL"].value_counts()["estatal"] == 1 and "TAMLOC" in it
+    ent = f"{state:02d}"
+    total = int(it.loc[(ent, "000", "0000"), "POBTOT"])
+    if (period, state) in _POBTOT:
+        assert total == _POBTOT[(period, state)]
+    loc = it[it["NIVEL"] == "localidad"]
+    assert int(loc["POBTOT"].sum()) == total                       # localities add up
+    counts = [c for c in it.columns if str(it[c].dtype) == "Int64"]
+    before, after = raw_it.loc[it.index, counts], it[counts]
+    changed = before.isna() & after.notna()
+    assert (after[changed].stack() == 0).all() and changed.to_numpy().sum() > 0
+    assert (before.fillna(-1) == after.fillna(-1))[~changed].all(axis=None)   # known cells kept
+    assert it["CVEGEO"].str.len().eq(9).all() and ag["CVEGEO"].str.len().eq(16).all()
+    assert int(ag.loc[(ent, "000", "0000", "0000", "000"), "POBTOT"]) == total
+    only = mxcensus.load_cpv_iter(period, state=state, nivel=["municipal", "localidad"])
+    assert set(only["NIVEL"]) == {"municipal", "localidad"}
+
+
+def _legacy_aligned(df: pd.DataFrame) -> pd.DataFrame:
+    """A legacy ``load_census`` frame with INEGI's padded string codes and Int64 values."""
+    out = df.astype("Int64")
+    idx = out.index.to_frame()
+    names = ["CVE_ENT", "CVE_MUN", "CVE_LOC", "CVE_AGEB"][:idx.shape[1]]
+    for col, width in zip(idx.columns, (2, 3, 4, 4)):
+        idx[col] = idx[col].astype(str).str.zfill(width)
+    idx.columns = names
+    out.index = pd.MultiIndex.from_frame(idx) if len(names) > 1 else pd.Index(idx[names[0]])
+    return out
+
+
+_LEGACY_STATES = [s for s in _AGG_STATES["2020"]
+                  if all((_MIRROR / f"{d}_{s:02d}.parquet").exists() for d in ("iter", "resargebub"))]
+
+
+@pytest.mark.parametrize("state", _LEGACY_STATES)
+def test_census_2020_equals_legacy(local_mirror, state):
+    """The 3c gate: ``load_cpv_census(2020, state)`` = the legacy ``load_census(state)``
+    (values, columns, missing pattern), once its integer codes are padded strings."""
+    new = mxcensus.load_cpv_census(2020, state=state)
+    old = mxcensus.load_census(state=state)
+    for a, b in zip(new, old):
+        b = _legacy_aligned(b)
+        assert list(a.columns) == list(b.columns) and a.index.equals(b.index)
+        assert a.equals(b)
+
+
+@pytest.mark.parametrize("state", _AGG_STATES["2010"])
+def test_census_2010_checks(local_mirror, state):
+    """The same chain on CPV 2010 passes the cross-file checks; localities and AGEBs never
+    exceed their totals."""
+    st, mun, loc, ageb = mxcensus.load_cpv_census(2010, state=state)
+    assert list(st.columns) == list(ageb.columns) and {"POBCOL", "TOTCOL"} <= set(st.columns)
+    assert int(mun["POBTOT"].sum()) == int(st["POBTOT"].iloc[0]) == int(loc["POBTOT"].sum())
+    if (("2010", state)) in _POBTOT:
+        assert int(st["POBTOT"].iloc[0]) == _POBTOT[("2010", state)]
+
+
+@pytest.mark.skipif(not (_AGG_STATES["2010"] and _AGG_STATES["2020"]), reason="no local aggregates")
+def test_iter_editions_stack(local_mirror):
+    s = _AGG_STATES["2010"][0]
+    both = pd.concat({p: mxcensus.load_cpv_iter(p, state=s) for p in ("2010", "2020")},
+                     names=["PERIOD"])
+    assert both.index.is_unique and both.index.names[0] == "PERIOD"
+    shared = [c for c, e in cpv_iter_crosswalk().items()
+              if "2010" in e and "2020" in e and e.get("Comparable", True) and "iter" in e["Tablas"]]
+    geography = {"ENTIDAD", "MUN", "LOC"}                      # renamed onto CVE_*
+    assert {"POBTOT", "TAMLOC", "VPH_PC"} <= set(shared) - geography <= set(both.columns)
+    assert both.loc["2010", "TAMLOC"].notna().any()

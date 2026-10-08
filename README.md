@@ -133,6 +133,11 @@ raw = mxcensus.load_cpv(table="personas", state=1)          # faithful raw codes
 viv, per, mig = mxcensus.load_cpv_survey(2020, state=1)
 it = mxcensus.load_cpv(table="iter", state=1, labels=True)  # counts Int64, '*'/'N/D' → NA
 
+# ITER/AGEB by level, on string keys (CVE_ENT, CVE_MUN, CVE_LOC[, CVE_AGEB, CVE_MZA])
+it = mxcensus.load_cpv_iter(2020, state=1)        # NIVEL estatal/municipal/agregado/localidad
+ag = mxcensus.load_cpv_ageb(2020, state=1, nivel="ageb")
+st, mun, loc, ageb = mxcensus.load_cpv_census(2020, state=1)   # = load_census(state=1)
+
 # The published estimates: one row per geography, one column per indicator
 est = mxcensus.load_cpv_estimaciones(nivel="municipal", state=1)
 ee = mxcensus.load_cpv_estimaciones(estimador="ee")          # standard errors (also li/ls/cv)

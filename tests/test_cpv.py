@@ -658,8 +658,8 @@ def _valid_value(table: str, gid: str, col: str) -> str:
     if sg.norm_tipo(meta) == "numeric":
         rng = meta.get("Rango") or []
         return str(rng[0]) if rng else "1"
-    if col in _CODE_REGEX:
-        return _CODE_SAMPLE[col]
+    if col.upper() in _CODE_REGEX:                       # 2010 aggregates: lower case
+        return _CODE_SAMPLE[col.upper()]
     if _code_rule(col, meta) is not None:
         width = str(meta.get("Longitud") or "")
         return "0" * int(width) if meta.get("Catálogo") and width.isdigit() else "01"

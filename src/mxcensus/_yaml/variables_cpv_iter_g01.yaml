@@ -1,2201 +1,1364 @@
-ENTIDAD:
+entidad:
   Descripción: Clave de entidad federativa
   Definición: Código que identifica a la entidad federativa. El código 00 identifica a los registros con
     los totales a nivel nacional.
   Tipo: string
   Longitud: '2'
-  Rangos: 00…32
-NOM_ENT:
+  Rangos: 00..32
+nom_ent:
   Descripción: Entidad federativa
   Definición: Nombre oficial de la entidad federativa.
   Tipo: string
   Longitud: '50'
   Rangos: Alfanumérico
-MUN:
-  Descripción: Clave de municipio o demarcación territorial
-  Definición: Código que identifica al municipio o demarcación territorial al interior de una entidad
-    federativa, conforme al Marco Geoestadístico. El código 000 identifica a los registros con los totales
-    a nivel de entidad federativa.
+mun:
+  Descripción: Clave de municipio ó delegación
+  Definición: Código que identifica al municipio al interior de una entidad federativa, conforme al marco
+    geoestadístico nacional. El código 000 identifica a los registros con los totales a nivel de entidad
+    federativa.
   Tipo: string
   Longitud: '3'
-  Rangos: 000…570
-NOM_MUN:
-  Descripción: Municipio o demarcación territorial
-  Definición: Nombre oficial del municipio o demarcación territorial en el caso de la Ciudad de México.
+  Rangos: 000..570
+nom_mun:
+  Descripción: Municipio ó delegación
+  Definición: Nombre oficial del municipio o delegación política en el caso del distrito federal.
   Tipo: string
   Longitud: '50'
   Rangos: Alfanumérico
-LOC:
+loc:
   Descripción: Clave de localidad
-  Definición: Código que identifica a la localidad al interior de cada municipio o demarcación territorial
-    conforme al Marco Geoestadístico. El código 0000 identifica a los registros con los totales a nivel
-    de municipio o demarcación territorial.
+  Definición: Código que identifica a la localidad, al interior de cada municipio (o delegación política)
+    conforme al marco geoestadístico nacional. El código 0000 identifica a los registros con los totales
+    a nivel de municipio.
   Tipo: string
   Longitud: '4'
-  Rangos: 0000…9999
-NOM_LOC:
+  Rangos: 0000..9999
+nom_loc:
   Descripción: Localidad
   Definición: Nombre con el que se reconoce a la localidad dado por la ley o la costumbre.
   Tipo: string
   Longitud: '70'
   Rangos: Alfanumérico
-LONGITUD:
+longitud:
   Descripción: Longitud
-  Definición: Ubicación de la localidad expresada en grados, minutos, segundos y milésimas de segundo.
-    Las primeras tres o cuatro posiciones corresponden a los grados y su símbolo; las siguientes tres
-    posiciones indican los minutos y su símbolo y las siguientes 8 posiciones corresponden a los segundos,
-    sus milésimas separados por un punto y su símbolo, la última posición indica que es la longitud situada
-    al Oeste del meridiano de Greenwich (W).
+  Definición: Ubicación de la localidad al oeste del meridiano de greenwich, expresada en grados, minutos
+    y segundos. Las primeras dos ó tres posiciones corresponden a los grados; las siguientes dos posiciones
+    indican los minutos y las dos últimas posiciones a los segundos.
   Tipo: string
-  Longitud: '16'
+  Longitud: '7'
   Rangos: Caracter
-LATITUD:
+latitud:
   Descripción: Latitud
-  Definición: Ubicación de la localidad expresada en grados, minutos, segundos y milésimas de segundo.
-    Las primeras tres posiciones corresponden a los grados y su símbolo; las siguientes tres posiciones
-    indican los minutos y su símbolo y las siguientes 8 posiciones corresponden a los segundos, sus milésimas
-    separados por un punto y su símbolo, la última posición indica que es la latitud situada al norte
-    del ecuador (N).
+  Definición: Ubicación de la localidad al norte del ecuador, expresada en grados, minutos y segundos.
+    Las primeras dos posiciones corresponden a los grados; las siguientes dos a los minutos y las últimas
+    dos posiciones a los segundos.
   Tipo: string
-  Longitud: '15'
+  Longitud: '6'
   Rangos: Caracter
-ALTITUD:
+altitud:
   Descripción: Altitud
   Definición: Altura a la que se encuentra una localidad, respecto al nivel medio del mar, expresada en
     metros.
   Tipo: string
   Longitud: '4'
   Rangos: Caracter
-POBTOT:
+pobtot:
   Descripción: Población total
-  Definición: Total de personas que residen habitualmente en el país, la entidad federativa, el municipio
-    o la demarcación territorial y la localidad. Incluye la estimación del número de personas en viviendas
-    particulares sin información de ocupantes. Incluye a la población que no especificó su edad.
+  Definición: Total de personas que residen habitualmente en el país, entidad federativa, municipio y
+    localidad. Incluye la estimación del número de personas en viviendas particulares sin información
+    de ocupantes. Incluye a la población que no especificó su edad.
   Tipo: numeric
   Longitud: '9'
-  Rangos: 0...999999999
+  Rangos: 0..999999999
   Categorías: {}
   Especiales:
     '*': Dato reservado por confidencialidad
     N/D: No disponible
-    N/A: No aplica
-POBFEM:
-  Descripción: Población femenina
-  Definición: Total de mujeres que residen habitualmente en el país, la entidad federativa, el municipio
-    o la demarcación territorial y la localidad. Incluye la estimación del número de mujeres en viviendas
-    particulares sin información de ocupantes. Incluye a la población que no especificó su edad.
-  Tipo: numeric
-  Longitud: '9'
-  Rangos: 0...999999999
-  Categorías: {}
-  Especiales:
-    '*': Dato reservado por confidencialidad
-    N/D: No disponible
-    N/A: No aplica
-POBMAS:
+pobmas:
   Descripción: Población masculina
-  Definición: Total de hombres que residen habitualmente en el país, la entidad federativa, el municipio
-    o la demarcación territorial y la localidad. Incluye la estimación del número de hombres en viviendas
-    particulares sin información de ocupantes. Incluye a la población que no especificó su edad.
+  Definición: Total de hombres que residen habitualmente en el país, entidad federativa, municipio y localidad.
+    Incluye la estimación del número de hombres en viviendas particulares sin información de ocupantes.
+    Incluye a la población que no especificó su edad.
   Tipo: numeric
   Longitud: '9'
-  Rangos: 0...999999999
+  Rangos: 0..999999999
   Categorías: {}
   Especiales:
     '*': Dato reservado por confidencialidad
     N/D: No disponible
-    N/A: No aplica
-P_0A2:
+pobfem:
+  Descripción: Población femenina
+  Definición: Total de mujeres que residen habitualmente en el país, entidad federativa, municipio y localidad.
+    Incluye la estimación del número de mujeres en viviendas particulares sin información de ocupantes.
+    Incluye a la población que no especificó su edad.
+  Tipo: numeric
+  Longitud: '9'
+  Rangos: 0..999999999
+  Categorías: {}
+  Especiales:
+    '*': Dato reservado por confidencialidad
+    N/D: No disponible
+p_0a2:
   Descripción: Población de 0 a 2 años
   Definición: Personas de 0 a 2 años de edad.
   Tipo: numeric
   Longitud: '9'
-  Rangos: 0…999999999
+  Rangos: 0..999999999
   Categorías: {}
   Especiales:
     '*': Dato reservado por confidencialidad
     N/D: No disponible
-    N/A: No aplica
-P_0A2_F:
-  Descripción: Población femenina de 0 a 2 años
-  Definición: Mujeres de 0 a 2 años de edad.
-  Tipo: numeric
-  Longitud: '9'
-  Rangos: 0.,.999999999
-  Categorías: {}
-  Especiales:
-    '*': Dato reservado por confidencialidad
-    N/D: No disponible
-    N/A: No aplica
-P_0A2_M:
+p_0a2_m:
   Descripción: Población masculina de 0 a 2 años
   Definición: Hombres de 0 a 2 años de edad.
   Tipo: numeric
   Longitud: '9'
-  Rangos: 0...999999999
+  Rangos: 0..999999999
   Categorías: {}
   Especiales:
     '*': Dato reservado por confidencialidad
     N/D: No disponible
-    N/A: No aplica
-P_3YMAS:
-  Descripción: Población de 3 años y más
+p_0a2_f:
+  Descripción: Población femenina de 0 a 2 años
+  Definición: Mujeres de 0 a 2 años de edad.
+  Tipo: numeric
+  Longitud: '9'
+  Rangos: 0..999999999
+  Categorías: {}
+  Especiales:
+    '*': Dato reservado por confidencialidad
+    N/D: No disponible
+p_3ymas:
+  Descripción: Población de  3 años y más
   Definición: Personas de 3 a 130 años de edad.
   Tipo: numeric
   Longitud: '9'
-  Rangos: 0...999999999
+  Rangos: 0..999999999
   Categorías: {}
   Especiales:
     '*': Dato reservado por confidencialidad
     N/D: No disponible
-    N/A: No aplica
-P_3YMAS_F:
-  Descripción: Población femenina de 3 años y más
-  Definición: Mujeres de 3 a 130 años de edad.
-  Tipo: numeric
-  Longitud: '9'
-  Rangos: 0...999999999
-  Categorías: {}
-  Especiales:
-    '*': Dato reservado por confidencialidad
-    N/D: No disponible
-    N/A: No aplica
-P_3YMAS_M:
+p_3ymas_m:
   Descripción: Población masculina de 3 años y más
   Definición: Hombres de 3 a 130 años de edad.
   Tipo: numeric
   Longitud: '9'
-  Rangos: 0...999999999
+  Rangos: 0..999999999
   Categorías: {}
   Especiales:
     '*': Dato reservado por confidencialidad
     N/D: No disponible
-    N/A: No aplica
-P_5YMAS:
-  Descripción: Población de 5 años y más
+p_3ymas_f:
+  Descripción: Población femenina de 3 años y más
+  Definición: Mujeres de 3 a 130 años de edad.
+  Tipo: numeric
+  Longitud: '9'
+  Rangos: 0..999999999
+  Categorías: {}
+  Especiales:
+    '*': Dato reservado por confidencialidad
+    N/D: No disponible
+p_5ymas:
+  Descripción: Población de  5 años y más
   Definición: Personas de 5 a 130 años de edad.
   Tipo: numeric
   Longitud: '9'
-  Rangos: 0...999999999
+  Rangos: 0..999999999
   Categorías: {}
   Especiales:
     '*': Dato reservado por confidencialidad
     N/D: No disponible
-    N/A: No aplica
-P_5YMAS_F:
-  Descripción: Población femenina de 5 años y más
-  Definición: Mujeres de 5 a 130 años de edad.
-  Tipo: numeric
-  Longitud: '9'
-  Rangos: 0...999999999
-  Categorías: {}
-  Especiales:
-    '*': Dato reservado por confidencialidad
-    N/D: No disponible
-    N/A: No aplica
-P_5YMAS_M:
+p_5ymas_m:
   Descripción: Población masculina de 5 años y más
   Definición: Hombres de 5 a 130 años de edad.
   Tipo: numeric
   Longitud: '9'
-  Rangos: 0...999999999
+  Rangos: 0..999999999
   Categorías: {}
   Especiales:
     '*': Dato reservado por confidencialidad
     N/D: No disponible
-    N/A: No aplica
-P_12YMAS:
+p_5ymas_f:
+  Descripción: Población femenina de 5 años y más
+  Definición: Mujeres de 5 a 130 años de edad.
+  Tipo: numeric
+  Longitud: '9'
+  Rangos: 0..999999999
+  Categorías: {}
+  Especiales:
+    '*': Dato reservado por confidencialidad
+    N/D: No disponible
+p_12ymas:
   Descripción: Población de 12 años y más
   Definición: Personas de 12 a 130 años de edad.
   Tipo: numeric
   Longitud: '9'
-  Rangos: 0...999999999
+  Rangos: 0..999999999
   Categorías: {}
   Especiales:
     '*': Dato reservado por confidencialidad
     N/D: No disponible
-    N/A: No aplica
-P_12YMAS_F:
-  Descripción: Población femenina de 12 años y más
-  Definición: Mujeres de 12 a 130 años de edad.
-  Tipo: numeric
-  Longitud: '9'
-  Rangos: 0...999999999
-  Categorías: {}
-  Especiales:
-    '*': Dato reservado por confidencialidad
-    N/D: No disponible
-    N/A: No aplica
-P_12YMAS_M:
+p_12ymas_m:
   Descripción: Población masculina de 12 años y más
   Definición: Hombres de 12 a 130 años de edad.
   Tipo: numeric
   Longitud: '9'
-  Rangos: 0...999999999
+  Rangos: 0..999999999
   Categorías: {}
   Especiales:
     '*': Dato reservado por confidencialidad
     N/D: No disponible
-    N/A: No aplica
-P_15YMAS:
+p_12ymas_f:
+  Descripción: Población femenina de 12 años y más
+  Definición: Mujeres de 12 a 130 años de edad.
+  Tipo: numeric
+  Longitud: '9'
+  Rangos: 0..999999999
+  Categorías: {}
+  Especiales:
+    '*': Dato reservado por confidencialidad
+    N/D: No disponible
+p_15ymas:
   Descripción: Población de 15 años y más
   Definición: Personas de 15 a 130 años de edad.
   Tipo: numeric
   Longitud: '9'
-  Rangos: 0...999999999
+  Rangos: 0..999999999
   Categorías: {}
   Especiales:
     '*': Dato reservado por confidencialidad
     N/D: No disponible
-    N/A: No aplica
-P_15YMAS_F:
-  Descripción: Población femenina de 15 años y más
-  Definición: Mujeres de 15 a 130 años de edad.
-  Tipo: numeric
-  Longitud: '9'
-  Rangos: 0...999999999
-  Categorías: {}
-  Especiales:
-    '*': Dato reservado por confidencialidad
-    N/D: No disponible
-    N/A: No aplica
-P_15YMAS_M:
+p_15ymas_m:
   Descripción: Población masculina de 15 años y más
   Definición: Hombres de 15 a 130 años de edad.
   Tipo: numeric
   Longitud: '9'
-  Rangos: 0...999999999
+  Rangos: 0..999999999
   Categorías: {}
   Especiales:
     '*': Dato reservado por confidencialidad
     N/D: No disponible
-    N/A: No aplica
-P_18YMAS:
+p_15ymas_f:
+  Descripción: Población femenina de 15 años y más
+  Definición: Mujeres de 15 a 130 años de edad.
+  Tipo: numeric
+  Longitud: '9'
+  Rangos: 0..999999999
+  Categorías: {}
+  Especiales:
+    '*': Dato reservado por confidencialidad
+    N/D: No disponible
+p_18ymas:
   Descripción: Población de 18 años y más
   Definición: Personas de 18 a 130 años de edad.
   Tipo: numeric
   Longitud: '9'
-  Rangos: 0...999999999
+  Rangos: 0..999999999
   Categorías: {}
   Especiales:
     '*': Dato reservado por confidencialidad
     N/D: No disponible
-    N/A: No aplica
-P_18YMAS_F:
-  Descripción: Población femenina de 18 años y más
-  Definición: Mujeres de 18 a 130 años de edad.
-  Tipo: numeric
-  Longitud: '9'
-  Rangos: 0...999999999
-  Categorías: {}
-  Especiales:
-    '*': Dato reservado por confidencialidad
-    N/D: No disponible
-    N/A: No aplica
-P_18YMAS_M:
+p_18ymas_m:
   Descripción: Población masculina de 18 años y más
   Definición: Hombres de 18 a 130 años de edad.
   Tipo: numeric
   Longitud: '9'
-  Rangos: 0...999999999
+  Rangos: 0..999999999
   Categorías: {}
   Especiales:
     '*': Dato reservado por confidencialidad
     N/D: No disponible
-    N/A: No aplica
-P_3A5:
+p_18ymas_f:
+  Descripción: Población femenina de 18 años y más
+  Definición: Mujeres de 18 a 130 años de edad.
+  Tipo: numeric
+  Longitud: '9'
+  Rangos: 0..999999999
+  Categorías: {}
+  Especiales:
+    '*': Dato reservado por confidencialidad
+    N/D: No disponible
+p_3a5:
   Descripción: Población de 3 a 5 años
   Definición: Personas de 3 a 5 años de edad.
   Tipo: numeric
   Longitud: '9'
-  Rangos: 0...999999999
+  Rangos: 0..999999999
   Categorías: {}
   Especiales:
     '*': Dato reservado por confidencialidad
     N/D: No disponible
-    N/A: No aplica
-P_3A5_F:
-  Descripción: Población femenina de 3 a 5 años
-  Definición: Mujeres de 3 a 5 años de edad.
-  Tipo: numeric
-  Longitud: '9'
-  Rangos: 0...999999999
-  Categorías: {}
-  Especiales:
-    '*': Dato reservado por confidencialidad
-    N/D: No disponible
-    N/A: No aplica
-P_3A5_M:
+p_3a5_m:
   Descripción: Población masculina de 3 a 5 años
   Definición: Hombres de 3 a 5 años de edad.
   Tipo: numeric
   Longitud: '9'
-  Rangos: 0...999999999
+  Rangos: 0..999999999
   Categorías: {}
   Especiales:
     '*': Dato reservado por confidencialidad
     N/D: No disponible
-    N/A: No aplica
-P_6A11:
+p_3a5_f:
+  Descripción: Población femenina de 3 a 5 años
+  Definición: Mujeres de 3 a 5 años de edad.
+  Tipo: numeric
+  Longitud: '9'
+  Rangos: 0..999999999
+  Categorías: {}
+  Especiales:
+    '*': Dato reservado por confidencialidad
+    N/D: No disponible
+p_6a11:
   Descripción: Población de 6 a 11 años
   Definición: Personas de 6 a 11 años de edad.
   Tipo: numeric
   Longitud: '9'
-  Rangos: 0...999999999
+  Rangos: 0..999999999
   Categorías: {}
   Especiales:
     '*': Dato reservado por confidencialidad
     N/D: No disponible
-    N/A: No aplica
-P_6A11_F:
-  Descripción: Población femenina de 6 a 11 años
-  Definición: Mujeres de 6 a 11 años de edad.
-  Tipo: numeric
-  Longitud: '9'
-  Rangos: 0...999999999
-  Categorías: {}
-  Especiales:
-    '*': Dato reservado por confidencialidad
-    N/D: No disponible
-    N/A: No aplica
-P_6A11_M:
+p_6a11_m:
   Descripción: Población masculina de 6 a 11 años
   Definición: Hombres de 6 a 11 años de edad.
   Tipo: numeric
   Longitud: '9'
-  Rangos: 0...999999999
+  Rangos: 0..999999999
   Categorías: {}
   Especiales:
     '*': Dato reservado por confidencialidad
     N/D: No disponible
-    N/A: No aplica
-P_8A14:
+p_6a11_f:
+  Descripción: Población femenina de 6 a 11 años
+  Definición: Mujeres de 6 a 11 años de edad.
+  Tipo: numeric
+  Longitud: '9'
+  Rangos: 0..999999999
+  Categorías: {}
+  Especiales:
+    '*': Dato reservado por confidencialidad
+    N/D: No disponible
+p_8a14:
   Descripción: Población de 8 a 14 años
   Definición: Personas de 8 a 14 años de edad.
   Tipo: numeric
   Longitud: '9'
-  Rangos: 0...999999999
+  Rangos: 0..999999999
   Categorías: {}
   Especiales:
     '*': Dato reservado por confidencialidad
     N/D: No disponible
-    N/A: No aplica
-P_8A14_F:
-  Descripción: Población femenina de 8 a 14 años
-  Definición: Mujeres de 8 a 14 años de edad.
-  Tipo: numeric
-  Longitud: '9'
-  Rangos: 0...999999999
-  Categorías: {}
-  Especiales:
-    '*': Dato reservado por confidencialidad
-    N/D: No disponible
-    N/A: No aplica
-P_8A14_M:
+p_8a14_m:
   Descripción: Población masculina de 8 a 14 años
   Definición: Hombres de 8 a 14 años de edad.
   Tipo: numeric
   Longitud: '9'
-  Rangos: 0...999999999
+  Rangos: 0..999999999
   Categorías: {}
   Especiales:
     '*': Dato reservado por confidencialidad
     N/D: No disponible
-    N/A: No aplica
-P_12A14:
+p_8a14_f:
+  Descripción: Población femenina de 8 a 14 años
+  Definición: Mujeres de 8 a 14 años de edad.
+  Tipo: numeric
+  Longitud: '9'
+  Rangos: 0..999999999
+  Categorías: {}
+  Especiales:
+    '*': Dato reservado por confidencialidad
+    N/D: No disponible
+p_12a14:
   Descripción: Población de 12 a 14 años
   Definición: Personas de 12 a 14 años de edad.
   Tipo: numeric
   Longitud: '9'
-  Rangos: 0...999999999
+  Rangos: 0..999999999
   Categorías: {}
   Especiales:
     '*': Dato reservado por confidencialidad
     N/D: No disponible
-    N/A: No aplica
-P_12A14_F:
-  Descripción: Población femenina de 12 a 14 años
-  Definición: Mujeres de 12 a 14 años de edad.
-  Tipo: numeric
-  Longitud: '9'
-  Rangos: 0...999999999
-  Categorías: {}
-  Especiales:
-    '*': Dato reservado por confidencialidad
-    N/D: No disponible
-    N/A: No aplica
-P_12A14_M:
+p_12a14_m:
   Descripción: Población masculina de 12 a 14 años
   Definición: Hombres de 12 a 14 años de edad.
   Tipo: numeric
   Longitud: '9'
-  Rangos: 0...999999999
+  Rangos: 0..999999999
   Categorías: {}
   Especiales:
     '*': Dato reservado por confidencialidad
     N/D: No disponible
-    N/A: No aplica
-P_15A17:
+p_12a14_f:
+  Descripción: Población femenina de 12 a 14 años
+  Definición: Mujeres de 12 a 14 años de edad.
+  Tipo: numeric
+  Longitud: '9'
+  Rangos: 0..999999999
+  Categorías: {}
+  Especiales:
+    '*': Dato reservado por confidencialidad
+    N/D: No disponible
+p_15a17:
   Descripción: Población de 15 a 17 años
   Definición: Personas de 15 a 17 años de edad.
   Tipo: numeric
   Longitud: '9'
-  Rangos: 0...999999999
+  Rangos: 0..999999999
   Categorías: {}
   Especiales:
     '*': Dato reservado por confidencialidad
     N/D: No disponible
-    N/A: No aplica
-P_15A17_F:
-  Descripción: Población femenina de 15 a 17 años
-  Definición: Mujeres de 15 a 17 años de edad.
-  Tipo: numeric
-  Longitud: '9'
-  Rangos: 0...999999999
-  Categorías: {}
-  Especiales:
-    '*': Dato reservado por confidencialidad
-    N/D: No disponible
-    N/A: No aplica
-P_15A17_M:
+p_15a17_m:
   Descripción: Población masculina de 15 a 17 años
   Definición: Hombres de 15 a 17 años de edad.
   Tipo: numeric
   Longitud: '9'
-  Rangos: 0...999999999
+  Rangos: 0..999999999
   Categorías: {}
   Especiales:
     '*': Dato reservado por confidencialidad
     N/D: No disponible
-    N/A: No aplica
-P_18A24:
+p_15a17_f:
+  Descripción: Población femenina de 15 a 17 años
+  Definición: Mujeres de 15 a 17 años de edad.
+  Tipo: numeric
+  Longitud: '9'
+  Rangos: 0..999999999
+  Categorías: {}
+  Especiales:
+    '*': Dato reservado por confidencialidad
+    N/D: No disponible
+p_18a24:
   Descripción: Población de 18 a 24 años
   Definición: Personas de 18 a 24 años de edad.
   Tipo: numeric
   Longitud: '9'
-  Rangos: 0...999999999
+  Rangos: 0..999999999
   Categorías: {}
   Especiales:
     '*': Dato reservado por confidencialidad
     N/D: No disponible
-    N/A: No aplica
-P_18A24_F:
-  Descripción: Población femenina de 18 a 24 años
-  Definición: Mujeres de 18 a 24 años de edad.
-  Tipo: numeric
-  Longitud: '9'
-  Rangos: 0...999999999
-  Categorías: {}
-  Especiales:
-    '*': Dato reservado por confidencialidad
-    N/D: No disponible
-    N/A: No aplica
-P_18A24_M:
+p_18a24_m:
   Descripción: Población masculina de 18 a 24 años
   Definición: Hombres de 18 a 24 años de edad.
   Tipo: numeric
   Longitud: '9'
-  Rangos: 0...999999999
+  Rangos: 0..999999999
   Categorías: {}
   Especiales:
     '*': Dato reservado por confidencialidad
     N/D: No disponible
-    N/A: No aplica
-P_15A49_F:
+p_18a24_f:
+  Descripción: Población femenina de 18 a 24 años
+  Definición: Mujeres de 18 a 24 años de edad.
+  Tipo: numeric
+  Longitud: '9'
+  Rangos: 0..999999999
+  Categorías: {}
+  Especiales:
+    '*': Dato reservado por confidencialidad
+    N/D: No disponible
+p_15a49_f:
   Descripción: Población femenina de 15 a 49 años
   Definición: Mujeres de 15 a 49 años de edad.
   Tipo: numeric
   Longitud: '9'
-  Rangos: 0...999999999
+  Rangos: 0..999999999
   Categorías: {}
   Especiales:
     '*': Dato reservado por confidencialidad
     N/D: No disponible
-    N/A: No aplica
-P_60YMAS:
+p_60ymas:
   Descripción: Población de 60 años y más
   Definición: Personas de 60 a 130 años de edad.
   Tipo: numeric
   Longitud: '9'
-  Rangos: 0...999999999
+  Rangos: 0..999999999
   Categorías: {}
   Especiales:
     '*': Dato reservado por confidencialidad
     N/D: No disponible
-    N/A: No aplica
-P_60YMAS_F:
-  Descripción: Población femenina de 60 años y más
-  Definición: Mujeres de 60 a 130 años de edad.
-  Tipo: numeric
-  Longitud: '9'
-  Rangos: 0...999999999
-  Categorías: {}
-  Especiales:
-    '*': Dato reservado por confidencialidad
-    N/D: No disponible
-    N/A: No aplica
-P_60YMAS_M:
+p_60ymas_m:
   Descripción: Población masculina de 60 años y más
   Definición: Hombres de 60 a 130 años de edad.
   Tipo: numeric
   Longitud: '9'
-  Rangos: 0...999999999
+  Rangos: 0..999999999
   Categorías: {}
   Especiales:
     '*': Dato reservado por confidencialidad
     N/D: No disponible
-    N/A: No aplica
-REL_H_M:
+p_60ymas_f:
+  Descripción: Población femenina de 60 años y más
+  Definición: Mujeres de 60 a 130 años de edad.
+  Tipo: numeric
+  Longitud: '9'
+  Rangos: 0..999999999
+  Categorías: {}
+  Especiales:
+    '*': Dato reservado por confidencialidad
+    N/D: No disponible
+rel_h_m:
   Descripción: Relación hombres-mujeres
   Definición: Resultado de dividir el total de hombres entre el total de mujeres y multiplicarlo por cien.
     Indica el número de hombres por cada 100 mujeres.
   Tipo: numeric
   Longitud: '9'
-  Rangos: 0...999999999
+  Rangos: 0..999999999
   Categorías: {}
   Especiales:
     '*': Dato reservado por confidencialidad
     N/D: No disponible
-    N/A: No aplica
-POB0_14:
-  Descripción: Población de 0 a 14 años
-  Definición: Personas de 0 a 14 años de edad.
+pob0_14:
+  Descripción: Población de cero a 14 años
+  Definición: Personas de cero a 14 años de edad.
   Tipo: numeric
   Longitud: '9'
-  Rangos: 0...999999999
+  Rangos: 0..999999999
   Categorías: {}
   Especiales:
     '*': Dato reservado por confidencialidad
     N/D: No disponible
-    N/A: No aplica
-POB15_64:
+pob15_64:
   Descripción: Población de 15 a 64 años
   Definición: Personas de 15 a 64 años de edad.
   Tipo: numeric
   Longitud: '9'
-  Rangos: 0...999999999
+  Rangos: 0..999999999
   Categorías: {}
   Especiales:
     '*': Dato reservado por confidencialidad
     N/D: No disponible
-    N/A: No aplica
-POB65_MAS:
+pob65_mas:
   Descripción: Población de 65 años y más
   Definición: Personas de 65 a 130 años de edad.
   Tipo: numeric
   Longitud: '9'
-  Rangos: 0...999999999
+  Rangos: 0..999999999
   Categorías: {}
   Especiales:
     '*': Dato reservado por confidencialidad
     N/D: No disponible
-    N/A: No aplica
-P_0A4:
-  Descripción: Población de 0 a 4 años
-  Definición: Personas de 0 a 4 años de edad.
+prom_hnv:
+  Descripción: Promedio de hijos nacidos vivos
+  Definición: Resultado de dividir el total de hijos nacidos vivos de las mujeres de 12 a 130 años de
+    edad, entre el total de mujeres del mismo grupo de edad. Excluye a las mujeres que no especificaron
+    el número de hijos.
   Tipo: numeric
   Longitud: '9'
-  Rangos: 0...999999999
+  Rangos: 0..999999999
   Categorías: {}
   Especiales:
     '*': Dato reservado por confidencialidad
     N/D: No disponible
-    N/A: No aplica
-P_0A4_F:
-  Descripción: Población femenina de 0 a 4 años
-  Definición: Mujeres de 0 a 4 años de edad.
-  Tipo: numeric
-  Longitud: '9'
-  Rangos: 0...999999999
-  Categorías: {}
-  Especiales:
-    '*': Dato reservado por confidencialidad
-    N/D: No disponible
-    N/A: No aplica
-P_0A4_M:
-  Descripción: Población masculina de 0 a 4 años
-  Definición: Hombres de 0 a 4 años de edad.
-  Tipo: numeric
-  Longitud: '9'
-  Rangos: 0...999999999
-  Categorías: {}
-  Especiales:
-    '*': Dato reservado por confidencialidad
-    N/D: No disponible
-    N/A: No aplica
-P_5A9:
-  Descripción: Población de 5 a 9 años
-  Definición: Personas de 5 a 9 años de edad.
-  Tipo: numeric
-  Longitud: '9'
-  Rangos: 0...999999999
-  Categorías: {}
-  Especiales:
-    '*': Dato reservado por confidencialidad
-    N/D: No disponible
-    N/A: No aplica
-P_5A9_F:
-  Descripción: Población femenina de 5 a 9 años
-  Definición: Mujeres de 5 a 9 años de edad.
-  Tipo: numeric
-  Longitud: '9'
-  Rangos: 0...999999999
-  Categorías: {}
-  Especiales:
-    '*': Dato reservado por confidencialidad
-    N/D: No disponible
-    N/A: No aplica
-P_5A9_M:
-  Descripción: Población masculina de 5 a 9 años
-  Definición: Hombres de 5 a 9 años de edad.
-  Tipo: numeric
-  Longitud: '9'
-  Rangos: 0...999999999
-  Categorías: {}
-  Especiales:
-    '*': Dato reservado por confidencialidad
-    N/D: No disponible
-    N/A: No aplica
-P_10A14:
-  Descripción: Población de 10 a 14 años
-  Definición: Personas de 10 a 14 años de edad.
-  Tipo: numeric
-  Longitud: '9'
-  Rangos: 0...999999999
-  Categorías: {}
-  Especiales:
-    '*': Dato reservado por confidencialidad
-    N/D: No disponible
-    N/A: No aplica
-P_10A14_F:
-  Descripción: Población femenina de 10 a 14 años
-  Definición: Mujeres de 10 a 14 años de edad.
-  Tipo: numeric
-  Longitud: '9'
-  Rangos: 0...999999999
-  Categorías: {}
-  Especiales:
-    '*': Dato reservado por confidencialidad
-    N/D: No disponible
-    N/A: No aplica
-P_10A14_M:
-  Descripción: Población masculina de 10 a 14 años
-  Definición: Hombres de 10 a 14 años de edad.
-  Tipo: numeric
-  Longitud: '9'
-  Rangos: 0...999999999
-  Categorías: {}
-  Especiales:
-    '*': Dato reservado por confidencialidad
-    N/D: No disponible
-    N/A: No aplica
-P_15A19:
-  Descripción: Población de 15 a 19 años
-  Definición: Personas de 15 a 19 años de edad.
-  Tipo: numeric
-  Longitud: '9'
-  Rangos: 0...999999999
-  Categorías: {}
-  Especiales:
-    '*': Dato reservado por confidencialidad
-    N/D: No disponible
-    N/A: No aplica
-P_15A19_F:
-  Descripción: Población femenina de 15 a 19 años
-  Definición: Mujeres de 15 a 19 años de edad.
-  Tipo: numeric
-  Longitud: '9'
-  Rangos: 0...999999999
-  Categorías: {}
-  Especiales:
-    '*': Dato reservado por confidencialidad
-    N/D: No disponible
-    N/A: No aplica
-P_15A19_M:
-  Descripción: Población masculina de 15 a 19 años
-  Definición: Hombres de 15 a 19 años de edad.
-  Tipo: numeric
-  Longitud: '9'
-  Rangos: 0...999999999
-  Categorías: {}
-  Especiales:
-    '*': Dato reservado por confidencialidad
-    N/D: No disponible
-    N/A: No aplica
-P_20A24:
-  Descripción: Población de 20 a 24 años
-  Definición: Personas de 20 a 24 años de edad.
-  Tipo: numeric
-  Longitud: '9'
-  Rangos: 0...999999999
-  Categorías: {}
-  Especiales:
-    '*': Dato reservado por confidencialidad
-    N/D: No disponible
-    N/A: No aplica
-P_20A24_F:
-  Descripción: Población femenina de 20 a 24 años
-  Definición: Mujeres de 20 a 24 años de edad.
-  Tipo: numeric
-  Longitud: '9'
-  Rangos: 0...999999999
-  Categorías: {}
-  Especiales:
-    '*': Dato reservado por confidencialidad
-    N/D: No disponible
-    N/A: No aplica
-P_20A24_M:
-  Descripción: Población masculina de 20 a 24 años
-  Definición: Hombres de 20 a 24 años de edad.
-  Tipo: numeric
-  Longitud: '9'
-  Rangos: 0...999999999
-  Categorías: {}
-  Especiales:
-    '*': Dato reservado por confidencialidad
-    N/D: No disponible
-    N/A: No aplica
-P_25A29:
-  Descripción: Población de 25 a 29 años
-  Definición: Personas de 25 a 29 años de edad.
-  Tipo: numeric
-  Longitud: '9'
-  Rangos: 0...999999999
-  Categorías: {}
-  Especiales:
-    '*': Dato reservado por confidencialidad
-    N/D: No disponible
-    N/A: No aplica
-P_25A29_F:
-  Descripción: Población femenina de 25 a 29 años
-  Definición: Mujeres de 25 a 29 años de edad.
-  Tipo: numeric
-  Longitud: '9'
-  Rangos: 0...999999999
-  Categorías: {}
-  Especiales:
-    '*': Dato reservado por confidencialidad
-    N/D: No disponible
-    N/A: No aplica
-P_25A29_M:
-  Descripción: Población masculina de 25 a 29 años
-  Definición: Hombres de 25 a 29 años de edad.
-  Tipo: numeric
-  Longitud: '9'
-  Rangos: 0...999999999
-  Categorías: {}
-  Especiales:
-    '*': Dato reservado por confidencialidad
-    N/D: No disponible
-    N/A: No aplica
-P_30A34:
-  Descripción: Población de 30 a 34 años
-  Definición: Personas de 30 a 34 años de edad.
-  Tipo: numeric
-  Longitud: '9'
-  Rangos: 0...999999999
-  Categorías: {}
-  Especiales:
-    '*': Dato reservado por confidencialidad
-    N/D: No disponible
-    N/A: No aplica
-P_30A34_F:
-  Descripción: Población femenina de 30 a 34 años
-  Definición: Mujeres de 30 a 34 años de edad.
-  Tipo: numeric
-  Longitud: '9'
-  Rangos: 0...999999999
-  Categorías: {}
-  Especiales:
-    '*': Dato reservado por confidencialidad
-    N/D: No disponible
-    N/A: No aplica
-P_30A34_M:
-  Descripción: Población masculina de 30 a 34 años
-  Definición: Hombres de 30 a 34 años de edad.
-  Tipo: numeric
-  Longitud: '9'
-  Rangos: 0...999999999
-  Categorías: {}
-  Especiales:
-    '*': Dato reservado por confidencialidad
-    N/D: No disponible
-    N/A: No aplica
-P_35A39:
-  Descripción: Población de 35 a 39 años
-  Definición: Personas de 35 a 39 años de edad.
-  Tipo: numeric
-  Longitud: '9'
-  Rangos: 0...999999999
-  Categorías: {}
-  Especiales:
-    '*': Dato reservado por confidencialidad
-    N/D: No disponible
-    N/A: No aplica
-P_35A39_F:
-  Descripción: Población femenina de 35 a 39 años
-  Definición: Mujeres de 35 a 39 años de edad.
-  Tipo: numeric
-  Longitud: '9'
-  Rangos: 0...999999999
-  Categorías: {}
-  Especiales:
-    '*': Dato reservado por confidencialidad
-    N/D: No disponible
-    N/A: No aplica
-P_35A39_M:
-  Descripción: Población masculina de 35 a 39 años
-  Definición: Hombres de 35 a 39 años de edad.
-  Tipo: numeric
-  Longitud: '9'
-  Rangos: 0...999999999
-  Categorías: {}
-  Especiales:
-    '*': Dato reservado por confidencialidad
-    N/D: No disponible
-    N/A: No aplica
-P_40A44:
-  Descripción: Población de 40 a 44 años
-  Definición: Personas de 40 a 44 años de edad.
-  Tipo: numeric
-  Longitud: '9'
-  Rangos: 0...999999999
-  Categorías: {}
-  Especiales:
-    '*': Dato reservado por confidencialidad
-    N/D: No disponible
-    N/A: No aplica
-P_40A44_F:
-  Descripción: Población femenina de 40 a 44 años
-  Definición: Mujeres de 40 a 44 años de edad.
-  Tipo: numeric
-  Longitud: '9'
-  Rangos: 0...999999999
-  Categorías: {}
-  Especiales:
-    '*': Dato reservado por confidencialidad
-    N/D: No disponible
-    N/A: No aplica
-P_40A44_M:
-  Descripción: Población masculina de 40 a 44 años
-  Definición: Hombres de 40 a 44 años de edad.
-  Tipo: numeric
-  Longitud: '9'
-  Rangos: 0...999999999
-  Categorías: {}
-  Especiales:
-    '*': Dato reservado por confidencialidad
-    N/D: No disponible
-    N/A: No aplica
-P_45A49:
-  Descripción: Población de 45 a 49 años
-  Definición: Personas de 45 a 49 años de edad.
-  Tipo: numeric
-  Longitud: '9'
-  Rangos: 0...999999999
-  Categorías: {}
-  Especiales:
-    '*': Dato reservado por confidencialidad
-    N/D: No disponible
-    N/A: No aplica
-P_45A49_F:
-  Descripción: Población femenina de 45 a 49 años
-  Definición: Mujeres de 45 a 49 años de edad.
-  Tipo: numeric
-  Longitud: '9'
-  Rangos: 0...999999999
-  Categorías: {}
-  Especiales:
-    '*': Dato reservado por confidencialidad
-    N/D: No disponible
-    N/A: No aplica
-P_45A49_M:
-  Descripción: Población masculina de 45 a 49 años
-  Definición: Hombres de 45 a 49 años de edad.
-  Tipo: numeric
-  Longitud: '9'
-  Rangos: 0...999999999
-  Categorías: {}
-  Especiales:
-    '*': Dato reservado por confidencialidad
-    N/D: No disponible
-    N/A: No aplica
-P_50A54:
-  Descripción: Población de 50 a 54 años
-  Definición: Personas de 50 a 54 años de edad.
-  Tipo: numeric
-  Longitud: '9'
-  Rangos: 0...999999999
-  Categorías: {}
-  Especiales:
-    '*': Dato reservado por confidencialidad
-    N/D: No disponible
-    N/A: No aplica
-P_50A54_F:
-  Descripción: Población femenina de 50 a 54 años
-  Definición: Mujeres de 50 a 54 años de edad.
-  Tipo: numeric
-  Longitud: '9'
-  Rangos: 0...999999999
-  Categorías: {}
-  Especiales:
-    '*': Dato reservado por confidencialidad
-    N/D: No disponible
-    N/A: No aplica
-P_50A54_M:
-  Descripción: Población masculina de 50 a 54 años
-  Definición: Hombres de 50 a 54 años de edad.
-  Tipo: numeric
-  Longitud: '9'
-  Rangos: 0...999999999
-  Categorías: {}
-  Especiales:
-    '*': Dato reservado por confidencialidad
-    N/D: No disponible
-    N/A: No aplica
-P_55A59:
-  Descripción: Población de 55 a 59 años
-  Definición: Personas de 55 a 59 años de edad.
-  Tipo: numeric
-  Longitud: '9'
-  Rangos: 0...999999999
-  Categorías: {}
-  Especiales:
-    '*': Dato reservado por confidencialidad
-    N/D: No disponible
-    N/A: No aplica
-P_55A59_F:
-  Descripción: Población femenina de 55 a 59 años
-  Definición: Mujeres de 55 a 59 años de edad.
-  Tipo: numeric
-  Longitud: '9'
-  Rangos: 0...999999999
-  Categorías: {}
-  Especiales:
-    '*': Dato reservado por confidencialidad
-    N/D: No disponible
-    N/A: No aplica
-P_55A59_M:
-  Descripción: Población masculina de 55 a 59 años
-  Definición: Hombres de 55 a 59 años de edad.
-  Tipo: numeric
-  Longitud: '9'
-  Rangos: 0...999999999
-  Categorías: {}
-  Especiales:
-    '*': Dato reservado por confidencialidad
-    N/D: No disponible
-    N/A: No aplica
-P_60A64:
-  Descripción: Población de 60 a 64 años
-  Definición: Personas de 60 a 64 años de edad.
-  Tipo: numeric
-  Longitud: '9'
-  Rangos: 0...999999999
-  Categorías: {}
-  Especiales:
-    '*': Dato reservado por confidencialidad
-    N/D: No disponible
-    N/A: No aplica
-P_60A64_F:
-  Descripción: Población femenina de 60 a 64 años
-  Definición: Mujeres de 60 a 64 años de edad.
-  Tipo: numeric
-  Longitud: '9'
-  Rangos: 0...999999999
-  Categorías: {}
-  Especiales:
-    '*': Dato reservado por confidencialidad
-    N/D: No disponible
-    N/A: No aplica
-P_60A64_M:
-  Descripción: Población masculina de 60 a 64 años
-  Definición: Hombres de 60 a 64 años de edad.
-  Tipo: numeric
-  Longitud: '9'
-  Rangos: 0...999999999
-  Categorías: {}
-  Especiales:
-    '*': Dato reservado por confidencialidad
-    N/D: No disponible
-    N/A: No aplica
-P_65A69:
-  Descripción: Población de 65 a 69 años
-  Definición: Personas de 65 a 69 años de edad.
-  Tipo: numeric
-  Longitud: '9'
-  Rangos: 0...999999999
-  Categorías: {}
-  Especiales:
-    '*': Dato reservado por confidencialidad
-    N/D: No disponible
-    N/A: No aplica
-P_65A69_F:
-  Descripción: Población femenina de 65 a 69 años
-  Definición: Mujeres de 65 a 69 años de edad.
-  Tipo: numeric
-  Longitud: '9'
-  Rangos: 0...999999999
-  Categorías: {}
-  Especiales:
-    '*': Dato reservado por confidencialidad
-    N/D: No disponible
-    N/A: No aplica
-P_65A69_M:
-  Descripción: Población masculina de 65 a 69 años
-  Definición: Hombres de 65 a 69 años de edad.
-  Tipo: numeric
-  Longitud: '9'
-  Rangos: 0...999999999
-  Categorías: {}
-  Especiales:
-    '*': Dato reservado por confidencialidad
-    N/D: No disponible
-    N/A: No aplica
-P_70A74:
-  Descripción: Población de 70 a 74 años
-  Definición: Personas de 70 a 74 años de edad.
-  Tipo: numeric
-  Longitud: '9'
-  Rangos: 0...999999999
-  Categorías: {}
-  Especiales:
-    '*': Dato reservado por confidencialidad
-    N/D: No disponible
-    N/A: No aplica
-P_70A74_F:
-  Descripción: Población femenina de 70 a 74 años
-  Definición: Mujeres de 70 a 74 años de edad.
-  Tipo: numeric
-  Longitud: '9'
-  Rangos: 0...999999999
-  Categorías: {}
-  Especiales:
-    '*': Dato reservado por confidencialidad
-    N/D: No disponible
-    N/A: No aplica
-P_70A74_M:
-  Descripción: Población masculina de 70 a 74 años
-  Definición: Hombres de 70 a 74 años de edad.
-  Tipo: numeric
-  Longitud: '9'
-  Rangos: 0...999999999
-  Categorías: {}
-  Especiales:
-    '*': Dato reservado por confidencialidad
-    N/D: No disponible
-    N/A: No aplica
-P_75A79:
-  Descripción: Población de 75 a 79 años
-  Definición: Personas de 75 a 79 años de edad.
-  Tipo: numeric
-  Longitud: '9'
-  Rangos: 0...999999999
-  Categorías: {}
-  Especiales:
-    '*': Dato reservado por confidencialidad
-    N/D: No disponible
-    N/A: No aplica
-P_75A79_F:
-  Descripción: Población femenina de 75 a 79 años
-  Definición: Mujeres de 75 a 79 años de edad.
-  Tipo: numeric
-  Longitud: '9'
-  Rangos: 0...999999999
-  Categorías: {}
-  Especiales:
-    '*': Dato reservado por confidencialidad
-    N/D: No disponible
-    N/A: No aplica
-P_75A79_M:
-  Descripción: Población masculina de 75 a 79 años
-  Definición: Hombres de 75 a 79 años de edad.
-  Tipo: numeric
-  Longitud: '9'
-  Rangos: 0...999999999
-  Categorías: {}
-  Especiales:
-    '*': Dato reservado por confidencialidad
-    N/D: No disponible
-    N/A: No aplica
-P_80A84:
-  Descripción: Población de 80 a 84 años
-  Definición: Personas de 80 a 84 años de edad.
-  Tipo: numeric
-  Longitud: '9'
-  Rangos: 0...999999999
-  Categorías: {}
-  Especiales:
-    '*': Dato reservado por confidencialidad
-    N/D: No disponible
-    N/A: No aplica
-P_80A84_F:
-  Descripción: Población femenina de 80 a 84 años
-  Definición: Mujeres de 80 a 84 años de edad.
-  Tipo: numeric
-  Longitud: '9'
-  Rangos: 0...999999999
-  Categorías: {}
-  Especiales:
-    '*': Dato reservado por confidencialidad
-    N/D: No disponible
-    N/A: No aplica
-P_80A84_M:
-  Descripción: Población masculina de 80 a 84 años
-  Definición: Hombres de 80 a 84 años de edad.
-  Tipo: numeric
-  Longitud: '9'
-  Rangos: 0...999999999
-  Categorías: {}
-  Especiales:
-    '*': Dato reservado por confidencialidad
-    N/D: No disponible
-    N/A: No aplica
-P_85YMAS:
-  Descripción: Población de 85 años y más
-  Definición: Personas de 85 a 130 años de edad.
-  Tipo: numeric
-  Longitud: '9'
-  Rangos: 0...999999999
-  Categorías: {}
-  Especiales:
-    '*': Dato reservado por confidencialidad
-    N/D: No disponible
-    N/A: No aplica
-P_85YMAS_F:
-  Descripción: Población femenina de 85 años y más
-  Definición: Mujeres de 85 a 130 años de edad.
-  Tipo: numeric
-  Longitud: '9'
-  Rangos: 0...999999999
-  Categorías: {}
-  Especiales:
-    '*': Dato reservado por confidencialidad
-    N/D: No disponible
-    N/A: No aplica
-P_85YMAS_M:
-  Descripción: Población masculina de 85 años y más
-  Definición: Hombres de 85 a 130 años de edad.
-  Tipo: numeric
-  Longitud: '9'
-  Rangos: 0...999999999
-  Categorías: {}
-  Especiales:
-    '*': Dato reservado por confidencialidad
-    N/D: No disponible
-    N/A: No aplica
-PROM_HNV:
-  Descripción: Promedio de hijas e hijos nacidos vivos
-  Definición: Resultado de dividir el total de hijas e hijos nacidos vivos de las mujeres de 12 a 130
-    años de edad, entre el total de mujeres del mismo grupo de edad. Excluye a las mujeres que no especificaron
-    el número de hijas e hijos nacidos vivos y a las que sí han tenido, pero no especificaron el total
-    de ellos.
-  Tipo: numeric
-  Longitud: '9'
-  Rangos: 0...999999999
-  Categorías: {}
-  Especiales:
-    '*': Dato reservado por confidencialidad
-    N/D: No disponible
-    N/A: No aplica
-PNACENT:
+pnacent:
   Descripción: Población nacida en la entidad
   Definición: Personas nacidas en la misma entidad federativa.
   Tipo: numeric
   Longitud: '9'
-  Rangos: 0…999999999
+  Rangos: 0..999999999
   Categorías: {}
   Especiales:
     '*': Dato reservado por confidencialidad
     N/D: No disponible
-    N/A: No aplica
-PNACENT_F:
-  Descripción: Población femenina nacida en la entidad
-  Definición: Mujeres nacidas en la misma entidad federativa.
-  Tipo: numeric
-  Longitud: '9'
-  Rangos: 0…999999999
-  Categorías: {}
-  Especiales:
-    '*': Dato reservado por confidencialidad
-    N/D: No disponible
-    N/A: No aplica
-PNACENT_M:
+pnacent_m:
   Descripción: Población masculina nacida en la entidad
   Definición: Hombres nacidos en la misma entidad federativa.
   Tipo: numeric
   Longitud: '9'
-  Rangos: 0…999999999
+  Rangos: 0..999999999
   Categorías: {}
   Especiales:
     '*': Dato reservado por confidencialidad
     N/D: No disponible
-    N/A: No aplica
-PNACOE:
+pnacent_f:
+  Descripción: Población femenina nacida en la entidad
+  Definición: Mujeres nacidas en la misma entidad federativa.
+  Tipo: numeric
+  Longitud: '9'
+  Rangos: 0..999999999
+  Categorías: {}
+  Especiales:
+    '*': Dato reservado por confidencialidad
+    N/D: No disponible
+pnacoe:
   Descripción: Población nacida en otra entidad
   Definición: Personas nacidas en otra entidad federativa.
   Tipo: numeric
   Longitud: '9'
-  Rangos: 0…999999999
+  Rangos: 0..999999999
   Categorías: {}
   Especiales:
     '*': Dato reservado por confidencialidad
     N/D: No disponible
-    N/A: No aplica
-PNACOE_F:
-  Descripción: Población femenina nacida en otra entidad
-  Definición: Mujeres nacidas en otra entidad federativa.
-  Tipo: numeric
-  Longitud: '9'
-  Rangos: 0…999999999
-  Categorías: {}
-  Especiales:
-    '*': Dato reservado por confidencialidad
-    N/D: No disponible
-    N/A: No aplica
-PNACOE_M:
+pnacoe_m:
   Descripción: Población masculina nacida en otra entidad
   Definición: Hombres nacidos en otra entidad federativa.
   Tipo: numeric
   Longitud: '9'
-  Rangos: 0…999999999
+  Rangos: 0..999999999
   Categorías: {}
   Especiales:
     '*': Dato reservado por confidencialidad
     N/D: No disponible
-    N/A: No aplica
-PRES2015:
-  Descripción: Población de 5 años y más residente en la entidad en marzo de 2015
-  Definición: Personas de 5 a 130 años de edad que entre 2015 y 2020 residían en la misma entidad federativa.
+pnacoe_f:
+  Descripción: Población femenina nacida en otra entidad
+  Definición: Mujeres nacidas en otra entidad federativa.
   Tipo: numeric
   Longitud: '9'
-  Rangos: 0…999999999
+  Rangos: 0..999999999
   Categorías: {}
   Especiales:
     '*': Dato reservado por confidencialidad
     N/D: No disponible
-    N/A: No aplica
-PRES2015_F:
-  Descripción: Población femenina de 5 años y más residente en la entidad en marzo de 2015
-  Definición: Mujeres de 5 a 130 años de edad que entre 2015 y 2020 residían en la misma entidad federativa.
+pres2005:
+  Descripción: Población de 5 años y más residente en la entidad en junio de 2005
+  Definición: Personas de 5 a 130 años de edad que en los años 2005 y 2010 residían en la misma entidad
+    federativa.
   Tipo: numeric
   Longitud: '9'
-  Rangos: 0…999999999
+  Rangos: 0..999999999
   Categorías: {}
   Especiales:
     '*': Dato reservado por confidencialidad
     N/D: No disponible
-    N/A: No aplica
-PRES2015_M:
-  Descripción: Población masculina de 5 años y más residente en la entidad en marzo de 2015
-  Definición: Hombres de 5 a 130 años de edad que entre 2015 y 2020 residían en la misma entidad federativa.
+pres2005_m:
+  Descripción: Población masculina de 5 años y más residente en la entidad en junio de 2005
+  Definición: Hombres de 5 a 130 años de edad que en los años 2005 y 2010 residían en la misma entidad
+    federativa.
   Tipo: numeric
   Longitud: '9'
-  Rangos: 0…999999999
+  Rangos: 0..999999999
   Categorías: {}
   Especiales:
     '*': Dato reservado por confidencialidad
     N/D: No disponible
-    N/A: No aplica
-PRESOE15:
-  Descripción: Población de 5 años y más residente en otra entidad en marzo de 2015
-  Definición: Personas de 5 a 130 años de edad que en el 2015 residían en otra entidad federativa.
+pres2005_f:
+  Descripción: Población femenina de 5 años y más residente en la entidad en junio de 2005
+  Definición: Mujeres de 5 a 130 años de edad que en los años 2005 y 2010 residían en la misma entidad
+    federativa.
   Tipo: numeric
   Longitud: '9'
-  Rangos: 0…999999999
+  Rangos: 0..999999999
   Categorías: {}
   Especiales:
     '*': Dato reservado por confidencialidad
     N/D: No disponible
-    N/A: No aplica
-PRESOE15_F:
-  Descripción: Población femenina de 5 años y más residente en otra entidad en marzo de 2015
-  Definición: Mujeres de 5 a 130 años de edad que en 2015 residían en otra entidad federativa.
+presoe05:
+  Descripción: Población de 5 años y más residente en otra entidad en  junio de 2005
+  Definición: Personas de 5 a 130 años de edad que en el año 2005 residían en otra entidad federativa.
   Tipo: numeric
   Longitud: '9'
-  Rangos: 0…999999999
+  Rangos: 0..999999999
   Categorías: {}
   Especiales:
     '*': Dato reservado por confidencialidad
     N/D: No disponible
-    N/A: No aplica
-PRESOE15_M:
-  Descripción: Población masculina de 5 años y más residente en otra entidad en marzo de 2015
-  Definición: Hombres de 5 a 130 años de edad que en 2015 residían en otra entidad federativa.
+presoe05_m:
+  Descripción: Población masculina de 5 años y más residente en otra entidad en  junio de 2005
+  Definición: Hombres de 5 a 130 años de edad que en el año 2005 residían en otra entidad federativa.
   Tipo: numeric
   Longitud: '9'
-  Rangos: 0…999999999
+  Rangos: 0..999999999
   Categorías: {}
   Especiales:
     '*': Dato reservado por confidencialidad
     N/D: No disponible
-    N/A: No aplica
-P3YM_HLI:
+presoe05_f:
+  Descripción: Población femenina de 5 años y más residente en otra entidad en  junio de 2005
+  Definición: Mujeres de 5 a 130 años de edad que en el año 2005 residían en otra entidad federativa.
+  Tipo: numeric
+  Longitud: '9'
+  Rangos: 0..999999999
+  Categorías: {}
+  Especiales:
+    '*': Dato reservado por confidencialidad
+    N/D: No disponible
+p3ym_hli:
   Descripción: Población de 3 años y más que habla alguna lengua indígena
   Definición: Personas de 3 a 130 años de edad que hablan alguna lengua indígena.
   Tipo: numeric
   Longitud: '9'
-  Rangos: 0...999999999
+  Rangos: 0..999999999
   Categorías: {}
   Especiales:
     '*': Dato reservado por confidencialidad
     N/D: No disponible
-    N/A: No aplica
-P3YM_HLI_F:
-  Descripción: Población femenina de 3 años y más que habla alguna lengua indígena
-  Definición: Mujeres de 3 a 130 años de edad que hablan alguna lengua indígena.
-  Tipo: numeric
-  Longitud: '9'
-  Rangos: 0...999999999
-  Categorías: {}
-  Especiales:
-    '*': Dato reservado por confidencialidad
-    N/D: No disponible
-    N/A: No aplica
-P3YM_HLI_M:
+p3ym_hli_m:
   Descripción: Población masculina de 3 años y más que habla alguna lengua indígena
   Definición: Hombres de 3 a 130 años de edad que hablan alguna lengua indígena.
   Tipo: numeric
   Longitud: '9'
-  Rangos: 0...999999999
+  Rangos: 0..999999999
   Categorías: {}
   Especiales:
     '*': Dato reservado por confidencialidad
     N/D: No disponible
-    N/A: No aplica
-P3HLINHE:
+p3ym_hli_f:
+  Descripción: Población femenina de 3 años y más que habla alguna lengua indígena
+  Definición: Mujeres de 3 a 130 años de edad que hablan alguna lengua indígena.
+  Tipo: numeric
+  Longitud: '9'
+  Rangos: 0..999999999
+  Categorías: {}
+  Especiales:
+    '*': Dato reservado por confidencialidad
+    N/D: No disponible
+p3hlinhe:
   Descripción: Población de 3 años y más que habla alguna lengua indígena y no habla español
   Definición: Personas de 3 a 130 años de edad que hablan alguna lengua indígena y además no hablan español.
   Tipo: numeric
   Longitud: '9'
-  Rangos: 0...999999999
+  Rangos: 0..999999999
   Categorías: {}
   Especiales:
     '*': Dato reservado por confidencialidad
     N/D: No disponible
-    N/A: No aplica
-P3HLINHE_F:
-  Descripción: Población femenina de 3 años y más que habla alguna lengua indígena y no habla español
-  Definición: Mujeres de 3 a 130 años de edad que hablan alguna lengua indígena y además no hablan español.
-  Tipo: numeric
-  Longitud: '9'
-  Rangos: 0...999999999
-  Categorías: {}
-  Especiales:
-    '*': Dato reservado por confidencialidad
-    N/D: No disponible
-    N/A: No aplica
-P3HLINHE_M:
+p3hlinhe_m:
   Descripción: Población masculina de 3 años y más que habla alguna lengua indígena y no habla español
   Definición: Hombres de 3 a 130 años de edad que hablan alguna lengua indígena y además no hablan español.
   Tipo: numeric
   Longitud: '9'
-  Rangos: 0...999999999
+  Rangos: 0..999999999
   Categorías: {}
   Especiales:
     '*': Dato reservado por confidencialidad
     N/D: No disponible
-    N/A: No aplica
-P3HLI_HE:
+p3hlinhe_f:
+  Descripción: Población femenina de 3 años y más que habla alguna lengua indígena y no habla español
+  Definición: Mujeres de 3 a 130 años de edad que hablan alguna lengua indígena y además no hablan español.
+  Tipo: numeric
+  Longitud: '9'
+  Rangos: 0..999999999
+  Categorías: {}
+  Especiales:
+    '*': Dato reservado por confidencialidad
+    N/D: No disponible
+p3hli_he:
   Descripción: Población de 3 años y más que habla alguna lengua indígena y habla español
   Definición: Personas de 3 a 130 años de edad que hablan alguna lengua indígena y además hablan español.
   Tipo: numeric
   Longitud: '9'
-  Rangos: 0...999999999
+  Rangos: 0..999999999
   Categorías: {}
   Especiales:
     '*': Dato reservado por confidencialidad
     N/D: No disponible
-    N/A: No aplica
-P3HLI_HE_F:
-  Descripción: Población femenina de 3 años y más que habla alguna lengua indígena y habla español
-  Definición: Mujeres de 3 a 130 años de edad que hablan alguna lengua indígena y además hablan español.
-  Tipo: numeric
-  Longitud: '9'
-  Rangos: 0...999999999
-  Categorías: {}
-  Especiales:
-    '*': Dato reservado por confidencialidad
-    N/D: No disponible
-    N/A: No aplica
-P3HLI_HE_M:
+p3hli_he_m:
   Descripción: Población masculina de 3 años y más que habla alguna lengua indígena y habla español
   Definición: Hombres de 3 a 130 años de edad que hablan alguna lengua indígena y además hablan español.
   Tipo: numeric
   Longitud: '9'
-  Rangos: 0...999999999
+  Rangos: 0..999999999
   Categorías: {}
   Especiales:
     '*': Dato reservado por confidencialidad
     N/D: No disponible
-    N/A: No aplica
-P5_HLI:
+p3hli_he_f:
+  Descripción: Población femenina de 3 años y más que habla alguna lengua indígena y habla español
+  Definición: Mujeres de 3 a 130 años de edad que hablan alguna lengua indígena y además hablan español.
+  Tipo: numeric
+  Longitud: '9'
+  Rangos: 0..999999999
+  Categorías: {}
+  Especiales:
+    '*': Dato reservado por confidencialidad
+    N/D: No disponible
+p5_hli:
   Descripción: Población de 5 años y más que habla alguna lengua indígena
-  Definición: Personas de 5 a 130 años de edad que hablan alguna lengua indígena.
+  Definición: Personas de 5 años y más que hablan alguna lengua indígena.
   Tipo: numeric
   Longitud: '9'
-  Rangos: 0...999999999
+  Rangos: 0..999999999
   Categorías: {}
   Especiales:
     '*': Dato reservado por confidencialidad
     N/D: No disponible
-    N/A: No aplica
-P5_HLI_NHE:
+p5_hli_nhe:
   Descripción: Población de 5 años y más que habla alguna lengua indígena y no habla español
-  Definición: Personas de 5 a 130 años de edad que hablan alguna lengua indígena y además no hablan español.
+  Definición: Personas de 5 años y más que hablan alguna lengua indígena y no hablan español.
   Tipo: numeric
   Longitud: '9'
-  Rangos: 0...999999999
+  Rangos: 0..999999999
   Categorías: {}
   Especiales:
     '*': Dato reservado por confidencialidad
     N/D: No disponible
-    N/A: No aplica
-P5_HLI_HE:
+p5_hli_he:
   Descripción: Población de 5 años y más que habla alguna lengua indígena y habla español
-  Definición: Personas de 5 a 130 años de edad que hablan alguna lengua indígena y además hablan español.
+  Definición: Personas de 5 años y más que hablan alguna lengua indígena y que hablan español.
   Tipo: numeric
   Longitud: '9'
-  Rangos: 0...999999999
+  Rangos: 0..999999999
   Categorías: {}
   Especiales:
     '*': Dato reservado por confidencialidad
     N/D: No disponible
-    N/A: No aplica
-PHOG_IND:
+phog_ind:
   Descripción: Población en hogares censales indígenas
-  Definición: Total de personas que forman hogares censales donde la persona de referencia del hogar o
-    su cónyuge o alguno de los ascendientes de estos, declararon hablar lengua indígena.
+  Definición: Total de personas que forman hogares censales donde el jefe del hogar o su cónyuge hablan
+    alguna lengua indígena.
   Tipo: numeric
   Longitud: '9'
-  Rangos: 0...999999999
+  Rangos: 0..999999999
   Categorías: {}
   Especiales:
     '*': Dato reservado por confidencialidad
     N/D: No disponible
-    N/A: No aplica
-POB_AFRO:
-  Descripción: Población que se considera afromexicana o afrodescendiente
-  Definición: Personas que se consideran afromexicanos o afrodescendientes.
+pcon_lim:
+  Descripción: Población con limitación en la actividad
+  Definición: Personas que tienen dificultad para el desempeño y/o realización de tareas en la vida cotidiana.
   Tipo: numeric
   Longitud: '9'
-  Rangos: 0...999999999
+  Rangos: 0..999999999
   Categorías: {}
   Especiales:
     '*': Dato reservado por confidencialidad
     N/D: No disponible
-    N/A: No aplica
-POB_AFRO_F:
-  Descripción: Población femenina que se considera afromexicana o afrodescendiente
-  Definición: Mujeres que se consideran afromexicanas o afrodescendientes.
+pclim_mot:
+  Descripción: Población con limitación para caminar o moverse, subir o bajar
+  Definición: Personas con dificultad para caminar o moverse, subir o bajar.
   Tipo: numeric
   Longitud: '9'
-  Rangos: 0...999999999
+  Rangos: 0..999999999
   Categorías: {}
   Especiales:
     '*': Dato reservado por confidencialidad
     N/D: No disponible
-    N/A: No aplica
-POB_AFRO_M:
-  Descripción: Población masculina que se considera afromexicana o afrodescendiente
-  Definición: Hombres que se consideran afromexicanos o afrodescendientes.
+pclim_vis:
+  Descripción: Población con limitación para ver, aún usando lentes
+  Definición: Personas con dificultad para ver, aún cuando usen lentes.
   Tipo: numeric
   Longitud: '9'
-  Rangos: 0...999999999
+  Rangos: 0..999999999
   Categorías: {}
   Especiales:
     '*': Dato reservado por confidencialidad
     N/D: No disponible
-    N/A: No aplica
-PCON_DISC:
-  Descripción: Población con discapacidad
-  Definición: 'Personas que realizan con mucha dificultad o no pueden hacer al menos una de las siguientes
-    actividades: ver, aun usando lentes; oír, aun usando aparato auditivo; caminar, subir o bajar; recordar
-    o concentrarse; bañarse, vestirse o comer; hablar o comunicarse.'
+pclim_leng:
+  Descripción: Población con limitación para hablar, comunicarse o conversar
+  Definición: Personas con dificultad para comunicarse con los demás o que tienen limitaciones para la
+    recepción y producción de mensajes para hacerse entender a través del lenguaje, signos y símbolos.
   Tipo: numeric
   Longitud: '9'
-  Rangos: 0...999999999
+  Rangos: 0..999999999
   Categorías: {}
   Especiales:
     '*': Dato reservado por confidencialidad
     N/D: No disponible
-    N/A: No aplica
-PCDISC_MOT:
-  Descripción: Población con discapacidad para caminar, subir o bajar
-  Definición: Personas que tiene mucha dificultad o no pueden caminar, subir o bajar.
+pclim_aud:
+  Descripción: Población con limitación para escuchar
+  Definición: Personas con dificultad para escuchar, aún usando aparato auditivo.
   Tipo: numeric
   Longitud: '9'
-  Rangos: 0...999999999
+  Rangos: 0..999999999
   Categorías: {}
   Especiales:
     '*': Dato reservado por confidencialidad
     N/D: No disponible
-    N/A: No aplica
-PCDISC_VIS:
-  Descripción: Población con discapacidad para ver, aun usando lentes
-  Definición: Personas que tienen mucha dificultad o no pueden ver, aun cuando usen lentes.
-  Tipo: numeric
-  Longitud: '9'
-  Rangos: 0...999999999
-  Categorías: {}
-  Especiales:
-    '*': Dato reservado por confidencialidad
-    N/D: No disponible
-    N/A: No aplica
-PCDISC_LENG:
-  Descripción: Población con discapacidad para hablar o comunicarse
-  Definición: Personas que tienen mucha dificultad o no pueden hablar o comunicarse.
-  Tipo: numeric
-  Longitud: '9'
-  Rangos: 0...999999999
-  Categorías: {}
-  Especiales:
-    '*': Dato reservado por confidencialidad
-    N/D: No disponible
-    N/A: No aplica
-PCDISC_AUD:
-  Descripción: Población con discapacidad para oír, aun usando aparato auditivo
-  Definición: Personas que tienen mucha dificultad o no pueden oír, aun usando aparato auditivo.
-  Tipo: numeric
-  Longitud: '9'
-  Rangos: 0...999999999
-  Categorías: {}
-  Especiales:
-    '*': Dato reservado por confidencialidad
-    N/D: No disponible
-    N/A: No aplica
-PCDISC_MOT2:
-  Descripción: Población con discapacidad para vestirse, bañarse o comer
-  Definición: Personas que tienen mucha dificultad o no pueden bañarse, vestirse o comer.
-  Tipo: numeric
-  Longitud: '9'
-  Rangos: 0...999999999
-  Categorías: {}
-  Especiales:
-    '*': Dato reservado por confidencialidad
-    N/D: No disponible
-    N/A: No aplica
-PCDISC_MEN:
-  Descripción: Población con discapacidad para recordar o concentrarse
-  Definición: Personas que tienen mucha dificultad o no pueden recordar o concentrarse.
-  Tipo: numeric
-  Longitud: '9'
-  Rangos: 0...999999999
-  Categorías: {}
-  Especiales:
-    '*': Dato reservado por confidencialidad
-    N/D: No disponible
-    N/A: No aplica
-PCON_LIMI:
-  Descripción: Población con limitación
-  Definición: 'Personas que realizan con poca dificultad al menos una de las siguientes actividades: ver,
-    aun usando lentes; oír, aun usando aparato auditivo; caminar, subir o bajar; recordar o concentrarse;
-    bañarse, vestirse o comer; hablar o comunicarse.'
-  Tipo: numeric
-  Longitud: '9'
-  Rangos: 0...999999999
-  Categorías: {}
-  Especiales:
-    '*': Dato reservado por confidencialidad
-    N/D: No disponible
-    N/A: No aplica
-PCLIM_CSB:
-  Descripción: Población con limitación para caminar, subir o bajar
-  Definición: Personas que tienen poca dificultad para caminar, subir o bajar.
-  Tipo: numeric
-  Longitud: '9'
-  Rangos: 0...999999999
-  Categorías: {}
-  Especiales:
-    '*': Dato reservado por confidencialidad
-    N/D: No disponible
-    N/A: No aplica
-PCLIM_VIS:
-  Descripción: Población con limitación para ver, aun usando lentes
-  Definición: Personas que tienen poca dificultad para ver, aun usando lentes.
-  Tipo: numeric
-  Longitud: '9'
-  Rangos: 0...999999999
-  Categorías: {}
-  Especiales:
-    '*': Dato reservado por confidencialidad
-    N/D: No disponible
-    N/A: No aplica
-PCLIM_HACO:
-  Descripción: Población con limitación para hablar o comunicarse
-  Definición: Personas que tienen poca dificultad para hablar o comunicarse.
-  Tipo: numeric
-  Longitud: '9'
-  Rangos: 0...999999999
-  Categorías: {}
-  Especiales:
-    '*': Dato reservado por confidencialidad
-    N/D: No disponible
-    N/A: No aplica
-PCLIM_OAUD:
-  Descripción: Población con limitación para oír, aun usando aparato auditivo
-  Definición: Personas que tienen poca dificultad para oír, aun usando aparato auditivo.
-  Tipo: numeric
-  Longitud: '9'
-  Rangos: 0...999999999
-  Categorías: {}
-  Especiales:
-    '*': Dato reservado por confidencialidad
-    N/D: No disponible
-    N/A: No aplica
-PCLIM_MOT2:
+pclim_mot2:
   Descripción: Población con limitación para vestirse, bañarse o comer
-  Definición: Personas que tienen poca dificultad para bañarse, vestirse o comer.
+  Definición: Personas con dificultad para bañarse, vestirse y/o comer.
   Tipo: numeric
   Longitud: '9'
-  Rangos: 0...999999999
+  Rangos: 0..999999999
   Categorías: {}
   Especiales:
     '*': Dato reservado por confidencialidad
     N/D: No disponible
-    N/A: No aplica
-PCLIM_RE_CO:
-  Descripción: Población con limitación para recordar o concentrarse
-  Definición: Personas que tienen poca dificultad para recordar o concentrarse.
+pclim_men:
+  Descripción: Población con limitación para poner atención o aprender cosas sencillas
+  Definición: Personas con dificultad para mantener un nivel de atención en cosas sencillas.
   Tipo: numeric
   Longitud: '9'
-  Rangos: 0...999999999
+  Rangos: 0..999999999
   Categorías: {}
   Especiales:
     '*': Dato reservado por confidencialidad
     N/D: No disponible
-    N/A: No aplica
-PCLIM_PMEN:
-  Descripción: Población con algún problema o condición mental
-  Definición: Personas con algún problema o condición mental, como las relacionadas con el trastorno de
-    la conciencia, retraso mental y las alteraciones de la conducta del individuo con otras personas en
-    su entorno social. Incluye a la población que declaró realizar actividades cotidianas con mucha dificultad
-    o no poder hacerlas o las hace con poca dificultad.
+pclim_men2:
+  Descripción: Población con limitación mental
+  Definición: Personas con dificultad o con alguna limitación mental.
   Tipo: numeric
   Longitud: '9'
-  Rangos: 0...999999999
+  Rangos: 0..999999999
   Categorías: {}
   Especiales:
     '*': Dato reservado por confidencialidad
     N/D: No disponible
-    N/A: No aplica
-PSIND_LIM:
-  Descripción: Población sin discapacidad, limitación, problema o condición mental
-  Definición: 'Personas que no tienen dificultad para realizar alguna actividad cotidiana como: ver, aun
-    usando lentes; oír aun usando aparato auditivo; caminar, subir o bajar; recordar o concentrarse; bañarse,
-    vestirse o comer; hablar o comunicarse, ni tampoco tiene algún problema o condición mental.'
+psin_lim:
+  Descripción: Población sin limitación en la actividad
+  Definición: Personas que no tienen dificultad para el desempeño y/o realización de tareas en la vida
+    cotidiana.
   Tipo: numeric
   Longitud: '9'
-  Rangos: 0...999999999
+  Rangos: 0..999999999
   Categorías: {}
   Especiales:
     '*': Dato reservado por confidencialidad
     N/D: No disponible
-    N/A: No aplica
-P3A5_NOA:
+p3a5_noa:
   Descripción: Población de 3 a 5 años que no asiste a la escuela
   Definición: Personas de 3 a 5 años de edad que no van a la escuela.
   Tipo: numeric
   Longitud: '9'
-  Rangos: 0...999999999
+  Rangos: 0..999999999
   Categorías: {}
   Especiales:
     '*': Dato reservado por confidencialidad
     N/D: No disponible
-    N/A: No aplica
-P3A5_NOA_F:
-  Descripción: Población femenina de 3 a 5 años que no asiste a la escuela
-  Definición: Mujeres de 3 a 5 años de edad que no van a la escuela.
-  Tipo: numeric
-  Longitud: '9'
-  Rangos: 0...999999999
-  Categorías: {}
-  Especiales:
-    '*': Dato reservado por confidencialidad
-    N/D: No disponible
-    N/A: No aplica
-P3A5_NOA_M:
+p3a5_noa_m:
   Descripción: Población masculina de 3 a 5 años que no asiste a la escuela
   Definición: Hombres de 3 a 5 años de edad que no van a la escuela.
   Tipo: numeric
   Longitud: '9'
-  Rangos: 0...999999999
+  Rangos: 0..999999999
   Categorías: {}
   Especiales:
     '*': Dato reservado por confidencialidad
     N/D: No disponible
-    N/A: No aplica
-P6A11_NOA:
+p3a5_noa_f:
+  Descripción: Población femenina de 3 a 5 años que no asiste a la escuela
+  Definición: Mujeres de 3 a 5 años de edad que no van a la escuela.
+  Tipo: numeric
+  Longitud: '9'
+  Rangos: 0..999999999
+  Categorías: {}
+  Especiales:
+    '*': Dato reservado por confidencialidad
+    N/D: No disponible
+p6a11_noa:
   Descripción: Población de 6 a 11 años que no asiste a la escuela
   Definición: Personas de 6 a 11 años de edad que no van a la escuela.
   Tipo: numeric
   Longitud: '9'
-  Rangos: 0...999999999
+  Rangos: 0..999999999
   Categorías: {}
   Especiales:
     '*': Dato reservado por confidencialidad
     N/D: No disponible
-    N/A: No aplica
-P6A11_NOAF:
-  Descripción: Población femenina de 6 a 11 años que no asiste a la escuela
-  Definición: Mujeres de 6 a 11 años de edad que no van a la escuela.
-  Tipo: numeric
-  Longitud: '9'
-  Rangos: 0...999999999
-  Categorías: {}
-  Especiales:
-    '*': Dato reservado por confidencialidad
-    N/D: No disponible
-    N/A: No aplica
-P6A11_NOAM:
+p6a11_noam:
   Descripción: Población masculina de 6 a 11 años que no asiste a la escuela
   Definición: Hombres de 6 a 11 años de edad que no van a la escuela.
   Tipo: numeric
   Longitud: '9'
-  Rangos: 0...999999999
+  Rangos: 0..999999999
   Categorías: {}
   Especiales:
     '*': Dato reservado por confidencialidad
     N/D: No disponible
-    N/A: No aplica
-P12A14NOA:
+p6a11_noaf:
+  Descripción: Población femenina de 6 a 11 años que no asiste a la escuela
+  Definición: Mujeres de 6 a 11 años de edad que no van a la escuela.
+  Tipo: numeric
+  Longitud: '9'
+  Rangos: 0..999999999
+  Categorías: {}
+  Especiales:
+    '*': Dato reservado por confidencialidad
+    N/D: No disponible
+p12a14noa:
   Descripción: Población de 12 a 14 años que no asiste a la escuela
   Definición: Personas de 12 a 14 años de edad que no van a la escuela.
   Tipo: numeric
   Longitud: '9'
-  Rangos: 0...999999999
+  Rangos: 0..999999999
   Categorías: {}
   Especiales:
     '*': Dato reservado por confidencialidad
     N/D: No disponible
-    N/A: No aplica
-P12A14NOAF:
-  Descripción: Población femenina de 12 a 14 años que no asiste a la escuela
-  Definición: Mujeres de 12 a 14 años de edad que no van a la escuela.
-  Tipo: numeric
-  Longitud: '9'
-  Rangos: 0...999999999
-  Categorías: {}
-  Especiales:
-    '*': Dato reservado por confidencialidad
-    N/D: No disponible
-    N/A: No aplica
-P12A14NOAM:
+p12a14noam:
   Descripción: Población masculina de 12 a 14 años que no asiste a la escuela
   Definición: Hombres de 12 a 14 años de edad que no van a la escuela.
   Tipo: numeric
   Longitud: '9'
-  Rangos: 0...999999999
+  Rangos: 0..999999999
   Categorías: {}
   Especiales:
     '*': Dato reservado por confidencialidad
     N/D: No disponible
-    N/A: No aplica
-P15A17A:
+p12a14noaf:
+  Descripción: Población femenina de 12 a 14 años que no asiste a la escuela
+  Definición: Mujeres de 12 a 14 años de edad que no van a la escuela.
+  Tipo: numeric
+  Longitud: '9'
+  Rangos: 0..999999999
+  Categorías: {}
+  Especiales:
+    '*': Dato reservado por confidencialidad
+    N/D: No disponible
+p15a17a:
   Descripción: Población de 15 a 17 años que asiste a la escuela
   Definición: Personas de 15 a 17 años de edad que van a la escuela.
   Tipo: numeric
   Longitud: '9'
-  Rangos: 0...999999999
+  Rangos: 0..999999999
   Categorías: {}
   Especiales:
     '*': Dato reservado por confidencialidad
     N/D: No disponible
-    N/A: No aplica
-P15A17A_F:
-  Descripción: Población femenina de 15 a 17 años que asiste a la escuela
-  Definición: Mujeres de 15 a 17 años de edad que van a la escuela.
-  Tipo: numeric
-  Longitud: '9'
-  Rangos: 0...999999999
-  Categorías: {}
-  Especiales:
-    '*': Dato reservado por confidencialidad
-    N/D: No disponible
-    N/A: No aplica
-P15A17A_M:
+p15a17a_m:
   Descripción: Población masculina de 15 a 17 años que asiste a la escuela
   Definición: Hombres de 15 a 17 años de edad que van a la escuela.
   Tipo: numeric
   Longitud: '9'
-  Rangos: 0...999999999
+  Rangos: 0..999999999
   Categorías: {}
   Especiales:
     '*': Dato reservado por confidencialidad
     N/D: No disponible
-    N/A: No aplica
-P18A24A:
+p15a17a_f:
+  Descripción: Población femenina de 15 a 17 años que asiste a la escuela
+  Definición: Mujeres de 15 a 17 años de edad que van a la escuela.
+  Tipo: numeric
+  Longitud: '9'
+  Rangos: 0..999999999
+  Categorías: {}
+  Especiales:
+    '*': Dato reservado por confidencialidad
+    N/D: No disponible
+p18a24a:
   Descripción: Población de 18 a 24 años que asiste a la escuela
   Definición: Personas de 18 a 24 años de edad que van a la escuela.
   Tipo: numeric
   Longitud: '9'
-  Rangos: 0...999999999
+  Rangos: 0..999999999
   Categorías: {}
   Especiales:
     '*': Dato reservado por confidencialidad
     N/D: No disponible
-    N/A: No aplica
-P18A24A_F:
-  Descripción: Población femenina de 18 a 24 años que asiste a la escuela
-  Definición: Mujeres de 18 a 24 años de edad que van a la escuela.
-  Tipo: numeric
-  Longitud: '9'
-  Rangos: 0...999999999
-  Categorías: {}
-  Especiales:
-    '*': Dato reservado por confidencialidad
-    N/D: No disponible
-    N/A: No aplica
-P18A24A_M:
+p18a24a_m:
   Descripción: Población masculina de 18 a 24 años que asiste a la escuela
   Definición: Hombres de 18 a 24 años de edad que van a la escuela.
   Tipo: numeric
   Longitud: '9'
-  Rangos: 0...999999999
+  Rangos: 0..999999999
   Categorías: {}
   Especiales:
     '*': Dato reservado por confidencialidad
     N/D: No disponible
-    N/A: No aplica
-P8A14AN:
-  Descripción: Población de 8 a 14 años que no sabe leer y escribir
-  Definición: Personas de 8 a 14 años de edad que no saben leer y escribir un recado.
+p18a24a_f:
+  Descripción: Población femenina de 18 a 24 años que asiste a la escuela
+  Definición: Mujeres de 18 a 24 años de edad que van a la escuela.
   Tipo: numeric
   Longitud: '9'
-  Rangos: 0...999999999
+  Rangos: 0..999999999
   Categorías: {}
   Especiales:
     '*': Dato reservado por confidencialidad
     N/D: No disponible
-    N/A: No aplica
-P8A14AN_F:
-  Descripción: Población femenina de 8 a 14 años que no sabe leer y escribir
-  Definición: Mujeres de 8 a 14 años de edad que no saben leer y escribir un recado.
+p8a14an:
+  Descripción: Población de 8 a 14 años que no saben leer y escribir
+  Definición: Personas de 8 a 14 años de edad que no saben leer y escribir.
   Tipo: numeric
   Longitud: '9'
-  Rangos: 0...999999999
+  Rangos: 0..999999999
   Categorías: {}
   Especiales:
     '*': Dato reservado por confidencialidad
     N/D: No disponible
-    N/A: No aplica
-P8A14AN_M:
-  Descripción: Población masculina de 8 a 14 años que no sabe leer y escribir
-  Definición: Hombres de 8 a 14 años de edad que no saben leer y escribir un recado.
+p8a14an_m:
+  Descripción: Población masculina de 8 a 14 años que no saben leer y escribir
+  Definición: Hombres de 8 a 14 años de edad que no saben leer y escribir.
   Tipo: numeric
   Longitud: '9'
-  Rangos: 0...999999999
+  Rangos: 0..999999999
   Categorías: {}
   Especiales:
     '*': Dato reservado por confidencialidad
     N/D: No disponible
-    N/A: No aplica
-P15YM_AN:
+p8a14an_f:
+  Descripción: Población femenina  de 8 a 14 años que no saben leer y escribir
+  Definición: Mujeres de 8 a 14 años de edad que no saben leer y escribir.
+  Tipo: numeric
+  Longitud: '9'
+  Rangos: 0..999999999
+  Categorías: {}
+  Especiales:
+    '*': Dato reservado por confidencialidad
+    N/D: No disponible
+p15ym_an:
   Descripción: Población de 15 años y más analfabeta
-  Definición: Personas de 15 a 130 años de edad que no saben leer y escribir un recado.
+  Definición: Personas de 15 a 130 años de edad que no saben leer ni escribir.
   Tipo: numeric
   Longitud: '9'
-  Rangos: 0...999999999
+  Rangos: 0..999999999
   Categorías: {}
   Especiales:
     '*': Dato reservado por confidencialidad
     N/D: No disponible
-    N/A: No aplica
-P15YM_AN_F:
-  Descripción: Población femenina de 15 años y más analfabeta
-  Definición: Mujeres de 15 a 130 años de edad que no saben leer y escribir un recado.
-  Tipo: numeric
-  Longitud: '9'
-  Rangos: 0...999999999
-  Categorías: {}
-  Especiales:
-    '*': Dato reservado por confidencialidad
-    N/D: No disponible
-    N/A: No aplica
-P15YM_AN_M:
+p15ym_an_m:
   Descripción: Población masculina de 15 años y más analfabeta
-  Definición: Hombres de 15 a 130 años de edad que no saben leer y escribir un recado.
+  Definición: Hombres de 15 a 130 años de edad que no saben leer ni escribir.
   Tipo: numeric
   Longitud: '9'
-  Rangos: 0...999999999
+  Rangos: 0..999999999
   Categorías: {}
   Especiales:
     '*': Dato reservado por confidencialidad
     N/D: No disponible
-    N/A: No aplica
-P15YM_SE:
+p15ym_an_f:
+  Descripción: Población femenina de 15 años y más analfabeta
+  Definición: Mujeres de 15 a 130 años de edad que no saben leer ni escribir.
+  Tipo: numeric
+  Longitud: '9'
+  Rangos: 0..999999999
+  Categorías: {}
+  Especiales:
+    '*': Dato reservado por confidencialidad
+    N/D: No disponible
+p15ym_se:
   Descripción: Población de 15 años y más sin escolaridad
-  Definición: Personas de 15 a 130 años de edad que no aprobaron ningún grado escolar o que sólo tienen
-    nivel preescolar.
+  Definición: Personas de 15 a 130 años de edad que no aprobaron ningún grado de escolaridad o que solo
+    tienen nivel preescolar
   Tipo: numeric
   Longitud: '9'
-  Rangos: 0...999999999
+  Rangos: 0..999999999
   Categorías: {}
   Especiales:
     '*': Dato reservado por confidencialidad
     N/D: No disponible
-    N/A: No aplica
-P15YM_SE_F:
-  Descripción: Población femenina de 15 años y más sin escolaridad
-  Definición: Mujeres de 15 a 130 años de edad que no aprobaron ningún grado escolar o que sólo tienen
-    nivel preescolar.
-  Tipo: numeric
-  Longitud: '9'
-  Rangos: 0...999999999
-  Categorías: {}
-  Especiales:
-    '*': Dato reservado por confidencialidad
-    N/D: No disponible
-    N/A: No aplica
-P15YM_SE_M:
+p15ym_se_m:
   Descripción: Población masculina de 15 años y más sin escolaridad
-  Definición: Hombres de 15 a 130 años de edad que no aprobaron ningún grado escolar o que sólo tienen
-    nivel preescolar.
+  Definición: Hombres de 15 a 130 años de edad que no aprobaron ningún grado de escolaridad o que solo
+    tienen nivel preescolar
   Tipo: numeric
   Longitud: '9'
-  Rangos: 0...999999999
+  Rangos: 0..999999999
   Categorías: {}
   Especiales:
     '*': Dato reservado por confidencialidad
     N/D: No disponible
-    N/A: No aplica
-P15PRI_IN:
+p15ym_se_f:
+  Descripción: Población femenina de 15 años y más sin escolaridad
+  Definición: Mujeres de 15 a 130 años de edad que no aprobaron ningún grado de escolaridad o que solo
+    tienen nivel preescolar
+  Tipo: numeric
+  Longitud: '9'
+  Rangos: 0..999999999
+  Categorías: {}
+  Especiales:
+    '*': Dato reservado por confidencialidad
+    N/D: No disponible
+p15pri_in:
   Descripción: Población de 15 años y más con primaria incompleta
   Definición: Personas de 15 a 130 años de edad que tienen como máxima escolaridad hasta el quinto grado
     aprobado en primaria. Incluye a las personas que no especificaron los grados aprobados en el nivel
     señalado.
   Tipo: numeric
   Longitud: '9'
-  Rangos: 0...999999999
+  Rangos: 0..999999999
   Categorías: {}
   Especiales:
     '*': Dato reservado por confidencialidad
     N/D: No disponible
-    N/A: No aplica
-P15PRI_INF:
-  Descripción: Población femenina de 15 años y más con primaria incompleta
-  Definición: Mujeres de 15 a 130 años de edad que tienen como máxima escolaridad hasta el quinto grado
-    aprobado en primaria. Incluye a las mujeres que no especificaron los grados aprobados en el nivel
-    señalado.
-  Tipo: numeric
-  Longitud: '9'
-  Rangos: 0...999999999
-  Categorías: {}
-  Especiales:
-    '*': Dato reservado por confidencialidad
-    N/D: No disponible
-    N/A: No aplica
-P15PRI_INM:
+p15pri_inm:
   Descripción: Población masculina de 15 años y más con primaria incompleta
   Definición: Hombres de 15 a 130 años de edad que tienen como máxima escolaridad hasta el quinto grado
     aprobado en primaria. Incluye a los hombres que no especificaron los grados aprobados en el nivel
     señalado.
   Tipo: numeric
   Longitud: '9'
-  Rangos: 0...999999999
+  Rangos: 0..999999999
   Categorías: {}
   Especiales:
     '*': Dato reservado por confidencialidad
     N/D: No disponible
-    N/A: No aplica
-P15PRI_CO:
+p15pri_inf:
+  Descripción: Población femenina de 15 años y más con primaria incompleta
+  Definición: Mujeres de 15 a 130 años de edad que tienen como máxima escolaridad hasta el quinto grado
+    aprobado en primaria. Incluye a las mujeres que no especificaron los grados aprobados en el nivel
+    señalado.
+  Tipo: numeric
+  Longitud: '9'
+  Rangos: 0..999999999
+  Categorías: {}
+  Especiales:
+    '*': Dato reservado por confidencialidad
+    N/D: No disponible
+p15pri_co:
   Descripción: Población de 15 años y más con primaria completa
   Definición: Personas de 15 a 130 años de edad que tienen como máxima escolaridad 6 grados aprobados
     en primaria.
   Tipo: numeric
   Longitud: '9'
-  Rangos: 0...999999999
+  Rangos: 0..999999999
   Categorías: {}
   Especiales:
     '*': Dato reservado por confidencialidad
     N/D: No disponible
-    N/A: No aplica
-P15PRI_COF:
-  Descripción: Población femenina de 15 años y más con primaria completa
-  Definición: Mujeres de 15 a 130 años de edad que tienen como máxima escolaridad 6 grados aprobados en
-    primaria.
-  Tipo: numeric
-  Longitud: '9'
-  Rangos: 0...999999999
-  Categorías: {}
-  Especiales:
-    '*': Dato reservado por confidencialidad
-    N/D: No disponible
-    N/A: No aplica
-P15PRI_COM:
+p15pri_com:
   Descripción: Población masculina de 15 años y más con primaria completa
   Definición: Hombres de 15 a 130 años de edad que tienen como máxima escolaridad 6 grados aprobados en
     primaria.
   Tipo: numeric
   Longitud: '9'
-  Rangos: 0...999999999
+  Rangos: 0..999999999
   Categorías: {}
   Especiales:
     '*': Dato reservado por confidencialidad
     N/D: No disponible
-    N/A: No aplica
-P15SEC_IN:
+p15pri_cof:
+  Descripción: Población femenina de 15 años y más con primaria completa
+  Definición: Mujeres de 15 a 130 años de edad que tienen como máxima escolaridad 6 grados aprobados en
+    primaria.
+  Tipo: numeric
+  Longitud: '9'
+  Rangos: 0..999999999
+  Categorías: {}
+  Especiales:
+    '*': Dato reservado por confidencialidad
+    N/D: No disponible
+p15sec_in:
   Descripción: Población de 15 años y más con secundaria incompleta
   Definición: Personas de 15 a 130 años de edad que tienen como máxima escolaridad hasta segundo grado
     aprobado de secundaria. Incluye a las personas que no especificaron los grados aprobados en el nivel
     señalado.
   Tipo: numeric
   Longitud: '9'
-  Rangos: 0...999999999
+  Rangos: 0..999999999
   Categorías: {}
   Especiales:
     '*': Dato reservado por confidencialidad
     N/D: No disponible
-    N/A: No aplica
-P15SEC_INF:
-  Descripción: Población femenina de 15 años y más con secundaria incompleta
-  Definición: Mujeres de 15 a 130 años de edad que tienen como máxima escolaridad hasta segundo grado
-    aprobado de secundaria. Incluye a las mujeres que no especificaron los grados aprobados en el nivel
-    señalado.
-  Tipo: numeric
-  Longitud: '9'
-  Rangos: 0...999999999
-  Categorías: {}
-  Especiales:
-    '*': Dato reservado por confidencialidad
-    N/D: No disponible
-    N/A: No aplica
-P15SEC_INM:
+p15sec_inm:
   Descripción: Población masculina de 15 años y más con secundaria incompleta
   Definición: Hombres de 15 a 130 años de edad que tienen como máxima escolaridad hasta segundo grado
     aprobado de secundaria. Incluye a los hombres que no especificaron los grados aprobados en el nivel
     señalado.
   Tipo: numeric
   Longitud: '9'
-  Rangos: 0...999999999
+  Rangos: 0..999999999
   Categorías: {}
   Especiales:
     '*': Dato reservado por confidencialidad
     N/D: No disponible
-    N/A: No aplica
-P15SEC_CO:
+p15sec_inf:
+  Descripción: Población femenina de 15 años y más con secundaria incompleta
+  Definición: Mujeres de 15 a 130 años de edad que tienen como máxima escolaridad hasta segundo grado
+    aprobado de secundaria. Incluye a las mujeres que no especificaron los grados aprobados en el nivel
+    señalado.
+  Tipo: numeric
+  Longitud: '9'
+  Rangos: 0..999999999
+  Categorías: {}
+  Especiales:
+    '*': Dato reservado por confidencialidad
+    N/D: No disponible
+p15sec_co:
   Descripción: Población de 15 años y más con secundaria completa
   Definición: Personas de 15 a 130 años de edad que tienen como máxima escolaridad 3 grados aprobados
     en secundaria.
   Tipo: numeric
   Longitud: '9'
-  Rangos: 0...999999999
+  Rangos: 0..999999999
   Categorías: {}
   Especiales:
     '*': Dato reservado por confidencialidad
     N/D: No disponible
-    N/A: No aplica
-P15SEC_COF:
-  Descripción: Población femenina de 15 años y más con secundaria completa
-  Definición: Mujeres de 15 a 130 años de edad que tienen como máxima escolaridad 3 grados aprobados en
-    secundaria.
-  Tipo: numeric
-  Longitud: '9'
-  Rangos: 0...999999999
-  Categorías: {}
-  Especiales:
-    '*': Dato reservado por confidencialidad
-    N/D: No disponible
-    N/A: No aplica
-P15SEC_COM:
+p15sec_com:
   Descripción: Población masculina de 15 años y más con secundaria completa
   Definición: Hombres de 15 a 130 años de edad que tienen como máxima escolaridad 3 grados aprobados en
     secundaria.
   Tipo: numeric
   Longitud: '9'
-  Rangos: 0...999999999
+  Rangos: 0..999999999
   Categorías: {}
   Especiales:
     '*': Dato reservado por confidencialidad
     N/D: No disponible
-    N/A: No aplica
-P18YM_PB:
-  Descripción: Población de 18 años y más con educación posbásica
-  Definición: Personas de 18 a 130 años de edad que tienen como máxima escolaridad algún grado aprobado
-    en preparatoria o bachillerato; normal básica; estudios técnicos o comerciales con secundaria terminada;
-    estudios técnicos o comerciales con preparatoria terminada; normal de licenciatura; licenciatura o
-    profesional; especialidad; maestría o doctorado. Incluye a las personas que no especificaron los grados
-    aprobados en los niveles señalados.
+p15sec_cof:
+  Descripción: Población femenina de 15 años y más con secundaria completa
+  Definición: Mujeres de 15 a 130 años de edad que tienen como máxima escolaridad 3 grados aprobados en
+    secundaria.
   Tipo: numeric
   Longitud: '9'
-  Rangos: 0...999999999
+  Rangos: 0..999999999
   Categorías: {}
   Especiales:
     '*': Dato reservado por confidencialidad
     N/D: No disponible
-    N/A: No aplica
-P18YM_PB_F:
-  Descripción: Población femenina de 18 años y más con educación posbásica
-  Definición: 'Mujeres de 18 a 130 años de edad que tienen como máxima escolaridad algún grado aprobado:
-    preparatoria o bachillerato; normal básica; estudios técnicos o comerciales con secundaria terminada;
+p18ym_pb:
+  Descripción: Población de 18 años y más con educación pos-básica
+  Definición: 'Personas de 18 a 130 años de edad que tienen como máxima escolaridad algún grado aprobado
+    en: preparatoria ó bachillerato; normal básica, estudios técnicos o comerciales con secundaria terminada;
     estudios técnicos o comerciales con preparatoria terminada; normal de licenciatura; licenciatura o
-    profesional; especialidad; maestría o doctorado. Incluye a las personas que no especificaron los grados
-    aprobados en los niveles señalados.'
+    profesional; maestría o doctorado. Incluye a las personas que no especificaron los grados aprobados
+    en los niveles señalados.'
   Tipo: numeric
   Longitud: '9'
-  Rangos: 0...999999999
+  Rangos: 0..999999999
   Categorías: {}
   Especiales:
     '*': Dato reservado por confidencialidad
     N/D: No disponible
-    N/A: No aplica
-P18YM_PB_M:
-  Descripción: Población masculina de 18 años y más con educación posbásica
-  Definición: Hombres de 18 a 130 años de edad que tienen como máxima escolaridad algún grado aprobado
-    en preparatoria o bachillerato; normal básica; estudios técnicos o comerciales con secundaria terminada;
+p18ym_pb_m:
+  Descripción: Población masculina de 18 años y más con educación pos-básica
+  Definición: 'Hombres de 18 a 130 años de edad que tienen como máxima escolaridad algún grado aprobado
+    en: preparatoria ó bachillerato; normal básica, estudios técnicos o comerciales con secundaria terminada;
     estudios técnicos o comerciales con preparatoria terminada; normal de licenciatura; licenciatura o
-    profesional; especialidad; maestría o doctorado. Incluye a las personas que no especificaron los grados
-    aprobados en los niveles señalados.
+    profesional; maestría o doctorado. Incluye a las personas que no especificaron los grados aprobados
+    en los niveles señalados.'
   Tipo: numeric
   Longitud: '9'
-  Rangos: 0...999999999
+  Rangos: 0..999999999
   Categorías: {}
   Especiales:
     '*': Dato reservado por confidencialidad
     N/D: No disponible
-    N/A: No aplica
-GRAPROES:
+p18ym_pb_f:
+  Descripción: Población femenina de 18 años y más con educación pos-básica
+  Definición: 'Mujeres de 18 a 130 años de edad que tienen como máxima escolaridad algún grado aprobado
+    en: preparatoria ó bachillerato; normal básica, estudios técnicos o comerciales con secundaria terminada;
+    estudios técnicos o comerciales con preparatoria terminada; normal de licenciatura; licenciatura o
+    profesional; maestría o doctorado. Incluye a las personas que no especificaron los grados aprobados
+    en los niveles señalados.'
+  Tipo: numeric
+  Longitud: '9'
+  Rangos: 0..999999999
+  Categorías: {}
+  Especiales:
+    '*': Dato reservado por confidencialidad
+    N/D: No disponible
+graproes:
   Descripción: Grado promedio de escolaridad
   Definición: Resultado de dividir el monto de grados escolares aprobados por las personas de 15 a 130
     años de edad entre las personas del mismo grupo de edad. Excluye a las personas que no especificaron
     los grados aprobados.
   Tipo: numeric
   Longitud: '9'
-  Rangos: 0...999999999
+  Rangos: 0..999999999
   Categorías: {}
   Especiales:
     '*': Dato reservado por confidencialidad
     N/D: No disponible
-    N/A: No aplica
-GRAPROES_F:
-  Descripción: Grado promedio de escolaridad de la población femenina
-  Definición: Resultado de dividir el monto de grados escolares aprobados por las mujeres de 15 a 130
-    años de edad entre las mujeres del mismo grupo de edad. Excluye a las mujeres que no especificaron
-    los grados aprobados.
-  Tipo: numeric
-  Longitud: '9'
-  Rangos: 0...999999999
-  Categorías: {}
-  Especiales:
-    '*': Dato reservado por confidencialidad
-    N/D: No disponible
-    N/A: No aplica
-GRAPROES_M:
+graproes_m:
   Descripción: Grado promedio de escolaridad de la población masculina
   Definición: Resultado de dividir el monto de grados escolares aprobados por los hombres de 15 a 130
     años de edad entre los hombres del mismo grupo de edad. Excluye a los hombres que no especificaron
     los grados aprobados.
   Tipo: numeric
   Longitud: '9'
-  Rangos: 0...999999999
+  Rangos: 0..999999999
   Categorías: {}
   Especiales:
     '*': Dato reservado por confidencialidad
     N/D: No disponible
-    N/A: No aplica
-PEA:
-  Descripción: Población de 12 años y más económicamente activa
-  Definición: Personas de 12 a 130 años de edad que trabajaron, tenían trabajo pero no trabajaron o buscaron
+graproes_f:
+  Descripción: Grado promedio de escolaridad de la población femenina
+  Definición: Resultado de dividir el monto de grados escolares aprobados por las mujeres de 15 a 130
+    años de edad entre las mujeres del mismo grupo de edad. Excluye a las mujeres que no especificaron
+    los grados aprobados.
+  Tipo: numeric
+  Longitud: '9'
+  Rangos: 0..999999999
+  Categorías: {}
+  Especiales:
+    '*': Dato reservado por confidencialidad
+    N/D: No disponible
+pea:
+  Descripción: Población económicamente activa
+  Definición: Personas de 12 años y más que trabajaron; tenían trabajo pero no trabajaron o; buscaron
     trabajo en la semana de referencia.
   Tipo: numeric
   Longitud: '9'
@@ -2204,1227 +1367,797 @@ PEA:
   Especiales:
     '*': Dato reservado por confidencialidad
     N/D: No disponible
-    N/A: No aplica
-PEA_F:
-  Descripción: Población femenina de 12 años y más económicamente activa
-  Definición: Mujeres de 12 a 130 años de edad que trabajaron, tenían trabajo pero no trabajaron o buscaron
-    trabajo en la semana de referencia.
-  Tipo: numeric
-  Longitud: '9'
-  Rangos: 0...999999999
-  Categorías: {}
-  Especiales:
-    '*': Dato reservado por confidencialidad
-    N/D: No disponible
-    N/A: No aplica
-PEA_M:
-  Descripción: Población masculina de 12 años y más económicamente activa
-  Definición: Hombres de 12 a 130 años de edad que trabajaron, tenían trabajo pero no trabajaron o buscaron
-    trabajo en la semana de referencia.
-  Tipo: numeric
-  Longitud: '9'
-  Rangos: 0...999999999
-  Categorías: {}
-  Especiales:
-    '*': Dato reservado por confidencialidad
-    N/D: No disponible
-    N/A: No aplica
-PE_INAC:
-  Descripción: Población de 12 años y más no económicamente activa
-  Definición: Personas de 12 a 130 años de edad pensionadas o jubiladas; estudiantes; dedicadas a los
-    quehaceres del hogar; están incapacitadas permanentemente para trabajar; o no trabajan.
-  Tipo: numeric
-  Longitud: '9'
-  Rangos: 0...999999999
-  Categorías: {}
-  Especiales:
-    '*': Dato reservado por confidencialidad
-    N/D: No disponible
-    N/A: No aplica
-PE_INAC_F:
-  Descripción: Población femenina de 12 años y más no económicamente activa
-  Definición: Mujeres de 12 a 130 años de edad pensionadas o jubiladas; estudiantes; dedicadas a los quehaceres
-    del hogar; están incapacitadas permanentemente para trabajar; o no trabajan.
-  Tipo: numeric
-  Longitud: '9'
-  Rangos: 0...999999999
-  Categorías: {}
-  Especiales:
-    '*': Dato reservado por confidencialidad
-    N/D: No disponible
-    N/A: No aplica
-PE_INAC_M:
-  Descripción: Población masculina de 12 años y más no económicamente activa
-  Definición: Hombres de 12 a 130 años de edad pensionados o jubilados; estudiantes; dedicados a los quehaceres
-    del hogar; están incapacitados permanentemente para trabajar; o no trabajan.
-  Tipo: numeric
-  Longitud: '9'
-  Rangos: 0...999999999
-  Categorías: {}
-  Especiales:
-    '*': Dato reservado por confidencialidad
-    N/D: No disponible
-    N/A: No aplica
-POCUPADA:
-  Descripción: Población de 12 años y más ocupada
-  Definición: Personas de 12 a 130 años de edad que trabajaron o que no trabajaron, pero sí tenían trabajo
+pea_m:
+  Descripción: Población masculina económicamente activa
+  Definición: Hombres de 12 años y más que trabajaron; tenían trabajo pero no trabajaron o; buscaron trabajo
     en la semana de referencia.
   Tipo: numeric
   Longitud: '9'
-  Rangos: 0...999999999
+  Rangos: 0..999999999
   Categorías: {}
   Especiales:
     '*': Dato reservado por confidencialidad
     N/D: No disponible
-    N/A: No aplica
-POCUPADA_F:
-  Descripción: Población femenina de 12 años y más ocupada
-  Definición: Mujeres de 12 a 130 años de edad que trabajaron o que no trabajaron, pero sí tenían trabajo
+pea_f:
+  Descripción: Población femenina económicamente activa
+  Definición: Mujeres de 12 años y más que trabajaron; tenían trabajo pero no trabajaron o; buscaron trabajo
     en la semana de referencia.
   Tipo: numeric
   Longitud: '9'
-  Rangos: 0...999999999
+  Rangos: 0..999999999
   Categorías: {}
   Especiales:
     '*': Dato reservado por confidencialidad
     N/D: No disponible
-    N/A: No aplica
-POCUPADA_M:
-  Descripción: Población masculina de 12 años y más ocupada
-  Definición: Hombres de 12 a 130 años de edad que trabajaron o que no trabajaron, pero sí tenían trabajo
+pe_inac:
+  Descripción: Población no económicamente activa
+  Definición: Personas de 12 años y más pensionadas o jubiladas, estudiantes, dedicadas a los quehaceres
+    del hogar, que tienen alguna limitación física o mental permanente que le impide trabajar.
+  Tipo: numeric
+  Longitud: '9'
+  Rangos: 0..999999999
+  Categorías: {}
+  Especiales:
+    '*': Dato reservado por confidencialidad
+    N/D: No disponible
+pe_inac_m:
+  Descripción: Población masculina no económicamente activa
+  Definición: Hombres de 12 años y más pensionados o jubilados, estudiantes, dedicados a los quehaceres
+    del hogar, que tienen alguna limitación física o mental permanente que le impide trabajar.
+  Tipo: numeric
+  Longitud: '9'
+  Rangos: 0..999999999
+  Categorías: {}
+  Especiales:
+    '*': Dato reservado por confidencialidad
+    N/D: No disponible
+pe_inac_f:
+  Descripción: Población femenina no económicamente activa
+  Definición: Mujeres de 12 años y más pensionadas o jubiladas, estudiantes, dedicadas a los quehaceres
+    del hogar, que tienen alguna limitación física o mental permanente que le impide trabajar.
+  Tipo: numeric
+  Longitud: '9'
+  Rangos: 0..999999999
+  Categorías: {}
+  Especiales:
+    '*': Dato reservado por confidencialidad
+    N/D: No disponible
+pocupada:
+  Descripción: Población ocupada
+  Definición: Personas de 12 a 130 años de edad que trabajaron o que no trabajaron pero sí tenían trabajo
     en la semana de referencia.
   Tipo: numeric
   Longitud: '9'
-  Rangos: 0...999999999
+  Rangos: 0..999999999
   Categorías: {}
   Especiales:
     '*': Dato reservado por confidencialidad
     N/D: No disponible
-    N/A: No aplica
-PDESOCUP:
-  Descripción: Población de 12 años y más desocupada
+pocupada_m:
+  Descripción: Población masculina ocupada
+  Definición: Hombres de 12 a 130 años de edad que trabajaron o que no trabajaron pero sí tenían trabajo
+    en la semana de referencia.
+  Tipo: numeric
+  Longitud: '9'
+  Rangos: 0..999999999
+  Categorías: {}
+  Especiales:
+    '*': Dato reservado por confidencialidad
+    N/D: No disponible
+pocupada_f:
+  Descripción: Población femenina ocupada
+  Definición: Mujeres de 12 a 130 años de edad que trabajaron o que no trabajaron pero sí tenían trabajo
+    en la semana de referencia.
+  Tipo: numeric
+  Longitud: '9'
+  Rangos: 0..999999999
+  Categorías: {}
+  Especiales:
+    '*': Dato reservado por confidencialidad
+    N/D: No disponible
+pdesocup:
+  Descripción: Población desocupada
   Definición: Personas de 12 a 130 años de edad que no tenían trabajo, pero buscaron trabajo en la semana
     de referencia.
   Tipo: numeric
   Longitud: '9'
-  Rangos: 0...999999999
+  Rangos: 0..999999999
   Categorías: {}
   Especiales:
     '*': Dato reservado por confidencialidad
     N/D: No disponible
-    N/A: No aplica
-PDESOCUP_F:
-  Descripción: Población femenina de 12 años y más desocupada
-  Definición: Mujeres de 12 a 130 años de edad que no tenían trabajo, pero buscaron trabajo en la semana
-    de referencia.
-  Tipo: numeric
-  Longitud: '9'
-  Rangos: 0...999999999
-  Categorías: {}
-  Especiales:
-    '*': Dato reservado por confidencialidad
-    N/D: No disponible
-    N/A: No aplica
-PDESOCUP_M:
-  Descripción: Población masculina de 12 años y más desocupada
+pdesocup_m:
+  Descripción: Población masculina desocupada
   Definición: Hombres de 12 a 130 años de edad que no tenían trabajo, pero buscaron trabajo en la semana
     de referencia.
   Tipo: numeric
   Longitud: '9'
-  Rangos: 0...999999999
+  Rangos: 0..999999999
   Categorías: {}
   Especiales:
     '*': Dato reservado por confidencialidad
     N/D: No disponible
-    N/A: No aplica
-PSINDER:
-  Descripción: Población sin afiliación a servicios de salud
-  Definición: Total de personas que no están afiliadas a servicios médicos en ninguna institución pública
-    o privada
+pdesocup_f:
+  Descripción: Población femenina desocupada
+  Definición: Mujeres de 12 a 130 años de edad que no tenían trabajo, pero buscaron trabajo en la semana
+    de referencia.
   Tipo: numeric
   Longitud: '9'
-  Rangos: 0...999999999
+  Rangos: 0..999999999
   Categorías: {}
   Especiales:
     '*': Dato reservado por confidencialidad
     N/D: No disponible
-    N/A: No aplica
-PDER_SS:
-  Descripción: Población afiliada a servicios de salud
-  Definición: 'Total de personas que están afiliadas a servicios médicos en alguna institución de salud
-    pública o privada como: el Instituto Mexicano del Seguro Social (IMSS), el Instituto de Seguridad
-    y Servicios Sociales de los Trabajadores del Estado (ISSSTE e ISSSTE estatal), Petróleos Mexicanos
-    (PEMEX), la Secretaría de la Defensa Nacional (SEDENA), la Secretaría de Marina Armada de México (SEMAR),
-    el Instituto de Salud para el Bienestar (INSABI) o en otra.'
+psinder:
+  Descripción: Población sin derechohabiencia a servicios de salud
+  Definición: Total de personas que no tienen derecho a recibir servicios médicos en ninguna institución
+    pública o privada.
   Tipo: numeric
   Longitud: '9'
-  Rangos: 0...999999999
+  Rangos: 0..999999999
   Categorías: {}
   Especiales:
     '*': Dato reservado por confidencialidad
     N/D: No disponible
-    N/A: No aplica
-PDER_IMSS:
-  Descripción: Población afiliada a servicios de salud en el IMSS
-  Definición: Total de personas que están afiliadas a servicios médicos en el Instituto Mexicano del Seguro
-    Social (IMSS).
+pder_ss:
+  Descripción: Población derechohabiente a servicios de salud
+  Definición: 'Total de personas que tienen derecho a recibir servicios médicos en alguna institución
+    de salud pública o privada como: el instituto mexicano del seguro social (imss), el instituto de seguridad
+    y servicios sociales de los trabajadores del estado (issste e issste estatal), petróleos mexicanos
+    (pemex), la secretaría de la defensa nacional (sedena), la secretaría de marina armada de méxico (semar),
+    el sistema de protección social en salud o en otra.'
   Tipo: numeric
   Longitud: '9'
-  Rangos: 0...999999999
+  Rangos: 0..999999999
   Categorías: {}
   Especiales:
     '*': Dato reservado por confidencialidad
     N/D: No disponible
-    N/A: No aplica
-PDER_ISTE:
-  Descripción: Población afiliada a servicios de salud en el ISSSTE
-  Definición: Total de personas que están afiliadas a servicios médicos en el Instituto de Seguridad y
-    Servicios Sociales de los Trabajadores del Estado.
+pder_imss:
+  Descripción: Población derechohabiente del imss
+  Definición: Total de personas que tienen derecho a recibir servicios médicos en el instituto mexicano
+    del seguro social (imss).
   Tipo: numeric
   Longitud: '9'
-  Rangos: 0...999999999
+  Rangos: 0..999999999
   Categorías: {}
   Especiales:
     '*': Dato reservado por confidencialidad
     N/D: No disponible
-    N/A: No aplica
-PDER_ISTEE:
-  Descripción: Población afiliada a servicios de salud en el ISSSTE estatal
-  Definición: Total de personas que están afiliadas a servicios médicos en los institutos de seguridad
-    social de los estados (ISSSTE, ISSSEMyM, ISSSTEZAC, ISSSPEA o ISSSTESON).
+pder_iste:
+  Descripción: Población derechohabiente del issste
+  Definición: Total de personas que tienen derecho a recibir servicios médicos en el instituto de seguridad
+    y servicios sociales de los trabajadores del estado.
   Tipo: numeric
   Longitud: '9'
-  Rangos: 0...999999999
+  Rangos: 0..999999999
   Categorías: {}
   Especiales:
     '*': Dato reservado por confidencialidad
     N/D: No disponible
-    N/A: No aplica
-PAFIL_PDOM:
-  Descripción: Población afiliada a servicios de salud en PEMEX, Defensa o Marina
-  Definición: Total de personas que están afiliadas a servicios médicos en Petróleos Mexicanos (PEMEX),
-    la Secretaría de la Defensa Nacional (SEDENA) o la Secretaría de Marina Armada de México (SEMAR).
+pder_istee:
+  Descripción: Población derechohabiente del issste estatal
+  Definición: Total de personas que tienen derecho a recibir servicios médicos en los institutos de seguridad
+    social de los estados (issset, isssemym, issstezac, issspea o isssteson).
   Tipo: numeric
   Longitud: '9'
-  Rangos: 0...999999999
+  Rangos: 0..999999999
   Categorías: {}
   Especiales:
     '*': Dato reservado por confidencialidad
     N/D: No disponible
-    N/A: No aplica
-PDER_SEGP:
-  Descripción: Población afiliada a servicios de salud en el Instituto de Salud para el Bienestar
-  Definición: Total de personas que están afiliadas a servicios médicos en la Secretaría de Salud, mediante
-    en el Instituto de Salud para el Bienestar.
+pder_segp:
+  Descripción: Población derechohabiente del seguro popular o seguro médico para una nueva generación
+  Definición: Total de personas que tienen derecho a recibir servicios médicos en la secretaría de salud,
+    mediante el sistema de protección en salud (seguro popular).
   Tipo: numeric
   Longitud: '9'
-  Rangos: 0...999999999
+  Rangos: 0..999999999
   Categorías: {}
   Especiales:
     '*': Dato reservado por confidencialidad
     N/D: No disponible
-    N/A: No aplica
-PDER_IMSSB:
-  Descripción: Población afiliada a servicios de salud en el IMSS BIENESTAR
-  Definición: Total de personas que están afiliadas a servicios médicos en el Instituto Mexicano del Seguro
-    Social (IMSS) BIENESTAR
+p12ym_solt:
+  Descripción: Población soltera o nunca unida de 12 años y más
+  Definición: Personas solteras de 12 a 130 años de edad.
   Tipo: numeric
   Longitud: '9'
-  Rangos: 0...999999999
+  Rangos: 0..999999999
   Categorías: {}
   Especiales:
     '*': Dato reservado por confidencialidad
     N/D: No disponible
-    N/A: No aplica
-PAFIL_IPRIV:
-  Descripción: Población afiliada a servicios de salud en una institución privada
-  Definición: Total de personas que están afiliadas a servicios médicos en instituciones de salud privadas.
+p12ym_casa:
+  Descripción: Población casada o unida de 12 años y más
+  Definición: Personas de 12 a 130 años de edad que viven con su pareja en unión libre; casadas solo por
+    el civil; casadas solo religiosamente o; casadas por el civil y religiosamente.
   Tipo: numeric
   Longitud: '9'
-  Rangos: 0...999999999
+  Rangos: 0..999999999
   Categorías: {}
   Especiales:
     '*': Dato reservado por confidencialidad
     N/D: No disponible
-    N/A: No aplica
-PAFIL_OTRAI:
-  Descripción: Población afiliada a servicios de salud en otra institución
-  Definición: Total de personas que están afiliadas a servicios médicos en cualquier otra institución
-    de salud pública o privada.
-  Tipo: numeric
-  Longitud: '9'
-  Rangos: 0...999999999
-  Categorías: {}
-  Especiales:
-    '*': Dato reservado por confidencialidad
-    N/D: No disponible
-    N/A: No aplica
-P12YM_SOLT:
-  Descripción: Población de 12 años y más soltera o nunca unida
-  Definición: Personas de 12 a 130 años de edad solteras.
-  Tipo: numeric
-  Longitud: '9'
-  Rangos: 0...999999999
-  Categorías: {}
-  Especiales:
-    '*': Dato reservado por confidencialidad
-    N/D: No disponible
-    N/A: No aplica
-P12YM_CASA:
-  Descripción: Población de 12 años y más casada o unida
-  Definición: Personas de 12 a 130 años de edad casadas sólo por el civil; casadas sólo religiosamente
-    o; casadas por el civil y religiosamente o en unión libre.
-  Tipo: numeric
-  Longitud: '9'
-  Rangos: 0...999999999
-  Categorías: {}
-  Especiales:
-    '*': Dato reservado por confidencialidad
-    N/D: No disponible
-    N/A: No aplica
-P12YM_SEPA:
-  Descripción: Población de 12 años y más que estuvo casada o unida
+p12ym_sepa:
+  Descripción: Población que estuvo casada o unida de 12 años y más
   Definición: Personas de 12 a 130 años de edad que están separadas, divorciadas o viudas.
   Tipo: numeric
   Longitud: '9'
-  Rangos: 0...999999999
+  Rangos: 0..999999999
   Categorías: {}
   Especiales:
     '*': Dato reservado por confidencialidad
     N/D: No disponible
-    N/A: No aplica
-PCATOLICA:
+pcatolica:
   Descripción: Población con religión católica
-  Definición: Personas que tienen como creencia o preferencia espiritual la religión católica
+  Definición: Personas con religión católica.
   Tipo: numeric
   Longitud: '9'
-  Rangos: 0...999999999
+  Rangos: 0..999999999
   Categorías: {}
   Especiales:
     '*': Dato reservado por confidencialidad
     N/D: No disponible
-    N/A: No aplica
-PRO_CRIEVA:
-  Descripción: Población con grupo religioso protestante/cristiano evangélico
-  Definición: 'Incluye a las denominaciones religiosas del grupo protestante/cristiano evangélico: protestante,
-    pentecostal, iglesia del Dios vivo, columna y apoyo de la verdad, la luz del mundo, cristiana, evangélica,
-    iglesia de Jesucristo de los santos de los últimos días (mormón) entre otras.'
+pncatolica:
+  Descripción: Protestantes, evangélicas y bíblicas diferentes de evangélicas
+  Definición: Personas con religiones protestantes históricas, pentecostales, neopentecostales, iglesia
+    del dios vivo, columna y apoyo de la verdad, la luz del mundo, cristianas, evangélicas y bíblicas
+    diferentes de las evangélicas.
   Tipo: numeric
   Longitud: '9'
-  Rangos: 0...999999999
+  Rangos: 0..999999999
   Categorías: {}
   Especiales:
     '*': Dato reservado por confidencialidad
     N/D: No disponible
-    N/A: No aplica
-POTRAS_REL:
+potras_rel:
   Descripción: Población con otras religiones diferentes a las anteriores
-  Definición: Personas con otras creencias o preferencias espirituales diferentes a las anteriores.
+  Definición: Personas con religiones de origen oriental, judaico, islámico, new age, escuelas esotéricas,
+    raíces étnicas, espiritualistas, ortodoxos, otros movimientos religiosos y cultos populares.
   Tipo: numeric
   Longitud: '9'
-  Rangos: 0...999999999
+  Rangos: 0..999999999
   Categorías: {}
   Especiales:
     '*': Dato reservado por confidencialidad
     N/D: No disponible
-    N/A: No aplica
-PSIN_RELIG:
-  Descripción: Población sin religión o sin adscripción religiosa
-  Definición: Personas que declararon no tener religión o no estar adscritas en alguna.
+psin_relig:
+  Descripción: Población sin religión
+  Definición: Personas sin adscripción religiosa. Incluye ateísmo.
   Tipo: numeric
   Longitud: '9'
-  Rangos: 0...999999999
+  Rangos: 0..999999999
   Categorías: {}
   Especiales:
     '*': Dato reservado por confidencialidad
     N/D: No disponible
-    N/A: No aplica
-TOTHOG:
+tothog:
   Descripción: Total de hogares censales
   Definición: Hogares en viviendas particulares habitadas. Se considera un hogar en cada vivienda particular.
-    Incluye casa única en el terreno; casa que comparte terreno con otra(s); casa dúplex; departamento
-    en edificio; vivienda en vecindad o cuartería; vivienda en cuarto de azotea de un edificio; local
-    no construido para habitación; vivienda móvil; refugio y no especificado de vivienda particular.
+    Incluye casa independiente; departamento en edificio; vivienda en vecindad; vivienda en cuarto de
+    azotea; local no construido para habitación; vivienda móvil; refugio o clase no especificada.
   Tipo: numeric
-  Longitud: '9'
-  Rangos: 0...999999999
+  Longitud: '8'
+  Rangos: 0..99999999
   Categorías: {}
   Especiales:
     '*': Dato reservado por confidencialidad
     N/D: No disponible
-    N/A: No aplica
-HOGJEF_F:
-  Descripción: Hogares censales con persona de referencia mujer
-  Definición: Hogares en viviendas particulares habitadas donde la persona de referencia es mujer. Se
-    considera un hogar en cada vivienda particular. Incluye casa única en el terreno; casa que comparte
-    terreno con otra(s); casa dúplex; departamento en edificio; vivienda en vecindad o cuartería; vivienda
-    en cuarto de azotea; local no construido para habitación; vivienda móvil; refugio y no especificado
-    de vivienda particular.
+hogjef_m:
+  Descripción: Hogares censales con jefatura masculina
+  Definición: Hogares en viviendas particulares habitadas donde el jefe es hombre. Se considera un hogar
+    en cada vivienda particular. Incluye casa independiente; departamento en edificio; vivienda en vecindad;
+    vivienda en cuarto de azotea; local no construido para habitación; vivienda móvil; refugio o clase
+    no especificada.
   Tipo: numeric
-  Longitud: '9'
-  Rangos: 0...999999999
+  Longitud: '8'
+  Rangos: 0..99999999
   Categorías: {}
   Especiales:
     '*': Dato reservado por confidencialidad
     N/D: No disponible
-    N/A: No aplica
-HOGJEF_M:
-  Descripción: Hogares censales con persona de referencia hombre
-  Definición: Hogares en viviendas particulares habitadas donde la persona de referencia es hombre. Se
-    considera un hogar en cada vivienda particular. Incluye casa única en el terreno; casa que comparte
-    terreno con otra(s); casa dúplex; departamento en edificio; vivienda en vecindad o cuartería; vivienda
-    en cuarto de azotea; local no construido para habitación; vivienda móvil; refugio y no especificado
-    de vivienda particular.
+hogjef_f:
+  Descripción: Hogares censales con jefatura femenina
+  Definición: Hogares en viviendas particulares habitadas donde el jefe es mujer. Se considera un hogar
+    en cada vivienda particular. Incluye casa independiente; departamento en edificio; vivienda en vecindad;
+    vivienda en cuarto de azotea; local no construido para habitación; vivienda móvil; refugio o clase
+    no especificada.
   Tipo: numeric
-  Longitud: '9'
-  Rangos: 0...999999999
+  Longitud: '8'
+  Rangos: 0..99999999
   Categorías: {}
   Especiales:
     '*': Dato reservado por confidencialidad
     N/D: No disponible
-    N/A: No aplica
-POBHOG:
+pobhog:
   Descripción: Población en hogares censales
   Definición: Personas en hogares censales. Se considera un hogar en cada vivienda particular. Incluye
-    casa única en el terreno; casa que comparte terreno con otra(s); casa dúplex; departamento en edificio;
-    vivienda en vecindad o cuartería; vivienda en cuarto de azotea; local no construido para habitación;
-    vivienda móvil; refugio y no especificado de vivienda particular.
+    casa independiente; departamento en edificio; vivienda en vecindad; vivienda en cuarto de azotea;
+    local no construido para habitación; vivienda móvil; refugio o clase no especificada.
   Tipo: numeric
   Longitud: '9'
-  Rangos: 0...99999999
+  Rangos: 0..99999999
   Categorías: {}
   Especiales:
     '*': Dato reservado por confidencialidad
     N/D: No disponible
-    N/A: No aplica
-PHOGJEF_F:
-  Descripción: Población en hogares censales con persona de referencia mujer
-  Definición: Personas en hogares censales donde la persona de referencia es mujer. Se considera un hogar
-    en cada vivienda particular. Incluye casa única en el terreno; casa que comparte terreno con otra(s);
-    casa dúplex; departamento en edificio; vivienda en vecindad o cuartería; vivienda en cuarto de azotea;
-    local no construido para habitación; vivienda móvil; refugio y no especificado de vivienda particular.
+phogjef_m:
+  Descripción: Población en hogares censales con jefatura masculina
+  Definición: Personas en hogares censales donde el jefe es hombre. Se considera un hogar en cada vivienda
+    particular. Incluye casa independiente; departamento en edificio; vivienda en vecindad; vivienda en
+    cuarto de azotea; local no construido para habitación; vivienda móvil; refugio o clase no especificada.
   Tipo: numeric
-  Longitud: '9'
-  Rangos: 0...999999999
+  Longitud: '8'
+  Rangos: 0..99999999
   Categorías: {}
   Especiales:
     '*': Dato reservado por confidencialidad
     N/D: No disponible
-    N/A: No aplica
-PHOGJEF_M:
-  Descripción: Población en hogares censales con persona de referencia hombre
-  Definición: Personas en hogares censales donde la persona de referencia es hombre. Se considera un hogar
-    en cada vivienda particular. Incluye casa única en el terreno; casa que comparte terreno con otra(s);
-    casa dúplex; departamento en edificio; vivienda en vecindad o cuartería; vivienda en cuarto de azotea;
-    local no construido para habitación; vivienda móvil; refugio y no especificado de vivienda particular.
+phogjef_f:
+  Descripción: Población en hogares censales con jefatura femenina
+  Definición: Personas en hogares censales donde el jefe es mujer. Se considera un hogar en cada vivienda
+    particular. Incluye casa independiente; departamento en edificio; vivienda en vecindad; vivienda en
+    cuarto de azotea; local no construido para habitación; vivienda móvil; refugio o clase no especificada.
   Tipo: numeric
-  Longitud: '9'
-  Rangos: 0...999999999
+  Longitud: '8'
+  Rangos: 0..99999999
   Categorías: {}
   Especiales:
     '*': Dato reservado por confidencialidad
     N/D: No disponible
-    N/A: No aplica
-VIVTOT:
+vivtot:
   Descripción: Total de viviendas
-  Definición: Viviendas particulares habitadas, deshabitadas, de uso temporal y colectivas. Incluye a
-    las viviendas sin información de ocupantes.
+  Definición: Total de viviendas particulares habitadas, deshabitadas, de uso temporal y colectivas. Incluye
+    a las viviendas particulares sin información de sus ocupantes.
   Tipo: numeric
-  Longitud: '9'
-  Rangos: 0...999999999
+  Longitud: '8'
+  Rangos: 0..99999999
   Categorías: {}
   Especiales:
     '*': Dato reservado por confidencialidad
     N/D: No disponible
-    N/A: No aplica
-TVIVHAB:
+tvivhab:
   Descripción: Total de viviendas habitadas
-  Definición: Viviendas particulares y colectivas habitadas. Incluye a las viviendas sin información de
-    ocupantes
+  Definición: Viviendas particulares y colectivas habitadas. Incluye a las viviendas particulares sin
+    información de sus ocupantes.
   Tipo: numeric
-  Longitud: '9'
-  Rangos: 0...999999999
+  Longitud: '8'
+  Rangos: 0..99999999
   Categorías: {}
   Especiales:
     '*': Dato reservado por confidencialidad
     N/D: No disponible
-    N/A: No aplica
-TVIVPAR:
+tvivpar:
   Descripción: Total de viviendas particulares
   Definición: Viviendas particulares habitadas, deshabitadas y de uso temporal. Excluye a las viviendas
-    sin información de ocupantes.
+    particulares sin información de ocupantes.
   Tipo: numeric
-  Longitud: '9'
-  Rangos: 0...999999999
+  Longitud: '8'
+  Rangos: 0..99999999
   Categorías: {}
   Especiales:
     '*': Dato reservado por confidencialidad
     N/D: No disponible
-    N/A: No aplica
-VIVPAR_HAB:
+vivpar_hab:
   Descripción: Viviendas particulares habitadas
-  Definición: 'Viviendas particulares habitadas de cualquier clase: casa única en el terreno; casa que
-    comparte terreno con otra(s); casa dúplex; departamento en edificio; vivienda en vecindad o cuartería;
-    vivienda en cuarto de azotea de un edificio; local no construido para habitación, vivienda móvil;
-    refugio y no especificado de vivienda particular. Excluye a las viviendas particulares sin información
+  Definición: 'Viviendas particulares habitadas de cualquier clase: casa independiente, departamento en
+    edificio, vivienda o cuarto en vecindad, vivienda o cuarto de azotea, local no construido para habitación,
+    vivienda móvil, refugios o clase no especificada. Excluye a las viviendas particulares sin información
     de ocupantes.'
   Tipo: numeric
-  Longitud: '9'
-  Rangos: 0...999999999
+  Longitud: '8'
+  Rangos: 0..99999999
   Categorías: {}
   Especiales:
     '*': Dato reservado por confidencialidad
     N/D: No disponible
-    N/A: No aplica
-VIVPARH_CV:
-  Descripción: Total de viviendas particulares habitadas con características
-  Definición: Viviendas particulares habitadas a las que se les captan sus características, incluye casa
-    única en el terreno; casa que comparte terreno con otra(s); casa dúplex; departamento en edificio;
-    vivienda en vecindad o cuartería; vivienda en cuarto de azotea de un edificio y no especificado de
-    vivienda particular. Incluye a las viviendas particulares sin información de ocupantes.
-  Tipo: numeric
-  Longitud: '9'
-  Rangos: 0...999999999
-  Categorías: {}
-  Especiales:
-    '*': Dato reservado por confidencialidad
-    N/D: No disponible
-    N/A: No aplica
-TVIVPARHAB:
+tvivparhab:
   Descripción: Total de viviendas particulares habitadas
-  Definición: 'Viviendas particulares habitadas de cualquier clase: casa única en el terreno; casa que
-    comparte terreno con otra(s); casa dúplex; departamento en edificio; vivienda en vecindad o cuartería;
-    vivienda en cuarto de azotea de un edificio; local no construido para habitación, vivienda móvil;
-    refugio y no especificado de vivienda particular. Incluye a las viviendas particulares sin información
+  Definición: 'Viviendas particulares habitadas de cualquier clase: casa independiente, departamento en
+    edificio, vivienda o cuarto en vecindad, vivienda o cuarto de azotea, local no construido para habitación,
+    vivienda móvil, refugios o clase no especificada. Incluye a las viviendas particulares sin información
     de ocupantes.'
   Tipo: numeric
-  Longitud: '9'
-  Rangos: 0...999999999
+  Longitud: '8'
+  Rangos: 0..99999999
   Categorías: {}
   Especiales:
     '*': Dato reservado por confidencialidad
     N/D: No disponible
-    N/A: No aplica
-VIVPAR_DES:
+vivpar_des:
   Descripción: Viviendas particulares deshabitadas
   Definición: Viviendas particulares deshabitadas.
   Tipo: numeric
-  Longitud: '9'
-  Rangos: 0...999999999
+  Longitud: '8'
+  Rangos: 0..99999999
   Categorías: {}
   Especiales:
     '*': Dato reservado por confidencialidad
     N/D: No disponible
-    N/A: No aplica
-VIVPAR_UT:
+vivpar_ut:
   Descripción: Viviendas particulares de uso temporal
   Definición: Viviendas particulares de uso temporal.
   Tipo: numeric
-  Longitud: '9'
-  Rangos: 0...999999999
+  Longitud: '8'
+  Rangos: 0..99999999
   Categorías: {}
   Especiales:
     '*': Dato reservado por confidencialidad
     N/D: No disponible
-    N/A: No aplica
-OCUPVIVPAR:
+ocupvivpar:
   Descripción: Ocupantes en viviendas particulares habitadas
-  Definición: 'Personas que residen en viviendas particulares habitadas de cualquier clase: casa única
-    en el terreno; casa que comparte terreno con otra(s); casa dúplex; departamento en edificio; vivienda
-    en vecindad o cuartería; vivienda en cuarto de azotea de un edificio; local no construido para habitación,
-    vivienda móvil; refugio y no especificado de vivienda particular. Incluye una estimación de personas
-    en viviendas particulares sin información de ocupantes y menores omitidos.'
+  Definición: 'Personas que residen en viviendas particulares habitadas de cualquier clase: casa independiente,
+    departamento en edificio, vivienda o cuarto en vecindad, vivienda o cuarto de azotea, local no construido
+    para habitación, vivienda móvil, refugios o clase no especificada. Excluye la estimación del número
+    de personas en viviendas particulares sin información de ocupantes.'
   Tipo: numeric
   Longitud: '9'
-  Rangos: 0...99999999
+  Rangos: 0..99999999
   Categorías: {}
   Especiales:
     '*': Dato reservado por confidencialidad
     N/D: No disponible
-    N/A: No aplica
-PROM_OCUP:
+prom_ocup:
   Descripción: Promedio de ocupantes en viviendas particulares habitadas
   Definición: Resultado de dividir el número de personas que residen en viviendas particulares habitadas,
-    entre el número de esas viviendas.
+    entre el número de esas viviendas. Excluye la estimación del número de personas y de viviendas particulares
+    sin información de ocupantes.
   Tipo: numeric
-  Longitud: '9'
-  Rangos: 0...999999999
+  Longitud: '8'
+  Rangos: 0..99999999
   Categorías: {}
   Especiales:
     '*': Dato reservado por confidencialidad
     N/D: No disponible
-    N/A: No aplica
-PRO_OCUP_C:
+pro_ocup_c:
   Descripción: Promedio de ocupantes por cuarto en viviendas particulares habitadas
-  Definición: 'Resultado de dividir el número de personas que residen en viviendas particulares habitadas
+  Definición: Resultado de dividir el número de personas que residen en viviendas particulares habitadas
     entre el número de cuartos de esas viviendas. Comprende las viviendas particulares para las que se
-    captaron las características de la vivienda, clasificadas como: casa única en el terreno; casa que
-    comparte terreno con otra(s); casa dúplex; departamento en edificio; vivienda en vecindad o cuartería;
-    vivienda en cuarto de azotea de un edificio y no especificado de vivienda particular. Incluye a las
-    viviendas particulares sin información de ocupantes.'
+    captaron las características de la vivienda, clasificadas como casa independiente, departamento en
+    edificio, vivienda o cuarto en vecindad y vivienda o cuarto en azotea y a las que no especificaron
+    clase de vivienda.
   Tipo: numeric
-  Longitud: '9'
-  Rangos: 0...999999999
+  Longitud: '8'
+  Rangos: 0..99999999
   Categorías: {}
   Especiales:
     '*': Dato reservado por confidencialidad
     N/D: No disponible
-    N/A: No aplica
-VPH_PISODT:
+vph_pisodt:
   Descripción: Viviendas particulares habitadas con piso de material diferente de tierra
-  Definición: 'Viviendas particulares habitadas con piso de cemento o firme, madera, mosaico u otro material.
+  Definición: Viviendas particulares habitadas con piso de cemento o firme, madera, mosaico u otro material.
     Comprende las viviendas particulares para las que se captaron las características de la vivienda,
-    clasificadas como: casa única en el terreno; casa que comparte terreno con otra(s); casa dúplex; departamento
-    en edificio; vivienda en vecindad o cuartería; vivienda en cuarto de azotea de un edificio y no especificado
-    de vivienda particular. Incluye a las viviendas particulares sin información de ocupantes.'
+    clasificadas como casa independiente, departamento en edificio, vivienda o cuarto en vecindad y vivienda
+    o cuarto en azotea y a las que no especificaron clase de vivienda.
   Tipo: numeric
-  Longitud: '9'
-  Rangos: 0...999999999
+  Longitud: '8'
+  Rangos: 0..99999999
   Categorías: {}
   Especiales:
     '*': Dato reservado por confidencialidad
     N/D: No disponible
-    N/A: No aplica
-VPH_PISOTI:
+vph_pisoti:
   Descripción: Viviendas particulares habitadas con piso de tierra
-  Definición: 'Viviendas particulares habitadas con piso de tierra. Comprende las viviendas particulares
-    para las que se captaron las características de la vivienda, clasificadas como: casa única en el terreno;
-    casa que comparte terreno con otra(s); casa dúplex; departamento en edificio; vivienda en vecindad
-    o cuartería; vivienda en cuarto de azotea de un edificio y no especificado de vivienda particular.
-    Incluye a las viviendas particulares sin información de ocupantes.'
+  Definición: Viviendas particulares habitadas con piso de tierra. Comprende las viviendas particulares
+    para las que se captaron las características de la vivienda, clasificadas como casa independiente,
+    departamento en edificio, vivienda o cuarto en vecindad y vivienda o cuarto en azotea y a las que
+    no especificaron clase de vivienda.
   Tipo: numeric
-  Longitud: '9'
-  Rangos: 0...999999999
+  Longitud: '8'
+  Rangos: 0..99999999
   Categorías: {}
   Especiales:
     '*': Dato reservado por confidencialidad
     N/D: No disponible
-    N/A: No aplica
-VPH_1DOR:
+vph_1dor:
   Descripción: Viviendas particulares habitadas con un dormitorio
-  Definición: 'Viviendas particulares habitadas con un dormitorio. Comprende las viviendas particulares
-    para las que se captaron las características de la vivienda, clasificadas como: casa única en el terreno;
-    casa que comparte terreno con otra(s); casa dúplex; departamento en edificio; vivienda en vecindad
-    o cuartería; vivienda en cuarto de azotea de un edificio y no especificado de vivienda particular.
-    Incluye a las viviendas particulares sin información de ocupantes.'
+  Definición: Viviendas particulares habitadas donde sólo uno de los cuartos se usa para dormir. Comprende
+    las viviendas particulares para las que se captaron las características de la vivienda, clasificadas
+    como casa independiente, departamento en edificio, vivienda o cuarto en vecindad y vivienda o cuarto
+    en azotea y a las que no especificaron clase de vivienda.
   Tipo: numeric
-  Longitud: '9'
-  Rangos: 0… 999999999
+  Longitud: '8'
+  Rangos: 0..99999999
   Categorías: {}
   Especiales:
     '*': Dato reservado por confidencialidad
     N/D: No disponible
-    N/A: No aplica
-VPH_2YMASD:
+vph_2ymasd:
   Descripción: Viviendas particulares habitadas con dos dormitorios y más
-  Definición: 'Viviendas particulares habitadas que usan para dormir entre 2 y 25 cuartos. Comprende las
-    viviendas particulares para las que se captaron las características de la vivienda, clasificadas como:
-    casa única en el terreno; casa que comparte terreno con otra(s); casa dúplex; departamento en edificio;
-    vivienda en vecindad o cuartería; vivienda en cuarto de azotea de un edificio y no especificado de
-    vivienda particular. Incluye a las viviendas particulares sin información de ocupantes.'
+  Definición: Viviendas particulares habitadas que usan para dormir entre 2 y 25 cuartos. Comprende las
+    viviendas particulares para las que se captaron las características de la vivienda, clasificadas como
+    casa independiente, departamento en edificio, vivienda o cuarto en vecindad y vivienda o cuarto en
+    azotea y a las que no especificaron clase de vivienda.
   Tipo: numeric
-  Longitud: '9'
-  Rangos: 0…999999999
+  Longitud: '8'
+  Rangos: 0..99999999
   Categorías: {}
   Especiales:
     '*': Dato reservado por confidencialidad
     N/D: No disponible
-    N/A: No aplica
-VPH_1CUART:
-  Descripción: Viviendas particulares habitadas con sólo un cuarto
-  Definición: 'Viviendas particulares habitadas que tienen sólo un cuarto. Comprende las viviendas particulares
-    para las que se captaron las características de la vivienda, clasificadas como: casa única en el terreno;
-    casa que comparte terreno con otra(s); casa dúplex; departamento en edificio; vivienda en vecindad
-    o cuartería; vivienda en cuarto de azotea de un edificio y no especificado de vivienda particular.
-    Incluye a las viviendas particulares sin información de ocupantes.'
+vph_1cuart:
+  Descripción: Viviendas particulares habitadas con un solo cuarto
+  Definición: Viviendas particulares habitadas que tienen un solo cuarto. Comprende las viviendas particulares
+    para las que se captaron las características de la vivienda, clasificadas como casa independiente,
+    departamento en edificio, vivienda o cuarto en vecindad y vivienda o cuarto en azotea y a las que
+    no especificaron clase de vivienda. Excluye la estimación del número de personas y de viviendas particulares
+    sin información de ocupantes.
   Tipo: numeric
-  Longitud: '9'
-  Rangos: 0…999999999
+  Longitud: '8'
+  Rangos: 0..99999999
   Categorías: {}
   Especiales:
     '*': Dato reservado por confidencialidad
     N/D: No disponible
-    N/A: No aplica
-VPH_2CUART:
+vph_2cuart:
   Descripción: Viviendas particulares habitadas con dos cuartos
-  Definición: 'Viviendas particulares habitadas que tienen dos cuartos. Comprende las viviendas particulares
-    para las que se captaron las características de la vivienda, clasificadas como: casa única en el terreno;
-    casa que comparte terreno con otra(s); casa dúplex; departamento en edificio; vivienda en vecindad
-    o cuartería; vivienda en cuarto de azotea de un edificio y no especificado de vivienda particular.
-    Incluye a las viviendas particulares sin información de ocupantes.'
+  Definición: Viviendas particulares habitadas que tienen dos cuartos. Comprende las viviendas particulares
+    para las que se captaron las características de la vivienda, clasificadas como casa independiente,
+    departamento en edificio, vivienda o cuarto en vecindad y vivienda o cuarto en azotea y a las que
+    no especificaron clase de vivienda. Excluye la estimación del número de personas y de viviendas particulares
+    sin información de ocupantes.
   Tipo: numeric
-  Longitud: '9'
-  Rangos: 0…999999999
+  Longitud: '8'
+  Rangos: 0..99999999
   Categorías: {}
   Especiales:
     '*': Dato reservado por confidencialidad
     N/D: No disponible
-    N/A: No aplica
-VPH_3YMASC:
+vph_3ymasc:
   Descripción: Viviendas particulares habitadas con 3 cuartos y más
-  Definición: 'Viviendas particulares habitadas que tienen entre 3 y 25 cuartos. Comprende las viviendas
-    particulares para las que se captaron las características de la vivienda, clasificadas como: casa
-    única en el terreno; casa que comparte terreno con otra(s); casa dúplex; departamento en edificio;
-    vivienda en vecindad o cuartería; vivienda en cuarto de azotea de un edificio y no especificado de
-    vivienda particular. Incluye a las viviendas particulares sin información de ocupantes.'
+  Definición: Viviendas particulares habitadas que tienen entre 3 y 25 cuartos. Comprende las viviendas
+    particulares para las que se captaron las características de la vivienda, clasificadas como casa independiente,
+    departamento en edificio, vivienda o cuarto en vecindad y vivienda o cuarto en azotea y a las que
+    no especificaron clase de vivienda.
   Tipo: numeric
-  Longitud: '9'
-  Rangos: 0…999999999
+  Longitud: '8'
+  Rangos: 0..99999999
   Categorías: {}
   Especiales:
     '*': Dato reservado por confidencialidad
     N/D: No disponible
-    N/A: No aplica
-VPH_C_ELEC:
-  Descripción: Viviendas particulares habitadas que disponen de energía eléctrica
-  Definición: 'Viviendas particulares habitadas que tienen energía eléctrica. Comprende las viviendas
-    particulares para las que se captaron las características de la vivienda, clasificadas como: casa
-    única en el terreno; casa que comparte terreno con otra(s); casa dúplex; departamento en edificio;
-    vivienda en vecindad o cuartería; vivienda en cuarto de azotea de un edificio y no especificado de
-    vivienda particular. Incluye a las viviendas particulares sin información de ocupantes.'
+vph_c_elec:
+  Descripción: Viviendas particulares habitadas que disponen de luz eléctrica
+  Definición: Viviendas particulares habitadas que tienen luz eléctrica. Comprende las viviendas particulares
+    para las que se captaron las características de la vivienda, clasificadas como casa independiente,
+    departamento en edificio, vivienda o cuarto en vecindad y vivienda o cuarto en azotea y a las que
+    no especificaron clase de vivienda.
   Tipo: numeric
-  Longitud: '9'
-  Rangos: 0…999999999
+  Longitud: '8'
+  Rangos: 0..99999999
   Categorías: {}
   Especiales:
     '*': Dato reservado por confidencialidad
     N/D: No disponible
-    N/A: No aplica
-VPH_S_ELEC:
-  Descripción: Viviendas particulares habitadas que no disponen de energía eléctrica
-  Definición: 'Viviendas particulares habitadas que no tienen energía eléctrica. Comprende las viviendas
-    particulares para las que se captaron las características de la vivienda, clasificadas como: casa
-    única en el terreno; casa que comparte terreno con otra(s); casa dúplex; departamento en edificio;
-    vivienda en vecindad o cuartería; vivienda en cuarto de azotea de un edificio y no especificado de
-    vivienda particular. Incluye a las viviendas particulares sin información de ocupantes.'
+vph_s_elec:
+  Descripción: Viviendas particulares habitadas que no disponen de luz eléctrica
+  Definición: Viviendas particulares habitadas que no tienen luz eléctrica. Comprende las viviendas particulares
+    para las que se captaron las características de la vivienda, clasificadas como casa independiente,
+    departamento en edificio, vivienda o cuarto en vecindad y vivienda o cuarto en azotea y a las que
+    no especificaron clase de vivienda.
   Tipo: numeric
-  Longitud: '9'
-  Rangos: 0…999999999
+  Longitud: '8'
+  Rangos: 0..99999999
   Categorías: {}
   Especiales:
     '*': Dato reservado por confidencialidad
     N/D: No disponible
-    N/A: No aplica
-VPH_AGUADV:
-  Descripción: Viviendas particulares habitadas que disponen de agua entubada en el ámbito de la vivienda
-  Definición: 'Viviendas particulares habitadas que tienen disponibilidad de agua entubada dentro de la
-    vivienda o sólo en el patio o terreno. Comprende las viviendas particulares para las que se captaron
-    las características de la vivienda, clasificadas como: casa única en el terreno; casa que comparte
-    terreno con otra(s); casa dúplex; departamento en edificio; vivienda en vecindad o cuartería; vivienda
-    en cuarto de azotea de un edificio y no especificado de vivienda particular. Incluye a las viviendas
-    particulares sin información de ocupantes.'
+vph_aguadv:
+  Descripción: Viviendas particulares habitadas que disponen de agua entubada en  el ámbito de la vivienda
+  Definición: Viviendas particulares habitadas que tienen disponibilidad de agua entubada dentro de la
+    vivienda, o fuera de la vivienda pero dentro del terreno. Comprende las viviendas particulares para
+    las que se captaron las características de la vivienda, clasificadas como casa independiente, departamento
+    en edificio, vivienda o cuarto en vecindad y vivienda o cuarto en azotea y a las que no especificaron
+    clase de vivienda.
   Tipo: numeric
-  Longitud: '9'
-  Rangos: 0…999999999
+  Longitud: '8'
+  Rangos: 0..99999999
   Categorías: {}
   Especiales:
     '*': Dato reservado por confidencialidad
     N/D: No disponible
-    N/A: No aplica
-VPH_AEASP:
-  Descripción: Viviendas particulares habitadas que disponen de agua entubada y se abastecen del servicio
-    público de agua
-  Definición: 'Viviendas particulares habitadas que tienen agua entubada y se abastecen del servicio público
-    de agua. Comprende las viviendas particulares para las que se captaron las características de la vivienda,
-    clasificadas como: casa única en el terreno; casa que comparte terreno con otra(s); casa dúplex; departamento
-    en edificio; vivienda en vecindad o cuartería; vivienda en cuarto de azotea de un edificio y no especificado
-    de vivienda particular. Incluye a las viviendas particulares sin información de ocupantes.'
-  Tipo: numeric
-  Longitud: '9'
-  Rangos: 0…999999999
-  Categorías: {}
-  Especiales:
-    '*': Dato reservado por confidencialidad
-    N/D: No disponible
-    N/A: No aplica
-VPH_AGUAFV:
+vph_aguafv:
   Descripción: Viviendas particulares habitadas que no disponen de agua entubada en el ámbito de la vivienda
-  Definición: 'Viviendas particulares habitadas que no tienen disponibilidad de agua entubada. Comprende
-    las viviendas particulares para las que se captaron las características de la vivienda, clasificadas
-    como: casa única en el terreno; casa que comparte terreno con otra(s); casa dúplex; departamento en
-    edificio; vivienda en vecindad o cuartería; vivienda en cuarto de azotea de un edificio y no especificado
-    de vivienda particular. Incluye a las viviendas particulares sin información de ocupantes.'
+  Definición: Viviendas particulares habitadas que tienen disponibilidad de agua de una llave pública
+    o hidrante, de otra vivienda, de pipa, de pozo, río, arroyo, lago u otro. Comprende las viviendas
+    particulares para las que se captaron las características de la vivienda, clasificadas como casa independiente,
+    departamento en edificio, vivienda o cuarto en vecindad y vivienda o cuarto en azotea y a las que
+    no especificaron clase de vivienda.
   Tipo: numeric
-  Longitud: '9'
-  Rangos: 0…999999999
+  Longitud: '8'
+  Rangos: 0..99999999
   Categorías: {}
   Especiales:
     '*': Dato reservado por confidencialidad
     N/D: No disponible
-    N/A: No aplica
-VPH_TINACO:
-  Descripción: Viviendas particulares habitadas que disponen de tinaco
-  Definición: 'Viviendas particulares habitadas que tienen tinaco. Comprende las viviendas particulares
-    para las que se captaron las características de la vivienda, clasificadas como: casa única en el terreno;
-    casa que comparte terreno con otra(s); casa dúplex; departamento en edificio; vivienda en vecindad
-    o cuartería; vivienda en cuarto de azotea de un edificio y no especificado de vivienda particular.
-    Incluye a las viviendas particulares sin información de ocupantes.'
-  Tipo: numeric
-  Longitud: '9'
-  Rangos: 0…999999999
-  Categorías: {}
-  Especiales:
-    '*': Dato reservado por confidencialidad
-    N/D: No disponible
-    N/A: No aplica
-VPH_CISTER:
-  Descripción: Viviendas particulares habitadas que disponen de cisterna o aljibe
-  Definición: 'Viviendas particulares habitadas que tienen cisterna o aljibe. Comprende las viviendas
-    particulares para las que se captaron las características de la vivienda, clasificadas como: casa
-    única en el terreno; casa que comparte terreno con otra(s); casa dúplex; departamento en edificio;
-    vivienda en vecindad o cuartería; vivienda en cuarto de azotea de un edificio y no especificado de
-    vivienda particular. Incluye a las viviendas particulares sin información de ocupantes.'
-  Tipo: numeric
-  Longitud: '9'
-  Rangos: 0…999999999
-  Categorías: {}
-  Especiales:
-    '*': Dato reservado por confidencialidad
-    N/D: No disponible
-    N/A: No aplica
-VPH_EXCSA:
+vph_excsa:
   Descripción: Viviendas particulares habitadas que disponen de excusado o sanitario
-  Definición: 'Viviendas particulares habitadas que tienen taza de baño (excusado o sanitario). Comprende
-    las viviendas particulares para las que se captaron las características de la vivienda, clasificadas
-    como: casa única en el terreno; casa que comparte terreno con otra(s); casa dúplex; departamento en
-    edificio; vivienda en vecindad o cuartería; vivienda en cuarto de azotea de un edificio y no especificado
-    de vivienda particular. Incluye a las viviendas particulares sin información de ocupantes.'
+  Definición: Viviendas particulares habitadas que tienen excusado, retrete, sanitario, letrina u hoyo
+    negro. Excluye la estimación del número de personas y de viviendas particulares sin información de
+    ocupantes.
   Tipo: numeric
-  Longitud: '9'
-  Rangos: 0…999999999
+  Longitud: '8'
+  Rangos: 0..99999999
   Categorías: {}
   Especiales:
     '*': Dato reservado por confidencialidad
     N/D: No disponible
-    N/A: No aplica
-VPH_LETR:
-  Descripción: Viviendas particulares habitadas que disponen de letrina (pozo u hoyo)
-  Definición: 'Viviendas particulares habitadas que tienen letrina (pozo u hoyo). Comprende las viviendas
-    particulares para las que se captaron las características de la vivienda, clasificadas como: casa
-    única en el terreno; casa que comparte terreno con otra(s); casa dúplex; departamento en edificio;
-    vivienda en vecindad o cuartería; vivienda en cuarto de azotea de un edificio y no especificado de
-    vivienda particular. Incluye a las viviendas particulares sin información de ocupantes.'
-  Tipo: numeric
-  Longitud: '9'
-  Rangos: 0…999999999
-  Categorías: {}
-  Especiales:
-    '*': Dato reservado por confidencialidad
-    N/D: No disponible
-    N/A: No aplica
-VPH_DRENAJ:
+vph_drenaj:
   Descripción: Viviendas particulares habitadas que disponen de drenaje
-  Definición: 'Viviendas particulares habitadas que tienen drenaje conectado a la red pública; una fosa
-    séptica o tanque séptico (biodigestor); una tubería que va a dar a una barranca o grieta, río, lago
-    o mar. Comprende las viviendas particulares para las que se captaron las características de la vivienda,
-    clasificadas como: casa única en el terreno; casa que comparte terreno con otra(s); casa dúplex; departamento
-    en edificio; vivienda en vecindad o cuartería; vivienda en cuarto de azotea de un edificio y no especificado
-    de vivienda particular. Incluye a las viviendas particulares sin información de ocupantes.'
+  Definición: Viviendas particulares habitadas que tienen drenaje conectado a la red pública, fosa séptica,
+    barranca, grieta, río, lago o mar. Comprende las viviendas particulares para las que se captaron las
+    características de la vivienda, clasificadas como casa independiente, departamento en edificio, vivienda
+    o cuarto en vecindad y vivienda o cuarto en azotea y a las que no especificaron clase de vivienda.
   Tipo: numeric
-  Longitud: '9'
-  Rangos: 0…999999999
+  Longitud: '8'
+  Rangos: 0..99999999
   Categorías: {}
   Especiales:
     '*': Dato reservado por confidencialidad
     N/D: No disponible
-    N/A: No aplica
-VPH_NODREN:
+vph_nodren:
   Descripción: Viviendas particulares habitadas que no disponen de drenaje
-  Definición: 'Viviendas particulares habitadas que no tienen drenaje. Comprende las viviendas particulares
-    para las que se captaron las características de la vivienda, clasificadas como: casa única en el terreno;
-    casa que comparte terreno con otra(s); casa dúplex; departamento en edificio; vivienda en vecindad
-    o cuartería; vivienda en cuarto de azotea de un edificio y no especificado de vivienda particular.
-    Incluye a las viviendas particulares sin información de ocupantes.'
+  Definición: Viviendas particulares habitadas que no tienen drenaje. Comprende las viviendas particulares
+    para las que se captaron las características de la vivienda, clasificadas como casa independiente,
+    departamento en edificio, vivienda o cuarto en vecindad y vivienda o cuarto en azotea y a las que
+    no especificaron clase de vivienda.
   Tipo: numeric
-  Longitud: '9'
-  Rangos: 0…999999999
+  Longitud: '8'
+  Rangos: 0..99999999
   Categorías: {}
   Especiales:
     '*': Dato reservado por confidencialidad
     N/D: No disponible
-    N/A: No aplica
-VPH_C_SERV:
-  Descripción: Viviendas particulares habitadas que disponen de energía eléctrica, agua entubada de la
-    red pública y drenaje
-  Definición: 'Viviendas particulares habitadas que tienen energía eléctrica, agua entubada dentro de
-    la vivienda o sólo en el patio o terreno y drenaje conectado a la red pública; una fosa séptica o
-    tanque séptico (biodigestor); una tubería que va a dar a una barranca o grieta, río, lago o mar. Comprende
-    las viviendas particulares para las que se captaron las características de la vivienda, clasificadas
-    como: casa única en el terreno; casa que comparte terreno con otra(s); casa dúplex; departamento en
-    edificio; vivienda en vecindad o cuartería; vivienda en cuarto de azotea de un edificio y no especificado
-    de vivienda particular. Incluye a las viviendas particulares sin información de ocupantes.'
+vph_c_serv:
+  Descripción: Viviendas particulares habitadas que disponen de luz eléctrica, agua entubada de la red
+    pública y drenaje
+  Definición: Viviendas particulares habitadas que tienen luz eléctrica, agua entubada dentro o fuera
+    de la vivienda, pero dentro del terreno, así como drenaje. Comprende las viviendas particulares para
+    las que se captaron las características de la vivienda, clasificadas como casa independiente, departamento
+    en edificio, vivienda o cuarto en vecindad y vivienda o cuarto en azotea y a las que no especificaron
+    clase de vivienda.
   Tipo: numeric
-  Longitud: '9'
-  Rangos: 0…999999999
+  Longitud: '8'
+  Rangos: 0..99999999
   Categorías: {}
   Especiales:
     '*': Dato reservado por confidencialidad
     N/D: No disponible
-    N/A: No aplica
-VPH_NDEAED:
-  Descripción: Viviendas particulares habitadas que no disponen de energía eléctrica, agua entubada, ni
-    drenaje
-  Definición: 'Viviendas particulares habitadas que no tienen energía eléctrica, agua entubada ni drenaje.
-    Comprende las viviendas particulares para las que se captaron las características de la vivienda,
-    clasificadas como: casa única en el terreno; casa que comparte terreno con otra(s); casa dúplex; departamento
-    en edificio; vivienda en vecindad o cuartería; vivienda en cuarto de azotea de un edificio y no especificado
-    de vivienda particular. Incluye a las viviendas particulares sin información de ocupantes.'
-  Tipo: numeric
-  Longitud: '9'
-  Rangos: 0…999999999
-  Categorías: {}
-  Especiales:
-    '*': Dato reservado por confidencialidad
-    N/D: No disponible
-    N/A: No aplica
-VPH_DSADMA:
-  Descripción: Viviendas particulares que disponen de drenaje y sanitario con admisión de agua
-  Definición: 'Viviendas particulares habitadas que tienen drenaje conectado a la red pública; una fosa
-    séptica o tanque séptico (biodigestor); una tubería que va a dar a una barranca o grieta, río, lago
-    o mar; taza de baño (excusado o sanitario); letrina (pozo u hoyo) con admisión de agua. Comprende
-    las viviendas particulares para las que se captaron las características de la vivienda, clasificadas
-    como: casa única en el terreno; casa que comparte terreno con otra(s); casa dúplex; departamento en
-    edificio; vivienda en vecindad o cuartería; vivienda en cuarto de azotea de un edificio y no especificado
-    de vivienda particular. Incluye a las viviendas particulares sin información de ocupantes.'
-  Tipo: numeric
-  Longitud: '9'
-  Rangos: 0…999999999
-  Categorías: {}
-  Especiales:
-    '*': Dato reservado por confidencialidad
-    N/D: No disponible
-    N/A: No aplica
-VPH_NDACMM:
-  Descripción: Viviendas particulares habitadas que no disponen de automóvil o camioneta, ni de motocicleta
-    o motoneta
-  Definición: 'Viviendas particulares habitadas que no tienen automóvil o camioneta ni motocicleta o motoneta.
-    Comprende las viviendas particulares para las que se captaron las características de la vivienda,
-    clasificadas como: casa única en el terreno; casa que comparte terreno con otra(s); casa dúplex; departamento
-    en edificio; vivienda en vecindad o cuartería; vivienda en cuarto de azotea de un edificio y no especificado
-    de vivienda particular. Incluye a las viviendas particulares sin información de ocupantes.'
-  Tipo: numeric
-  Longitud: '9'
-  Rangos: 0…999999999
-  Categorías: {}
-  Especiales:
-    '*': Dato reservado por confidencialidad
-    N/D: No disponible
-    N/A: No aplica
-VPH_SNBIEN:
+vph_snbien:
   Descripción: Viviendas particulares habitadas sin ningún bien
-  Definición: 'Viviendas particulares habitadas donde no cuentan con refrigerador; lavadora; horno de
-    microondas automóvil o camioneta; motocicleta o motoneta; bicicleta que se utilice como medio de transporte;
-    algún aparato o dispositivo para oír radio; televisor; computadora, laptop o tablet; Internet; línea
-    telefónica fija; teléfono celular; servicio de televisión de paga (cable o satelital); servicio de
-    películas, música o videos de paga por Internet ni consola de videojuegos. Comprende las viviendas
-    particulares para las que se captaron las características de la vivienda, clasificadas como: casa
-    única en el terreno; casa que comparte terreno con otra(s); casa dúplex; departamento en edificio;
-    vivienda en vecindad o cuartería; vivienda en cuarto de azotea de un edificio y no especificado de
-    vivienda particular. Incluye a las viviendas particulares sin información de ocupantes.'
+  Definición: Viviendas particulares habitadas que no disponen de radio, televisión, refrigerador, lavadora,
+    automóvil, computadora, teléfono fijo, celular ni internet. Comprende las viviendas particulares para
+    las que se captaron las características de la vivienda, clasificadas como casa independiente, departamento
+    en edificio, vivienda o cuarto en vecindad y vivienda o cuarto en azotea y a las que no especificaron
+    clase de vivienda.
   Tipo: numeric
-  Longitud: '9'
-  Rangos: 0…999999999
+  Longitud: '8'
+  Rangos: 0..99999999
   Categorías: {}
   Especiales:
     '*': Dato reservado por confidencialidad
     N/D: No disponible
-    N/A: No aplica
-VPH_REFRI:
-  Descripción: Viviendas particulares habitadas que disponen de refrigerador
-  Definición: 'Viviendas particulares habitadas que tienen refrigerador. Comprende las viviendas particulares
-    para las que se captaron las características de la vivienda, clasificadas como: casa única en el terreno;
-    casa que comparte terreno con otra(s); casa dúplex; departamento en edificio; vivienda en vecindad
-    o cuartería; vivienda en cuarto de azotea de un edificio y no especificado de vivienda particular.
-    Incluye a las viviendas particulares sin información de ocupantes.'
-  Tipo: numeric
-  Longitud: '9'
-  Rangos: 0…999999999
-  Categorías: {}
-  Especiales:
-    '*': Dato reservado por confidencialidad
-    N/D: No disponible
-    N/A: No aplica
-VPH_LAVAD:
-  Descripción: Viviendas particulares habitadas que disponen de lavadora
-  Definición: 'Viviendas particulares habitadas que tienen lavadora. Comprende las viviendas particulares
-    para las que se captaron las características de la vivienda, clasificadas como: casa única en el terreno;
-    casa que comparte terreno con otra(s); casa dúplex; departamento en edificio; vivienda en vecindad
-    o cuartería; vivienda en cuarto de azotea de un edificio y no especificado de vivienda particular.
-    Incluye a las viviendas particulares sin información de ocupantes.'
-  Tipo: numeric
-  Longitud: '9'
-  Rangos: 0…999999999
-  Categorías: {}
-  Especiales:
-    '*': Dato reservado por confidencialidad
-    N/D: No disponible
-    N/A: No aplica
-VPH_HMICRO:
-  Descripción: Viviendas particulares habitadas que disponen de horno de microondas
-  Definición: 'Viviendas particulares habitadas que tienen horno de microondas. Comprende las viviendas
-    particulares para las que se captaron las características de la vivienda, clasificadas como: casa
-    única en el terreno; casa que comparte terreno con otra(s); casa dúplex; departamento en edificio;
-    vivienda en vecindad o cuartería; vivienda en cuarto de azotea de un edificio y no especificado de
-    vivienda particular. Incluye a las viviendas particulares sin información de ocupantes.'
-  Tipo: numeric
-  Longitud: '9'
-  Rangos: 0…999999999
-  Categorías: {}
-  Especiales:
-    '*': Dato reservado por confidencialidad
-    N/D: No disponible
-    N/A: No aplica
-VPH_AUTOM:
-  Descripción: Viviendas particulares habitadas que disponen de automóvil o camioneta
-  Definición: 'Viviendas particulares habitadas que tienen automóvil o camioneta. Comprende las viviendas
-    particulares para las que se captaron las características de la vivienda, clasificadas como: casa
-    única en el terreno; casa que comparte terreno con otra(s); casa dúplex; departamento en edificio;
-    vivienda en vecindad o cuartería; vivienda en cuarto de azotea de un edificio y no especificado de
-    vivienda particular. Incluye a las viviendas particulares sin información de ocupantes.'
-  Tipo: numeric
-  Longitud: '9'
-  Rangos: 0…999999999
-  Categorías: {}
-  Especiales:
-    '*': Dato reservado por confidencialidad
-    N/D: No disponible
-    N/A: No aplica
-VPH_MOTO:
-  Descripción: Viviendas particulares habitadas que disponen de motocicleta o motoneta
-  Definición: 'Viviendas particulares habitadas que tienen motocicleta o motoneta. Comprende las viviendas
-    particulares para las que se captaron las características de la vivienda, clasificadas como: casa
-    única en el terreno; casa que comparte terreno con otra(s); casa dúplex; departamento en edificio;
-    vivienda en vecindad o cuartería; vivienda en cuarto de azotea de un edificio y no especificado de
-    vivienda particular. Incluye a las viviendas particulares sin información de ocupantes.'
-  Tipo: numeric
-  Longitud: '9'
-  Rangos: 0…999999999
-  Categorías: {}
-  Especiales:
-    '*': Dato reservado por confidencialidad
-    N/D: No disponible
-    N/A: No aplica
-VPH_BICI:
-  Descripción: Viviendas particulares habitadas que disponen de bicicleta como medio de transporte
-  Definición: 'Viviendas particulares habitadas que tienen bicicleta que se utilice como medio de transporte.
-    Comprende las viviendas particulares para las que se captaron las características de la vivienda,
-    clasificadas como: casa única en el terreno; casa que comparte terreno con otra(s); casa dúplex; departamento
-    en edificio; vivienda en vecindad o cuartería; vivienda en cuarto de azotea de un edificio y no especificado
-    de vivienda particular. Incluye a las viviendas particulares sin información de ocupantes.'
-  Tipo: numeric
-  Longitud: '9'
-  Rangos: 0…999999999
-  Categorías: {}
-  Especiales:
-    '*': Dato reservado por confidencialidad
-    N/D: No disponible
-    N/A: No aplica
-VPH_RADIO:
+vph_radio:
   Descripción: Viviendas particulares habitadas que disponen de radio
-  Definición: 'Viviendas particulares habitadas que tienen algún aparato o dispositivo para oír radio.
-    Comprende las viviendas particulares para las que se captaron las características de la vivienda,
-    clasificadas como: casa única en el terreno; casa que comparte terreno con otra(s); casa dúplex; departamento
-    en edificio; vivienda en vecindad o cuartería; vivienda en cuarto de azotea de un edificio y no especificado
-    de vivienda particular. Incluye a las viviendas particulares sin información de ocupantes.'
+  Definición: Viviendas particulares habitadas que tienen radio. Comprende las viviendas particulares
+    para las que se captaron las características de la vivienda, clasificadas como casa independiente,
+    departamento en edificio, vivienda o cuarto en vecindad y vivienda o cuarto en azotea y a las que
+    no especificaron clase de vivienda.
   Tipo: numeric
-  Longitud: '9'
-  Rangos: 0…999999999
+  Longitud: '8'
+  Rangos: 0..99999999
   Categorías: {}
   Especiales:
     '*': Dato reservado por confidencialidad
     N/D: No disponible
-    N/A: No aplica
-VPH_TV:
+vph_tv:
   Descripción: Viviendas particulares habitadas que disponen de televisor
-  Definición: 'Viviendas particulares habitadas que tienen televisor. Comprende las viviendas particulares
-    para las que se captaron las características de la vivienda, clasificadas como: casa única en el terreno;
-    casa que comparte terreno con otra(s); casa dúplex; departamento en edificio; vivienda en vecindad
-    o cuartería; vivienda en cuarto de azotea de un edificio y no especificado de vivienda particular.
-    Incluye a las viviendas particulares sin información de ocupantes.'
+  Definición: Viviendas particulares habitadas que tienen televisor. Comprende las viviendas particulares
+    para las que se captaron las características de la vivienda, clasificadas como casa independiente,
+    departamento en edificio, vivienda o cuarto en vecindad y vivienda o cuarto en azotea y a las que
+    no especificaron clase de vivienda.
   Tipo: numeric
-  Longitud: '9'
-  Rangos: 0…999999999
+  Longitud: '8'
+  Rangos: 0..99999999
   Categorías: {}
   Especiales:
     '*': Dato reservado por confidencialidad
     N/D: No disponible
-    N/A: No aplica
-VPH_PC:
-  Descripción: Viviendas particulares habitadas que disponen de computadora, laptop o tablet
-  Definición: 'Viviendas particulares habitadas que tienen computadora, laptop o tablet. Comprende las
-    viviendas particulares para las que se captaron las características de la vivienda, clasificadas como:
-    casa única en el terreno; casa que comparte terreno con otra(s); casa dúplex; departamento en edificio;
-    vivienda en vecindad o cuartería; vivienda en cuarto de azotea de un edificio y no especificado de
-    vivienda particular. Incluye a las viviendas particulares sin información de ocupantes.'
+vph_refri:
+  Descripción: Viviendas particulares habitadas que disponen de refrigerador
+  Definición: Viviendas particulares habitadas que tienen refrigerador. Comprende las viviendas particulares
+    para las que se captaron las características de la vivienda, clasificadas como casa independiente,
+    departamento en edificio, vivienda o cuarto en vecindad y vivienda o cuarto en azotea y a las que
+    no especificaron clase de vivienda.
   Tipo: numeric
-  Longitud: '9'
-  Rangos: 0…999999999
+  Longitud: '8'
+  Rangos: 0..99999999
   Categorías: {}
   Especiales:
     '*': Dato reservado por confidencialidad
     N/D: No disponible
-    N/A: No aplica
-VPH_TELEF:
+vph_lavad:
+  Descripción: Viviendas particulares habitadas que disponen de lavadora
+  Definición: Viviendas particulares habitadas que tienen lavadora. Comprende las viviendas particulares
+    para las que se captaron las características de la vivienda, clasificadas como casa independiente,
+    departamento en edificio, vivienda o cuarto en vecindad y vivienda o cuarto en azotea y a las que
+    no especificaron clase de vivienda.
+  Tipo: numeric
+  Longitud: '8'
+  Rangos: 0..99999999
+  Categorías: {}
+  Especiales:
+    '*': Dato reservado por confidencialidad
+    N/D: No disponible
+vph_autom:
+  Descripción: Viviendas particulares habitadas que disponen de automóvil o camioneta
+  Definición: Viviendas particulares habitadas que tienen automóvil o camioneta. Comprende las viviendas
+    particulares para las que se captaron las características de la vivienda, clasificadas como casa independiente,
+    departamento en edificio, vivienda o cuarto en vecindad y vivienda o cuarto en azotea y a las que
+    no especificaron clase de vivienda.
+  Tipo: numeric
+  Longitud: '8'
+  Rangos: 0..99999999
+  Categorías: {}
+  Especiales:
+    '*': Dato reservado por confidencialidad
+    N/D: No disponible
+vph_pc:
+  Descripción: Viviendas particulares habitadas que disponen de computadora
+  Definición: Viviendas particulares habitadas que tienen computadora. Comprende las viviendas particulares
+    para las que se captaron las características de la vivienda, clasificadas como casa independiente,
+    departamento en edificio, vivienda o cuarto en vecindad y vivienda o cuarto en azotea y a las que
+    no especificaron clase de vivienda.
+  Tipo: numeric
+  Longitud: '8'
+  Rangos: 0..99999999
+  Categorías: {}
+  Especiales:
+    '*': Dato reservado por confidencialidad
+    N/D: No disponible
+vph_telef:
   Descripción: Viviendas particulares habitadas que disponen de línea telefónica fija
-  Definición: 'Viviendas particulares habitadas que tienen línea telefónica fija. Comprende las viviendas
-    particulares para las que se captaron las características de la vivienda, clasificadas como: casa
-    única en el terreno; casa que comparte terreno con otra(s); casa dúplex; departamento en edificio;
-    vivienda en vecindad o cuartería; vivienda en cuarto de azotea de un edificio y no especificado de
-    vivienda particular. Incluye a las viviendas particulares sin información de ocupantes.'
+  Definición: Viviendas particulares habitadas que tienen línea telefónica fija. Comprende las viviendas
+    particulares para las que se captaron las características de la vivienda, clasificadas como casa independiente,
+    departamento en edificio, vivienda o cuarto en vecindad y vivienda o cuarto en azotea y a las que
+    no especificaron clase de vivienda.
   Tipo: numeric
-  Longitud: '9'
-  Rangos: 0…999999999
+  Longitud: '8'
+  Rangos: 0..99999999
   Categorías: {}
   Especiales:
     '*': Dato reservado por confidencialidad
     N/D: No disponible
-    N/A: No aplica
-VPH_CEL:
+vph_cel:
   Descripción: Viviendas particulares habitadas que disponen de teléfono celular
-  Definición: 'Viviendas particulares habitadas que tienen teléfono celular. Comprende las viviendas particulares
-    para las que se captaron las características de la vivienda, clasificadas como: casa única en el terreno;
-    casa que comparte terreno con otra(s); casa dúplex; departamento en edificio; vivienda en vecindad
-    o cuartería; vivienda en cuarto de azotea de un edificio y no especificado de vivienda particular.
-    Incluye a las viviendas particulares sin información de ocupantes.'
+  Definición: Viviendas particulares habitadas que tienen teléfono celular. Comprende las viviendas particulares
+    para las que se captaron las características de la vivienda, clasificadas como casa independiente,
+    departamento en edificio, vivienda o cuarto en vecindad y vivienda o cuarto en azotea y a las que
+    no especificaron clase de vivienda.
   Tipo: numeric
-  Longitud: '9'
-  Rangos: 0…999999999
+  Longitud: '8'
+  Rangos: 0..99999999
   Categorías: {}
   Especiales:
     '*': Dato reservado por confidencialidad
     N/D: No disponible
-    N/A: No aplica
-VPH_INTER:
-  Descripción: Viviendas particulares habitadas que disponen de Internet
-  Definición: 'Viviendas particulares habitadas que tienen Internet. Comprende las viviendas particulares
-    para las que se captaron las características de la vivienda, clasificadas como: casa única en el terreno;
-    casa que comparte terreno con otra(s); casa dúplex; departamento en edificio; vivienda en vecindad
-    o cuartería; vivienda en cuarto de azotea de un edificio y no especificado de vivienda particular.
-    Incluye a las viviendas particulares sin información de ocupantes.'
+vph_inter:
+  Descripción: Viviendas particulares habitadas que disponen de internet
+  Definición: Viviendas particulares habitadas que tienen servicio de internet. Comprende las viviendas
+    particulares para las que se captaron las características de la vivienda, clasificadas como casa independiente,
+    departamento en edificio, vivienda o cuarto en vecindad y vivienda o cuarto en azotea y a las que
+    no especificaron clase de vivienda.
   Tipo: numeric
-  Longitud: '9'
-  Rangos: 0…999999999
+  Longitud: '8'
+  Rangos: 0..99999999
   Categorías: {}
   Especiales:
     '*': Dato reservado por confidencialidad
     N/D: No disponible
-    N/A: No aplica
-VPH_STVP:
-  Descripción: Viviendas particulares habitadas que disponen de servicio de televisión de paga
-  Definición: 'Viviendas particulares habitadas que tienen servicio de televisión de paga (cable o satelital).
-    Comprende las viviendas particulares para las que se captaron las características de la vivienda,
-    clasificadas como: casa única en el terreno; casa que comparte terreno con otra(s); casa dúplex; departamento
-    en edificio; vivienda en vecindad o cuartería; vivienda en cuarto de azotea de un edificio y no especificado
-    de vivienda particular. Incluye a las viviendas particulares sin información de ocupantes.'
-  Tipo: numeric
-  Longitud: '9'
-  Rangos: 0…999999999
-  Categorías: {}
-  Especiales:
-    '*': Dato reservado por confidencialidad
-    N/D: No disponible
-    N/A: No aplica
-VPH_SPMVPI:
-  Descripción: Viviendas particulares habitadas que disponen de servicio de películas, música o videos
-    de paga por Internet
-  Definición: 'Viviendas particulares habitadas que tienen servicio de películas, música o videos de paga
-    por Internet. Comprende las viviendas particulares para las que se captaron las características de
-    la vivienda, clasificadas como: casa única en el terreno; casa que comparte terreno con otra(s); casa
-    dúplex; departamento en edificio; vivienda en vecindad o cuartería; vivienda en cuarto de azotea de
-    un edificio y no especificado de vivienda particular. Incluye a las viviendas particulares sin información
-    de ocupantes.'
-  Tipo: numeric
-  Longitud: '9'
-  Rangos: 0…999999999
-  Categorías: {}
-  Especiales:
-    '*': Dato reservado por confidencialidad
-    N/D: No disponible
-    N/A: No aplica
-VPH_CVJ:
-  Descripción: Viviendas particulares habitadas que disponen de consola de videojuegos
-  Definición: 'Viviendas particulares habitadas que tienen consola de videojuegos. Comprende las viviendas
-    particulares para las que se captaron las características de la vivienda, clasificadas como: casa
-    única en el terreno; casa que comparte terreno con otra(s); casa dúplex; departamento en edificio;
-    vivienda en vecindad o cuartería; vivienda en cuarto de azotea de un edificio y no especificado de
-    vivienda particular. Incluye a las viviendas particulares sin información de ocupantes.'
-  Tipo: numeric
-  Longitud: '9'
-  Rangos: 0…999999999
-  Categorías: {}
-  Especiales:
-    '*': Dato reservado por confidencialidad
-    N/D: No disponible
-    N/A: No aplica
-VPH_SINRTV:
-  Descripción: Viviendas particulares habitadas sin radio ni televisor
-  Definición: 'Viviendas particulares habitadas que no cuentan con algún aparato o dispositivo para oír
-    radio ni televisor. Comprende las viviendas particulares para las que se captaron las características
-    de la vivienda, clasificadas como: casa única en el terreno; casa que comparte terreno con otra(s);
-    casa dúplex; departamento en edificio; vivienda en vecindad o cuartería; vivienda en cuarto de azotea
-    de un edificio y no especificado de vivienda particular. Incluye a las viviendas particulares sin
-    información de ocupantes.'
-  Tipo: numeric
-  Longitud: '9'
-  Rangos: 0…999999999
-  Categorías: {}
-  Especiales:
-    '*': Dato reservado por confidencialidad
-    N/D: No disponible
-    N/A: No aplica
-VPH_SINLTC:
-  Descripción: Viviendas particulares habitadas sin línea telefónica fija ni teléfono celular
-  Definición: 'Viviendas particulares habitadas que no cuentan con línea telefónica fija, ni teléfono
-    celular. Comprende las viviendas particulares para las que se captaron las características de la vivienda,
-    clasificadas como: casa única en el terreno; casa que comparte terreno con otra(s); casa dúplex; departamento
-    en edificio; vivienda en vecindad o cuartería; vivienda en cuarto de azotea de un edificio y no especificado
-    de vivienda particular. Incluye a las viviendas particulares sin información de ocupantes.'
-  Tipo: numeric
-  Longitud: '9'
-  Rangos: 0…999999999
-  Categorías: {}
-  Especiales:
-    '*': Dato reservado por confidencialidad
-    N/D: No disponible
-    N/A: No aplica
-VPH_SINCINT:
-  Descripción: Viviendas particulares habitadas sin computadora ni Internet
-  Definición: 'Viviendas particulares habitadas que no cuentan con computadora, laptop o tablet ni Internet.
-    Comprende las viviendas particulares para las que se captaron las características de la vivienda,
-    clasificadas como: casa única en el terreno; casa que comparte terreno con otra(s); casa dúplex; departamento
-    en edificio; vivienda en vecindad o cuartería; vivienda en cuarto de azotea de un edificio y no especificado
-    de vivienda particular. Incluye a las viviendas particulares sin información de ocupantes.'
-  Tipo: numeric
-  Longitud: '9'
-  Rangos: 0…999999999
-  Categorías: {}
-  Especiales:
-    '*': Dato reservado por confidencialidad
-    N/D: No disponible
-    N/A: No aplica
-VPH_SINTIC:
-  Descripción: Viviendas particulares habitadas sin tecnologías de la información y de la comunicación
-    (TIC)
-  Definición: 'Viviendas particulares habitadas que no cuentan con algún aparato o dispositivo para oír
-    radio; televisor; computadora, laptop o tablet; línea telefónica fija; teléfono celular; Internet;
-    servicio de televisión de paga (cable o satelital); servicio de películas, música o videos de paga
-    por Internet ni consola de videojuegos. Comprende las viviendas particulares para las que se captaron
-    las características de la vivienda, clasificadas como: casa única en el terreno; casa que comparte
-    terreno con otra(s); casa dúplex; departamento en edificio; vivienda en vecindad o cuartería; vivienda
-    en cuarto de azotea de un edificio y no especificado de vivienda particular. Incluye a las viviendas
-    particulares sin información de ocupantes.'
-  Tipo: numeric
-  Longitud: '9'
-  Rangos: 0…999999999
-  Categorías: {}
-  Especiales:
-    '*': Dato reservado por confidencialidad
-    N/D: No disponible
-    N/A: No aplica
-TAMLOC:
+tam_loc:
   Descripción: Tamaño de localidad
-  Definición: Total de personas que residen habitualmente en la localidad, y se clasifica el tamaño con
-    base en el número de la población de la localidad.
+  Definición: Total de personas que residen habitualmente en la localidad, y se clasifica el tamaño en
+    base al número de la población de la localidad.
   Tipo: string
   Longitud: '2'
-  Rangos: 01..14
+  Rangos: 1..14

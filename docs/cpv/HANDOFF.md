@@ -1,102 +1,112 @@
 # CPV family — session handoff
 
-**Status (2026-10-07, overnight): units 0, 1a–1e, 2a, 2b, 3a and 3b are complete.**
+**Status (2026-10-07, overnight): units 0–3b are complete; 3c is code-complete with its
+32-state verification on `wsl` pending.**
 - The Encuesta Intercensal 2025 and the **Censo 2020** are released: registered, uploaded
-  and fetchable (`mxcensus fetch N --dataset cpv --edition 2020`).
-- **EIC 2015** (3a, `STEP_3a.md`) and the **Censo 2010 microdata** (3b, `STEP_3b.md`) are
-  built on `wsl`: 64 + 96 files, **not registered or uploaded** (3a–3d upload together in
-  3d). `--validate` reports 0/417 failures, and every Σ `FACTOR` equals INEGI's tabulados
-  exactly.
-- **Next is unit 3c**: the ITER/AGEB aggregates of 2020 + 2010.
+  and fetchable.
+- **EIC 2015** (3a), the **Censo 2010 microdata** (3b) and the **2010 ITER/AGEB** (3c) are
+  built on `wsl` (64 + 96 + 64 files), **not registered or uploaded**; 3a–3d upload
+  together in 3d. Every Σ `FACTOR` equals INEGI's tabulados exactly.
+- 3c added `load_cpv_iter`/`load_cpv_ageb`/`load_cpv_census` and `cpv_iter_crosswalk.yaml`.
+  `load_cpv_census(2020, state=1)` equals the legacy `load_census(state=1)`.
+- **`wsl` became unreachable mid-3c**: Tailscale SSH asks for an interactive re-login
+  (`ssh wsl` prints a `login.tailscale.com/a/…` URL). **The user must re-authenticate**:
+  run `ssh wsl` in a terminal and open the URL. Then finish §Pending 3c verification below
+  before starting 3d.
 
-The user asked (2026-10-07, before going to sleep) for **all remaining phases** to run in
-that session without their input, and allowed commits, pushes and HF uploads (not package
-installs). If a fresh session resumes, it keeps that authorization for this overnight run
-only. Check with the user if in doubt.
+The user asked (2026-10-07, before going to sleep) for all remaining phases to run in that
+session without their input, and allowed commits, pushes and HF uploads (not package
+installs). A fresh session should confirm with the user before relying on that.
 
-Design: [`PLAN.md`](PLAN.md) (unit table and session protocol at the top). Recent units:
-[`STEP_3b.md`](STEP_3b.md) (CPV 2010 DBF microdata, national keys, core `Periodos`),
-[`STEP_3a.md`](STEP_3a.md) (EIC 2015, stdlib `.xls` reader), [`STEP_2b.md`](STEP_2b.md),
-[`STEP_2a.md`](STEP_2a.md), [`STEP_1e.md`](STEP_1e.md) … [`STEP_0_probe.md`](STEP_0_probe.md).
+Design: [`PLAN.md`](PLAN.md). Recent units: [`STEP_3c.md`](STEP_3c.md) (aggregates,
+crosswalk, what is pending), [`STEP_3b.md`](STEP_3b.md) (CPV 2010 DBF microdata, national
+keys, core `Periodos`), [`STEP_3a.md`](STEP_3a.md) (EIC 2015, stdlib `.xls` reader),
+[`STEP_2b.md`](STEP_2b.md) … [`STEP_0_probe.md`](STEP_0_probe.md).
 
-Branch: `cpv-integration`, version **0.6.0** (`main` = `v0.6.0`, EIC 2025 + CPV 2020). The
-registry still has **2695 entries**; 3a and 3b added none.
+Branch: `cpv-integration`, version **0.6.0** (`main` = `v0.6.0`). The registry still has
+**2695 entries**.
 
 **Host state.**
-- `wsl:~/mxcensus` holds the full mirror, now with the EIC 2015 and CPV 2010 microdata
-  files. Its dictionaries are in `data/dict/fd/{2010,2015}/` and `data/dict/ddi/{71,214}.xml`;
-  logs are `build_cpv_{2015,2010}.log`, `check_{2015,2010}.log`, `validate_3{a,b}.log` and
-  `pytest_3{a,b}.log`.
-- The Mac has state 01 of every edition built, the legacy census files, and
-  `data/dict/fd/{2010,2015}/`.
-- 3a is pushed. 3b's files were `scp`'d to `wsl` (working tree dirty there; HEAD = 3a). After
-  3b's commit is pushed, clean `wsl` before pulling:
-  ```bash
-  git checkout -- .
-  rm scripts/_dbf.py src/mxcensus/_yaml/variables_cpv_{viviendas,personas}_g0{4,5}.yaml \
-     src/mxcensus/_yaml/variables_cpv_migrantes_g0{3,4}.yaml
-  git pull --ff-only
-  ```
+- `wsl:~/mxcensus` holds the full mirror (with the 2015 and 2010 files) at HEAD = 3a, with
+  3b's files copied in (`git status` shows exactly 3b's changes). 3c's code and generated
+  metadata are in the separate copy **`~/mxcensus3c`** (run there with
+  `PYTHONPATH=src ~/mxcensus/.venv/bin/python …` and `--output/--dict-dir` pointing at
+  `~/mxcensus/data`); it can be deleted once 3c is verified.
+- The Mac has state 01 of every edition, all 2010/2015/2020 dictionaries in `data/dict/fd/`,
+  and the commits.
+
+## Pending 3c verification (first thing once `wsl` is reachable)
+
+1. Bring `wsl:~/mxcensus` to the pushed branch:
+   ```bash
+   git checkout -- . && git clean -n          # review, then:
+   rm scripts/_dbf.py src/mxcensus/_yaml/variables_cpv_{viviendas,personas}_g0{4,5}.yaml \
+      src/mxcensus/_yaml/variables_cpv_migrantes_g0{3,4}.yaml
+   git pull --ff-only
+   ```
+2. On `wsl`, in order:
+   - `build_cpv.py --variables`: the 2010 ITER dictionary changed with the `TAMLOC` type;
+   - `--report-only`;
+   - `--validate --jobs 16`: expect 0/481;
+   - `--crosswalk`: it must equal the committed one; `git diff` must be empty for the
+     crosswalk, the schema map and the 19 YAMLs.
+
+   Commit the regenerated reports.
+3. The CPV tests over all 32 states (`tests/test_cpv.py tests/test_cpv_aggregates.py
+   tests/test_schema_groups.py tests/test_cli.py`, `run_in_background`, about 2 h). This is
+   the gate: `test_census_2020_equals_legacy` for every state. Also check 3b's run log
+   `pytest_3b.log` (it was started before the outage).
+4. Write the `wsl` results into `STEP_3c.md`/`STEP_3b.md`, tick 3c, push.
 
 ## Kickoff prompt for the next session
 
 > Continue the CPV census-family integration in this repo (branch cpv-integration).
-> Read docs/cpv/HANDOFF.md first, then the parts of docs/cpv/PLAN.md it points to,
-> and execute the next unit (3c: the ITER/AGEB aggregates of CPV 2020 + 2010 — fix the
-> CSV header read for 2010's BOM-quoted headers, build the 2010 ITER/AGEB, their indicator
-> dictionaries and sentinels, load_cpv_iter/load_cpv_ageb with the level split, censoring
-> and zero imputation on string codes, a load_cpv_census that reproduces the legacy
-> load_census for 2020 (equality over 32 states on wsl), and cpv_iter_crosswalk.yaml
-> 2010 ↔ 2020) following the session protocol at the top of PLAN.md. Use .venv/bin/python,
-> not uv run. Run wsl tasks without asking; ask me before committing, pushing, installing
-> packages or uploading. When the unit's gate is met, write docs/cpv/STEP_3c.md, tick the
-> unit table, rewrite HANDOFF.md for unit 3d, update the memory note, ask me before
-> committing, and give me the next handoff prompt.
+> Read docs/cpv/HANDOFF.md first, then the parts of docs/cpv/PLAN.md it points to.
+> First finish the pending 3c verification on wsl (HANDOFF §Pending 3c verification),
+> then execute unit 3d (MG 2010 v5.0 national ZIP → per-state mg_*_2010_NN; identify the
+> EIC 2015 frame; registry for 3a–3d; HF upload + verify; clean-cache fetch; CLI/README/
+> CLAUDE.md for 2010/2015; version bump) following the session protocol at the top of
+> PLAN.md. Use .venv/bin/python, not uv run. Run wsl tasks without asking; ask me before
+> committing, pushing, installing packages or uploading. When the unit's gate is met,
+> write docs/cpv/STEP_3d.md, tick the unit table, rewrite HANDOFF.md for unit 4a, update
+> the memory note, ask me before committing, and give me the next handoff prompt.
 
-## Next unit — 3c: ITER/AGEB aggregates (2020 + 2010)
+## Next unit — 3d: MG 2010, the 2015 frame, release of 3a–3d
 
-Gate: the 2020 output of the new aggregate loaders equals the legacy `load_census(state)`
-after dtype alignment (all 32 states on `wsl`), and `--validate` reports 0 failures with the
-2010 ITER/AGEB included.
+Gate: the 3a–3d files are registered, uploaded and verified, and a clean-cache fetch plus
+the unpatched loaders work for 2010 and 2015.
 
-1. **2010 ITER/AGEB build** (`STEP_3b.md` §Findings for 3c):
-   - `build_cpv._read_header` must strip the BOM **before** `csv.reader` parses, since
-     2010's header is `\ufeff"entidad",…`.
-   - Then `--periods 2010 --tables iter ageb` on `wsl`.
-   - The indicator dictionaries are already fetched (`data/dict/fd/2010/diccionario_datos_
-     {iter,ageb}.csv`, from `fd_*.csv`, cp1252, some mnemonics with trailing junk such as
-     `vph_pc\xa0`). Check that `parse_indicator_csv` reads them.
-   - Enumerate the non-numeric cells (`*`, `N/D`…) over 32 states for
-     `_AGG_SPECIALS["2010"]`.
-   - Gids for `iter`/`ageb` become 2010 = `g01`, 2020 = `g02`.
-2. **Loaders** (`cpv_aggregates.py`):
-   - `load_cpv_iter(period=None, *, state, nivel=None, impute=True)`: harmonized names,
-     labelled counts (`*` → NA), index `(CVE_ENT, CVE_MUN, CVE_LOC)`, an ordered `NIVEL`
-     (`estatal`/`municipal`/`agregado` = `CVE_LOC` 9998/9999/`localidad`).
-   - `load_cpv_ageb(...)`: the same with `(…, CVE_AGEB, CVE_MZA)`, `NIVEL` up to `manzana`.
-   - The zero imputation ports `aggregate.impute_zeros_univariate` (municipality →
-     localities).
-   - A draft of the `NIVEL` helpers is in the session scratchpad and has to be rewritten.
-3. **`load_cpv_census(period=None, *, state)`**:
-   - It reproduces `aggregate.load_census` on the `cpv_` files and string codes: the level
-     split, the block quick-imputation, `add_collective_cols`, the zero imputations and
-     the sanity checks (ported: the legacy `sanity_checks` hard-codes `ENTIDAD`/`MUN`).
-   - The generic legacy helpers (`add_collective_cols`, `impute_zeros_univariate`) can be
-     imported, since they are index-name agnostic. `aggregate.py` itself stays frozen.
-   - Test: equal to `load_census(state)` after casting the index codes to int (state 01 on
-     the Mac; all 32 on `wsl`).
-4. **`cpv_iter_crosswalk.yaml`** (canonical 2020 mnemonic → 2010 source):
-   - 185 names are shared; check their descriptions (generated draft + hand review).
-   - Leave out the changed concepts (`PRES2005`/`PRES2015`, the disability block).
-   - Use it when stacking 2010 + 2020 aggregates (`harmonize=True`).
-5. Tests, docs (`STEP_3c.md`, PLAN tick, HANDOFF for 3d), commit + push.
+1. **MG 2010 v5.0** (`STEP_0_probe.md` §MG; `_catalog.MG_EDITIONS["2010"]`, UPC
+   702825292812):
+   - The national ZIP (`…/geografia/marc_geo/702825292812_s.zip`, ~100 MB) is split per
+     state into `mg_{sfx}_2010_NN.parquet`, the same layers as 2020 where they exist.
+   - `build_marco_geo.py` handles per-state ZIPs only, so add the national-ZIP path.
+   - Check the CRS spellings and the layer list (`contenido`).
+2. **EIC 2015 frame**: identify which MG edition frames the EIC 2015 (likely MG 2014 v6.2 —
+   probe INEGI). Set `CpvEdition("2015").mg_period`, and build it only if it is a new
+   edition.
+3. **Registry**:
+   - `build_cpv.py --update-registry` adds 64 + 96 + 64 = **224 `cpv_` files**;
+     `build_marco_geo.py --period 2010 --update-registry` adds the MG files.
+   - The diff must be additions only.
+4. **Upload**: `upload_hf.py upload` from `wsl` (dry-run first, never `--delete`), then
+   `verify` in the background and a clean-cache `POOCH.fetch` of a few files.
+5. **CLI/docs**:
+   - `fetch --dataset cpv --edition 2010|2015` and `--dataset mg --edition 2010` (they
+     offer registered files only);
+   - README (the 2015/2010 prose, the ITER/AGEB loaders), CLAUDE.md counts,
+     `docs/hf_bucket_readme.md`;
+   - a version bump (0.7.0), then the merge into `main` + tag if the user wants it as in 2b.
 
 ## Open questions for the user
 
-- None blocking. Decisions taken overnight without the user, for their review:
+- **Re-authenticate Tailscale SSH on `wsl`** (blocking every `wsl` step).
+- Decisions taken overnight without the user, for their review:
   - a stdlib DBF reader instead of `dbfread` (3b);
   - national keys for 2010 under `harmonize=True` (3b);
-  - the core `Periodos` key (3b).
+  - the core `Periodos` key (3b);
+  - `load_cpv_census` and the one-frame-with-`NIVEL` design of `load_cpv_iter`/`load_cpv_ageb` (3c);
+  - the crosswalk review flags (3c).
 
 ## Gotchas (carry forward)
 
@@ -121,6 +131,12 @@ after dtype alignment (all 32 states on `wsl`), and `--validate` reports 0 failu
   `harmonize=True`, which builds national keys (`cpv._national_keys`). The core `CLAVIVP`
   carries `Periodos` (2015–2025), and `TAM_LOC` (4 classes) is not `TAMLOC`.
 - **`scripts/_dbf.py`** sniffs cp1252/cp850 from the bytes; INEGI's driver byte lies.
+- **Census aggregates**: ITER/AGEB 2010 = `g01`, 2020 = `g02`. 2010 headers are lower case
+  (the code rules match case-insensitively), `TAMLOC` is a string class code in both
+  editions (`_AGG_CODES`), and the crosswalk renames only `TAM_LOC` → `TAMLOC`.
+  `cpv_iter_crosswalk.yaml` is generated (`--crosswalk`), never hand-edited.
+- **Tailscale SSH can demand a re-login at any time** (it did at 2026-10-07 ~23:30). A
+  hanging `ssh wsl` that prints a login URL means it needs the user.
 - **Harmonization is table-scoped** (`_renames(table)` = `_RENAME_CORE` + `_RENAME_TABLE`):
   - the 2015/2020 `ENT`/`MUN` → `CVE_*` everywhere;
   - `ENTIDAD`/`LOC` only in ITER/AGEB, and `AGEB`/`MZA` → `CVE_AGEB`/`CVE_MZA` only in AGEB.

@@ -48,7 +48,12 @@ from mxcensus.cpv import (
     load_cpv_survey,
     variables_cpv_labels,
 )
-from mxcensus.cpv_aggregates import load_cpv_estimaciones
+from mxcensus.cpv_aggregates import (
+    load_cpv_estimaciones,
+    load_cpv_iter,
+    load_cpv_ageb,
+    load_cpv_census,
+)
 from mxcensus.mg import load_mg
 from mxcensus.crosstabs import create_cont_table, get_tables_dict
 from mxcensus.utils import expand_cat_map, get_cats_from_excel, get_vars_from_indicator_csv
@@ -70,6 +75,7 @@ from mxcensus._resources import (
     variables_cpv,
     variables_cpv_core,
     cpv_schema_map,
+    cpv_iter_crosswalk,
 )
 from mxcensus import data
 
@@ -114,6 +120,9 @@ __all__ = [
     "load_cpv_migrantes",
     "load_cpv_survey",
     "load_cpv_estimaciones",
+    "load_cpv_iter",
+    "load_cpv_ageb",
+    "load_cpv_census",
     "variables_cpv_labels",
     # Marco Geoestadístico (geometry, per state; 2020 and EIC 2025 frames)
     "load_mg",
@@ -138,6 +147,7 @@ __all__ = [
     "variables_cpv",
     "variables_cpv_core",
     "cpv_schema_map",
+    "cpv_iter_crosswalk",
     # Utilities
     "expand_cat_map",
     "get_cats_from_excel",
