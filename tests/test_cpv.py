@@ -413,7 +413,9 @@ import _dict_fd as _fd  # noqa: E402
 import mxcensus  # noqa: E402
 from mxcensus import _schema_groups as sg  # noqa: E402
 from mxcensus._resources import cpv_schema_map, variables_cpv, variables_cpv_core  # noqa: E402
-from mxcensus.cpv import _WEIGHTS, _code_rule, _fingerprint, _group_of, _group_schema  # noqa: E402
+from mxcensus.cpv import (  # noqa: E402
+    _CODE_REGEX, _WEIGHTS, _code_rule, _core_for, _fingerprint, _group_of, _group_schema,
+)
 
 _SM = cpv_schema_map()
 _TABLE_GROUPS = [(t, g) for t in TABLES if t in _SM for g in _SM[t]["groups"]]
@@ -633,13 +635,16 @@ def test_mirror_files_and_thresholds(tmp_path):
         (tmp_path / n).touch()
     assert [p.name for p in _bcpv._mirror_files(tmp_path)] == [
         "cpv_estimaciones_2025.parquet", "cpv_personas_2025_01.parquet"]
-    assert _bcpv._TABLE_THRESHOLD == {"estimaciones": 0}
+    assert _bcpv._TABLE_THRESHOLD == {"estimaciones": 0, "iter": 0, "ageb": 0}
 
 
 # --- the bundled schema map / dictionaries --------------------------------------------
 
 def _cols(table, gid):
     return _SM[table]["groups"][gid]["columns"]
+
+
+_CODE_SAMPLE = {"AGEB": "011A"}   # a value of each _CODE_REGEX shape
 
 
 def _valid_value(table: str, gid: str, col: str) -> str:
@@ -653,6 +658,8 @@ def _valid_value(table: str, gid: str, col: str) -> str:
     if sg.norm_tipo(meta) == "numeric":
         rng = meta.get("Rango") or []
         return str(rng[0]) if rng else "1"
+    if col in _CODE_REGEX:
+        return _CODE_SAMPLE[col]
     if _code_rule(col, meta) is not None:
         width = str(meta.get("Longitud") or "")
         return "0" * int(width) if meta.get("Catálogo") and width.isdigit() else "01"
@@ -729,11 +736,16 @@ def test_core_yaml_contract():
         assert all(isinstance(k, str) for k in [*cats, *special]), name
     assert core["SEXO"]["Categorías"] == {"1": "Hombre", "3": "Mujer"}
     assert core["TAMLOC"]["Ordenada"] and core["EDAD"]["Especiales"] == {"999": "No especificado"}
-    # the core is copied verbatim into every generated group that has the column
+    # the core is copied verbatim into every generated group that has the column, when the
+    # entry is in scope for the table (``Tablas``: the ITER's TAMLOC is its own 14-class scale)
     for table, gid in _TABLE_GROUPS:
         v = variables_cpv(table, gid)
         for col in set(core) & set(v):
-            assert v[col] == core[col], (table, gid, col)
+            if col in _core_for(table):
+                assert v[col] == core[col], (table, gid, col)
+            else:
+                assert v[col] != core[col], (table, gid, col)
+    assert all(set(m.get("Tablas") or TABLES) <= set(TABLES) for m in core.values())
 
 
 def test_generated_dictionaries_cover_every_column():
@@ -834,10 +846,12 @@ def test_key_specs_nest_and_skip():
     columns = {c for t in _SM for g in _SM[t]["groups"].values() for c in g["columns"]}
     assert set(_cpv._POINTERS) <= columns           # every pointer exists in 2025
     for ptr in _cpv._POINTERS:     # …and codes person numbers 01-54 as themselves (≥ 96: other)
-        table = next(t for t in ("personas", "viviendas", "migrantes") if ptr in _cols(t, "g01"))
-        cats = variables_cpv(table, "g01")[ptr]["Categorías"]
-        assert all((k == v) == (int(k) <= 54) for k, v in cats.items()), ptr
-        assert sum(int(k) <= 54 for k in cats) >= 50, ptr
+        for table, gid in _TABLE_GROUPS:              # in every edition that has it
+            if ptr not in _cols(table, gid):
+                continue
+            cats = variables_cpv(table, gid)[ptr]["Categorías"]
+            assert all((k == v) == (int(k) <= 54) for k, v in cats.items()), (ptr, gid)
+            assert sum(int(k) <= 54 for k in cats) >= 50, (ptr, gid)
 
 
 def test_variables_cpv_labels_merges_core_and_renames(monkeypatch):
@@ -1226,3 +1240,208 @@ def test_eic2025_national_real():
     assert len(mun_cov) == 2_478 and n_loc == 233
     # 750 censados, 1,721 muestreados, 7 con muestra insuficiente (the estimates' * / **)
     assert pd.Series(mun_cov).value_counts().to_dict() == {"2": 1_721, "1": 750, "3": 7}
+
+
+# --- unit 2a: CPV 2020 into the family -----------------------------------------------------
+
+def test_fd_2020_code_cells():
+    """CPV 2020 writes code cells the EIC 2025 workbook does not: braces around a code row,
+    a spaced ellipsis, several codes in one cell."""
+    assert _fd._parse_code("{0001..9999}") == (1, 9999, 4)
+    assert _fd._parse_code("{000001..999997}") == (1, 999997, 6)
+    assert _fd._parse_code("{01001000000100001 ... 32058999999999954}")[1] == 32058999999999954
+    assert _fd._parse_code("0…24") == (0, 24, 0) and _fd._parse_code("{Nulo}") is None
+    assert _fd._split_codes("1101..2901,3101,\n3102") == [(1101, 2901, 0), "3101", "3102"]
+    assert _fd._split_codes("{001..570,999,Nulo}") == [(1, 570, 3), "999"]
+
+
+def test_match_catalog_abbreviated_stems():
+    """The 2020 catalog stems abbreviate their «Según Clasificador de …» names."""
+    cats = dict.fromkeys(["ACTIVIDAD", "CARRERA", "CAUSA_MIG", "CLASE_VIV", "ENT", "ENT_PAIS",
+                          "ESCOACUM", "INALI", "MUN", "OCUPACION", "PARENTESCO", "RELIGION"], {})
+    expected = {"Parentescos": "PARENTESCO", "Religiones": "RELIGION",
+                "Lenguas Indígenas (INALI": "INALI", "Carreras": "CARRERA",
+                "Municipios y demarcaciones territoriales": "MUN",
+                "Entidades federativas y Países": "ENT_PAIS", "Escolaridad": "ESCOACUM",
+                "Causas \nde migración": "CAUSA_MIG", "Actividades económicas": "ACTIVIDAD",
+                "Ocupaciones": "OCUPACION"}
+    for phrase, stem in expected.items():
+        assert _fd.match_catalog(phrase, cats) == stem, phrase
+    assert _fd.match_catalog("Lugares sagrados", cats) is None
+    # and the EIC 2025 stems keep resolving (incl. INEGI's ESOLARIDAD typo)
+    c25 = dict.fromkeys(["ENTIDAD", "ENTIDAD_PAIS", "ESOLARIDAD_ACUMULADA", "MUNICIPIO"], {})
+    assert _fd.match_catalog("entidad federativa y país", c25) == "ENTIDAD_PAIS"
+    assert _fd.match_catalog("escolaridad acumulada", c25) == "ESOLARIDAD_ACUMULADA"
+
+
+def test_read_catalogs_cp1252_and_nom_columns(tmp_path):
+    with zipfile.ZipFile(tmp_path / "c.zip", "w") as z:
+        z.writestr("MUN.csv", "CVE_ENT,NOM_ENT,CVE_MUN,NOM_MUN\n001,Ags,011,San Francisco de los Romo\n"
+                   "009,CDMX,014,Benito Juárez\n".encode("cp1252"))
+        z.writestr("ENT.csv", "CVE_ENT,NOM_ENT\n01,Aguascalientes\n".encode("cp1252"))
+    cats = _fd.read_catalogs(tmp_path / "c.zip")
+    assert cats["MUN"] == {"001011": "San Francisco de los Romo", "009014": "Benito Juárez"}
+    assert cats["ENT"] == {"01": "Aguascalientes"}
+
+
+_FD_2020 = {"PERSONAS": [
+    [None, None, "CENSO DE POBLACIÓN Y VIVIENDA 2020"],
+    _HDR,
+    [None, 1, "Parentesco", "PARENTESCO", "¿Qué es?", "Caracter",
+     "{101..713,999,Nulo}\n(Según Clasificador\nde Parentescos)", 3],
+    [None, None, None, None, "Clave de parentesco", None, "101..713"],
+    [None, None, None, None, "No especificado", None, "999"],
+    [None, 2, "Religión", "RELIGION", "¿Cuál es?", "Caracter",
+     "{1101..2901,3101,\n9999}\n(Según Clasificador de Religiones)", 4],
+    [None, None, None, None, "Clave de religión", None, "1101..2901,3101"],
+    [None, None, None, None, "No especificado", None, "9999"],
+    [None, 3, "Escolaridad acumulada", "ESCOACUM", "Escolaridad acumulada", "Numérico",
+     "{0…24, 99}", 2],
+    [None, None, None, None, "Descripción por tabla de referencia", None,
+     "(Según Clasificador de Escolaridad)"],
+    [None, None, None, None, "No especificado", None, "99"],
+    [None, None, None, None, "Blanco por pase", None, "Nulo"],
+    [None, 4, "Localidad", "LOC50K", "Clave", "Caracter", "{0000..9999}", 4],
+    [None, None, None, None, "Localidad de 50 000 y más habitantes", None, "{0001..9999}"],
+    [None, None, None, None, "Localidad menor de 50 000 habitantes", None, "0000"],
+]}
+
+
+def test_parse_fd_xlsx_2020_layout(tmp_path):
+    _xlsx(tmp_path / "fd.xlsx", _FD_2020)
+    with zipfile.ZipFile(tmp_path / "c.zip", "w") as z:
+        z.writestr("PARENTESCO.csv", "CLAVE,DESCRIPCION\n101,Jefa(e)\n201,Esposa(o)\n")
+        z.writestr("RELIGION.csv", "CLAVE,DESCRIPCION\n1101,Católica\n3101,Sin religión\n")
+        z.writestr("ESCOACUM.csv", "CLAVE,DESCRIPCION\n0,0 grados\n24,24 grados\n")
+    p = _fd.parse_fd_xlsx(tmp_path / "fd.xlsx", _fd.read_catalogs(tmp_path / "c.zip"))["personas"]
+    assert p["PARENTESCO"]["Catálogo"] == "PARENTESCO"       # note wrapped over two lines
+    assert p["PARENTESCO"]["Categorías"] == {"101": "Jefa(e)", "201": "Esposa(o)"}
+    rel = p["RELIGION"]                                       # a single code keeps its label
+    assert rel["Categorías"] == {"1101": "Católica", "3101": "Sin religión"}
+    assert rel["Especiales"] == {"9999": "No especificado"}
+    esc = p["ESCOACUM"]                     # catalog named in a code row; range from the header
+    assert esc["Tipo"] == "numeric" and esc["Rango"] == [0, 24] and esc["Catálogo"] == "ESCOACUM"
+    assert esc["Especiales"] == {"99": "No especificado"}
+    loc = p["LOC50K"]                                         # braces in the code row
+    assert loc["Tipo"] == "string" and not loc["Categorías"] and "0001..9999" in loc["Nota"]
+
+
+def test_parse_indicator_csv_specials_and_range_typo(tmp_path):
+    path = tmp_path / "dicc.csv"
+    path.write_text(
+        "CENSO 2020,,,,,\nNúm.,Indicador,Descripción,Mnemónico,Rangos,Longitud\n"
+        "1,Clave de entidad,Código,ENTIDAD,00…32,2\n"
+        "2,Población 0 a 2 femenina,Mujeres,P_0A2_F ,\"0.,.999999999\",9\n"
+        "3,Tamaño de localidad,Clases,TAMLOC,01..14,2\n", encoding="utf-8-sig")
+    sp = {"*": "Dato reservado por confidencialidad", "NA": "otro"}
+    d = _fd.parse_indicator_csv(path, sp)
+    assert d["P_0A2_F"]["Tipo"] == "numeric" and d["P_0A2_F"]["Especiales"] == sp
+    assert d["ENTIDAD"]["Tipo"] == d["TAMLOC"]["Tipo"] == "string"
+    assert not d["ENTIDAD"]["Especiales"]
+    footnoted = tmp_path / "f.csv"                            # a footnote's label wins
+    footnoted.write_text(path.read_text(encoding="utf-8-sig") + "NA: No aplica.,,,,,\n",
+                         encoding="utf-8")
+    assert _fd.parse_indicator_csv(footnoted, sp)["P_0A2_F"]["Especiales"]["NA"] == "No aplica"
+    assert _bcpv._AGG_SPECIALS["2020"] == {"*": "Dato reservado por confidencialidad",
+                                           "N/D": "No disponible", "N/A": "No aplica"}
+
+
+def test_build_plan_2020():
+    assert "2020" in _bcpv._ENABLED
+    e20 = get_edition("2020")
+    full = _bcpv._plan([e20], list(TABLES), list(range(1, 33)))
+    assert len(full) == 96 and sum(len(j[3]) for j in full) == 160    # 32 × (3 + iter + ageb)
+    assert {j[1] for j in full} == {"microdatos", "iter", "ageb"}
+    assert e20.ddi_id == 632 and e20.zip_filename("microdatos", 1) == "Censo2020_CA_ags_csv.zip"
+
+
+def test_schema_map_2020_groups():
+    """Gids are chronological: the 2020 groups come first, the newest edition stays latest."""
+    for table in ("viviendas", "personas", "migrantes"):
+        groups = _SM[table]["groups"]
+        assert groups["g01"]["periods"] == ["2020"] and groups["g01"]["files"] == 32
+        assert _SM[table]["latest"] == "g02" and groups["g02"]["periods"] == ["2025"]
+    for table, n in (("iter", 286), ("ageb", 230)):
+        g = _SM[table]["groups"]
+        assert list(g) == ["g01"] and g["g01"]["periods"] == ["2020"]
+        assert g["g01"]["n_columns"] == n and g["g01"]["files"] == 32
+
+
+def test_core_scope():
+    core = variables_cpv_core()
+    assert core["TAMLOC"]["Tablas"] == ["viviendas", "personas", "migrantes"]
+    assert "TAMLOC" in _core_for("personas") and "TAMLOC" not in _core_for("iter")
+    assert "ID_VIV" in _core_for("iter")                       # unscoped: every table
+    lab = mxcensus.variables_cpv_labels("iter", "g01")
+    assert lab["TAMLOC"]["Tipo"] == "string" and lab["TAMLOC"]["Rangos"] == "01..14"
+    assert "TAMLOC" not in _cpv._latest_schema("iter").columns
+    assert "TAMLOC" in _cpv._latest_schema("personas").columns
+
+
+@pytest.mark.parametrize("table,col,bad", [
+    ("personas", "SEXO", "2"), ("personas", "EDAD", "131"), ("personas", "PARENTESCO", "102"),
+    ("personas", "ESCOACUM", "25"), ("personas", "OCUPACION_C", "12"),
+    ("personas", "MUN_ASI", "1"), ("personas", "ENT", "33"), ("personas", "MUN", "0a1"),
+    ("viviendas", "CLAVIVP", "10"), ("migrantes", "MCAUSAEMIG_V", "0100"),
+    ("iter", "POBTOT", "ZZ"), ("iter", "ENTIDAD", "x1"), ("ageb", "AGEB", "01Z1"),
+    ("ageb", "MZA", "0a1"), ("ageb", "REL_H_M", "N/E"),
+])
+def test_group_schema_2020_rejects(table, col, bad):
+    f = _valid_frame(table, "g01")
+    f[col] = [bad] * len(f)
+    with pytest.raises(pa.errors.SchemaErrors, match=col):
+        _group_schema(table, "g01").validate(f, lazy=True)
+
+
+def test_group_schema_2020_sentinels():
+    f = _valid_frame("iter", "g01", rows=4)
+    f["POBTOT"] = ["*", "N/D", "N/A", "        986"]        # INEGI left-pads some counts
+    f["TAMLOC"] = ["*", "1", "10", "14"]
+    f["LONGITUD"] = ["102°17'45.768\" W", None, None, None]
+    _group_schema("iter", "g01").validate(f, lazy=True)
+    a = _valid_frame("ageb", "g01", rows=2)
+    a["AGEB"], a["MZA"] = ["0000", "045A"], ["000", "001"]
+    _group_schema("ageb", "g01").validate(a, lazy=True)
+
+
+_REAL_2020 = (_MIRROR / "cpv_personas_2020_01.parquet").exists()
+_REAL_2020_SKIP = pytest.mark.skipif(not _REAL_2020, reason="no local CPV 2020 mirror")
+
+
+@_REAL_2020_SKIP
+def test_load_cpv_2020_real(local_mirror):
+    ctx = _no_warnings()
+    raw = mxcensus.load_cpv(table="personas", period=2020, state=1)
+    v, p, m = mxcensus.load_cpv_survey(2020, state=1)
+    ctx.__exit__(None, None, None)
+    assert raw.shape == (95_983, 91) and all(str(t) == "str" for t in raw.dtypes)
+    assert (len(v), len(p), len(m)) == (24_349, 95_983, 1_563)
+    for f in (v, p, m):
+        assert f.index.is_unique
+    pv = p.index.get_level_values("ID_VIV")
+    assert pv.isin(v.index).all() and m.index.get_level_values("ID_VIV").isin(v.index).all()
+    assert (p.index.get_level_values("ID_PERSONA").str[:12] == pv).all()
+    assert (p["FACTOR"].to_numpy() == v["FACTOR"].reindex(pv).to_numpy()).all()
+    # the legacy files' totals (tests/test_census_legacy.py); full equality is unit 2b
+    assert p["FACTOR"].sum() == 1_421_198 and v["FACTOR"].sum() == 387_762
+    assert p["SEXO"].cat.categories.tolist() == ["Hombre", "Mujer"]
+    assert "Jefa(e)" in p["PARENTESCO"].cat.categories and str(p["EDAD"].dtype) == "Int64"
+    assert p["TAMLOC"].cat.ordered and str(p["ESCOACUM"].dtype) == "Int64"
+    assert str(p["ENT"].dtype) == "str" and set(p["ENT"]) == {"01"}
+    assert str(p["OCUPACION_C"].dtype) == "str" and str(p["NUMPER"].dtype) == "str"
+
+
+@_REAL_2020_SKIP
+def test_load_cpv_2020_aggregates_real(local_mirror):
+    ctx = _no_warnings()
+    it = mxcensus.load_cpv(table="iter", state=1)           # latest edition with ITER: 2020
+    lab = mxcensus.load_cpv(table="iter", state=1, labels=True)
+    ag = mxcensus.load_cpv(table="ageb", state=1, labels=True)
+    ctx.__exit__(None, None, None)
+    assert it.shape == (2_058, 286) and ag.shape == (16_376, 230)
+    st = lab[(lab["MUN"] == "000") & (lab["LOC"] == "0000")]
+    assert st["POBTOT"].tolist() == [1_425_607]                # test_census_legacy.py
+    assert str(lab["POBTOT"].dtype) == "Int64" and lab["P_0A2_F"].isna().any()   # '*' → NA
+    assert (it["P_0A2_F"] == "*").sum() == lab["P_0A2_F"].isna().sum()
+    assert lab["REL_H_M"].dtype.kind == "f" and str(lab["TAMLOC"].dtype) == "str"
+    assert str(ag["AGEB"].dtype) == "str" and str(ag["POBTOT"].dtype) == "Int64"

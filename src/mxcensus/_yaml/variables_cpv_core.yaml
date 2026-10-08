@@ -8,7 +8,9 @@
 # maintained by hand and takes precedence over them, in every table that has the column.
 # It is NEVER regenerated. A variable joins the core only after its codes are verified in
 # every edition it covers; so far the core is verified for the Encuesta Intercensal 2025
-# (eic2025_micro_fd.xlsx + the 2025 microdata and estimaciones files).
+# (eic2025_micro_fd.xlsx + the 2025 microdata and estimaciones files) and the Censo 2020
+# cuestionario ampliado (diccionario_cuestionario_ampliado_cpv2020.xlsx + the 2020
+# microdata: every entry below that a 2020 table carries has the same codes there).
 #
 # Entry contract (shared with the ENOE/ENIGH cores and the generated files; read by
 # mxcensus._schema_groups):
@@ -22,6 +24,9 @@
 #   Rango        [min, max] inclusive bounds checked on a numeric column
 #   Alias        {raw spelling: canonical code} applied before labelling
 #   Decimales    non-empty → float column, otherwise integer
+#   Tablas       (CPV only) the tables the entry applies to; default every table that has
+#                the column. TAMLOC is the microdata's 5-class locality size — the 2020
+#                ITER's TAMLOC is a different, 14-class scale and keeps its own entry.
 # The generated CPV files may also carry informative keys that no code reads: Catálogo
 # (the INEGI classification catalog that enumerates a coded string — occupation, activity,
 # country…), Definición and Rangos (an aggregate indicator's definition and its verbatim
@@ -32,18 +37,19 @@
 
 # --- record keys: dwelling ⊃ person; dwelling ⊃ international emigrant ------------------
 ID_VIV:
-  Descripción: Identificador único de la vivienda (2025 — 12 dígitos; los dos primeros son
-    la entidad, así que es único en todo el país)
+  Descripción: Identificador único de la vivienda (2020 y 2025 — 12 dígitos; los dos
+    primeros son la entidad, así que es único en todo el país)
   Tipo: string
   Longitud: '12'
 ID_PERSONA:
-  Descripción: Identificador único de la persona (2025 — 17 dígitos; los primeros 12 son
-    ID_VIV)
+  Descripción: Identificador único de la persona (2020 y 2025 — 17 dígitos; los primeros
+    12 son ID_VIV)
   Tipo: string
   Longitud: '17'
 ID_MII:
-  Descripción: Identificador único del emigrante internacional (tabla de migrantes; 2025 —
-    14 dígitos). Los migrantes cuelgan de la vivienda (ID_VIV), no de una persona.
+  Descripción: Identificador único del emigrante internacional (tabla de migrantes; 2020 y
+    2025 — 14 dígitos, ID_VIV + número de emigrante). Los migrantes cuelgan de la vivienda
+    (ID_VIV), no de una persona.
   Tipo: string
   Longitud: '14'
 
@@ -75,9 +81,10 @@ CVE_LOC:
   Tipo: string
   Longitud: '4'
 TAMLOC:
-  Descripción: Tamaño de localidad
+  Descripción: Tamaño de localidad (microdatos)
   Tipo: categorical
   Longitud: '1'
+  Tablas: [viviendas, personas, migrantes]
   Ordenada: true
   Categorías:
     '1': Menos de 2 500 habitantes
@@ -88,7 +95,8 @@ TAMLOC:
 
 # --- sample design and expansion factor ----------------------------------------------------
 COBERTURA:
-  Descripción: Tipo de cobertura en el municipio (EIC 2025)
+  Descripción: Tipo de cobertura en el municipio (cuestionario ampliado del Censo 2020 y
+    EIC 2025)
   Tipo: categorical
   Longitud: '1'
   Categorías:
@@ -96,9 +104,10 @@ COBERTURA:
     '2': Municipio muestreado
     '3': Municipio con muestra insuficiente
 ESTRATO:
-  Descripción: Estrato de diseño muestral (alfanumérico, p. ej. 15-001-0000-030)
+  Descripción: Estrato de diseño muestral (alfanumérico, p. ej. 01-001-0000-03 en 2020 y
+    15-001-0000-030 en 2025)
   Tipo: string
-  Longitud: '15'
+  Longitud: 14 / 15
 UPM:
   Descripción: Unidad Primaria de Muestreo
   Tipo: string
@@ -117,7 +126,7 @@ TIPO_REG:
     '0': Encuestado
     '1': Imputado
 
-# --- dwelling class (in every 2025 table) ----------------------------------------------------
+# --- dwelling class (in every microdata table, 2020 and 2025) --------------------------------
 CLAVIVP:
   Descripción: Clase de vivienda particular. Las clases 07 (local no construido para
     habitación) y 09 (refugio) no tienen características de la vivienda (bloque PAREDES…

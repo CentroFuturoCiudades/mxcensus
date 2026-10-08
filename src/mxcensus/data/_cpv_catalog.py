@@ -90,7 +90,8 @@ class CpvEdition:
     members: dict[str, str] = field(compare=False, hash=False)
     weighted: bool = True       # microdata carry an expansion factor
     fmt: str = "csv"            # microdata format: "csv" | "dbf"
-    ddi_id: int | None = None   # INEGI RNM DDI catalog id (None = none located)
+    ddi_id: int | None = None   # INEGI RNM DDI catalog id (None = none located; fetched by
+                                # build_cpv.py --dictionary — 2020 builds from its FD xlsx)
     biinegi_id: int | None = None  # INEGI file-listing API id (idBiinegi)
     mg_period: str | None = None   # Marco Geoestadístico edition framing it (_catalog.MG_EDITIONS)
     notes: str = ""
@@ -289,9 +290,10 @@ EDITIONS: list[CpvEdition] = [
                  "migrantes": r"Migrantes{nn}\.csv",
                  "iter": r"conjunto_de_datos_iter_{nn}CSV20\.csv",
                  "ageb": r"conjunto_de_datos_ageb_urbana_{nn}_cpv2020\.csv"},
-        biinegi_id=3001, mg_period="2020",
+        ddi_id=632, biinegi_id=3001, mg_period="2020",
         notes="also mirrored in the legacy period-less files (iter_NN, personas_NN, …); "
-              "RNM DDI not yet located",
+              "dictionary = the FD xlsx (RNM DDI 632 is a Nesstar export with incomplete "
+              "value labels — kept for reference, not used)",
     ),
     CpvEdition(
         period="2025", year=2025, kind="intercensal",

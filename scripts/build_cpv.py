@@ -90,7 +90,7 @@ _DEFAULT_DDI_DIR = _REPO_ROOT / "data" / "dict" / "ddi"
 
 # Editions whose build is enabled (docs/cpv/PLAN.md unit table). DBF editions (2010 and
 # earlier) need their own reader (unit 3b+); they stay dry-run-only until then.
-_ENABLED = ("2025",)
+_ENABLED = ("2020", "2025")
 
 _HIGH_BYTES = bytes(range(0x80, 0x100))
 _CHUNK = 1 << 24  # 16 MiB
@@ -445,9 +445,20 @@ def _write_report(out_dir: Path, report_path: Path) -> dict:
 
 # Aggregate products ship their indicator dictionary inside the data ZIP.
 _INDICATOR_DICT_RE = re.compile(r"(^|/)diccionario_datos[^/]*\.csv$", re.IGNORECASE)
-# Per-table --cat-threshold override: the estimaciones cells are numbers (and NA/MI), never
-# worth enumerating as categories.
-_TABLE_THRESHOLD = {"estimaciones": 0}
+# Per-table --cat-threshold override: the aggregate cells are numbers (and their sentinel
+# codes), never worth enumerating as categories.
+_TABLE_THRESHOLD = {"estimaciones": 0, "iter": 0, "ageb": 0}
+# The non-numeric cell codes of an edition's aggregates when its indicator dictionaries
+# carry no footnotes declaring them (EIC 2025's do: NA, MI). CPV 2020 ITER/AGEB, over all 32
+# states (unit 2a): ``*`` hides the counts of a locality or block with one or two inhabited
+# dwellings (22.4 M ITER and 78.7 M AGEB cells; it is also the TAMLOC of the total rows,
+# which have no size class); ``N/D`` fills every indicator but the population and dwelling
+# totals of 152 localities and 621 blocks; ``N/A`` is a ratio with a zero denominator
+# (REL_H_M, PROM_HNV).
+_AGG_SPECIALS: dict[str, dict[str, str]] = {
+    "2020": {"*": "Dato reservado por confidencialidad", "N/D": "No disponible",
+             "N/A": "No aplica"},
+}
 
 
 def _indicator_dict_path(dict_dir: Path, period: str, table: str) -> Path:
@@ -527,7 +538,8 @@ def _doc_for(dict_dir: Path, table: str, periods: list[str]) -> tuple[dict | Non
         if table in AGG_TABLES:
             path = _indicator_dict_path(dict_dir, period, table)
             if path.exists():
-                return fd.parse_indicator_csv(path), f"{path.name} ({period})"
+                return (fd.parse_indicator_csv(path, _AGG_SPECIALS.get(period)),
+                        f"{path.name} ({period})")
         elif table in (docs := _fd_docs(dict_dir, period)):
             return docs[table], f"FD {period}/{table}"
     return None, "none"
@@ -537,12 +549,15 @@ def _write_variables_yaml(out_dir: Path, map_path: Path, yaml_dir: Path,
                           threshold: int = 64, dict_dir: Path = _DEFAULT_DICT_DIR) -> int:
     """Write one ``variables_cpv_{table}_{gNN}.yaml`` per (table, schema group).
 
-    Per column, in priority: the hand-curated ``variables_cpv_core.yaml`` entry (verbatim);
+    Per column, in priority: the hand-curated ``variables_cpv_core.yaml`` entry (verbatim,
+    when in scope for the table — ``Tablas``, :func:`mxcensus.cpv._in_scope`);
     INEGI's dictionary entry (FD workbook / indicator CSV) reconciled against the codes
     observed in the group's files (:func:`_dict_fd.fd_entry`); else the data-enumerated
     identity map. Observed values are read one column at a time
     (:func:`_dict_ddi.observed_values`). Returns the number of files written.
     """
+    from mxcensus.cpv import _in_scope
+
     schema_map = yaml.safe_load(map_path.read_text(encoding="utf-8"))
     core = yaml.safe_load(_CORE_PATH.read_text(encoding="utf-8"))
     files: dict[tuple[str, str], list[Path]] = defaultdict(list)
@@ -557,11 +572,12 @@ def _write_variables_yaml(out_dir: Path, map_path: Path, yaml_dir: Path,
     n = 0
     for table, td in schema_map.items():
         thr = _TABLE_THRESHOLD.get(table, threshold)
+        core_t = {c: m for c, m in core.items() if _in_scope(m, table)}
         for gid, g in td["groups"].items():
             paths = files.get((table, gid), [])
             observed = ddi.observed_values(paths, g["columns"], thr)
             doc, prov = _doc_for(dict_dir, table, g["periods"])
-            entries, sources = ddi.group_entries(g["columns"], observed, core, doc, thr,
+            entries, sources = ddi.group_entries(g["columns"], observed, core_t, doc, thr,
                                                  entry_fn=fd.fd_entry)
             counts = Counter(sources.values())
             print(f"  {table}/{gid}: {len(paths)}/{g['files']} file(s) read; {prov}; "

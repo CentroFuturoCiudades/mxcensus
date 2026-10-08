@@ -7,8 +7,12 @@ and ``docs/cpv/PLAN.md``). Like ENOE/ENIGH, every mirrored file is fingerprinted
 **per-table** schema group (``_yaml/cpv_schema_map.yaml``) and validated against a tight
 Pandera schema built from that group's ``variables_cpv_{table}_{gid}.yaml``.
 
-Editions mirrored so far: the **Encuesta Intercensal 2025** (``viviendas``, ``personas``,
-``migrantes`` per state; ``estimaciones`` national — see :mod:`mxcensus.cpv_aggregates`).
+Editions built so far: the **Encuesta Intercensal 2025** (``viviendas``, ``personas``,
+``migrantes`` per state; ``estimaciones`` national — see :mod:`mxcensus.cpv_aggregates`) and
+the **Censo de Población y Vivienda 2020** (the cuestionario ampliado's ``viviendas``,
+``personas``, ``migrantes`` and the ``iter``/``ageb`` aggregates, per state; raw names as
+INEGI spells them — ``ENT``/``MUN`` in the microdata, ``ENTIDAD``/``MUN``/``LOC`` in the
+aggregates).
 
 Public API:
 
@@ -56,9 +60,13 @@ from mxcensus.data._cpv_catalog import (
 _WEIGHTS = {"FACTOR"}
 
 # Keys and geographic codes: digit strings (their width is edition-specific, so only the
-# all-digits shape is checked here; key widths are checked by the data tests).
+# all-digits shape is checked here; key widths are checked by the data tests). CPV 2020
+# spells the microdata geography ENT/MUN and the aggregates' ENTIDAD/MUN/LOC/MZA.
 _DIGIT_CODES = frozenset({"ID_VIV", "ID_PERSONA", "ID_MII", "CVEGEO", "CVE_ENT", "CVE_MUN",
-                          "LOC50K", "CVE_LOC"})
+                          "LOC50K", "CVE_LOC", "ENT", "MUN", "ENTIDAD", "LOC", "MZA"})
+# Coded strings with their own shape: the urban AGEB key is three digits and a check
+# character (0-9 or A-P); 0000 marks the ITER/AGEB total rows.
+_CODE_REGEX = {"AGEB": r"^\d{3}[0-9A-P]$"}
 
 # Record keys (alias tuples: canonical name first, then the CPV 2010 spellings). Persons
 # and international emigrants are siblings under the dwelling, so both keys extend the
@@ -79,7 +87,8 @@ _KEY_SPEC: dict[str, list[tuple[str, ...]]] = {
 # ``(ID_VIV, IDENT_MADRE)`` joins ``(ID_VIV, NUMPER)`` directly. Person numbers 01-54 are
 # their own labels; the codes from 96 up (lives elsewhere, deceased, no partner, not a
 # resident, don't know, not specified) are documented in the dictionary.
-_GEO_CODES = ("CVEGEO", "CVE_ENT", "CVE_MUN", "LOC50K", "CVE_LOC")
+_GEO_CODES = ("CVEGEO", "CVE_ENT", "CVE_MUN", "LOC50K", "CVE_LOC",
+              "ENT", "MUN", "ENTIDAD", "LOC", "AGEB", "MZA")
 _POINTERS = ("NUMPER", "IDENT_MADRE", "IDENT_PADRE", "IDENT_PAREJA", "DUE1_NUM", "DUE2_NUM",
              "MPER", "MPERLS")
 _KEY_COLUMNS = frozenset(c for spec in _KEY_SPEC.values() for aliases in spec for c in aliases)
@@ -96,6 +105,8 @@ def _code_rule(col: str, meta: dict) -> pa.Column | None:
     from a classification catalog too large to enumerate (``Catálogo`` + string ``Tipo``:
     occupation, activity, country, municipality, language) → exactly ``Longitud`` digits.
     ``None`` for any other column."""
+    if col in _CODE_REGEX:
+        return _sg.raw_column(pa.Check.str_matches(_CODE_REGEX[col]))
     if col in _DIGIT_CODES:
         return _sg.raw_column(pa.Check.str_matches(r"^\d+$"))
     width = str(meta.get("Longitud") or "").strip()
@@ -113,6 +124,18 @@ def _group_schema(table: str, gid: str) -> pa.DataFrameSchema:
     variables = variables_cpv(table, gid)
     return _sg.build_group_schema(cols, variables, weights=_WEIGHTS,
                                   column_rule=lambda c: _code_rule(c, variables.get(c) or {}))
+
+
+def _in_scope(meta: dict, table: str) -> bool:
+    """Whether a core entry applies to ``table``: its ``Tablas`` list, else every table
+    that has the column (the ITER's ``TAMLOC`` is a 14-class size scale, not the microdata's
+    five classes)."""
+    return table in (meta.get("Tablas") or (table,))
+
+
+def _core_for(table: str) -> dict:
+    """The core entries that apply to ``table`` (:func:`_in_scope`)."""
+    return {c: m for c, m in variables_cpv_core().items() if _in_scope(m, table)}
 
 
 def _group_of(table: str, df: pd.DataFrame) -> str:
@@ -209,7 +232,7 @@ def _latest_schema(table: str) -> pa.DataFrameSchema:
     """
     required = _required(table)
     schema = {}
-    for col, meta in variables_cpv_core().items():
+    for col, meta in _core_for(table).items():
         req = col in required
         tipo = _sg.norm_tipo(meta)
         if col in _WEIGHTS or tipo == "numeric":
@@ -230,10 +253,11 @@ def _latest_schema(table: str) -> pa.DataFrameSchema:
 @functools.cache
 def variables_cpv_labels(table: str, gid: str) -> dict:
     """The labelling dictionary of one CPV ``(table, schema group)``: the per-group
-    variables overlaid by :func:`~mxcensus.variables_cpv_core`, keyed by both the raw and
+    variables overlaid by :func:`~mxcensus.variables_cpv_core` (the entries in scope for
+    ``table``, see :func:`_in_scope`), keyed by both the raw and
     the harmonized column names (upper case, :data:`_RENAME_CORE`)."""
     merged: dict = {}
-    for src in (variables_cpv(table, gid), variables_cpv_core()):
+    for src in (variables_cpv(table, gid), _core_for(table)):
         for col, meta in src.items():
             merged[col] = meta
             merged[_RENAME_CORE.get(col.upper(), col.upper())] = meta
@@ -304,8 +328,10 @@ def _states(state: int | Sequence[int] | None) -> list[int] | None:
 
 
 def _filter_states(df: pd.DataFrame, states: list[int]) -> pd.DataFrame:
-    """Keep the rows whose entity code (``CVE_ENT``, or a legacy ``ENT``) is in ``states``."""
-    col = next((c for c in ("CVE_ENT", "ENT", "cve_ent", "ent") if c in df.columns), None)
+    """Keep the rows whose entity code (``CVE_ENT``, or a legacy ``ENT``/``ENTIDAD``) is in
+    ``states``."""
+    col = next((c for c in ("CVE_ENT", "ENT", "ENTIDAD", "cve_ent", "ent") if c in df.columns),
+               None)
     if col is None:
         raise ValueError(f"cannot filter by state: no entity column in {list(df.columns)[:8]}…")
     keep = pd.to_numeric(df[col], errors="coerce").isin(states)

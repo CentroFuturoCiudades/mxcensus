@@ -18,7 +18,7 @@ unit.
 | **1c** | Loaders: `cpv.py` (`load_cpv`, `load_cpv_viviendas/personas/migrantes`, `load_cpv_survey`, `variables_cpv_labels`), `cpv_aggregates.load_cpv_estimaciones`; `_resources`/`__init__`; `tests/test_cpv.py` (offline + `_REAL`), `test_schema_groups.py` family loops; EIC 2025 data checks (§Verification) | 1b | ✅ done 2026-10-07 (`STEP_1c.md`): pytest green; every Σ `FACTOR` check exact (state, municipality, ≥50k locality, nation on `wsl`); CLI moved to 1e |
 | **1d** | MG EIC 2025: full `build_marco_geo.py --period 2025` on `wsl` (480 files); `load_mg(layer, *, state, period)`; decide on the CRS-spelling difference (`STEP_0_probe.md` §MG) | 0 | ✅ done 2026-10-07 (`STEP_1d.md`): 493 files (480 + `ti` for 13 island states; 2020 `ti` added too); `load_mg` (default CRS EPSG:6372, a PROJ no-op) tested; national totals = `contenido.txt` exactly; CLI and registry moved to 1e |
 | **1e** | Registry + `upload_hf.py upload`/`verify` + clean-cache fetch; CLI `--dataset cpv --edition` and `--dataset mg --edition` (moved from 1c/1d: the CLI never offers unregistered files); README/CLAUDE.md/`hf_bucket_readme.md`/pyproject; version bump | 1a–1d | ✅ done 2026-10-07 (`STEP_1e.md`): registry 1932 → 2535 (additions only), 603 files uploaded + verified, clean-cache fetch + unpatched loaders OK; CLI `cpv`/`mg`; docs; v0.5.0 |
-| **2a** | CPV 2020 into the family (`viviendas`/`personas`/**`migrantes`**, `iter`, `ageb` as `cpv_*_2020_NN`); 2020 dictionary (RNM DDI probe, else FD xlsx) | 1 | `--validate` 0 failures |
+| **2a** | CPV 2020 into the family (`viviendas`/`personas`/**`migrantes`**, `iter`, `ageb` as `cpv_*_2020_NN`); 2020 dictionary (RNM DDI probe, else FD xlsx) | 1 | ✅ done 2026-10-07 (`STEP_2a.md`): 160 files on `wsl`, `--validate` 0/257; dictionary = FD xlsx (DDI 632 found but incomplete); 2020 gids `g01`, 2025 → `g02`; core `Tablas` scope |
 | **2b** | 2020↔2025 core harmonization; raw-vs-harmonized and legacy-equality tests; upload | 2a | totals identical; uploaded |
 | **3a** | EIC 2015 (`TR_VIVIENDA`/`TR_PERSONA`, DDI 214) | 2 | validate 0; Σ `FACTOR` vs INEGI |
 | **3b** | CPV 2010 microdata (DBF via `dbfread(raw=True)`, code pages, DDI 71, `ID_PER`/`ID_MIN`, state-scoped `ID_VIV`) | 3a | validate 0 |
@@ -81,7 +81,7 @@ conteo and intercensal edition back to 1990 the same way ENIGH takes editions.
 | 2005 | conteo | `cpv2005_{NN}_dbf` (`trvmue`/`trhmue`/`trpmue`) · **no weight** · DDI 140 | CSV `cpv2005_iter_{NN}` | — | — | municipal 2005 `702825292850` (national ZIP) |
 | 2010 | censo | `mpv/MC2010_{NN}_dbf` (Viviendas/Personas/Migrantes) · `FACTOR` · DDI 71 | CSV `iter_{NN}_2010` (lowercase) | CSV `resageburb_{NN}_2010` | — | v5.0 `702825292812` (national ZIP) |
 | 2015 | intercensal | `eic2015_{NN}_csv` (`TR_VIVIENDA`/`TR_PERSONA`, no migrantes) · `FACTOR` · DDI 214 | — | — | — | probe (MG 2014 v6.2?) |
-| 2020 | censo | `Censo2020_CA_{abbr}_csv` (+ `Migrantes`, unmirrored today) · `FACTOR` · DDI: probe | CSV | CSV | — | legacy `mg_{sfx}_NN` |
+| 2020 | censo | `Censo2020_CA_{abbr}_csv` (+ `Migrantes`) · `FACTOR` · FD xlsx (DDI 632 exists, incomplete — unused) | CSV | CSV | — | legacy `mg_{sfx}_NN` |
 | 2025 | intercensal | `eic2025_micro_{NN}_csv` · `FACTOR` · FD xlsx | — | — | `estimaciones` (`conjunto_de_datos_eic2025_105`, cp1252) | EIC 2025 `794551196649` |
 
 **URL and server quirks:**
@@ -127,7 +127,9 @@ prefix are shared.
   hand-curated and never regenerated, under the contract header of `variables_enoe_core.yaml`.
 - **Dictionary sources:**
   - RNM DDI through `scripts/_dict_ddi.py`, with the ids taken from `CpvEdition.ddi_id` (2000 = 141,
-    2005 = 140, 2010 = 71, 2015 = 214; 2020 to probe). `build_cpv.py --dictionary` fetches them.
+    2005 = 140, 2010 = 71, 2015 = 214; 2020 = 632, recorded but unused — a Nesstar export
+    with incomplete value labels, so 2020 uses its FD xlsx, `STEP_2a.md`). `build_cpv.py
+    --dictionary` fetches them.
   - `scripts/_dict_fd.py::parse_fd_xlsx(path, catalogs) -> {stem: {VAR: meta}}` in the same shape
     as `parse_ddi`, generalising `utils.get_cats_from_excel`. It reads the workbook with a stdlib
     reader (`read_xlsx`; no `openpyxl`). It covers EIC 2025, 2020 if it has no DDI, and 2015 as a
@@ -239,8 +241,12 @@ prefix are shared.
 ### Phase 2 — CPV 2020 into the family
 - Rebuild the 2020 CA tables (`viviendas`/`personas`/**`migrantes`**), `iter` and `ageb` as
   `cpv_*_2020_NN` (≈+1 GB).
-- Dictionaries: RNM DDI if one exists, else the FD xlsx.
-- First cross-edition harmonization (`ENT`/`MUN`→`CVE_*`).
+- Dictionaries: RNM DDI if one exists, else the FD xlsx. (2a: DDI 632 exists but the FD xlsx
+  is complete and parses like 2025's, so it is used; the ITER/AGEB sentinels `*`/`N/D`/`N/A`
+  come from `build_cpv._AGG_SPECIALS` since their dictionaries have no footnotes.)
+- First cross-edition harmonization (`ENT`/`MUN`→`CVE_*`; ITER/AGEB `ENTIDAD`/`LOC` → table-scoped).
+- A core entry may carry `Tablas` (the tables it applies to): the microdata `TAMLOC` (5
+  classes) is not the ITER's (14 classes).
 - Tests:
   - Σ `FACTOR` and row counts identical raw vs harmonized.
   - Values match the legacy `personas_NN` after casting keys to int.

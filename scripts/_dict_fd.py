@@ -27,6 +27,7 @@ from __future__ import annotations
 
 import csv
 import io
+import os
 import re
 import unicodedata
 import xml.etree.ElementTree as ET
@@ -42,7 +43,8 @@ _CELL_RE = re.compile(r"^([A-Z]+)(\d+)$")
 # FD column headers → meta fields (header text compared after accent/case folding).
 _FD_HEADERS = {"descripcion": "desc", "mnemonico": "var", "pregunta y categoria": "label",
                "tipo": "tipo", "rango valido": "code", "longitud": "len"}
-_CATALOG_RE = re.compile(r"seg[uú]n clasificador de ([^)]+)", re.IGNORECASE)
+# The note may wrap across lines ("Según Clasificador\nde Parentescos" — CPV 2020).
+_CATALOG_RE = re.compile(r"seg[uú]n\s+clasificador\s+de\s+([^)]+)", re.IGNORECASE)
 # A code labelled "No especificado…"/"No sabe" is a non-response sentinel (``Especiales``).
 _SENTINEL_RE = re.compile(r"\bno especificad|^no sabe\b", re.IGNORECASE)
 # A numeric code above the valid range that is itself a value: a top-code.
@@ -121,25 +123,47 @@ def read_catalogs(zip_path: Path) -> dict[str, dict[str, str]]:
         for name in z.namelist():
             if not name.lower().endswith(".csv"):
                 continue
-            text = z.read(name).decode("utf-8-sig")
+            raw = z.read(name)
+            try:
+                text = raw.decode("utf-8-sig")
+            except UnicodeDecodeError:  # CPV 2020's catalogs are cp1252
+                text = raw.decode("cp1252")
             rows = list(csv.reader(io.StringIO(text)))
             header = [h.strip().upper() for h in rows[0]]
             keys = [i for i, h in enumerate(header) if h == "CLAVE" or h.startswith("CVE")]
-            desc = [i for i, h in enumerate(header) if h.startswith("DESC")][-1]
+            desc = ([i for i, h in enumerate(header) if h.startswith("DESC")]
+                    or [i for i, h in enumerate(header) if h.startswith("NOM")])[-1]
             stem = Path(name).stem.upper()
             out[stem] = {"".join(r[i].strip() for i in keys): r[desc].strip()
                          for r in rows[1:] if r and any(x.strip() for x in r)}
     return out
 
 
+def _words(text: str) -> list[str]:
+    """Accent-free lower-case alphanumeric words (``_`` and punctuation separate words)."""
+    return re.findall(r"[a-z0-9]+", _fold(text.replace("_", " ")))
+
+
+def _word_match(w: str, s: str) -> bool:
+    """A phrase word names a stem word: equal, or (both ≥ 3 letters) one abbreviates the
+    other (``mun``/``municipios``, ``religion``/``religiones``) or they share a ≥ 4-letter
+    prefix (``escoacum``/``escolaridad``)."""
+    if w == s:
+        return True
+    if min(len(w), len(s)) < 3:
+        return False
+    return w.startswith(s) or s.startswith(w) or len(os.path.commonprefix([w, s])) >= 4
+
+
 def match_catalog(phrase: str, catalogs) -> str | None:
-    """The catalog a ``(Según clasificador de <phrase>)`` note refers to: the stem sharing
-    the most words with the phrase (``entidad federativa y país`` → ``ENTIDAD_PAIS``;
-    INEGI's own stems have typos — ``ESOLARIDAD_ACUMULADA`` — so a partial overlap counts).
-    ``None`` when no stem shares a word or two stems tie."""
-    words = set(_fold(phrase).split())
-    scored = sorted(((len(words & set(_fold(s.replace("_", " ")).split())), s) for s in catalogs),
-                    reverse=True)
+    """The catalog a ``(Según clasificador de <phrase>)`` note refers to: the stem naming
+    the most words of the phrase (``entidad federativa y país`` → ``ENTIDAD_PAIS``). Stems
+    may abbreviate (CPV 2020: ``MUN``, ``CAUSA_MIG``, ``RELIGION`` for «Religiones») or
+    misspell (EIC 2025: ``ESOLARIDAD_ACUMULADA``), so a word counts when it matches by
+    :func:`_word_match`. ``None`` when no stem matches a word or two stems tie."""
+    words = set(_words(phrase))
+    scored = sorted(((sum(any(_word_match(w, x) for x in _words(s)) for w in words), s)
+                     for s in catalogs), reverse=True)
     if not scored or scored[0][0] == 0 or (len(scored) > 1 and scored[1][0] == scored[0][0]):
         return None
     return scored[0][1]
@@ -150,10 +174,10 @@ def match_catalog(phrase: str, catalogs) -> str | None:
 # --------------------------------------------------------------------------------------
 
 def _parse_code(text: str):
-    """``'7'`` → ``'7'``; ``'01..54'`` / ``'0101.. 9030'`` → ``(lo, hi, width)``;
-    ``'Nulo'`` → ``None``. ``width`` is the zero-padding (both bounds equally long and the
-    lower one padded), else 0."""
-    t = text.replace(" ", "").replace("…", "..")
+    """``'7'`` → ``'7'``; ``'01..54'`` / ``'0101.. 9030'`` / ``'{0001..9999}'`` / ``'0 … 24'``
+    → ``(lo, hi, width)``; ``'Nulo'`` → ``None``. ``width`` is the zero-padding (both
+    bounds equally long and the lower one padded), else 0."""
+    t = re.sub(r"\.{2,}|…", "..", text.replace(" ", "").strip("{}"))
     if t.lower() in _NULL_CODES:
         return None
     if ".." in t:
@@ -162,6 +186,13 @@ def _parse_code(text: str):
             width = len(a) if len(a) == len(b) and a.startswith("0") else 0
             return int(a), int(b), width
     return t
+
+
+def _split_codes(text: str) -> list:
+    """The codes of one ``Rango válido`` cell, which may list several separated by commas
+    and line breaks (``1101..2901,3101,\n3102`` — CPV 2020); ``Nulo`` dropped."""
+    parts = text.strip().strip("{}").split(",")
+    return [c for c in (_parse_code(x.strip()) for x in parts if x.strip()) if c is not None]
 
 
 def _header_codes(text: str) -> list:
@@ -181,10 +212,13 @@ def _finish(var: dict, catalogs: dict | None) -> dict:
     """Turn a variable's raw code rows into ``parse_ddi``-shaped meta."""
     numeric = _fold(var["tipo"]).startswith("numer")
     header = var["code"]
-    phrase = _CATALOG_RE.search(header)
+    # The catalog note sits in the header, or in a code row of its own (CPV 2020 ESCOACUM).
+    phrase = _CATALOG_RE.search(header) or _CATALOG_RE.search(var.get("note", ""))
     catalog = match_catalog(phrase.group(1), catalogs or {}) if phrase else None
     rows = var["rows"] or [(c, "") for c in _header_codes(header)]
     ranges = [c for c, _ in rows if isinstance(c, tuple)]
+    if numeric and not ranges:  # code rows list only labelled values: the header has the range
+        ranges = [c for c in _header_codes(header) if isinstance(c, tuple)]
     singles = [(c, lab) for c, lab in rows if isinstance(c, str)]
     cats: dict[str, str] = {}
     special: dict[str, str] = {}
@@ -226,8 +260,8 @@ def _finish(var: dict, catalogs: dict | None) -> dict:
                 special[code] = label
             elif wide:
                 nota.append(f"{code} = {label}")
-            else:
-                cats[code] = label or code
+            else:  # a catalog code listed singly (``3101`` — CPV 2020) keeps its catalog label
+                cats[code] = codes.get(code) or label or code
         for code in special:
             cats.pop(code, None)
         if ranges:  # used only if the entry turns out numeric (a year: 1925..2025)
@@ -273,9 +307,10 @@ def parse_fd_xlsx(path: Path, catalogs: dict[str, dict[str, str]] | None = None
                 current = {**get, "label": label, "rows": []}
                 vars_[get["var"]] = current
             elif get["code"] and get["label"] and current is not None:
-                code = _parse_code(get["code"])
-                if code is not None:
-                    current["rows"].append((code, get["label"]))
+                if _CATALOG_RE.search(get["code"]):  # "(Según Clasificador de …)" as a row
+                    current["note"] = get["code"]
+                    continue
+                current["rows"] += [(code, get["label"]) for code in _split_codes(get["code"])]
             elif get["desc"] and get["label"] and not get["code"]:
                 stem, current = get["label"], None
             elif not any(get.values()):  # a section title (outside the table columns)
@@ -291,13 +326,16 @@ def parse_fd_xlsx(path: Path, catalogs: dict[str, dict[str, str]] | None = None
 _NOTE_RE = re.compile(r"^(?P<code>[A-Z]{1,3}): (?P<label>.+?)\.?$")
 
 
-def parse_indicator_csv(path: Path) -> dict[str, dict]:
+def parse_indicator_csv(path: Path, specials: dict[str, str] | None = None
+                        ) -> dict[str, dict]:
     """Parse a ``diccionario_datos_*.csv`` → ``{MNEMONIC: meta}``.
 
     ``Rangos`` such as ``0 … 100.00`` make a numeric indicator (``Decimales`` from the
     upper bound); zero-padded code ranges (``00…32``) and ``Alfanumérico`` make a string.
     The table's footnotes ``XX: label.`` are the non-numeric cell codes → ``Especiales`` of
-    every numeric indicator. The indicator ranges are kept verbatim (``Rangos``) but not
+    every numeric indicator, together with ``specials`` — the codes an edition uses without
+    declaring them (CPV 2020's ITER/AGEB dictionaries have no footnotes for their ``*``
+    cells); a footnote's label wins. The indicator ranges are kept verbatim (``Rangos``) but not
     turned into a ``Rango`` bound: a column holds the five estimators (value, standard
     error, CI limits, CV) and only the value obeys the indicator's range.
     """
@@ -311,7 +349,7 @@ def parse_indicator_csv(path: Path) -> dict[str, dict]:
     idx = {_fold(c): j for j, c in enumerate(rows[head])}
     col = {k: idx[k] for k in ("indicador", "descripcion", "mnemonico", "rangos")}
     col["len"] = next(j for k, j in idx.items() if k.startswith("long"))
-    special = {}
+    special = dict(specials or {})
     for r in rows[head + 1:]:
         m = _NOTE_RE.match((r[0] if r else "").strip())
         if m:
@@ -321,7 +359,8 @@ def parse_indicator_csv(path: Path) -> dict[str, dict]:
         if len(r) <= col["mnemonico"] or not r[col["mnemonico"]].strip():
             continue
         rng = " ".join(r[col["rangos"]].split())
-        bounds = [b for b in re.split(r"\s*(?:…|\.\.\.?)\s*", rng) if b]
+        # "0 … 100.00", "00...32"; CPV 2020 also has the typo "0.,.999999999"
+        bounds = [b for b in re.split(r"\s*(?:…|[.,]{2,})\s*", rng) if b]
         numeric = (len(bounds) == 2 and all(re.fullmatch(r"-?\d+(\.\d+)?", b) for b in bounds)
                    and not (len(bounds[0]) > 1 and bounds[0].startswith("0")))
         meta = {"Descripción": r[col["indicador"]].strip(),

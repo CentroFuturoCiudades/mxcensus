@@ -1,47 +1,18 @@
-ENT:
-  Descripción: Entidad Federativa
-  Pregunta: Entidad Federativa
-  Tipo: categorical
+CVEGEO:
+  Descripción: Clave geoestadística integrada. Microdatos — entidad + municipio (5 dígitos); estimaciones
+    — entidad + municipio + localidad (9 dígitos), con 00/000/0000 para los totales nacional, estatal
+    y municipal.
+  Tipo: string
+  Longitud: 5 / 9
+CVE_ENT:
+  Descripción: Clave del Área Geoestadística Estatal (01-32; 00 = total nacional en las estimaciones)
+  Tipo: string
   Longitud: '2'
-  Categorías:
-    '01': '01'
-    '02': '02'
-    '03': '03'
-    '04': '04'
-    '05': '05'
-    '06': '06'
-    '07': '07'
-    08: 08
-    09: 09
-    '10': '10'
-    '11': '11'
-    '12': '12'
-    '13': '13'
-    '14': '14'
-    '15': '15'
-    '16': '16'
-    '17': '17'
-    '18': '18'
-    '19': '19'
-    '20': '20'
-    '21': '21'
-    '22': '22'
-    '23': '23'
-    '24': '24'
-    '25': '25'
-    '26': '26'
-    '27': '27'
-    '28': '28'
-    '29': '29'
-    '30': '30'
-    '31': '31'
-    '32': '32'
-MUN:
-  Descripción: Municipio o Demarcación territorial
-  Pregunta: Municipio o Demarcación territorial
+CVE_MUN:
+  Descripción: Clave del Área Geoestadística Municipal (001-570; en las estimaciones 000 = total estatal
+    y 997 = localidades de menos de 50 000 habitantes de la entidad)
   Tipo: string
   Longitud: '3'
-  Nota: 001..570 = códigos (no enumerados)
 LOC50K:
   Descripción: Clave de la localidad de 50 000 y más habitantes dentro del municipio; 0000 = localidad
     de menos de 50 000 habitantes
@@ -52,6 +23,11 @@ ID_VIV:
     así que es único en todo el país)
   Tipo: string
   Longitud: '12'
+ID_MII:
+  Descripción: Identificador único del emigrante internacional (tabla de migrantes; 2020 y 2025 — 14 dígitos,
+    ID_VIV + número de emigrante). Los migrantes cuelgan de la vivienda (ID_VIV), no de una persona.
+  Tipo: string
+  Longitud: '14'
 COBERTURA:
   Descripción: Tipo de cobertura en el municipio (cuestionario ampliado del Censo 2020 y EIC 2025)
   Tipo: categorical
@@ -94,13 +70,8 @@ CLAVIVP:
     09: Refugio
   Especiales:
     '99': No especificado de vivienda particular
-ID_MII:
-  Descripción: Identificador único del emigrante internacional (tabla de migrantes; 2020 y 2025 — 14 dígitos,
-    ID_VIV + número de emigrante). Los migrantes cuelgan de la vivienda (ID_VIV), no de una persona.
-  Tipo: string
-  Longitud: '14'
 MPER:
-  Descripción: Lista de personas (número de migrante)
+  Descripción: Lista de emigrantes internacionales
   Pregunta: Número
   Tipo: categorical
   Longitud: '2'
@@ -167,7 +138,7 @@ MCONRES:
   Categorías:
     '1': Sí
 MSEXO:
-  Descripción: Sexo
+  Descripción: Sexo del migrante
   Pregunta: '(NOMBRE) es:'
   Tipo: categorical
   Longitud: '1'
@@ -187,7 +158,7 @@ MEDAD:
     '999': No especificado
   Nota: 0 = Menos de un año
 MFECEMIM:
-  Descripción: Fecha de emigración (mes)
+  Descripción: Fecha de la emigración (mes)
   Pregunta: ¿En qué mes y año (NOMBRE) se fue a vivir a otro país la última vez?
   Tipo: categorical
   Longitud: '2'
@@ -207,84 +178,71 @@ MFECEMIM:
   Especiales:
     '99': No especificado
 MFECEMIA:
-  Descripción: Fecha de emigración (año)
+  Descripción: Fecha de la emigración (año)
   Pregunta: ¿En qué mes y año (NOMBRE) se fue a vivir a otro país la última vez?
   Tipo: categorical
   Longitud: '4'
   Categorías:
-    '2015': '2015'
-    '2016': '2016'
-    '2017': '2017'
-    '2018': '2018'
-    '2019': '2019'
     '2020': '2020'
+    '2021': '2021'
+    '2022': '2022'
+    '2023': '2023'
+    '2024': '2024'
+    '2025': '2025'
   Especiales:
     '9999': No especificado
 MCAUSAEMIG_V:
-  Descripción: Causa de la emigración (otro motivo) - Clave
+  Descripción: Causa de la emigración - Clave
   Pregunta: ¿Cuál fue el motivo principal por el que (NOMBRE) se fue la última vez?
   Tipo: categorical
   Longitud: '4'
   Categorías:
     '0101': Buscar trabajo
     '0102': Cambio u oferta de trabajo
-    '0103': Despido o conclusión de trabajo
+    '0103': Conclusión de trabajo
     '0104': Distancia al trabajo
     '0105': Jubilación o pensión
-    0109: Otros motivos laborales
-    '0201': Costo de la vivienda (compra o renta)
-    0209: Situación económica
-    '0301': Reunirse con la familia
-    '0302': Matrimonio o unión de algún familiar
-    '0303': Divorcio o separación de algún familiar
-    '0304': Falleció o nació algún familiar
-    '0305': Cuidar a algún familiar
-    '0306': Situación laboral de algún familiar
-    '0307': Situación escolar de algún familiar
-    0309: Otros motivos familiares
-    '0401': Se casó o unió
-    '0402': Divorcio o separación
-    '0403': Cuidados de salud
-    '0404': Motivos de edad
-    '0405': Mejorar calidad de vida
-    '0406': Independizarse
-    0409: Otros motivos personales
-    '0501': Estudiar
-    '0502': Término de estudios
-    '0503': Distancia a la escuela
-    0509: Otros motivos educativos
+    0109: Otras causas de trabajo
+    '0201': Matrimonio o unión
+    '0202': Reunirse con, o seguir a la familia
+    '0203': Divorcio o separación
+    '0204': Falleció o nació algún familiar
+    '0205': Independizarse
+    '0206': Cuidados familiares
+    0209: Otras causas familiares
+    '0301': Estudiar
+    '0302': Conclusión de estudios
+    '0303': Distancia al centro escolar
+    0309: Otras causas escolares
+    '0401': Adquisición, venta, construcción o herencia de vivienda
+    '0402': Renta
+    0409: Otras causas de la vivienda
+    '0501': Cuidados de salud (propia o de un familiar)
+    '0502': Pandemia por COVID-19
     '0601': Inseguridad delictiva o violencia
     '0602': Violencia intrafamiliar
-    '0603': Motivos políticos y de gobierno
-    '0604': Motivos de servicios asistenciales
-    0609: Otros motivos sociales, ambientales o de servicios
+    '0603': Políticos y de gobierno
+    '0604': Servicios asistenciales
+    '0605': Situación económica
+    0609: Otras causas sociales, ambientales o de servicios
     '0701': Desastres naturales
     0709: Otros desastres
     0801: Lo deportaron (regresaron)
-    0809: Motivos legales y administrativos
-    0901: Adquisición, venta o construcción de vivienda
-    0902: Mejorar condiciones de vivienda (no económica)
-    0903: Término de contrato y otros motivos de renta
-    0905: Ubicación de la vivienda
-    0906: Cambio de domicilio sin causa específica
-    0909: Otras situaciones de la vivienda
-    '1001': Evangelizar y motivos misioneros
-    '1002': Persecución religiosa
-    '1009': Otros motivos religiosos
-    '9997': Temporal
+    0809: Otras causas legales o administrativas
+    0901: Religiosas
+    0902: Personales
   Especiales:
-    '9998': No sabe
     '9999': No especificado
-  Catálogo: CAUSA_MIG
+  Catálogo: CAUSA_MIGRACION
 MLUGORI_C:
   Descripción: Lugar de origen (otro estado) - Clave
-  Pregunta: ¿En qué estado de la República vivía (NOMBRE) cuando se fue la última vez?
+  Pregunta: ¿En qué estado de la república vivía (NOMBRE) cuando se fue la última vez?
   Tipo: string
   Longitud: '3'
   Especiales:
     '999': No especificado
-  Catálogo: ENT_PAIS
-  Nota: códigos del catálogo ENT_PAIS (260 renglones; no enumerados)
+  Catálogo: ENTIDAD_PAIS
+  Nota: códigos del catálogo ENTIDAD_PAIS (260 renglones; no enumerados)
 MPAIDES_C:
   Descripción: País de destino (otro país) - Clave
   Pregunta: ¿A qué país se fue (NOMBRE)?
@@ -292,8 +250,8 @@ MPAIDES_C:
   Longitud: '3'
   Especiales:
     '999': No especificado
-  Catálogo: ENT_PAIS
-  Nota: códigos del catálogo ENT_PAIS (261 renglones; no enumerados)
+  Catálogo: ENTIDAD_PAIS
+  Nota: códigos del catálogo ENTIDAD_PAIS (260 renglones; no enumerados)
 MPAIRES:
   Descripción: País de residencia
   Pregunta: '¿Actualmente (NOMBRE) vive:'
@@ -307,7 +265,7 @@ MPAIRES:
     '9': No especificado
 MFECRETM:
   Descripción: Fecha de retorno (mes)
-  Pregunta: ¿En qué mes y año regresó (NOMBRE) a la República Mexicana?
+  Pregunta: ¿En qué mes y año regresó (NOMBRE) a la república mexicana?
   Tipo: categorical
   Longitud: '2'
   Categorías:
@@ -327,86 +285,73 @@ MFECRETM:
     '99': No especificado
 MFECRETA:
   Descripción: Fecha de retorno (año)
-  Pregunta: ¿En qué mes y año regresó (NOMBRE) a la República Mexicana?
+  Pregunta: ¿En qué mes y año regresó (NOMBRE) a la república mexicana?
   Tipo: categorical
   Longitud: '4'
   Categorías:
-    '2015': '2015'
-    '2016': '2016'
-    '2017': '2017'
-    '2018': '2018'
-    '2019': '2019'
     '2020': '2020'
+    '2021': '2021'
+    '2022': '2022'
+    '2023': '2023'
+    '2024': '2024'
+    '2025': '2025'
   Especiales:
     '9999': No especificado
 MCAUSARETO_V:
-  Descripción: Causa del retorno (otro motivo) - Clave
+  Descripción: Causa del retorno - Clave
   Pregunta: ¿Cuál fue el motivo principal por el que (NOMBRE) regresó?
   Tipo: categorical
   Longitud: '4'
   Categorías:
     '0101': Buscar trabajo
     '0102': Cambio u oferta de trabajo
-    '0103': Despido o conclusión de trabajo
+    '0103': Conclusión de trabajo
     '0104': Distancia al trabajo
     '0105': Jubilación o pensión
-    0109: Otros motivos laborales
-    '0201': Costo de la vivienda (compra o renta)
-    0209: Situación económica
-    '0301': Reunirse con la familia
-    '0302': Matrimonio o unión de algún familiar
-    '0303': Divorcio o separación de algún familiar
-    '0304': Falleció o nació algún familiar
-    '0305': Cuidar a algún familiar
-    '0306': Situación laboral de algún familiar
-    '0307': Situación escolar de algún familiar
-    0309: Otros motivos familiares
-    '0401': Se casó o unió
-    '0402': Divorcio o separación
-    '0403': Cuidados de salud
-    '0404': Motivos de edad
-    '0405': Mejorar calidad de vida
-    '0406': Independizarse
-    0409: Otros motivos personales
-    '0501': Estudiar
-    '0502': Término de estudios
-    '0503': Distancia a la escuela
-    0509: Otros motivos educativos
+    0109: Otras causas de trabajo
+    '0201': Matrimonio o unión
+    '0202': Reunirse con, o seguir a la familia
+    '0203': Divorcio o separación
+    '0204': Falleció o nació algún familiar
+    '0205': Independizarse
+    '0206': Cuidados familiares
+    0209: Otras causas familiares
+    '0301': Estudiar
+    '0302': Conclusión de estudios
+    '0303': Distancia al centro escolar
+    0309: Otras causas escolares
+    '0401': Adquisición, venta, construcción o herencia de vivienda
+    '0402': Renta
+    0409: Otras causas de la vivienda
+    '0501': Cuidados de salud (propia o de un familiar)
+    '0502': Pandemia por COVID-19
     '0601': Inseguridad delictiva o violencia
     '0602': Violencia intrafamiliar
-    '0603': Motivos políticos y de gobierno
-    '0604': Motivos de servicios asistenciales
-    0609: Otros motivos sociales, ambientales o de servicios
+    '0603': Políticos y de gobierno
+    '0604': Servicios asistenciales
+    '0605': Situación económica
+    0609: Otras causas sociales, ambientales o de servicios
     '0701': Desastres naturales
     0709: Otros desastres
     0801: Lo deportaron (regresaron)
-    0809: Motivos legales y administrativos
-    0901: Adquisición, venta o construcción de vivienda
-    0902: Mejorar condiciones de vivienda (no económica)
-    0903: Término de contrato y otros motivos de renta
-    0905: Ubicación de la vivienda
-    0906: Cambio de domicilio sin causa específica
-    0909: Otras situaciones de la vivienda
-    '1001': Evangelizar y motivos misioneros
-    '1002': Persecución religiosa
-    '1009': Otros motivos religiosos
-    '9997': Temporal
+    0809: Otras causas legales o administrativas
+    0901: Religiosas
+    0902: Personales
   Especiales:
-    '9998': No sabe
     '9999': No especificado
-  Catálogo: CAUSA_MIG
+  Catálogo: CAUSA_MIGRACION
 MCONRESACT:
   Descripción: Condición de residencia actual
   Pregunta: ¿(NOMBRE) actualmente vive aquí, en esta vivienda?
   Tipo: categorical
   Longitud: '1'
   Categorías:
-    '1': Si
+    '1': Sí
     '3': 'No'
   Especiales:
     '9': No especificado
 MPERLS:
-  Descripción: Condición de residencia actual (identificación del migrante en la lista de personas)
+  Descripción: Identificación del migrante en la lista de personas
   Pregunta: ¿(NOMBRE) actualmente vive aquí, en esta vivienda?
   Tipo: categorical
   Longitud: '2'
