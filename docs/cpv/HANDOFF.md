@@ -1,7 +1,7 @@
 # CPV family — session handoff
 
-**Status (2026-10-08, overnight): units 0–3c, 4a, 4b and 5a are complete; 3d is half
-done. Every release (registry + upload) waits for `wsl`. Next: unit 5b.**
+**Status (2026-10-08, overnight): every edition 1990–2025 is built and validated (units
+0–5b; 3d half done). Every release (registry + upload) waits for `wsl`. Next: unit 6a.**
 - **Released** (registered, uploaded, fetchable): the Encuesta Intercensal 2025 and the
   Censo 2020.
 - **Built, not registered or uploaded**:
@@ -15,6 +15,7 @@ done. Every release (registry + upload) waits for `wsl`. Next: unit 5b.**
   | 4a | CGPV 2000 + Conteo 2005 microdata, 192 |
   | 4b | 2000/2005 ITER, 64; MG 2000/2005, 192 |
   | 5a | 1990/1995 ITER, 64 |
+  | 5b | 1990/1995 microdata, 96; MG 1995, 64 |
 
   They upload together once `wsl` is back (§Release batch). The 2010/2015 Σ `FACTOR`
   equal INEGI's tabulados exactly. 2000's `FACTOR` is a ratio estimator on preliminary
@@ -32,6 +33,8 @@ session without their input, and allowed commits, pushes and HF uploads (not pac
 installs). A fresh session should confirm with the user before relying on that.
 
 Design: [`PLAN.md`](PLAN.md). Recent units:
+- [`STEP_5b.md`](STEP_5b.md): the 1990/1995 samples (person files only), their PDF FDs, 1990's
+  reused folios, 1995's three weights, the range reconciliation, MG 1995;
 - [`STEP_5a.md`](STEP_5a.md): 1990/1995 ITER, their descriptor PDFs (poppler), the crosswalk
   over six censuses, 1995's aggregates-only tiny localities;
 - [`STEP_4b.md`](STEP_4b.md): 2000/2005 ITER, the crosswalk over four censuses
@@ -48,9 +51,9 @@ Branch: `cpv-integration`, version **0.6.0** (`main` = `v0.6.0`). The registry s
 
 **Host state.**
 - **The Mac** holds the whole CPV mirror:
-  - every CPV file built so far (801: 2020/2025 from the bucket, 2010/2015 rebuilt from
-    INEGI, 1990–2005 built here);
-  - MG 2000/2005/2010 (192 + 160) and the legacy census files;
+  - every CPV file (897: 2020/2025 from the bucket, 2010/2015 rebuilt from INEGI,
+    1990–2005 built here);
+  - MG 1995/2000/2005/2010 (64 + 192 + 160) and the legacy census files;
   - every dictionary in `data/dict/fd/` (2000–2025);
   - the cached INEGI ZIPs, including the 2000/2005 ITER and the 1995/2000/2005 MG ZIPs
     (the latter in the session scratchpad, re-downloadable).
@@ -63,59 +66,34 @@ Branch: `cpv-integration`, version **0.6.0** (`main` = `v0.6.0`). The registry s
 
 > Continue the CPV census-family integration in this repo (branch cpv-integration).
 > Read docs/cpv/HANDOFF.md first, then the parts of docs/cpv/PLAN.md it points to, and
-> execute unit 5b (the 1990 and 1995 samples, MG 1995; their release joins the pending
-> batch) following the session protocol at the top of PLAN.md. If wsl is reachable, do the
-> pending release batch first (HANDOFF §Release batch). Use .venv/bin/python, not uv run.
-> Run wsl tasks without asking; ask me before committing, pushing, installing packages or
-> uploading. When the unit's gate is met, write docs/cpv/STEP_5b.md, tick the unit table,
-> rewrite HANDOFF.md for unit 6a, update the memory note, ask me before committing, and
-> give me the next handoff prompt.
+> execute unit 6a (the cross-year geographic crosswalk: AGEEML / Archivo Histórico de
+> Localidades → a cvegeo mapping table and helper) following the session protocol at the
+> top of PLAN.md. If wsl is reachable, do the pending release batch first (HANDOFF
+> §Release batch). Use .venv/bin/python, not uv run. Run wsl tasks without asking; ask me
+> before committing, pushing, installing packages or uploading. When the unit's gate is
+> met, write docs/cpv/STEP_6a.md, tick the unit table, rewrite HANDOFF.md for unit 6b,
+> update the memory note, ask me before committing, and give me the next handoff prompt.
 
-## Next unit — 5b: 1990 + 1995 samples, MG 1995
+## Next unit — 6a: cross-year geographic crosswalk
 
-Gate: `--validate` 0 with the 1990/1995 microdata; MG 1995 built. Uploaded waits for
-`wsl`.
+Gate: a helper plus tests (`PLAN.md` §Phase 6).
 
-1. **Microdata** (`STEP_0_probe.md`; already in `_cpv_catalog`):
-   - **1990**: `microdatos/cgpv90p_{NN}_dbf.zip`, one flat DBF (`m_10NN.dbf`; a loose
-     pattern, the sole data file) → `personas`. It is a 10% extract with dwelling items
-     repeated on each person, keys `FOLIO_VIV`/`NUM_PER`, **no weight**.
-   - **1995**: `microdatos/cpv95_{NN}_dbf.zip`, `datgen95.dbf` and `migint95.dbf` →
-     `migrantes`.
-     - **`datgen95` is person-level, not the household record the catalog assumes**
-       (probe of state 01 during 5a): 11,098 rows in 2,292 households (`ENT`/`MUN`/`ZONA`/
-       `UPM`/`VIV`/`HOGAR`), ~4.8 per household. `P3_1` numbers the persons (01, 02…), and
-       the `P1_*`/`P2_*` dwelling/household items repeat.
-     - **Weights**: `FAC_POB` varies by person; `FAC_VIV` is constant per household.
-     - **Fix**: map it to `personas` in `_cpv_catalog` (and its tests); households and
-       dwellings can then be derived from it.
-   - Build `--periods 1990 1995 --tables personas migrantes`.
-2. **Dictionaries**: `doc/fd_cgpv1990.pdf` + `doc/catalogos_1990.xls`;
-   `doc/fd_encuesta_cpv1995.pdf` + `doc/catalogos_cpv1995.pdf` (all four already in
-   `data/dict/fd/` on the Mac). `pdftotext -layout` shows that `fd_cgpv1990` opens with one
-   variable table (No | MNEMONICO | DESCRIPCION | LONGITUD | RANGO VALIDO, 53 rows matching
-   the DBF), then «LOS CODIGOS … SE DESCRIBEN A CONTINUACION».
-   - The PDFs are probably AES-encrypted like the ITER descriptors: read them through
-     `_dict_fd.pdf_words` (poppler).
-   - Check whether their tables look like the 2000 annex (`parse_fd_text`), the ITER
-     descriptor (`parse_iter_fd_tsv`) or something new.
-3. **Keys**: derive them like 2000/2005 (`_composite_keys`):
-   - 1990: `FOLIO_VIV` + `NUM_PER`;
-   - 1995: `ENT`/`MUN`/…/`VIV` + `HOGAR`.
-
-   Probe uniqueness in all states first. 1990's single table holds both levels; decide
-   whether `load_cpv_viviendas(1990)` derives the dwellings from it, or only
-   `load_cpv_personas` exists.
-4. **Weights**:
-   - 1995: map `FAC_*` onto the loaders' weight. Decide whether the core gets an alias
-     (`FAC_POB` → `FACTOR` for persons? households carry `FAC_VIV`/`FAC_PROM`), and check
-     the sums against the 1995 ITER.
-   - 1990: unweighted, like 2005.
-5. **MG 1995**: `build_marco_geo.py --period 1995 --no-registry` (`mge1995`/`mgm1995`,
-   2,428 municipalities; `CVE_ENT`; it has `.prj`). The ZIP is in the scratchpad
-   (`mgold/1995.zip`) or re-downloads.
-6. Core: check `SEXO`/`EDAD` codes (`Recodificar` if needed), the keys' descriptions.
-7. Metadata, tests, STEP_5b, HANDOFF.
+1. **The task**: municipalities split between censuses (2,403 in 1990, 2,413 in the 1995
+   ITER, 2,443 in 2000, 2,454 in 2005, 2,456 in 2010, 2,469 in 2020, 2,478 in 2025), and
+   localities change codes. The goal is a `cvegeo` mapping table (old → new, with the
+   kind of change and its date) and a helper, e.g. `cpv_geo_crosswalk(from_period,
+   to_period, level="mun")`, that turns an older frame's `CVE_ENT`/`CVE_MUN` into a target
+   edition's.
+2. **Sources** (probe first): INEGI's AGEEML catalog (Catálogo Único de Claves de Áreas
+   Geoestadísticas Estatales, Municipales y Localidades) and its history of changes
+   ("Archivo Histórico de Localidades", municipal creation decrees). Look for a
+   downloadable change log (CSV/XLSX) on inegi.org.mx (`/app/ageeml/`). The MG ZIPs' own
+   change logs help too: MG 2000 ships `bitacora_cambios_MGM2000.csv`.
+3. **Cross-checks**: the municipality sets of the ITER/MG per edition, all on the Mac:
+   - MG 1995 has 15 Chiapas municipalities the 1995 ITER lacks;
+   - MG 2000 = ITER 2000 = 2,443.
+4. Store the table as a bundled YAML/CSV, generated by a script with the hand review in
+   code (like the ITER crosswalk). Add tests; STEP_6a; HANDOFF.
 
 ## Release batch (needs `wsl`; 3d's gate, then 4b/5b's)
 
@@ -131,8 +109,10 @@ Everything built since 3a, in one registry update and one upload:
 | 4b | `cpv_iter_{2000,2005}_NN` | 64 |
 | 4b | `mg_{ent,mun,a}_{2000,2005}_NN` | 192 |
 | 5a | `cpv_iter_{1990,1995}_NN` | 64 |
+| 5b | `cpv_personas_1990_NN`, `cpv_{personas,migrantes}_1995_NN` | 96 |
+| 5b | `mg_{ent,mun}_1995_NN` | 64 |
 
-Total: 896 files, and more from 5b. `--dictionary` for 1990/1995 needs poppler's
+Total: 1,056 files (640 `cpv_`, 416 `mg_`). `--dictionary` for 1990/1995 needs poppler's
 `pdftotext` on the host (`apt install poppler-utils` on `wsl`, if missing; the Mac has it).
 
 1. Bring `wsl:~/mxcensus` to the branch: `git status`; remove the untracked 3b leftovers
@@ -140,7 +120,8 @@ Total: 896 files, and more from 5b. `--dictionary` for 1990/1995 needs poppler's
    `git pull --ff-only`.
 2. Put the Mac-built files on `wsl`. Either rebuild them there:
    - `build_cpv.py --periods 2000 2005` (all their tables, ~1 min);
-   - `build_marco_geo.py --period 2010|2005|2000 --no-registry` (the national ZIPs are
+   - `build_cpv.py --periods 1990 1995` (their microdata and ITER, a few minutes);
+   - `build_marco_geo.py --period 2010|2005|2000|1995 --no-registry` (the national ZIPs are
      cached on the Mac under `data/cache/mg_{period}_national.zip`);
 
    or `scp` them. Compare `sha256sum` of every 2010/2015 file on both hosts (and of the
@@ -148,13 +129,13 @@ Total: 896 files, and more from 5b. `--dictionary` for 1990/1995 needs poppler's
    finding.
 3. Registry:
    - `build_cpv.py --update-registry` adds the `cpv_` files;
-   - `build_marco_geo.py --period 2010|2005|2000 --update-registry` adds the MG files;
+   - `build_marco_geo.py --period 2010|2005|2000|1995 --update-registry` adds the MG files;
    - the diff must be additions only.
 4. `upload_hf.py upload --dry-run`, then `upload` (never `--delete`); then `verify` in the
    background and a clean-cache `POOCH.fetch` with the unpatched loaders.
 5. CLI/docs:
-   - `fetch --dataset cpv --edition 2000|2005|2010|2015`, `--dataset mg --edition
-     2000|2005|2010`;
+   - `fetch --dataset cpv --edition 1990|1995|2000|2005|2010|2015`, `--dataset mg --edition
+     1995|2000|2005|2010`;
    - README (the 2015/2010/2005/2000 prose, the ITER/AGEB loaders, `load_cpv_hogares`),
      CLAUDE.md counts, `docs/hf_bucket_readme.md`;
    - version 0.7.0, then the merge into `main` + tag if the user wants it as in 2b.
@@ -185,6 +166,9 @@ Total: 896 files, and more from 5b. `--dictionary` for 1990/1995 needs poppler's
     of installing `cryptography` for `pypdf`).
   - (5a) the 1995 national ITER total (90,638,604) is pinned as published in the ITER,
     not the Conteo's headline figure.
+  - (5b) 1995 `datgen95` → `personas` (not `hogares`); 1990's keys from folio occurrences
+    in file order; 1995's three weights kept as named; the 1990/1995 FD ranges reconciled
+    with the data (`_RANGES_FROM_DATA`).
 
 ## Gotchas (carry forward)
 
@@ -256,6 +240,15 @@ Total: 896 files, and more from 5b. `--dictionary` for 1990/1995 needs poppler's
   back.
 - **Review dicts** in `build_cpv.py`: a duplicate key in a dict literal silently drops a
   pair. A test now refuses duplicates.
+- **1990/1995 microdata** (5b): person files only (`viviendas`/`hogares` not published,
+  `load_cpv_survey` returns `None` for them). 1990's `ID_VIV` ends in the folio's
+  occurrence (`cpv._folio_occurrence`; persons are not in `NUM_PER` order, so never
+  re-sort before deriving keys). 1995 weights `FAC_POB`/`FAC_VIV`/`FAC_PROM` are in
+  `cpv._WEIGHTS`. Gids: `personas` 1990 = `g01` … 2025 = `g09`; `migrantes` 1995 = `g01` …
+  2025 = `g06`.
+- **Old FDs from PDFs** (5a/5b): `_dict_fd.pdf_text`/`pdf_words` need poppler's
+  `pdftotext`. The parsers: `parse_fd_1990_text`, `parse_fd_1995_text`, `parse_fd_text`
+  (2000), `parse_iter_fd_tsv` (1990/1995 ITER).
 - **Crosswalk** (4b): `_XW_PERIODS` newest first; older editions auto-pair by normalized
   description (`_XW_DESC_PERIODS`, rejected pairs in `_XW_UNPAIR`); `_XW_PAIRS_RENAMED`
   vs `_XW_PAIRS_KEPT` (+ `_XW_NOTES`). `Renombrar` lists editions, and

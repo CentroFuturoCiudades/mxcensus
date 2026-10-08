@@ -47,28 +47,34 @@ Groups: 1. Latest: `g01`. Files: 32. Rows: 2,546,879.
 
 ## personas
 
-Groups: 7. Latest: `g07`. Files: 192. Rows: 95,250,628.
+Groups: 9. Latest: `g09`. Files: 256. Rows: 103,700,931.
 
 | edition | group | files | states | rows |
 |---|---|---|---|---|
-| 2000 | g01 | 32 | all 32 | 10,099,182 |
-| 2005 | g02 | 32 | all 32 | 10,282,760 |
-| 2010 | g03 | 31 | 01, 02, 03, 04, 05, 06, 07, 08, 09, 10, 11, 12, 13, 14, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32 | 11,011,345 |
-| 2010 | g04 | 1 | 15 | 927,057 |
-| 2015 | g05 | 32 | all 32 | 22,692,265 |
-| 2020 | g06 | 32 | all 32 | 15,015,683 |
-| 2025 | g07 | 32 | all 32 | 25,222,336 |
+| 1990 | g01 | 32 | all 32 | 8,118,242 |
+| 1995 | g02 | 32 | all 32 | 332,061 |
+| 2000 | g03 | 32 | all 32 | 10,099,182 |
+| 2005 | g04 | 32 | all 32 | 10,282,760 |
+| 2010 | g05 | 31 | 01, 02, 03, 04, 05, 06, 07, 08, 09, 10, 11, 12, 13, 14, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32 | 11,011,345 |
+| 2010 | g06 | 1 | 15 | 927,057 |
+| 2015 | g07 | 32 | all 32 | 22,692,265 |
+| 2020 | g08 | 32 | all 32 | 15,015,683 |
+| 2025 | g09 | 32 | all 32 | 25,222,336 |
 
 ### Schema groups
-- **g01** — 81 cols, 32 file(s), editions ['2000']
-- **g02** — 32 cols, 32 file(s), editions ['2005']
-- **g03** — 95 cols, 31 file(s), editions ['2010']; partial editions {'2010': [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32]}
-- **g04** — 95 cols, 1 file(s), editions ['2010']; partial editions {'2010': [15]}
-- **g05** — 86 cols, 32 file(s), editions ['2015']
-- **g06** — 91 cols, 32 file(s), editions ['2020']
-- **g07** — 92 cols, 32 file(s), editions ['2025']
+- **g01** — 53 cols, 32 file(s), editions ['1990']
+- **g02** — 105 cols, 32 file(s), editions ['1995']
+- **g03** — 81 cols, 32 file(s), editions ['2000']
+- **g04** — 32 cols, 32 file(s), editions ['2005']
+- **g05** — 95 cols, 31 file(s), editions ['2010']; partial editions {'2010': [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32]}
+- **g06** — 95 cols, 1 file(s), editions ['2010']; partial editions {'2010': [15]}
+- **g07** — 86 cols, 32 file(s), editions ['2015']
+- **g08** — 91 cols, 32 file(s), editions ['2020']
+- **g09** — 92 cols, 32 file(s), editions ['2025']
 
 ### Schema drift (consecutive editions on disk)
+- **1990 → 1995**: added ['ESTRATO', 'FAC_POB', 'FAC_PROM', 'FAC_VIV', 'HOGAR', 'INGMENTH', 'INGMENTP', 'P1_1', 'P1_10', 'P1_11', 'P1_13', 'P1_16', 'P1_17', 'P1_18', 'P1_2', 'P1_3', 'P1_4', 'P1_5', 'P1_6', 'P1_7', 'P1_8', 'P1_9', 'P2_2', 'P2_3', 'P3_1', 'P3_1A', 'P3_3A', 'P3_3B', 'P3_4', 'P3_5', 'P3_6', 'P3_7B', 'P3_8', 'P4_1', 'P4_2', 'P4_3', 'P4_4A', 'P4_4B', 'P4_5A', 'P4_5B', 'P4_6A', 'P4_6C', 'P5_1', 'P5_2', 'P5_3', 'P5_4A', 'P5_4B', 'P5_5', 'P5_6', 'P5_7', 'P6_1', 'P6_2', 'P6_3', 'P6_4', 'P7_1', 'P7_10A', 'P7_10B', 'P7_10C', 'P7_11A', 'P7_11B', 'P7_11C', 'P7_11D', 'P7_11E', 'P7_11F', 'P7_11MH', 'P7_11MP', 'P7_4', 'P7_5', 'P7_6', 'P7_8', 'P7_9A', 'P7_9B', 'P7_9MH', 'P7_9MP', 'P8_1A', 'P8_1B', 'P8_1C', 'P8_1D', 'P8_1E', 'P8_1F', 'P8_2A', 'P8_2B', 'P8_2C', 'P8_2D', 'P8_2F', 'P8_2G', 'P8_2H', 'P8_3A', 'P8_3B', 'P8_3C', 'P8_3D', 'P8_3E', 'P8_3F', 'P8_3G', 'P8_3H', 'P8_3I', 'P9_11A', 'P9_11B', 'TIPO_HOG', 'UPM', 'VIV', 'ZONA']; removed ['ACT_PRIN', 'AGUA_ENTU', 'ALFABETA', 'ANO_APRO', 'ANO_CUMP', 'APROBO', 'ASISTE', 'COMBUS', 'CON_AGUA', 'CUA_EXCLU', 'CVE_CAR', 'CVE_LENG', 'CVE_OCUP', 'CVE_PAR', 'CVE_P_NAC', 'CVE_P_RES', 'C_A_ECO', 'DRENAJE', 'ELECTRI', 'EST_CIVIL', 'FOLIO_VIV', 'F_G_COC', 'HAB_ESP', 'HAB_IND', 'HORAS', 'H_V_TENIDO', 'INGRESO', 'NIV_EST', 'NOR_BAS', 'NUM_PER', 'NUM_PERS', 'N_F_GPOS', 'PAREDES', 'PERIODO', 'PISOS', 'PRESCO', 'P_DORMIR', 'RELIGION', 'SEXO', 'SIT_TRAB', 'TAM_DUERME', 'TECHOS', 'TEC_PRIM', 'TEC_SEC', 'TENENCIA', 'TIE_EXCU', 'TIP_HOGAR', 'T_CUARTOS', 'T_VIV', 'V_ACTUAL']
+- **1995 → 2000**: added ['ABANESCO', 'ACTTRAB_C', 'AGUINALD', 'ALFABET', 'ANTESC', 'ASISTEN', 'AYUFADPC', 'AYUFADPR', 'AYUFAOPC', 'AYUFAOPR', 'CAUEMI', 'CAUSADIS', 'CONACT', 'DISBRA', 'DISMENT', 'DISMOV', 'DISMUDO', 'DISNOTIE', 'DISOIR', 'DISOTRA_C', 'DISOTRA_V', 'DISVER', 'EDAD', 'EDAMORA', 'EDAMORD', 'EDAMORM', 'ESCOACUM', 'ESCOLARI', 'ESTCON', 'FACTOR', 'FECNACA', 'FECNACM', 'HESPANOL', 'HIJFAL', 'HIJSOB', 'HLENGUA', 'HORTRA', 'IMSS', 'INGRESOS', 'INGTOPER', 'ISSSTE', 'JUBPENC', 'JUBPENR', 'LNACEDO_C', 'LOC', 'LTRABMUN_C', 'LTRABPAI_C', 'MUN95OTR_C', 'NIVACAD', 'NIVELACAD', 'NOMCAR_C', 'NOTIEDER', 'NUMHIJ', 'NUMHOG', 'NUMVIV', 'OCUACTIV_C', 'OTINGPER', 'OTRAREL_C', 'OTRINS_V', 'OTROPARE_C', 'OTROTIPC', 'OTROTIPR', 'PEMEX', 'PERETN', 'PROCAMPC', 'PROCAMPR', 'QDIALECT_C', 'REPUTIL', 'RES95EDO_C', 'SARAFORE', 'SERSALUD', 'SERVMED', 'SEXO', 'SITTRA', 'SOBREVI', 'VACACION']; removed ['FAC_POB', 'FAC_PROM', 'FAC_VIV', 'HOGAR', 'INGMENTH', 'INGMENTP', 'P1_1', 'P1_10', 'P1_11', 'P1_13', 'P1_16', 'P1_17', 'P1_18', 'P1_2', 'P1_3', 'P1_4', 'P1_5', 'P1_6', 'P1_7', 'P1_8', 'P1_9', 'P2_2', 'P2_3', 'P3_1', 'P3_1A', 'P3_3A', 'P3_3B', 'P3_4', 'P3_5', 'P3_6', 'P3_7B', 'P3_8', 'P4_1', 'P4_2', 'P4_3', 'P4_4A', 'P4_4B', 'P4_5A', 'P4_5B', 'P4_6A', 'P4_6C', 'P5_1', 'P5_2', 'P5_3', 'P5_4A', 'P5_4B', 'P5_5', 'P5_6', 'P5_7', 'P6_1', 'P6_2', 'P6_3', 'P6_4', 'P7_1', 'P7_10A', 'P7_10B', 'P7_10C', 'P7_11A', 'P7_11B', 'P7_11C', 'P7_11D', 'P7_11E', 'P7_11F', 'P7_11MH', 'P7_11MP', 'P7_4', 'P7_5', 'P7_6', 'P7_8', 'P7_9A', 'P7_9B', 'P7_9MH', 'P7_9MP', 'P8_1A', 'P8_1B', 'P8_1C', 'P8_1D', 'P8_1E', 'P8_1F', 'P8_2A', 'P8_2B', 'P8_2C', 'P8_2D', 'P8_2F', 'P8_2G', 'P8_2H', 'P8_3A', 'P8_3B', 'P8_3C', 'P8_3D', 'P8_3E', 'P8_3F', 'P8_3G', 'P8_3H', 'P8_3I', 'P9_11A', 'P9_11B', 'TIPO_HOG', 'VIV', 'ZONA']
 - **2000 → 2005**: added ['ANT_ESCO', 'ASIS_ESC', 'CONS_HOG', 'CONS_MUN', 'CONS_PER', 'CONS_VIV', 'EDAD_QUI', 'ESC_ACUM', 'GRA_APRO', 'HABLENIN', 'HATAMESP', 'INST_PRI', 'LEINDHAB', 'LURE2000', 'NHIJNAVI', 'NIVANTES', 'NIV_ESCO', 'NUHIJSOB', 'OTRA_INS', 'PARENT', 'SEGU_POP', 'SIN_DERE', 'TIPO_OPE']; removed ['ABANESCO', 'ACTTRAB_C', 'AGUINALD', 'ANTESC', 'ASISTEN', 'AYUFADPC', 'AYUFADPR', 'AYUFAOPC', 'AYUFAOPR', 'CAUEMI', 'CAUSADIS', 'CONACT', 'DISBRA', 'DISMENT', 'DISMOV', 'DISMUDO', 'DISNOTIE', 'DISOIR', 'DISOTRA_C', 'DISOTRA_V', 'DISVER', 'EDAMORA', 'EDAMORD', 'EDAMORM', 'ESCOACUM', 'ESCOLARI', 'ESTCON', 'ESTRATO', 'FACTOR', 'FECNACA', 'FECNACM', 'HESPANOL', 'HIJFAL', 'HIJSOB', 'HLENGUA', 'HORTRA', 'INGRESOS', 'INGTOPER', 'JUBPENC', 'JUBPENR', 'LNACEDO_C', 'LOC', 'LTRABMUN_C', 'LTRABPAI_C', 'MUN95OTR_C', 'NIVACAD', 'NIVELACAD', 'NOMCAR_C', 'NOTIEDER', 'NUMHIJ', 'NUMHOG', 'NUMVIV', 'OCUACTIV_C', 'OTINGPER', 'OTRAREL_C', 'OTRINS_V', 'OTROPARE_C', 'OTROTIPC', 'OTROTIPR', 'PERETN', 'PROCAMPC', 'PROCAMPR', 'QDIALECT_C', 'REPUTIL', 'RES95EDO_C', 'SARAFORE', 'SERSALUD', 'SERVMED', 'SITTRA', 'SOBREVI', 'UPM', 'VACACION']
 - **2005 → 2010**: added ['ACTTRAB_C', 'ANTESC', 'ASISTEN', 'AYUJUBPEN', 'AYUOTRFTE', 'AYUPEDP', 'AYUPEOP', 'AYUPROGOB', 'CAUSADIS1', 'CAUSADIS2', 'CAUSADIS3', 'CAUSADIS4', 'CAUSADIS5', 'CAUSADIS6', 'CAUSADIS7', 'CERTEZA', 'CLAVIVP', 'CLENGUA', 'CONACT', 'DHSERSAL1', 'DHSERSAL2', 'DISCAP1', 'DISCAP2', 'DISCAP3', 'DISCAP4', 'DISCAP5', 'DISCAP6', 'DISCAP7', 'DISCAP8', 'EDAMORA', 'EDAMORD', 'EDAMORM', 'ESCOACUM', 'ESCOLARI', 'ESTCON', 'ESTRATO', 'FACTOR', 'FECNACA', 'FECNACM', 'HESPANOL', 'HIJFAL', 'HIJSOB', 'HLENGUA', 'HORTRA', 'IDCONYUGE', 'IDCONYUGEC', 'IDH125', 'IDMADRE', 'IDMADREC', 'IDPADRE', 'IDPADREC', 'ID_PER', 'ID_VIV', 'INGTRMEN', 'LI_INALI', 'LNACEDO_C', 'LNACPAIS_C', 'LOC50K', 'LTRABMUN_C', 'LTRABPAI_C', 'MUN05OTR_C', 'NIVACAD', 'NIV_CAR', 'NOMCAR_C', 'NOM_ENT', 'NOM_LOC', 'NOM_MUN', 'NOM_MUN05', 'NOM_MUNLTR', 'NUMHIJ', 'NUMPER', 'OCUACTIV_C', 'OTRAREL_C', 'OTROPARE_C', 'PERETN', 'PRESLAB1', 'PRESLAB2', 'PRESLAB3', 'PRESLAB4', 'PRESLAB5', 'PRESLAB6', 'QDIALECT_C', 'RES05EDO_C', 'RES05PAI_C', 'SERSALUD', 'SITTRA', 'SOBREVI', 'UPM']; removed ['ANT_ESCO', 'ASIS_ESC', 'CONS_HOG', 'CONS_MUN', 'CONS_PER', 'CONS_VIV', 'EDAD_QUI', 'ESC_ACUM', 'GRA_APRO', 'HABLENIN', 'HATAMESP', 'IMSS', 'INST_PRI', 'ISSSTE', 'LEINDHAB', 'LURE2000', 'NHIJNAVI', 'NIVANTES', 'NIV_ESCO', 'NUHIJSOB', 'OTRA_INS', 'PEMEX', 'SEGU_POP', 'SIN_DERE', 'TIPO_OPE']
 - **2010 → 2015**: added ['ACTA_NAC', 'ACTIVIDADES_C', 'ACTI_SIN_PAGO1', 'ACTI_SIN_PAGO2', 'ACTI_SIN_PAGO3', 'ACTI_SIN_PAGO4', 'ACTI_SIN_PAGO5', 'ACTI_SIN_PAGO6', 'ACTI_SIN_PAGO7', 'ACTI_SIN_PAGO8', 'AFRODES', 'AGUINALDO', 'COBERTURA', 'CREDITO_VIVIENDA', 'EDAD_MORIR_A', 'EDAD_MORIR_D', 'EDAD_MORIR_M', 'ELENGUA', 'ENT_PAIS_ASI', 'ENT_PAIS_NAC', 'ENT_PAIS_RES10', 'ENT_PAIS_TRAB', 'FECHA_NAC_A', 'FECHA_NAC_M', 'HIJOS_FALLECIDOS', 'HIJOS_NAC_VIVOS', 'HIJOS_SOBREVIV', 'IDENT_MADRE', 'IDENT_PADRE', 'IDENT_PAREJA', 'ID_PERSONA', 'INCAP_SUELDO', 'MED_TRASLADO_ESC1', 'MED_TRASLADO_ESC2', 'MED_TRASLADO_ESC3', 'MED_TRASLADO_TRAB1', 'MED_TRASLADO_TRAB2', 'MED_TRASLADO_TRAB3', 'MUN_ASI', 'MUN_RES10', 'MUN_TRAB', 'NACIONALIDAD', 'NOM_MUN_ASI', 'NOM_MUN_RES10', 'NOM_MUN_TRAB', 'OCUPACION_C', 'PARENT_OTRO_C', 'PERTE_INDIGENA', 'QDIALECT_INALI', 'SAR_AFORE', 'SERVICIO_MEDICO', 'SITUACION_TRAB', 'SITUA_CONYUGAL', 'SOBREVIVENCIA', 'TAMLOC', 'TIE_TRASLADO_ESCU', 'TIE_TRASLADO_TRAB', 'UTILIDADES', 'VACACIONES']; removed ['ACTTRAB_C', 'ANTESC', 'AYUJUBPEN', 'AYUOTRFTE', 'AYUPEDP', 'AYUPEOP', 'AYUPROGOB', 'CAUSADIS1', 'CAUSADIS2', 'CAUSADIS3', 'CAUSADIS4', 'CAUSADIS5', 'CAUSADIS6', 'CAUSADIS7', 'CERTEZA', 'CLAVIVP', 'CLENGUA', 'DISCAP1', 'DISCAP2', 'DISCAP3', 'DISCAP4', 'DISCAP5', 'DISCAP6', 'DISCAP7', 'DISCAP8', 'EDAMORA', 'EDAMORD', 'EDAMORM', 'ESTCON', 'FECNACA', 'FECNACM', 'HIJFAL', 'HIJSOB', 'HORTRA', 'IDCONYUGE', 'IDCONYUGEC', 'IDH125', 'IDMADRE', 'IDMADREC', 'IDPADRE', 'IDPADREC', 'ID_PER', 'LI_INALI', 'LNACEDO_C', 'LNACPAIS_C', 'LTRABMUN_C', 'LTRABPAI_C', 'MUN05OTR_C', 'NIV_CAR', 'NOMCAR_C', 'NOM_MUN05', 'NOM_MUNLTR', 'NUMHIJ', 'OCUACTIV_C', 'OTRAREL_C', 'OTROPARE_C', 'PERETN', 'PRESLAB1', 'PRESLAB2', 'PRESLAB3', 'PRESLAB4', 'PRESLAB5', 'PRESLAB6', 'RES05EDO_C', 'RES05PAI_C', 'SITTRA', 'SOBREVI', 'TAM_LOC']
@@ -77,24 +83,27 @@ Groups: 7. Latest: `g07`. Files: 192. Rows: 95,250,628.
 
 ## migrantes
 
-Groups: 5. Latest: `g05`. Files: 128. Rows: 834,919.
+Groups: 6. Latest: `g06`. Files: 160. Rows: 842,191.
 
 | edition | group | files | states | rows |
 |---|---|---|---|---|
-| 2000 | g01 | 32 | all 32 | 195,701 |
-| 2010 | g02 | 31 | 01, 02, 03, 04, 05, 06, 07, 08, 09, 10, 11, 12, 13, 14, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32 | 150,166 |
-| 2010 | g03 | 1 | 15 | 6,274 |
-| 2020 | g04 | 32 | all 32 | 120,099 |
-| 2025 | g05 | 32 | all 32 | 362,679 |
+| 1995 | g01 | 32 | all 32 | 7,272 |
+| 2000 | g02 | 32 | all 32 | 195,701 |
+| 2010 | g03 | 31 | 01, 02, 03, 04, 05, 06, 07, 08, 09, 10, 11, 12, 13, 14, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32 | 150,166 |
+| 2010 | g04 | 1 | 15 | 6,274 |
+| 2020 | g05 | 32 | all 32 | 120,099 |
+| 2025 | g06 | 32 | all 32 | 362,679 |
 
 ### Schema groups
-- **g01** — 19 cols, 32 file(s), editions ['2000']
-- **g02** — 27 cols, 31 file(s), editions ['2010']; partial editions {'2010': [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32]}
-- **g03** — 27 cols, 1 file(s), editions ['2010']; partial editions {'2010': [15]}
-- **g04** — 26 cols, 32 file(s), editions ['2020']
-- **g05** — 27 cols, 32 file(s), editions ['2025']
+- **g01** — 23 cols, 32 file(s), editions ['1995']
+- **g02** — 19 cols, 32 file(s), editions ['2000']
+- **g03** — 27 cols, 31 file(s), editions ['2010']; partial editions {'2010': [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32]}
+- **g04** — 27 cols, 1 file(s), editions ['2010']; partial editions {'2010': [15]}
+- **g05** — 26 cols, 32 file(s), editions ['2020']
+- **g06** — 27 cols, 32 file(s), editions ['2025']
 
 ### Schema drift (consecutive editions on disk)
+- **1995 → 2000**: added ['FACTOR', 'LOC', 'MEDAD', 'MFECEMIA', 'MFECEMIM', 'MFECRETA', 'MFECRETM', 'MLUGORI_C', 'MPAIRES_C', 'MPDESOTR_C', 'MPER', 'MSEXO', 'NUMHOG', 'NUMVIV']; removed ['FAC_VIV', 'HOGAR', 'P3_1', 'P9_1', 'P9_10A', 'P9_10B', 'P9_15', 'P9_16', 'P9_24', 'P9_4', 'P9_5', 'P9_6A', 'P9_6B', 'P9_7', 'P9_8', 'P9_9', 'VIV', 'ZONA']
 - **2000 → 2010**: added ['CERTEZA', 'CLAVIVP', 'IDH125', 'ID_MIN', 'ID_VIV', 'LOC50K', 'MCONRESACT', 'MPAIRES', 'MPERA', 'MPERLS', 'NOM_ENT', 'NOM_LOC', 'NOM_MUN']; removed ['LOC', 'MPAIRES_C', 'MPER', 'NUMHOG', 'NUMVIV']
 - **2010 → 2020**: added ['COBERTURA', 'ID_MII', 'MCAUSAEMIG_V', 'MCAUSARETO_V', 'MCONRES', 'MPAIDES_C', 'MPER', 'TAMLOC']; removed ['CERTEZA', 'IDH125', 'ID_MIN', 'MPDESOTR_C', 'MPERA', 'NOM_ENT', 'NOM_LOC', 'NOM_MUN', 'TAM_LOC']
 - **2020 → 2025**: added ['CVEGEO', 'CVE_ENT', 'CVE_MUN']; removed ['ENT', 'MUN']
@@ -156,6 +165,4 @@ Groups: 1. Latest: `g01`. Files: 1. Rows: 13,880.
 
 ## Missing (catalog vs mirror)
 
-- 1990/personas: 32 file(s) — 01, 02, 03, 04, 05, 06, 07, 08, 09, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32
-- 1995/hogares: 32 file(s) — 01, 02, 03, 04, 05, 06, 07, 08, 09, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32
-- 1995/migrantes: 32 file(s) — 01, 02, 03, 04, 05, 06, 07, 08, 09, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32
+None — every catalog file of the editions on disk is present.

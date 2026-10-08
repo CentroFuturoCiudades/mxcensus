@@ -227,8 +227,8 @@ CLAVIVP:
 
 # --- demographics ---------------------------------------------------------------------------
 SEXO:
-  Descripción: Sexo (códigos 1 y 3 en 2010, 2015, 2020 y 2025; 2000 y 2005 escriben a la
-    mujer con 2 — Recodificar; harmonize=True lo lleva a 3)
+  Descripción: Sexo (códigos 1 y 3 en 2010, 2015, 2020 y 2025; 1990, 2000 y 2005 escriben a
+    la mujer con 2 — Recodificar; harmonize=True lo lleva a 3; en 1995 es P3_5)
   Pregunta: (NOMBRE) es hombre. (NOMBRE) es mujer.
   Tipo: categorical
   Longitud: '1'
@@ -236,6 +236,8 @@ SEXO:
     '1': Hombre
     '3': Mujer
   Recodificar:
+    '1990':
+      '2': '3'
     '2000':
       '2': '3'
     '2005':

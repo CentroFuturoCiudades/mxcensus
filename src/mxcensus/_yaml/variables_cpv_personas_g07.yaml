@@ -1,26 +1,3 @@
-CVEGEO:
-  Descripción: Clave geoestadística integrada, la concatenación de las claves geográficas que lleva la
-    tabla (como en el Marco Geoestadístico). Microdatos — entidad + municipio (5 dígitos); estimaciones
-    e ITER — + localidad (9); AGEB — + AGEB + manzana (16). Los renglones de totales llevan sus partes
-    en cero (00/000/0000/0000/000). Los archivos de 2020 no la traen; harmonize=True la deriva.
-  Tipo: string
-  Longitud: 5 / 9 / 16
-CVE_ENT:
-  Descripción: Clave del Área Geoestadística Estatal (01-32; 00 = total nacional en las estimaciones).
-    De 2000 a 2020 se llama ENT en los microdatos; en 2020, ENTIDAD en el ITER y el AGEB.
-  Tipo: string
-  Longitud: '2'
-CVE_MUN:
-  Descripción: Clave del Área Geoestadística Municipal (001-570; 000 = total estatal en las estimaciones,
-    el ITER y el AGEB; 997 = localidades de menos de 50 000 habitantes de la entidad en las estimaciones).
-    De 2000 a 2020 se llama MUN en los microdatos.
-  Tipo: string
-  Longitud: '3'
-LOC50K:
-  Descripción: Clave de la localidad de 50 000 y más habitantes dentro del municipio; 0000 = localidad
-    de menos de 50 000 habitantes
-  Tipo: string
-  Longitud: '4'
 ID_VIV:
   Descripción: Identificador único de la vivienda (2015, 2020 y 2025 — 12 dígitos; los dos primeros son
     la entidad, así que es único en todo el país). Los CSV de 2015 lo escriben sin el cero inicial de
@@ -39,13 +16,70 @@ ID_PERSONA:
     orden dentro del hogar en el archivo (2 dígitos, 19 en total).
   Tipo: string
   Longitud: 14 / 17 / 18 / 19
-TIPO_REG:
-  Descripción: Registro imputado — identificador de registros imputados
+ENT:
+  Descripción: Clave de la Entidad Federativa
+  Pregunta: Entidad Federativa
   Tipo: categorical
-  Longitud: '1'
+  Longitud: '2'
   Categorías:
-    '0': Encuestado
-    '1': Imputado
+    '01': '01'
+    '02': '02'
+    '03': '03'
+    '04': '04'
+    '05': '05'
+    '06': '06'
+    '07': '07'
+    08: 08
+    09: 09
+    '10': '10'
+    '11': '11'
+    '12': '12'
+    '13': '13'
+    '14': '14'
+    '15': '15'
+    '16': '16'
+    '17': '17'
+    '18': '18'
+    '19': '19'
+    '20': '20'
+    '21': '21'
+    '22': '22'
+    '23': '23'
+    '24': '24'
+    '25': '25'
+    '26': '26'
+    '27': '27'
+    '28': '28'
+    '29': '29'
+    '30': '30'
+    '31': '31'
+    '32': '32'
+NOM_ENT:
+  Descripción: Nombre de la entidad federativa
+  Pregunta: Nombre de la entidad federativa
+  Tipo: string
+  Longitud: '50'
+MUN:
+  Descripción: Clave del Municipio o Delegación
+  Pregunta: Municipio o Delegación
+  Tipo: string
+  Longitud: '3'
+  Nota: 001..570 = códigos (no enumerados)
+NOM_MUN:
+  Descripción: Nombre del municipio o delegación
+  Pregunta: Nombre del municipio o delegación
+  Tipo: string
+  Longitud: '80'
+LOC50K:
+  Descripción: Clave de la localidad de 50 000 y más habitantes dentro del municipio; 0000 = localidad
+    de menos de 50 000 habitantes
+  Tipo: string
+  Longitud: '4'
+NOM_LOC:
+  Descripción: Nombre de la localidad (sólo para localidades de 50 000 y más habitantes)
+  Pregunta: Nombre de la localidad
+  Tipo: string
+  Longitud: '80'
 COBERTURA:
   Descripción: Tipo de cobertura en el municipio (EIC 2015, cuestionario ampliado del Censo 2020 y EIC
     2025)
@@ -72,102 +106,18 @@ FACTOR:
   Rango:
   - 1
   - 99999
-CLAVIVP:
-  Descripción: Clase de vivienda particular. Las clases 07 (local no construido para habitación) y 09
-    (refugio) no tienen características de la vivienda (bloque PAREDES… SERV_TV_PAGA vacío). En 2015 los
-    códigos van sin cero inicial (1…9, 99) y INEGI rotula la clase 03 «Casa dúplex, triple o cuádruple»
-    y la 06 «Cuarto en la azotea de un edificio».
-  Tipo: categorical
-  Longitud: '2'
-  Periodos:
-  - '2015'
-  - '2020'
-  - '2025'
-  Categorías:
-    '01': Casa única en el terreno
-    '02': Casa que comparte terreno con otra(s)
-    '03': Casa dúplex
-    '04': Departamento en edificio
-    '05': Vivienda en vecindad o cuartería
-    '06': Vivienda en cuarto de azotea de un edificio
-    '07': Local no construido para habitación
-    08: Vivienda móvil
-    09: Refugio
-  Especiales:
-    '99': No especificado de vivienda particular
-  Alias:
-    '1': '01'
-    '2': '02'
-    '3': '03'
-    '4': '04'
-    '5': '05'
-    '6': '06'
-    '7': '07'
-    '8': 08
-    '9': 09
 NUMPER:
   Descripción: Número de persona
   Pregunta: Número de persona
-  Tipo: categorical
+  Tipo: numeric
   Longitud: '2'
-  Categorías:
-    '01': '01'
-    '02': '02'
-    '03': '03'
-    '04': '04'
-    '05': '05'
-    '06': '06'
-    '07': '07'
-    08: 08
-    09: 09
-    '10': '10'
-    '11': '11'
-    '12': '12'
-    '13': '13'
-    '14': '14'
-    '15': '15'
-    '16': '16'
-    '17': '17'
-    '18': '18'
-    '19': '19'
-    '20': '20'
-    '21': '21'
-    '22': '22'
-    '23': '23'
-    '24': '24'
-    '25': '25'
-    '26': '26'
-    '27': '27'
-    '28': '28'
-    '29': '29'
-    '30': '30'
-    '31': '31'
-    '32': '32'
-    '33': '33'
-    '34': '34'
-    '35': '35'
-    '36': '36'
-    '37': '37'
-    '38': '38'
-    '39': '39'
-    '40': '40'
-    '41': '41'
-    '42': '42'
-    '43': '43'
-    '44': '44'
-    '45': '45'
-    '46': '46'
-    '47': '47'
-    '48': '48'
-    '49': '49'
-    '50': '50'
-    '51': '51'
-    '52': '52'
-    '53': '53'
-    '54': '54'
+  Rango:
+  - 1
+  - 54
+  Categorías: {}
 SEXO:
-  Descripción: Sexo (códigos 1 y 3 en 2010, 2015, 2020 y 2025; 2000 y 2005 escriben a la mujer con 2 —
-    Recodificar; harmonize=True lo lleva a 3)
+  Descripción: Sexo (códigos 1 y 3 en 2010, 2015, 2020 y 2025; 1990, 2000 y 2005 escriben a la mujer con
+    2 — Recodificar; harmonize=True lo lleva a 3; en 1995 es P3_5)
   Pregunta: (NOMBRE) es hombre. (NOMBRE) es mujer.
   Tipo: categorical
   Longitud: '1'
@@ -185,545 +135,201 @@ EDAD:
   - 130
   Especiales:
     '999': No especificado
-PARENTESCO:
-  Descripción: Parentesco
-  Pregunta: ¿Qué es (NOMBRE) de la jefa o del jefe?
-  Tipo: categorical
-  Longitud: '3'
-  Categorías:
-    '101': Jefa(e)
-    '201': Esposa(o)
-    '202': Concubina(o) o unión libre
-    '203': Amante o querida(o)
-    '301': Hija(o)
-    '302': Hija(o) adoptiva(o)
-    '303': Hijastra(o)
-    '304': Hija(o) de crianza
-    '401': Madre o padre
-    '402': Madrastra o padrastro
-    '403': Hermana(o)
-    '404': Media(o) hermana(o)
-    '405': Hermanastra(o)
-    '406': Abuela(o)
-    '407': Bisabuela(o) o tatarabuela(o)
-    '408': Nieta(o)
-    '409': Nietastra(o)
-    '410': Esposa(o) de nieto(a)
-    '411': Bisnieta(o) o tataranieta(o)
-    '412': Tía(o)
-    '413': Sobrina(o)
-    '414': Sobrina(o) nieta(o)
-    '415': Prima(o)
-    '416': Suegra(o)
-    '417': Consuegra(o)
-    '418': Nuera o yerno
-    '419': Cuñada(o)
-    '420': Concuña(o)
-    '421': Madrina o padrino
-    '422': Ahijada(o)
-    '423': Comadre o compadre
-    '424': Otros familiares
-    '501': Sin parentesco
-    '502': Tutor(a)
-    '503': Tutelada(o)
-    '601': Trabajador(a) doméstico(a)
-    '611': Esposa(o) de trabajador(a) doméstico(a)
-    '612': Hija(o) de trabajador(a) doméstico(a)
-    '613': Otro pariente de trabajador(a) doméstico(a)
-    '701': Huésped
-  Especiales:
-    '999': No especificado
-  Catálogo: PARENTESCO
-IDENT_MADRE:
-  Descripción: Identificación de la madre
-  Pregunta: '¿La madre de (NOMBRE):'
+PARENT:
+  Descripción: 3. Parentesco (código)
+  Pregunta: ¿Qué es (NOMBRE) de la (del) jefa(e)?
   Tipo: categorical
   Longitud: '2'
   Categorías:
-    '01': '01'
-    '02': '02'
-    '03': '03'
-    '04': '04'
-    '05': '05'
-    '06': '06'
-    '07': '07'
-    08: 08
-    09: 09
-    '10': '10'
-    '11': '11'
-    '12': '12'
-    '13': '13'
-    '14': '14'
-    '15': '15'
-    '16': '16'
-    '17': '17'
-    '18': '18'
-    '19': '19'
-    '20': '20'
-    '21': '21'
-    '22': '22'
-    '23': '23'
-    '24': '24'
-    '25': '25'
-    '26': '26'
-    '27': '27'
-    '28': '28'
-    '29': '29'
-    '30': '30'
-    '31': '31'
-    '32': '32'
-    '33': '33'
-    '34': '34'
-    '35': '35'
-    '36': '36'
-    '37': '37'
-    '38': '38'
-    '39': '39'
-    '40': '40'
-    '41': '41'
-    '42': '42'
-    '43': '43'
-    '44': '44'
-    '45': '45'
-    '46': '46'
-    '47': '47'
-    '48': '48'
-    '49': '49'
-    '50': '50'
-    '51': '51'
-    '52': '52'
-    '53': '53'
-    '54': '54'
-    '96': vive en otra vivienda?
-    '97': ya falleció?
+    '1': Jefa(e )
+    '2': Esposa(o) o pareja
+    '3': Hija(o)
+    '4': Nieta(o)
+    '5': Nuera o yerno
+    '6': Madre o padre
+    '7': Suegra(o)
+    '8': Otro parentesco
+    '9': Sin parentesco
   Especiales:
+    '99': No especificado
+PARENT_OTRO_C:
+  Descripción: 3. Parentesco (clave codificada)
+  Pregunta: Clave de "otro parentesco"
+  Tipo: categorical
+  Longitud: '3'
+  Categorías:
+    '101': Jefa o jefe
+    '201': Esposa o esposo
+    '202': Concubina o concubino
+    '203': Amasia o amasio
+    '204': Querida o querido
+    '301': Hija o hijo
+    '302': Hija o hijo adoptivo
+    '303': Hijastra o hijastro
+    '304': Hija o hijo de crianza
+    '401': Madre o padre
+    '402': Madrastra o padrastro
+    '403': Hermana o hermano
+    '404': Media hermana o medio hermano
+    '405': Hermanastra o hermanastro
+    '406': Abuela o abuelo
+    '407': Bisabuela o bisabuelo
+    '408': Tatarabuela o tatarabuelo
+    '409': Nieta o nieto
+    '410': Bisnieta o bisnieto
+    '411': Tataranieta o tataranieto
+    '412': Tía o tío
+    '413': Sobrina o sobrino
+    '414': Prima o primo
+    '415': Suegra o suegro
+    '416': Consuegra o consuegro
+    '417': Nuera o yerno
+    '418': Cuñada o cuñado
+    '419': Concuña o concuño
+    '420': Madrina o padrino
+    '421': Ahijada o ahijado
+    '422': Comadre o compadre
+    '423': Otro familiar
+    '501': No tiene parentesco
+    '502': Tutora o tutor
+    '503': Tutelada o tutelado
+    '601': Trabajadora o trabajador doméstico
+    '611': Esposa o esposo del trabajador doméstico
+    '612': Hija o hijo de la o del trabajador doméstico
+    '613': Madre o padre de la o del trabajador doméstico
+    '614': Nieta o nieto de la o del trabajador doméstico
+    '615': Otro pariente de la o del trabajador doméstico
+    '701': Huésped
+    '711': Esposa o esposo del huésped
+    '712': Hija o o hijo del huésped
+    '713': Madre o padre del huésped
+    '714': Nieta o nieto del huésped
+    '715': Otro pariente del huésped
+  Especiales:
+    '999': No especificado
+  Catálogo: TC_PARENTESCO_2015
+IDENT_MADRE:
+  Descripción: 4. Identificación de la madre
+  Pregunta: ¿Dónde vive la madre de (NOMBRE)?
+  Tipo: numeric
+  Longitud: '2'
+  Rango:
+  - 1
+  - 54
+  Categorías: {}
+  Especiales:
+    '96': En otra vivienda
+    '97': Falleció
     '98': No sabe
     '99': No especificado
 IDENT_PADRE:
-  Descripción: Identificación del padre
-  Pregunta: '¿El padre de (NOMBRE):'
-  Tipo: categorical
+  Descripción: 5. Identificación del padre
+  Pregunta: ¿Dónde vive el padre de (NOMBRE)?
+  Tipo: numeric
   Longitud: '2'
-  Categorías:
-    '01': '01'
-    '02': '02'
-    '03': '03'
-    '04': '04'
-    '05': '05'
-    '06': '06'
-    '07': '07'
-    08: 08
-    09: 09
-    '10': '10'
-    '11': '11'
-    '12': '12'
-    '13': '13'
-    '14': '14'
-    '15': '15'
-    '16': '16'
-    '17': '17'
-    '18': '18'
-    '19': '19'
-    '20': '20'
-    '21': '21'
-    '22': '22'
-    '23': '23'
-    '24': '24'
-    '25': '25'
-    '26': '26'
-    '27': '27'
-    '28': '28'
-    '29': '29'
-    '30': '30'
-    '31': '31'
-    '32': '32'
-    '33': '33'
-    '34': '34'
-    '35': '35'
-    '36': '36'
-    '37': '37'
-    '38': '38'
-    '39': '39'
-    '40': '40'
-    '41': '41'
-    '42': '42'
-    '43': '43'
-    '44': '44'
-    '45': '45'
-    '46': '46'
-    '47': '47'
-    '48': '48'
-    '49': '49'
-    '50': '50'
-    '51': '51'
-    '52': '52'
-    '53': '53'
-    '54': '54'
-    '96': vive en otra vivienda?
-    '97': ya falleció?
+  Rango:
+  - 1
+  - 54
+  Categorías: {}
   Especiales:
+    '96': En otra vivienda
+    '97': Falleció
     '98': No sabe
     '99': No especificado
-ENT_PAIS_NAC:
-  Descripción: Entidad o país de nacimiento
-  Pregunta: ¿En qué estado de la república o en qué país nació (NOMBRE)?
-  Tipo: string
-  Longitud: '3'
-  Especiales:
-    '997': No especificado de entidad federativa
-    '998': No especificado de país
-    '999': No especificado
-  Catálogo: ENTIDAD_PAIS
-  Nota: códigos del catálogo ENTIDAD_PAIS (258 renglones; no enumerados)
-NACIONALIDAD:
-  Descripción: Nacionalidad mexicana
-  Pregunta: ¿(NOMBRE) tiene nacionalidad mexicana?
-  Tipo: categorical
-  Longitud: '1'
-  Categorías:
-    '1': Sí
-    '3': 'No'
-  Especiales:
-    '9': No especificado
 SERSALUD:
-  Descripción: Uso de servicios de salud
+  Descripción: 6. Uso de servicios de salud
   Pregunta: Cuando (NOMBRE) tiene problemas de salud, ¿en dónde se atiende?
   Tipo: categorical
   Longitud: '2'
   Categorías:
-    '01': Seguro Social (IMSS)
-    '02': ISSSTE
-    '03': ISSSTE estatal
-    '04': PEMEX, la Defensa o la Marina
-    '05': IMSS-BIENESTAR (IMSS-PROSPERA)
-    '06': Centro de salud, hospital o instituto público de salud (federal o estatal. Incluye INSABI y
-      Seguro Popular)
-    '07': Consultorio, clínica u hospital privado
-    08: Consultorio de farmacia
-    09: Otro lugar
-    '10': No se atiende
+    '1': IMSS (Seguro social)
+    '2': ISSSTE
+    '3': ISSSTE estatal
+    '4': Pemex, Defensa o Marina
+    '5': Centro de Salud u Hospital de la SSA (Seguro Popular)
+    '6': Consultorio, clínica u hospital privado
+    '7': Consultorio de farmacia
+    '8': Otro lugar
+    '9': No se atiende
   Especiales:
     '99': No especificado
 AFRODES:
-  Descripción: Afrodescendientes o Afromexicanos
-  Pregunta: Por sus antepasados y de acuerdo con sus costumbres y tradiciones, ¿(NOMBRE) se considera
-    afromexicano(a) negro(a) o afrodescendiente?
+  Descripción: 7. Afrodescendientes
+  Pregunta: 'De acuerdo con su cultura, historia y tradiciones, ¿(NOMBRE) se considera negra(o),
+
+    es decir, afromexicana(o) o afrodescendiente?'
   Tipo: categorical
   Longitud: '1'
   Categorías:
     '1': Sí
+    '2': Sí, en parte
     '3': 'No'
+  Especiales:
+    '8': No sabe
+    '9': No especificado
+ACTA_NAC:
+  Descripción: 8. Acta de nacimiento
+  Pregunta: ¿(NOMBRE) tiene acta de nacimiento o está inscrita(o) en el registro civil de este país?
+  Tipo: categorical
+  Longitud: '1'
+  Categorías:
+    '1': Sí
+    '2': 'No'
+    '3': Está registrada(o) en otro país
   Especiales:
     '9': No especificado
 DHSERSAL1:
-  Descripción: Afiliación o acceso a servicios de salud (opción 1)
-  Pregunta: '¿(NOMBRE) está afiliada(o) o tiene acceso a servicios médicos en:'
+  Descripción: 9. Afiliación a servicios de salud (primer opción)
+  Pregunta: '¿(NOMBRE) está afiliada(o) o tiene derecho a los servicios médicos en:'
   Tipo: categorical
-  Longitud: '2'
+  Longitud: '1'
   Categorías:
-    '01': el Seguro Social (IMSS)?
-    '02': el ISSSTE?
-    '03': el ISSSTE estatal?
-    '04': PEMEX, la Defensa o la Marina?
-    '05': el IMSS-BIENESTAR (IMSS-PROSPERA)?
-    '06': un centro de salud, hospital o instituto público de salud (federal o estatal. Incluye INSABI
-      y Seguro Popular)?
-    '07': un seguro privado?
-    08: otra institución?
-    09: Entonces, ¿no está afiliada(o) ni tiene acceso a servicios médicos?
+    '1': el Seguro Popular o para una Nueva Generación (Siglo XXI)?
+    '2': el IMSS (Seguro social)?
+    '3': el ISSSTE?
+    '4': el ISSSTE estatal?
+    '5': Pemex, Defensa o Marina?
+    '6': un seguro privado?
+    '7': otra institución?
+    '8': Entonces, ¿no está afiliada(o) a servicios médicos?
   Especiales:
-    '99': No especificado
+    '9': No especificado
 DHSERSAL2:
-  Descripción: Afiliación a o acceso servicios de salud (opción 2)
-  Pregunta: '¿(NOMBRE) está afiliada(o) o tiene acceso a servicios médicos en:'
+  Descripción: 9. Afiliación a servicios de salud (segunda opción)
+  Pregunta: '¿(NOMBRE) está afiliada(o) o tiene derecho a los servicios médicos en:'
   Tipo: categorical
   Longitud: '1'
   Categorías:
-    '2': el ISSSTE?
-    '3': el ISSSTE estatal?
-    '4': PEMEX, la Defensa o la Marina?
-    '5': el IMSS-BIENESTAR (IMSS-PROSPERA)?
-    '6': un centro de salud, hospital o instituto público de salud (federal o estatal. Incluye INSABI
-      y Seguro Popular)?
-    '7': un seguro privado?
-    '8': otra institución?
-DHSERSAL_ACCESO:
-  Descripción: Reconocimiento de acceso a servicios públicos de salud
-  Pregunta: En caso de sufrir algún dolor, malestar, enfermedad o accidente que requiera de atención médica
-    ¿tendría usted acceso a la atención en un Instituto de salud Público (federal o estatal)?
-  Tipo: categorical
-  Longitud: '1'
-  Categorías:
-    '1': Sí
-    '3': 'No'
-  Especiales:
-    '9': No especificado
+    '2': el IMSS (Seguro social)?
+    '3': el ISSSTE?
+    '4': el ISSSTE estatal?
+    '5': Pemex, Defensa o Marina?
+    '6': un seguro privado?
+    '7': otra institución?
 PERTE_INDIGENA:
-  Descripción: Autoadscripción indígena
-  Pregunta: De acuerdo con su cultura, costumbres y tradiciones, ¿(NOMBRE) se considera indígena?
+  Descripción: 10. Pertenencia indígena
+  Pregunta: De acuerdo con su cultura, ¿(NOMBRE) se considera indígena?
   Tipo: categorical
   Longitud: '1'
   Categorías:
     '1': Sí
+    '2': Sí, en parte
     '3': 'No'
   Especiales:
+    '8': No sabe
     '9': No especificado
-DIS_VER:
-  Descripción: Dificultad para ver aun usando lentes
-  Pregunta: 'En su vida diaria, ¿(NOMBRE) cuánta dificultad tiene para: ver, aun usando lentes?'
-  Tipo: categorical
-  Longitud: '1'
-  Categorías:
-    '1': No tiene dificultad
-    '2': Lo hace con poca dificultad
-    '3': Lo hace con mucha dificultad
-    '4': No puede hacerlo
-    '8': Se desconoce el grado de la dificultad
-  Especiales:
-    '9': No especificado
-DIS_OIR:
-  Descripción: Dificultad para oír aun usando aparato auditivo
-  Pregunta: 'En su vida diaria, ¿(NOMBRE) cuánta dificultad tiene para: oír, aun usando aparato auditivo?'
-  Tipo: categorical
-  Longitud: '1'
-  Categorías:
-    '1': No tiene dificultad
-    '2': Lo hace con poca dificultad
-    '3': Lo hace con mucha dificultad
-    '4': No puede hacerlo
-    '8': Se desconoce el grado de la dificultad
-  Especiales:
-    '9': No especificado
-DIS_CAMINAR:
-  Descripción: Dificultad para caminar, subir o bajar
-  Pregunta: 'En su vida diaria, ¿(NOMBRE) cuánta dificultad tiene para: caminar, subir o bajar?'
-  Tipo: categorical
-  Longitud: '1'
-  Categorías:
-    '1': No tiene dificultad
-    '2': Lo hace con poca dificultad
-    '3': Lo hace con mucha dificultad
-    '4': No puede hacerlo
-    '8': Se desconoce el grado de la dificultad
-  Especiales:
-    '9': No especificado
-DIS_RECORDAR:
-  Descripción: Dificultad para recordar o concentrarse
-  Pregunta: 'En su vida diaria, ¿(NOMBRE) cuánta dificultad tiene para: recordar o concentrarse?'
-  Tipo: categorical
-  Longitud: '1'
-  Categorías:
-    '1': No tiene dificultad
-    '2': Lo hace con poca dificultad
-    '3': Lo hace con mucha dificultad
-    '4': No puede hacerlo
-    '8': Se desconoce el grado de la dificultad
-  Especiales:
-    '9': No especificado
-DIS_BANARSE:
-  Descripción: Dificultad para bañarse, vestirse o comer
-  Pregunta: 'En su vida diaria, ¿(NOMBRE) cuánta dificultad tiene para: bañarse, vestirse o comer?'
-  Tipo: categorical
-  Longitud: '1'
-  Categorías:
-    '1': No tiene dificultad
-    '2': Lo hace con poca dificultad
-    '3': Lo hace con mucha dificultad
-    '4': No puede hacerlo
-    '8': Se desconoce el grado de la dificultad
-  Especiales:
-    '9': No especificado
-DIS_HABLAR:
-  Descripción: Dificultad para hablar o comunicarse
-  Pregunta: 'En su vida diaria, ¿(NOMBRE) cuánta dificultad tiene para: hablar o comunicarse (por ejemplo:
-    entender o ser entendido por otros)?'
-  Tipo: categorical
-  Longitud: '1'
-  Categorías:
-    '1': No tiene dificultad
-    '2': Lo hace con poca dificultad
-    '3': Lo hace con mucha dificultad
-    '4': No puede hacerlo
-    '8': Se desconoce el grado de la dificultad
-  Especiales:
-    '9': No especificado
-DIS_MENTAL:
-  Descripción: Problema o condición mental
-  Pregunta: ¿(NOMBRE) tiene algún problema o condición mental? (Autismo, síndrome de Down, esquizofrenia,
-    etcétera)
-  Tipo: categorical
-  Longitud: '1'
-  Categorías:
-    '5': Sí
-    '6': 'No'
-  Especiales:
-    '9': No especificado
-CAU_VER:
-  Descripción: Causa de la dificultad para ver aun usando lentes
-  Pregunta: '¿La dificultad de (NOMBRE) para ver, aun usando lentes es:'
-  Tipo: categorical
-  Longitud: '1'
-  Categorías:
-    '1': porque nació así?
-    '2': por una enfermedad?
-    '3': por un accidente?
-    '4': por edad avanzada?
-    '5': por otra causa?
-  Especiales:
-    '9': No especificado
-CAU_OIR:
-  Descripción: Causa de la dificultad para oír aun usando aparato auditivo
-  Pregunta: '¿La dificultad de (NOMBRE) para oír, aun usando aparato auditivo es:'
-  Tipo: categorical
-  Longitud: '1'
-  Categorías:
-    '1': porque nació así?
-    '2': por una enfermedad?
-    '3': por un accidente?
-    '4': por edad avanzada?
-    '5': por otra causa?
-  Especiales:
-    '9': No especificado
-CAU_CAMINAR:
-  Descripción: Causa de la dificultad para caminar, subir o bajar
-  Pregunta: '¿La dificultad de (NOMBRE) para caminar, subir o bajar es:'
-  Tipo: categorical
-  Longitud: '1'
-  Categorías:
-    '1': porque nació así?
-    '2': por una enfermedad?
-    '3': por un accidente?
-    '4': por edad avanzada?
-    '5': por otra causa?
-  Especiales:
-    '9': No especificado
-CAU_RECORDAR:
-  Descripción: Causa de la dificultad para recordar o concentrarse
-  Pregunta: '¿La dificultad de (NOMBRE) para recordar o concentrarse es:'
-  Tipo: categorical
-  Longitud: '1'
-  Categorías:
-    '1': porque nació así?
-    '2': por una enfermedad?
-    '3': por un accidente?
-    '4': por edad avanzada?
-    '5': por otra causa?
-  Especiales:
-    '9': No especificado
-CAU_BANARSE:
-  Descripción: Causa de la dificultad para bañarse, vestirse o comer
-  Pregunta: '¿La dificultad de (NOMBRE) para bañarse, vestirse o comer es:'
-  Tipo: categorical
-  Longitud: '1'
-  Categorías:
-    '1': porque nació así?
-    '2': por una enfermedad?
-    '3': por un accidente?
-    '4': por edad avanzada?
-    '5': por otra causa?
-  Especiales:
-    '9': No especificado
-CAU_HABLAR:
-  Descripción: Causa de la dificultad para hablar o comunicarse
-  Pregunta: '¿La dificultad de (NOMBRE) para hablar o comunicarse (por ejemplo: entender o ser entendido
-    por otros) es:'
-  Tipo: categorical
-  Longitud: '1'
-  Categorías:
-    '1': porque nació así?
-    '2': por una enfermedad?
-    '3': por un accidente?
-    '4': por edad avanzada?
-    '5': por otra causa?
-  Especiales:
-    '9': No especificado
-CAU_MENTAL:
-  Descripción: Causa del problema o condición mental
-  Pregunta: '¿La causa del problema o condición mental de (NOMBRE) es:'
-  Tipo: categorical
-  Longitud: '1'
-  Categorías:
-    '1': porque nació así?
-    '2': por una enfermedad?
-    '3': por un accidente?
-    '4': por edad avanzada?
-    '5': por otra causa?
-  Especiales:
-    '9': No especificado
-COND_MENTAL_C:
-  Descripción: Problema o condición mental - Clave
-  Pregunta: ¿Cuál es el problema o condición mental que tiene (NOMBRE)? Clave codificada del nombre del
-    problema o condición mental
-  Tipo: categorical
+ENT_PAIS_NAC:
+  Descripción: 11. Entidad o país de nacimiento
+  Pregunta: ¿En qué estado de la República Mexicana o en qué país nació (NOMBRE)?
+  Tipo: string
   Longitud: '3'
-  Categorías:
-    '101': Trastorno del espectro autista
-    '102': Trastorno por Déficit de Atención e Hiperactividad (TDAH)
-    '103': Trastornos del desarrollo intelectual
-    '104': Esquizofrenia y otros trastornos psicóticos
-    '105': Trastornos depresivos
-    '106': Trastorno de ansiedad
-    '107': Trastorno del desarrollo de la coordinación motora
-    '108': Demencia
-    '109': Trastornos mixtos de la conducta y de las emociones
-    '110': Trastorno cognoscitivo leve
-    '111': Trastornos bipolares
-    '112': Trastornos mentales y del comportamiento debidos al uso de sustancias psicoactivas
-    '113': Otros trastornos mentales, del comportamiento y del neurodesarrollo
-    '201': Epilepsia o convulsiones
-    '202': Enfermedad de Alzheimer
-    '203': Parálisis cerebral
-    '204': Enfermedad de Parkinson
-    '205': Otras enfermedades del sistema nervioso
-    '301': Síndrome de Down
-    '401': Otro problema o condición mental
   Especiales:
     '999': No especificado
-  Catálogo: CONDICION_MENTAL
-COND_MENTAL_G:
-  Descripción: Problema o condición mental - Grupo
-  Pregunta: ¿Cuál es el problema o condición mental que tiene (NOMBRE)? Agrupado
-  Tipo: categorical
-  Longitud: '1'
-  Categorías:
-    '1': Problema o condición mental asociada a trastornos mentales, del comportamiento y del neurodesarrollo
-    '2': Problema o condición mental asociada a enfermedades del sistema nervioso
-    '3': Problema o condición mental asociada a anomalías del desarrollo
-    '4': Otros problemas o condiciones mentales
-  Especiales:
-    '9': Condiciones no especificadas
-HLENGUA:
-  Descripción: Habla lengua indígena
-  Pregunta: Ahora quiero preguntarle. ¿(NOMBRE) habla algún dialecto o lengua indígena?
-  Tipo: categorical
-  Longitud: '1'
-  Categorías:
-    '1': Sí
-    '3': 'No'
-  Especiales:
-    '9': No especificado
-QDIALECT_INALI:
-  Descripción: Lengua indígena - Clave
-  Pregunta: ¿Qué dialecto o lengua indígena habla (NOMBRE)?
-  Tipo: string
-  Longitud: '4'
-  Especiales:
-    '9999': No especificado
-  Catálogo: LENGUA_INDIGENA
-  Nota: códigos del catálogo LENGUA_INDIGENA (73 renglones; no enumerados)
-HESPANOL:
-  Descripción: Habla español
-  Pregunta: ¿(NOMBRE) habla también español?
-  Tipo: categorical
-  Longitud: '1'
-  Categorías:
-    '1': Sí
-    '3': 'No'
-  Especiales:
-    '9': No especificado
-ELENGUA:
-  Descripción: Comprensión de lengua indígena
-  Pregunta: ¿(NOMBRE) entiende algún dialecto o lengua indígena?
+  Catálogo: TC_ENTIDAD_PAIS_2015
+  Nota: códigos del catálogo TC_ENTIDAD_PAIS_2015 (261 renglones; no enumerados)
+NACIONALIDAD:
+  Descripción: 12. Nacionalidad
+  Pregunta: ¿(NOMBRE) tiene nacionalidad mexicana?
   Tipo: categorical
   Longitud: '1'
   Categorías:
@@ -731,9 +337,9 @@ ELENGUA:
     '7': 'No'
   Especiales:
     '9': No especificado
-ASISTEN:
-  Descripción: Asistencia escolar
-  Pregunta: ¿(NOMBRE) asiste actualmente a la escuela?
+HLENGUA:
+  Descripción: 13. Habla lengua indígena
+  Pregunta: ¿(NOMBRE) habla algún dialecto o lengua indígena?
   Tipo: categorical
   Longitud: '1'
   Categorías:
@@ -741,28 +347,84 @@ ASISTEN:
     '3': 'No'
   Especiales:
     '9': No especificado
+QDIALECT_C:
+  Descripción: 14. Nombre de la lengua indígena
+  Pregunta: ¿Qué dialecto o lengua indígena habla (NOMBRE)?
+  Tipo: string
+  Longitud: '4'
+  Especiales:
+    '9999': No especificado
+  Catálogo: TC_LENGUA_INDIGENA_2015
+  Nota: códigos del catálogo TC_LENGUA_INDIGENA_2015 (325 renglones; no enumerados)
+QDIALECT_INALI:
+  Descripción: 14. Nombre de la lengua indígena
+  Pregunta: '¿Qué dialecto o lengua indígena habla?
+
+    (catálogo INALI)'
+  Tipo: string
+  Longitud: '4'
+  Especiales:
+    '9000': No especificado
+  Catálogo: TC_LENGUA_INDIGENA_INALI_2015
+  Nota: códigos del catálogo TC_LENGUA_INDIGENA_INALI_2015 (72 renglones; no enumerados)
+HESPANOL:
+  Descripción: 15. Habla español
+  Pregunta: ¿(NOMBRE) habla también español?
+  Tipo: categorical
+  Longitud: '1'
+  Categorías:
+    '5': Sí
+    '7': 'No'
+  Especiales:
+    '9': No especificado
+ELENGUA:
+  Descripción: 16. Entiende lengua indígena
+  Pregunta: '¿(NOMBRE) entiende algún dialecto o
+
+    lengua indígena?'
+  Tipo: categorical
+  Longitud: '1'
+  Categorías:
+    '1': Sí
+    '3': 'No'
+  Especiales:
+    '9': No especificado
+ASISTEN:
+  Descripción: 17. Asistencia escolar
+  Pregunta: ¿(NOMBBRE) asiste actualmente a la escuela?
+  Tipo: categorical
+  Longitud: '1'
+  Categorías:
+    '5': Sí
+    '7': 'No'
+  Especiales:
+    '9': No especificado
 MUN_ASI:
-  Descripción: Municipio de asistencia escolar
-  Pregunta: ¿En qué municipio (demarcación territorial) está la escuela donde estudia (NOMBRE)?
+  Descripción: 18. Municipio de asistencia escolar
+  Pregunta: ¿En qué municipio o delegación está la escuela donde estudia (NOMBRE)?
   Tipo: string
   Longitud: '3'
   Especiales:
     '999': No especificado
-  Catálogo: MUNICIPIO
-  Nota: códigos del catálogo MUNICIPIO (2511 renglones; no enumerados)
+  Catálogo: TC_MUNICIPIO_2015
+  Nota: códigos del catálogo TC_MUNICIPIO_2015 (2490 renglones; no enumerados)
+NOM_MUN_ASI:
+  Descripción: 18. Municipio de asistencia escolar
+  Pregunta: Nombre del Municipio de asistencia escolar
+  Tipo: string
+  Longitud: '80'
+  Nota: 'Nombre del municipio: TC_MUNICIPIO_2015'
 ENT_PAIS_ASI:
-  Descripción: Entidad o país de asistencia escolar
+  Descripción: 19. Entidad o país de asistencia escolar
   Pregunta: ¿En qué estado o país está la escuela donde estudia (NOMBRE)?
   Tipo: string
   Longitud: '3'
   Especiales:
-    '997': No especificado de entidad federativa
-    '998': No especificado de país
     '999': No especificado
-  Catálogo: ENTIDAD_PAIS
-  Nota: códigos del catálogo ENTIDAD_PAIS (258 renglones; no enumerados)
+  Catálogo: TC_ENTIDAD_PAIS_2015
+  Nota: códigos del catálogo TC_ENTIDAD_PAIS_2015 (261 renglones; no enumerados)
 TIE_TRASLADO_ESCU:
-  Descripción: Tiempo de traslado a la escuela
+  Descripción: 20. Tiempo de traslado a la escuela
   Pregunta: ¿Cuánto tiempo hace (NOMBRE) de aquí a su escuela?
   Tipo: categorical
   Longitud: '1'
@@ -770,80 +432,83 @@ TIE_TRASLADO_ESCU:
     '1': Hasta 15 minutos
     '2': 16 a 30 minutos
     '3': 31 minutos a 1 hora
-    '4': Más de 1 hora y hasta 2 horas
+    '4': Más de 1 hora y hasta 2
     '5': Más de 2 horas
     '6': No se traslada
   Especiales:
     '9': No especificado
 MED_TRASLADO_ESC1:
-  Descripción: Modo o medio de traslado a la escuela (opción 1)
+  Descripción: 21. Medio de traslado a la escuela (opción 1)
   Pregunta: ¿Cómo acostumbra (NOMBRE) ir de aquí a su escuela?
   Tipo: categorical
-  Longitud: '2'
+  Longitud: '1'
   Categorías:
-    '01': Caminando
-    '02': Bicicleta
-    '03': Metro, tren ligero, tren suburbano
-    '04': Trolebús
-    '05': Metrobús (autobús en carril confinado)
-    '06': Camión, autobús, combi, colectivo
-    '07': Transporte escolar
-    08: Taxi (sitio, calle, otro)
-    09: Taxi (app internet)
-    '10': Motocicleta o motoneta
-    '11': Automóvil o camioneta
-    '12': Otro
+    '1': Camión, taxi, combi o colectivo
+    '2': Metro, metrobús o tren ligero
+    '3': 'Vehículo particular
+
+      (automóvil, camioneta o motocicleta)'
+    '4': Transporte escolar
+    '5': Bicicleta
+    '6': Caminando
+    '7': Otro
+  Especiales:
+    '9': No especificado
+MED_TRASLADO_ESC2:
+  Descripción: 21. Medio de traslado a la escuela (opción 2)
+  Pregunta: ¿Cómo acostumbra (NOMBRE) ir de aquí a su escuela?
+  Tipo: categorical
+  Longitud: '1'
+  Categorías:
+    '2': Metro, metrobús o tren ligero
+    '3': 'Vehículo particular
+
+      (automóvil, camioneta o motocicleta)'
+    '4': Transporte escolar
+    '5': Bicicleta
+    '6': Caminando
+    '7': Otro
+MED_TRASLADO_ESC3:
+  Descripción: 21. Medio de traslado a la escuela (opción 3)
+  Pregunta: ¿Cómo acostumbra (NOMBRE) ir de aquí a su escuela?
+  Tipo: categorical
+  Longitud: '1'
+  Categorías:
+    '3': 'Vehículo particular
+
+      (automóvil, camioneta o motocicleta)'
+    '4': Transporte escolar
+    '5': Bicicleta
+    '6': Caminando
+    '7': Otro
+ESCOLARI:
+  Descripción: 22. Escolaridad (grado)
+  Pregunta: ¿Cuál fue el último año o grado aprobado por (NOMBRE) en la escuela?
+  Tipo: numeric
+  Longitud: '2'
+  Rango:
+  - 0
+  - 9
+  Categorías: {}
   Especiales:
     '99': No especificado
-MED_TRASLADO_ESC2:
-  Descripción: Modo o medio de traslado a la escuela (opción 2)
-  Pregunta: ¿Cómo acostumbra (NOMBRE) ir de aquí a su escuela?
-  Tipo: categorical
-  Longitud: '2'
-  Categorías:
-    '02': Bicicleta
-    '03': Metro, tren ligero, tren suburbano
-    '04': Trolebús
-    '05': Metrobús (autobús en carril confinado)
-    '06': Camión, autobús, combi, colectivo
-    '07': Transporte escolar
-    08: Taxi (sitio, calle, otro)
-    09: Taxi (app internet)
-    '10': Motocicleta o motoneta
-    '11': Automóvil o camioneta
-    '12': Otro
-MED_TRASLADO_ESC3:
-  Descripción: Modo o medio de traslado a la escuela (opción 3)
-  Pregunta: ¿Cómo acostumbra (NOMBRE) ir de aquí a su escuela?
-  Tipo: categorical
-  Longitud: '2'
-  Categorías:
-    '03': Metro, tren ligero, tren suburbano
-    '04': Trolebús
-    '05': Metrobús (autobús en carril confinado)
-    '06': Camión, autobús, combi, colectivo
-    '07': Transporte escolar
-    08: Taxi (sitio, calle, otro)
-    09: Taxi (app internet)
-    '10': Motocicleta o motoneta
-    '11': Automóvil o camioneta
-    '12': Otro
+  Nota: 0 = Ninguno
 NIVACAD:
-  Descripción: Nivel (Escolaridad)
+  Descripción: 22. Escolaridad (nivel)
   Pregunta: ¿Cuál fue el último año o grado aprobado por (NOMBRE) en la escuela?
   Tipo: categorical
   Longitud: '2'
   Categorías:
-    '00': Ninguno
-    '01': Preescolar
-    '02': Primaria
-    '03': Secundaria
-    '04': Preparatoria o bachillerato general
-    '05': Bachillerato tecnológico
-    '06': Estudios técnicos o comerciales con primaria terminada
-    '07': Estudios técnicos o comerciales con secundaria terminada
-    08: Estudios técnicos o comerciales con preparatoria terminada
-    09: Normal con primaria o secundaria terminada
+    '0': Ninguno
+    '1': Preescolar o kínder
+    '2': Primaria
+    '3': Secundaria
+    '4': Preparatoria o bachillerato general
+    '5': Bachillerato tecnológico
+    '6': Estudios técnicos o comerciales con primaria terminada
+    '7': Estudios técnicos o comerciales con secundaria terminada
+    '8': Estudios técnicos o comerciales con preparatoria terminada
+    '9': Normal con primaria o secundaria terminada
     '10': Normal de licenciatura
     '11': Licenciatura
     '12': Especialidad
@@ -851,31 +516,14 @@ NIVACAD:
     '14': Doctorado
   Especiales:
     '99': No especificado
-ESCOLARI:
-  Descripción: Grado (Escolaridad)
-  Pregunta: ¿Cuál fue el último año o grado aprobado por (NOMBRE) en la escuela?
-  Tipo: categorical
-  Longitud: '2'
-  Categorías:
-    '00': Ninguno
-    '01': '01'
-    '02': '02'
-    '03': '03'
-    '04': '04'
-    '05': '05'
-    '06': '06'
-    '07': '07'
-    08: 08
-  Especiales:
-    '99': No especificado
 ALFABET:
-  Descripción: Alfabetismo
+  Descripción: 23. Alfabetismo
   Pregunta: ¿(NOMBRE) sabe leer y escribir un recado?
   Tipo: categorical
   Longitud: '1'
   Categorías:
-    '1': Sí
-    '3': 'No'
+    '5': Sí
+    '7': 'No'
   Especiales:
     '9': No especificado
 ESCOACUM:
@@ -885,207 +533,109 @@ ESCOACUM:
   Longitud: '2'
   Rango:
   - 0
-  - 24
+  - 25
   Categorías: {}
   Especiales:
     '99': No especificado
-  Catálogo: ESOLARIDAD_ACUMULADA
-ENT_PAIS_RES_5A:
-  Descripción: Entidad o país de residencia en octubre de 2020
-  Pregunta: Hace 5 años, en octubre de 2020, ¿en qué estado de la república o en qué país vivía (NOMBRE)?
-  Tipo: string
-  Longitud: '3'
-  Especiales:
-    '997': No especificado de entidad federativa
-    '998': No especificado de país
-    '999': No especificado
-  Catálogo: ENTIDAD_PAIS
-  Nota: códigos del catálogo ENTIDAD_PAIS (258 renglones; no enumerados)
-MUN_RES_5A:
-  Descripción: Municipio de residencia en octubre de 2020
-  Pregunta: ¿En qué municipio (demarcación territorial) vivía (NOMBRE) en octubre de 2020?
+  Nota: 'Descripción por tabla de referencia: TC_ESCOACUM_2015'
+MUN_RES10:
+  Descripción: 24. Municipio de residencia en 2010
+  Pregunta: Hace 5 años, en marzo de 2010, ¿en qué municipio o delegación vivía (NOMBRE)?
   Tipo: string
   Longitud: '3'
   Especiales:
     '999': No especificado
-  Catálogo: MUNICIPIO
-  Nota: códigos del catálogo MUNICIPIO (2511 renglones; no enumerados)
-CAUSA_MIG_C:
-  Descripción: Causa de la migración (otra causa)
-  Pregunta: ¿Cuál fue el motivo principal por el que (NOMBRE) cambió su domicilio y dejó de residir en
-    (MUNICIPIO O DEMARCACIÓN TERRITORIAL O PAÍS)?
-  Tipo: categorical
-  Longitud: '4'
-  Categorías:
-    '0101': Buscar trabajo
-    '0102': Cambio u oferta de trabajo
-    '0103': Conclusión de trabajo
-    '0104': Distancia al trabajo
-    '0105': Jubilación o pensión
-    0109: Otras causas de trabajo
-    '0201': Matrimonio o unión
-    '0202': Reunirse con, o seguir a la familia
-    '0203': Divorcio o separación
-    '0204': Falleció o nació algún familiar
-    '0205': Independizarse
-    '0206': Cuidados familiares
-    0209: Otras causas familiares
-    '0301': Estudiar
-    '0302': Conclusión de estudios
-    '0303': Distancia al centro escolar
-    0309: Otras causas escolares
-    '0401': Adquisición, venta, construcción o herencia de vivienda
-    '0402': Renta
-    0409: Otras causas de la vivienda
-    '0501': Cuidados de salud (propia o de un familiar)
-    '0502': Pandemia por COVID-19
-    '0601': Inseguridad delictiva o violencia
-    '0602': Violencia intrafamiliar
-    '0603': Políticos y de gobierno
-    '0604': Servicios asistenciales
-    '0605': Situación económica
-    0609: Otras causas sociales, ambientales o de servicios
-    '0701': Desastres naturales
-    0709: Otros desastres
-    0801: Lo deportaron (regresaron)
-    0809: Otras causas legales o administrativas
-    0901: Religiosas
-    0902: Personales
+  Catálogo: TC_MUNICIPIO_2015
+  Nota: códigos del catálogo TC_MUNICIPIO_2015 (2490 renglones; no enumerados)
+NOM_MUN_RES10:
+  Descripción: 24. Municipio de residencia en 2010
+  Pregunta: Nombre del Municipio de residencia en 2010
+  Tipo: string
+  Longitud: '80'
+  Nota: 'Nombre del municipio: TC_MUNICIPIO_2015'
+ENT_PAIS_RES10:
+  Descripción: 25. Entidad o país de residencia en 2010
+  Pregunta: ¿En qué estado de la República Mexicana o en qué país vivía (NOMBRE) en marzo de 2010?
+  Tipo: string
+  Longitud: '3'
   Especiales:
-    '9999': No especificado
-  Catálogo: CAUSA_MIGRACION
+    '999': No especificado
+  Catálogo: TC_ENTIDAD_PAIS_2015
+  Nota: códigos del catálogo TC_ENTIDAD_PAIS_2015 (261 renglones; no enumerados)
 SITUA_CONYUGAL:
-  Descripción: Situación conyugal
+  Descripción: 26. Situación conyugal
   Pregunta: '¿Actualmente (NOMBRE):'
   Tipo: categorical
-  Longitud: '2'
+  Longitud: '1'
   Categorías:
-    '01': vive con su pareja en unión libre?
-    '02': está separada(o) de una unión libre?
-    '03': está separada(o) de un matrimonio?
-    '04': está divorciada(o)?
-    '05': es viuda(o)?
-    '06': está casada(o) solo por el civil?
-    '07': está casada(o) solo religiosamente?
-    08: está casada(o) civil y religiosamente?
-    09: está soltera(o)?
+    '1': vive con su pareja en unión libre?
+    '2': está separada(o)?
+    '3': está divorciada(o)?
+    '4': es viuda(o)?
+    '5': está casada(o)?
+    '6': está soltera(o)?
   Especiales:
-    '99': No especificado
+    '9': No especificado
 IDENT_PAREJA:
-  Descripción: Identificación de la pareja
-  Pregunta: En esta vivienda, ¿vive la pareja o esposa(o) de (NOMBRE)?
-  Tipo: categorical
+  Descripción: 27. Identificación de la pareja (número de persona)
+  Pregunta: ¿Dónde vive la pareja de (NOMBRE)?
+  Tipo: numeric
   Longitud: '2'
-  Categorías:
-    '01': '01'
-    '02': '02'
-    '03': '03'
-    '04': '04'
-    '05': '05'
-    '06': '06'
-    '07': '07'
-    08: 08
-    09: 09
-    '10': '10'
-    '11': '11'
-    '12': '12'
-    '13': '13'
-    '14': '14'
-    '15': '15'
-    '16': '16'
-    '17': '17'
-    '18': '18'
-    '19': '19'
-    '20': '20'
-    '21': '21'
-    '22': '22'
-    '23': '23'
-    '24': '24'
-    '25': '25'
-    '26': '26'
-    '27': '27'
-    '28': '28'
-    '29': '29'
-    '30': '30'
-    '31': '31'
-    '32': '32'
-    '33': '33'
-    '34': '34'
-    '35': '35'
-    '36': '36'
-    '37': '37'
-    '38': '38'
-    '39': '39'
-    '40': '40'
-    '41': '41'
-    '42': '42'
-    '43': '43'
-    '44': '44'
-    '45': '45'
-    '46': '46'
-    '47': '47'
-    '48': '48'
-    '49': '49'
-    '50': '50'
-    '51': '51'
-    '52': '52'
-    '53': '53'
-    '54': '54'
-    '96': 'No'
+  Rango:
+  - 1
+  - 54
+  Categorías: {}
   Especiales:
+    '96': En otra vivienda
+    '98': No sabe
     '99': No especificado
 CONACT:
-  Descripción: Condición de actividad (con rescate por verificación de actividad)
-  Pregunta: 'Ahora le voy a preguntar por la situación laboral. ¿La semana pasada (NOMBRE):'
+  Descripción: Condición de actividad
+  Pregunta: 'Entonces, ¿la semana pasada:'
   Tipo: categorical
   Longitud: '2'
   Categorías:
-    '10': Trabajó
-    '13': Se declara que buscó trabajo y en la verificación se rescata que trabaja
-    '14': Se declara que es pensionada(o) o jubilada(o) y en la verificación se rescata que trabaja
-    '15': Se declara que es estudiante y en la verificación se rescata que trabaja
-    '16': Se dedica a los quehaceres de su hogar y en la verificación se rescata que trabaja
-    '17': Se declara que tiene alguna limitación física o mental permanente que le impide trabajar y en
-      la verificación se rescata que trabaja
-    '18': Se declara en otra situación de actividad y en la verificación se rescata que trabaja
-    '19': No se tiene información en condición de actividad y en la verificación se rescata que trabaja
-    '20': Tenía trabajo, pero no trabajó
-    '30': Buscó trabajo
-    '40': Es pensionada(o) o jubilada(o)
-    '50': Es estudiante
-    '60': Se dedica a los quehaceres de su hogar
-    '70': Tiene alguna limitación física o mental permanente que le impide trabajar
-    '80': No trabaja
+    '10': trabajó?
+    '11': hizo o vendió algún producto?
+    '12': ayudó en algún negocio? (familiar o de otra persona)
+    '13': crio animales o cultivó algo? (en el terreno o en casa, para autoconsumo o venta)
+    '14': ofreció algún servicio por un pago? (cargó bolsas, lavó autos, cuidó niñas(os), etcétera
+    '15': atendió su propio negocio?
+    '16': tenía trabajo, pero no trabajó? (por licencia, incapacidad o vacaciones)
+    '20': buscó trabajo?
+    '31': ¿Es estudiante?
+    '32': ¿Es jubilada(o) o pensionada(o)?
+    '33': ¿Se dedica a los quehaceres de su hogar?
+    '34': ¿Tiene alguna limitación física o mental que le impide trabajar?
+    '35': ¿No trabajó?
   Especiales:
     '99': No especificado
 OCUPACION_C:
-  Descripción: Ocupación - Clave
-  Pregunta: '¿Cuál es el nombre de la ocupación, oficio, puesto o cargo de (NOMBRE) la semana pasada?
-    Por ejemplo: agricultor de maíz, empleada en farmacia, chofer de autobús, comerciante de abarrotes,
-    albañil, trabajadora doméstica, auxiliar administrativo.'
+  Descripción: 30. Nombre de la ocupación (clave codificada)
+  Pregunta: ¿Cuál fue la ocupación de (NOMBRE) la semana pasada?
   Tipo: string
   Longitud: '3'
   Especiales:
     '999': No especificado
-  Catálogo: OCUPACION
-  Nota: códigos del catálogo OCUPACION (162 renglones; no enumerados)
-SITTRA:
-  Descripción: Posición en el trabajo
+  Catálogo: TC_OCUPACION_2015
+  Nota: códigos del catálogo TC_OCUPACION_2015 (155 renglones; no enumerados)
+SITUACION_TRAB:
+  Descripción: 32. Posición en el trabajo
   Pregunta: '¿En ese trabajo (NOMBRE) fue:'
   Tipo: categorical
   Longitud: '1'
   Categorías:
-    '1': empleada(o) u obrera(o)?
-    '2': jornalera(o) o peón(a)?
+    '1': empleado(a) u obrero(a)?
+    '2': jornalero(a) o peón(a)?
     '3': ayudante con pago?
-    '4': patrón(a) o empleador(a)? (Tiene trabajadores por un sueldo)
-    '5': trabajador(a) por cuenta propia? (No tiene trabajadores por un sueldo)
+    '4': patrón(a) o empleador(a)?
+    '5': trabajador(a) por cuenta propia?
     '6': trabajador(a) sin pago?
   Especiales:
     '9': No especificado
 AGUINALDO:
-  Descripción: Aguinaldo (Prestaciones laborales)
-  Pregunta: '¿(NOMBRE) tiene por su trabajo: aguinaldo?'
+  Descripción: 33. Prestaciones laborales (aguinaldo)
+  Pregunta: ¿(NOMBRE) tiene por su trabajo aguinaldo?
   Tipo: categorical
   Longitud: '1'
   Categorías:
@@ -1094,8 +644,8 @@ AGUINALDO:
   Especiales:
     '9': No especificado
 VACACIONES:
-  Descripción: Vacaciones con goce de sueldo (Prestaciones laborales)
-  Pregunta: '¿(NOMBRE) tiene por su trabajo: vacaciones con goce de sueldo?'
+  Descripción: 33. Prestaciones laborales (vacaciones)
+  Pregunta: ¿(NOMBRE) tiene por su trabajo vacaciones con goce de sueldo?
   Tipo: categorical
   Longitud: '1'
   Categorías:
@@ -1104,8 +654,8 @@ VACACIONES:
   Especiales:
     '9': No especificado
 SERVICIO_MEDICO:
-  Descripción: Servicio médico (Prestaciones laborales)
-  Pregunta: '¿(NOMBRE) tiene por su trabajo: servicio médico (IMSS, ISSSTE u otro)?'
+  Descripción: 33. Prestaciones laborales (servicio médico)
+  Pregunta: ¿(NOMBRE) tiene por su trabajo servicio médico?
   Tipo: categorical
   Longitud: '1'
   Categorías:
@@ -1114,8 +664,8 @@ SERVICIO_MEDICO:
   Especiales:
     '9': No especificado
 UTILIDADES:
-  Descripción: Reparto de utilidades (Prestaciones laborales)
-  Pregunta: '¿(NOMBRE) tiene por su trabajo: reparto de utilidades?'
+  Descripción: 33. Prestaciones laborales (utilidades)
+  Pregunta: ¿(NOMBRE) tiene por su trabajo reparto de utilidades?
   Tipo: categorical
   Longitud: '1'
   Categorías:
@@ -1124,8 +674,8 @@ UTILIDADES:
   Especiales:
     '9': No especificado
 INCAP_SUELDO:
-  Descripción: Licencia o incapacidad con goce de sueldo (Prestaciones laborales)
-  Pregunta: '¿(NOMBRE) tiene por su trabajo: licencia o incapacidad con goce de sueldo?'
+  Descripción: 33. Prestaciones laborales (incapacidad)
+  Pregunta: ¿(NOMBRE) tiene por su trabajo licencia o incapacidad con goce de sueldo?
   Tipo: categorical
   Longitud: '1'
   Categorías:
@@ -1134,8 +684,8 @@ INCAP_SUELDO:
   Especiales:
     '9': No especificado
 SAR_AFORE:
-  Descripción: Ahorro para el retiro (Prestaciones laborales)
-  Pregunta: AFORE o SAR (ahorro para el retiro)?
+  Descripción: 33. Prestaciones laborales (ahorro)
+  Pregunta: ¿(NOMBRE) tiene por su trabajo SAR o AFORE (ahorro para el retiro)?
   Tipo: categorical
   Longitud: '1'
   Categorías:
@@ -1144,8 +694,8 @@ SAR_AFORE:
   Especiales:
     '9': No especificado
 CREDITO_VIVIENDA:
-  Descripción: Crédito para la vivienda (Prestaciones laborales)
-  Pregunta: '¿(NOMBRE) tiene por su trabajo: crédito para la vivienda?'
+  Descripción: 33. Prestaciones laborales (crédito para vivienda)
+  Pregunta: ¿(NOMBRE) tiene por su trabajo crédito para vivienda?
   Tipo: categorical
   Longitud: '1'
   Categorías:
@@ -1154,9 +704,8 @@ CREDITO_VIVIENDA:
   Especiales:
     '9': No especificado
 INGTRMEN:
-  Descripción: Ingresos por trabajo mensualizado
-  Pregunta: '¿Cuánto gana (NOMBRE) en ese trabajo? Por ejemplo: por la venta de la cosecha, animales,
-    derivados, comisiones, salarios, sueldos.'
+  Descripción: 34. Ingresos por trabajo mensualizado
+  Pregunta: ¿Cuánto gana (NOMBBRE) por ese trabajo?
   Tipo: numeric
   Longitud: '6'
   Rango:
@@ -1165,10 +714,101 @@ INGTRMEN:
   Categorías: {}
   Especiales:
     '999999': No especificado
-  Nota: 0 = No recibe ingresos; 999998 = Ingresos mayores a 999,997
-HORTRA:
-  Descripción: Horas trabajadas
-  Pregunta: ¿Cuántas horas trabajó (NOMBRE) la semana pasada?
+  Nota: 'Para conocer el salario mínimo de cada municipio consultar el catálogo: TC_SALARIO_MUN_2015;
+    0 = No recibe Ingresos; 999998 = Ingresos mayores a 999,997'
+ACTIVIDADES_C:
+  Descripción: 36. Actividad del negocio, empresa o lugar (clave codificada)
+  Pregunta: ¿En dónde trabajó (NOMBRE) la semana pasada?
+  Tipo: string
+  Longitud: '4'
+  Especiales:
+    '9999': No especificado
+  Catálogo: TC_SECTOR_2015
+  Nota: códigos del catálogo TC_SECTOR_2015 (177 renglones; no enumerados)
+MUN_TRAB:
+  Descripción: 37. Municipio de trabajo
+  Pregunta: ¿En qué municipio o delegación está el negocio, empresa o lugar donde trabajó (NOMBRE) la
+    semana pasada?
+  Tipo: string
+  Longitud: '3'
+  Especiales:
+    '999': No especificado
+  Catálogo: TC_MUNICIPIO_2015
+  Nota: códigos del catálogo TC_MUNICIPIO_2015 (2490 renglones; no enumerados)
+NOM_MUN_TRAB:
+  Descripción: 37. Municipio de trabajo
+  Pregunta: Nombre del Municipio de trabajo
+  Tipo: string
+  Longitud: '80'
+  Nota: 'Nombre del municipio: TC_MUNICIPIO_2015'
+ENT_PAIS_TRAB:
+  Descripción: 38. Entidad o país de trabajo
+  Pregunta: ¿En qué estado o país está el negocio, empresa o lugar donde trabajó (NOMBRE) la semana pasada?
+  Tipo: string
+  Longitud: '3'
+  Especiales:
+    '999': No especificado
+  Catálogo: TC_ENTIDAD_PAIS_2015
+  Nota: códigos del catálogo TC_ENTIDAD_PAIS_2015 (261 renglones; no enumerados)
+TIE_TRASLADO_TRAB:
+  Descripción: 39. Tiempo de traslado al trabajo
+  Pregunta: ¿Cuánto tiempo hace (NOMBRE) de aquí a su trabajo?
+  Tipo: categorical
+  Longitud: '1'
+  Categorías:
+    '1': Hasta 15 minutos
+    '2': 16 a 30 minutos
+    '3': 31 minutos a 1 hora
+    '4': Más de 1 hora y hasta 2
+    '5': Más de 2 horas
+    '6': No es posible determinarlo
+    '7': No se traslada
+  Especiales:
+    '9': No especificado
+MED_TRASLADO_TRAB1:
+  Descripción: 40. Medio de traslado al trabajo (opción 1)
+  Pregunta: ¿Cómo acostumbra (NOMBRE) ir de aquí a su trabajo?
+  Tipo: categorical
+  Longitud: '1'
+  Categorías:
+    '1': Camión, taxi, combi o colectivo
+    '2': Metro, metrobús o tren ligero
+    '3': Vehículo particular (automóvil, camioneta o motocicleta)
+    '4': Transporte laboral
+    '5': Bicicleta
+    '6': Caminando
+    '7': Otro
+  Especiales:
+    '9': No especificado
+MED_TRASLADO_TRAB2:
+  Descripción: 40. Medio de traslado al trabajo (opción 2)
+  Pregunta: ¿Cómo acostumbra (NOMBRE) ir de aquí a su trabajo?
+  Tipo: categorical
+  Longitud: '1'
+  Categorías:
+    '2': Metro, metrobús o tren ligero
+    '3': Vehículo particular (automóvil, camioneta o motocicleta)
+    '4': Transporte laboral
+    '5': Bicicleta
+    '6': Caminando
+    '7': Otro
+MED_TRASLADO_TRAB3:
+  Descripción: 40. Medio de traslado al trabajo (opción 3)
+  Pregunta: ¿Cómo acostumbra (NOMBRE) ir de aquí a su trabajo?
+  Tipo: categorical
+  Longitud: '1'
+  Categorías:
+    '3': Vehículo particular (automóvil, camioneta o motocicleta)
+    '4': Transporte laboral
+    '5': Bicicleta
+    '6': Caminando
+    '7': Otro
+ACTI_SIN_PAGO1:
+  Descripción: 41. Actividades sin pago
+  Pregunta: 'La semana pasada, sin recibir pago, ¿cuántas horas dedicó (NOMBRE) a atender a personas con
+    discapacidad
+
+    que necesitan cuidados especiales?'
   Tipo: numeric
   Longitud: '3'
   Rango:
@@ -1177,109 +817,101 @@ HORTRA:
   Categorías: {}
   Especiales:
     '999': No especificado
-ACTIVIDADES_C:
-  Descripción: Sector de actividad económica - Clave
-  Pregunta: '¿A qué se dedica el negocio, empresa o institución para la que trabajó (NOMBRE)? Por ejemplo:
-    hacer muebles de madera, hacer escobas, reparar autos, vender ropa usada, armar televisores.'
-  Tipo: string
-  Longitud: '4'
-  Especiales:
-    '9999': No especificado
-  Catálogo: ACTIVIDAD_ECONOMICA
-  Nota: códigos del catálogo ACTIVIDAD_ECONOMICA (180 renglones; no enumerados)
-MUN_TRAB:
-  Descripción: Municipio de trabajo
-  Pregunta: ¿En qué municipio (demarcación territorial) está el negocio, empresa o institución para la
-    que trabajó (NOMBRE) la semana pasada?
-  Tipo: string
+  Nota: 0 = No realizó la actividad
+ACTI_SIN_PAGO2:
+  Descripción: 41 Actividades sin pago
+  Pregunta: La semana pasada, sin recibir pago, ¿cuántas horas dedicó (NOMBRE) a atender a personas enfermas
+    que necesitan cuidados especiales?
+  Tipo: numeric
   Longitud: '3'
+  Rango:
+  - 0
+  - 140
+  Categorías: {}
   Especiales:
     '999': No especificado
-  Catálogo: MUNICIPIO
-  Nota: códigos del catálogo MUNICIPIO (2511 renglones; no enumerados)
-ENT_PAIS_TRAB:
-  Descripción: Entidad o país de trabajo
-  Pregunta: ¿En qué estado o país está el negocio, empresa o institución para la que trabajó (NOMBRE)
-    la semana pasada?
-  Tipo: string
+  Nota: 0 = No realizó la actividad
+ACTI_SIN_PAGO3:
+  Descripción: 41 Actividades sin pago
+  Pregunta: La semana pasada, sin recibir pago, ¿cuántas horas dedicó (NOMBRE) a atender a alguna niña
+    o niño sano menor de 6 años?
+  Tipo: numeric
   Longitud: '3'
+  Rango:
+  - 0
+  - 140
+  Categorías: {}
   Especiales:
-    '997': No especificado de entidad federativa
-    '998': No especificado de país
     '999': No especificado
-  Catálogo: ENTIDAD_PAIS
-  Nota: códigos del catálogo ENTIDAD_PAIS (258 renglones; no enumerados)
-TIE_TRASLADO_TRAB:
-  Descripción: Tiempo de traslado al trabajo
-  Pregunta: ¿Cuánto tiempo hace (NOMBRE) de aquí a su trabajo?
-  Tipo: categorical
-  Longitud: '1'
-  Categorías:
-    '1': Hasta 15 minutos
-    '2': 16 a 30 minutos
-    '3': 31 minutos a 1 hora
-    '4': Más de 1 hora y hasta 2 horas
-    '5': Más de 2 horas
-    '6': No es posible determinarlo
-    '7': No se traslada
+  Nota: 0 = No realizó la actividad
+ACTI_SIN_PAGO4:
+  Descripción: 41 Actividades sin pago
+  Pregunta: La semana pasada, sin recibir pago, ¿cuántas horas dedicó (NOMBRE) a atender a alguna niña
+    o niño sano de 6 a 14 años?
+  Tipo: numeric
+  Longitud: '3'
+  Rango:
+  - 0
+  - 140
+  Categorías: {}
   Especiales:
-    '9': No especificado
-MED_TRASLADO_TRAB1:
-  Descripción: Modo o medio de traslado al trabajo (opción 1)
-  Pregunta: ¿Cómo acostumbra (NOMBRE) ir de aquí a su trabajo?
-  Tipo: categorical
-  Longitud: '2'
-  Categorías:
-    '01': Caminando
-    '02': Bicicleta
-    '03': Metro, tren ligero, tren suburbano
-    '04': Trolebús
-    '05': Metrobús (autobús en carril confinado)
-    '06': Camión, autobús, combi, colectivo
-    '07': Transporte de personal
-    08: Taxi (sitio, calle, otro)
-    09: Taxi (app internet)
-    '10': Motocicleta o motoneta
-    '11': Automóvil o camioneta
-    '12': Otro
+    '999': No especificado
+  Nota: 0 = No realizó la actividad
+ACTI_SIN_PAGO5:
+  Descripción: 41 Actividades sin pago
+  Pregunta: La semana pasada, sin recibir pago, ¿cuántas horas dedicó (NOMBRE) a atender a alguna persona
+    de 60 o más años que requiera cuidados continuos?
+  Tipo: numeric
+  Longitud: '3'
+  Rango:
+  - 0
+  - 140
+  Categorías: {}
   Especiales:
-    '99': No especificado
-MED_TRASLADO_TRAB2:
-  Descripción: Modo o medio de traslado al trabajo (opción 2)
-  Pregunta: ¿Cómo acostumbra (NOMBRE) ir de aquí a su trabajo?
-  Tipo: categorical
-  Longitud: '2'
-  Categorías:
-    '02': Bicicleta
-    '03': Metro, tren ligero, tren suburbano
-    '04': Trolebús
-    '05': Metrobús (autobús en carril confinado)
-    '06': Camión, autobús, combi, colectivo
-    '07': Transporte de personal
-    08: Taxi (sitio, calle, otro)
-    09: Taxi (app internet)
-    '10': Motocicleta o motoneta
-    '11': Automóvil o camioneta
-    '12': Otro
-MED_TRASLADO_TRAB3:
-  Descripción: Modo o medio de traslado al trabajo (opción 3)
-  Pregunta: ¿Cómo acostumbra (NOMBRE) ir de aquí a su trabajo?
-  Tipo: categorical
-  Longitud: '2'
-  Categorías:
-    '03': Metro, tren ligero, tren suburbano
-    '04': Trolebús
-    '05': Metrobús (autobús en carril confinado)
-    '06': Camión, autobús, combi, colectivo
-    '07': Transporte de personal
-    08: Taxi (sitio, calle, otro)
-    09: Taxi (app internet)
-    '10': Motocicleta o motoneta
-    '11': Automóvil o camioneta
-    '12': Otro
+    '999': No especificado
+  Nota: 0 = No realizó la actividad
+ACTI_SIN_PAGO6:
+  Descripción: 41 Actividades sin pago
+  Pregunta: La semana pasada, sin recibir pago, ¿cuántas horas dedicó (NOMBRE) a preparar o servir los
+    alimentos para su familia?
+  Tipo: numeric
+  Longitud: '3'
+  Rango:
+  - 0
+  - 140
+  Categorías: {}
+  Especiales:
+    '999': No especificado
+  Nota: 0 = No realizó la actividad
+ACTI_SIN_PAGO7:
+  Descripción: 41 Actividades sin pago
+  Pregunta: La semana pasada, sin recibir pago, ¿cuántas horas dedicó (NOMBRE) a limpiar su casa, lavar
+    o planchar la ropa de su familia?
+  Tipo: numeric
+  Longitud: '3'
+  Rango:
+  - 0
+  - 140
+  Categorías: {}
+  Especiales:
+    '999': No especificado
+  Nota: 0 = No realizó la actividad
+ACTI_SIN_PAGO8:
+  Descripción: 41 Actividades sin pago
+  Pregunta: La semana pasada, sin recibir pago, ¿cuántas horas dedicó (NOMBRE) a hacer las compras para
+    la comida o la limpieza?
+  Tipo: numeric
+  Longitud: '3'
+  Rango:
+  - 0
+  - 140
+  Categorías: {}
+  Especiales:
+    '999': No especificado
+  Nota: 0 = No realizó la actividad
 HIJOS_NAC_VIVOS:
-  Descripción: Hijas(os) nacidas(os) vivas(os)
-  Pregunta: En total, ¿cuántas hijas e hijos que nacieron vivas(os) ha tenido (NOMBRE)?
+  Descripción: 42. Hijas(os) nacidas(os) vivas(os)
+  Pregunta: En total, ¿cuántas hijas e hijos que nacieron vivos ha tenido (NOMBRE)?
   Tipo: numeric
   Longitud: '2'
   Rango:
@@ -1287,12 +919,11 @@ HIJOS_NAC_VIVOS:
   - 25
   Categorías: {}
   Especiales:
-    '98': No especificado por la omisión en todas las preguntas del tema
+    '98': Omisión del tema
     '99': No especificado
-  Nota: 0 = Ninguno
 HIJOS_FALLECIDOS:
-  Descripción: Hijas(os) fallecidas(os)
-  Pregunta: De las hijas e hijos que nacieron vivas(os) de (NOMBRE), ¿cuántas(os) han muerto?
+  Descripción: 43. Hijas(os) fallecidas(os)
+  Pregunta: De las hijas e hijos que nacieron vivos de (NOMBRE), ¿cuántos han muerto?
   Tipo: numeric
   Longitud: '2'
   Rango:
@@ -1301,9 +932,8 @@ HIJOS_FALLECIDOS:
   Categorías: {}
   Especiales:
     '99': No especificado
-  Nota: 0 = Ninguno
 HIJOS_SOBREVIV:
-  Descripción: Hijas(os) sobrevivientes
+  Descripción: 44. Hijas(os) sobrevivientes
   Pregunta: ¿Cuántas de las hijas e hijos de (NOMBRE) viven actualmente?
   Tipo: numeric
   Longitud: '2'
@@ -1313,40 +943,30 @@ HIJOS_SOBREVIV:
   Categorías: {}
   Especiales:
     '99': No especificado
-  Nota: 0 = Ninguno
 FECHA_NAC_M:
-  Descripción: Fecha de nacimiento (mes)
+  Descripción: 45. Fecha de nacimiento (mes)
   Pregunta: ¿En qué mes y año nació la última hija o hijo nacido vivo de (NOMBRE)?
-  Tipo: categorical
+  Tipo: numeric
   Longitud: '2'
-  Categorías:
-    '01': '01'
-    '02': '02'
-    '03': '03'
-    '04': '04'
-    '05': '05'
-    '06': '06'
-    '07': '07'
-    08: 08
-    09: 09
-    '10': '10'
-    '11': '11'
-    '12': '12'
+  Rango:
+  - 1
+  - 12
+  Categorías: {}
   Especiales:
     '99': No especificado
 FECHA_NAC_A:
-  Descripción: Fecha de nacimiento (año)
+  Descripción: 45. Fecha de nacimiento (año)
   Pregunta: ¿En qué mes y año nació la última hija o hijo nacido vivo de (NOMBRE)?
   Tipo: numeric
   Longitud: '4'
   Rango:
-  - 1925
-  - 2025
+  - 1915
+  - 2015
   Categorías: {}
   Especiales:
     '9999': No especificado
 SOBREVIVENCIA:
-  Descripción: Sobrevivencia
+  Descripción: 46. Sobrevivencia
   Pregunta: Esta última hija o hijo de (NOMBRE), ¿vive actualmente?
   Tipo: categorical
   Longitud: '1'
@@ -1356,7 +976,7 @@ SOBREVIVENCIA:
   Especiales:
     '9': No especificado
 EDAD_MORIR_D:
-  Descripción: Edad al morir (días)
+  Descripción: 47. Edad al morir (días)
   Pregunta: ¿Qué edad tenía cuando murió?
   Tipo: numeric
   Longitud: '2'
@@ -1365,11 +985,11 @@ EDAD_MORIR_D:
   - 29
   Categorías: {}
   Especiales:
-    '98': Edad al morir menos de un mes
+    '98': Menos de un mes
     '99': No especificado
   Nota: 0 = Menos de un día
 EDAD_MORIR_M:
-  Descripción: Edad al morir (meses)
+  Descripción: 47. Edad al morir (meses)
   Pregunta: ¿Qué edad tenía cuando murió?
   Tipo: numeric
   Longitud: '2'
@@ -1378,9 +998,9 @@ EDAD_MORIR_M:
   - 11
   Categorías: {}
   Especiales:
-    '98': Edad al morir menos de un año
+    '98': Menos de un año
 EDAD_MORIR_A:
-  Descripción: Edad al morir (años)
+  Descripción: 47. Edad al morir (años)
   Pregunta: ¿Qué edad tenía cuando murió?
   Tipo: numeric
   Longitud: '2'
@@ -1404,23 +1024,3 @@ TAMLOC:
     '3': De 15 000 a 49 999 habitantes
     '4': De 50 000 a 99 999 habitantes
     '5': 100 000 y más habitantes
-SM:
-  Descripción: Ingresos por trabajo medido en salarios mínimos
-  Pregunta: Ingresos por trabajo medido en salarios mínimos (SM)
-  Tipo: categorical
-  Longitud: '2'
-  Categorías:
-    '01': No recibe ingresos
-    '02': Hasta 1 SM
-    '03': Más de 1 y hasta 2 SM
-    '04': Más de 2 y hasta 3 SM
-    '05': Más de 3 y hasta 4 SM
-    '06': Más de 4 y hasta 5 SM
-    '07': Más de 5 y hasta 6 SM
-    08: Más de 6 y hasta 7 SM
-    09: Más de 7 y hasta 8 SM
-    '10': Más de 8 y hasta 9 SM
-    '11': Más de 9 y hasta 10 SM
-    '12': Más de 10 SM
-  Especiales:
-    '99': No especificado

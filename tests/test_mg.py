@@ -438,12 +438,16 @@ def test_real_mg_2010_counts(local_mirror):
 # multi-part municipalities) and 2,454 in 2005. MG 2005's entities and municipalities ship
 # without a .prj and take the CRS of its AGEB layer; their state centroids lie a median
 # ~100 m from MG 2010's.
-_MG_OLD = {"2000": {"ent": 32, "mun": 2_480, "a": 40_089},
+_MG_OLD = {"1995": {"ent": 32, "mun": 2_428},
+           "2000": {"ent": 32, "mun": 2_480, "a": 40_089},
            "2005": {"ent": 32, "mun": 2_454, "a": 49_212}}
+# Distinct municipalities: 2000/2005 = the ITER's; MG 1995 has 2,428, 15 more than the 1995
+# ITER (2,413) — all 15 in Chiapas.
+_MG_MUNICIPALITIES = {"1995": 2_428, "2000": 2_443, "2005": 2_454}
 
 
 @pytest.mark.parametrize("period", sorted(_MG_OLD))
-def test_real_mg_2000_2005(local_mirror, period):
+def test_real_mg_municipal_frames(local_mirror, period):
     counts = _MG_OLD[period]
     if not all((_MIRROR / mg_filename(sfx, s, period)).exists()
                for sfx in counts for s in range(1, 33)):
@@ -453,8 +457,9 @@ def test_real_mg_2000_2005(local_mirror, period):
         assert sum(pq.read_metadata(_MIRROR / mg_filename(sfx, s, period)).num_rows
                    for s in range(1, 33)) == expected, (period, sfx)
     mun = mxcensus.load_mg("mun", state=list(range(1, 33)), period=period)
-    key = {"2000": "CVEMUNI", "2005": "CVE_CONCA"}[period]
-    assert mun[key].nunique() == {"2000": 2_443, "2005": 2_454}[period]
+    key = {"1995": None, "2000": "CVEMUNI", "2005": "CVE_CONCA"}[period]
+    codes = mun["CVE_ENT"] + mun["CVE_MUN"] if key is None else mun[key]
+    assert codes.nunique() == _MG_MUNICIPALITIES[period]
     assert mun.crs.equals(CRS.from_epsg(6372))
     ent = mxcensus.load_mg("ent", state=1, period=period)
     ent10 = mxcensus.load_mg("ent", state=1, period="2010") if (

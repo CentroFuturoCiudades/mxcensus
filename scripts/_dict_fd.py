@@ -66,7 +66,8 @@ _CATALOG_RE = re.compile(r"seg[uú]n\s+clasificador\s+de\s+([^)]+)", re.IGNORECA
 _SENTINEL_RE = re.compile(r"\bno especificad|^no sabe\b(?!\s+(leer|escribir|hablar))",
                           re.IGNORECASE)    # «No sabe leer y escribir» is an answer
 # A numeric code above the valid range that is itself a value: a top-code.
-_TOPCODE_RE = re.compile(r"\bmayor(es)? a\b|^más de\b|\by más\b", re.IGNORECASE)
+_TOPCODE_RE = re.compile(r"\bmayor(es)? a\b|^más de\b|\by más\b|^\d+\s+\w+\s+o\s+más\b",
+                         re.IGNORECASE)   # the last: Conteo 1995 «98 años o más»
 _NULL_CODES = {"nulo", "b"}    # CPV 2010/EIC 2015 write the blank cell "b" («Blanco por pase»)
 # A code row labelled «Blanco (por pase)» marks the blank cell whatever its code (``Nulo``;
 # EIC 2015 also writes ``b``).
@@ -399,6 +400,14 @@ def _catalog_from_rows(rows: list[list[str]], lead_keys: bool = False
     catalog."""
     if not rows:
         return None
+    if lead_keys and rows[0] and rows[0][0].strip().isdigit():
+        # CGPV 1990 catalogos_1990.xls: no header row, code | label; a code repeated for
+        # its synonyms (CATPAREN: 301 Hijo(a), 301 Hijastro(a)…) keeps its first label
+        table: dict[str, str] = {}
+        for r in rows:
+            if r and r[0].strip():
+                table.setdefault(r[0].strip(), next((c.strip() for c in r[1:] if c.strip()), ""))
+        return table
     header = [h.strip().upper() for h in rows[0]]
     body = [r for r in rows[1:] if r and any(x.strip() for x in r)]
     keys = [i for i, h in enumerate(header) if h == "CLAVE" or h.startswith(("CVE", "CLAVE_"))]
@@ -576,13 +585,18 @@ def _quantity(var: dict, catalog: str | None = None) -> bool:
     y antes»).
     """
     ranged = [c for c, label in var["rows"]
-              if isinstance(c, tuple) and label and not _SEE_CATALOG_RE.match(label)]
+              if isinstance(c, tuple) and label and not _SEE_CATALOG_RE.match(label)
+              and "catalogo" not in _fold(label)]
     if ranged:
         return len(ranged) == 1
-    if var["rows"] or catalog:
-        return False
     codes = _header_codes(var["code"])
     ranges = [c for c in codes if isinstance(c, tuple)]
+    if var["rows"] and not catalog and len(ranges) == 1 and all(
+            isinstance(c, str) and c.isdigit() and int(c) > ranges[0][1]
+            for c, _ in var["rows"]):
+        return True            # the rows list only sentinels above the range (1990 EDAD)
+    if var["rows"] or catalog:
+        return False
     return len(ranges) == 1 and (len(codes) > 1 or not ranges[0][2])
 
 
@@ -1081,6 +1095,187 @@ def write_indicator_csv(rows: list[dict[str, str]], path: Path) -> None:
         w.writerow(cols)
         for r in rows:
             w.writerow([r[c] for c in cols])
+
+
+# --------------------------------------------------------------------------------------
+# The 1990 and 1995 microdata FDs: text tables in (encrypted) PDFs
+# --------------------------------------------------------------------------------------
+
+def pdf_text(path: Path) -> str:
+    """A PDF's text with its layout (``pdftotext -layout``, poppler; see :func:`pdf_words`)."""
+    import shutil
+    import subprocess
+
+    exe = shutil.which("pdftotext")
+    if exe is None:
+        raise RuntimeError("pdftotext (poppler-utils) is required to read the 1990/1995 FDs")
+    return subprocess.run([exe, "-layout", str(path), "-"], check=True, capture_output=True,
+                          text=True, encoding="utf-8").stdout
+
+
+def _fd_var(name: str, desc: str, code: str, length: str) -> dict:
+    return {"var": name, "desc": " ".join(desc.split()), "label": "", "code": code,
+            "len": length, "tipo": "", "rows": [], "refs": [], "typed": False}
+
+
+def _range_header(text: str) -> str:
+    """A 1990 «RANGO VALIDO» cell → the ``{…}`` header of the other FDs: ``01..05 Y 09`` →
+    ``{01..05,09}``, ``1Y2`` → ``{1,2}``; ``VER CATÁLOGO`` or nothing → ``{}``."""
+    text = " ".join(text.split())
+    if not text or _fold(text).startswith("ver catalogo"):
+        return "{}"
+    parts = re.split(r"\s*,\s*|\s*\bY\b\s*|(?<=\d)Y(?=\d)", text)
+    return "{" + ",".join(p for p in parts if p) + "}"
+
+
+# CGPV 1990: the variable table «No MNEMONICO DESCRIPCION LONGITUD RANGO VALIDO»…
+_FD90_VAR_RE = re.compile(r"^(?P<num>\d{2})\s+(?P<var>[A-Z][A-Z0-9_]*)\s+(?P<desc>\S.*?)\s{2,}"
+                          r"(?P<len>\d+)(?:\s{2,}(?P<range>\S.*?))?\s*$")
+# … then a section per variable: «12 TAM_DUERME 0 NO DISPONE DE COCINA», code rows «  3 SI»
+_FD90_SECTION_RE = re.compile(r"^(?P<num>\d{2})\s+(?P<title>\S.*?)\s*$")
+_FD90_INLINE_RE = re.compile(r"^(?P<title>[A-Z][A-Z0-9_]*)\s+(?P<code>\d+)\s+(?P<label>\S.*)$")
+_FD90_CODE_RE = re.compile(r"^\s+(?P<code>\d+)\s+(?P<label>\S.*)$")
+_FD_CATALOG_NOTE_RE = re.compile(r"\((CAT[A-Z0-9]+)(?:\.\w+)?\)")
+
+
+def parse_fd_1990_text(text: str, catalogs: dict | None = None) -> dict[str, dict[str, dict]]:
+    """Parse the CGPV 1990 sample FD (``fd_cgpv1990.pdf`` as :func:`pdf_text` lays it out)
+    → ``{"personas": {VAR: meta}}``.
+
+    The document lists the variables in a table (number, mnemonic, description, length,
+    valid range such as ``01..05 Y 09``, ``1,2 Y 9``, ``VER CATÁLOGO``), then one section per
+    variable number with its codes (``1 LAMINA DE CARTON``; the first code may share the
+    section's line). A section naming a catalog (``CLAVE DE MUNICIPIO (CATMUN00)``) points
+    the variable at that sheet of ``catalogos_1990.xls`` (``catalogs``). Labels that wrap
+    are rejoined. The variables go through :func:`_finish` as an FD without ``Tipo``.
+    """
+    lines = text.splitlines()
+    split = next((i for i, l in enumerate(lines) if "SE DESCRIBEN A CONTINUACION" in l),
+                 len(lines))
+    by_num: dict[str, dict] = {}
+    last = None
+    for line in lines[:split]:
+        m = _FD90_VAR_RE.match(line)
+        if m:
+            last = by_num[m["num"]] = _fd_var(m["var"], m["desc"],
+                                              _range_header(m["range"] or ""), m["len"])
+            last["range_text"] = m["range"] or ""
+        elif last is not None and line.strip().isdigit() and last["range_text"]:
+            last["range_text"] += line.strip()          # «00000000..99999» + «999»
+            last["code"] = _range_header(last["range_text"])
+    current, row = None, None
+    for line in lines[split + 1:]:
+        if "ESTRUCTURAS DE CATALOGOS" in line:     # the catalog list and annexes follow
+            break
+        if not line.strip():
+            continue
+        m = _FD90_SECTION_RE.match(line)
+        if m and m["num"] in by_num:
+            current, row = by_num[m["num"]], None
+            inline = _FD90_INLINE_RE.match(m["title"])
+            if inline:
+                row = [inline["code"], inline["label"].strip()]
+                current["rows"].append(row)
+            continue
+        if current is None:
+            continue
+        cat = _FD_CATALOG_NOTE_RE.search(line)
+        if cat:
+            current["refs"].append((cat.group(1), "Descripción por catálogo"))
+            row = None
+            continue
+        m = _FD90_CODE_RE.match(line)
+        if m:
+            row = [m["code"], m["label"].strip()]
+            current["rows"].append(row)
+        elif row is not None and not re.match(r"^\s*[A-ZÁÉÍÓÚÑ ]+:\s*$", line):
+            row[1] = f"{row[1]} {line.strip()}"        # a wrapped label
+    out = {}
+    for var in by_num.values():
+        raw, var["rows"] = var["rows"], []
+        for code, label in raw:
+            _code_row(var, code, " ".join(label.split()))
+        out[var["var"]] = _finish(var, catalogs)
+    return {"personas": out}
+
+
+# Conteo 1995: «DESCRIPCION  CAMPO  {RANGO}  LONGITUD  POSICION INICIAL FINAL», code rows
+# indented under the field, one section per DBF («ARCHIVO: … (DATGEN95.DBF)»).
+_FD95_VAR_RE = re.compile(r"^(?P<desc>.*?)\s*(?<!\S)(?P<var>[A-Z][A-Z0-9_]*)\s+"
+                          r"(?:\{(?P<codes>[^}]*)\}\s+)?(?P<len>\d+)\s+\d+\s+\d+\s*$")
+_FD95_FILE_RE = re.compile(r"\((\w+)\.DBF\)", re.IGNORECASE)
+_FD95_CODE_RE = re.compile(r"^\s{20,}(?P<code>\d+(?:\.\.\d+)?|b)\s{2,}(?P<label>\S.*)$")
+_FD95_SECTION_RE = re.compile(r"^[IVX]+\s+[A-ZÁÉÍÓÚÑ ,]+$")
+
+
+def parse_fd_1995_text(text: str, catalogs: dict | None = None) -> dict[str, dict[str, dict]]:
+    """Parse the Conteo 1995 sample FD (``fd_encuesta_cpv1995.pdf`` as :func:`pdf_text`
+    lays it out) → ``{DBF stem (datgen95/migint95): {VAR: meta}}``.
+
+    A variable line ends with its field, ``{range}``, length and file positions. Its
+    description may begin on the line(s) just above (``NUMERO DE REGISTRO`` / ``DE LA
+    PERSONA  P3_1``). An indented description (``MESES  P4_4A``) is prefixed with the group
+    title above it (``TIEMPO RESIDENCIA ANTERIOR``), and a missing one repeats the previous
+    variable's (``FACTORES DE EXPANSION``: ``FAC_POB``, ``FAC_VIV``, ``FAC_PROM``). Indented
+    code rows (``1  Hombre``, ``01..25  Número…``, ``b  Por pase``) follow; deeper lines
+    continue a label. The variables go through :func:`_finish` as an FD without ``Tipo``.
+    """
+    out: dict[str, dict[str, dict]] = {}
+    table = None
+    pending: list[str] = []          # column-0 text lines right above a variable line
+    group, last_desc = "", ""
+    current, row = None, None
+    for line in text.splitlines():
+        f = _FD95_FILE_RE.search(line)
+        if f and line.lstrip().upper().startswith("ARCHIVO"):
+            table = out.setdefault(f.group(1).lower(), {})
+            pending, group, current, row = [], "", None, None
+            continue
+        if table is None:
+            continue
+        if not line.strip():
+            if pending:
+                group, pending = " ".join(pending), []
+            continue
+        m = _FD95_VAR_RE.match(line)
+        if m and len(m["var"]) > 1:
+            desc = m["desc"].strip()
+            if pending:
+                desc = " ".join(pending + [desc])
+            elif desc and line[:1] == " " and group:
+                desc = f"{group} — {desc}"
+            elif not desc:
+                desc = last_desc
+            desc = desc.rstrip(" -")
+            last_desc = desc
+            current = table[m["var"]] = _fd_var(m["var"], desc, "{" + (m["codes"] or "") + "}",
+                                                m["len"])
+            pending, row = [], None
+            continue
+        if _FD95_SECTION_RE.match(line.strip()) and not line.startswith(" "):
+            pending, group, current, row = [], "", None, None
+            continue
+        if not line.startswith(" "):             # a description line of the next variable
+            pending.append(line.strip())
+            continue
+        if current is None:
+            continue
+        m = _FD95_CODE_RE.match(line)
+        if m:
+            row = [m["code"], m["label"].strip()]
+            current["rows"].append(row)
+        elif row is not None:
+            row[1] = f"{row[1]} {line.strip()}"
+        elif _fold(line).strip().startswith("ver catalogo"):
+            current["note_ref"] = line.strip()
+    result = {}
+    for stem, vars_ in out.items():
+        for var in vars_.values():
+            raw, var["rows"] = var["rows"], []
+            for code, label in raw:
+                _code_row(var, code, " ".join(label.split()))
+        result[stem] = {v: _finish(m, catalogs) for v, m in vars_.items()}
+    return result
 
 
 # --------------------------------------------------------------------------------------

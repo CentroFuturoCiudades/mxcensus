@@ -35,1009 +35,28 @@ ENT:
     '30': '30'
     '31': '31'
     '32': '32'
-NOM_ENT:
-  Descripción: Nombre de la entidad
-  Tipo: string
-  Longitud: '50'
 MUN:
   Descripción: Municipio o Delegación
   Tipo: string
   Longitud: '3'
   Nota: 001..570 = códigos (no enumerados)
-NOM_MUN:
-  Descripción: Nombre del municipio o delegación
-  Tipo: string
-  Longitud: '50'
-LOC50K:
-  Descripción: Clave de la localidad de 50 000 y más habitantes dentro del municipio; 0000 = localidad
-    de menos de 50 000 habitantes
+LOC:
+  Descripción: Localidad (Clave)
   Tipo: string
   Longitud: '4'
-NOM_LOC:
-  Descripción: Nombre de la localidad
-  Tipo: string
-  Longitud: '70'
-ID_VIV:
-  Descripción: Identificador único de la vivienda (2015, 2020 y 2025 — 12 dígitos; los dos primeros son
-    la entidad, así que es único en todo el país). Los CSV de 2015 lo escriben sin el cero inicial de
-    las entidades 01-09 (11 dígitos); harmonize=True lo rellena. En 2010 es un consecutivo de 8 dígitos
-    único sólo dentro de la entidad; harmonize=True le antepone la entidad (entidad + consecutivo a 10
-    dígitos). 2000 y 2005 no lo traen; se deriva de las partes de la clave — 2000, ENT + MUN + LOC + NUMVIV
-    (15 dígitos); 2005, ENT + MUN + CONS_MUN a 7 dígitos (12).
-  Tipo: string
-  Longitud: '12'
-ID_PER:
-  Descripción: Identificación de persona
-  Tipo: string
-  Longitud: '9'
-  Nota: 000000001..999999999 = códigos (no enumerados)
-CLAVIVP:
-  Descripción: Clase de vivienda particular
-  Pregunta: Clase de vivienda particular
-  Tipo: categorical
-  Longitud: '1'
-  Categorías:
-    '1': Casa independiente
-    '2': Departamento en edificio
-    '3': Vivienda en vecindad
-    '4': Vivienda en cuarto de azotea
-    '5': Local no construido para habitación
-    '6': Vivienda móvil
-    '7': Refugio
-  Especiales:
-    '9': No especificado
-NUMPER:
-  Descripción: Número de persona (campo)
-  Pregunta: Número de persona
-  Tipo: string
-  Longitud: '5'
-  Nota: 00001..99999 = códigos (no enumerados)
-SEXO:
-  Descripción: Sexo (códigos 1 y 3 en 2010, 2015, 2020 y 2025; 2000 y 2005 escriben a la mujer con 2 —
-    Recodificar; harmonize=True lo lleva a 3)
-  Pregunta: (NOMBRE) es hombre. (NOMBRE) es mujer.
-  Tipo: categorical
-  Longitud: '1'
-  Categorías:
-    '1': Hombre
-    '3': Mujer
-EDAD:
-  Descripción: Edad en años cumplidos (0 = menos de un año; en 2015, 110 = 110 y más; 2000, 2005 y 2010
-    la escriben con tres dígitos, 000-130)
-  Pregunta: ¿Cuántos años cumplidos tiene (NOMBRE)?
-  Tipo: numeric
-  Longitud: '3'
-  Rango:
-  - 0
-  - 130
-  Especiales:
-    '999': No especificado
-PARENT:
-  Descripción: Parentesco
-  Pregunta: ¿Qué es (nombre) de la jefa(e)?
-  Tipo: categorical
-  Longitud: '2'
-  Categorías:
-    '01': Jefe(a)
-    '02': Esposa(o) o compañera(o)
-    '03': Hija(o)
-    '04': Nieta(o)
-    '05': Nuera o yerno
-    '06': Madre o padre
-    '07': Suegra(o)
-    08: Otro parentesco
-    09: Sin parentesco
-  Especiales:
-    '99': No especificado
-OTROPARE_C:
-  Descripción: Parentesco (otro)
-  Pregunta: ¿Qué es (NOMBRE) de la jefa(e)?
-  Tipo: categorical
-  Longitud: '3'
-  Categorías:
-    '101': Jefe(a)
-    '201': Esposo(a)
-    '202': Concubino(a)
-    '203': Amasio(a)
-    '204': Querido(a)
-    '301': Hijo(a)
-    '302': Hijo(a) adoptivo(a)
-    '303': Hijastro(a)
-    '304': Hijo(a) de crianza
-    '305': Hijo(a) recogido(a)
-    '401': Trabajador(a) doméstico(a)
-    '402': Recamarero(a)
-    '403': Cocinero(a)
-    '404': Lavandero(a)
-    '405': Niñero(a)
-    '406': Mozo
-    '407': Jardinero(a)
-    '408': Vigilante
-    '409': Portero(a)
-    '410': Chofer
-    '411': Ama de llaves
-    '412': Mayordomo
-    '413': Dama de compañia
-    '421': Esposo(a) del(la) trabajador(a) doméstico(a)
-    '431': Hijo(a) del(a) trabajador(a) doméstico(a)
-    '441': Madre o padre del(a) trabajador(a) doméstico(a)
-    '451': Nieto(a) del(a) trabajador(a) doméstico(a)
-    '461': Otro pariente del(la) trabajador(a) doméstico(a)
-    '501': No tiene parentesco
-    '502': Tutor(a)
-    '503': Tutelado(a)
-    '601': Madre o padre
-    '602': Padrastro o madrastra
-    '603': Hermano(a)
-    '604': Medio(a) hermano(a)
-    '605': Hermanastro(a)
-    '606': Abuelo(a)
-    '607': Bisabuelo(a)
-    '608': Tatarabuelo(a)
-    '609': Nieto(a)
-    '610': Bisnieto(a)
-    '611': Tataranieto(a)
-    '612': Tío(a)
-    '613': Sobrino(a)
-    '614': Primo(a)
-    '615': Suegro(a)
-    '616': Consuegro(a)
-    '617': Nuera o yerno
-    '618': Cuñado(a)
-    '619': Concuño(a)
-    '620': Padrino o madrina
-    '621': Ahijado(a)
-    '622': Compadre o comadre
-    '623': Familiar
-    '701': Huésped
-    '711': Esposo(a) del(la) huésped
-    '712': Hijo(a) del(la) huésped
-    '713': Padre o madre del(la) huésped
-    '714': Nieto(a) del(la) huésped
-    '715': Otro pariente del(la) huésped
-    '999': Parentesco no especificado
-  Catálogo: TC_PARENTESCO_2010
-IDMADRE:
-  Descripción: Identificación de la madre
-  Pregunta: En esta vivienda, ¿vive la madre de (NOMBRE) ? Sí... ¿Quién es?
-  Tipo: numeric
-  Longitud: '2'
-  Rango:
-  - 1
-  - 98
-  Categorías: {}
-  Especiales:
-    '99': No especificado
-IDMADREC:
-  Descripción: Identificación de la madre (código)
-  Pregunta: En esta vivienda, ¿vive la madre de (NOMBRE) ?
-  Tipo: categorical
-  Longitud: '2'
-  Categorías:
-    '88': La madre no vive en la vivienda
-  Especiales:
-    '99': No especificado
-IDPADRE:
-  Descripción: Identificación del padre
-  Pregunta: En esta vivienda, ¿vive el padre de (NOMBRE) ? Sí... ¿Quién es?
-  Tipo: numeric
-  Longitud: '2'
-  Rango:
-  - 1
-  - 98
-  Categorías: {}
-  Especiales:
-    '99': No especificado
-IDPADREC:
-  Descripción: Identificación del padre (código)
-  Pregunta: En esta vivienda, ¿vive el padre de (NOMBRE) ?
-  Tipo: categorical
-  Longitud: '2'
-  Categorías:
-    '88': El padre no vive en la vivienda
-  Especiales:
-    '99': No especificado
-LNACEDO_C:
-  Descripción: Entidad o país de nacimiento (en otro estado)
-  Pregunta: ¿En qué estado de la República o en qué país nació (NOMBRE)? (Entidad)
-  Tipo: categorical
-  Longitud: '3'
-  Categorías:
-    '001': Aguascalientes
-    '002': Baja California
-    '003': Baja California Sur
-    '004': Campeche
-    '005': Coahuila de Zaragoza
-    '006': Colima
-    '007': Chiapas
-    008: Chihuahua
-    009: Distrito Federal
-    '010': Durango
-    '011': Guanajuato
-    '012': Guerrero
-    '013': Hidalgo
-    '014': Jalisco
-    '015': México
-    '016': Michoacán de Ocampo
-    '017': Morelos
-    018: Nayarit
-    019: Nuevo León
-    '020': Oaxaca
-    '021': Puebla
-    '022': Querétaro
-    '023': Quintana Roo
-    '024': San Luis Potosí
-    '025': Sinaloa
-    '026': Sonora
-    '027': Tabasco
-    028: Tamaulipas
-    029: Tlaxcala
-    '030': Veracruz de Ignacio de la Llave
-    '031': Yucatán
-    '032': Zacatecas
-    '900': Omisión del tema
-  Especiales:
-    '999': No especificado
-  Catálogo: TC_ENTIDAD_2010
-LNACPAIS_C:
-  Descripción: Entidad o país de nacimiento (en otro país)
-  Pregunta: ¿En qué estado de la República o en qué país nació (NOMBRE)? (País)
-  Tipo: string
-  Longitud: '3'
-  Catálogo: TC_PAIS_2010
-  Nota: códigos del catálogo TC_PAIS_2010 (241 renglones; no enumerados)
-SERSALUD:
-  Descripción: Uso de servicios de salud
-  Pregunta: Cuando (NOMBRE) tiene problemas de salud, ¿en dónde se atiende?
-  Tipo: categorical
-  Longitud: '2'
-  Categorías:
-    '01': Seguro Social (IMSS)
-    '02': ISSSTE
-    '03': ISSSTE estatal
-    '04': Pemex, Defensa o Marina
-    '05': Centro de salud u hospital de la SSA (Seguro Popular)
-    '06': IMSS oportunidades
-    '07': Consultorio, clínica o hospital privado
-    08: Otro lugar
-    09: No se atiende
-  Especiales:
-    '99': No especificado
-DHSERSAL1:
-  Descripción: Derechohabiencia a servicios de salud (primera institución)
-  Pregunta: '(NOMBRE) tiene derecho a servicios médicos (Primera Institución):'
-  Tipo: categorical
-  Longitud: '1'
-  Categorías:
-    '1': Seguro Social (IMSS)
-    '2': ISSSTE
-    '3': ISSSTE estatal
-    '4': Pemex, Defensa o Marina
-    '5': Seguro Popular o para una Nueva Generación
-    '6': Seguro privado
-    '7': Otra institución
-    '8': No tiene derecho a servicios médicos
-  Especiales:
-    '9': No especificado
-DHSERSAL2:
-  Descripción: Derechohabiencia a servicios de salud (segunda institución)
-  Pregunta: '(NOMBRE) tiene derecho a servicios médicos (Segunda Institución):'
-  Tipo: categorical
-  Longitud: '1'
-  Categorías:
-    '1': Seguro Social (IMSS)
-    '2': ISSSTE
-    '3': ISSSTE estatal
-    '4': Pemex, Defensa o Marina
-    '5': Seguro Popular o para una Nueva Generación
-    '6': Seguro privado
-    '7': Otra institución
-OTRAREL_C:
-  Descripción: Religión
-  Pregunta: ¿Cuál es la religión de (NOMBRE)?
+  Nota: 0001..9999 = códigos (no enumerados)
+NUMVIV:
+  Descripción: Número de vivienda
   Tipo: string
   Longitud: '6'
-  Catálogo: TC_RELIGION_2010
-  Nota: códigos del catálogo TC_RELIGION_2010 (245 renglones; no enumerados)
-DISCAP1:
-  Descripción: Discapacidad (caminar, moverse, subir o bajar?)
-  Pregunta: 'En su vida diaria, (NOMBRE) tiene dificultad al realizar las siguientes actividades:'
-  Tipo: categorical
-  Longitud: '2'
-  Categorías:
-    '10': Caminar, moverse, subir o bajar
-DISCAP2:
-  Descripción: Discapacidad (ver, aun usando lentes?)
-  Pregunta: 'En su vida diaria, (NOMBRE) tiene dificultad al realizar las siguientes actividades:'
-  Tipo: categorical
-  Longitud: '2'
-  Categorías:
-    '11': Ver, aun usando lentes
-DISCAP3:
-  Descripción: Discapacidad (hablar, comunicarse o conversar?)
-  Pregunta: 'En su vida diaria, (NOMBRE) tiene dificultad al realizar las siguientes actividades:'
-  Tipo: categorical
-  Longitud: '2'
-  Categorías:
-    '12': Hablar, comunicarse o conversar
-DISCAP4:
-  Descripción: Discapacidad (oír, aun usando aparato auditivo?)
-  Pregunta: 'En su vida diaria, (NOMBRE) tiene dificultad al realizar las siguientes actividades:'
-  Tipo: categorical
-  Longitud: '2'
-  Categorías:
-    '13': Oír, aun usando aparato auditivo
-DISCAP5:
-  Descripción: Discapacidad (vestirse, bañarse o comer?)
-  Pregunta: 'En su vida diaria, (NOMBRE) tiene dificultad al realizar las siguientes actividades:'
-  Tipo: categorical
-  Longitud: '2'
-  Categorías:
-    '14': Vestirse, bañarse o comer
-DISCAP6:
-  Descripción: Discapacidad (poner atención o aprender cosas sencillas?)
-  Pregunta: 'En su vida diaria, (NOMBRE) tiene dificultad al realizar las siguientes actividades:'
-  Tipo: categorical
-  Longitud: '2'
-  Categorías:
-    '15': Poner atención o aprender cosas sencillas
-DISCAP7:
-  Descripción: Discapacidad (limitación mental?)
-  Pregunta: 'En su vida diaria, (NOMBRE) tiene dificultad al realizar las siguientes actividades:'
-  Tipo: categorical
-  Longitud: '2'
-  Categorías:
-    '16': Limitación mental
-DISCAP8:
-  Descripción: Discapacidad (no tiene)
-  Pregunta: 'En su vida diaria, (NOMBRE) tiene dificultad al realizar las siguientes actividades:'
-  Tipo: categorical
-  Longitud: '2'
-  Categorías:
-    '17': No tiene discapacidad física o mental
-  Especiales:
-    '99': No especificado
-CAUSADIS1:
-  Descripción: Discapacidad (caminar, moverse, subir o bajar?)
-  Pregunta: '(NOMBRE) tiene dificultad para caminar, moverse, subir o bajar:'
-  Tipo: categorical
-  Longitud: '1'
-  Categorías:
-    '1': Porque nació así
-    '2': Enfermedad
-    '3': Accidente
-    '4': Edad avanzada
-    '5': Otra causa
-  Especiales:
-    '9': No especificado
-CAUSADIS2:
-  Descripción: Discapacidad (ver, aun usando lentes?)
-  Pregunta: (NOMBRE) tiene dificultad para ver, aun usando lentes
-  Tipo: categorical
-  Longitud: '1'
-  Categorías:
-    '1': Porque nació así
-    '2': Enfermedad
-    '3': Accidente
-    '4': Edad avanzada
-    '5': Otra causa
-  Especiales:
-    '9': No especificado
-CAUSADIS3:
-  Descripción: Discapacidad (hablar, comunicarse o conversar?)
-  Pregunta: (NOMBRE) tiene dificultad para hablar, comunicarse o conversar
-  Tipo: categorical
-  Longitud: '1'
-  Categorías:
-    '1': Porque nació así
-    '2': Enfermedad
-    '3': Accidente
-    '4': Edad avanzada
-    '5': Otra causa
-  Especiales:
-    '9': No especificado
-CAUSADIS4:
-  Descripción: Discapacidad (oír, aun usando aparato auditivo?)
-  Pregunta: (NOMBRE) tiene dificultad para oír, aun usando aparato auditivo
-  Tipo: categorical
-  Longitud: '1'
-  Categorías:
-    '1': Porque nació así
-    '2': Enfermedad
-    '3': Accidente
-    '4': Edad avanzada
-    '5': Otra causa
-  Especiales:
-    '9': No especificado
-CAUSADIS5:
-  Descripción: Discapacidad (vestirse, bañarse o comer?)
-  Pregunta: (NOMBRE) tiene dificultad para vestirse, bañarse o comer
-  Tipo: categorical
-  Longitud: '1'
-  Categorías:
-    '1': Porque nació así
-    '2': Enfermedad
-    '3': Accidente
-    '4': Edad avanzada
-    '5': Otra causa
-  Especiales:
-    '9': No especificado
-CAUSADIS6:
-  Descripción: Discapacidad (poner atención o aprender cosas sencillas?)
-  Pregunta: (NOMBRE) tiene dificultad para poner atención o aprender cosas sencillas
-  Tipo: categorical
-  Longitud: '1'
-  Categorías:
-    '1': Porque nació así
-    '2': Enfermedad
-    '3': Accidente
-    '4': Edad avanzada
-    '5': Otra causa
-  Especiales:
-    '9': No especificado
-CAUSADIS7:
-  Descripción: Discapacidad (limitación mental?)
-  Pregunta: (NOMBRE) tiene alguna limitación mental
-  Tipo: categorical
-  Longitud: '1'
-  Categorías:
-    '1': Porque nació así
-    '2': Enfermedad
-    '3': Accidente
-    '4': Edad avanzada
-    '5': Otra causa
-  Especiales:
-    '9': No especificado
-HLENGUA:
-  Descripción: Hablante de lengua indígena
-  Pregunta: Ahora quiero preguntarle. ¿(NOMBRE) habla algún dialecto o lengua indígena?
-  Tipo: categorical
-  Longitud: '1'
-  Categorías:
-    '1': Sí
-    '3': 'No'
-  Especiales:
-    '9': No especificado
-QDIALECT_C:
-  Descripción: Nombre de lengua indígena
-  Pregunta: ¿Qué dialecto o lengua indígena habla (NOMBRE)?
-  Tipo: string
-  Longitud: '4'
-  Catálogo: TC_LENGUAIND_2010
-  Nota: códigos del catálogo TC_LENGUAIND_2010 (334 renglones; no enumerados)
-HESPANOL:
-  Descripción: Hablante también español
-  Pregunta: ¿(NOMBRE) habla también español?
-  Tipo: categorical
-  Longitud: '1'
-  Categorías:
-    '1': Sí
-    '3': 'No'
-  Especiales:
-    '9': No especificado
-CLENGUA:
-  Descripción: Comprensión de lengua indígena
-  Pregunta: ¿(NOMBRE) entiende alguna lengua indígena?
-  Tipo: categorical
-  Longitud: '1'
-  Categorías:
-    '1': Sí
-    '3': 'No'
-  Especiales:
-    '9': No especificado
-LI_INALI:
-  Descripción: Lengua indígena INALI
-  Pregunta: ¿Qué dialecto o lengua indígena habla (NOMBRE)? (Catálogo INALI)
-  Tipo: string
-  Longitud: '4'
-  Catálogo: TC_INALI_2010
-  Nota: códigos del catálogo TC_INALI_2010 (72 renglones; no enumerados)
-PERETN:
-  Descripción: Autoadscripción étnica
-  Pregunta: De acuerdo con la cultura de (NOMBRE), ¿ella (él) se considera indígena?
-  Tipo: categorical
-  Longitud: '1'
-  Categorías:
-    '1': Sí
-    '3': 'No'
-  Especiales:
-    '9': No especificado
-ASISTEN:
-  Descripción: Asistencia
-  Pregunta: ¿(NOMBRE) actualmente va a la escuela?
-  Tipo: categorical
-  Longitud: '1'
-  Categorías:
-    '1': Sí
-    '3': 'No'
-  Especiales:
-    '9': No especificado
-ESCOLARI:
-  Descripción: Escolaridad (grado)
-  Pregunta: ¿Cuál es el último año o grado que aprobó (NOMBRE) en la escuela? (Grado)
+  Nota: 000001..999999 = códigos (no enumerados)
+NUMHOG:
+  Descripción: Número de hogar
   Tipo: numeric
-  Longitud: '2'
-  Rango:
-  - 0
-  - 8
-  Categorías: {}
-  Especiales:
-    '99': No especificado
-NIVACAD:
-  Descripción: Escolaridad (nivel académico)
-  Pregunta: ¿Cuál es el último año o grado que aprobó (NOMBRE) en la escuela? (Nivel)
-  Tipo: categorical
-  Longitud: '2'
-  Categorías:
-    '00': Ninguno
-    '01': Preescolar
-    '02': Primaria
-    '03': Secundaria
-    '04': Preparatoria o bachillerato
-    '05': Normal básica
-    '06': Estudios técnicos o comerciales con primaria terminada
-    '07': Estudios técnicos o comerciales con secundaria terminada
-    08: Estudios técnicos o comerciales con preparatoria terminada
-    09: Normal de licenciatura
-    '10': Licenciatura o profesional
-    '11': Maestría
-    '12': Doctorado
-  Especiales:
-    '99': No especificado
-ANTESC:
-  Descripción: Antecedente escolar
-  Pregunta: ¿Qué estudios le pidieron a (NOMBRE) para ingresar a (normal, carrera técnica o comercial,
-    licenciatura, maestría o doctorado)?
-  Tipo: categorical
   Longitud: '1'
-  Categorías:
-    '1': Primaria
-    '2': Secundaria
-    '3': Preparatoria o bachillerato
-    '4': Licenciatura o profesional
-    '5': Maestría
-  Especiales:
-    '9': No especificado
-NOMCAR_C:
-  Descripción: Nombre de la carrera
-  Pregunta: Nombre de la Carrera
-  Tipo: string
-  Longitud: '3'
-  Catálogo: TC_CARRERA_2010
-  Nota: códigos del catálogo TC_CARRERA_2010 (96 renglones; no enumerados)
-ESCOACUM:
-  Descripción: Escolaridad acumulada (años aprobados acumulados)
-  Pregunta: Escolaridad acumulada (años aprobados acumulados)
-  Tipo: numeric
-  Longitud: '2'
-  Rango:
-  - 0
-  - 24
-  Categorías: {}
-  Especiales:
-    '99': '99'
-  Nota: clasificador «Tc_escoacum_2010» no disponible
-NIV_CAR:
-  Descripción: Nivel carrera
-  Pregunta: Nivel de la carrera
-  Tipo: string
-  Longitud: '4'
-  Catálogo: TC_CARRERA_2010
-  Nota: códigos del catálogo TC_CARRERA_2010 (96 renglones; no enumerados)
-ALFABET:
-  Descripción: Alfabetismo
-  Pregunta: ¿(NOMBRE) sabe leer y escribir un recado?
-  Tipo: categorical
-  Longitud: '1'
-  Categorías:
-    '1': Sí
-    '3': 'No'
-  Especiales:
-    '9': No especificado
-RES05EDO_C:
-  Descripción: Entidad o país de residencia en 2005 (en otro estado)
-  Pregunta: Hace 5 años, en junio de 2005, ¿en qué estado de la República o en qué país vivía (NOMBRE)?
-    (Entidad)
-  Tipo: categorical
-  Longitud: '3'
-  Categorías:
-    '001': Aguascalientes
-    '002': Baja California
-    '003': Baja California Sur
-    '004': Campeche
-    '005': Coahuila de Zaragoza
-    '006': Colima
-    '007': Chiapas
-    008: Chihuahua
-    009: Distrito Federal
-    '010': Durango
-    '011': Guanajuato
-    '012': Guerrero
-    '013': Hidalgo
-    '014': Jalisco
-    '015': México
-    '016': Michoacán de Ocampo
-    '017': Morelos
-    018: Nayarit
-    019: Nuevo León
-    '020': Oaxaca
-    '021': Puebla
-    '022': Querétaro
-    '023': Quintana Roo
-    '024': San Luis Potosí
-    '025': Sinaloa
-    '026': Sonora
-    '027': Tabasco
-    028: Tamaulipas
-    029: Tlaxcala
-    '030': Veracruz de Ignacio de la Llave
-    '031': Yucatán
-    '032': Zacatecas
-    '900': Omisión del tema
-  Especiales:
-    '999': No especificado
-  Catálogo: TC_ENTIDAD_2010
-RES05PAI_C:
-  Descripción: Entidad o país de residencia en 2005 (en otro país)
-  Pregunta: Hace 5 años, en junio de 2005, ¿en qué estado de la República o en qué país vivía (NOMBRE)?
-    (País)
-  Tipo: string
-  Longitud: '3'
-  Catálogo: TC_PAIS_2010
-  Nota: códigos del catálogo TC_PAIS_2010 (241 renglones; no enumerados)
-MUN05OTR_C:
-  Descripción: Municipio de residencia en 2005 (otro)
-  Pregunta: ¿En qué municipio (delegación) vivía (NOMBRE) en junio de 2005?
-  Tipo: string
-  Longitud: '3'
-  Catálogo: TC_MUNICIPIO_2010
-  Nota: códigos del catálogo TC_MUNICIPIO_2010 (2456 renglones; no enumerados)
-NOM_MUN05:
-  Descripción: Nombre del municipio de residencia en 2005
-  Pregunta: Nombre del municipio de residencia en 2005
-  Tipo: string
-  Longitud: '50'
-ESTCON:
-  Descripción: Situación conyugal
-  Pregunta: '¿Actualmente (NOMBRE):'
-  Tipo: categorical
-  Longitud: '1'
-  Categorías:
-    '1': Unión libre
-    '2': Separada(o)
-    '3': Divorciada(o)
-    '4': Viuda(o)
-    '5': Casada(o) sólo por el civil
-    '6': Casada(o) sólo religiosamente
-    '7': Casada(o) civil y religiosamente
-    '8': Soltero
-  Especiales:
-    '9': No especificado
-IDCONYUGE:
-  Descripción: Identificación del cónyuge
-  Pregunta: En esta vivienda, ¿vive la pareja o esposa(o) de (NOMBRE) ? Sí... ¿Quién es?
-  Tipo: numeric
-  Longitud: '2'
   Rango:
   - 1
-  - 98
-  Categorías: {}
-  Especiales:
-    '99': No especificado
-IDCONYUGEC:
-  Descripción: Identificación del cónyuge (código)
-  Pregunta: En esta vivienda, ¿vive la pareja o esposa(o) de (NOMBRE) ?
-  Tipo: categorical
-  Longitud: '2'
-  Categorías:
-    '88': La pareja no vive en la vivienda
-  Especiales:
-    '99': No especificado
-CONACT:
-  Descripción: Condición de actividad
-  Pregunta: 'Ahora le voy a preguntar por la situación laboral: ¿La semana pasada (NOMBRE):'
-  Tipo: categorical
-  Longitud: '2'
-  Categorías:
-    '10': Trabajó (por lo menos una hora)
-    '13': Se declara que busca trabajo y por verificación se rescata que trabaja
-    '14': Se declara que es jubilado o pensionado y por verificación se rescata que trabaja
-    '15': Se declara que es estudiante y por verificación se rescata que trabaja
-    '16': Se dedica a los quehaceres del hogar y por verificación se rescata que trabaja
-    '17': Se declara que tiene alguna limitación física o mental... y por verificación se rescata que
-      trabaja
-    '18': Se declara que no trabaja y por verificación se rescata que trabaja
-    '19': No se tiene información en condición de actividad y por verificación se rescata que trabaja
-    '20': Tenía trabajo, pero no trabajó
-    '30': Buscó trabajo
-    '40': Pensionada(o) o jubilada(o)
-    '50': Estudiante
-    '60': Se dedica a los quehaceres del hogar
-    '70': Tiene alguna limitación física o mental que le impide trabajar
-    '80': Otra situación
-  Especiales:
-    '99': No especificado
-OCUACTIV_C:
-  Descripción: Ocupación u oficio
-  Pregunta: ¿Qué hizo (NOMBRE) en su trabajo de la semana pasada?
-  Tipo: string
-  Longitud: '4'
-  Catálogo: TC_OCUPACION_2010
-  Nota: códigos del catálogo TC_OCUPACION_2010 (465 renglones; no enumerados)
-SITTRA:
-  Descripción: Posición en el trabajo
-  Pregunta: '¿En su trabajo de la semana pasada (NOMBRE) fue:'
-  Tipo: categorical
-  Longitud: '1'
-  Categorías:
-    '1': Empleada(o) o obrera(o)
-    '2': Jornalera(o) o peón
-    '3': Ayudante
-    '4': Patrón(a) o empleador(a)
-    '5': Trabajador(a) por cuenta propia
-    '6': Trabajador(a) familiar sin pago
-  Especiales:
-    '9': No especificado
-PRESLAB1:
-  Descripción: Prestaciones laborales (servicio médico)
-  Pregunta: '¿(NOMBRE) recibe por su trabajo: servicio médico (IMSS, ISSSTE u otro)?'
-  Tipo: categorical
-  Longitud: '1'
-  Categorías:
-    '1': Sí
-    '2': 'No'
-  Especiales:
-    '9': No especificado
-PRESLAB2:
-  Descripción: Prestaciones laborales (aguinaldo)
-  Pregunta: '¿(NOMBRE) recibe por su trabajo: aguinaldo?'
-  Tipo: categorical
-  Longitud: '1'
-  Categorías:
-    '3': Sí
-    '4': 'No'
-  Especiales:
-    '9': No especificado
-PRESLAB3:
-  Descripción: Prestaciones laborales (vacaciones con goce de sueldo)
-  Pregunta: '¿(NOMBRE) recibe por su trabajo: vacaciones con goce de sueldo?'
-  Tipo: categorical
-  Longitud: '1'
-  Categorías:
-    '1': Sí
-    '2': 'No'
-  Especiales:
-    '9': No especificado
-PRESLAB4:
-  Descripción: Prestaciones laborales (reparto de utilidades o prima vacacional)
-  Pregunta: '¿(NOMBRE) recibe por su trabajo: reparto de utilidades o prima vacacional?'
-  Tipo: categorical
-  Longitud: '1'
-  Categorías:
-    '3': Sí
-    '4': 'No'
-  Especiales:
-    '9': No especificado
-PRESLAB5:
-  Descripción: Prestaciones laborales (ahorro para el retiro)
-  Pregunta: '¿(NOMBRE) recibe por su trabajo: ahorro para el retiro (SAR o AFORE)?'
-  Tipo: categorical
-  Longitud: '1'
-  Categorías:
-    '1': Sí
-    '2': 'No'
-  Especiales:
-    '9': No especificado
-PRESLAB6:
-  Descripción: Prestaciones laborales (otras)
-  Pregunta: '¿(NOMBRE) recibe por su trabajo: Otras prestaciones?'
-  Tipo: categorical
-  Longitud: '1'
-  Categorías:
-    '3': Sí
-    '4': 'No'
-  Especiales:
-    '9': No especificado
-HORTRA:
-  Descripción: Horas trabajadas
-  Pregunta: ¿Cuántas horas trabajó (NOMBRE) la semana pasada?
-  Tipo: numeric
-  Longitud: '3'
-  Rango:
-  - 0
-  - 168
-  Categorías: {}
-  Especiales:
-    '999': No especificado
-INGTRMEN:
-  Descripción: Ingresos por trabajo mensualizados
-  Pregunta: Ingresos mensuales por trabajo
-  Tipo: numeric
-  Longitud: '6'
-  Rango:
-  - 0
-  - 999998
-  Categorías: {}
-  Especiales:
-    '999999': No especificado
-  Nota: 000000 = No recibe Ingresos; 999998 = Más de 999,999 ingresos
-ACTTRAB_C:
-  Descripción: Actividad económica
-  Pregunta: '¿En dónde trabajó (NOMBRE) la semana pasada? Por ejemplo: En un rancho, en una fábrica, en
-    un taller mecánico, en una empresa de transportes'
-  Tipo: string
-  Longitud: '4'
-  Catálogo: TC_SCIAN_2010
-  Nota: códigos del catálogo TC_SCIAN_2010 (179 renglones; no enumerados)
-LTRABPAI_C:
-  Descripción: Municipio, entidad o país de trabajo (en otro estado o país)
-  Pregunta: ¿En qué estado (o país) está el negocio, empresa o lugar donde trabajó (NOMBRE) la semana
-    pasada?
-  Tipo: string
-  Longitud: '3'
-  Catálogo: TC_PAIS_2010
-  Nota: códigos del catálogo TC_PAIS_2010 (241 renglones; no enumerados)
-LTRABMUN_C:
-  Descripción: Municipio, entidad o país de trabajo (en otro municipio)
-  Pregunta: ¿En qué municipio (delegación) está el negocio, empresa o lugar donde trabajó (NOMBRE) la
-    semana pasada?
-  Tipo: string
-  Longitud: '3'
-  Catálogo: TC_MUNICIPIO_2010
-  Nota: códigos del catálogo TC_MUNICIPIO_2010 (2456 renglones; no enumerados)
-NOM_MUNLTR:
-  Descripción: Nombre del municipio de lugar de trabajo
-  Pregunta: Nombre del municipio de lugar de trabajo
-  Tipo: string
-  Longitud: '50'
-AYUPROGOB:
-  Descripción: Otros ingresos (uno o más programas de gobierno?)
-  Pregunta: '¿(NOMBRE) recibe dinero por: programas de gobierno? (Oportunidades, Procampo, becas, ayuda
-    a madres solteras, adultos mayores, etcétera)'
-  Tipo: categorical
-  Longitud: '1'
-  Categorías:
-    '1': Sí
-    '2': 'No'
-  Especiales:
-    '9': No especificado
-AYUJUBPEN:
-  Descripción: Otros ingresos (jubilación o pensión?)
-  Pregunta: '¿(NOMBRE) recibe dinero por: jubilación o pensión?'
-  Tipo: categorical
-  Longitud: '1'
-  Categorías:
-    '3': Sí
-    '4': 'No'
-  Especiales:
-    '9': No especificado
-AYUPEOP:
-  Descripción: Otros ingresos (ayuda de personas que viven en otro país?)
-  Pregunta: '¿(NOMBRE) recibe dinero por: ayuda de personas que viven en otro país?'
-  Tipo: categorical
-  Longitud: '1'
-  Categorías:
-    '1': Sí
-    '2': 'No'
-  Especiales:
-    '9': No especificado
-AYUPEDP:
-  Descripción: Otros ingresos (ayuda de personas que viven dentro del país?)
-  Pregunta: '¿(NOMBRE) recibe dinero por: ayuda de personas que viven dentro del país?'
-  Tipo: categorical
-  Longitud: '1'
-  Categorías:
-    '3': Sí
-    '4': 'No'
-  Especiales:
-    '9': No especificado
-AYUOTRFTE:
-  Descripción: Otros ingresos (otras fuentes?)
-  Pregunta: '¿(NOMBRE) recibe dinero por: otras fuentes?'
-  Tipo: categorical
-  Longitud: '1'
-  Categorías:
-    '1': Sí
-    '2': 'No'
-  Especiales:
-    '9': No especificado
-NUMHIJ:
-  Descripción: Número de hijos
-  Pregunta: En total, ¿cuántas hijas e hijos que nacieron vivos ha tenido (NOMBRE)?
-  Tipo: numeric
-  Longitud: '2'
-  Rango:
-  - 0
-  - 25
-  Categorías: {}
-  Especiales:
-    '98': No especificado (omisión en todas las preguntas del tema)
-    '99': No especificado
-HIJFAL:
-  Descripción: Hijos fallecidos
-  Pregunta: De las hijas e hijos que nacieron vivos de (NOMBRE) ¿cuántos han muerto?
-  Tipo: numeric
-  Longitud: '2'
-  Rango:
-  - 0
-  - 25
-  Categorías: {}
-  Especiales:
-    '99': No especificado
-HIJSOB:
-  Descripción: Hijos sobrevivientes
-  Pregunta: ¿Cuántas de las hijas e hijos de (NOMBRE) viven actualmente?
-  Tipo: numeric
-  Longitud: '2'
-  Rango:
-  - 0
-  - 25
-  Categorías: {}
-  Especiales:
-    '99': No especificado
-FECNACM:
-  Descripción: Fecha de nacimiento (mes)
-  Pregunta: ¿En qué mes nació la última hija o hijo nacido vivo de (NOMBRE) ?
-  Tipo: numeric
-  Longitud: '2'
-  Rango:
-  - 1
-  - 12
-  Categorías: {}
-  Especiales:
-    '99': No especificado
-FECNACA:
-  Descripción: Fecha de nacimiento (año)
-  Pregunta: ¿En qué año nació la última hija o hijo nacido vivo de (NOMBRE) ?
-  Tipo: numeric
-  Longitud: '4'
-  Rango:
-  - 1910
-  - 2010
-  Categorías: {}
-  Especiales:
-    '9999': No especificado
-SOBREVI:
-  Descripción: Sobrevivencia
-  Pregunta: Esta última hija o hijo de (NOMBRE), ¿vive actualmente?
-  Tipo: categorical
-  Longitud: '1'
-  Categorías:
-    '1': Sí
-    '3': 'No'
-  Especiales:
-    '9': No especificado
-EDAMORD:
-  Descripción: Edad al morir (días)
-  Pregunta: ¿Qué edad tenía cuando murió? (Días)
-  Tipo: numeric
-  Longitud: '2'
-  Rango:
-  - 0
-  - 29
-  Categorías: {}
-  Especiales:
-    '98': Edad al morir menos de un mes
-    '99': No especificado
-EDAMORM:
-  Descripción: Edad al morir (meses)
-  Pregunta: ¿Qué edad tenía cuando murió? (Meses)
-  Tipo: numeric
-  Longitud: '2'
-  Rango:
-  - 0
-  - 11
-  Categorías: {}
-  Especiales:
-    '98': Edad al morir menos de un año
-EDAMORA:
-  Descripción: Edad al morir (años)
-  Pregunta: ¿Qué edad tenía cuando murió? (Años)
-  Tipo: numeric
-  Longitud: '2'
-  Rango:
-  - 1
-  - 99
+  - 9
   Categorías: {}
 FACTOR:
   Descripción: Factor de expansión (constante dentro de la vivienda; calibrado a las estimaciones publicadas
@@ -1058,27 +77,729 @@ UPM:
   Longitud: 4 / 5 / 6
 TAM_LOC:
   Descripción: Tamaño de localidad
-  Pregunta: Tamaño de localidad
+  Tipo: categorical
+  Longitud: '1'
+  Categorías:
+    '1': Menor a 2,500 habitantes
+    '2': 2,500 a 14,999 habitantes
+    '3': 15,000 a 19,999 habitantes
+    '4': 20,000 a 49,999 habitantes
+    '5': 50,000 a 99,999 habitantes
+    '6': 100,000 a 499,999 habitantes
+    '7': 500,000 y más habitantes
+OTROPARE_C:
+  Descripción: Otro parentesco
+  Tipo: categorical
+  Longitud: '3'
+  Categorías:
+    '100': '100'
+    '200': '200'
+    '300': '300'
+    '401': '401'
+    '402': '402'
+    '403': '403'
+    '404': '404'
+    '405': '405'
+    '406': '406'
+    '407': '407'
+    '408': '408'
+    '409': '409'
+    '410': '410'
+    '411': '411'
+    '412': '412'
+    '420': '420'
+    '430': '430'
+    '440': '440'
+    '501': '501'
+    '502': '502'
+    '503': '503'
+    '601': '601'
+    '602': '602'
+    '603': '603'
+    '604': '604'
+    '605': '605'
+    '606': '606'
+    '607': '607'
+    '608': '608'
+    '609': '609'
+    '610': '610'
+    '611': '611'
+    '612': '612'
+    '613': '613'
+    '614': '614'
+    '615': '615'
+    '616': '616'
+    '617': '617'
+    '618': '618'
+    '619': '619'
+    '620': '620'
+    '621': '621'
+    '622': '622'
+    '623': '623'
+    '624': '624'
+    '999': '999'
+SEXO:
+  Descripción: Sexo (códigos 1 y 3 en 2010, 2015, 2020 y 2025; 1990, 2000 y 2005 escriben a la mujer con
+    2 — Recodificar; harmonize=True lo lleva a 3; en 1995 es P3_5)
+  Pregunta: (NOMBRE) es hombre. (NOMBRE) es mujer.
+  Tipo: categorical
+  Longitud: '1'
+  Categorías:
+    '1': Hombre
+    '3': Mujer
+  Alias:
+    '2': '3'
+EDAD:
+  Descripción: Edad en años cumplidos (0 = menos de un año; en 2015, 110 = 110 y más; 2000, 2005 y 2010
+    la escriben con tres dígitos, 000-130)
+  Pregunta: ¿Cuántos años cumplidos tiene (NOMBRE)?
+  Tipo: numeric
+  Longitud: '3'
+  Rango:
+  - 0
+  - 130
+  Especiales:
+    '999': No especificado
+LNACEDO_C:
+  Descripción: Lugar de nacimiento_en otro estado
+  Tipo: string
+  Longitud: '3'
+  Especiales:
+    '600': País no especificado
+    '999': No especificado
+  Nota: 001..032 = Clave de entidad (no enumerados); 100..535 = Clave de país (no enumerados)
+IMSS:
+  Descripción: Derechohabiencia_ Seguro Social (IMSS)
+  Tipo: categorical
+  Longitud: '1'
+  Categorías:
+    '1': Derechohabiente del IMSS
+    '9': No se sabe si es derechohabiente o no (omisión general)
+ISSSTE:
+  Descripción: Derechohabiencia_ISSSTE
+  Tipo: categorical
+  Longitud: '1'
+  Categorías:
+    '2': Es derechohabiente al ISSSTE
+PEMEX:
+  Descripción: Derechohabiencia_Pemex, Defensa o Marina
+  Tipo: categorical
+  Longitud: '1'
+  Categorías:
+    '3': Es derechohabiente a PEMEX
+OTRINS_V:
+  Descripción: Variable auxiliar
+  Tipo: categorical
+  Longitud: '1'
+  Categorías:
+    '4': Es derechohabiente pero no se sabe a qué institución
+NOTIEDER:
+  Descripción: Derechohabiencia_entonces no tiene derecho
+  Tipo: categorical
+  Longitud: '1'
+  Categorías:
+    '5': No tiene derecho a servicio médico
+DISMOV:
+  Descripción: Discapacidad_moverse, caminar o lo hace con ayuda
+  Tipo: categorical
+  Longitud: '1'
+  Categorías:
+    '1': Tiene limitación para moverse, caminar o lo hace con ayuda
+    '9': No se sabe si tiene o no alguna limitación física o mental
+DISBRA:
+  Descripción: Discapacidad_usar sus brazos y manos
+  Tipo: categorical
+  Longitud: '1'
+  Categorías:
+    '2': Tiene limitación para usar sus brazos y manos
+DISOIR:
+  Descripción: Discapacidad_es sordo(a) o usa un aparato para oír
+  Tipo: categorical
+  Longitud: '1'
+  Categorías:
+    '3': Es sordo(a) o utiliza una parato para oir
+DISMUDO:
+  Descripción: Discapacidad_es mudo(a)
+  Tipo: categorical
+  Longitud: '1'
+  Categorías:
+    '4': Es mudo(a)
+DISVER:
+  Descripción: Discapacidad_es ciego o sólo ve sombras
+  Tipo: categorical
+  Longitud: '1'
+  Categorías:
+    '5': Es ciego(a) o sólo ve sombras
+DISMENT:
+  Descripción: Discapacidad_tiene algún retraso o deficiencia mental
+  Tipo: categorical
+  Longitud: '1'
+  Categorías:
+    '6': Tiene algún retraso o deficiencia mental
+DISOTRA_C:
+  Descripción: Discapacidad_tiene otra limitación física o mental
+  Tipo: categorical
+  Longitud: '3'
+  Categorías:
+    '131': Discapacidades de la comunicación y lenguaje
+    '199': Insuficientemente especificadas del grupo de las discapacidades sensoriales y de la comunicación
+    '299': Insuficientemente especificadas del grupo de las discapacidades motrices
+    '399': Insuficientemente especificadas del grupo de las discapacidades mentales
+    '421': Síndromes que se maifiestan con más de una discapacidad
+    '422': Casos donde se incluyen más de dos discapacidades
+    '430': Otro tipo de discapacidades
+    '499': Insuficientemente especificadas del grupo de discapacidades múltiples y otras
+    '960': Discapacidades sin especificar el tipo
+DISOTRA_V:
+  Descripción: Variable auxiliar
+  Tipo: categorical
+  Longitud: '1'
+  Categorías:
+    '7': Tiene dos limitaciones y una no se pudo clasificar en las anteriores
+DISNOTIE:
+  Descripción: Discapacidad_no tiene
+  Tipo: categorical
+  Longitud: '1'
+  Categorías:
+    '8': No tiene limitación física o mental
+CAUSADIS:
+  Descripción: Causa de la discapacidad
+  Tipo: categorical
+  Longitud: '1'
+  Categorías:
+    '1': Porque nació así
+    '2': Por una enfermedad
+    '3': Por un accidente
+    '4': Por edad avanzada
+    '5': Por otra causa
+  Especiales:
+    '9': No especificado
+SERSALUD:
+  Descripción: Uso de servicios de salud
+  Tipo: categorical
+  Longitud: '1'
+  Categorías:
+    '1': En el Seguro Social (IMSS)
+    '2': En el ISSSTE
+    '3': En Pemex Defensa o Marina
+    '4': En el centro de Salud (SSA)
+    '5': En el IMSS Solidaridad
+    '6': En consultorio, clínica u hospital privado
+    '7': Se atiende en otro ugar
+    '8': No se atiende
+    '9': No se sabe si se atiende o no
+RES95EDO_C:
+  Descripción: Entidad o país de residencia en 1995
+  Tipo: string
+  Longitud: '3'
+  Especiales:
+    '600': País no especificado
+    '999': No especificado
+  Nota: 001..032 = Clave de entidad (no enumerados); 100..535 = Clave de país (no enumerados)
+CAUEMI:
+  Descripción: Causa de la emigración
+  Tipo: categorical
+  Longitud: '1'
+  Categorías:
+    '1': Fue a buscar trabajo
+    '2': Fue a reunirse con la familia
+    '3': Cambió su lugar de trabajo
+    '4': Fue a estudiar
+    '5': Se casó o unió
+    '6': Por motivos de salud
+    '7': Por violencia o inseguridad
+    '8': Otra causa
+  Especiales:
+    '9': No especificado
+MUN95OTR_C:
+  Descripción: Municipio de residencia en 1995_en otro municipio
+  Tipo: numeric
+  Longitud: '3'
+  Rango:
+  - 1
+  - 570
+  Categorías: {}
+  Especiales:
+    '999': No especificado
+HLENGUA:
+  Descripción: Habla algún dialecto o lengua indígena
+  Tipo: categorical
+  Longitud: '1'
+  Categorías:
+    '1': Sí habla algún dialecto
+    '2': No habla algún dialecto
+  Especiales:
+    '9': No especificado
+QDIALECT_C:
+  Descripción: Qué dialecto o lengua habla
+  Tipo: numeric
+  Longitud: '4'
+  Rango:
+  - 111
+  - 1311
+  Categorías: {}
+  Especiales:
+    '5010': Otras lenguas indígenas de México
+    '5020': Otras lenguas indígenas de América
+    '9999': No especificado
+HESPANOL:
+  Descripción: Habla también español
+  Tipo: categorical
+  Longitud: '1'
+  Categorías:
+    '3': Sí habla español
+    '4': No habla español
+  Especiales:
+    '9': No especificado
+ALFABET:
+  Descripción: Alfabetismo
+  Tipo: categorical
+  Longitud: '1'
+  Categorías:
+    '1': Sí sabe leer y escribir
+    '2': No sabe leer y escribir
+  Especiales:
+    '9': No especificado
+ASISTEN:
+  Descripción: Asistencia
+  Tipo: categorical
+  Longitud: '1'
+  Categorías:
+    '1': Sí va a la escuela
+    '2': No va a la escuela
+  Especiales:
+    '9': No especificado
+ABANESCO:
+  Descripción: Causa de abandono escolar
+  Tipo: categorical
+  Longitud: '1'
+  Categorías:
+    '0': Nunca ha ido a la escuela
+    '1': No quiso o no le gustó estudiar
+    '2': Falta de dinero o tenía que trabajar
+    '3': Se caso o unió
+    '4': La escuela estaba muy lejos o no había
+    '5': Su familia ya no lo(a) dejó o por ayudar en las tareas del hogar
+    '6': Terminó sus estudios
+    '7': Otro motivo
+    '8': '8'
+  Especiales:
+    '9': No especificado
+  Nota: 'códigos observados sin etiqueta en el FD: [''8'']'
+ESCOLARI:
+  Descripción: Escolaridad (Número de años aprobados)
+  Tipo: categorical
+  Longitud: '1'
+  Categorías:
+    '0': 0 grados aprobados
+    '1': 1 grado aprobado
+    '2': 2 grados aprobados
+    '3': 3 grados aprobados
+    '4': 4 grados aprobados
+    '5': 5 grados aprobados
+    '6': 6 grados aprobados
+    '7': 7 grados aprobados
+    '8': 8 grados aprobados
+  Especiales:
+    '9': No especificado
+NIVACAD:
+  Descripción: Nivel académico
+  Tipo: categorical
+  Longitud: '1'
+  Categorías:
+    '0': Ninguno
+    '1': Preescolar o kinder
+    '2': Primaria
+    '3': Secundaria
+    '4': Preparatoria o bachillerato
+    '5': Normal
+    '6': Carrera técnica o comercial
+    '7': Profesional
+    '8': Maestría o doctorado
+  Especiales:
+    '9': No especificado
+ANTESC:
+  Descripción: Antecedente escolar (normal, carrera técnica, profesional)
+  Tipo: categorical
+  Longitud: '1'
+  Categorías:
+    '1': Primaria terminada
+    '2': Secundaria terminada
+    '3': Preparatoria terminada
+  Especiales:
+    '9': No especificado
+NOMCAR_C:
+  Descripción: Nombre de la carrera(normal, carrera técnica o comercial, profesional, maestría o doctorado)
+  Tipo: string
+  Longitud: '4'
+  Especiales:
+    '9999': No especificado
+  Nota: 0011..2993 = Carreras técnicas (no enumerados); 0011..0991 = Carrera técnica o comercial con antecedente
+    de primaria terminada 0112-2992 (pares) Carrera técnica o comercial con antecedente de secundaria
+    terminada 1113-2993 (nones) Carrera técnica o comercial con antecedente de preparatoria terminada
+    (no enumerados); 3111..4990 = Carreras profesionales (no enumerados); 5110..6990 = Maestría o doctorado
+    (no enumerados); 7110 = Normal básica
+NIVELACAD:
+  Descripción: Nivel académico y antecedente escolar
   Tipo: categorical
   Longitud: '2'
   Categorías:
-    '01': Menos de 2 500 habitantes
-    '02': 2 500 a 14 999 habitantes
-    '03': 15 000 a 99 999 habitantes
-    '04': 100 000 y más habitantes
-CERTEZA:
-  Descripción: Municipio censado con Cuestionario Ampliado
-  Pregunta: Municipio censado con Cuestionario ampliado
+    '00': Sin instrucción
+    '10': Preescolar o kinder
+    '20': Primaria
+    '30': Secundaria
+    '40': Preparatoria
+    '51': Normal con antecedente de primaria terminada
+    '52': Normal con antecedente de secundaria terminada
+    '61': Carrera técnica o comercial con antecedente de primaria terminada
+    '62': Carrera técnica o comercial con antecedente de secundaria terminada
+    '63': Carrera técnica o comercial con antecedente de preparatoria terminada
+    '73': Profesional
+    '80': Maestría o Doctorado
+  Especiales:
+    '90': Nivel no especificado
+ESCOACUM:
+  Descripción: Escolaridad acumulada (años aprobados acumulados)
+  Tipo: numeric
+  Longitud: '2'
+  Rango:
+  - 0
+  - 24
+  Categorías: {}
+  Especiales:
+    '99': '99'
+OTRAREL_C:
+  Descripción: Otra religión
+  Tipo: numeric
+  Longitud: '4'
+  Rango:
+  - 1
+  - 9001
+  Categorías: {}
+  Especiales:
+    '9100': '9100'
+    '9999': '9999'
+PERETN:
+  Descripción: Pertenencia étnica
   Tipo: categorical
   Longitud: '1'
   Categorías:
-    '1': Sí
-    '0': 'No'
-IDH125:
-  Descripción: Municipio con menor Indice de Desarrollo Humano (IDH)
-  Pregunta: Municipio con menor IDH
+    '1': Sí pertenece a un grupo indígena
+    '2': No pertenece a un grupo indígena
+  Especiales:
+    '9': No especificado
+ESTCON:
+  Descripción: Estado conyugal
   Tipo: categorical
   Longitud: '1'
   Categorías:
-    '1': Sí
-    '0': 'No'
+    '1': Vive con su pareja en unión libre
+    '2': Está separado (a)
+    '3': Está divorciado (a)
+    '4': Es viudo (a)
+    '5': Casado(a) sólo por lo civil
+    '6': Casado(a) sólo por la iglesia
+    '7': Casado(a) civil y religiosamente
+    '8': Soltero (a)
+  Especiales:
+    '9': No especificado
+CONACT:
+  Descripción: Condición de actividad
+  Tipo: categorical
+  Longitud: '2'
+  Categorías:
+    '10': Trabajó
+    '13': Se declara que busca trabajo y en la verificación se rescata que trabaja
+    '14': Se declara que es estudiante y en la verificación se rescata que trabaja
+    '15': Se dedica a los quehaceres del hogar y en la verificación se rescata que trabaja
+    '16': Se declara que es jubilado o pensionado y en la verificación se rescata que trabaja
+    '18': Se declara que no trabaja y en la verificación se rescata que trabaja
+    '19': No se tiene información en condición de actividad y en la verficación se rescata que trabaja
+    '20': Tenía trabajo pero no trabajó
+    '30': Busca trabajo
+    '40': Estudiante
+    '50': Se dedica a los quehaceres del hogar
+    '60': Es jubilado o pensionado
+    '70': Está incapacitado permanentemente para trabajar
+    '80': No trabaja
+  Especiales:
+    '99': No especificado
+OCUACTIV_C:
+  Descripción: Ocupación u oficio (actividades)
+  Tipo: numeric
+  Longitud: '4'
+  Rango:
+  - 1100
+  - 8390
+  Categorías: {}
+  Especiales:
+    '9999': No especificado
+SITTRA:
+  Descripción: Situación en el trabajo
+  Tipo: categorical
+  Longitud: '1'
+  Categorías:
+    '1': Empleado(a) u obrero(a)
+    '2': Jornalero(a) o peón
+    '3': Patrón(a)
+    '4': Trabajador(a) por su cuenta
+    '5': Trabajador(a) sin pago en el negocio o predio familiar
+  Especiales:
+    '9': No especificado
+VACACION:
+  Descripción: Prestaciones laborales_ vacaciones pagadas
+  Tipo: categorical
+  Longitud: '1'
+  Categorías:
+    '1': Sí tiene vacaciones pagadas
+    '2': No tiene vacaciones pagadas
+    '9': No se sabe si tiene o no la prestación de vacaciones pagadas
+  Especiales:
+    '3': No se sabe si tiene o no alguna prestación laboral (No especificado general)
+AGUINALD:
+  Descripción: Prestaciones laborales_aguinaldo
+  Tipo: categorical
+  Longitud: '1'
+  Categorías:
+    '3': Sí recibe aguinaldo
+    '4': No recibe aguinaldo
+  Especiales:
+    '9': No especificado
+REPUTIL:
+  Descripción: Prestaciones laborales_reparto de utilidades
+  Tipo: categorical
+  Longitud: '1'
+  Categorías:
+    '5': Sí recibe reparto de utilidades
+    '6': No recibe reparto de utilidades
+  Especiales:
+    '9': No especificado
+SERVMED:
+  Descripción: Prestaciones laborales_servicio médico(IMSS, ISSSTE u otro)
+  Tipo: categorical
+  Longitud: '1'
+  Categorías:
+    '7': Sí recibe servicio médico
+    '8': No recibe servicio médico
+  Especiales:
+    '9': No especificado
+SARAFORE:
+  Descripción: Prestaciones laborales_ahorro para el retiro (SAR o AFORE)
+  Tipo: categorical
+  Longitud: '1'
+  Categorías:
+    '1': Sí recibe SAR o AFORE
+    '2': No recibe SAR o AFORE
+  Especiales:
+    '9': No especificado
+HORTRA:
+  Descripción: Horas trabajadas
+  Tipo: string
+  Longitud: '3'
+  Nota: 000..999 = códigos (no enumerados)
+INGRESOS:
+  Descripción: Ingresos por trabajo mensualizado
+  Tipo: string
+  Longitud: '6'
+  Nota: 000000..999999 = códigos (no enumerados)
+ACTTRAB_C:
+  Descripción: Actividad económica (dónde trabajó)
+  Tipo: numeric
+  Longitud: '3'
+  Rango:
+  - 110
+  - 939
+  Categorías: {}
+  Especiales:
+    '999': No especificado
+LTRABMUN_C:
+  Descripción: Lugar de trabajo_otro municipio
+  Tipo: numeric
+  Longitud: '3'
+  Rango:
+  - 1
+  - 570
+  Categorías: {}
+  Especiales:
+    '999': No especificado
+LTRABPAI_C:
+  Descripción: Lugar de trabajo_otro estado o país
+  Tipo: string
+  Longitud: '3'
+  Especiales:
+    '600': País no especificado
+    '999': No especificado
+  Nota: 001..032 = Clave de entidad (no enumerados); 100..535 = Clave de país (no enumerados)
+JUBPENR:
+  Descripción: Otros ingresos_jubilación o pensión
+  Tipo: categorical
+  Longitud: '1'
+  Categorías:
+    '1': Sí recibe otros ingresos por jubilación o pensión
+    '2': No recibe otros ingresos por jubilación o pensión
+  Especiales:
+    '9': No especificado
+JUBPENC:
+  Descripción: Ingresos_jubilación o pensión (mensualizado)
+  Tipo: string
+  Longitud: '6'
+  Nota: 000000..999999 = códigos (no enumerados)
+AYUFAOPR:
+  Descripción: Otros ingresos_ayuda familiar otro país
+  Tipo: categorical
+  Longitud: '1'
+  Categorías:
+    '3': Sí recibe otros ingresos por ayuda familiar otro país
+    '4': No recibe otros ingresos por ayuda familiar otro país
+  Especiales:
+    '9': No especificado
+AYUFAOPC:
+  Descripción: Ingresos_ayuda familiar otro país
+  Tipo: string
+  Longitud: '6'
+  Nota: 000000..999999 = códigos (no enumerados)
+AYUFADPR:
+  Descripción: Otros ingresos_ayuda familiar dentro del país
+  Tipo: categorical
+  Longitud: '1'
+  Categorías:
+    '5': Sí recibe otros ingresos por ayuda familiar dentro del país
+    '6': No recibe otros ingresos por ayuda familiar dentro del país
+  Especiales:
+    '9': No especificado
+AYUFADPC:
+  Descripción: Ingreso_ayuda familiar dentro del país (mensualizado)
+  Tipo: string
+  Longitud: '6'
+  Nota: 000000..999999 = códigos (no enumerados)
+PROCAMPR:
+  Descripción: Otros ingresos_Procampo o Progresa
+  Tipo: categorical
+  Longitud: '1'
+  Categorías:
+    '7': Sí recibe otros ingresos por Procampo o Progresa
+    '8': No recibe otros ingresos por Procampo o Progresa
+  Especiales:
+    '9': No especificado
+PROCAMPC:
+  Descripción: Ingreso_Procampo o Progresa (mensualizado)
+  Tipo: string
+  Longitud: '6'
+  Nota: 000000..999999 = códigos (no enumerados)
+OTROTIPR:
+  Descripción: Otro tipo como becas, renta, intereses bancarios
+  Tipo: categorical
+  Longitud: '1'
+  Categorías:
+    '1': Sí recibe otros ingresos como becas, renta, intereses bancarios
+    '2': No recibe otros ingresos como becas, renta, intereses bancarios
+  Especiales:
+    '9': No especificado
+OTROTIPC:
+  Descripción: Otro tipo como becas, renta, intereses bancarios (ingreso mensualizado)
+  Tipo: string
+  Longitud: '6'
+  Nota: 000000..999999 = códigos (no enumerados)
+OTINGPER:
+  Descripción: Otros ingresos por persona
+  Tipo: string
+  Longitud: '6'
+  Nota: 000000..999999 = códigos (no enumerados)
+INGTOPER:
+  Descripción: Ingresos totales por persona
+  Tipo: string
+  Longitud: '6'
+  Nota: 000000..999999 = códigos (no enumerados)
+NUMHIJ:
+  Descripción: Total de hijos nacidos vivos
+  Tipo: numeric
+  Longitud: '2'
+  Rango:
+  - 0
+  - 25
+  Categorías: {}
+  Especiales:
+    '98': No se sabe si tiene hijos nacidos vivos o no
+    '99': Se sabe que tiene hijos nacidos vivos pero no se sabe cuántos
+  Nota: 00 = No tiene hijos nacidos vivos
+HIJFAL:
+  Descripción: Cuántos hijos han muerto
+  Tipo: numeric
+  Longitud: '2'
+  Rango:
+  - 0
+  - 25
+  Categorías: {}
+  Especiales:
+    '99': '99'
+  Nota: 00 = No tiene hijos fallecidos
+HIJSOB:
+  Descripción: Cuántos hijos viven actualmente
+  Tipo: numeric
+  Longitud: '2'
+  Rango:
+  - 0
+  - 25
+  Categorías: {}
+  Especiales:
+    '99': '99'
+  Nota: 00 = No tiene hijos vivos actualmente
+FECNACM:
+  Descripción: Fecha de nacimiento (mes)
+  Tipo: numeric
+  Longitud: '2'
+  Rango:
+  - 1
+  - 12
+  Categorías: {}
+  Especiales:
+    '99': '99'
+FECNACA:
+  Descripción: Fecha de nacimiento (año)
+  Tipo: numeric
+  Longitud: '4'
+  Rango:
+  - 1929
+  - 2000
+  Categorías: {}
+  Especiales:
+    '9999': '9999'
+SOBREVI:
+  Descripción: Este último vive actualmente
+  Tipo: categorical
+  Longitud: '1'
+  Categorías:
+    '1': Sí vive actualmente su último hijo
+    '2': No vive actualmente su último hijo
+  Especiales:
+    '9': No especificado
+EDAMORD:
+  Descripción: Edad al morir (días)
+  Tipo: numeric
+  Longitud: '2'
+  Rango:
+  - 0
+  - 29
+  Categorías: {}
+  Especiales:
+    '98': Murió antes de cumplir un mes de nacido
+    '99': No se sabe la edad a la que murió
+  Nota: 00 = Murió antes de cumplir un día de nacido
+EDAMORM:
+  Descripción: Edad al morir (meses)
+  Tipo: numeric
+  Longitud: '2'
+  Rango:
+  - 1
+  - 11
+  Categorías: {}
+  Especiales:
+    '98': Murió antes de cumplir un año pero no se sabe la edad
+EDAMORA:
+  Descripción: Edad al morir (años)
+  Tipo: numeric
+  Longitud: '2'
+  Rango:
+  - 1
+  - 98
+  Categorías: {}

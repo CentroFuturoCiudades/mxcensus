@@ -1,5 +1,5 @@
 ENT:
-  Descripción: Entidad Federativa
+  Descripción: ENTIDAD FEDERATIVA
   Tipo: categorical
   Longitud: '2'
   Categorías:
@@ -35,60 +35,67 @@ ENT:
     '30': '30'
     '31': '31'
     '32': '32'
-MUN:
-  Descripción: Municipio o Delegación
-  Tipo: string
-  Longitud: '3'
-  Nota: 001..570 = códigos (no enumerados)
-LOC:
-  Descripción: Localidad (Clave)
-  Tipo: string
-  Longitud: '4'
-  Nota: 0001..9999 = códigos (no enumerados)
-NUMVIV:
-  Descripción: Número de vivienda
-  Tipo: string
-  Longitud: '6'
-  Nota: 000001..999999 = códigos (no enumerados)
-NUMHOG:
-  Descripción: Número de hogar
-  Tipo: numeric
-  Longitud: '1'
-  Rango:
-  - 1
-  - 9
-  Categorías: {}
-FACTOR:
-  Descripción: Factor de expansión (constante dentro de la vivienda; calibrado a las estimaciones publicadas
-    — Σ FACTOR = población / viviendas particulares habitadas). La muestra del Conteo 2005 no tiene factor.
-  Tipo: numeric
-  Longitud: '5'
-  Rango:
-  - 1
-  - 99999
+ZONA:
+  Descripción: ZONA
+  Tipo: categorical
+  Longitud: '2'
+  Categorías:
+    '01': '01'
+    '02': '02'
+    '03': '03'
+    '04': '04'
+    '05': '05'
+    '40': Localidades de 20,000 a 99,999 habitantes
+    '50': Localidades de 2,500 a 19,999 habitantes
+    '60': Localidades menores de 2,500 habitantes
+    '07': '07'
+  Nota: 'códigos observados sin etiqueta en el FD: [''07'']'
 ESTRATO:
   Descripción: Estrato de diseño muestral (alfanumérico, p. ej. 0100101022 en 2000, 400-01-001-0003 en
     2010, 01-001-05 en 2015, 01-001-0000-03 en 2020 y 15-001-0000-030 en 2025; 2005 no tiene diseño expandible)
   Tipo: string
   Longitud: 9 / 10 / 14 / 15
-UPM:
-  Descripción: Unidad Primaria de Muestreo (4 dígitos en 2000 y 2010, 6 en 2015, 5 en 2020 y 2025)
-  Tipo: string
-  Longitud: 4 / 5 / 6
 TAM_LOC:
-  Descripción: Tamaño de localidad
+  Descripción: TAMAÑO DE LOCALIDAD
   Tipo: categorical
   Longitud: '1'
   Categorías:
     '1': Menor a 2,500 habitantes
     '2': 2,500 a 14,999 habitantes
     '3': 15,000 a 19,999 habitantes
-    '4': 20,000 a 49,999 habitantes
-    '5': 50,000 a 99,999 habitantes
-    '6': 100,000 a 499,999 habitantes
-    '7': 500,000 y más habitantes
-MPER:
-  Descripción: Número de migrante
+    '4': 20,000 a 99,999 habitantes
+    '5': 100,000 y más habitantes
+MUN:
+  Descripción: MUNICIPIO O DELEGACION
+  Tipo: string
+  Longitud: '3'
+  Nota: 001..570 = códigos (no enumerados)
+UPM:
+  Descripción: Unidad Primaria de Muestreo (4 dígitos en 2000 y 2010, 6 en 2015, 5 en 2020 y 2025)
+  Tipo: string
+  Longitud: 4 / 5 / 6
+VIV:
+  Descripción: VIVIENDA
+  Tipo: numeric
+  Longitud: '2'
+  Rango:
+  - 1
+  - 99
+  Categorías: {}
+HOGAR:
+  Descripción: HOGAR
+  Tipo: numeric
+  Longitud: '1'
+  Rango:
+  - 1
+  - 8
+  Categorías: {}
+FAC_VIV:
+  Descripción: FACTOR DE EXPANSION
+  Tipo: string
+  Longitud: '4'
+P9_1:
+  Descripción: NUMERO DE REGISTRO {9.1, 9.12 (*)}
   Tipo: categorical
   Longitud: '2'
   Categorías:
@@ -112,35 +119,99 @@ MPER:
     '18': '18'
     '19': '19'
     '20': '20'
-MSEXO:
-  Descripción: Sexo
+    '21': '21'
+    '22': '22'
+    '23': '23'
+    '24': '24'
+    '25': '25'
+    '26': '26'
+    '27': '27'
+    '28': '28'
+    '29': '29'
+    '30': '30'
+    '31': '31'
+    '32': '32'
+    '33': '33'
+    '34': '34'
+    '35': '35'
+    '36': '36'
+    '37': '37'
+    '38': '38'
+    '39': '39'
+    '40': '40'
+P3_1:
+  Descripción: NUMERO DE REGISTRO DE LA PERSONA {P3_1,9.2A, 9.13A (*)}
+  Tipo: categorical
+  Longitud: '2'
+  Categorías:
+    '01': '01'
+    '02': '02'
+    '03': '03'
+    '04': '04'
+    '05': '05'
+    '06': '06'
+    '07': '07'
+    08: 08
+    09: 09
+    '10': '10'
+    '11': '11'
+    '12': '12'
+    '13': '13'
+    '14': '14'
+    '15': '15'
+    '16': '16'
+    '17': '17'
+    '18': '18'
+    '19': '19'
+    '20': '20'
+    '21': '21'
+    '22': '22'
+    '23': '23'
+    '24': '24'
+    '25': '25'
+    '26': '26'
+    '27': '27'
+    '28': '28'
+    '29': '29'
+    '30': '30'
+    '31': '31'
+    '32': '32'
+    '33': '33'
+    '34': '34'
+    '35': '35'
+    '36': '36'
+    '37': '37'
+    '38': '38'
+    '39': '39'
+    '40': '40'
+P9_15:
+  Descripción: CLAVE DE PARENTESCO
+  Tipo: string
+  Longitud: '1'
+P9_16:
+  Descripción: SEXO
   Tipo: categorical
   Longitud: '1'
   Categorías:
     '1': Hombre
     '2': Mujer
-MEDAD:
-  Descripción: Edad
+P9_4:
+  Descripción: EDAD {9.4, 9.17 (*)}
   Tipo: numeric
-  Longitud: '3'
+  Longitud: '2'
   Rango:
   - 0
-  - 130
+  - 98
   Categorías: {}
   Especiales:
-    '999': '999'
-MLUGORI_C:
-  Descripción: Lugar de origen (estado)
-  Tipo: numeric
-  Longitud: '3'
-  Rango:
-  - 1
-  - 32
-  Categorías: {}
-  Especiales:
-    '999': '999'
-MFECEMIM:
-  Descripción: Fecha de emigración (mes)
+    '99': No especificado
+  Nota: 00 = Menos de un año; 98 = 98 años o más
+P9_5:
+  Descripción: CLAVE DE LUGAR DE ORIGEN {9.5, 9.18 (*)}
+  Tipo: string
+  Longitud: '2'
+P9_6A:
+  Descripción: MES DE EMIGRACION {9.6A, 9.19A (*)}
   Tipo: numeric
   Longitud: '2'
   Rango:
@@ -148,42 +219,37 @@ MFECEMIM:
   - 12
   Categorías: {}
   Especiales:
-    '99': '99'
-MFECEMIA:
-  Descripción: Fecha de emigración (año)
+    '99': No especificado
+P9_6B:
+  Descripción: AÑO DE EMIGRACION {9.6B, 9.19B (*)}
   Tipo: numeric
-  Longitud: '4'
+  Longitud: '2'
   Rango:
-  - 1995
-  - 2000
+  - 90
+  - 95
   Categorías: {}
   Especiales:
-    '9999': '9999'
-MPDESOTR_C:
-  Descripción: País de destino (descripción)
+    '99': No especificado
+P9_7:
+  Descripción: CLAVE DE LUGAR DE DESTINO {9.7, 9.20 (*)}
+  Tipo: string
+  Longitud: '2'
+P9_8:
+  Descripción: NUMERO DE EMIGRACIONES {9.8, 9.21 (*)}
   Tipo: numeric
-  Longitud: '3'
+  Longitud: '2'
   Rango:
-  - 100
-  - 535
+  - 1
+  - 20
   Categorías: {}
   Especiales:
-    '600': '600'
-    '999': '999'
-MPAIRES_C:
-  Descripción: País de residencia
-  Tipo: numeric
-  Longitud: '3'
-  Rango:
-  - 100
-  - 535
-  Categorías: {}
-  Especiales:
-    '600': Extranjero, otro país
-    '700': México
-    '999': No especificado
-MFECRETM:
-  Descripción: Fecha de retorno (mes)
+    '99': No especificado
+P9_9:
+  Descripción: CLAVE DE RESIDENCIA ACTUAL {9.9, 9.22 (*)}
+  Tipo: string
+  Longitud: '2'
+P9_10A:
+  Descripción: MES DE RETORNO {9.10A, 9.23A (*)}
   Tipo: numeric
   Longitud: '2'
   Rango:
@@ -191,10 +257,21 @@ MFECRETM:
   - 12
   Categorías: {}
   Especiales:
-    '99': '99'
-MFECRETA:
-  Descripción: Fecha de retorno (año)
+    '99': No especificado
+P9_10B:
+  Descripción: AÑO DE RETORNO {9.10B, 9.23B (*)}
   Tipo: numeric
-  Longitud: '4'
+  Longitud: '2'
+  Rango:
+  - 90
+  - 95
   Categorías: {}
-  Nota: 'numérica: el FD sólo enumera códigos especiales'
+  Especiales:
+    '99': No especificado
+P9_24:
+  Descripción: CONDICION DE RESIDENCIA ACTUAL
+  Tipo: categorical
+  Longitud: '1'
+  Categorías:
+    '1': Sí
+    '2': 'No'

@@ -16,10 +16,13 @@ aggregates), the **Encuesta Intercensal 2015** (``viviendas`` and ``personas`` p
 no migrant table; ``ENT``/``MUN`` as in 2020, keys and most codes written without their
 zero-padding), the **Censo 2010** cuestionario ampliado (DBF; keys unique within a state
 only), the **CGPV 2000** muestra censal (its dwelling file has one row per household;
-``migrantes``) and the **Conteo 2005** sample (``viviendas``, ``hogares``, ``personas``;
-no expansion factor). 2000 and 2005 carry no key column: the keyed loaders derive
-``ID_VIV``/``ID_HOG``/``ID_PERSONA``/``ID_MII`` from the composite parts
-(:func:`_composite_keys`), and their indices carry the household (``ID_HOG``).
+``migrantes``), the **Conteo 2005** sample (``viviendas``, ``hogares``, ``personas``;
+no expansion factor), the **Conteo 1995** sample (``personas`` with the dwelling and
+household items on each person, ``migrantes``; weights ``FAC_POB``/``FAC_VIV``/
+``FAC_PROM``) and the **CGPV 1990** 10% extract (``personas`` only, unweighted). 1990–2005
+carry no key column: the keyed loaders derive ``ID_VIV``/``ID_HOG``/``ID_PERSONA``/
+``ID_MII`` from the composite parts (:func:`_composite_keys`), and the 1995–2005 indices
+carry the household (``ID_HOG``).
 
 Public API:
 
@@ -84,7 +87,7 @@ from mxcensus.data._cpv_catalog import (
 )
 
 # Expansion weight — validated as numeric.
-_WEIGHTS = {"FACTOR"}
+_WEIGHTS = {"FACTOR", "FAC_POB", "FAC_VIV", "FAC_PROM"}   # Conteo 1995: three estimators
 
 # Keys and geographic codes: digit strings (their width is edition-specific, so only the
 # all-digits shape is checked here; key widths are checked by the data tests). CPV 2020
@@ -122,6 +125,7 @@ _KEY_SPEC: dict[str, list[tuple[str, ...]]] = {
 }
 # Key components a table need not carry: the household exists in 2000/2005 only.
 _OPTIONAL_KEYS = {"viviendas": {"ID_HOG"}, "personas": {"ID_HOG"}, "migrantes": {"ID_HOG"}}
+# (1990 has no household level either: its ID_HOG is absent, like 2010-2025's.)
 
 # The composite parts of the 2000/2005 records (raw names; the entity and municipality also
 # under their harmonized names), from which :func:`_composite_keys` derives the keys, each
@@ -130,6 +134,11 @@ _OPTIONAL_KEYS = {"viviendas": {"ID_HOG"}, "personas": {"ID_HOG"}, "migrantes": 
 #   household = NUMHOG; persons are not numbered (the file lists each household's members
 #   together, not in questionnaire order), so a person is its order in the file within the
 #   household; an emigrant = MPER (numbered within the household).
+# - Conteo 1995: dwelling = ENT + MUN + ZONA + UPM + VIV (padded to 3: 12 digits), household
+#   = HOGAR, person = P3_1, emigrant = P9_1 (the person file datgen95; migint95).
+# - CGPV 1990: one person file; dwelling = ENT + FOLIO_VIV (padded to 9) + the folio's
+#   occurrence in file order (a few folios are reused within a state): 12 digits; no
+#   household; person = NUM_PER.
 # - Conteo 2005: dwelling = ENT + MUN + CONS_MUN (a 6-digit serial within the municipality,
 #   padded to 7 so ID_VIV has the 12 digits of 2010-2025 and harmonize=True's ID_VIV padding
 #   is a no-op — idempotent; CONS_VIV is not a key), household = CONS_HOG, person = CONS_PER
@@ -140,10 +149,16 @@ _COMPOSITE_KEYS: tuple[dict, ...] = (
      "household": ("NUMHOG", 2), "person": (None, 2), "migrant": ("MPER", 2)},
     {"dwelling": ((("CVE_ENT", "ENT"), 2), (("CVE_MUN", "MUN"), 3), (("CONS_MUN",), 7)),
      "household": ("CONS_HOG", 2), "person": ("CONS_PER", 4), "migrant": (None, 2)},
+    {"dwelling": ((("CVE_ENT", "ENT"), 2), (("CVE_MUN", "MUN"), 3), (("ZONA",), 2),
+                  (("UPM",), 2), (("VIV",), 3)),
+     "household": ("HOGAR", 2), "person": ("P3_1", 2), "migrant": ("P9_1", 2)},
+    {"dwelling": ((("CVE_ENT", "ENT"), 2), (("FOLIO_VIV",), 9)), "occurrence": True,
+     "household": (None, 2), "person": ("NUM_PER", 4), "migrant": (None, 2)},
 )
 # The raw identifiers those keys are built from (left as strings by labels=True). CONS_VIV
 # (2005) is the dwelling's number in its listing, not part of the key.
-_KEY_PARTS = ("NUMVIV", "NUMHOG", "CONS_MUN", "CONS_VIV", "CONS_HOG", "CONS_PER")
+_KEY_PARTS = ("NUMVIV", "NUMHOG", "CONS_MUN", "CONS_VIV", "CONS_HOG", "CONS_PER",
+              "FOLIO_VIV", "NUM_PER", "VIV", "HOGAR", "P3_1", "P9_1")
 
 # Columns ``labels=True`` leaves as raw strings: the keys and geographic codes (joinable
 # across tables and with the Marco Geoestadístico), and the person-number pointers — a
@@ -341,16 +356,20 @@ def _required(table: str) -> set[str]:
 
 def _composite_keys(out: pd.DataFrame, table: str) -> pd.DataFrame:
     """Derive ``ID_VIV``, ``ID_HOG`` and the person (``ID_PERSONA``) or emigrant
-    (``ID_MII``) key from the composite parts of a CGPV 2000 / Conteo 2005 ``table`` frame
+    (``ID_MII``) key from the composite parts of a 1990–2005 ``table`` frame
     (:data:`_COMPOSITE_KEYS`), inserted as the first columns; raw or harmonized names.
 
-    ``ID_VIV`` = the dwelling parts concatenated (2000: 15 digits, 2005: 12 — the first
-    two are the entity); ``ID_HOG`` = ``ID_VIV`` + the 2-digit household number;
-    ``ID_PERSONA`` = ``ID_HOG`` + the person number (2005: ``CONS_PER``, 4 digits; 2000:
-    the 2-digit order of the person within the household in file order — the frame must
-    be in the mirror's row order); ``ID_MII`` = ``ID_HOG`` + the 2-digit ``MPER`` (2000).
-    Every raw column is kept. A frame that already has ``ID_VIV`` (every other edition, or
-    a frame already derived) or lacks the parts is returned unchanged.
+    ``ID_VIV`` = the dwelling parts concatenated (2000: 15 digits; 1990, 1995, 2005: 12 —
+    the first two are the entity); ``ID_HOG`` = ``ID_VIV`` + the 2-digit household number
+    (1995–2005); ``ID_PERSONA`` = ``ID_HOG`` (1990: ``ID_VIV``) + the person number (1990
+    ``NUM_PER``, 1995 ``P3_1``, 2005 ``CONS_PER``; 2000: the 2-digit order of the person
+    within the household in file order); ``ID_MII`` = ``ID_HOG`` + the emigrant number
+    (2000 ``MPER``, 1995 ``P9_1``). CGPV 1990 reuses a few ``FOLIO_VIV`` within a state, so
+    its ``ID_VIV`` ends in the dwelling's occurrence of that folio, in file order (a new
+    dwelling starts where the folio changes or ``NUM_PER`` starts again). Orders in file
+    order need the mirror's row order. Every raw column is kept. A frame that already has
+    ``ID_VIV`` (2010-2025, or a frame already derived) or lacks the parts is returned
+    unchanged.
     """
     if "ID_VIV" in out.columns or table not in _KEY_SPEC:
         return out
@@ -359,24 +378,56 @@ def _composite_keys(out: pd.DataFrame, table: str) -> pd.DataFrame:
                  for names, width in spec["dwelling"]]
         if any(col is None for col, _ in parts):
             continue
-        keys = {"ID_VIV": functools.reduce(lambda a, b: a + b,
-                                           (out[c].str.zfill(w) for c, w in parts))}
+        base = functools.reduce(lambda a, b: a + b, (out[c].str.zfill(w) for c, w in parts))
+        (per, pwidth), (mig, mwidth) = spec["person"], spec["migrant"]
+        if spec.get("occurrence"):
+            base = base + _folio_occurrence(base, out[per]).astype(str)
+        keys = {"ID_VIV": base}
         hog, width = spec["household"]
-        if hog in out.columns:
-            keys["ID_HOG"] = keys["ID_VIV"] + out[hog].str.zfill(width)
-            (per, pwidth), (mig, mwidth) = spec["person"], spec["migrant"]
-            if table == "personas" and per is None:
-                rank = keys["ID_HOG"].groupby(keys["ID_HOG"], sort=False).cumcount() + 1
-                keys["ID_PERSONA"] = keys["ID_HOG"] + rank.astype(str).str.zfill(pwidth)
-            elif table == "personas" and per in out.columns:
-                keys["ID_PERSONA"] = keys["ID_HOG"] + out[per].str.zfill(pwidth)
-            elif table == "migrantes" and mig in out.columns:
-                keys["ID_MII"] = keys["ID_HOG"] + out[mig].str.zfill(mwidth)
+        parent = keys["ID_VIV"]
+        if hog is not None and hog in out.columns:
+            parent = keys["ID_HOG"] = keys["ID_VIV"] + out[hog].str.zfill(width)
+        if table == "personas" and per is None and "ID_HOG" in keys:
+            rank = parent.groupby(parent, sort=False).cumcount() + 1
+            keys["ID_PERSONA"] = parent + rank.astype(str).str.zfill(pwidth)
+        elif table == "personas" and per in out.columns:
+            keys["ID_PERSONA"] = parent + out[per].str.zfill(pwidth)
+        elif table == "migrantes" and mig is not None and mig in out.columns:
+            keys["ID_MII"] = parent + out[mig].str.zfill(mwidth)
         out = out.copy()
         for k, (name, col) in enumerate(keys.items()):
             out.insert(k, name, col)
         return out
     return out
+
+
+def _folio_occurrence(folio: pd.Series, person: pd.Series) -> pd.Series:
+    """Which dwelling of a reused folio each row belongs to, in file order (0, 1, …).
+
+    CGPV 1990 numbers dwellings by a folio unique within the state, except a few folios
+    INEGI used twice or more (729 of 8.1 million person rows; some rows are exact
+    duplicates). Its persons are listed dwelling by dwelling but not in ``NUM_PER`` order.
+    So a dwelling is a run of rows with one folio, split again wherever a person number
+    repeats within the run; the blocks of a folio are numbered in file order."""
+    run = (folio != folio.shift()).cumsum()
+    frame = pd.DataFrame({"run": run.to_numpy(), "num": person.to_numpy()}, index=folio.index)
+    block = pd.Series(0, index=folio.index)
+    for r in frame.loc[frame.duplicated(["run", "num"]), "run"].unique():   # rare runs
+        rows = frame.index[frame["run"].to_numpy() == r]
+        seen, k = set(), 0
+        for i in rows:
+            if frame.at[i, "num"] in seen:
+                k, seen = k + 1, set()
+            seen.add(frame.at[i, "num"])
+            block.at[i] = k
+    key = run.astype(str) + "_" + block.astype(str)
+    first = ~key.duplicated()
+    occ = pd.Series(pd.NA, index=folio.index, dtype="Int64")
+    occ[first] = folio[first].groupby(folio[first], sort=False).cumcount()
+    occ = occ.groupby(key, sort=False).transform("first")
+    if occ.max() > 9:
+        raise ValueError(f"CPV: a dwelling folio occurs {int(occ.max()) + 1} times")
+    return occ.astype(int)
 
 
 def _national_keys(out: pd.DataFrame, table: str) -> pd.DataFrame:
@@ -766,10 +817,13 @@ def load_cpv_personas(
     harmonize: bool = False, labels: bool = True,
 ) -> pd.DataFrame:
     """The analysis-ready **person** frame (residents of inhabited private dwellings), with
-    a numeric ``FACTOR``, indexed by the person key ``(ID_VIV, ID_PERSONA)`` — in CGPV
-    2000 and Conteo 2005 ``(ID_VIV, ID_HOG, ID_PERSONA)``, persons nested in households
-    (2005 has no ``FACTOR``; 2000's persons are unnumbered, so ``ID_PERSONA`` counts them
-    in file order, :func:`_composite_keys`).
+    a numeric ``FACTOR``, indexed by the person key ``(ID_VIV, ID_PERSONA)`` — in 1995,
+    2000 and 2005 ``(ID_VIV, ID_HOG, ID_PERSONA)``, persons nested in households (2005 and
+    1990 have no weight; 1995 has three, ``FAC_POB`` for persons, ``FAC_VIV`` for dwellings
+    and households, ``FAC_PROM`` for health coverage and disability; 2000's persons are
+    unnumbered, so ``ID_PERSONA`` counts them in file order, :func:`_composite_keys`). In
+    1990 and 1995 this is the only microdata table: each person carries the dwelling's
+    (and household's) items.
 
     Σ ``FACTOR`` = the expanded population. Person-number pointers (``NUMPER``,
     ``IDENT_MADRE``/``IDENT_PADRE``/``IDENT_PAREJA``) stay raw strings, so a person's mother
@@ -799,12 +853,13 @@ def load_cpv_migrantes(
 def load_cpv_survey(
     period: str | int | None = None, *, state: int | Sequence[int] | None,
     harmonize: bool = False, labels: bool = True,
-) -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame | None]:
+) -> tuple[pd.DataFrame | None, pd.DataFrame, pd.DataFrame | None]:
     """Load the microdata levels with a **shared nested** index.
 
     Returns ``(viviendas, personas, migrantes)`` = :func:`load_cpv_viviendas`,
     :func:`load_cpv_personas`, :func:`load_cpv_migrantes` (``None`` for an edition without
-    a migrant table). The person and emigrant indices both extend the dwelling index
+    that table: the 1990 and 1995 samples are person files with the dwelling items on each
+    person, so their ``viviendas`` is ``None``; 1990, 2005 and 2015 have no emigrants). The person and emigrant indices both extend the dwelling index
     (``ID_VIV`` ⊂ ``(ID_VIV, ID_PERSONA)``; ``ID_VIV`` ⊂ ``(ID_VIV, ID_MII)``), as the
     extended-census microdata share ``ID_VIV``. The optional emigrant → person link is the
     join ``(ID_VIV, MPERLS) = (ID_VIV, NUMPER)`` (see :func:`load_cpv_migrantes`).
@@ -816,7 +871,7 @@ def load_cpv_survey(
     """
     edition = _edition("personas", period)
     kw = dict(state=state, harmonize=harmonize, labels=labels)
-    viviendas = load_cpv_viviendas(edition.period, **kw)
+    viviendas = load_cpv_viviendas(edition.period, **kw) if edition.has("viviendas") else None
     personas = load_cpv_personas(edition.period, **kw)
     migrantes = load_cpv_migrantes(edition.period, **kw) if edition.has("migrantes") else None
     return viviendas, personas, migrantes

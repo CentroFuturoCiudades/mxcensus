@@ -1,574 +1,985 @@
 ENT:
-  Descripción: Entidad federativa
-  Definición: Unidad geográfica mayor de la división político-administrativa del país a la que hace referencia
-    la información estadística.
+  Descripción: ENTIDAD FEDERATIVA
   Tipo: categorical
   Longitud: '2'
   Categorías:
-    '01': Aguascalientes
-    '02': Baja California
-    '03': Baja California Sur
-    '04': Campeche
-    '05': Coahuila de Zaragoza
-    '06': Colima
-    '07': Chiapas
-    08: Chihuahua
-    09: Distrito Federal
-    '10': Durango
-    '11': Guanajuato
-    '12': Guerrero
-    '13': Hidalgo
-    '14': Jalisco
-    '15': México
-    '16': Michoacán de Ocampo
-    '17': Morelos
-    '18': Nayarit
-    '19': Nuevo León
-    '20': Oaxaca
-    '21': Puebla
-    '22': Querétaro Arteaga
-    '23': Quintana Roo
-    '24': San Luis Potosí
-    '25': Sinaloa
-    '26': Sonora
-    '27': Tabasco
-    '28': Tamaulipas
-    '29': Tlaxcala
-    '30': Veracruz de Ignacio de la Llave
-    '31': Yucatán
-    '32': Zacatecas
-    '33': Entidad insuficientemente especificada
-  Catálogo: TC_ENTID
+    '01': '01'
+    '02': '02'
+    '03': '03'
+    '04': '04'
+    '05': '05'
+    '06': '06'
+    '07': '07'
+    08: 08
+    09: 09
+    '10': '10'
+    '11': '11'
+    '12': '12'
+    '13': '13'
+    '14': '14'
+    '15': '15'
+    '16': '16'
+    '17': '17'
+    '18': '18'
+    '19': '19'
+    '20': '20'
+    '21': '21'
+    '22': '22'
+    '23': '23'
+    '24': '24'
+    '25': '25'
+    '26': '26'
+    '27': '27'
+    '28': '28'
+    '29': '29'
+    '30': '30'
+    '31': '31'
+    '32': '32'
+ZONA:
+  Descripción: ZONA
+  Tipo: categorical
+  Longitud: '2'
+  Categorías:
+    '01': '01'
+    '02': '02'
+    '03': '03'
+    '04': '04'
+    '05': '05'
+    '40': Localidades de 20,000 a 99,999 habitantes
+    '50': Localidades de 2,500 a 19,999 habitantes
+    '60': Localidades menores de 2,500 habitantes
+    '06': '06'
+    '07': '07'
+  Nota: 'códigos observados sin etiqueta en el FD: [''06'', ''07'']'
+ESTRATO:
+  Descripción: Estrato de diseño muestral (alfanumérico, p. ej. 0100101022 en 2000, 400-01-001-0003 en
+    2010, 01-001-05 en 2015, 01-001-0000-03 en 2020 y 15-001-0000-030 en 2025; 2005 no tiene diseño expandible)
+  Tipo: string
+  Longitud: 9 / 10 / 14 / 15
+TAM_LOC:
+  Descripción: TAMAÑO DE LOCALIDAD
+  Tipo: categorical
+  Longitud: '1'
+  Categorías:
+    '1': Menor a 2,500 habitantes
+    '2': 2,500 a 14,999 habitantes
+    '3': 15,000 a 19,999 habitantes
+    '4': 20,000 a 99,999 habitantes
+    '5': 100,000 y más habitantes
 MUN:
-  Descripción: Municipio o delegación
-  Definición: División territorial político-administrativa de una entidad federativa a la que hace referencia
-    la información estadística.
+  Descripción: MUNICIPIO O DELEGACION
   Tipo: string
   Longitud: '3'
-  Catálogo: TC_MUN
-  Nota: códigos del catálogo TC_MUN (2454 renglones; no enumerados)
-CONS_MUN:
-  Descripción: Consecutivo de Vivienda Municipal
-  Definición: Consecutivo de vivienda por municipio, asignado como identificador único según lo especifica
-    el procedimiento de la muestra
+  Nota: 001..570 = códigos (no enumerados)
+UPM:
+  Descripción: Unidad Primaria de Muestreo (4 dígitos en 2000 y 2010, 6 en 2015, 5 en 2020 y 2025)
+  Tipo: string
+  Longitud: 4 / 5 / 6
+VIV:
+  Descripción: VIVIENDA
   Tipo: numeric
-  Longitud: '6'
+  Longitud: '2'
   Rango:
   - 1
-  - 999999
+  - 99
   Categorías: {}
-CONS_VIV:
-  Descripción: Consecutivo de la vivienda
-  Definición: Número que distingue a una vivienda dentro de una manzana.
-  Tipo: numeric
-  Longitud: '4'
-  Rango:
-  - 1
-  - 9999
-  Categorías: {}
-CONS_HOG:
-  Descripción: Consecutivo de hogar en la vivienda
-  Definición: Número que distingue a un hogar en la vivienda.
+HOGAR:
+  Descripción: HOGAR
   Tipo: numeric
   Longitud: '1'
   Rango:
   - 1
-  - 5
+  - 8
+  Categorías: {}
+FAC_POB:
+  Descripción: FACTORES DE EXPANSION
+  Tipo: string
+  Longitud: '5'
+FAC_VIV:
+  Descripción: FACTORES DE EXPANSION
+  Tipo: string
+  Longitud: '4'
+FAC_PROM:
+  Descripción: FACTORES DE EXPANSION
+  Tipo: string
+  Longitud: '4'
+P1_1:
+  Descripción: PAREDES
+  Tipo: categorical
+  Longitud: '1'
+  Categorías:
+    '1': Material de desecho
+    '2': Lámina de cartón
+    '3': Lámina de asbesto o metálica
+    '4': Carrizo, bambú o palma
+    '5': Embarro o bajareque
+    '6': Madera
+    '7': Adobe
+    '8': Tabique, ladrillo, block, piedra, cantera o cemento
+  Especiales:
+    '9': No especificado
+P1_2:
+  Descripción: TECHOS
+  Tipo: categorical
+  Longitud: '1'
+  Categorías:
+    '1': Material de desecho
+    '2': Lámina de cartón
+    '3': Lámina de asbesto o metálica
+    '4': Palma, tejamanil o madera
+    '5': Teja
+    '6': Losa de concreto, tabique, ladrillo o terrado con viguería
+  Especiales:
+    '9': No especificado
+P1_3:
+  Descripción: PISOS
+  Tipo: categorical
+  Longitud: '1'
+  Categorías:
+    '1': Tierra
+    '2': Cemento o firme
+    '3': Madera, mosaico u otros recubrimientos
+  Especiales:
+    '9': No especificado
+P1_4:
+  Descripción: COCINA
+  Tipo: categorical
+  Longitud: '1'
+  Categorías:
+    '1': Sí
+    '2': 'No'
+  Especiales:
+    '9': No especificado
+P1_5:
+  Descripción: COCINA EXCLUSIVA
+  Tipo: categorical
+  Longitud: '1'
+  Categorías:
+    '3': Sí
+    '4': 'No'
+  Especiales:
+    '9': No especificado
+P1_6:
+  Descripción: CUARTOS PARA DORMIR
+  Tipo: numeric
+  Longitud: '2'
+  Rango:
+  - 1
+  - 25
   Categorías: {}
   Especiales:
-    '9': Sin descripción
-CONS_PER:
-  Descripción: Consecutivo de persona en el hogar
-  Definición: Número que distingue a una persona en el hogar.
+    '99': No especificado
+P1_7:
+  Descripción: NUMERO DE CUARTOS
   Tipo: numeric
-  Longitud: '4'
+  Longitud: '2'
   Rango:
   - 1
-  - 9999
+  - 25
   Categorías: {}
-TIPO_OPE:
-  Descripción: Tipo de operativo
-  Definición: Distingue a las viviendas según si se captaron en un operativo normal o especial.
+  Especiales:
+    '99': No especificado
+P1_8:
+  Descripción: AGUA ENTUBADA
   Tipo: categorical
   Longitud: '1'
   Categorías:
-    '0': Viviendas particulares sin segmentar, operativo normal
-    '1': Viviendas particulares con manzana segmentada, operativo normal
-    '2': Viviendas particulares de personalidades, operativo especial
-    '3': Viviendas particulares del Servicio Exterior Mexicano, operativo especial
-    '4': Viviendas particulares al interior de colectivas, operativo especial
-    '5': Viviendas particulares cuya información fue proporcionada por un vecino, operativo normal, etapa
-      de recuperación
-    '6': Viviendas particulares reportadas como pendientes, operativo normal, etapa de cierre de campo
-    '7': Personas sin vivienda, indigentes, operativo especial
-    '8': Viviendas colectivas, operativo especial
-    '9': Viviendas colectivas albergues damnificados del huracán Stan, Chiapas, operativo especial
-  Catálogo: TC_TOPER
-PARENT:
-  Descripción: Parentesco
-  Definición: Vínculo existente entre los integrantes del hogar con el jefe del mismo.
+    '1': Dentro de la vivienda
+    '2': Fuera de la vivienda, pero dentro del terreno
+    '3': De llave pública o hidrante
+    '4': No disponen de agua entubada
+  Especiales:
+    '9': No especificado
+P1_9:
+  Descripción: SERVICIO SANITARIO
   Tipo: categorical
-  Longitud: '3'
+  Longitud: '1'
   Categorías:
-    '101': Jefe(a)
-    '102': Persona sola
-    '201': Esposo(a) o compañero(a)
-    '202': Concubino(a)
-    '203': Amasio(a)
-    '204': Querido(a)
-    '301': Hijo(a)
-    '302': Hijo(a) adoptivo(a)
-    '303': Hijastro(a)
-    '304': Hijo(a) de crianza
-    '305': Hijo(a) recogido(a)
-    '401': Trabajador(a) doméstico(a)
-    '402': Recamarera(o)
-    '403': Cocinero(a)
-    '404': Lavandera(o)
-    '405': Niñera
-    '406': Mozo
-    '407': Jardinero(a)
-    '408': Velador
-    '409': Portero(a)
-    '410': Chofer
-    '411': Ama de llaves
-    '412': Mayordomo
-    '413': Dama de compañía
-    '421': Esposo(a) del (la) trabajador(a) doméstico(a)
-    '431': Hijo(a) del (la) trabajador(a) doméstico(a)
-    '441': Padre o madre del trabajador(a) doméstico(a)
-    '451': Nieto(a) del (la) trabajador(a) doméstico(a)
-    '461': Otro(a) pariente del (la) trabajador(a) doméstico(a)
-    '501': No tiene parentesco
-    '502': Tutor(a)
-    '503': Tutelado(a)
-    '601': Padre o madre
-    '602': Padrastro o madrastra
-    '603': Hermano(a)
-    '604': Medio(a) hermano(a)
-    '605': Hermanastro(a)
-    '606': Abuelo(a)
-    '607': Bisabuelo(a)
-    '608': Tatarabuelo(a)
-    '609': Nieto(a)
-    '610': Bisnieto(a)
-    '611': Tataranieto(a)
-    '612': Tío(a)
-    '613': Sobrino(a)
-    '614': Primo(a)
-    '615': Suegro(a)
-    '616': Consuegro(a)
-    '617': Yerno o nuera
-    '618': Cuñado(a)
-    '619': Concuño(a)
-    '620': Padrino o madrina
-    '621': Ahijado(a)
-    '622': Compadre o comadre
-    '623': Otro familiar
-    '701': Huésped (abonado o pensionista)
-    '711': Esposo(a) o compañero(a) del (la) huésped
-    '712': Hijo(a) del huésped
-    '713': Padre o madre del huésped
-    '714': Nieto(a) del huésped
-    '715': Otro(a) pariente del (la) huésped
-    '999': Parentesco no especificado
-  Catálogo: TC_PAREN
-SEXO:
-  Descripción: Sexo (códigos 1 y 3 en 2010, 2015, 2020 y 2025; 2000 y 2005 escriben a la mujer con 2 —
-    Recodificar; harmonize=True lo lleva a 3)
-  Pregunta: (NOMBRE) es hombre. (NOMBRE) es mujer.
+    '1': Excusado o sanitario
+    '2': Retrete o letrina
+    '3': Fosa séptica
+    '4': Hoyo negro o pozo ciego
+    '5': No disponen de servicio sanitario
+  Especiales:
+    '9': No especificado
+P1_10:
+  Descripción: SANITARIO EXCLUSIVO
+  Tipo: categorical
+  Longitud: '1'
+  Categorías:
+    '1': Sí
+    '2': 'No'
+  Especiales:
+    '9': No especificado
+P1_11:
+  Descripción: CONEXION DE AGUA
+  Tipo: categorical
+  Longitud: '1'
+  Categorías:
+    '3': Sí
+    '4': 'No'
+  Especiales:
+    '9': No especificado
+P1_13:
+  Descripción: DRENAJE
+  Tipo: categorical
+  Longitud: '1'
+  Categorías:
+    '1': Conectado a la red pública
+    '2': Conectado a la fosa séptica
+    '3': Con desagüe a la barranca o grieta
+    '4': Con desagüe al río, lago (o mar)
+    '5': No tiene drenaje
+  Especiales:
+    '9': No especificado
+P1_16:
+  Descripción: ELECTRICIDAD
+  Tipo: categorical
+  Longitud: '1'
+  Categorías:
+    '1': Sí
+    '2': 'No'
+  Especiales:
+    '9': No especificado
+P1_17:
+  Descripción: COMBUSTIBLE
+  Tipo: categorical
+  Longitud: '1'
+  Categorías:
+    '1': Gas
+    '2': Leña o carbón
+    '3': Petróleo
+    '4': Electricidad
+  Especiales:
+    '9': No especificado
+P1_18:
+  Descripción: TENENCIA
+  Tipo: categorical
+  Longitud: '1'
+  Categorías:
+    '1': Propia pagándose
+    '2': Propia
+    '3': Rentada
+    '4': Está en otra situación
+  Especiales:
+    '9': No especificado
+P2_2:
+  Descripción: GASTO COMUN
+  Tipo: categorical
+  Longitud: '1'
+  Categorías:
+    '1': Sí
+    '2': 'No'
+P2_3:
+  Descripción: NUMERO DE HOGARES
+  Tipo: numeric
+  Longitud: '1'
+  Rango:
+  - 1
+  - 8
+  Categorías: {}
+TIPO_HOG:
+  Descripción: TIPO DE HOGAR
+  Tipo: categorical
+  Longitud: '1'
+  Categorías:
+    '1': Familiares nucleares
+    '2': Familiares ampliados
+    '3': Familiares compuestos
+    '4': No familiares
+  Especiales:
+    '5': No especificado
+P8_1A:
+  Descripción: SUBSIDIOS SOCIALES (1)
+  Tipo: categorical
+  Longitud: '1'
+  Categorías:
+    '1': Leche Liconsa
+  Especiales:
+    '9': No especificado
+P8_1B:
+  Descripción: SUBSIDIOS SOCIALES (2)
+  Tipo: categorical
+  Longitud: '1'
+  Categorías:
+    '2': Tortibonos
+P8_1C:
+  Descripción: SUBSIDIOS SOCIALES (3)
+  Tipo: categorical
+  Longitud: '1'
+  Categorías:
+    '3': Becas para estudiantes
+P8_1D:
+  Descripción: SUBSIDIOS SOCIALES (4)
+  Tipo: categorical
+  Longitud: '1'
+  Categorías:
+    '4': Desayunos escolares
+P8_1E:
+  Descripción: SUBSIDIOS SOCIALES (5)
+  Tipo: categorical
+  Longitud: '1'
+  Categorías:
+    '5': Becas de capacitación para el trabajo
+P8_1F:
+  Descripción: SUBSIDIOS SOCIALES (6)
+  Tipo: categorical
+  Longitud: '1'
+  Categorías:
+    '6': Ninguno de los anteriores
+P8_2A:
+  Descripción: EN EL IMSS
+  Tipo: numeric
+  Longitud: '2'
+  Rango:
+  - 0
+  - 25
+  Categorías: {}
+P8_2B:
+  Descripción: EN EL ISSSTE
+  Tipo: numeric
+  Longitud: '2'
+  Rango:
+  - 0
+  - 25
+  Categorías: {}
+P8_2C:
+  Descripción: INSTITUCION PUBLICA
+  Tipo: numeric
+  Longitud: '2'
+  Rango:
+  - 0
+  - 25
+  Categorías: {}
+P8_2D:
+  Descripción: INSTITUCION PRIVADA
+  Tipo: numeric
+  Longitud: '2'
+  Rango:
+  - 0
+  - 25
+  Categorías: {}
+P8_2F:
+  Descripción: OTRO TIPO DE INSTITUCION
+  Tipo: numeric
+  Longitud: '2'
+  Rango:
+  - 0
+  - 25
+  Categorías: {}
+P8_2G:
+  Descripción: SIN DERECHO A SERVICIO
+  Tipo: numeric
+  Longitud: '2'
+  Rango:
+  - 0
+  - 25
+  Categorías: {}
+P8_2H:
+  Descripción: DERECHOHABIENCIA - NO ESPECIFICADA
+  Tipo: numeric
+  Longitud: '2'
+  Rango:
+  - 0
+  - 25
+  Categorías: {}
+P8_3A:
+  Descripción: ES MUDA
+  Tipo: numeric
+  Longitud: '2'
+  Rango:
+  - 0
+  - 25
+  Categorías: {}
+P8_3B:
+  Descripción: ES CIEGA
+  Tipo: numeric
+  Longitud: '2'
+  Rango:
+  - 0
+  - 25
+  Categorías: {}
+P8_3C:
+  Descripción: ES SORDA
+  Tipo: numeric
+  Longitud: '2'
+  Rango:
+  - 0
+  - 25
+  Categorías: {}
+P8_3D:
+  Descripción: NO TIENE BRAZOS O PIERNAS
+  Tipo: numeric
+  Longitud: '2'
+  Rango:
+  - 0
+  - 25
+  Categorías: {}
+P8_3E:
+  Descripción: NECESITA APARATOS O AYUDA
+  Tipo: numeric
+  Longitud: '2'
+  Rango:
+  - 0
+  - 25
+  Categorías: {}
+P8_3F:
+  Descripción: PROBLEMAS MENTALES
+  Tipo: numeric
+  Longitud: '2'
+  Rango:
+  - 0
+  - 25
+  Categorías: {}
+P8_3G:
+  Descripción: OTRO IMPEDIMENTO
+  Tipo: numeric
+  Longitud: '2'
+  Rango:
+  - 0
+  - 25
+  Categorías: {}
+P8_3H:
+  Descripción: NO TIENE PROBLEMAS
+  Tipo: numeric
+  Longitud: '2'
+  Rango:
+  - 0
+  - 25
+  Categorías: {}
+P8_3I:
+  Descripción: NO ESPECIFICADO
+  Tipo: numeric
+  Longitud: '2'
+  Rango:
+  - 0
+  - 25
+  Categorías: {}
+P3_3A:
+  Descripción: NUMERO VERIFICADO
+  Tipo: numeric
+  Longitud: '2'
+  Rango:
+  - 1
+  - 25
+  Categorías: {}
+P3_3B:
+  Descripción: PERSONAS
+  Tipo: categorical
+  Longitud: '1'
+  Categorías:
+    '1': Sí
+    '2': 'No'
+  Especiales:
+    '9': No especificado
+P9_11A:
+  Descripción: SE FUE A VIVIR A OTRO PAIS
+  Tipo: categorical
+  Longitud: '1'
+  Categorías:
+    '1': Sí
+    '2': 'No'
+P9_11B:
+  Descripción: CUANTAS PERSONAS
+  Tipo: numeric
+  Longitud: '2'
+  Rango:
+  - 1
+  - 25
+  Categorías: {}
+P3_1A:
+  Descripción: NUMERO DE INFORMANTE
+  Tipo: numeric
+  Longitud: '2'
+  Rango:
+  - 1
+  - 25
+  Categorías: {}
+  Especiales:
+    '99': No especificado
+P3_1:
+  Descripción: NUMERO DE REGISTRO DE LA PERSONA
+  Tipo: categorical
+  Longitud: '2'
+  Categorías:
+    '01': '01'
+    '02': '02'
+    '03': '03'
+    '04': '04'
+    '05': '05'
+    '06': '06'
+    '07': '07'
+    08: 08
+    09: 09
+    '10': '10'
+    '11': '11'
+    '12': '12'
+    '13': '13'
+    '14': '14'
+    '15': '15'
+    '16': '16'
+    '17': '17'
+    '18': '18'
+    '19': '19'
+    '20': '20'
+    '21': '21'
+    '22': '22'
+    '23': '23'
+    '24': '24'
+    '25': '25'
+    '26': '26'
+    '27': '27'
+    '28': '28'
+    '29': '29'
+    '30': '30'
+    '31': '31'
+    '32': '32'
+    '33': '33'
+    '34': '34'
+    '35': '35'
+    '36': '36'
+    '37': '37'
+    '38': '38'
+    '39': '39'
+    '40': '40'
+P3_4:
+  Descripción: CLAVE DE PARENTESCO
+  Tipo: string
+  Longitud: '1'
+P3_5:
+  Descripción: SEXO
   Tipo: categorical
   Longitud: '1'
   Categorías:
     '1': Hombre
-    '3': Mujer
-  Alias:
-    '2': '3'
-EDAD:
-  Descripción: Edad en años cumplidos (0 = menos de un año; en 2015, 110 = 110 y más; 2000, 2005 y 2010
-    la escriben con tres dígitos, 000-130)
-  Pregunta: ¿Cuántos años cumplidos tiene (NOMBRE)?
+    '2': Mujer
+P3_6:
+  Descripción: EDAD
   Tipo: numeric
-  Longitud: '3'
+  Longitud: '2'
   Rango:
   - 0
-  - 130
-  Especiales:
-    '999': No especificado
-EDAD_QUI:
-  Descripción: Edad quinquenal
-  Definición: Grupos de edad que van de cinco en cinco.
-  Tipo: categorical
-  Longitud: '2'
-  Categorías:
-    '01': 0 a 4 años
-    '02': 5 a 9 años
-    '03': 10 a 14 años
-    '04': 15 a 19 años
-    '05': 20 a 24 años
-    '06': 25 a 29 años
-    '07': 30 a 34 años
-    08: 35 a 39 años
-    09: 40 a 44 años
-    '10': 45 a 49 años
-    '11': 50 a 54 años
-    '12': 55 a 59 años
-    '13': 60 a 64 años
-    '14': 65 a 69 años
-    '15': 70 a 74 años
-    '16': 75 a 79 años
-    '17': 80 a 84 años
-    '18': 85 a 89 años
-    '19': 90 a 94 años
-    '20': 95 a 99 años
-    '21': 100 y más años
-    '1': 0 a 4 años
-    '2': 5 a 9 años
-    '3': 10 a 14 años
-    '4': 15 a 19 años
-    '5': 20 a 24 años
-    '6': 25 a 29 años
-    '7': 30 a 34 años
-    '8': 35 a 39 años
-    '9': 40 a 44 años
+  - 98
+  Categorías: {}
   Especiales:
     '99': No especificado
-  Catálogo: TC_EQUIN
-IMSS:
-  Descripción: Derechohabiencia al IMSS
-  Definición: Distingue a la población derechohabiente de la no derechohabiente al IMSS.
-  Tipo: categorical
-  Longitud: '1'
-  Categorías:
-    '1': Si
-  Catálogo: TC_RESSIP
-ISSSTE:
-  Descripción: Derechohabiencia al ISSSTE
-  Definición: Distingue a la población derechohabiente de la no derechohabiente al ISSSTE.
-  Tipo: categorical
-  Longitud: '1'
-  Categorías:
-    '1': Si
-  Catálogo: TC_RESSIP
-PEMEX:
-  Descripción: Derechohabiencia a PEMEX, Defensa y Marina
-  Definición: Distingue a la población derechohabiente de la no derechohabiente a PEMEX, Defensa o Marina.
-  Tipo: categorical
-  Longitud: '1'
-  Categorías:
-    '1': Si
-  Catálogo: TC_RESSIP
-SEGU_POP:
-  Descripción: Derechohabiencia al Seguro Popular
-  Definición: Distingue a la población derechohabiente de la no derechohabiente al Seguro Popular.
-  Tipo: categorical
-  Longitud: '1'
-  Categorías:
-    '1': Si
-  Catálogo: TC_RESSIP
-INST_PRI:
-  Descripción: Derechohabiencia a institución privada
-  Definición: Distingue a la población derechohabiente de la no derechohabiente a institución privada.
-  Tipo: categorical
-  Longitud: '1'
-  Categorías:
-    '1': Si
-  Catálogo: TC_RESSIP
-OTRA_INS:
-  Descripción: Derechohabiencia a otra institución
-  Definición: Distingue a la población derechohabiente de la no derechohabiente a otra institución.
-  Tipo: categorical
-  Longitud: '1'
-  Categorías:
-    '1': Instituciones de salud y/o seguridad social de los gobiernos estatales
-    '2': Otras instituciones de salud y/o seguridad social
-    '3': Instituciones de salud privadas que brindan servicios médicos subrogados
-  Especiales:
-    '9': No especificado de institución de derechohabiencia
-  Catálogo: TC_ODERH
-SIN_DERE:
-  Descripción: Sin derechohabiencia
-  Definición: Distingue a las personas sin derechohabiencia a servicio médico.
-  Tipo: categorical
-  Longitud: '1'
-  Categorías:
-    '6': Sin derechohabiencia a servicios de salud
-    '9': No especificó la condición de derechohabiencia
-  Nota: clasificador «TC_SINDE» no disponible
-LURE2000:
-  Descripción: Lugar de residencia en Octubre de 2000
-  Definición: Distingue la entidad donde residía la persona en octubre de 2000 así como el país según
-    si residía en Estados Unidos u otro.
-  Tipo: categorical
-  Longitud: '3'
-  Categorías:
-    '1': '001'
-    '2': '002'
-    '3': '003'
-    '4': '004'
-    '5': '005'
-    '6': '006'
-    '7': '007'
-    '8': 008
-    '9': 009
-    '10': '010'
-    '11': '011'
-    '12': '012'
-    '13': '013'
-    '14': '014'
-    '15': '015'
-    '16': '016'
-    '17': '017'
-    '18': 018
-    '19': 019
-    '20': '020'
-    '21': '021'
-    '22': '022'
-    '23': '023'
-    '24': '024'
-    '25': '025'
-    '26': '026'
-    '27': '027'
-    '28': 028
-    '29': 029
-    '30': '030'
-    '31': '031'
-    '32': '032'
-    '33': '033'
-    '201': Ver clasificación de Entidades
-    '600': Ver clasificación de Entidades
-    '999': Ver clasificación de Entidades
-  Nota: clasificador «TC_LRES2» no disponible
-HABLENIN:
-  Descripción: Condición de habla indígena
-  Definición: Distingue si la persona habla o no lengua indígena.
-  Tipo: categorical
-  Longitud: '1'
-  Categorías:
-    '1': Si
-    '2': 'No'
-  Especiales:
-    '9': No especificado
-  Catálogo: TC_RESINP
-LEINDHAB:
-  Descripción: Lengua indígena
-  Definición: Nombre de la lengua indígena.
+  Nota: 00 = Menos de un año; 98 = 98 años o más
+P3_7B:
+  Descripción: CLAVE DE LUGAR DE NACIMIENTO
   Tipo: string
-  Longitud: '4'
-  Catálogo: TC_LINDI
-  Nota: códigos del catálogo TC_LINDI (159 renglones; no enumerados)
-HATAMESP:
-  Descripción: Condición de habla española
-  Definición: Para las personas que hablan lengua indígena distingue si hablan o no español.
+  Longitud: '2'
+P3_8:
+  Descripción: CONDICION DE RESIDENCIA
   Tipo: categorical
   Longitud: '1'
   Categorías:
-    '3': Habla español
-    '4': No habla español
-  Especiales:
-    '9': No especificado
-  Catálogo: TC_HESPT
-ASIS_ESC:
-  Descripción: Condición de asistencia escolar
-  Definición: Distingue la condición de asistencia escolar actual.
+    '1': Vive en otro lugar, aunque por ahora está aquí
+    '2': Vive en otro lugar porque está trabajando, estudiando o por otras razones
+    '3': Vive normalmente aquí
+    '4': Vive aquí, aunque por ahora está en otro lugar
+    '5': Vive temporalmente aquí porque no tiene otro lugar donde vivir
+P4_1:
+  Descripción: CONDICION DE MIGRACION (ESTADO)
   Tipo: categorical
   Longitud: '1'
   Categorías:
-    '1': Si
-    '2': 'No'
+    '1': Sí ha vivido en otro estado o país, aunque haya sido por poco tiempo
+    '2': No ha vivido en otro estado o país
   Especiales:
     '9': No especificado
-  Catálogo: TC_RESINP
-ALFABET:
-  Descripción: Condición de alfabetismo
-  Definición: Distingue la condición de saber leer y escribir.
+P4_2:
+  Descripción: CONDICION DE MIGRACION (AÑOS VIVIDOS)
   Tipo: categorical
   Longitud: '1'
   Categorías:
-    '1': Si
-    '2': 'No'
+    '3': Si ha vivido toda su vida en la entidad de la entrevista
+    '4': No ha vivido toda su vida en la entidad de la entrevista
   Especiales:
     '9': No especificado
-  Catálogo: TC_RESINP
-NIVANTES:
-  Descripción: Nivel y antecedente escolar
-  Definición: Identifica el grado de estudio más alto aprobado y el antecedente en el caso de la normal
-    y estudios técnicos o comerciales.
+P4_3:
+  Descripción: CLAVE DE RESIDENCIA ANTERIOR
+  Tipo: string
+  Longitud: '2'
+P4_4A:
+  Descripción: TIEMPO RESIDENCIA ANTERIOR — MESES
   Tipo: numeric
   Longitud: '2'
   Rango:
   - 0
-  - 95
+  - 11
   Categorías: {}
   Especiales:
     '99': No especificado
-  Catálogo: TC_ANTES
-  Nota: 0 = Sin escolaridad; 10 = Preescolar; 20 = Primaria; 30 = Secundaria; 40 = Preparatoria o bachillerato;
-    51 = Normal con antecedente de primaria; 52 = Normal con antecedente de secundaria; 61 = Estudios
-    técnicos con antecedente de primaria; 62 = Estudios técnicos con antecedente de secundaria; 63 = Estudios
-    técnicos con antecedente de preparatoria; 73 = Profesional; 84 = Maestría
-GRA_APRO:
-  Descripción: Escolaridad (grados aprobados)
-  Definición: Año o grado de escolaridad aprobado.
-  Tipo: categorical
-  Longitud: '1'
-  Categorías:
-    '1': Un grado aprobado
-    '2': Dos grados aprobados
-    '3': Tres grados aprobados
-    '4': Cuatro grados aprobados
-    '5': Cinco grados aprobados
-    '6': Seis grados aprobados
-    '7': Siete grados aprobados
-    '8': Ocho grados aprobados
-    ':': ':'
-  Especiales:
-    '9': No especificado
-  Catálogo: TC_GAPRO
-NHIJNAVI:
-  Descripción: Número de hijos nacidos vivos
-  Definición: Número de hijos nacidos vivos que la mujer ha tenido.
-  Tipo: categorical
+  Nota: 00 = Menos de un mes
+P4_4B:
+  Descripción: TIEMPO RESIDENCIA ANTERIOR — AÑOS
+  Tipo: numeric
   Longitud: '2'
-  Categorías:
-    '00': Sin hijos nacidos vivos
-    '01': Con 1 hijo nacido vivo
-    '02': Con 2 hijos nacidos vivos
-    '03': Con 3 hijos nacidos vivos
-    '04': Con 4 hijos nacidos vivos
-    '05': Con 5 hijos nacidos vivos
-    '06': Con 6 hijos nacidos vivos
-    '07': Con 7 hijos nacidos vivos
-    08: Con 8 hijos nacidos vivos
-    09: Con 9 hijos nacidos vivos
-    '10': Con 10 hijos nacidos vivos
-    '11': Con 11 hijos nacidos vivos
-    '12': Con 12 hijos nacidos vivos
-    '13': Con 13 hijos nacidos vivos
-    '14': Con 14 hijos nacidos vivos
-    '15': Con 15 hijos nacidos vivos
-    '16': Con 16 hijos nacidos vivos
-    '17': Con 17 hijos nacidos vivos
-    '18': Con 18 hijos nacidos vivos
-    '19': Con 19 hijos nacidos vivos
-    '20': Con 20 hijos nacidos vivos
-    '21': Con 21 hijos nacidos vivos
-    '22': Con 22 hijos nacidos vivos
-    '23': Con 23 hijos nacidos vivos
-    '24': Con 24 hijos nacidos vivos
-    '25': Con 25 hijos nacidos vivos
-    '0': Sin hijos nacidos vivos
-    '1': Con 1 hijo nacido vivo
-    ':': ':'
-  Especiales:
-    '99': No especificado
-  Catálogo: TC_NUMH
-NUHIJSOB:
-  Descripción: Número de hijos sobrevivientes
-  Definición: Número de hijos que sobreviven.
-  Tipo: categorical
-  Longitud: '2'
-  Categorías:
-    '00': Sin hijos sobrevivientes
-    '01': Con 1 hijo sobreviviente
-    '02': Con 2 hijos sobrevivientes
-    '03': Con 3 hijos sobrevivientes
-    '04': Con 4 hijos sobrevivientes
-    '05': Con 5 hijos sobrevivientes
-    '06': Con 6 hijos sobrevivientes
-    '07': Con 7 hijos sobrevivientes
-    08: Con 8 hijos sobrevivientes
-    09: Con 9 hijos sobrevivientes
-    '10': Con 10 hijos sobrevivientes
-    '11': Con 11 hijos sobrevivientes
-    '12': Con 12 hijos sobrevivientes
-    '13': Con 13 hijos sobrevivientes
-    '14': Con 14 hijos sobrevivientes
-    '15': Con 15 hijos sobrevivientes
-    '16': Con 16 hijos sobrevivientes
-    '17': Con 17 hijos sobrevivientes
-    '18': Con 18 hijos sobrevivientes
-    '19': Con 19 hijos sobrevivientes
-    '20': Con 20 hijos sobrevivientes
-    '21': Con 21 hijos sobrevivientes
-    '22': Con 22 hijos sobrevivientes
-    '23': Con 23 hijos sobrevivientes
-    '24': Con 24 hijos sobrevivientes
-    '25': Con 25 hijos sobrevivientes
-    '0': Sin hijos sobrevivientes
-    '1': Con 1 hijo sobreviviente
-    ':': ':'
-  Especiales:
-    '99': No especificado
-  Catálogo: TC_NHISO
-TAM_LOC:
-  Descripción: Tamaño de localidad
-  Definición: 15 tamaños de localidad de acuerdo con el número de personas que la habitan.
-  Tipo: categorical
-  Longitud: '2'
-  Categorías:
-    '01': 1 a 49 habitantes
-    '02': 50 a 99 habitantes
-    '03': 100 a 499 habitantes
-    '04': 500 a 999 habitantes
-    '05': 1 000 a 1 999 habitantes
-    '06': 2 000 a 2 499 habitantes
-    '07': 2 500 a 4 999 habitantes
-    08: 5 000 a 9 999 habitantes
-    09: 10 000 a 14 999 habitantes
-    '10': 15 000 a 19 999 habitantes
-    '11': 20 000 a 49 999 habitantes
-    '12': 50 000 a 99 999 habitantes
-    '13': 100 000 a 499 999 habitantes
-    '14': 500 000 a 999 999 habitantes
-    '15': 1 000 000 y más habitantes
-  Nota: clasificador «TC_TAMLO» no disponible
-ESC_ACUM:
-  Descripción: Escolaridad acumulada
-  Definición: Años de escolaridad acumulados.
+  Rango:
+  - 1
+  - 98
+  Categorías: {}
+P4_5A:
+  Descripción: TIEMPO RESIDENCIA ACTUAL — MESES
   Tipo: numeric
   Longitud: '2'
   Rango:
   - 0
-  - 24
+  - 11
   Categorías: {}
   Especiales:
     '99': No especificado
-  Catálogo: TC_ESACUM
-NIV_ESCO:
-  Descripción: Nivel de escolaridad
-  Definición: Especifica hasta que grado de escolaridad aprobó la persona.
-  Tipo: categorical
+  Nota: 00 = Menos de un mes
+P4_5B:
+  Descripción: TIEMPO RESIDENCIA ACTUAL — AÑOS
+  Tipo: numeric
   Longitud: '2'
-  Categorías:
-    '00': Ninguno
-    '01': Preescolar
-    '02': Primaria
-    '03': Secundaria
-    '04': Preparatoria o bachillerato
-    '05': Normal
-    '06': Carrera técnica o comercial
-    '07': Profesional
-    08: Maestría
-    09: Doctorado
-  Especiales:
-    '99': No especificado
-  Catálogo: TC_NIVESCO
-ANT_ESCO:
-  Descripción: Antecedente escolar
-  Definición: Estudios que la persona tuvo que realizar para ingresar a una carrera técnica o comercial,
-    a la normal básica o superior o a la profesional. El antecedente puede ser de primaria, secundaria
-    o preparatoria.
+  Rango:
+  - 1
+  - 98
+  Categorías: {}
+P4_6A:
+  Descripción: CLAVE DE ESTADO O PAIS
+  Tipo: string
+  Longitud: '2'
+P4_6C:
+  Descripción: CLAVE DE MUNICIPIO O DELEGACION
+  Tipo: string
+  Longitud: '3'
+P5_1:
+  Descripción: ALFABETISMO
   Tipo: categorical
   Longitud: '1'
   Categorías:
-    '1': Primaria
-    '2': Secundaria
-    '3': Preparatoria o bachillerato
-    '4': Licenciatura o profesional
-    '5': Maestría
-    '0': Sin respuesta por corte de edad o por tener estudios de primaria, secundaria, preparatoria o
-      bachillerato
+    '1': Sí
+    '2': 'No'
   Especiales:
     '9': No especificado
-  Catálogo: TC_ANTESCO
+P5_2:
+  Descripción: VA A LA ESCUELA
+  Tipo: categorical
+  Longitud: '1'
+  Categorías:
+    '3': Sí
+    '4': 'No'
+  Especiales:
+    '9': No especificado
+P5_3:
+  Descripción: ALGUNA VEZ FUE A LA ESCUELA
+  Tipo: categorical
+  Longitud: '1'
+  Categorías:
+    '5': Sí
+    '6': 'No'
+  Especiales:
+    '9': No especificado
+P5_4A:
+  Descripción: NIVEL DE INSTRUCCION — GRADOS APROBADOS
+  Tipo: numeric
+  Longitud: '1'
+  Rango:
+  - 0
+  - 9
+  Categorías: {}
+P5_4B:
+  Descripción: NIVEL DE INSTRUCCION — NIVEL
+  Tipo: categorical
+  Longitud: '1'
+  Categorías:
+    '0': Ninguno
+    '1': Preescolar o Kinder
+    '2': Primaria
+    '3': Secundaria
+    '4': Preparatoria o Bachillerato
+    '5': Normal básica
+    '6': Profesional
+    '7': Posgrado
+  Especiales:
+    '9': No especificado
+P5_5:
+  Descripción: ESTUDIA O ESTUDIO CARRERA TECNICA
+  Tipo: categorical
+  Longitud: '1'
+  Categorías:
+    '1': Sí
+    '2': 'No'
+  Especiales:
+    '9': No especificado
+P5_6:
+  Descripción: AÑOS APROBADOS
+  Tipo: numeric
+  Longitud: '1'
+  Rango:
+  - 0
+  - 4
+  Categorías: {}
+  Especiales:
+    '9': No especificado
+  Nota: 0 = Menos de un año
+P5_7:
+  Descripción: REQUISITOS
+  Tipo: categorical
+  Longitud: '1'
+  Categorías:
+    '0': Ninguno
+    '1': Primaria terminada
+    '2': Secundaria terminada
+    '3': Preparatoria terminada
+  Especiales:
+    '9': No especificado
+P6_1:
+  Descripción: ESTADO CIVIL
+  Tipo: categorical
+  Longitud: '1'
+  Categorías:
+    '1': Vive en unión libre
+    '2': Es viudo(a)
+    '3': Es separado(a)
+    '4': Es divorciado(a)
+    '5': Es casado(a)
+    '6': Es soltero(a)
+    '8': Alguna vez unida y no se sabe el estado civil
+  Especiales:
+    '9': No especificado
+P6_2:
+  Descripción: NUMERO DE UNIONES
+  Tipo: numeric
+  Longitud: '1'
+  Rango:
+  - 1
+  - 8
+  Categorías: {}
+  Especiales:
+    '9': No especificado
+P6_3:
+  Descripción: EDAD A LA PRIMERA UNION
+  Tipo: numeric
+  Longitud: '2'
+  Rango:
+  - 10
+  - 98
+  Categorías: {}
+  Especiales:
+    '99': No especificado
+P6_4:
+  Descripción: EDAD A LA PRIMERA DISOLUCION
+  Tipo: numeric
+  Longitud: '2'
+  Rango:
+  - 10
+  - 98
+  Categorías: {}
+  Especiales:
+    '99': No especificado
+P7_1:
+  Descripción: CONDICION DE ACTIVIDAD
+  Tipo: categorical
+  Longitud: '1'
+  Categorías:
+    '1': Trabajó
+    '2': No trabajó, pero sí tenía trabajo
+    '3': Buscó trabajo
+    '4': Es estudiante
+    '5': Se dedica a los quehaceres de su hogar
+    '6': Es jubilado(a) o pensionado(a)
+    '7': Está incapacitado(a) permanentemente para trabajar
+    '8': No trabaja
+  Especiales:
+    '9': No especificado
+P7_4:
+  Descripción: CLAVE DE OCUPACION
+  Tipo: string
+  Longitud: '2'
+P7_5:
+  Descripción: SITUACION EN EL TRABAJO
+  Tipo: categorical
+  Longitud: '1'
+  Categorías:
+    '1': Empleado(a) u obrero(a)
+    '2': Jornalero(a) o peón
+    '3': Patrón(a) o empresario(a) (contrata trabajadores)
+    '4': Trabajador(a) por su cuenta (no contrata trabajadores)
+    '5': Trabajador(a) sin pago en el negocio o predio familiar
+  Especiales:
+    '9': No especificado
+P7_6:
+  Descripción: HORAS EN EL TRABAJO
+  Tipo: numeric
+  Longitud: '2'
+  Rango:
+  - 0
+  - 98
+  Categorías: {}
+  Especiales:
+    '99': No especificado
+  Nota: '98 = 98 horas o más; valores observados bajo el rango del FD: [''00'']'
+P7_8:
+  Descripción: CLAVE DE ACTIVIDAD
+  Tipo: string
+  Longitud: '2'
+P7_9A:
+  Descripción: INGRESOS POR TRABAJO
+  Tipo: string
+  Longitud: '5'
+  Categorías: {}
+  Nota: catálogo de 2 códigos (no enumerado)
+P7_9B:
+  Descripción: PERIODO
+  Tipo: categorical
+  Longitud: '1'
+  Categorías:
+    '0': No recibe ingresos
+    '1': A la semana
+    '2': A la quincena
+    '3': Al mes
+    '4': Al año
+  Especiales:
+    '9': No especificado
+P7_9MP:
+  Descripción: POR PERSONA(*)
+  Tipo: numeric
+  Longitud: '6'
+  Rango:
+  - 0
+  - 980000
+  Categorías: {}
+  Especiales:
+    '999999': '999999'
+P7_9MH:
+  Descripción: POR HOGAR(*)
+  Tipo: numeric
+  Longitud: '6'
+  Rango:
+  - 0
+  - 980000
+  Categorías: {}
+  Especiales:
+    '999999': '999999'
+P7_10A:
+  Descripción: TIPO DE INGRESO (1)
+  Tipo: categorical
+  Longitud: '1'
+  Categorías:
+    '1': Jubilación o pensión
+    '2': Ayuda de familiares desde otro país
+    '3': Alquiler (renta) o intereses bancarios
+    '4': Ayuda de Procampo
+    '5': Beca o ayuda de otras instituciones
+    '6': Otro tipo de ingreso
+    '7': Ninguno
+  Especiales:
+    '9': No especificado
+P7_10B:
+  Descripción: TIPO DE INGRESO (2)
+  Tipo: numeric
+  Longitud: '1'
+  Rango:
+  - 1
+  - 6
+  Categorías: {}
+P7_10C:
+  Descripción: TIPO DE INGRESO (3)
+  Tipo: numeric
+  Longitud: '1'
+  Rango:
+  - 1
+  - 6
+  Categorías: {}
+P7_11A:
+  Descripción: INGRESO (1)
+  Tipo: string
+  Longitud: '5'
+  Categorías: {}
+  Nota: catálogo de 1 códigos (no enumerado)
+P7_11B:
+  Descripción: PERIODO (1)
+  Tipo: categorical
+  Longitud: '1'
+  Categorías:
+    '1': A la semana
+    '2': A la quincena
+    '3': Al mes
+    '4': Al año
+  Especiales:
+    '9': No especificado
+P7_11C:
+  Descripción: INGRESO (2)
+  Tipo: numeric
+  Longitud: '5'
+  Rango:
+  - 1
+  - 98000
+  Categorías: {}
+  Especiales:
+    '99999': '99999'
+P7_11D:
+  Descripción: PERIODO (2)
+  Tipo: numeric
+  Longitud: '1'
+  Rango:
+  - 1
+  - 4
+  Categorías: {}
+  Especiales:
+    '9': '9'
+P7_11E:
+  Descripción: INGRESO (3)
+  Tipo: numeric
+  Longitud: '5'
+  Rango:
+  - 1
+  - 98000
+  Categorías: {}
+  Especiales:
+    '99999': '99999'
+P7_11F:
+  Descripción: PERIODO (3)
+  Tipo: numeric
+  Longitud: '1'
+  Rango:
+  - 1
+  - 4
+  Categorías: {}
+  Especiales:
+    '9': '9'
+P7_11MP:
+  Descripción: POR PERSONA(*)
+  Tipo: numeric
+  Longitud: '6'
+  Rango:
+  - 1
+  - 980000
+  Categorías: {}
+  Especiales:
+    '999999': '999999'
+P7_11MH:
+  Descripción: POR HOGAR(*)
+  Tipo: numeric
+  Longitud: '6'
+  Rango:
+  - 1
+  - 980000
+  Categorías: {}
+  Especiales:
+    '999999': '999999'
+INGMENTP:
+  Descripción: POR PERSONA(*)
+  Tipo: numeric
+  Longitud: '6'
+  Rango:
+  - 0
+  - 980000
+  Categorías: {}
+  Especiales:
+    '999999': '999999'
+INGMENTH:
+  Descripción: POR HOGAR(*)
+  Tipo: numeric
+  Longitud: '6'
+  Rango:
+  - 0
+  - 980000
+  Categorías: {}
+  Especiales:
+    '999999': '999999'
+  Nota: 'valores observados bajo el rango del FD: [''000000'']'

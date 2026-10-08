@@ -552,17 +552,189 @@ hogares:
       - TOTPEHOG
       - TICLAHOG
 personas:
-  latest: g07
+  latest: g09
   fingerprints:
-    c3ec87453d71a9ed0e51b26f8ed5d15d3422357496aa4d2f0b7766daa4055893: g01
-    622f1fec6295d50110614c4a075c6eaa1fb2422ce52d0c84f2205c48ff16f031: g02
-    eb79f8416972a3c752533c74d2cea6f348d98c0cad808cc1f32b1d360016cfd9: g03
-    9dcf38abea6bda2f8aba81d04145f5f2d784927d3eb318d5ba428ae6d15d07e6: g04
-    dd6a44775c6c76b55172b60fbd2c7120c84cd9f5c39255b7e79a4e9054ae2323: g05
-    f17c70978ffde6feaebae05711d93ab795be978b61b2814b847c850ab03ad8b4: g06
-    a97c35aad05e9117f41acc66d0476b0147f135cfc8f8b04e7b2698d811351ee0: g07
+    7e1a5e37489ded103d64d0369d8fd76e318df415b94d650974fe04e9d5d90ef8: g01
+    9efbecf63d08d16853dea65f9bb9799e39936e50c787e76484b189a0f4b413e9: g02
+    c3ec87453d71a9ed0e51b26f8ed5d15d3422357496aa4d2f0b7766daa4055893: g03
+    622f1fec6295d50110614c4a075c6eaa1fb2422ce52d0c84f2205c48ff16f031: g04
+    eb79f8416972a3c752533c74d2cea6f348d98c0cad808cc1f32b1d360016cfd9: g05
+    9dcf38abea6bda2f8aba81d04145f5f2d784927d3eb318d5ba428ae6d15d07e6: g06
+    dd6a44775c6c76b55172b60fbd2c7120c84cd9f5c39255b7e79a4e9054ae2323: g07
+    f17c70978ffde6feaebae05711d93ab795be978b61b2814b847c850ab03ad8b4: g08
+    a97c35aad05e9117f41acc66d0476b0147f135cfc8f8b04e7b2698d811351ee0: g09
   groups:
     g01:
+      n_columns: 53
+      files: 32
+      periods:
+      - '1990'
+      columns:
+      - TAM_LOC
+      - FOLIO_VIV
+      - ENT
+      - MUN
+      - T_VIV
+      - PAREDES
+      - TECHOS
+      - PISOS
+      - P_DORMIR
+      - T_CUARTOS
+      - CUA_EXCLU
+      - TAM_DUERME
+      - TIE_EXCU
+      - CON_AGUA
+      - AGUA_ENTU
+      - DRENAJE
+      - ELECTRI
+      - COMBUS
+      - TENENCIA
+      - NUM_PERS
+      - F_G_COC
+      - N_F_GPOS
+      - NUM_PER
+      - TIP_HOGAR
+      - CVE_PAR
+      - SEXO
+      - ANO_CUMP
+      - CVE_P_NAC
+      - CVE_P_RES
+      - HAB_IND
+      - CVE_LENG
+      - HAB_ESP
+      - RELIGION
+      - ALFABETA
+      - ASISTE
+      - APROBO
+      - PRESCO
+      - TEC_PRIM
+      - TEC_SEC
+      - NOR_BAS
+      - NIV_EST
+      - ANO_APRO
+      - CVE_CAR
+      - H_V_TENIDO
+      - V_ACTUAL
+      - EST_CIVIL
+      - ACT_PRIN
+      - CVE_OCUP
+      - SIT_TRAB
+      - HORAS
+      - C_A_ECO
+      - PERIODO
+      - INGRESO
+    g02:
+      n_columns: 105
+      files: 32
+      periods:
+      - '1995'
+      columns:
+      - ENT
+      - ZONA
+      - ESTRATO
+      - TAM_LOC
+      - MUN
+      - UPM
+      - VIV
+      - HOGAR
+      - FAC_POB
+      - FAC_VIV
+      - FAC_PROM
+      - P1_1
+      - P1_2
+      - P1_3
+      - P1_4
+      - P1_5
+      - P1_6
+      - P1_7
+      - P1_8
+      - P1_9
+      - P1_10
+      - P1_11
+      - P1_13
+      - P1_16
+      - P1_17
+      - P1_18
+      - P2_2
+      - P2_3
+      - TIPO_HOG
+      - P8_1A
+      - P8_1B
+      - P8_1C
+      - P8_1D
+      - P8_1E
+      - P8_1F
+      - P8_2A
+      - P8_2B
+      - P8_2C
+      - P8_2D
+      - P8_2F
+      - P8_2G
+      - P8_2H
+      - P8_3A
+      - P8_3B
+      - P8_3C
+      - P8_3D
+      - P8_3E
+      - P8_3F
+      - P8_3G
+      - P8_3H
+      - P8_3I
+      - P3_3A
+      - P3_3B
+      - P9_11A
+      - P9_11B
+      - P3_1A
+      - P3_1
+      - P3_4
+      - P3_5
+      - P3_6
+      - P3_7B
+      - P3_8
+      - P4_1
+      - P4_2
+      - P4_3
+      - P4_4A
+      - P4_4B
+      - P4_5A
+      - P4_5B
+      - P4_6A
+      - P4_6C
+      - P5_1
+      - P5_2
+      - P5_3
+      - P5_4A
+      - P5_4B
+      - P5_5
+      - P5_6
+      - P5_7
+      - P6_1
+      - P6_2
+      - P6_3
+      - P6_4
+      - P7_1
+      - P7_4
+      - P7_5
+      - P7_6
+      - P7_8
+      - P7_9A
+      - P7_9B
+      - P7_9MP
+      - P7_9MH
+      - P7_10A
+      - P7_10B
+      - P7_10C
+      - P7_11A
+      - P7_11B
+      - P7_11C
+      - P7_11D
+      - P7_11E
+      - P7_11F
+      - P7_11MP
+      - P7_11MH
+      - INGMENTP
+      - INGMENTH
+    g03:
       n_columns: 81
       files: 32
       periods:
@@ -649,7 +821,7 @@ personas:
       - EDAMORD
       - EDAMORM
       - EDAMORA
-    g02:
+    g04:
       n_columns: 32
       files: 32
       periods:
@@ -687,7 +859,7 @@ personas:
       - ESC_ACUM
       - NIV_ESCO
       - ANT_ESCO
-    g03:
+    g05:
       n_columns: 95
       files: 31
       periods:
@@ -821,7 +993,7 @@ personas:
       - TAM_LOC
       - CERTEZA
       - IDH125
-    g04:
+    g06:
       n_columns: 95
       files: 1
       periods:
@@ -925,7 +1097,7 @@ personas:
       - tam_loc
       - CERTEZA
       - IDH125
-    g05:
+    g07:
       n_columns: 86
       files: 32
       periods:
@@ -1017,7 +1189,7 @@ personas:
       - EDAD_MORIR_M
       - EDAD_MORIR_A
       - TAMLOC
-    g06:
+    g08:
       n_columns: 91
       files: 32
       periods:
@@ -1114,7 +1286,7 @@ personas:
       - EDAD_MORIR_A
       - EDAD_MORIR_TD
       - TAMLOC
-    g07:
+    g09:
       n_columns: 92
       files: 32
       periods:
@@ -1213,15 +1385,45 @@ personas:
       - TAMLOC
       - SM
 migrantes:
-  latest: g05
+  latest: g06
   fingerprints:
-    1bea7439f66cdf6b34e9ea43c3e466c16901cf8c9901cda6d676f8e7668869c2: g01
-    aba30f67c5f780bdebd58e430b82c30bf12141d26942cf37df16b82386a460c1: g02
-    603551443540cf00a1b6498d6e3ba33f7fd151a5582c75b5950b2b0583dba2e3: g03
-    3108ed47308d80740670444163f52f4ad59662a363aaf5f3d81d3bcfca293148: g04
-    12cd98af4e00fb958d410d985c12f8d3265c64e85fcda5169b637094196c5415: g05
+    e264a74be2a31271027276ab6c0b8b7e07eddfe3473aedd47dbc2cb77da42ee6: g01
+    1bea7439f66cdf6b34e9ea43c3e466c16901cf8c9901cda6d676f8e7668869c2: g02
+    aba30f67c5f780bdebd58e430b82c30bf12141d26942cf37df16b82386a460c1: g03
+    603551443540cf00a1b6498d6e3ba33f7fd151a5582c75b5950b2b0583dba2e3: g04
+    3108ed47308d80740670444163f52f4ad59662a363aaf5f3d81d3bcfca293148: g05
+    12cd98af4e00fb958d410d985c12f8d3265c64e85fcda5169b637094196c5415: g06
   groups:
     g01:
+      n_columns: 23
+      files: 32
+      periods:
+      - '1995'
+      columns:
+      - ENT
+      - ZONA
+      - ESTRATO
+      - TAM_LOC
+      - MUN
+      - UPM
+      - VIV
+      - HOGAR
+      - FAC_VIV
+      - P9_1
+      - P3_1
+      - P9_15
+      - P9_16
+      - P9_4
+      - P9_5
+      - P9_6A
+      - P9_6B
+      - P9_7
+      - P9_8
+      - P9_9
+      - P9_10A
+      - P9_10B
+      - P9_24
+    g02:
       n_columns: 19
       files: 32
       periods:
@@ -1246,7 +1448,7 @@ migrantes:
       - MPAIRES_C
       - MFECRETM
       - MFECRETA
-    g02:
+    g03:
       n_columns: 27
       files: 31
       periods:
@@ -1312,7 +1514,7 @@ migrantes:
       - TAM_LOC
       - CERTEZA
       - IDH125
-    g03:
+    g04:
       n_columns: 27
       files: 1
       periods:
@@ -1348,7 +1550,7 @@ migrantes:
       - tam_loc
       - CERTEZA
       - IDH125
-    g04:
+    g05:
       n_columns: 26
       files: 32
       periods:
@@ -1380,7 +1582,7 @@ migrantes:
       - MCONRESACT
       - MPERLS
       - TAMLOC
-    g05:
+    g06:
       n_columns: 27
       files: 32
       periods:

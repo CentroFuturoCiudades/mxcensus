@@ -55,6 +55,7 @@ from concurrent.futures import ProcessPoolExecutor
 from pathlib import Path
 
 import pyarrow as pa
+import pyarrow.compute as pc
 import pyarrow.csv as pacsv
 import pyarrow.parquet as pq
 import yaml
@@ -592,13 +593,19 @@ _ITER_FD_ALIGN = {"1990": "top", "1995": "center"}
 _FD_SHEET_TABLE = {"tr_vivienda": "viviendas", "tr_persona": "personas",
                    "fd viviendas": "viviendas", "fd hogar": "hogares",
                    "fd personas": "personas",
-                   "vivhog": "viviendas", "per": "personas", "min": "migrantes"}
+                   "vivhog": "viviendas", "per": "personas", "min": "migrantes",
+                   "datgen95": "personas", "migint95": "migrantes"}
 
 # FD names that misspell the data's column, (period, table) → {FD name: data name}.
 _FD_RENAMES = {
     ("2000", "viviendas"): {"TIPHOG": "TIPOHOG"},     # «Tipo de hogar», VHO_F's TIPOHOG
     ("2005", "hogares"): {"TOPERHOG": "TOTPEHOG"},    # «Total de personas en el hogar»
+    ("1990", "personas"): {"ACT_PRI": "ACT_PRIN"},    # «Actividad principal»
 }
+
+# The editions whose FD is a PDF of text tables (read with poppler, _dict_fd.pdf_text), and
+# their parsers; the 1990 catalogs are a workbook, 1995's a PDF (not read).
+_FD_PDF_PARSERS = {"1990": "parse_fd_1990_text", "1995": "parse_fd_1995_text"}
 
 # The member of a dictionary ZIP that holds the FD (CGPV 2000: the PDF annex next to
 # the sample design).
@@ -609,16 +616,19 @@ _FD_MEMBER_RE = re.compile(r"(^|/)fd_[^/]*\.pdf$", re.IGNORECASE)
 def _fd_docs(dict_dir: Path, period: str) -> dict:
     """The edition's FD parsed into ``{table: {VAR: meta}}``, its classification catalogs
     applied; ``{}`` when no FD was fetched. The FD is a workbook (``.xlsx``; the legacy
-    ``.xls`` of 2005–2015) or, for CGPV 2000, a PDF inside a ZIP
-    (:func:`_dict_fd.parse_fd_pdf`). The catalogs are a ZIP or (2005) one ``.xls``."""
+    ``.xls`` of 2005–2015), for CGPV 2000 a PDF inside a ZIP
+    (:func:`_dict_fd.parse_fd_pdf`), for 1990/1995 a PDF of text tables
+    (:data:`_FD_PDF_PARSERS`). The catalogs are a ZIP or one ``.xls`` (2005, 1990)."""
     rel = DICTIONARY_URLS.get(period, {})
     book = dict_dir / period / rel.get("fd", "").rsplit("/", 1)[-1]
-    if not book.exists() or book.suffix.lower() not in (".xlsx", ".xls", ".zip"):
+    if not book.exists() or book.suffix.lower() not in (".xlsx", ".xls", ".zip", ".pdf"):
         return {}
     cat = dict_dir / period / rel.get("catalogos", "").rsplit("/", 1)[-1]
     catalogs = (fd.read_catalogs(cat)
                 if cat.suffix.lower() in (".zip", ".xls") and cat.exists() else None)
-    if book.suffix.lower() == ".zip":
+    if book.suffix.lower() == ".pdf":
+        docs = getattr(fd, _FD_PDF_PARSERS[period])(fd.pdf_text(book), catalogs)
+    elif book.suffix.lower() == ".zip":
         with zipfile.ZipFile(book) as zf:
             hits = [n for n in zf.namelist() if _FD_MEMBER_RE.search(n)]
             if len(hits) != 1:
@@ -691,6 +701,8 @@ def _write_variables_yaml(out_dir: Path, map_path: Path, yaml_dir: Path,
             doc, prov = _doc_for(dict_dir, table, g["periods"])
             entries, sources = ddi.group_entries(g["columns"], observed, core_t, doc, thr,
                                                  entry_fn=fd.fd_entry)
+            if set(g["periods"]) & _RANGES_FROM_DATA:
+                _reconcile_ranges(entries, paths, set(core_t))
             counts = Counter(sources.values())
             print(f"  {table}/{gid}: {len(paths)}/{g['files']} file(s) read; {prov}; "
                   + ", ".join(f"{k}={v}" for k, v in sorted(counts.items())), flush=True)
@@ -700,6 +712,45 @@ def _write_variables_yaml(out_dir: Path, map_path: Path, yaml_dir: Path,
             ddi.dump_yaml(entries, yaml_dir / f"variables_cpv_{table}_{gid}.yaml")
             n += 1
     return n
+
+
+# Editions whose FD ranges the data overrun: their numeric entries are reconciled with the
+# values observed (_reconcile_ranges). The 1990/1995 FDs leave out 0 = none (years of
+# technical studies, rooms, income) and some all-nines codes (N_F_GPOS 99).
+_RANGES_FROM_DATA = frozenset({"1990", "1995"})
+
+
+def _reconcile_ranges(entries: dict, paths: list[Path], skip: set[str]) -> None:
+    """Fit each numeric entry's ``Rango`` to the values in ``paths``: a value below the range
+    extends it down (0 = none); an all-nines value above it (99, 999) is an undocumented
+    sentinel (``Especiales``); any other value above extends the range up. Each change is
+    noted (``Nota``). The core entries (``skip``) are left alone."""
+    for col, meta in entries.items():
+        if col in skip or meta.get("Tipo") != "numeric" or not meta.get("Rango"):
+            continue
+        lo, hi = meta["Rango"]
+        special = set(meta.get("Especiales") or {})
+        values: set[str] = set()
+        for path in paths:
+            arr = pq.read_table(path, columns=[col]).column(col)
+            values |= {v for v in pc.unique(arr).to_pylist() if v is not None}
+        nums = {v for v in values if v not in special and re.fullmatch(r"\d+(\.\d+)?", v)}
+        below = sorted((v for v in nums if float(v) < lo), key=float)
+        above = sorted((v for v in nums if float(v) > hi), key=float)
+        sentinels = [v for v in above if set(v) == {"9"}]
+        beyond = [v for v in above if v not in sentinels]
+        notes = []
+        if below:
+            meta["Rango"] = [int(float(below[0])), meta["Rango"][1]]
+            notes.append(f"valores observados bajo el rango del FD: {below[:5]}")
+        if beyond:
+            meta["Rango"] = [meta["Rango"][0], int(float(beyond[-1]))]
+            notes.append(f"valores observados sobre el rango del FD: {beyond[-5:]}")
+        if sentinels:
+            meta["Especiales"] = {**(meta.get("Especiales") or {}), **{v: v for v in sentinels}}
+            notes.append(f"códigos observados sin etiqueta en el FD: {sentinels}")
+        if notes:
+            meta["Nota"] = "; ".join(([meta["Nota"]] if meta.get("Nota") else []) + notes)
 
 
 # --- ITER/AGEB indicator crosswalk across censuses (cpv_iter_crosswalk.yaml) --------------

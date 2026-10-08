@@ -6,8 +6,9 @@ across the three kinds) and publishes a subset of seven canonical tables:
 
 - microdata (sample/extended questionnaire, one ZIP per state carrying several tables):
   ``viviendas`` (dwelling or dwelling+household record), ``hogares`` (household record,
-  2005 sample and the 1995 ``datgen95`` household file), ``personas``, ``migrantes``
-  (international emigrants of the household);
+  2005 sample), ``personas`` (1990 and 1995: the only microdata table, one row per person
+  with the dwelling/household items repeated), ``migrantes`` (international emigrants of
+  the household);
 - aggregates: ``iter`` (principales resultados por localidad, every censo/conteo),
   ``ageb`` (urban AGEB/block results, 2010 and 2020), ``estimaciones`` (EIC 2025
   estimates for the nation, states, every municipality and the ≥50k localities —
@@ -217,9 +218,12 @@ EDITIONS: list[CpvEdition] = [
             "microdatos": "microdatos/cpv95_{nn}_dbf.zip",
             "iter": "microdatos/iter/{nn}_{slug}_1995_iter_dbf.zip",
         },
-        # Encuesta del Conteo: datgen95 = household record (ENT…VIV, HOGAR; FAC_POB/
-        # FAC_VIV/FAC_PROM), migint95 = international migrants.
-        members={"hogares": r"datgen95\.dbf", "migrantes": r"migint95\.dbf",
+        # Encuesta del Conteo: datgen95 = one row per person (P3_1 numbers them within
+        # the household ENT…VIV, HOGAR; the dwelling/household items P1_*/P2_* repeat;
+        # weights FAC_POB per person, FAC_VIV per household, FAC_PROM), migint95 =
+        # international migrants. (Unit 0 read datgen95 as the household record; unit 5a's
+        # probe showed it is person-level.)
+        members={"personas": r"datgen95\.dbf", "migrantes": r"migint95\.dbf",
                  "iter": r"ITER_{nn}DBF95\.dbf"},
         fmt="dbf", biinegi_id=343, mg_period="1995",
         notes="weights FAC_POB/FAC_VIV/FAC_PROM (not FACTOR); no DDI",

@@ -35,211 +35,28 @@ ENT:
     '30': '30'
     '31': '31'
     '32': '32'
-NOM_ENT:
-  Descripción: Nombre de la entidad
-  Tipo: string
-  Longitud: '50'
 MUN:
   Descripción: Municipio o Delegación
   Tipo: string
   Longitud: '3'
   Nota: 001..570 = códigos (no enumerados)
-NOM_MUN:
-  Descripción: Nombre del municipio o delegación
-  Tipo: string
-  Longitud: '50'
-LOC50K:
-  Descripción: Clave de la localidad de 50 000 y más habitantes dentro del municipio; 0000 = localidad
-    de menos de 50 000 habitantes
+LOC:
+  Descripción: Localidad (Clave)
   Tipo: string
   Longitud: '4'
-NOM_LOC:
-  Descripción: Nombre de la localidad
+  Nota: 0001..9999 = códigos (no enumerados)
+NUMVIV:
+  Descripción: Número de vivienda
   Tipo: string
-  Longitud: '70'
-ID_VIV:
-  Descripción: Identificador único de la vivienda (2015, 2020 y 2025 — 12 dígitos; los dos primeros son
-    la entidad, así que es único en todo el país). Los CSV de 2015 lo escriben sin el cero inicial de
-    las entidades 01-09 (11 dígitos); harmonize=True lo rellena. En 2010 es un consecutivo de 8 dígitos
-    único sólo dentro de la entidad; harmonize=True le antepone la entidad (entidad + consecutivo a 10
-    dígitos). 2000 y 2005 no lo traen; se deriva de las partes de la clave — 2000, ENT + MUN + LOC + NUMVIV
-    (15 dígitos); 2005, ENT + MUN + CONS_MUN a 7 dígitos (12).
-  Tipo: string
-  Longitud: '12'
-CLAVIVP:
-  Descripción: Clase de vivienda particular
-  Pregunta: Clase de vivienda particular
-  Tipo: categorical
-  Longitud: '1'
-  Categorías:
-    '1': Casa independiente
-    '2': Departamento en edificio
-    '3': Vivienda en vecindad
-    '4': Vivienda en cuarto de azotea
-    '5': Local no construido para habitación
-    '6': Vivienda móvil
-    '7': Refugio
-  Especiales:
-    '9': No especificado
-ID_MIN:
-  Descripción: Identificación de migrante internacional
+  Longitud: '6'
+  Nota: 000001..999999 = códigos (no enumerados)
+NUMHOG:
+  Descripción: Número de hogar
   Tipo: numeric
-  Longitud: '7'
+  Longitud: '1'
   Rango:
   - 1
-  - 9999999
-  Categorías: {}
-MPERA:
-  Descripción: Número de migrante
-  Tipo: numeric
-  Longitud: '2'
-  Rango:
-  - 0
-  - 99
-  Categorías: {}
-MSEXO:
-  Descripción: Sexo
-  Pregunta: Sexo del migrante
-  Tipo: categorical
-  Longitud: '1'
-  Categorías:
-    '1': Hombre
-    '3': Mujer
-  Especiales:
-    '9': No especificado
-MEDAD:
-  Descripción: Edad
-  Pregunta: ¿Cuántos años tenía (NOMBRE) cuando se fue la última vez?
-  Tipo: numeric
-  Longitud: '3'
-  Rango:
-  - 0
-  - 130
-  Categorías: {}
-  Especiales:
-    '999': No especificado
-MFECEMIM:
-  Descripción: Fecha de emigración (mes)
-  Pregunta: ¿En qué mes (NOMBRE) se fue a vivir a otro país la última vez?
-  Tipo: numeric
-  Longitud: '2'
-  Rango:
-  - 1
-  - 12
-  Categorías: {}
-  Especiales:
-    '99': No especificado
-MFECEMIA:
-  Descripción: Fecha de emigración (año)
-  Pregunta: ¿En qué año (NOMBRE) se fue a vivir a otro país la última vez?
-  Tipo: numeric
-  Longitud: '4'
-  Rango:
-  - 2005
-  - 2010
-  Categorías: {}
-  Especiales:
-    '9999': No especificado
-MLUGORI_C:
-  Descripción: Lugar de origen (estado)
-  Pregunta: ¿En qué estado de la República vivía (NOMBRE) cuando se fue la última vez?
-  Tipo: categorical
-  Longitud: '3'
-  Categorías:
-    '001': Aguascalientes
-    '002': Baja California
-    '003': Baja California Sur
-    '004': Campeche
-    '005': Coahuila de Zaragoza
-    '006': Colima
-    '007': Chiapas
-    008: Chihuahua
-    009: Distrito Federal
-    '010': Durango
-    '011': Guanajuato
-    '012': Guerrero
-    '013': Hidalgo
-    '014': Jalisco
-    '015': México
-    '016': Michoacán de Ocampo
-    '017': Morelos
-    018: Nayarit
-    019: Nuevo León
-    '020': Oaxaca
-    '021': Puebla
-    '022': Querétaro
-    '023': Quintana Roo
-    '024': San Luis Potosí
-    '025': Sinaloa
-    '026': Sonora
-    '027': Tabasco
-    028: Tamaulipas
-    029: Tlaxcala
-    '030': Veracruz de Ignacio de la Llave
-    '031': Yucatán
-    '032': Zacatecas
-    '900': Omisión del tema
-  Especiales:
-    '999': No especificado
-  Catálogo: TC_ENTIDAD_2010
-MPDESOTR_C:
-  Descripción: País de destino (otro país)
-  Pregunta: ¿A que país se fue (NOMBRE)?
-  Tipo: string
-  Longitud: '3'
-  Catálogo: TC_PAIS_2010
-  Nota: códigos del catálogo TC_PAIS_2010 (241 renglones; no enumerados)
-MPAIRES:
-  Descripción: País de residencia
-  Pregunta: 'Actualmente (NOMBRE) vive:'
-  Tipo: categorical
-  Longitud: '1'
-  Categorías:
-    '1': Estados Unidos de América
-    '2': Otro país
-    '3': México
-  Especiales:
-    '9': No especificado
-MFECRETM:
-  Descripción: Fecha de retorno (mes)
-  Pregunta: ¿En qué mes regreso (NOMBRE) a la República Mexicana?
-  Tipo: numeric
-  Longitud: '2'
-  Rango:
-  - 1
-  - 12
-  Categorías: {}
-  Especiales:
-    '99': No especificado
-MFECRETA:
-  Descripción: Fecha de retorno (año)
-  Pregunta: ¿En qué año regreso (NOMBRE) a la República Mexicana?
-  Tipo: numeric
-  Longitud: '4'
-  Rango:
-  - 2005
-  - 2010
-  Categorías: {}
-  Especiales:
-    '9999': No especificado
-MCONRESACT:
-  Descripción: Condición de residencia actual
-  Pregunta: ¿(NOMBRE) actualmente vive aquí, en esta vivienda?
-  Tipo: categorical
-  Longitud: '1'
-  Categorías:
-    '1': Sí
-    '3': 'No'
-  Especiales:
-    '9': No especificado
-MPERLS:
-  Descripción: Número del migrante en la lista de personas
-  Pregunta: Número del migrante en la lista de personas
-  Tipo: numeric
-  Longitud: '2'
-  Rango:
-  - 1
-  - 99
+  - 9
   Categorías: {}
 FACTOR:
   Descripción: Factor de expansión (constante dentro de la vivienda; calibrado a las estimaciones publicadas
@@ -260,27 +77,124 @@ UPM:
   Longitud: 4 / 5 / 6
 TAM_LOC:
   Descripción: Tamaño de localidad
-  Pregunta: Tamaño de localidad
+  Tipo: categorical
+  Longitud: '1'
+  Categorías:
+    '1': Menor a 2,500 habitantes
+    '2': 2,500 a 14,999 habitantes
+    '3': 15,000 a 19,999 habitantes
+    '4': 20,000 a 49,999 habitantes
+    '5': 50,000 a 99,999 habitantes
+    '6': 100,000 a 499,999 habitantes
+    '7': 500,000 y más habitantes
+MPER:
+  Descripción: Número de migrante
   Tipo: categorical
   Longitud: '2'
   Categorías:
-    '01': Menos de 2 500 habitantes
-    '02': 2 500 a 14 999 habitantes
-    '03': 15 000 a 99 999 habitantes
-    '04': 100 000 y más habitantes
-CERTEZA:
-  Descripción: Municipio censado con Cuestionario Ampliado
-  Pregunta: Municipio censado con Cuestionario ampliado
+    '01': '01'
+    '02': '02'
+    '03': '03'
+    '04': '04'
+    '05': '05'
+    '06': '06'
+    '07': '07'
+    08: 08
+    09: 09
+    '10': '10'
+    '11': '11'
+    '12': '12'
+    '13': '13'
+    '14': '14'
+    '15': '15'
+    '16': '16'
+    '17': '17'
+    '18': '18'
+    '19': '19'
+    '20': '20'
+MSEXO:
+  Descripción: Sexo
   Tipo: categorical
   Longitud: '1'
   Categorías:
-    '1': Sí
-    '0': 'No'
-IDH125:
-  Descripción: Municipio con menor Indice de Desarrollo Humano (IDH)
-  Pregunta: Municipio con menor IDH
-  Tipo: categorical
-  Longitud: '1'
-  Categorías:
-    '1': Sí
-    '0': 'No'
+    '1': Hombre
+    '2': Mujer
+MEDAD:
+  Descripción: Edad
+  Tipo: numeric
+  Longitud: '3'
+  Rango:
+  - 0
+  - 130
+  Categorías: {}
+  Especiales:
+    '999': '999'
+MLUGORI_C:
+  Descripción: Lugar de origen (estado)
+  Tipo: numeric
+  Longitud: '3'
+  Rango:
+  - 1
+  - 32
+  Categorías: {}
+  Especiales:
+    '999': '999'
+MFECEMIM:
+  Descripción: Fecha de emigración (mes)
+  Tipo: numeric
+  Longitud: '2'
+  Rango:
+  - 1
+  - 12
+  Categorías: {}
+  Especiales:
+    '99': '99'
+MFECEMIA:
+  Descripción: Fecha de emigración (año)
+  Tipo: numeric
+  Longitud: '4'
+  Rango:
+  - 1995
+  - 2000
+  Categorías: {}
+  Especiales:
+    '9999': '9999'
+MPDESOTR_C:
+  Descripción: País de destino (descripción)
+  Tipo: numeric
+  Longitud: '3'
+  Rango:
+  - 100
+  - 535
+  Categorías: {}
+  Especiales:
+    '600': '600'
+    '999': '999'
+MPAIRES_C:
+  Descripción: País de residencia
+  Tipo: numeric
+  Longitud: '3'
+  Rango:
+  - 100
+  - 535
+  Categorías: {}
+  Especiales:
+    '600': Extranjero, otro país
+    '700': México
+    '999': No especificado
+MFECRETM:
+  Descripción: Fecha de retorno (mes)
+  Tipo: numeric
+  Longitud: '2'
+  Rango:
+  - 1
+  - 12
+  Categorías: {}
+  Especiales:
+    '99': '99'
+MFECRETA:
+  Descripción: Fecha de retorno (año)
+  Tipo: numeric
+  Longitud: '4'
+  Categorías: {}
+  Nota: 'numérica: el FD sólo enumera códigos especiales'

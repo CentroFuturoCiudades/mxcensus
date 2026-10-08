@@ -1,146 +1,297 @@
+TAM_LOC:
+  Descripción: TAMAÑO DE LA LOCALIDAD
+  Tipo: categorical
+  Longitud: '1'
+  Categorías:
+    '1': 1..2,499 HABITANTES
+    '2': 2,500..14,999 HABITANTES
+    '3': 15,000..99,999 HABITANTES
+    '4': 100,000..499,999 HABITANTES
+    '5': 500,000 Y MAS HABITANTES
+FOLIO_VIV:
+  Descripción: FOLIO CONSECUTIVO DE VIVIENDA
+  Tipo: string
+  Longitud: '6'
 ENT:
-  Descripción: Entidad Federativa
+  Descripción: ENTIDAD
   Tipo: categorical
   Longitud: '2'
   Categorías:
-    '01': '01'
-    '02': '02'
-    '03': '03'
-    '04': '04'
-    '05': '05'
-    '06': '06'
-    '07': '07'
-    08: 08
-    09: 09
-    '10': '10'
-    '11': '11'
-    '12': '12'
-    '13': '13'
-    '14': '14'
-    '15': '15'
-    '16': '16'
-    '17': '17'
-    '18': '18'
-    '19': '19'
-    '20': '20'
-    '21': '21'
-    '22': '22'
-    '23': '23'
-    '24': '24'
-    '25': '25'
-    '26': '26'
-    '27': '27'
-    '28': '28'
-    '29': '29'
-    '30': '30'
-    '31': '31'
-    '32': '32'
+    '01': AGUASCALIENTES
+    '02': BAJA CALIFORNIA
+    '03': BAJA CALIFORNIA SUR
+    '04': CAMPECHE
+    '05': COAHUILA
+    '06': COLIMA
+    '07': CHIAPAS
+    08: CHIHUAHUA
+    09: DISTRITO FEDERAL
+    '10': DURANGO
+    '11': GUANAJUATO
+    '12': GUERRERO
+    '13': HIDALGO
+    '14': JALISCO
+    '15': MEXICO
+    '16': MICHOACAN
+    '17': MORELOS
+    '18': NAYARIT
+    '19': NUEVO LEON
+    '20': OAXACA
+    '21': PUEBLA
+    '22': QUERETARO
+    '23': QUINTANA ROO
+    '24': SAN LUIS POTOSI
+    '25': SINALOA
+    '26': SONORA
+    '27': TABASCO
+    '28': TAMAULIPAS
+    '29': TLAXCALA
+    '30': VERACRUZ
+    '31': YUCATAN
+    '32': ZACATECAS
+  Catálogo: CATENT
 MUN:
-  Descripción: Municipio o Delegación
+  Descripción: MUNICIPIO
   Tipo: string
   Longitud: '3'
-  Nota: 001..570 = códigos (no enumerados)
-LOC:
-  Descripción: Localidad (Clave)
+  Nota: clasificador «CATMUN00» no disponible
+T_VIV:
+  Descripción: TIPO DE VIVIENDA
+  Tipo: categorical
+  Longitud: '2'
+  Categorías:
+    '01': CASA SOLA
+    '02': DEPARTAMENTO EN EDIFICIO O CASA EN VECINDAD
+    '03': CUARTO DE AZOTEA
+    '04': VIVIENDA MOVIL
+    '05': REFUGIO
+  Especiales:
+    09: NO ESPECIFICADO
+PAREDES:
+  Descripción: PAREDES
+  Tipo: categorical
+  Longitud: '1'
+  Categorías:
+    '1': LAMINA DE CARTON
+    '2': CARRIZO, BAMBU O PALMA
+    '3': EMBARRO O BAJAREQUE
+    '4': MADERA
+    '5': LAMINA DE ASBESTO O METALICA
+    '6': ADOBE
+    '7': TABIQUE, LADRILLO, BLOCK, PIEDRA O CEMENTO
+    '8': OTROS MATERIALES
+    '0': '0'
+  Especiales:
+    '9': NO ESPECIFICADO
+  Nota: 'códigos observados sin etiqueta en el FD: [''0'']'
+TECHOS:
+  Descripción: TECHOS
+  Tipo: categorical
+  Longitud: '1'
+  Categorías:
+    '1': LAMINA DE CARTON
+    '2': PALMA, TEJAMANIL O MADERA
+    '3': LAMINA DE ASBESTO O METALICA
+    '4': TEJA
+    '5': LOSA DE CONCRETO, TABIQUE O LADRILLO
+    '6': OTROS MATERIALES
+    '0': '0'
+  Especiales:
+    '9': NO ESPECIFICADO
+  Nota: 'códigos observados sin etiqueta en el FD: [''0'']'
+PISOS:
+  Descripción: PISOS
+  Tipo: categorical
+  Longitud: '1'
+  Categorías:
+    '1': TIERRA
+    '2': CEMENTO O FIRME
+    '3': MADERA, MOSAICO U OTROS RECUBRIMIENTOS
+    '0': '0'
+  Especiales:
+    '9': NO ESPECIFICADO
+  Nota: 'códigos observados sin etiqueta en el FD: [''0'']'
+P_DORMIR:
+  Descripción: CUARTOS PARA DORMIR
+  Tipo: numeric
+  Longitud: '2'
+  Rango:
+  - 0
+  - 25
+  Categorías: {}
+  Especiales:
+    '99': NUMERO DE CUARTOS-DORIMITORIOS NO ESPECIFICADO
+  Nota: 'valores observados bajo el rango del FD: [''00'']'
+T_CUARTOS:
+  Descripción: TOTAL DE CUARTOS
+  Tipo: numeric
+  Longitud: '2'
+  Rango:
+  - 0
+  - 26
+  Categorías: {}
+  Especiales:
+    '99': NUMERO DE CUARTOS SIN CONTAR PASILLOS, NI BAÑOS NO ESPECIFICADO
+  Nota: 'valores observados bajo el rango del FD: [''00'']; valores observados sobre el rango del FD:
+    [''26'']'
+CUA_EXCLU:
+  Descripción: COCINA
+  Tipo: categorical
+  Longitud: '1'
+  Categorías:
+    '1': DISPONE
+    '2': NO DISPONE
+    '0': '0'
+  Especiales:
+    '9': NO ESPECIFICADO
+  Nota: 'códigos observados sin etiqueta en el FD: [''0'']'
+TAM_DUERME:
+  Descripción: COCINA DORMITORIO
+  Tipo: categorical
+  Longitud: '1'
+  Categorías:
+    '0': NO DISPONE DE COCINA
+    '3': SI
+    '4': 'NO'
+  Especiales:
+    '9': NO ESPECIFICADO
+TIE_EXCU:
+  Descripción: EXCUSADO
+  Tipo: categorical
+  Longitud: '1'
+  Categorías:
+    '1': DISPONE
+    '2': NO DISPONE
+    '0': '0'
+  Especiales:
+    '9': NO ESPECIFICADO
+  Nota: 'códigos observados sin etiqueta en el FD: [''0'']'
+CON_AGUA:
+  Descripción: EXCUSADO CON CONEXION DE AGUA
+  Tipo: categorical
+  Longitud: '1'
+  Categorías:
+    '0': NO DISPONE DE EXCUSADO
+    '3': SI
+    '4': 'NO'
+  Especiales:
+    '9': NO ESPECIFICADO
+AGUA_ENTU:
+  Descripción: AGUA ENTUBADA
+  Tipo: categorical
+  Longitud: '1'
+  Categorías:
+    '1': DENTRO DE LA VIVIENDA
+    '2': FUERA DE VIVIENDA, PERO DENTRO DEL TERRENO
+    '3': DE LLAVE PUBLICA O HIDRANTE
+    '4': NO DISPONE DE AGUA ENTUBADA
+    '0': '0'
+  Especiales:
+    '9': NO ESPECIFICADO
+  Nota: 'códigos observados sin etiqueta en el FD: [''0'']'
+DRENAJE:
+  Descripción: DRENAJE
+  Tipo: categorical
+  Longitud: '1'
+  Categorías:
+    '1': CONECTADO AL DE LA CALLE
+    '2': CONECTADO A FOSA SEPTICA
+    '3': CON DESAGUE AL SUELO, A UN RIO O LAGO
+    '4': NO DISPONE DE DRENAJE
+    '0': '0'
+  Especiales:
+    '9': NO ESPECIFICADO
+  Nota: 'códigos observados sin etiqueta en el FD: [''0'']'
+ELECTRI:
+  Descripción: ELETRICIDAD
+  Tipo: categorical
+  Longitud: '1'
+  Categorías:
+    '1': DISPONE
+    '2': NO DISPONE
+    '0': '0'
+  Especiales:
+    '9': NO ESPECIFICADO
+  Nota: 'códigos observados sin etiqueta en el FD: [''0'']'
+COMBUS:
+  Descripción: COMBUSTIBLE
+  Tipo: categorical
+  Longitud: '1'
+  Categorías:
+    '1': LEÑA O CARBON
+    '2': PETROLEO
+    '3': GAS
+    '4': ELECTRICIDAD
+    '0': '0'
+  Especiales:
+    '9': NO ESPECIFICADO
+  Nota: 'códigos observados sin etiqueta en el FD: [''0'']'
+TENENCIA:
+  Descripción: TENENCIA
+  Tipo: categorical
+  Longitud: '1'
+  Categorías:
+    '1': PROPIA
+    '2': RENTADA
+    '3': ESTA EN OTRA SITUACION
+    '0': '0'
+  Especiales:
+    '9': NO ESPECIFICADO
+  Nota: 'códigos observados sin etiqueta en el FD: [''0'']'
+NUM_PERS:
+  Descripción: No. DE PERSONAS EN LA VIVIENDA
   Tipo: string
   Longitud: '4'
   Nota: 0001..9999 = códigos (no enumerados)
-NUMVIV:
-  Descripción: Número de vivienda
-  Tipo: string
-  Longitud: '6'
-  Nota: 000001..999999 = códigos (no enumerados)
-NUMHOG:
-  Descripción: Número de hogar
-  Tipo: numeric
+F_G_COC:
+  Descripción: FAM. O GPOS.QUE COCINAN APARTE
+  Tipo: categorical
   Longitud: '1'
+  Categorías:
+    '1': SI
+    '2': 'NO'
+  Especiales:
+    '9': NO ESPECIFICADO
+N_F_GPOS:
+  Descripción: No. DE FAMILIAS O GPOS.EN LA VIV.
+  Tipo: numeric
+  Longitud: '2'
   Rango:
   - 1
-  - 9
+  - 10
   Categorías: {}
-FACTOR:
-  Descripción: Factor de expansión (constante dentro de la vivienda; calibrado a las estimaciones publicadas
-    — Σ FACTOR = población / viviendas particulares habitadas). La muestra del Conteo 2005 no tiene factor.
-  Tipo: numeric
-  Longitud: '5'
-  Rango:
-  - 1
-  - 99999
-ESTRATO:
-  Descripción: Estrato de diseño muestral (alfanumérico, p. ej. 0100101022 en 2000, 400-01-001-0003 en
-    2010, 01-001-05 en 2015, 01-001-0000-03 en 2020 y 15-001-0000-030 en 2025; 2005 no tiene diseño expandible)
+  Nota: 'numérica: el FD sólo enumera códigos especiales; códigos observados sin etiqueta en el FD: [''99'']'
+  Especiales:
+    '99': '99'
+NUM_PER:
+  Descripción: NUMERO DE PERSONA
   Tipo: string
-  Longitud: 9 / 10 / 14 / 15
-UPM:
-  Descripción: Unidad Primaria de Muestreo (4 dígitos en 2000 y 2010, 6 en 2015, 5 en 2020 y 2025)
-  Tipo: string
-  Longitud: 4 / 5 / 6
-TAM_LOC:
-  Descripción: Tamaño de localidad
+  Longitud: '4'
+  Nota: 0001..9999 = códigos (no enumerados)
+TIP_HOGAR:
+  Descripción: TIPO DE HOGAR
   Tipo: categorical
   Longitud: '1'
   Categorías:
-    '1': Menor a 2,500 habitantes
-    '2': 2,500 a 14,999 habitantes
-    '3': 15,000 a 19,999 habitantes
-    '4': 20,000 a 49,999 habitantes
-    '5': 50,000 a 99,999 habitantes
-    '6': 100,000 a 499,999 habitantes
-    '7': 500,000 y más habitantes
-OTROPARE_C:
-  Descripción: Otro parentesco
-  Tipo: categorical
+    '1': NUCLEAR
+    '2': AMPLIADO
+    '3': COMPUESTO
+    '4': CORRESIDENTE
+    '5': UNIPERSONAL
+    '6': '6'
+  Especiales:
+    '7': NO ESPECIFICADO
+  Nota: 'códigos observados sin etiqueta en el FD: [''6'']'
+CVE_PAR:
+  Descripción: CLAVE DE PARENTESCO
+  Tipo: string
   Longitud: '3'
-  Categorías:
-    '100': '100'
-    '200': '200'
-    '300': '300'
-    '401': '401'
-    '402': '402'
-    '403': '403'
-    '404': '404'
-    '405': '405'
-    '406': '406'
-    '407': '407'
-    '408': '408'
-    '409': '409'
-    '410': '410'
-    '411': '411'
-    '412': '412'
-    '420': '420'
-    '430': '430'
-    '440': '440'
-    '501': '501'
-    '502': '502'
-    '503': '503'
-    '601': '601'
-    '602': '602'
-    '603': '603'
-    '604': '604'
-    '605': '605'
-    '606': '606'
-    '607': '607'
-    '608': '608'
-    '609': '609'
-    '610': '610'
-    '611': '611'
-    '612': '612'
-    '613': '613'
-    '614': '614'
-    '615': '615'
-    '616': '616'
-    '617': '617'
-    '618': '618'
-    '619': '619'
-    '620': '620'
-    '621': '621'
-    '622': '622'
-    '623': '623'
-    '624': '624'
-    '999': '999'
+  Categorías: {}
+  Catálogo: CATPAREN
+  Nota: catálogo de 59 códigos (no enumerado)
 SEXO:
-  Descripción: Sexo (códigos 1 y 3 en 2010, 2015, 2020 y 2025; 2000 y 2005 escriben a la mujer con 2 —
-    Recodificar; harmonize=True lo lleva a 3)
+  Descripción: Sexo (códigos 1 y 3 en 2010, 2015, 2020 y 2025; 1990, 2000 y 2005 escriben a la mujer con
+    2 — Recodificar; harmonize=True lo lleva a 3; en 1995 es P3_5)
   Pregunta: (NOMBRE) es hombre. (NOMBRE) es mujer.
   Tipo: categorical
   Longitud: '1'
@@ -149,657 +300,265 @@ SEXO:
     '3': Mujer
   Alias:
     '2': '3'
-EDAD:
-  Descripción: Edad en años cumplidos (0 = menos de un año; en 2015, 110 = 110 y más; 2000, 2005 y 2010
-    la escriben con tres dígitos, 000-130)
-  Pregunta: ¿Cuántos años cumplidos tiene (NOMBRE)?
+ANO_CUMP:
+  Descripción: EDAD
   Tipo: numeric
   Longitud: '3'
   Rango:
   - 0
-  - 130
-  Especiales:
-    '999': No especificado
-LNACEDO_C:
-  Descripción: Lugar de nacimiento_en otro estado
-  Tipo: string
-  Longitud: '3'
-  Especiales:
-    '600': País no especificado
-    '999': No especificado
-  Nota: 001..032 = Clave de entidad (no enumerados); 100..535 = Clave de país (no enumerados)
-IMSS:
-  Descripción: Derechohabiencia_ Seguro Social (IMSS)
-  Tipo: categorical
-  Longitud: '1'
-  Categorías:
-    '1': Derechohabiente del IMSS
-    '9': No se sabe si es derechohabiente o no (omisión general)
-ISSSTE:
-  Descripción: Derechohabiencia_ISSSTE
-  Tipo: categorical
-  Longitud: '1'
-  Categorías:
-    '2': Es derechohabiente al ISSSTE
-PEMEX:
-  Descripción: Derechohabiencia_Pemex, Defensa o Marina
-  Tipo: categorical
-  Longitud: '1'
-  Categorías:
-    '3': Es derechohabiente a PEMEX
-OTRINS_V:
-  Descripción: Variable auxiliar
-  Tipo: categorical
-  Longitud: '1'
-  Categorías:
-    '4': Es derechohabiente pero no se sabe a qué institución
-NOTIEDER:
-  Descripción: Derechohabiencia_entonces no tiene derecho
-  Tipo: categorical
-  Longitud: '1'
-  Categorías:
-    '5': No tiene derecho a servicio médico
-DISMOV:
-  Descripción: Discapacidad_moverse, caminar o lo hace con ayuda
-  Tipo: categorical
-  Longitud: '1'
-  Categorías:
-    '1': Tiene limitación para moverse, caminar o lo hace con ayuda
-    '9': No se sabe si tiene o no alguna limitación física o mental
-DISBRA:
-  Descripción: Discapacidad_usar sus brazos y manos
-  Tipo: categorical
-  Longitud: '1'
-  Categorías:
-    '2': Tiene limitación para usar sus brazos y manos
-DISOIR:
-  Descripción: Discapacidad_es sordo(a) o usa un aparato para oír
-  Tipo: categorical
-  Longitud: '1'
-  Categorías:
-    '3': Es sordo(a) o utiliza una parato para oir
-DISMUDO:
-  Descripción: Discapacidad_es mudo(a)
-  Tipo: categorical
-  Longitud: '1'
-  Categorías:
-    '4': Es mudo(a)
-DISVER:
-  Descripción: Discapacidad_es ciego o sólo ve sombras
-  Tipo: categorical
-  Longitud: '1'
-  Categorías:
-    '5': Es ciego(a) o sólo ve sombras
-DISMENT:
-  Descripción: Discapacidad_tiene algún retraso o deficiencia mental
-  Tipo: categorical
-  Longitud: '1'
-  Categorías:
-    '6': Tiene algún retraso o deficiencia mental
-DISOTRA_C:
-  Descripción: Discapacidad_tiene otra limitación física o mental
-  Tipo: categorical
-  Longitud: '3'
-  Categorías:
-    '131': Discapacidades de la comunicación y lenguaje
-    '199': Insuficientemente especificadas del grupo de las discapacidades sensoriales y de la comunicación
-    '299': Insuficientemente especificadas del grupo de las discapacidades motrices
-    '399': Insuficientemente especificadas del grupo de las discapacidades mentales
-    '421': Síndromes que se maifiestan con más de una discapacidad
-    '422': Casos donde se incluyen más de dos discapacidades
-    '430': Otro tipo de discapacidades
-    '499': Insuficientemente especificadas del grupo de discapacidades múltiples y otras
-    '960': Discapacidades sin especificar el tipo
-DISOTRA_V:
-  Descripción: Variable auxiliar
-  Tipo: categorical
-  Longitud: '1'
-  Categorías:
-    '7': Tiene dos limitaciones y una no se pudo clasificar en las anteriores
-DISNOTIE:
-  Descripción: Discapacidad_no tiene
-  Tipo: categorical
-  Longitud: '1'
-  Categorías:
-    '8': No tiene limitación física o mental
-CAUSADIS:
-  Descripción: Causa de la discapacidad
-  Tipo: categorical
-  Longitud: '1'
-  Categorías:
-    '1': Porque nació así
-    '2': Por una enfermedad
-    '3': Por un accidente
-    '4': Por edad avanzada
-    '5': Por otra causa
-  Especiales:
-    '9': No especificado
-SERSALUD:
-  Descripción: Uso de servicios de salud
-  Tipo: categorical
-  Longitud: '1'
-  Categorías:
-    '1': En el Seguro Social (IMSS)
-    '2': En el ISSSTE
-    '3': En Pemex Defensa o Marina
-    '4': En el centro de Salud (SSA)
-    '5': En el IMSS Solidaridad
-    '6': En consultorio, clínica u hospital privado
-    '7': Se atiende en otro ugar
-    '8': No se atiende
-    '9': No se sabe si se atiende o no
-RES95EDO_C:
-  Descripción: Entidad o país de residencia en 1995
-  Tipo: string
-  Longitud: '3'
-  Especiales:
-    '600': País no especificado
-    '999': No especificado
-  Nota: 001..032 = Clave de entidad (no enumerados); 100..535 = Clave de país (no enumerados)
-CAUEMI:
-  Descripción: Causa de la emigración
-  Tipo: categorical
-  Longitud: '1'
-  Categorías:
-    '1': Fue a buscar trabajo
-    '2': Fue a reunirse con la familia
-    '3': Cambió su lugar de trabajo
-    '4': Fue a estudiar
-    '5': Se casó o unió
-    '6': Por motivos de salud
-    '7': Por violencia o inseguridad
-    '8': Otra causa
-  Especiales:
-    '9': No especificado
-MUN95OTR_C:
-  Descripción: Municipio de residencia en 1995_en otro municipio
-  Tipo: numeric
-  Longitud: '3'
-  Rango:
-  - 1
-  - 570
+  - 120
   Categorías: {}
   Especiales:
-    '999': No especificado
-HLENGUA:
-  Descripción: Habla algún dialecto o lengua indígena
+    '999': EDAD NO ESPECIFICADA
+CVE_P_NAC:
+  Descripción: LUGAR DE NACIMIENTO
+  Tipo: string
+  Longitud: '3'
+  Catálogo: CATPAISE
+  Nota: códigos del catálogo CATPAISE (240 renglones; no enumerados)
+CVE_P_RES:
+  Descripción: LUGAR DE RESIDENCIA ANTERIOR
+  Tipo: string
+  Longitud: '3'
+  Catálogo: CATPAISE
+  Nota: códigos del catálogo CATPAISE (240 renglones; no enumerados)
+HAB_IND:
+  Descripción: HABLA LENGUA INDIGENA
   Tipo: categorical
   Longitud: '1'
   Categorías:
-    '1': Sí habla algún dialecto
-    '2': No habla algún dialecto
+    '1': SI
+    '2': 'NO'
+    '0': '0'
   Especiales:
-    '9': No especificado
-QDIALECT_C:
-  Descripción: Qué dialecto o lengua habla
-  Tipo: numeric
-  Longitud: '4'
-  Rango:
-  - 111
-  - 1311
-  Categorías: {}
-  Especiales:
-    '5010': Otras lenguas indígenas de México
-    '5020': Otras lenguas indígenas de América
-    '9999': No especificado
-HESPANOL:
-  Descripción: Habla también español
-  Tipo: categorical
-  Longitud: '1'
-  Categorías:
-    '3': Sí habla español
-    '4': No habla español
-  Especiales:
-    '9': No especificado
-ALFABET:
-  Descripción: Alfabetismo
-  Tipo: categorical
-  Longitud: '1'
-  Categorías:
-    '1': Sí sabe leer y escribir
-    '2': No sabe leer y escribir
-  Especiales:
-    '9': No especificado
-ASISTEN:
-  Descripción: Asistencia
-  Tipo: categorical
-  Longitud: '1'
-  Categorías:
-    '1': Sí va a la escuela
-    '2': No va a la escuela
-  Especiales:
-    '9': No especificado
-ABANESCO:
-  Descripción: Causa de abandono escolar
-  Tipo: categorical
-  Longitud: '1'
-  Categorías:
-    '0': Nunca ha ido a la escuela
-    '1': No quiso o no le gustó estudiar
-    '2': Falta de dinero o tenía que trabajar
-    '3': Se caso o unió
-    '4': La escuela estaba muy lejos o no había
-    '5': Su familia ya no lo(a) dejó o por ayudar en las tareas del hogar
-    '6': Terminó sus estudios
-    '7': Otro motivo
-    '8': '8'
-  Especiales:
-    '9': No especificado
-  Nota: 'códigos observados sin etiqueta en el FD: [''8'']'
-ESCOLARI:
-  Descripción: Escolaridad (Número de años aprobados)
-  Tipo: categorical
-  Longitud: '1'
-  Categorías:
-    '0': 0 grados aprobados
-    '1': 1 grado aprobado
-    '2': 2 grados aprobados
-    '3': 3 grados aprobados
-    '4': 4 grados aprobados
-    '5': 5 grados aprobados
-    '6': 6 grados aprobados
-    '7': 7 grados aprobados
-    '8': 8 grados aprobados
-  Especiales:
-    '9': No especificado
-NIVACAD:
-  Descripción: Nivel académico
-  Tipo: categorical
-  Longitud: '1'
-  Categorías:
-    '0': Ninguno
-    '1': Preescolar o kinder
-    '2': Primaria
-    '3': Secundaria
-    '4': Preparatoria o bachillerato
-    '5': Normal
-    '6': Carrera técnica o comercial
-    '7': Profesional
-    '8': Maestría o doctorado
-  Especiales:
-    '9': No especificado
-ANTESC:
-  Descripción: Antecedente escolar (normal, carrera técnica, profesional)
-  Tipo: categorical
-  Longitud: '1'
-  Categorías:
-    '1': Primaria terminada
-    '2': Secundaria terminada
-    '3': Preparatoria terminada
-  Especiales:
-    '9': No especificado
-NOMCAR_C:
-  Descripción: Nombre de la carrera(normal, carrera técnica o comercial, profesional, maestría o doctorado)
+    '9': NO ESPECIFICADO
+  Nota: 'códigos observados sin etiqueta en el FD: [''0'']'
+CVE_LENG:
+  Descripción: CLAVE DE LENGUA INDIGENA
   Tipo: string
   Longitud: '4'
-  Especiales:
-    '9999': No especificado
-  Nota: 0011..2993 = Carreras técnicas (no enumerados); 0011..0991 = Carrera técnica o comercial con antecedente
-    de primaria terminada 0112-2992 (pares) Carrera técnica o comercial con antecedente de secundaria
-    terminada 1113-2993 (nones) Carrera técnica o comercial con antecedente de preparatoria terminada
-    (no enumerados); 3111..4990 = Carreras profesionales (no enumerados); 5110..6990 = Maestría o doctorado
-    (no enumerados); 7110 = Normal básica
-NIVELACAD:
-  Descripción: Nivel académico y antecedente escolar
+  Catálogo: CATLENIN
+  Nota: códigos del catálogo CATLENIN (101 renglones; no enumerados)
+HAB_ESP:
+  Descripción: HABLA ESPAÑOL
   Tipo: categorical
-  Longitud: '2'
+  Longitud: '1'
   Categorías:
-    '00': Sin instrucción
-    '10': Preescolar o kinder
-    '20': Primaria
-    '30': Secundaria
-    '40': Preparatoria
-    '51': Normal con antecedente de primaria terminada
-    '52': Normal con antecedente de secundaria terminada
-    '61': Carrera técnica o comercial con antecedente de primaria terminada
-    '62': Carrera técnica o comercial con antecedente de secundaria terminada
-    '63': Carrera técnica o comercial con antecedente de preparatoria terminada
-    '73': Profesional
-    '80': Maestría o Doctorado
+    '3': SI
+    '4': 'NO'
+    '0': '0'
   Especiales:
-    '90': Nivel no especificado
-ESCOACUM:
-  Descripción: Escolaridad acumulada (años aprobados acumulados)
+    '9': NO ESPECIFICADO
+  Nota: 'códigos observados sin etiqueta en el FD: [''0'']'
+RELIGION:
+  Descripción: RELIGION
+  Tipo: categorical
+  Longitud: '1'
+  Categorías:
+    '1': NINGUNA
+    '2': CATOLICA
+    '3': PROTESTANTE O EVANGELICA
+    '4': JUDAICA
+    '5': OTRA
+    '0': '0'
+  Especiales:
+    '9': NO ESPECIFICADO
+  Nota: 'códigos observados sin etiqueta en el FD: [''0'']'
+ALFABETA:
+  Descripción: ALFABETISMO
+  Tipo: categorical
+  Longitud: '1'
+  Categorías:
+    '1': SABE LEER Y ESCRIBIR ALGUN RECADO
+    '2': NO SABE LEER NI ESCRIBIR ALGUN RECADO
+    '0': '0'
+  Especiales:
+    '9': NO ESPECIFICADO
+  Nota: 'códigos observados sin etiqueta en el FD: [''0'']'
+ASISTE:
+  Descripción: ASISTENCIA
+  Tipo: categorical
+  Longitud: '1'
+  Categorías:
+    '1': ASISTE A LA ESCUELA ACTUALMENTE
+    '2': NO ASISTE A LA ESCUELA ACTUALMENTE
+    '0': '0'
+  Especiales:
+    '9': NO ESPECIFICADO
+  Nota: 'códigos observados sin etiqueta en el FD: [''0'']'
+APROBO:
+  Descripción: APROBO
+  Tipo: categorical
+  Longitud: '1'
+  Categorías:
+    '1': APROBO ALGUN GRADO
+    '2': NO APROBO NINGUN GRADO
+    '0': '0'
+  Especiales:
+    '9': NO ESPECIFICADO
+  Nota: 'códigos observados sin etiqueta en el FD: [''0'']'
+PRESCO:
+  Descripción: PREESCOLAR
+  Tipo: numeric
+  Longitud: '1'
+  Rango:
+  - 0
+  - 3
+  Categorías: {}
+  Nota: 'valores observados bajo el rango del FD: [''0'']'
+TEC_PRIM:
+  Descripción: ESTUDIOS TECNICOS CON PRIMARIA
+  Tipo: numeric
+  Longitud: '1'
+  Rango:
+  - 0
+  - 3
+  Categorías: {}
+  Nota: 'valores observados bajo el rango del FD: [''0'']'
+TEC_SEC:
+  Descripción: ESTUDIOS TECNICOS CON
+  Tipo: numeric
+  Longitud: '1'
+  Rango:
+  - 0
+  - 4
+  Categorías: {}
+  Nota: 'valores observados bajo el rango del FD: [''0'']'
+NOR_BAS:
+  Descripción: NORMAL BASICA
+  Tipo: numeric
+  Longitud: '1'
+  Rango:
+  - 0
+  - 4
+  Categorías: {}
+  Nota: 'valores observados bajo el rango del FD: [''0'']'
+NIV_EST:
+  Descripción: NIVEL DE ESTUDIOS
+  Tipo: categorical
+  Longitud: '1'
+  Categorías:
+    '1': PRIMARIA
+    '2': SECUNDARIA
+    '3': PREPARATORIA
+    '4': PROFESIONAL
+    '5': POSGRADO
+    '0': '0'
+  Nota: 'códigos observados sin etiqueta en el FD: [''0'']'
+ANO_APRO:
+  Descripción: AÑOS APROBADOS
   Tipo: numeric
   Longitud: '2'
   Rango:
   - 0
-  - 24
-  Categorías: {}
-  Especiales:
-    '99': '99'
-OTRAREL_C:
-  Descripción: Otra religión
-  Tipo: numeric
-  Longitud: '4'
-  Rango:
-  - 1
-  - 9001
-  Categorías: {}
-  Especiales:
-    '9100': '9100'
-    '9999': '9999'
-PERETN:
-  Descripción: Pertenencia étnica
-  Tipo: categorical
-  Longitud: '1'
-  Categorías:
-    '1': Sí pertenece a un grupo indígena
-    '2': No pertenece a un grupo indígena
-  Especiales:
-    '9': No especificado
-ESTCON:
-  Descripción: Estado conyugal
-  Tipo: categorical
-  Longitud: '1'
-  Categorías:
-    '1': Vive con su pareja en unión libre
-    '2': Está separado (a)
-    '3': Está divorciado (a)
-    '4': Es viudo (a)
-    '5': Casado(a) sólo por lo civil
-    '6': Casado(a) sólo por la iglesia
-    '7': Casado(a) civil y religiosamente
-    '8': Soltero (a)
-  Especiales:
-    '9': No especificado
-CONACT:
-  Descripción: Condición de actividad
-  Tipo: categorical
-  Longitud: '2'
-  Categorías:
-    '10': Trabajó
-    '13': Se declara que busca trabajo y en la verificación se rescata que trabaja
-    '14': Se declara que es estudiante y en la verificación se rescata que trabaja
-    '15': Se dedica a los quehaceres del hogar y en la verificación se rescata que trabaja
-    '16': Se declara que es jubilado o pensionado y en la verificación se rescata que trabaja
-    '18': Se declara que no trabaja y en la verificación se rescata que trabaja
-    '19': No se tiene información en condición de actividad y en la verficación se rescata que trabaja
-    '20': Tenía trabajo pero no trabajó
-    '30': Busca trabajo
-    '40': Estudiante
-    '50': Se dedica a los quehaceres del hogar
-    '60': Es jubilado o pensionado
-    '70': Está incapacitado permanentemente para trabajar
-    '80': No trabaja
-  Especiales:
-    '99': No especificado
-OCUACTIV_C:
-  Descripción: Ocupación u oficio (actividades)
-  Tipo: numeric
-  Longitud: '4'
-  Rango:
-  - 1100
-  - 8390
-  Categorías: {}
-  Especiales:
-    '9999': No especificado
-SITTRA:
-  Descripción: Situación en el trabajo
-  Tipo: categorical
-  Longitud: '1'
-  Categorías:
-    '1': Empleado(a) u obrero(a)
-    '2': Jornalero(a) o peón
-    '3': Patrón(a)
-    '4': Trabajador(a) por su cuenta
-    '5': Trabajador(a) sin pago en el negocio o predio familiar
-  Especiales:
-    '9': No especificado
-VACACION:
-  Descripción: Prestaciones laborales_ vacaciones pagadas
-  Tipo: categorical
-  Longitud: '1'
-  Categorías:
-    '1': Sí tiene vacaciones pagadas
-    '2': No tiene vacaciones pagadas
-    '9': No se sabe si tiene o no la prestación de vacaciones pagadas
-  Especiales:
-    '3': No se sabe si tiene o no alguna prestación laboral (No especificado general)
-AGUINALD:
-  Descripción: Prestaciones laborales_aguinaldo
-  Tipo: categorical
-  Longitud: '1'
-  Categorías:
-    '3': Sí recibe aguinaldo
-    '4': No recibe aguinaldo
-  Especiales:
-    '9': No especificado
-REPUTIL:
-  Descripción: Prestaciones laborales_reparto de utilidades
-  Tipo: categorical
-  Longitud: '1'
-  Categorías:
-    '5': Sí recibe reparto de utilidades
-    '6': No recibe reparto de utilidades
-  Especiales:
-    '9': No especificado
-SERVMED:
-  Descripción: Prestaciones laborales_servicio médico(IMSS, ISSSTE u otro)
-  Tipo: categorical
-  Longitud: '1'
-  Categorías:
-    '7': Sí recibe servicio médico
-    '8': No recibe servicio médico
-  Especiales:
-    '9': No especificado
-SARAFORE:
-  Descripción: Prestaciones laborales_ahorro para el retiro (SAR o AFORE)
-  Tipo: categorical
-  Longitud: '1'
-  Categorías:
-    '1': Sí recibe SAR o AFORE
-    '2': No recibe SAR o AFORE
-  Especiales:
-    '9': No especificado
-HORTRA:
-  Descripción: Horas trabajadas
-  Tipo: string
-  Longitud: '3'
-  Nota: 000..999 = códigos (no enumerados)
-INGRESOS:
-  Descripción: Ingresos por trabajo mensualizado
-  Tipo: string
-  Longitud: '6'
-  Nota: 000000..999999 = códigos (no enumerados)
-ACTTRAB_C:
-  Descripción: Actividad económica (dónde trabajó)
-  Tipo: numeric
-  Longitud: '3'
-  Rango:
-  - 110
-  - 939
-  Categorías: {}
-  Especiales:
-    '999': No especificado
-LTRABMUN_C:
-  Descripción: Lugar de trabajo_otro municipio
-  Tipo: numeric
-  Longitud: '3'
-  Rango:
-  - 1
-  - 570
-  Categorías: {}
-  Especiales:
-    '999': No especificado
-LTRABPAI_C:
-  Descripción: Lugar de trabajo_otro estado o país
-  Tipo: string
-  Longitud: '3'
-  Especiales:
-    '600': País no especificado
-    '999': No especificado
-  Nota: 001..032 = Clave de entidad (no enumerados); 100..535 = Clave de país (no enumerados)
-JUBPENR:
-  Descripción: Otros ingresos_jubilación o pensión
-  Tipo: categorical
-  Longitud: '1'
-  Categorías:
-    '1': Sí recibe otros ingresos por jubilación o pensión
-    '2': No recibe otros ingresos por jubilación o pensión
-  Especiales:
-    '9': No especificado
-JUBPENC:
-  Descripción: Ingresos_jubilación o pensión (mensualizado)
-  Tipo: string
-  Longitud: '6'
-  Nota: 000000..999999 = códigos (no enumerados)
-AYUFAOPR:
-  Descripción: Otros ingresos_ayuda familiar otro país
-  Tipo: categorical
-  Longitud: '1'
-  Categorías:
-    '3': Sí recibe otros ingresos por ayuda familiar otro país
-    '4': No recibe otros ingresos por ayuda familiar otro país
-  Especiales:
-    '9': No especificado
-AYUFAOPC:
-  Descripción: Ingresos_ayuda familiar otro país
-  Tipo: string
-  Longitud: '6'
-  Nota: 000000..999999 = códigos (no enumerados)
-AYUFADPR:
-  Descripción: Otros ingresos_ayuda familiar dentro del país
-  Tipo: categorical
-  Longitud: '1'
-  Categorías:
-    '5': Sí recibe otros ingresos por ayuda familiar dentro del país
-    '6': No recibe otros ingresos por ayuda familiar dentro del país
-  Especiales:
-    '9': No especificado
-AYUFADPC:
-  Descripción: Ingreso_ayuda familiar dentro del país (mensualizado)
-  Tipo: string
-  Longitud: '6'
-  Nota: 000000..999999 = códigos (no enumerados)
-PROCAMPR:
-  Descripción: Otros ingresos_Procampo o Progresa
-  Tipo: categorical
-  Longitud: '1'
-  Categorías:
-    '7': Sí recibe otros ingresos por Procampo o Progresa
-    '8': No recibe otros ingresos por Procampo o Progresa
-  Especiales:
-    '9': No especificado
-PROCAMPC:
-  Descripción: Ingreso_Procampo o Progresa (mensualizado)
-  Tipo: string
-  Longitud: '6'
-  Nota: 000000..999999 = códigos (no enumerados)
-OTROTIPR:
-  Descripción: Otro tipo como becas, renta, intereses bancarios
-  Tipo: categorical
-  Longitud: '1'
-  Categorías:
-    '1': Sí recibe otros ingresos como becas, renta, intereses bancarios
-    '2': No recibe otros ingresos como becas, renta, intereses bancarios
-  Especiales:
-    '9': No especificado
-OTROTIPC:
-  Descripción: Otro tipo como becas, renta, intereses bancarios (ingreso mensualizado)
-  Tipo: string
-  Longitud: '6'
-  Nota: 000000..999999 = códigos (no enumerados)
-OTINGPER:
-  Descripción: Otros ingresos por persona
-  Tipo: string
-  Longitud: '6'
-  Nota: 000000..999999 = códigos (no enumerados)
-INGTOPER:
-  Descripción: Ingresos totales por persona
-  Tipo: string
-  Longitud: '6'
-  Nota: 000000..999999 = códigos (no enumerados)
-NUMHIJ:
-  Descripción: Total de hijos nacidos vivos
-  Tipo: numeric
-  Longitud: '2'
-  Rango:
-  - 0
-  - 25
-  Categorías: {}
-  Especiales:
-    '98': No se sabe si tiene hijos nacidos vivos o no
-    '99': Se sabe que tiene hijos nacidos vivos pero no se sabe cuántos
-  Nota: 00 = No tiene hijos nacidos vivos
-HIJFAL:
-  Descripción: Cuántos hijos han muerto
-  Tipo: numeric
-  Longitud: '2'
-  Rango:
-  - 0
-  - 25
-  Categorías: {}
-  Especiales:
-    '99': '99'
-  Nota: 00 = No tiene hijos fallecidos
-HIJSOB:
-  Descripción: Cuántos hijos viven actualmente
-  Tipo: numeric
-  Longitud: '2'
-  Rango:
-  - 0
-  - 25
-  Categorías: {}
-  Especiales:
-    '99': '99'
-  Nota: 00 = No tiene hijos vivos actualmente
-FECNACM:
-  Descripción: Fecha de nacimiento (mes)
-  Tipo: numeric
-  Longitud: '2'
-  Rango:
-  - 1
-  - 12
-  Categorías: {}
-  Especiales:
-    '99': '99'
-FECNACA:
-  Descripción: Fecha de nacimiento (año)
-  Tipo: numeric
-  Longitud: '4'
-  Rango:
-  - 1929
-  - 2000
-  Categorías: {}
-  Especiales:
-    '9999': '9999'
-SOBREVI:
-  Descripción: Este último vive actualmente
-  Tipo: categorical
-  Longitud: '1'
-  Categorías:
-    '1': Sí vive actualmente su último hijo
-    '2': No vive actualmente su último hijo
-  Especiales:
-    '9': No especificado
-EDAMORD:
-  Descripción: Edad al morir (días)
-  Tipo: numeric
-  Longitud: '2'
-  Rango:
-  - 0
-  - 29
-  Categorías: {}
-  Especiales:
-    '98': Murió antes de cumplir un mes de nacido
-    '99': No se sabe la edad a la que murió
-  Nota: 00 = Murió antes de cumplir un día de nacido
-EDAMORM:
-  Descripción: Edad al morir (meses)
-  Tipo: numeric
-  Longitud: '2'
-  Rango:
-  - 1
   - 11
   Categorías: {}
   Especiales:
-    '98': Murió antes de cumplir un año pero no se sabe la edad
-EDAMORA:
-  Descripción: Edad al morir (años)
+    '99': NO ESPECIFICADO
+  Nota: 'valores observados bajo el rango del FD: [''00'']'
+CVE_CAR:
+  Descripción: CLAVE DE CARRERA
+  Tipo: string
+  Longitud: '5'
+  Catálogo: CATPROFE
+  Nota: códigos del catálogo CATPROFE (1045 renglones; no enumerados)
+H_V_TENIDO:
+  Descripción: NUMERO DE HIJOS NACIDOS VIVOS
   Tipo: numeric
   Longitud: '2'
   Rango:
-  - 1
-  - 98
+  - 0
+  - 25
   Categorías: {}
+  Especiales:
+    '99': HIJOS NACIDOS VIVOS NO ESPECIFICADO
+V_ACTUAL:
+  Descripción: NUMERO DE HIJOS SOBREVIVIENTES
+  Tipo: numeric
+  Longitud: '2'
+  Rango:
+  - 0
+  - 25
+  Categorías: {}
+  Especiales:
+    '99': HIJOS VIVOS ACTUALMENTE NO ESPECIFICADO
+EST_CIVIL:
+  Descripción: ESTADO CIVIL
+  Tipo: categorical
+  Longitud: '1'
+  Categorías:
+    '1': UNION LIBRE
+    '2': CASADO(A) CIVIL Y RELIGIOSAMENTE
+    '3': CASADO(A) SOLO POR EL CIVIL
+    '4': CASADO(A) SOLO RELIGIOSAMENTE
+    '5': SEPARADO(A)
+    '6': DIVORCIADO(A)
+    '7': VIUDO(A)
+    '8': SOLTERO(A)
+    '0': '0'
+  Especiales:
+    '9': NO ESPECIFICADO
+  Nota: 'códigos observados sin etiqueta en el FD: [''0'']'
+ACT_PRIN:
+  Descripción: ACTIVIDAD PRINCIPAL
+  Tipo: categorical
+  Longitud: '1'
+  Categorías:
+    '1': TRABAJO
+    '2': TENÍA TRABAJO PERO NO TRABAJO
+    '3': BUSCO TRABAJO
+    '4': ES ESTUDIANTE
+    '5': SE DEDICA A LOS QUEHACERES DE SU HOGAR
+    '6': ESTA JUBILADO O PENSIONADO
+    '7': ESTA INCAPACITADO PERMANENTEMENTE PARA TRABAJAR
+    '8': NO TRABAJO POR OTRAS RAZONES
+    '0': '0'
+  Especiales:
+    '9': NO ESPECIFICADO
+  Nota: 'códigos observados sin etiqueta en el FD: [''0'']'
+CVE_OCUP:
+  Descripción: CLAVE DE OCUPACION
+  Tipo: string
+  Longitud: '4'
+  Catálogo: CATOCUPA
+  Nota: códigos del catálogo CATOCUPA (643 renglones; no enumerados)
+SIT_TRAB:
+  Descripción: SITUACION EN EL TRABAJO
+  Tipo: categorical
+  Longitud: '1'
+  Categorías:
+    '1': EMPLEADO U OBRERO
+    '2': JORNALERO O PEON
+    '3': TRABAJADOR POR SU CUENTA
+    '4': PATRON O EMPRESARIO
+    '5': TRABAJADOR SIN PAGO EN EL NEGOCIO O PREDIO FAMILIAR
+    '0': '0'
+  Especiales:
+    '9': NO ESPECIFICADO
+  Nota: 'códigos observados sin etiqueta en el FD: [''0'']'
+HORAS:
+  Descripción: HORAS TRABAJADAS EN LA SEMANA
+  Tipo: numeric
+  Longitud: '3'
+  Rango:
+  - 0
+  - 168
+  Categorías: {}
+  Especiales:
+    '999': HORAS TRABAJADAS NO ESPECIFICADO
+C_A_ECO:
+  Descripción: CLAVE DE ACTIVIDAD ECONOMICA
+  Tipo: string
+  Longitud: '5'
+  Catálogo: CATACTEC
+  Nota: códigos del catálogo CATACTEC (293 renglones; no enumerados)
+PERIODO:
+  Descripción: PERIODO
+  Tipo: string
+  Longitud: '1'
+INGRESO:
+  Descripción: INGRESO
+  Tipo: string
+  Longitud: '8'
+  Categorías: {}
+  Nota: catálogo de 1 códigos (no enumerado)
