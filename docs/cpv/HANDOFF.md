@@ -1,7 +1,7 @@
 # CPV family — session handoff
 
-**Status (2026-10-08, overnight): units 0–3c and 4a are complete; 3d is half done (its
-release waits for `wsl`). Next: unit 4b.**
+**Status (2026-10-08, overnight): units 0–3c, 4a and 4b are complete; 3d is half done.
+Every release (registry + upload) waits for `wsl`. Next: unit 5a.**
 - **Released** (registered, uploaded, fetchable): the Encuesta Intercensal 2025 and the
   Censo 2020.
 - **Built, not registered or uploaded**:
@@ -13,6 +13,7 @@ release waits for `wsl`). Next: unit 4b.**
   | 3c | 2010 ITER/AGEB, 64 |
   | 3d | MG 2010, 160 |
   | 4a | CGPV 2000 + Conteo 2005 microdata, 192 |
+  | 4b | 2000/2005 ITER, 64; MG 2000/2005, 192 |
 
   They upload together once `wsl` is back (§Release batch). The 2010/2015 Σ `FACTOR`
   equal INEGI's tabulados exactly. 2000's `FACTOR` is a ratio estimator on preliminary
@@ -30,6 +31,9 @@ session without their input, and allowed commits, pushes and HF uploads (not pac
 installs). A fresh session should confirm with the user before relying on that.
 
 Design: [`PLAN.md`](PLAN.md). Recent units:
+- [`STEP_4b.md`](STEP_4b.md): 2000/2005 ITER, the crosswalk over four censuses
+  (description auto-pairs, `Renombrar` per edition), INEGI's two broken 2000 ITER rows
+  (repaired by the loader), the municipal MGs 2000/2005;
 - [`STEP_4a.md`](STEP_4a.md): 2000/2005 microdata, PDF/split-layout FDs, composite keys,
   households, `Recodificar`;
 - [`STEP_3d.md`](STEP_3d.md): the national-ZIP MG builder, MG 2010;
@@ -41,9 +45,9 @@ Branch: `cpv-integration`, version **0.6.0** (`main` = `v0.6.0`). The registry s
 
 **Host state.**
 - **The Mac** holds the whole CPV mirror:
-  - every CPV file of 2000–2025 (673: 2020/2025 from the bucket, 2010/2015 rebuilt from
+  - every CPV file of 2000–2025 (737: 2020/2025 from the bucket, 2010/2015 rebuilt from
     INEGI, 2000/2005 built here);
-  - MG 2010 (160) and the legacy census files;
+  - MG 2000/2005/2010 (192 + 160) and the legacy census files;
   - every dictionary in `data/dict/fd/` (2000–2025);
   - the cached INEGI ZIPs, including the 2000/2005 ITER and the 1995/2000/2005 MG ZIPs
     (the latter in the session scratchpad, re-downloadable).
@@ -56,68 +60,75 @@ Branch: `cpv-integration`, version **0.6.0** (`main` = `v0.6.0`). The registry s
 
 > Continue the CPV census-family integration in this repo (branch cpv-integration).
 > Read docs/cpv/HANDOFF.md first, then the parts of docs/cpv/PLAN.md it points to, and
-> execute unit 4b (CGPV 2000 + Conteo 2005 ITER and their crosswalk entries, the 2000/2005
-> municipal Marco Geoestadístico; their release joins the pending batch) following the
-> session protocol at the top of PLAN.md. If wsl is reachable, do the pending release batch
-> first (HANDOFF §Release batch). Use .venv/bin/python, not uv run. Run wsl tasks without
-> asking; ask me before committing, pushing, installing packages or uploading. When the
-> unit's gate is met, write docs/cpv/STEP_4b.md, tick the unit table, rewrite HANDOFF.md for
-> unit 5a, update the memory note, ask me before committing, and give me the next handoff
-> prompt.
+> execute unit 5a (1990 + 1995 ITER from DBF, their crosswalk entries) following the session
+> protocol at the top of PLAN.md. If wsl is reachable, do the pending release batch first
+> (HANDOFF §Release batch). Use .venv/bin/python, not uv run. Run wsl tasks without asking;
+> ask me before committing, pushing, installing packages or uploading. When the unit's gate
+> is met, write docs/cpv/STEP_5a.md, tick the unit table, rewrite HANDOFF.md for unit 5b,
+> update the memory note, ask me before committing, and give me the next handoff prompt.
 
-## Next unit — 4b: 2000 + 2005 ITER, crosswalk, municipal MGs
+## Next unit — 5a: 1990 + 1995 ITER (DBF) + crosswalk
 
-Gate: `--validate` 0 with the 2000/2005 ITER, a reviewed crosswalk, and the MG files built.
-"Uploaded" waits for `wsl` (§Release batch).
+Gate: `--validate` 0 with the 1990/1995 ITER, and their crosswalk entries reviewed.
 
-1. **ITER build**: `build_cpv.py --periods 2000 2005 --tables iter` (ZIPs cached on the
-   Mac).
-   - The CSVs look like 2010's: lower-case names, a BOM before a quoted header, total rows
-     `mun=000`/`loc=0000`, the 9998/9999 aggregates.
-   - 2000 has 132 columns and the markers `*`/`N/D`; 2005 has 130 and `*` (state 01).
-     Enumerate the markers over all 32 states, then add `_AGG_SPECIALS["2000"/"2005"]`.
-   - The indicator dictionaries are fetched (`data/dict/fd/{2000,2005}/diccionario_datos_iter.csv`).
-2. **Crosswalk** (`build_cpv.py --crosswalk`, generated; the review is code: `_XW_PAIRS`,
-   `_XW_RENAME`, `_XW_NOTES`, `_XW_NOT_COMPARABLE`):
-   - add 2005/2000 to `_XW_PERIODS`;
-   - 2005 renames most mnemonics (`p_total`, `p_mas`, `p_fem`, `o_vivpar`…), 2000 fewer
-     (`pmascul`, `pfemeni`, `ocuvivpar`…). Only 15 (2000) / 28 (2005) names equal a
-     canonical indicator, and 30/49 more match a 2010/2020 description exactly;
-   - draft the pairs by normalized description, then review them by hand (the age groups,
-     education and income bands differ).
-3. **Loaders**: `load_cpv_iter(2000|2005)` (no AGEB file in either year, so no
-   `load_cpv_census`). Check `NIVEL`, the 9998/9999 rows, the zero imputation and the
-   counts types (`_AGG_CODES` for `TAM_LOC` if present).
-4. **Municipal MGs** (`build_marco_geo.py --period 2000|2005|1995`, national ZIPs):
-   - 2000 = `mge2000`/`mgm2000`/`mgau2000`; its AGEB shapefile is `agebs_urb_2000`, so
-     `_NATIONAL_LAYERS`' `^ageb_urb` must become `^agebs?_urb`. Its `bitacora` CSV is a
-     change log.
-   - 2005 = `mge`/`mgm`/`mgau` 2005v_1_0, but **its `Entidades`/`Municipios` shapefiles have
-     no `.prj`**: take the CRS of the edition's AGEB layer (it has one) after checking the
-     extents agree, or set it explicitly with a note.
-   - 1995 = `mge1995`/`mgm1995` only (unit 5b builds it).
-   - Check counts against the ITER municipalities (2,443 in 2000; 2,454 in 2005).
-5. Metadata (Mac): `--schema-map --report-only --variables --validate --crosswalk`; tests;
-   STEP_4b; HANDOFF.
+1. **Probe** one ZIP per edition (`STEP_0_probe.md`: `ccpv/{1990,1995}/microdatos/iter/
+   {NN}_{slug}_{year}_iter_dbf.zip`, members `ITER_{NN}DBF90.dbf` / `ITER_{NN}DBF95.dbf`;
+   `HIST_SLUG` names the states). Check the DBF code page (`_dbf.sniff_encoding`), the
+   total rows, the 9998/9999 aggregates and the reserved-cell markers.
+2. **Build**: `_ENABLED` += 1990, 1995, then `--periods 1990 1995 --tables iter`. Their
+   microdata (1990 `personas`, 1995 `hogares`/`migrantes`) belong to 5b; keep the CLI
+   guard test on an edition still disabled, or drop it if none is left.
+3. **Dictionary**: there is no indicator CSV and no DDI. Look inside the ITER ZIPs first,
+   then INEGI's `doc/` folder (`fd_cgpv1990.pdf`, `fd_encuesta_cpv1995.pdf` are microdata
+   FDs). Without descriptions:
+   - the dictionaries come from the DBF fields + data, flagged;
+   - the crosswalk cannot auto-pair by description, so pair by hand. The mnemonics differ:
+     1990 `P_TOTAL`/`HOMBRES`…, 1995 `POBTOTAL`/`POBTMAS`…
+4. **Crosswalk**: `_XW_PERIODS` += 1995, 1990 (still newest first); `_XW_DESC_PERIODS` only
+   where a dictionary gives descriptions; manual `_XW_PAIRS_RENAMED`/`_KEPT` with notes.
+5. **Loaders**: `load_cpv_iter(1990|1995)`. Check:
+   - `NIVEL` and the level sums (as in `test_iter_2000_2005_real`);
+   - the published national totals (1990: 81,249,645; 1995: 91,158,290 — verify);
+   - `_repair_spilled_names` (a spilled name would show up as a non-numeric count).
+6. Metadata (Mac): `--schema-map --report-only --variables --validate --crosswalk`; tests;
+   STEP_5a; HANDOFF.
 
 ## Release batch (needs `wsl`; 3d's gate, then 4b/5b's)
+
+Everything built since 3a, in one registry update and one upload:
+
+| unit | files | count |
+|---|---|---|
+| 3a | `cpv_{viviendas,personas}_2015_NN` | 64 |
+| 3b | `cpv_{viviendas,personas,migrantes}_2010_NN` | 96 |
+| 3c | `cpv_{iter,ageb}_2010_NN` | 64 |
+| 3d | `mg_{ent,mun,a,l,lpr}_2010_NN` | 160 |
+| 4a | `cpv_{viviendas,personas,migrantes}_2000_NN`, `cpv_{viviendas,hogares,personas}_2005_NN` | 192 |
+| 4b | `cpv_iter_{2000,2005}_NN` | 64 |
+| 4b | `mg_{ent,mun,a}_{2000,2005}_NN` | 192 |
+
+Total: 832 files, and more from 5a/5b.
 
 1. Bring `wsl:~/mxcensus` to the branch: `git status`; remove the untracked 3b leftovers
    (`scripts/_dbf.py`, the old `variables_cpv_*_g0*.yaml` it lists); `git checkout -- .`;
    `git pull --ff-only`.
-2. Put the Mac-built files on `wsl`: rebuild them there (`build_cpv.py --periods 2000 2005
-   --tables viviendas hogares personas migrantes` takes ~1 min; `build_marco_geo.py
-   --period 2010 --no-registry`), or `scp` them. Compare `sha256sum` of every 2010/2015
-   file on both hosts: the builds are deterministic, so any difference is a finding.
+2. Put the Mac-built files on `wsl`. Either rebuild them there:
+   - `build_cpv.py --periods 2000 2005` (all their tables, ~1 min);
+   - `build_marco_geo.py --period 2010|2005|2000 --no-registry` (the national ZIPs are
+     cached on the Mac under `data/cache/mg_{period}_national.zip`);
+
+   or `scp` them. Compare `sha256sum` of every 2010/2015 file on both hosts (and of the
+   Mac-built ones after a rebuild): the builds are deterministic, so any difference is a
+   finding.
 3. Registry:
-   - `build_cpv.py --update-registry` adds the 64 + 160 + 192 `cpv_` files, plus 4b's ITER
-     if done;
-   - `build_marco_geo.py --period 2010 --update-registry` adds 160 more;
+   - `build_cpv.py --update-registry` adds the `cpv_` files;
+   - `build_marco_geo.py --period 2010|2005|2000 --update-registry` adds the MG files;
    - the diff must be additions only.
 4. `upload_hf.py upload --dry-run`, then `upload` (never `--delete`); then `verify` in the
    background and a clean-cache `POOCH.fetch` with the unpatched loaders.
 5. CLI/docs:
-   - `fetch --dataset cpv --edition 2000|2005|2010|2015`, `--dataset mg --edition 2010`;
+   - `fetch --dataset cpv --edition 2000|2005|2010|2015`, `--dataset mg --edition
+     2000|2005|2010`;
    - README (the 2015/2010/2005/2000 prose, the ITER/AGEB loaders, `load_cpv_hogares`),
      CLAUDE.md counts, `docs/hf_bucket_readme.md`;
    - version 0.7.0, then the merge into `main` + tag if the user wants it as in 2b.
@@ -140,6 +151,10 @@ Gate: `--validate` 0 with the 2000/2005 ITER, a reviewed crosswalk, and the MG f
     separate.
   - (4a) the core `Recodificar` key (2000/2005 `SEXO` 2 → 3, applied by `harmonize=True`).
   - (4a) the 2000 weight check is a bound against the ITER, not an equality.
+  - (4b) the crosswalk's automatic description pairs (renamed by `harmonize=True`) and the
+    reviewed keep-name pairs; `Renombrar` as a list of editions.
+  - (4b) `load_cpv_iter` repairs INEGI's two broken 2000 ITER rows (the mirror keeps them).
+  - (4b) MG 2005's entities/municipalities take the AGEB layer's CRS (no `.prj`).
 
 ## Gotchas (carry forward)
 
@@ -199,8 +214,20 @@ Gate: `--validate` 0 with the 2000/2005 ITER, a reviewed crosswalk, and the MG f
 - **Core edits** change the verbatim copies in the generated YAMLs. Rerun `--variables`
   or `test_core_yaml_contract` fails. Core entries are copied **as scoped**
   (`cpv._scoped_entry`: `Recodificar` → `Alias` for its editions).
-- **Aggregate sentinels**: `build_cpv._AGG_SPECIALS` per edition (2020 `*`/`N/D`/`N/A`,
-  2010 `*`/`N/D`). 2000/2005 need theirs (4b).
+- **Aggregate sentinels**: `build_cpv._AGG_SPECIALS` per edition (2020 `*`/`N/D`/`N/A`;
+  2010 and 2000 `*`/`N/D`; 2005 `*`). 1990/1995 need theirs (5a).
+- **ITER gids** (4b): 2000 = `g01`, 2005 = `g02`, 2010 = `g03`, 2020 = `g04`; AGEB 2010 =
+  `g01`, 2020 = `g02`.
+- **Crosswalk** (4b): `_XW_PERIODS` newest first; older editions auto-pair by normalized
+  description (`_XW_DESC_PERIODS`, rejected pairs in `_XW_UNPAIR`); `_XW_PAIRS_RENAMED`
+  vs `_XW_PAIRS_KEPT` (+ `_XW_NOTES`). `Renombrar` lists editions, and
+  `cpv._renames(table, periods)` renames only the frame's own edition.
+- **Indicator ranges** (4b): `parse_indicator_csv` reads `00..9999999999` (all zeros to
+  all nines) as a count, other zero-padded ranges as codes. The averages' decimals come
+  from the values (`label_frame` makes non-integral columns `Float64`).
+- **MG national editions** (3d/4b): each frame names its codes its own way
+  (`_ENTITY_COLUMNS`/`_ENTITY_PREFIX_COLUMNS`); a layer without `.prj` takes the
+  edition's declared CRS (`_edition_crs`). Attribute names stay INEGI's.
 - **`ageb_14` (2020) is cp1252**; the 2015 CSVs are cp1252 too (one ASCII file sniffs
   UTF-8). The sniff handles both.
 - **Metadata modes need the full mirror** (`--schema-map`, `--variables`, `--report-only`

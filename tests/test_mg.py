@@ -143,29 +143,41 @@ def test_national_layer_names_and_state_codes():
     assert list(_bmg._state_codes(f)) == ["01", "32"]               # AGEBs: CVEGEO only
     f = gpd.GeoDataFrame({"cve_ent": [1, 9]}, geometry=[None, None])
     assert list(_bmg._state_codes(f)) == ["01", "09"]
+    for col, value in (("CVE_EDO", "20"), ("CVEMUNI", "20157"), ("CLVAGB", "200010001293-5"),
+                       ("CLAVE", "200010001287A"), ("CVE_CONCA", "20453")):   # 2000/2005 names
+        assert list(_bmg._state_codes(gpd.GeoDataFrame({col: [value]}, geometry=[None]))) == ["20"]
     with pytest.raises(ValueError, match="no entity column"):
         _bmg._state_codes(gpd.GeoDataFrame({"NOM": ["x"]}, geometry=[None]))
 
 
-def test_build_national_splits_per_state(tmp_path, monkeypatch, capsys):
-    """MG 2010 is one national ZIP of per-layer ZIPs; each layer is split per state."""
+def _national_zip(tmp_path, layers: dict, drop_prj=()) -> Path:
+    """A national MG ZIP of per-layer ZIPs (``{shapefile stem: frame}``); the stems in
+    ``drop_prj`` are shipped without their ``.prj`` (MG 2005's entities/municipalities)."""
     import zipfile
     src = tmp_path / "src"
-    src.mkdir()
-    ent = pd.concat([_mun_frame(1, _PRJ_CUSTOM, 1), _mun_frame(2, _PRJ_CUSTOM, 1)])
-    ent = ent.drop(columns="CVE_MUN")
-    ageb = ent.drop(columns="CVE_ENT").assign(CVEGEO=["0100100010010", "0200100010021"])
+    src.mkdir(exist_ok=True)
     national = tmp_path / "national.zip"
     with zipfile.ZipFile(national, "w") as outer:
-        for stem, frame in (("Entidades_2010_5", ent), ("AGEB_urb_2010_5", ageb),
-                            ("otra_capa", ent)):
+        for stem, frame in layers.items():
             frame.to_file(src / f"{stem}.shp")
+            if stem in drop_prj:
+                (src / f"{stem}.prj").unlink()
             inner = src / f"{stem}.zip"
             with zipfile.ZipFile(inner, "w") as z:
                 for part in src.glob(f"{stem}.*"):
                     if part.suffix != ".zip":
                         z.write(part, part.name)
             outer.write(inner, inner.name)
+    return national
+
+
+def test_build_national_splits_per_state(tmp_path, monkeypatch, capsys):
+    """MG 2010 is one national ZIP of per-layer ZIPs; each layer is split per state."""
+    ent = pd.concat([_mun_frame(1, _PRJ_CUSTOM, 1), _mun_frame(2, _PRJ_CUSTOM, 1)])
+    ent = ent.drop(columns="CVE_MUN")
+    ageb = ent.drop(columns="CVE_ENT").assign(CVEGEO=["0100100010010", "0200100010021"])
+    national = _national_zip(tmp_path, {"Entidades_2010_5": ent, "AGEB_urb_2010_5": ageb,
+                                        "otra_capa": ent})
     monkeypatch.setattr(_bmg.bc, "fetch_zip_verified", lambda *a, **k: national)
     out = tmp_path / "out"
     out.mkdir()
@@ -178,6 +190,29 @@ def test_build_national_splits_per_state(tmp_path, monkeypatch, capsys):
     assert not (tmp_path / "raw" / "mg" / "2010" / "national").exists()    # cleaned up
     assert [p.name for p in _bmg._national_built(out, [1, 2], ["ent", "a"], "2010")] == \
         ["mg_ent_2010_01.parquet", "mg_a_2010_01.parquet"]
+
+
+def test_build_national_layer_without_prj(tmp_path, monkeypatch, capsys):
+    """MG 2005 ships ``Entidades``/``Municipios`` without a ``.prj``: they take the CRS the
+    edition's other layer (``agebs_urb_2005``) declares; 2000's AGEB shapefile is named
+    ``agebs_urb``."""
+    ent = _mun_frame(1, _PRJ_CUSTOM, 1).drop(columns="CVE_MUN")
+    ageb = ent.drop(columns="CVE_ENT").assign(CVEGEO=["0100100010010"])
+    national = _national_zip(tmp_path, {"Entidades_2005": ent, "agebs_urb_2005": ageb},
+                             drop_prj={"Entidades_2005"})
+    monkeypatch.setattr(_bmg.bc, "fetch_zip_verified", lambda *a, **k: national)
+    out = tmp_path / "out"
+    out.mkdir()
+    written = _bmg._build_national("2005", [1], ["ent", "a"], out, tmp_path / "cache",
+                                   tmp_path / "raw", 0)
+    assert sorted(p.name for p in written) == ["mg_a_2005_01.parquet", "mg_ent_2005_01.parquet"]
+    assert gpd.read_parquet(out / "mg_ent_2005_01.parquet").crs.equals(CRS.from_wkt(_PRJ_CUSTOM))
+    assert "Entidades_2005.shp: no .prj" in capsys.readouterr().out
+    (tmp_path / "x").mkdir()
+    lone = _national_zip(tmp_path / "x", {"Entidades_2005": ent}, drop_prj={"Entidades_2005"})
+    monkeypatch.setattr(_bmg.bc, "fetch_zip_verified", lambda *a, **k: lone)
+    with pytest.raises(ValueError, match="no .prj and the others do not declare"):
+        _bmg._build_national("2005", [1], ["ent"], out, tmp_path / "cache", tmp_path / "raw2", 0)
 
 
 # --- load_mg (offline) ------------------------------------------------------------------
@@ -396,3 +431,33 @@ def test_real_mg_2010_counts(local_mirror):
     mun = mxcensus.load_mg("mun", state=1, period="2010")
     assert len(mun) == 11 and mun.crs.equals(CRS.from_epsg(6372))
     assert set(mun["CVE_ENT"]) == {"01"} and "CVEGEO" not in mun      # 2010: no CVEGEO here
+
+
+# The municipal frames of 2000 and 2005 (national ZIPs, three layers each). Their
+# municipalities equal the ITER's: 2,443 in 2000 (2,480 polygons, CVEMUNI repeats for
+# multi-part municipalities) and 2,454 in 2005. MG 2005's entities and municipalities ship
+# without a .prj and take the CRS of its AGEB layer; their state centroids lie a median
+# ~100 m from MG 2010's.
+_MG_OLD = {"2000": {"ent": 32, "mun": 2_480, "a": 40_089},
+           "2005": {"ent": 32, "mun": 2_454, "a": 49_212}}
+
+
+@pytest.mark.parametrize("period", sorted(_MG_OLD))
+def test_real_mg_2000_2005(local_mirror, period):
+    counts = _MG_OLD[period]
+    if not all((_MIRROR / mg_filename(sfx, s, period)).exists()
+               for sfx in counts for s in range(1, 33)):
+        pytest.skip(f"MG {period} not on disk for all 32 states")
+    import pyarrow.parquet as pq
+    for sfx, expected in counts.items():
+        assert sum(pq.read_metadata(_MIRROR / mg_filename(sfx, s, period)).num_rows
+                   for s in range(1, 33)) == expected, (period, sfx)
+    mun = mxcensus.load_mg("mun", state=list(range(1, 33)), period=period)
+    key = {"2000": "CVEMUNI", "2005": "CVE_CONCA"}[period]
+    assert mun[key].nunique() == {"2000": 2_443, "2005": 2_454}[period]
+    assert mun.crs.equals(CRS.from_epsg(6372))
+    ent = mxcensus.load_mg("ent", state=1, period=period)
+    ent10 = mxcensus.load_mg("ent", state=1, period="2010") if (
+        _MIRROR / mg_filename("ent", 1, "2010")).exists() else None
+    if ent10 is not None:                       # the same state, the same place
+        assert ent.union_all().centroid.distance(ent10.union_all().centroid) < 2_000

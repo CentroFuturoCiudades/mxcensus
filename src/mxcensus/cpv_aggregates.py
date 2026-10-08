@@ -16,6 +16,7 @@ joinable with the microdata (:mod:`mxcensus.cpv`) and the Marco Geoestadístico.
 """
 from __future__ import annotations
 
+import warnings
 from collections.abc import Sequence
 from pathlib import Path
 
@@ -184,9 +185,38 @@ def _impute_zeros(coarse: pd.DataFrame, fine: pd.DataFrame) -> pd.DataFrame:
     return out
 
 
+def _repair_spilled_names(df: pd.DataFrame, label: str) -> pd.DataFrame:
+    """Undo INEGI's broken name quoting in an ITER row (harmonized names).
+
+    The CGPV 2000 ITER CSV has two locality rows whose name contains ", " and spilled into
+    the next field: Oaxaca 277-0101 «V» + «, LA (R» and Querétaro 012-0011 «D» + «, LA». From
+    ``LONGITUD`` on every value sits one column to the right, and the row's last value is
+    lost. Such a row (``LONGITUD`` starting with ", ") gets the spill back on ``NOM_LOC``,
+    its values one column to the left and the last one missing. Its coordinates stay
+    truncated as published. The repaired counts make the localities add up to their
+    municipality exactly (POBTOT 143 and 3,402 where the spilled row read the altitude).
+    The mirror and :func:`mxcensus.load_cpv` keep the row verbatim."""
+    if not {"NOM_LOC", "LONGITUD"} <= set(df.columns):
+        return df
+    bad = df["LONGITUD"].fillna("").str.match(r"^,\s").to_numpy(bool)
+    if not bad.any():
+        return df
+    df = df.copy()
+    rest = list(df.columns[df.columns.get_loc("LONGITUD"):])
+    values = df.loc[bad, rest].to_numpy(dtype=object)
+    df.loc[bad, "NOM_LOC"] = df.loc[bad, "NOM_LOC"] + df.loc[bad, "LONGITUD"]
+    df.loc[bad, rest] = np.concatenate([values[:, 1:], np.full((bad.sum(), 1), None)], axis=1)
+    rows = (df.loc[bad, "CVEGEO"] if "CVEGEO" in df.columns else df.index[bad]).tolist()
+    warnings.warn(f"CPV {label}: repaired {int(bad.sum())} ITER row(s) whose locality name "
+                  f"spilled into LONGITUD (values shifted back one column): {rows}.",
+                  stacklevel=3)
+    return df
+
+
 def _load_aggregate(table: str, period, state, survey_path) -> tuple[pd.DataFrame, str]:
     raw, gids, label = _load_cpv_raw(survey_path, table=table, period=period, state=state,
                                      harmonize=True)
+    raw = _repair_spilled_names(raw, label)
     variables = _labels_for(table, gids)
     df = _sg.label_frame(raw, variables, family="CPV", skip=_SKIP)
     schema = _sg.build_labelled_schema(df.columns, variables, skip=_SKIP)
@@ -221,8 +251,12 @@ def load_cpv_iter(
     missing values of that column in its localities are 0 (``aggregate.impute_zeros_
     univariate`` of the legacy loader).
 
-    ``period`` defaults to the latest census with ITER (2020). The indicators keep each
-    edition's own names (2010 and 2020 share most of them; see ``cpv_iter_crosswalk``).
+    ``period`` defaults to the latest census with ITER (2020); 2000, 2005 and 2010 load
+    the same way. The frame is harmonized: the indicators the crosswalk renames take the
+    canonical (2020) name (CPV 2010 ``TAM_LOC``, Conteo 2005 ``P_TOTAL``/``P_MAS``…, CGPV
+    2000 ``PMASCUL``/``OCUVIVPAR``…); every other indicator keeps its edition's name (see
+    ``cpv_iter_crosswalk``). Two CGPV 2000 rows whose name spilled into ``LONGITUD`` in
+    INEGI's CSV are repaired, with a warning (:func:`_repair_spilled_names`).
     """
     levels = None if nivel is None else _choice(nivel, NIVELES_ITER, "nivel")
     df, label = _load_aggregate("iter", period, state, survey_path)

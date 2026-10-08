@@ -298,22 +298,32 @@ _GEO_REGEX: dict[str, str] = {
 
 
 @functools.cache
-def _crosswalk_renames(table: str) -> dict[str, str]:
-    """Older ITER/AGEB spellings that harmonize=True renames onto the canonical indicator
-    (``Renombrar`` in ``cpv_iter_crosswalk.yaml``; CPV 2010 ``TAM_LOC`` → ``TAMLOC``)."""
+def _crosswalk_renames(table: str, periods: tuple[str, ...] | None = None) -> dict[str, str]:
+    """Older ITER/AGEB spellings that harmonize=True renames onto the canonical indicator:
+    the editions an entry lists under ``Renombrar`` in ``cpv_iter_crosswalk.yaml`` (CPV 2010
+    ``TAM_LOC`` → ``TAMLOC``; Conteo 2005 ``P_TOTAL`` → ``POBTOT``…). Only the editions in
+    ``periods`` (a frame's; ``None`` = every edition), since one edition's old name may be
+    another's indicator."""
     out: dict[str, str] = {}
     for canon, entry in cpv_iter_crosswalk().items():
-        if entry.get("Renombrar") and table in (entry.get("Tablas") or ()):
-            out.update({src: canon for key, src in entry.items()
-                        if str(key).isdigit() and src != canon})
+        editions = entry.get("Renombrar") or ()
+        if editions is True:                         # legacy spelling: every edition
+            editions = [k for k in entry if str(k).isdigit()]
+        if table not in (entry.get("Tablas") or ()):
+            continue
+        for period in editions:
+            src = entry.get(str(period))
+            if src and src != canon and (periods is None or str(period) in periods):
+                out[src] = canon
     return out
 
 
-def _renames(table: str) -> dict[str, str]:
+def _renames(table: str, periods: Iterable | None = None) -> dict[str, str]:
     """The core renames that apply to ``table``: :data:`_RENAME_CORE` plus the table's own
-    (:data:`_RENAME_TABLE`) and, for the census aggregates, the crosswalk's
-    (:func:`_crosswalk_renames`)."""
-    extra = _crosswalk_renames(table) if table in _RENAME_TABLE else {}
+    (:data:`_RENAME_TABLE`) and, for the census aggregates, the crosswalk's for the
+    editions ``periods`` (:func:`_crosswalk_renames`)."""
+    key = None if periods is None else tuple(sorted(str(p) for p in periods))
+    extra = _crosswalk_renames(table, key) if table in _RENAME_TABLE else {}
     return {**_RENAME_CORE, **_RENAME_TABLE.get(table, {}), **extra}
 
 
@@ -415,7 +425,7 @@ def _harmonize(df: pd.DataFrame, table: str, label: str = "",
     """
     out = df.copy()
     out.columns = [c.upper() for c in out.columns]
-    rename = {s: t for s, t in _renames(table).items() if s in out.columns}
+    rename = {s: t for s, t in _renames(table, periods).items() if s in out.columns}
     targets = list(rename.values())
     clash = sorted({t for t in targets if t in out.columns or targets.count(t) > 1})
     if clash:
@@ -490,9 +500,10 @@ def variables_cpv_labels(table: str, gid: str) -> dict:
     variables overlaid by :func:`~mxcensus.variables_cpv_core` (the entries in scope for
     ``table`` and the group's editions, see :func:`_in_scope`), keyed by both the raw and
     the harmonized column names (upper case, :func:`_renames`)."""
-    rename = _renames(table)
+    periods = _group_periods(table, gid)
+    rename = _renames(table, periods)
     merged: dict = {}
-    for src in (variables_cpv(table, gid), _core_for(table, _group_periods(table, gid))):
+    for src in (variables_cpv(table, gid), _core_for(table, periods)):
         for col, meta in src.items():
             merged[col] = meta
             merged[rename.get(col.upper(), col.upper())] = meta

@@ -484,6 +484,8 @@ _AGG_SPECIALS: dict[str, dict[str, str]] = {
     "2020": {"*": "Dato reservado por confidencialidad", "N/D": "No disponible",
              "N/A": "No aplica"},
     "2010": {"*": "Dato reservado por confidencialidad", "N/D": "No disponible"},
+    "2005": {"*": "Dato reservado por confidencialidad"},
+    "2000": {"*": "Dato reservado por confidencialidad", "N/D": "No disponible"},
 }
 
 
@@ -682,30 +684,89 @@ def _write_variables_yaml(out_dir: Path, map_path: Path, yaml_dir: Path,
 
 _DEFAULT_CROSSWALK = _DEFAULT_YAML_DIR / "cpv_iter_crosswalk.yaml"
 # Censuses whose ITER/AGEB the crosswalk spans (newest first: its names are canonical).
-_XW_PERIODS = ("2020", "2010")
-# Hand-reviewed pairs of differently named indicators (canonical → {period: source}) …
-_XW_PAIRS: dict[str, dict[str, str]] = {
+_XW_PERIODS = ("2020", "2010", "2005", "2000")
+# Editions whose differently named indicators pair automatically with a newer indicator of
+# the same description (normalized: case, accents, punctuation), renamed by harmonize=True.
+# CGPV 2000 and Conteo 2005 renamed most mnemonics (P_TOTAL, PMASCUL…) with the
+# descriptions unchanged. The review rejects the automatic pairs in _XW_UNPAIR.
+_XW_DESC_PERIODS = frozenset({"2005", "2000"})
+_XW_UNPAIR = frozenset({("2000", "PCONDISC")})
+# Hand-reviewed pairs of differently named indicators (canonical → {period: source}) that
+# harmonize=True renames onto the canonical name (the same indicator, another name) …
+_XW_PAIRS_RENAMED: dict[str, dict[str, str]] = {
     "TAMLOC": {"2010": "TAM_LOC"},
+    "P_15A49_F": {"2000": "POBF15_49"},
+    "PSINDER": {"2000": "PSDERSS"},
+    "PDER_SS": {"2000": "PCDERSS"},
+    "PDER_IMSS": {"2000": "PDERIMSS"},
+    "PDER_ISTE": {"2000": "PDERISTE"},
+    "P15YM_SE": {"2000": "P15_SINSTR"},
+    "P5_HLI_NHE": {"2000": "P5_HLIYNE"},
+    "P5_HLI_HE": {"2000": "P5_HLIYE"},
+    "PE_INAC": {"2000": "PECOINACT"},
+    "PHOG_IND": {"2005": "P_HOG_IND"},
+    "TOTHOG": {"2005": "TOT_HOG"},
+    "POBHOG": {"2005": "P_HOGAR"},
+    "HOGJEF_M": {"2005": "HOGAR_JM", "2000": "HOGJEFM"},
+    "HOGJEF_F": {"2005": "HOGAR_JF", "2000": "HOGJEFF"},
+    "PHOGJEF_M": {"2005": "P_HOG_JM", "2000": "PHOGJEFM"},
+    "PHOGJEF_F": {"2005": "P_HOG_JF", "2000": "PHOGJEFF"},
+    "OCUPVIVPAR": {"2000": "OCUVIVPAR"},
+    "PROM_OCUP": {"2000": "PRO_OVP"},
+    "PRO_OCUP_C": {"2000": "PRO_OCVP"},
+    "VPH_C_SERV": {"2005": "VPH_DREE", "2000": "VP_AGDREL"},
+    "VPH_NDEAED": {"2005": "VPH_NADE", "2000": "VP_NOADE"},
+    "VPH_TV": {"2000": "VP_TV"},
+    "VPH_RADIO": {"2000": "VP_RADIO"},
+    "VPH_TELEF": {"2000": "VP_TELEF"},
+    "VPH_AUTOM": {"2000": "VP_AUTOM"},
+    # indicators of 2000 and 2005 only (the 2005 name is canonical)
+    "P_6A14_AN": {"2000": "POB6_14"},
+    "P_15A24": {"2000": "POB15_24"},
+    "P_5_NOAE": {"2000": "P5_NAESC"},
+    "P6A14NOA": {"2000": "P6_14NAESC"},
+    "P_15A24A": {"2000": "P15_24AESC"},
+}
+# … and pairs that keep their own name (the same concept, another reference date,
+# universe or definition: see _XW_NOTES).
+_XW_PAIRS_KEPT: dict[str, dict[str, str]] = {
     **{f"PRES2015{s}": {"2010": f"PRES2005{s}"} for s in ("", "_F", "_M")},
     **{f"PRESOE15{s}": {"2010": f"PRESOE05{s}"} for s in ("", "_F", "_M")},
 }
-# … the ones harmonize=True renames (same indicator, another name) …
-_XW_RENAME = frozenset({"TAMLOC"})
+for _canon, _src in {"PRES2015": {"2005": "P_RE2000", "2000": "P5_RES95"},
+                     "PRESOE15": {"2005": "P_OE2000", "2000": "P5_RESO95"},
+                     "PRESOE15_M": {"2005": "P_M_OE2000"},
+                     "PRESOE15_F": {"2005": "P_F_OE2000"},
+                     "PDER_SEGP": {"2005": "P_SEGPOP"},
+                     "PNACOE": {"2000": "PNACOENT"},
+                     "PCATOLICA": {"2000": "P5_CATOLIC"},
+                     "VPH_AGUADV": {"2005": "VPH_AGDV", "2000": "VP_AGUENT"},
+                     "VPH_AGUAFV": {"2005": "VPH_NOAG"},
+                     "VPH_EXCSA": {"2000": "VP_SERSAN"}}.items():
+    _XW_PAIRS_KEPT.setdefault(_canon, {}).update(_src)
+_XW_PAIRS: dict[str, dict[str, str]] = {
+    c: {**_XW_PAIRS_RENAMED.get(c, {}), **_XW_PAIRS_KEPT.get(c, {})}
+    for c in {**_XW_PAIRS_RENAMED, **_XW_PAIRS_KEPT}}
 # … and the notes of the hand review (definition or wording changes between editions).
-_SALUD = ("2010 dice «derechohabiencia», 2020 «afiliación» a servicios de salud (la misma "
-          "pregunta)")
-_JEFATURA = "2010 dice «jefatura», 2020 «persona de referencia» del hogar (el mismo concepto)"
+_SALUD = ("2010 y antes dicen «derechohabiencia», 2020 «afiliación» a servicios de salud (la "
+          "misma pregunta)")
+_JEFATURA = ("2000-2010 dicen «jefatura», 2020 «persona de referencia» del hogar (el mismo "
+             "concepto)")
+_RESIDENCIA = ("residencia cinco años antes: enero de 1995 (2000), octubre de 2000 (2005), junio "
+               "de 2005 (2010), marzo de 2015 (2020); el mismo concepto con otra fecha, por eso no "
+               "se renombra")
 _XW_NOTES: dict[str, str] = {
     "TAMLOC": "la misma escala de 14 clases; 2010 la llama TAM_LOC (harmonize=True la renombra)",
     **{c: _SALUD for c in ("PDER_SS", "PDER_IMSS", "PDER_ISTE", "PDER_ISTEE", "PSINDER")},
-    "PDER_SEGP": ("2010: Seguro Popular o Seguro Médico para una Nueva Generación; 2020: "
-                  "Instituto de Salud para el Bienestar (INSABI) — programas distintos"),
+    "PDER_SEGP": ("2005 y 2010: Seguro Popular (2010 incluye el Seguro Médico para una Nueva "
+                  "Generación); 2020: Instituto de Salud para el Bienestar (INSABI) — programas "
+                  "distintos"),
     **{c: _JEFATURA for c in ("HOGJEF_F", "HOGJEF_M", "PHOGJEF_F", "PHOGJEF_M")},
-    "VPH_PC": "2020 incluye laptop o tablet; 2010 sólo computadora",
+    "VPH_PC": "2020 incluye laptop o tablet; 2005 y 2010 sólo computadora",
     "PSIN_RELIG": "2020 incluye a la población sin adscripción religiosa (creyente)",
-    **{c: ("residencia cinco años antes: junio de 2005 (2010) / marzo de 2015 (2020); el mismo "
-           "concepto con otra fecha, por eso no se renombra")
+    **{c: _RESIDENCIA
        for c in ("PRES2015", "PRES2015_F", "PRES2015_M", "PRESOE15", "PRESOE15_F", "PRESOE15_M")},
+    "PRESOE15": _RESIDENCIA + "; 2000 incluye a quien residía en otro país",
     **{c: ("2010 mide la limitación en la actividad con otra pregunta; sin equivalente en 2020 "
            "(PCON_DISC/PCON_LIMI/PSIND_LIM)")
        for c in ("PCON_LIM", "PCLIM_MOT", "PCLIM_LENG", "PCLIM_AUD", "PCLIM_MEN", "PCLIM_MEN2",
@@ -718,9 +779,29 @@ _XW_NOTES: dict[str, str] = {
     "PRO_CRIEVA": "2010 agrupa de otro modo (PNCATOLICA incluye las bíblicas no evangélicas)",
     "POTRAS_REL": ("el contenido depende de la agrupación de cada censo (PNCATOLICA 2010 / "
                    "PRO_CRIEVA 2020)"),
+    "PCONDISC": ("2000: población con alguna limitación física o mental (otra pregunta); no se "
+                 "empareja con PCON_DISC de 2020, que usa la escala de dificultad"),
+    "PNACOE": "2000 (PNACOENT) incluye a la población nacida en otro país",
+    "PCATOLICA": "2000 (P5_CATOLIC) cuenta sólo a la población de 5 años y más",
+    "VPH_AGUADV": ("2000 (VP_AGUENT): agua entubada (dentro o fuera de la vivienda); 2005 "
+                   "(VPH_AGDV): agua entubada de la red pública; 2010 y 2020: en el ámbito de la "
+                   "vivienda"),
+    "VPH_AGUAFV": "2005 (VPH_NOAG): sin agua entubada de la red pública",
+    "VPH_EXCSA": "2000 (VP_SERSAN): servicio sanitario exclusivo de la vivienda",
+    "P15YM_SE": "2000 (P15_SINSTR) dice «sin instrucción»",
+    "PHOG_IND": "2005 dice «hogares indígenas», 2010 y 2020 «hogares censales indígenas»",
+    "VPH_C_SERV": ("2000 y 2005: agua entubada, drenaje y energía eléctrica; la definición de "
+                   "agua entubada cambia entre censos (VPH_AGUADV)"),
 }
 # Indicators present in both editions under the same name that measure different things.
 _XW_NOT_COMPARABLE = frozenset({"PCLIM_VIS", "PCLIM_MOT2", "PDER_SEGP"})
+
+
+def _xw_norm(meta: dict) -> str:
+    """An indicator's description folded for matching (case, accents, punctuation, spaces;
+    «Po blación» → «poblacion», the 2000 dictionary's stray space)."""
+    text = re.sub(r"[^a-z0-9 ]", " ", fd._fold(meta.get("Descripción") or ""))
+    return " ".join(text.replace("po blacion", "poblacion").split())
 
 
 def _edition_columns(schema_map: dict, table: str, period: str) -> list[str]:
@@ -741,16 +822,30 @@ def _write_crosswalk(dict_dir: Path, path: Path, map_path: Path = _DEFAULT_SCHEM
     review's ``Nota``. Descriptions come from the indicator dictionaries fetched by
     ``--dictionary``."""
     schema_map = yaml.safe_load(map_path.read_text(encoding="utf-8"))
-    docs = {(p, t): {k.strip().upper(): v for k, v in
-                     fd.parse_indicator_csv(_indicator_dict_path(dict_dir, p, t)).items()}
-            for p in _XW_PERIODS for t in ("iter", "ageb")}
-    paired = {src: canon for canon, by in _XW_PAIRS.items() for src in by.values()}
+    docs = {}
+    for p in _XW_PERIODS:
+        for t in ("iter", "ageb"):
+            dpath = _indicator_dict_path(dict_dir, p, t)
+            if dpath.exists():
+                docs[(p, t)] = {k.strip().upper(): v
+                                for k, v in fd.parse_indicator_csv(dpath).items()}
+    paired = {(p, src): canon for canon, by in _XW_PAIRS.items() for p, src in by.items()}
+    renamed = {(p, canon) for canon, by in _XW_PAIRS_RENAMED.items() for p in by}
     out: dict[str, dict] = {}
+    by_desc: dict[str, list[str]] = defaultdict(list)       # newer editions' descriptions
     for period in _XW_PERIODS:                       # newest first: canonical names
+        new_desc: dict[str, list[str]] = defaultdict(list)
         for table in ("iter", "ageb"):
             for name in _edition_columns(schema_map, table, period):
-                meta = docs[(period, table)].get(name) or {}
-                canon = name if period == _XW_PERIODS[0] else paired.get(name, name)
+                meta = docs.get((period, table), {}).get(name) or {}
+                canon = name if period == _XW_PERIODS[0] else paired.get((period, name), name)
+                if (period in _XW_DESC_PERIODS and (period, name) not in paired
+                        and (period, name) not in _XW_UNPAIR and canon not in out):
+                    hits = [c for c in dict.fromkeys(by_desc.get(_xw_norm(meta), []))
+                            if period not in out[c]]
+                    if len(hits) == 1:               # the same description, another name
+                        canon = hits[0]
+                        renamed.add((period, canon))
                 entry = out.setdefault(canon, {"Descripción": meta.get("Descripción", ""),
                                                "Tablas": []})
                 if not entry["Descripción"]:
@@ -758,21 +853,26 @@ def _write_crosswalk(dict_dir: Path, path: Path, map_path: Path = _DEFAULT_SCHEM
                 if table not in entry["Tablas"]:
                     entry["Tablas"].append(table)
                 entry.setdefault(period, name)
+                if meta.get("Descripción"):
+                    new_desc[_xw_norm(meta)].append(canon)
+        for key, canons in new_desc.items():
+            by_desc[key] += canons
     for canon, entry in out.items():
-        if canon in _XW_RENAME:
-            entry["Renombrar"] = True
+        periods = [p for p in _XW_PERIODS if (p, canon) in renamed and entry.get(p, canon) != canon]
+        if periods:
+            entry["Renombrar"] = periods
         if canon in _XW_NOT_COMPARABLE:
             entry["Comparable"] = False
         if canon in _XW_NOTES:
             entry["Nota"] = _XW_NOTES[canon]
     header = ("# CPV census aggregates (ITER, AGEB) — indicator crosswalk across editions.\n"
               "# Generated by scripts/build_cpv.py --crosswalk from INEGI's indicator\n"
-              "# dictionaries and the hand review in _XW_PAIRS/_XW_RENAME/_XW_NOTES; do not\n"
-              "# edit by hand. Key = canonical (newest edition's) mnemonic; '2010'/'2020' = the\n"
+              "# dictionaries and the hand review in build_cpv._XW_*; do not\n"
+              "# edit by hand. Key = canonical (newest edition's) mnemonic; '2000'…'2020' = the\n"
               "# column of that edition (upper case, as harmonize=True writes it; absent = the\n"
-              "# edition has no such indicator); Renombrar = harmonize=True renames the older\n"
-              "# spelling onto the key; Comparable: false = the same name measures another\n"
-              "# thing in each edition; Nota = a definition or wording change.\n")
+              "# edition has no such indicator); Renombrar = the editions whose spelling\n"
+              "# harmonize=True renames onto the key; Comparable: false = the same name measures\n"
+              "# another thing in each edition; Nota = a definition or wording change.\n")
     path.parent.mkdir(parents=True, exist_ok=True)
     with open(path, "w", encoding="utf-8") as f:
         f.write(header)

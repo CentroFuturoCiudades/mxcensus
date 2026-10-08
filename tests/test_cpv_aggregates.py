@@ -124,10 +124,13 @@ def test_indicator_doc_codes_and_ageb_fallback(tmp_path):
 # --- bundled metadata: groups, dictionaries, crosswalk ------------------------------------------
 
 def test_schema_map_aggregate_groups():
-    for table, n10, n20 in (("iter", 200, 286), ("ageb", 198, 230)):
+    """ITER: 2000, 2005, 2010, 2020 (chronological gids); AGEB: 2010 and 2020 only (no AGEB
+    product for 2000/2005)."""
+    for table, editions in (("iter", {"2000": 132, "2005": 130, "2010": 200, "2020": 286}),
+                            ("ageb", {"2010": 198, "2020": 230})):
         g = _SM[table]["groups"]
-        assert [m["periods"] for m in g.values()] == [["2010"], ["2020"]]
-        assert g[_gid(table, "2010")]["n_columns"] == n10 and g[_gid(table, "2020")]["n_columns"] == n20
+        assert [m["periods"] for m in g.values()] == [[p] for p in editions]
+        assert {p: g[_gid(table, p)]["n_columns"] for p in editions} == editions
         assert all(m["files"] == 32 for m in g.values())
         assert _SM[table]["latest"] == _gid(table, "2020")
 
@@ -145,14 +148,17 @@ def test_aggregate_dictionaries():
 
 def test_crosswalk_covers_every_column_once():
     xw = cpv_iter_crosswalk()
-    for table in ("iter", "ageb"):
-        for period in ("2010", "2020"):
+    for table, periods in (("iter", ("2000", "2005", "2010", "2020")), ("ageb", ("2010", "2020"))):
+        for period in periods:
             cols = [c.upper() for c in _SM[table]["groups"][_gid(table, period)]["columns"]]
             sources = [e[period] for e in xw.values() if period in e and table in e["Tablas"]]
             assert sorted(sources) == sorted(cols), (table, period)
     assert all(e.get("Descripción") for e in xw.values())
-    renamed = {k: e for k, e in xw.items() if e.get("Renombrar")}
-    assert renamed == {"TAMLOC": xw["TAMLOC"]} and xw["TAMLOC"]["2010"] == "TAM_LOC"
+    renamed = {k: e["Renombrar"] for k, e in xw.items() if e.get("Renombrar")}
+    assert renamed["TAMLOC"] == ["2010"] and xw["TAMLOC"]["2010"] == "TAM_LOC"
+    assert {p for ps in renamed.values() for p in ps} == {"2010", "2005", "2000"}
+    assert all(xw[k][p] != k for k, ps in renamed.items() for p in ps)    # only real renames
+    assert [k for k, ps in renamed.items() if "2010" in ps] == ["TAMLOC"]
     assert {k for k, e in xw.items() if e.get("Comparable") is False} == {
         "PCLIM_VIS", "PCLIM_MOT2", "PDER_SEGP"}
     assert xw["PRES2015"]["2010"] == "PRES2005" and not xw["PRES2015"].get("Renombrar")
@@ -362,3 +368,128 @@ def test_iter_editions_stack(local_mirror):
     geography = {"ENTIDAD", "MUN", "LOC"}                      # renamed onto CVE_*
     assert {"POBTOT", "TAMLOC", "VPH_PC"} <= set(shared) - geography <= set(both.columns)
     assert both.loc["2010", "TAMLOC"].notna().any()
+
+
+# --- unit 4b: CGPV 2000 + Conteo 2005 ITER (renamed mnemonics, crosswalk) -----------------
+
+def test_indicator_ranges_2005_counts(tmp_path):
+    """Conteo 2005 writes every count's range as 00..9999999999: a quantity (all zeros up to
+    all nines), unlike a zero-padded code space (00…32, 001..570)."""
+    sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "scripts"))
+    import _dict_fd as fd
+    csv = ("Núm.,Indicador,Descripción,Mnemónico,Rangos,Longitud\n"
+           "1,Clave de Entidad,Clave,ENTIDAD,01..32,2\n"
+           "2,Clave de entidad (estimaciones),Clave,CVE_ENT,00…32,2\n"
+           "3,Población total,Total,P_TOTAL,00..9999999999,10\n"
+           "4,Clave de Localidad,Clave,LOC,0001..9999,4\n")
+    (tmp_path / "d.csv").write_text(csv, encoding="utf-8")
+    doc = fd.parse_indicator_csv(tmp_path / "d.csv", {"*": "Reservado"})
+    assert {k: m["Tipo"] for k, m in doc.items()} == {
+        "ENTIDAD": "string", "CVE_ENT": "string", "P_TOTAL": "numeric", "LOC": "string"}
+    assert doc["P_TOTAL"]["Especiales"] == {"*": "Reservado"}
+
+
+def test_crosswalk_2000_2005_pairs():
+    xw = cpv_iter_crosswalk()
+    assert xw["POBTOT"]["2005"] == "P_TOTAL" and xw["POBTOT"]["2000"] == "POBTOT"
+    assert xw["POBTOT"]["Renombrar"] == ["2005"]
+    assert xw["POBFEM"]["2000"] == "PFEMENI" and xw["POBFEM"]["Renombrar"] == ["2005", "2000"]
+    assert xw["OCUPVIVPAR"]["2000"] == "OCUVIVPAR" and "2000" in xw["OCUPVIVPAR"]["Renombrar"]
+    # another reference date / universe / definition: paired, not renamed, with a note
+    for canon, period, src in (("PRES2015", "2005", "P_RE2000"), ("PRES2015", "2000", "P5_RES95"),
+                               ("VPH_AGUADV", "2005", "VPH_AGDV"), ("PNACOE", "2000", "PNACOENT"),
+                               ("PDER_SEGP", "2005", "P_SEGPOP")):
+        assert xw[canon][period] == src and period not in (xw[canon].get("Renombrar") or [])
+        assert xw[canon].get("Nota"), canon
+    assert "2000" not in xw["PCON_DISC"] and xw["PCONDISC"]["2000"] == "PCONDISC"   # unpaired
+    assert xw["P_6A14_AN"] == {**xw["P_6A14_AN"], "2005": "P_6A14_AN", "2000": "POB6_14"}
+    assert "2010" not in xw["P_6A14_AN"]                    # an indicator of 2000/2005 only
+    sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "scripts"))
+    import build_cpv as b
+    assert b._xw_norm({"Descripción": "Po blación femenina de 15 a 49 años"}) == \
+        b._xw_norm({"Descripción": "Población femenina de 15 a 49 años"})
+
+
+def test_crosswalk_renames_are_edition_scoped():
+    """A rename applies only to the edition it was reviewed for."""
+    assert _cpv._renames("iter", ["2005"])["P_TOTAL"] == "POBTOT"
+    assert "P_TOTAL" not in _cpv._renames("iter", ["2020"])
+    assert _cpv._renames("iter", ["2000"])["PFEMENI"] == "POBFEM"
+    assert "TAM_LOC" not in _cpv._renames("iter", ["2005"])
+    assert _cpv._renames("iter")["P_TOTAL"] == "POBTOT"            # periods unknown: all
+    f = pd.DataFrame({"entidad": ["01"], "mun": ["000"], "loc": ["0000"], "p_total": ["5"],
+                      "p_re2000": ["4"]}, dtype=str)
+    ctx = _no_warnings()
+    h = _cpv._harmonize(f, "iter", periods=("2005",))
+    ctx.__exit__(None, None, None)
+    assert list(h.columns) == ["CVEGEO", "CVE_ENT", "CVE_MUN", "CVE_LOC", "POBTOT", "P_RE2000"]
+
+
+_ITER_OLD = {p: [s for s in range(1, 33) if (_MIRROR / cpv_filename("iter", p, s)).exists()]
+             for p in ("2000", "2005")}
+# INEGI's published totals: XII Censo 2000 and II Conteo 2005 (Aguascalientes; national).
+_POBTOT_OLD = {("2000", 1): 944_285, ("2005", 1): 1_065_416}
+_NATIONAL_OLD = {"2000": 97_483_412, "2005": 103_263_388}
+
+
+def test_repair_spilled_names():
+    cols = ["CVEGEO", "NOM_LOC", "LONGITUD", "LATITUD", "ALTITUD", "POBTOT", "POBMAS"]
+    df = pd.DataFrame([["202770001", "VILLA", "0965840", "163053", "1400", "1722", "772"],
+                       ["202770101", "V", ", LA (R", "097003", "1632", "1570", "143"]],
+                      columns=cols)
+    with pytest.warns(UserWarning, match=r"repaired 1 ITER row.*'202770101'"):
+        out = ca._repair_spilled_names(df, "t")
+    assert out.iloc[0].tolist() == df.iloc[0].tolist()
+    assert out.iloc[1].tolist()[:6] == ["202770101", "V, LA (R", "097003", "1632", "1570", "143"]
+    assert pd.isna(out.iloc[1]["POBMAS"])                       # the lost last value
+    assert ca._repair_spilled_names(df.iloc[:1], "t") is not None        # nothing to repair
+
+
+# The 2000 ITER rows whose name spilled into LONGITUD (repaired by the loader, with a warning).
+_SPILLED_2000 = {20, 22}
+
+
+@pytest.mark.parametrize("period,state", [(p, s) for p in ("2000", "2005") for s in _ITER_OLD[p]])
+def test_iter_2000_2005_real(local_mirror, period, state):
+    if period == "2000" and state in _SPILLED_2000:
+        with pytest.warns(UserWarning, match="spilled into LONGITUD"):
+            it = mxcensus.load_cpv_iter(period, state=state)
+    else:
+        ctx = _no_warnings()
+        it = mxcensus.load_cpv_iter(period, state=state)
+        ctx.__exit__(None, None, None)
+    lvl = {n: it[it["NIVEL"] == n] for n in ("estatal", "municipal", "localidad")}
+    pob = int(lvl["estatal"]["POBTOT"].iloc[0])
+    assert pob == int(lvl["municipal"]["POBTOT"].sum()) == int(lvl["localidad"]["POBTOT"].sum())
+    assert (period, state) not in _POBTOT_OLD or pob == _POBTOT_OLD[(period, state)]
+    assert {"POBMAS", "POBFEM", "TVIVHAB", "OCUPVIVPAR"} <= set(it.columns)   # renamed
+    assert str(it["POBTOT"].dtype) == "Int64" and str(it["PROM_OCUP"].dtype) == "Float64"
+    assert it.index.is_unique and set(it["CVEGEO"].str.len()) == {9}
+
+
+@pytest.mark.skipif(any(len(v) < 32 for v in _ITER_OLD.values()), reason="needs all 32 states")
+def test_iter_2000_2005_national(local_mirror):
+    for period, total in _NATIONAL_OLD.items():
+        assert sum(int(pd.read_parquet(_MIRROR / cpv_filename("iter", period, s),
+                                       filters=[("mun", "==", "000"), ("loc", "==", "0000")])
+                       .iloc[:, 9].iloc[0]) for s in range(1, 33)) == total
+
+
+@pytest.mark.skipif(20 not in _ITER_OLD["2000"], reason="no local 2000 ITER for state 20")
+def test_iter_2000_broken_rows_kept_verbatim():
+    """INEGI's 2000 ITER has two locality rows whose name spills into LONGITUD (Oaxaca 277
+    0101, Querétaro 012 0011); the mirror keeps them as published (``load_cpv_iter``
+    repairs them, :func:`test_repair_spilled_names`)."""
+    df = pd.read_parquet(_MIRROR / cpv_filename("iter", "2000", 20))
+    row = df[(df["mun"] == "277") & (df["loc"] == "0101")].iloc[0]
+    assert row["nom_loc"] == "V" and row["longitud"] == ", LA (R"
+
+
+@pytest.mark.skipif(not all(_ITER_OLD[p][:1] == [1] for p in _ITER_OLD), reason="no state 01")
+def test_iter_editions_stack_2000_2020(local_mirror):
+    frames = {p: mxcensus.load_cpv_iter(p, state=1) for p in ("2000", "2005", "2010", "2020")}
+    both = pd.concat(frames, names=["PERIOD"])
+    st = both[both["NIVEL"] == "estatal"]["POBTOT"].droplevel(["CVE_ENT", "CVE_MUN", "CVE_LOC"])
+    assert st.to_dict() == {"2000": 944_285, "2005": 1_065_416, "2010": 1_184_996,
+                            "2020": 1_425_607}
+    assert both["OCUPVIVPAR"].notna().groupby(level="PERIOD").any().all()

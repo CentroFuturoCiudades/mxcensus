@@ -227,7 +227,7 @@ def _built_files(
 _NATIONAL_LAYERS: tuple[tuple[str, str], ...] = (
     (r"^entidades", "ent"),
     (r"^municipios", "mun"),
-    (r"^ageb_urb", "a"),
+    (r"^agebs?_urb", "a"),                 # 2000: agebs_urb_2000
     (r"^localidades_urbanas", "l"),
     (r"^localidades_rurales", "lpr"),
 )
@@ -264,15 +264,39 @@ def _national_layer_paths(period: str, cache_dir: Path, raw_dir: Path,
     return paths, extract_dir
 
 
+def _edition_crs(period: str, paths: dict[str, Path]):
+    """The one CRS the edition's layers declare, for a layer shipped without a ``.prj``
+    (MG 2005: ``Entidades``/``Municipios`` have none, ``agebs_urb_2005`` has one). Raises
+    unless every layer with a ``.prj`` declares the same CRS."""
+    from pyproj import CRS
+    found = [CRS.from_user_input(c) for p in paths.values()
+             if (c := pyogrio.read_info(p).get("crs"))]
+    if not found or any(not c.equals(found[0]) for c in found[1:]):
+        raise ValueError(f"MG {period}: a layer has no .prj and the others do not declare "
+                         f"one common CRS ({len(found)} declared)")
+    return found[0]
+
+
+# Where each national edition keeps the entity: a 2-digit code column, else the first two
+# characters of a longer key. 2010: CVE_ENT, or CVEGEO (AGEBs); 2005: CVE_EDO, or CLAVE
+# (AGEBs, 13 characters); 2000: CVE_ENT, CVEMUNI (municipalities, entity + municipality),
+# CLVAGB (AGEBs, «010010001293-5»); 1995: CVE_ENT.
+_ENTITY_COLUMNS = ("CVE_ENT", "CVE_EDO")
+_ENTITY_PREFIX_COLUMNS = ("CVEGEO", "CVE_CONCA", "CVEMUNI", "CLVAGB", "CLAVE")
+
+
 def _state_codes(gdf: gpd.GeoDataFrame) -> pd.Series:
-    """Each feature's entity code: ``CVE_ENT``, else the first two characters of
-    ``CVEGEO`` (MG 2010's urban AGEBs carry only the 13-character key)."""
+    """Each feature's entity code (:data:`_ENTITY_COLUMNS`, else the first two characters
+    of a :data:`_ENTITY_PREFIX_COLUMNS` key)."""
     cols = {c.upper(): c for c in gdf.columns}
-    if "CVE_ENT" in cols:
-        return gdf[cols["CVE_ENT"]].astype(str).str.zfill(2)
-    if "CVEGEO" in cols:
-        return gdf[cols["CVEGEO"]].astype(str).str[:2]
-    raise ValueError(f"no entity column (CVE_ENT/CVEGEO) in {list(gdf.columns)}")
+    for name in _ENTITY_COLUMNS:
+        if name in cols:
+            return gdf[cols[name]].astype(str).str.zfill(2)
+    for name in _ENTITY_PREFIX_COLUMNS:
+        if name in cols:
+            return gdf[cols[name]].astype(str).str[:2]
+    raise ValueError(f"no entity column ({'/'.join(_ENTITY_COLUMNS + _ENTITY_PREFIX_COLUMNS)}) "
+                     f"in {list(gdf.columns)}")
 
 
 def _build_national(period: str, states: list[int], suffixes: list[str], out_dir: Path,
@@ -285,7 +309,11 @@ def _build_national(period: str, states: list[int], suffixes: list[str], out_dir
     for suffix in suffixes:
         if suffix not in paths:
             continue                       # the edition has no such layer
-        gdf = _normalize(gpd.read_file(paths[suffix]))
+        gdf = gpd.read_file(paths[suffix])
+        if gdf.crs is None:
+            gdf = gdf.set_crs(_edition_crs(period, paths))
+            print(f"  ! {paths[suffix].name}: no .prj — the edition's CRS of its other layers")
+        gdf = _normalize(gdf)
         codes = _state_codes(gdf)
         unknown = sorted(set(codes) - {STATE_CODE_FMT(s) for s in range(1, 33)})
         if unknown:

@@ -891,8 +891,12 @@ def parse_indicator_csv(path: Path, specials: dict[str, str] | None = None
         rng = " ".join(r[col["rangos"]].split())
         # "0 … 100.00", "00...32"; CPV 2020 also has the typo "0.,.999999999"
         bounds = [b for b in re.split(r"\s*(?:…|[.,]{2,})\s*", rng) if b]
+        # a zero-padded lower bound is a code space (00…32, 001..570), except an all-zeros
+        # one up to all nines: Conteo 2005 writes every count as 00..9999999999
         numeric = (len(bounds) == 2 and all(re.fullmatch(r"-?\d+(\.\d+)?", b) for b in bounds)
-                   and not (len(bounds[0]) > 1 and bounds[0].startswith("0")))
+                   and (not (len(bounds[0]) > 1 and bounds[0].startswith("0"))
+                        or (re.fullmatch(r"0+", bounds[0]) is not None
+                            and re.fullmatch(r"9{5,}", bounds[1]) is not None)))
         meta = {"Descripción": r[col["indicador"]].strip(),
                 "Definición": " ".join(r[col["descripcion"]].split()),
                 "Tipo": "numeric" if numeric else "string",
