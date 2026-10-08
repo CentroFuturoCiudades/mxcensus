@@ -1,8 +1,7 @@
 # CPV family — session handoff
 
-**Status (2026-10-08): units 0–6e are done. `main` = v0.7.0 (through 6c); 6d and 6e are on
-`cpv-integration` (code and docs, no data); the user chose to merge them together at the
-end of 6e (ask first; v0.7.1 is the user's call). No unit is queued.**
+**Status (2026-10-08): units 0–6e are done. `main` = `cpv-integration` = v0.7.1 (through
+6e; 6d + 6e are code and docs only, no data). No unit is queued.**
 - **Released** (registered, uploaded, verified): every edition 1990–2025 (897 `cpv_` files)
   and the Marco Geoestadístico 1995–2025 frames; registry **3751** entries
   (`STEP_6b.md` §Release batch).
@@ -26,7 +25,7 @@ Design: [`PLAN.md`](PLAN.md) (unit table: all ✅). Recent units: [`STEP_6e.md`]
 [`STEP_6c.md`](STEP_6c.md), [`STEP_6b.md`](STEP_6b.md), … [`STEP_0_probe.md`](STEP_0_probe.md).
 
 **Host state.** The Mac and `wsl:~/mxcensus` both hold the full mirror (3751 registered
-files); `wsl:~/mxcensus` is at v0.7.0 (pull before running 6d/6e code there).
+files); `wsl:~/mxcensus` is at v0.7.0 (pull v0.7.1 before running 6d/6e code there).
 `wsl:~/mxcensus3c` (3c's code copy) can be deleted.
 
 ## Kickoff prompt for the next session
