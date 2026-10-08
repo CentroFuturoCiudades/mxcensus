@@ -16,7 +16,12 @@
 # whose Alias maps 1…9 onto 01…09; harmonize=True pads all three) and the Censo 2010
 # cuestionario ampliado (diccionario_cuestionario_ampliado.xls + the 2010 DBF microdata: the
 # same codes for every entry below except CLAVIVP — another classification, so it carries
-# Periodos — and the keys, which are state-scoped serials that harmonize=True rebuilds).
+# Periodos — and the keys, which are state-scoped serials that harmonize=True rebuilds), the
+# muestra censal of the CGPV 2000 (fd_muestra_censal_2000.pdf + the 2000 DBF microdata) and
+# the Conteo 2005 sample (fd_muestra_2005.xls + the 2005 DBF microdata): the same codes,
+# except SEXO, whose 2 = mujer is recoded to 3 (Recodificar); neither has a key column, so the keyed
+# loaders and harmonize=True derive ID_VIV/ID_HOG/ID_PERSONA/ID_MII from the composite parts
+# (mxcensus.cpv._composite_keys).
 #
 # Entry contract (shared with the ENOE/ENIGH cores and the generated files; read by
 # mxcensus._schema_groups):
@@ -37,6 +42,11 @@
 #                every edition. Outside them the column keeps its own dictionary entry, is
 #                not padded by harmonize=True and is not checked against the core (CPV 2010's
 #                CLAVIVP 1…7 is another classification than 2015-2025's 01…09).
+#   Recodificar  (CPV only) {edition: {raw code: canonical code}} — an edition that writes a
+#                category with another code (2000/2005 SEXO 2 = mujer, 3 since 2010). For
+#                that edition the entry gains the map as its Alias (labelling, validation)
+#                and harmonize=True rewrites the raw codes; the other editions keep the
+#                strict codes (SEXO 2 is invalid in 2010-2025).
 # The generated CPV files may also carry informative keys that no code reads: Catálogo
 # (the INEGI classification catalog that enumerates a coded string — occupation, activity,
 # country…), Definición and Rangos (an aggregate indicator's definition and its verbatim
@@ -48,30 +58,43 @@
 # Keys and geographic codes are strings: they keep their zero-padding so files stay joinable
 # (ID_PERSONA[:12] == ID_VIV; CVEGEO == CVE_ENT+CVE_MUN).
 
-# --- record keys: dwelling ⊃ person; dwelling ⊃ international emigrant ------------------
+# --- record keys: dwelling ⊃ (household ⊃) person; dwelling ⊃ international emigrant -----
 ID_VIV:
   Descripción: Identificador único de la vivienda (2015, 2020 y 2025 — 12 dígitos; los dos
     primeros son la entidad, así que es único en todo el país). Los CSV de 2015 lo escriben
     sin el cero inicial de las entidades 01-09 (11 dígitos); harmonize=True lo rellena. En
     2010 es un consecutivo de 8 dígitos único sólo dentro de la entidad; harmonize=True le
-    antepone la entidad (entidad + consecutivo a 10 dígitos).
+    antepone la entidad (entidad + consecutivo a 10 dígitos). 2000 y 2005 no lo traen; se
+    deriva de las partes de la clave — 2000, ENT + MUN + LOC + NUMVIV (15 dígitos); 2005,
+    ENT + MUN + CONS_MUN a 7 dígitos (12).
   Tipo: string
   Longitud: '12'
+ID_HOG:
+  Descripción: Identificador del hogar (sólo 2000 y 2005, las ediciones con nivel hogar) —
+    ID_VIV más el número de hogar a 2 dígitos (2000, NUMHOG; 2005, CONS_HOG). Derivado; los
+    archivos no lo traen.
+  Tipo: string
+  Longitud: 17 / 14
 ID_PERSONA:
   Descripción: Identificador único de la persona — ID_VIV más el número de persona (2020 y
     2025 — 17 dígitos; 2015 — 14, sin el cero inicial de las entidades 01-09 en los CSV;
     harmonize=True lo rellena). 2010 trae ID_PER, un consecutivo de 9 dígitos único dentro de
     la entidad; harmonize=True deriva ID_PERSONA = ID_VIV + NUMPER (5 dígitos, 17 en total).
+    2000 y 2005 no lo traen; se deriva como ID_HOG + el número de persona — 2005, CONS_PER
+    (4 dígitos, 18 en total); 2000 no numera a las personas, así que es su orden dentro del
+    hogar en el archivo (2 dígitos, 19 en total).
   Tipo: string
-  Longitud: 14 / 17
+  Longitud: 14 / 17 / 18 / 19
 ID_MII:
   Descripción: Identificador único del emigrante internacional (tabla de migrantes; 2020 y
     2025 — 14 dígitos, ID_VIV + número de emigrante). Los migrantes cuelgan de la vivienda
     (ID_VIV), no de una persona. 2010 trae ID_MIN, un consecutivo de 7 dígitos único dentro
     de la entidad; harmonize=True deriva ID_MII = ID_VIV + el orden del emigrante en la
-    vivienda según ID_MIN (2 dígitos).
+    vivienda según ID_MIN (2 dígitos). 2000 no lo trae; se deriva como ID_HOG + MPER (2
+    dígitos, 19 en total) — en 2000 los emigrantes cuelgan del hogar. 2005 no tiene tabla de
+    migrantes.
   Tipo: string
-  Longitud: '14'
+  Longitud: 14 / 19
 
 # --- geography ----------------------------------------------------------------------------
 CVEGEO:
@@ -84,14 +107,14 @@ CVEGEO:
   Longitud: 5 / 9 / 16
 CVE_ENT:
   Descripción: Clave del Área Geoestadística Estatal (01-32; 00 = total nacional en las
-    estimaciones). En 2010, 2015 y 2020 se llama ENT en los microdatos; en 2020, ENTIDAD en
-    el ITER y el AGEB.
+    estimaciones). De 2000 a 2020 se llama ENT en los microdatos; en 2020, ENTIDAD en el
+    ITER y el AGEB.
   Tipo: string
   Longitud: '2'
 CVE_MUN:
   Descripción: Clave del Área Geoestadística Municipal (001-570; 000 = total estatal en las
     estimaciones, el ITER y el AGEB; 997 = localidades de menos de 50 000 habitantes de la
-    entidad en las estimaciones). En 2010, 2015 y 2020 se llama MUN.
+    entidad en las estimaciones). De 2000 a 2020 se llama MUN en los microdatos.
   Tipo: string
   Longitud: '3'
 LOC50K:
@@ -141,17 +164,20 @@ COBERTURA:
     '2': Municipio muestreado
     '3': Municipio con muestra insuficiente
 ESTRATO:
-  Descripción: Estrato de diseño muestral (alfanumérico, p. ej. 400-01-001-0003 en 2010,
-    01-001-05 en 2015, 01-001-0000-03 en 2020 y 15-001-0000-030 en 2025)
+  Descripción: Estrato de diseño muestral (alfanumérico, p. ej. 0100101022 en 2000,
+    400-01-001-0003 en 2010, 01-001-05 en 2015, 01-001-0000-03 en 2020 y 15-001-0000-030 en
+    2025; 2005 no tiene diseño expandible)
   Tipo: string
-  Longitud: 9 / 14 / 15
+  Longitud: 9 / 10 / 14 / 15
 UPM:
-  Descripción: Unidad Primaria de Muestreo (4 dígitos en 2010, 6 en 2015, 5 en 2020 y 2025)
+  Descripción: Unidad Primaria de Muestreo (4 dígitos en 2000 y 2010, 6 en 2015, 5 en 2020 y
+    2025)
   Tipo: string
   Longitud: 4 / 5 / 6
 FACTOR:
   Descripción: Factor de expansión (constante dentro de la vivienda; calibrado a las
-    estimaciones publicadas — Σ FACTOR = población / viviendas particulares habitadas)
+    estimaciones publicadas — Σ FACTOR = población / viviendas particulares habitadas). La
+    muestra del Conteo 2005 no tiene factor.
   Tipo: numeric
   Longitud: '5'
   Rango: [1, 99999]
@@ -201,16 +227,22 @@ CLAVIVP:
 
 # --- demographics ---------------------------------------------------------------------------
 SEXO:
-  Descripción: Sexo (códigos 1 y 3 en 2010, 2015, 2020 y 2025)
+  Descripción: Sexo (códigos 1 y 3 en 2010, 2015, 2020 y 2025; 2000 y 2005 escriben a la
+    mujer con 2 — Recodificar; harmonize=True lo lleva a 3)
   Pregunta: (NOMBRE) es hombre. (NOMBRE) es mujer.
   Tipo: categorical
   Longitud: '1'
   Categorías:
     '1': Hombre
     '3': Mujer
+  Recodificar:
+    '2000':
+      '2': '3'
+    '2005':
+      '2': '3'
 EDAD:
-  Descripción: Edad en años cumplidos (0 = menos de un año; en 2015, 110 = 110 y más; 2010 la
-    escribe con tres dígitos, 000-130)
+  Descripción: Edad en años cumplidos (0 = menos de un año; en 2015, 110 = 110 y más; 2000,
+    2005 y 2010 la escriben con tres dígitos, 000-130)
   Pregunta: ¿Cuántos años cumplidos tiene (NOMBRE)?
   Tipo: numeric
   Longitud: '3'

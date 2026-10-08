@@ -62,7 +62,8 @@ ID_VIV:
     la entidad, así que es único en todo el país). Los CSV de 2015 lo escriben sin el cero inicial de
     las entidades 01-09 (11 dígitos); harmonize=True lo rellena. En 2010 es un consecutivo de 8 dígitos
     único sólo dentro de la entidad; harmonize=True le antepone la entidad (entidad + consecutivo a 10
-    dígitos).
+    dígitos). 2000 y 2005 no lo traen; se deriva de las partes de la clave — 2000, ENT + MUN + LOC + NUMVIV
+    (15 dígitos); 2005, ENT + MUN + CONS_MUN a 7 dígitos (12).
   Tipo: string
   Longitud: '12'
 CLAVIVP:
@@ -242,22 +243,22 @@ MPERLS:
   Categorías: {}
 FACTOR:
   Descripción: Factor de expansión (constante dentro de la vivienda; calibrado a las estimaciones publicadas
-    — Σ FACTOR = población / viviendas particulares habitadas)
+    — Σ FACTOR = población / viviendas particulares habitadas). La muestra del Conteo 2005 no tiene factor.
   Tipo: numeric
   Longitud: '5'
   Rango:
   - 1
   - 99999
 ESTRATO:
-  Descripción: Estrato de diseño muestral (alfanumérico, p. ej. 400-01-001-0003 en 2010, 01-001-05 en
-    2015, 01-001-0000-03 en 2020 y 15-001-0000-030 en 2025)
+  Descripción: Estrato de diseño muestral (alfanumérico, p. ej. 0100101022 en 2000, 400-01-001-0003 en
+    2010, 01-001-05 en 2015, 01-001-0000-03 en 2020 y 15-001-0000-030 en 2025; 2005 no tiene diseño expandible)
   Tipo: string
-  Longitud: 9 / 14 / 15
+  Longitud: 9 / 10 / 14 / 15
 UPM:
-  Descripción: Unidad Primaria de Muestreo (4 dígitos en 2010, 6 en 2015, 5 en 2020 y 2025)
+  Descripción: Unidad Primaria de Muestreo (4 dígitos en 2000 y 2010, 6 en 2015, 5 en 2020 y 2025)
   Tipo: string
   Longitud: 4 / 5 / 6
-tam_loc:
+TAM_LOC:
   Descripción: Tamaño de localidad
   Pregunta: Tamaño de localidad
   Tipo: categorical

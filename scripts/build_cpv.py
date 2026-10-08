@@ -19,7 +19,8 @@ memory-mapped and decoded one field at a time by the stdlib reader ``scripts/_db
 the same all-``string`` faithful-raw form (fixed-width padding trimmed, deleted records
 dropped).
 
-Only editions in ``_ENABLED`` build (CPV 2010 — DBF —, EIC 2015, CPV 2020, EIC 2025);
+Only editions in ``_ENABLED`` build (CGPV 2000, Conteo 2005 and CPV 2010 — DBF —, EIC 2015,
+CPV 2020, EIC 2025);
 ``--dry-run`` previews any edition.
 
 Dry run (URLs + member patterns, no download):
@@ -95,8 +96,9 @@ _DEFAULT_DICT_DIR = _REPO_ROOT / "data" / "dict" / "fd"
 _DEFAULT_DDI_DIR = _REPO_ROOT / "data" / "dict" / "ddi"
 
 # Editions whose build is enabled (docs/cpv/PLAN.md unit table). The DBF editions are read by
-# scripts/_dbf.py (2010 since unit 3b); the older ones stay dry-run-only until their unit.
-_ENABLED = ("2010", "2015", "2020", "2025")
+# scripts/_dbf.py (2010 since unit 3b, 2000/2005 since 4a); the older ones stay
+# dry-run-only until their unit.
+_ENABLED = ("2000", "2005", "2010", "2015", "2020", "2025")
 
 _HIGH_BYTES = bytes(range(0x80, 0x100))
 _CHUNK = 1 << 24  # 16 MiB
@@ -561,23 +563,51 @@ def _fetch_dictionaries(dict_dir: Path, periods: list[str], cache_dir: Path,
 
 
 # FD sheet stem → canonical table, where INEGI names the sheet after its own table
-# (EIC 2015: TR_Vivienda, TR_Persona); other sheets are named after the table already.
-_FD_SHEET_TABLE = {"tr_vivienda": "viviendas", "tr_persona": "personas"}
+# (EIC 2015: TR_Vivienda, TR_Persona; Conteo 2005: FD viviendas, FD hogar, FD personas;
+# the CGPV 2000 PDF's file tags VIVHOG, PER, MIN); other sheets are named after the table.
+_FD_SHEET_TABLE = {"tr_vivienda": "viviendas", "tr_persona": "personas",
+                   "fd viviendas": "viviendas", "fd hogar": "hogares",
+                   "fd personas": "personas",
+                   "vivhog": "viviendas", "per": "personas", "min": "migrantes"}
+
+# FD names that misspell the data's column, (period, table) → {FD name: data name}.
+_FD_RENAMES = {
+    ("2000", "viviendas"): {"TIPHOG": "TIPOHOG"},     # «Tipo de hogar», VHO_F's TIPOHOG
+    ("2005", "hogares"): {"TOPERHOG": "TOTPEHOG"},    # «Total de personas en el hogar»
+}
+
+# The member of a dictionary ZIP that holds the FD (CGPV 2000: the PDF annex next to
+# the sample design).
+_FD_MEMBER_RE = re.compile(r"(^|/)fd_[^/]*\.pdf$", re.IGNORECASE)
 
 
 @functools.cache
 def _fd_docs(dict_dir: Path, period: str) -> dict:
-    """The edition's FD workbook (``.xlsx``, or the legacy ``.xls`` of 2015) parsed into
-    ``{table: {VAR: meta}}``, its classification catalogs applied; ``{}`` when no workbook
-    was fetched."""
+    """The edition's FD parsed into ``{table: {VAR: meta}}``, its classification catalogs
+    applied; ``{}`` when no FD was fetched. The FD is a workbook (``.xlsx``; the legacy
+    ``.xls`` of 2005–2015) or, for CGPV 2000, a PDF inside a ZIP
+    (:func:`_dict_fd.parse_fd_pdf`). The catalogs are a ZIP or (2005) one ``.xls``."""
     rel = DICTIONARY_URLS.get(period, {})
     book = dict_dir / period / rel.get("fd", "").rsplit("/", 1)[-1]
-    if not rel.get("fd", "").endswith((".xlsx", ".xls")) or not book.exists():
+    if not book.exists() or book.suffix.lower() not in (".xlsx", ".xls", ".zip"):
         return {}
     cat = dict_dir / period / rel.get("catalogos", "").rsplit("/", 1)[-1]
-    catalogs = fd.read_catalogs(cat) if cat.suffix == ".zip" and cat.exists() else None
-    return {_FD_SHEET_TABLE.get(stem, stem): doc
-            for stem, doc in fd.parse_fd(book, catalogs).items()}
+    catalogs = (fd.read_catalogs(cat)
+                if cat.suffix.lower() in (".zip", ".xls") and cat.exists() else None)
+    if book.suffix.lower() == ".zip":
+        with zipfile.ZipFile(book) as zf:
+            hits = [n for n in zf.namelist() if _FD_MEMBER_RE.search(n)]
+            if len(hits) != 1:
+                raise RuntimeError(f"{book.name}: expected one FD PDF, found {hits}")
+            docs = fd.parse_fd_pdf(zf.read(hits[0]), catalogs)
+    else:
+        docs = fd.parse_fd(book, catalogs)
+    out = {}
+    for stem, doc in docs.items():
+        table = _FD_SHEET_TABLE.get(stem.lower(), stem)
+        renames = _FD_RENAMES.get((period, table), {})
+        out[table] = {renames.get(k.upper(), k): v for k, v in doc.items()}
+    return out
 
 
 def _doc_for(dict_dir: Path, table: str, periods: list[str]) -> tuple[dict | None, str]:
@@ -613,7 +643,7 @@ def _write_variables_yaml(out_dir: Path, map_path: Path, yaml_dir: Path,
     identity map. Observed values are read one column at a time
     (:func:`_dict_ddi.observed_values`). Returns the number of files written.
     """
-    from mxcensus.cpv import _in_scope
+    from mxcensus.cpv import _in_scope, _scoped_entry
 
     schema_map = yaml.safe_load(map_path.read_text(encoding="utf-8"))
     core = yaml.safe_load(_CORE_PATH.read_text(encoding="utf-8"))
@@ -630,7 +660,8 @@ def _write_variables_yaml(out_dir: Path, map_path: Path, yaml_dir: Path,
     for table, td in schema_map.items():
         thr = _TABLE_THRESHOLD.get(table, threshold)
         for gid, g in td["groups"].items():
-            core_t = {c: m for c, m in core.items() if _in_scope(m, table, g["periods"])}
+            core_t = {c: _scoped_entry(m, g["periods"]) for c, m in core.items()
+                      if _in_scope(m, table, g["periods"])}
             paths = files.get((table, gid), [])
             observed = ddi.observed_values(paths, g["columns"], thr)
             doc, prov = _doc_for(dict_dir, table, g["periods"])

@@ -24,7 +24,7 @@ unit.
 | **3b** | CPV 2010 microdata (DBF via `dbfread(raw=True)`, code pages, DDI 71, `ID_PER`/`ID_MIN`, state-scoped `ID_VIV`) | 3a | ✅ done 2026-10-07 (`STEP_3b.md`): 96 files on `wsl`, `--validate` 0/417; Σ `FACTOR` = the CA tabulados exactly (outside `CLAVIVP` 5–7); stdlib DBF reader `scripts/_dbf.py` (no `dbfread`); FD `.xls` (no Tipo column) + DBF catalogs; national keys under `harmonize=True`; core `Periodos` |
 | **3c** | Aggregates `load_cpv_iter`/`load_cpv_ageb` (2020 + 2010), `cpv_iter_crosswalk.yaml`, equality with legacy `load_census` | 3b | ✅ done 2026-10-07, verified 2026-10-08 on the Mac (`STEP_3c.md`): 2010 ITER/AGEB built (64 files); `load_cpv_census(2020)` = legacy `load_census` in all 32 states (two census-chain bugs found and fixed: the legacy collective imputation's NA crash in states 08/15/16, 2010's AGEB `TVIVHAB` shortfall); `--validate` 0/481; crosswalk 296 indicators |
 | **3d** | MG 2010 v5.0 (national ZIP → per-state split); identify the 2015 frame; upload 3a–3d | 3c | ◐ part 1 done 2026-10-08 (`STEP_3d.md`): national-ZIP MG builder, MG 2010 built (160 files; municipalities = the 2010 ITER's); 2015 frame not identified; **registry/upload pending `wsl`** (gate: uploaded) |
-| **4a** | 2000 + 2005 microdata (composite keys, `hogares` level, unweighted 2005) | 3 | validate 0 |
+| **4a** | 2000 + 2005 microdata (composite keys, `hogares` level, unweighted 2005) | 3 | ✅ done 2026-10-08 on the Mac (`STEP_4a.md`): 192 files; `--validate` 0/673; dictionaries = 2005 FD `.xls` + catalog workbook, 2000 FD PDF (`parse_fd_pdf`); derived keys + `ID_HOG` level, `load_cpv_hogares`; core `Recodificar` (SEXO 2 → 3); 2000 Σ `FACTOR` bounded by the ITER (ratio estimator on preliminary counts) |
 | **4b** | 2000 + 2005 ITER (+ crosswalk), municipal MGs 2000/2005; upload | 4a | uploaded |
 | **5a** | 1990 + 1995 ITER (DBF) + crosswalk | 4 | validate 0 |
 | **5b** | 1990 + 1995 samples, MG 1995; upload | 5a | uploaded |
@@ -146,10 +146,13 @@ prefix are shared.
 
 **Keys** (alias KeySpecs; `level_key` drops components absent everywhere):
 - `_DWELLING = [("ID_VIV",)]`
-- `_HOUSEHOLD = _DWELLING + [("ID_HOG",…)]` (2005 only; probe the names)
+- `_HOUSEHOLD = _DWELLING + [("ID_HOG",)]` (4a: 2000 and 2005; `ID_HOG` derived, absent
+  elsewhere so `level_key` drops it)
 - `_PERSON = _DWELLING + [("ID_PERSONA", "ID_PER")]`
 - `_MIGRANT = _DWELLING + [("ID_MII", "ID_MIN")]`, a sibling of persons, not nested under them
-- 2000/1990/1995 keys are composite and probed in their phases.
+- 2000/1990/1995 keys are composite and probed in their phases. (4a) 2000 and 2005 have no
+  key column: `cpv._composite_keys` derives `ID_VIV`/`ID_HOG`/`ID_PERSONA`/`ID_MII` from the
+  parts (2000's persons by file order); see `STEP_4a.md`.
 - Keys and geography codes are passed as `skip=` so they stay joinable strings.
 
 **Harmonization (core-only; the canonical spelling is the latest edition's uppercase)**:

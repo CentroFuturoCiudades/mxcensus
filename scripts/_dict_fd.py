@@ -49,11 +49,22 @@ _CELL_RE = re.compile(r"^([A-Z]+)(\d+)$")
 
 # FD column headers → meta fields (header text compared after accent/case folding).
 _FD_HEADERS = {"descripcion": "desc", "mnemonico": "var", "pregunta y categoria": "label",
-               "tipo": "tipo", "rango valido": "code", "longitud": "len"}
+               "tipo": "tipo", "rango valido": "code", "longitud": "len",
+               # Conteo 2005 ("FD Y DESCRIPCIÓN DE LOS MNEMÓNICOS"): the header range, the
+               # codes and their labels, the mnemonic and the catalog in columns of their own
+               "nombre de la variable": "desc", "descripcion del mnemonico": "defn",
+               "rangos validos": "hdr", "rango o codigo a describir": "code",
+               "descripcion de los codigos en la base de datos": "label",
+               "mnemonico en la base de datos": "var", "catalogo": "cat"}
+_FIELDS = tuple(dict.fromkeys(_FD_HEADERS.values()))
+# A code row that points at a classification instead of labelling codes (Conteo 2005:
+# «Ver clasificación de Entidades»).
+_SEE_CATALOG_RE = re.compile(r"^ver clasificaci[oó]n", re.IGNORECASE)
 # The note may wrap across lines ("Según Clasificador\nde Parentescos" — CPV 2020).
 _CATALOG_RE = re.compile(r"seg[uú]n\s+clasificador\s+de\s+([^)]+)", re.IGNORECASE)
 # A code labelled "No especificado…"/"No sabe" is a non-response sentinel (``Especiales``).
-_SENTINEL_RE = re.compile(r"\bno especificad|^no sabe\b", re.IGNORECASE)
+_SENTINEL_RE = re.compile(r"\bno especificad|^no sabe\b(?!\s+(leer|escribir|hablar))",
+                          re.IGNORECASE)    # «No sabe leer y escribir» is an answer
 # A numeric code above the valid range that is itself a value: a top-code.
 _TOPCODE_RE = re.compile(r"\bmayor(es)? a\b|^más de\b|\by más\b", re.IGNORECASE)
 _NULL_CODES = {"nulo", "b"}    # CPV 2010/EIC 2015 write the blank cell "b" («Blanco por pase»)
@@ -375,18 +386,58 @@ def _xls_rows(raw: bytes) -> list[list[str]]:
     return [[row.get(c, "") for c in cols] for row in sheet]
 
 
-def read_catalogs(zip_path: Path) -> dict[str, dict[str, str]]:
-    """``{catalog stem: {code: label}}`` from a ZIP of INEGI classification tables.
+def _catalog_from_rows(rows: list[list[str]], lead_keys: bool = False
+                       ) -> dict[str, str] | None:
+    """One classification table → ``{code: label}``, or ``None`` when it is not one.
 
-    The members are CSVs (EIC 2025, CPV 2020), one-sheet ``.xls`` workbooks (EIC 2015:
-    ``TC_PARENTESCO_2015.xls`` …) or DBF tables (CPV 2010: ``TC_PARENTESCO_2010.DBF`` …,
-    :mod:`_dbf`). The code is the concatenation of the ``CLAVE``/
-    ``CLAVE_*``/``CVE_*`` columns (``MUNICIPIO.csv`` → entidad+municipio) and the label the
-    last ``DESC*`` column (else the last ``NOM*``); codes keep their spelling. A member
-    without such columns (EIC 2015's ``TC_ESCOACUM_2015``, a reference table) is skipped.
+    The code is the concatenation of the ``CLAVE``/``CLAVE_*``/``CVE_*`` columns
+    (``MUNICIPIO.csv`` → entidad+municipio) and the label the last ``DESC*`` column (else
+    the last ``NOM*``); codes keep their spelling. With ``lead_keys`` (Conteo 2005's
+    workbook, whose sheets are all catalogs), a table with no such key column keys on the
+    columns before its ``DESC*`` column (``NIVANTES | DESC``, ``ENT | MUN | DESC``) when
+    those codes are unique — a reference table repeating codes (``TC_ESCOACUM``) is not a
+    catalog."""
+    if not rows:
+        return None
+    header = [h.strip().upper() for h in rows[0]]
+    body = [r for r in rows[1:] if r and any(x.strip() for x in r)]
+    keys = [i for i, h in enumerate(header) if h == "CLAVE" or h.startswith(("CVE", "CLAVE_"))]
+    desc = ([i for i, h in enumerate(header) if h.startswith("DESC")]
+            or [i for i, h in enumerate(header) if h.startswith("NOM")])
+    if lead_keys and not keys and desc and desc[-1] > 0 and header[desc[-1]].startswith("DESC"):
+        lead = list(range(desc[-1]))          # Conteo 2005: NIVANTES | DESC; ENT | MUN | DESC
+        codes = ["".join(r[i].strip() for i in lead) for r in body]
+        if all(header[i] for i in lead) and len(codes) == len(set(codes)):
+            keys = lead
+    if not keys or not desc:
+        return None
+    table = {"".join(r[i].strip() for i in keys): r[desc[-1]].strip() for r in body}
+    table.pop("", None)                       # Conteo 2005: the blank cell's row has no code
+    return table
+
+
+def read_catalogs(path: Path) -> dict[str, dict[str, str]]:
+    """``{catalog stem: {code: label}}`` from INEGI's classification tables
+    (:func:`_catalog_from_rows`).
+
+    ``path`` is a ZIP whose members are CSVs (EIC 2025, CPV 2020), one-sheet ``.xls``
+    workbooks (EIC 2015: ``TC_PARENTESCO_2015.xls`` …) or DBF tables (CPV 2010:
+    ``TC_PARENTESCO_2010.DBF`` …, :mod:`_dbf`) — the stem is the member's name — or one
+    ``.xls`` workbook with a sheet per catalog (Conteo 2005: ``catalogos_muestra_2005.xls``,
+    sheets ``TC_ENTID``, ``TC_PAREN`` …) — the stem is the sheet's name. A table that is not
+    a catalog (EIC 2015's ``TC_ESCOACUM_2015``, a reference table) is skipped.
     """
     out: dict[str, dict[str, str]] = {}
-    with zipfile.ZipFile(zip_path) as z:
+    path = Path(path)
+    if path.suffix.lower() == ".xls":
+        for sheet, rows in read_xls(path).items():
+            cols = sorted({c for row in rows for c in row}, key=lambda c: (len(c), c))
+            table = _catalog_from_rows([[row.get(c, "") for c in cols] for row in rows],
+                                       lead_keys=True)
+            if table is not None:
+                out[sheet.strip().upper()] = table
+        return out
+    with zipfile.ZipFile(path) as z:
         for name in z.namelist():
             raw = z.read(name)
             if name.lower().endswith(".csv"):
@@ -403,18 +454,9 @@ def read_catalogs(zip_path: Path) -> dict[str, dict[str, str]]:
                                                for r in table.to_pylist()]
             else:
                 continue
-            if not rows:
-                continue
-            header = [h.strip().upper() for h in rows[0]]
-            keys = [i for i, h in enumerate(header)
-                    if h == "CLAVE" or h.startswith(("CVE", "CLAVE_"))]
-            desc = ([i for i, h in enumerate(header) if h.startswith("DESC")]
-                    or [i for i, h in enumerate(header) if h.startswith("NOM")])
-            if not keys or not desc:
-                continue
-            stem = Path(name).stem.upper()
-            out[stem] = {"".join(r[i].strip() for i in keys): r[desc[-1]].strip()
-                         for r in rows[1:] if r and any(x.strip() for x in r)}
+            table = _catalog_from_rows(rows)
+            if table is not None:
+                out[Path(name).stem.upper()] = table
     return out
 
 
@@ -464,6 +506,10 @@ def _parse_code(text: str):
         if a.lstrip("-").isdigit() and b.lstrip("-").isdigit():
             width = len(a) if len(a) == len(b) and a.startswith("0") else 0
             return int(a), int(b), width
+    elif m := re.fullmatch(r"(\d+)-(\d+)", t):   # Conteo 2005: "201-204", "001-033"
+        a, b = m.groups()
+        width = len(a) if len(a) == len(b) and a.startswith("0") else 0
+        return int(a), int(b), width
     return t
 
 
@@ -513,22 +559,31 @@ def _enumerated(var: dict) -> bool:
     return bool(header) and header <= {_code_key(c) for c, _ in rows}
 
 
-def _quantity(var: dict) -> bool:
+def _quantity(var: dict, catalog: str | None = None) -> bool:
     """For an FD without a ``Tipo`` column (CPV 2010): whether a variable is a number.
 
     It is when a code row is a labelled range (``01..25 Número de dormitorios``,
     ``{000001..999997} Ingresos especificados``) or, with no code rows, when its header
     holds a range plus a sentinel (``EDAD {000..130,999}``) or an unpadded range (``MPERA
     {0..99}``). A zero-padded header range alone is a code space (``ENT {01..32}``,
-    ``MUN {001..570}``); single labelled codes are categories.
+    ``MUN {001..570}``); single labelled codes are categories. A range labelled «Ver
+    clasificación de …» (Conteo 2005) is a code space too. A variable with a resolved
+    ``catalog`` is a number only through a labelled range row (Conteo 2005 attaches a
+    catalog even to counts: ``Cuardom`` → ``TC_NUMCD``). Several labelled ranges, or a
+    header with several ranges, make a code list (CGPV 2000: ``LNACEDO_C`` 001-032 Clave de
+    entidad / 100-535 Clave de país; ``OTROPARE_C {100,200,300,401-412,…,999}``); a single
+    code next to the one range is a value (``FECNACA {1929,1930..2000,9999}``: 1929 = «1929
+    y antes»).
     """
-    if any(isinstance(c, tuple) and label for c, label in var["rows"]):
-        return True
-    if var["rows"]:
+    ranged = [c for c, label in var["rows"]
+              if isinstance(c, tuple) and label and not _SEE_CATALOG_RE.match(label)]
+    if ranged:
+        return len(ranged) == 1
+    if var["rows"] or catalog:
         return False
     codes = _header_codes(var["code"])
     ranges = [c for c in codes if isinstance(c, tuple)]
-    return bool(ranges) and (len(codes) > len(ranges) or not any(r[2] for r in ranges))
+    return len(ranges) == 1 and (len(codes) > 1 or not ranges[0][2])
 
 
 def _finish(var: dict, catalogs: dict | None) -> dict:
@@ -552,17 +607,25 @@ def _finish(var: dict, catalogs: dict | None) -> dict:
     if var.get("typed", True):
         numeric = _fold(var["tipo"]).startswith("numer") and not _enumerated(var)
     else:
-        numeric = catalog is None and _quantity(var)
+        numeric = _quantity(var, catalog)
     rows = var["rows"] or [(c, "") for c in _header_codes(header)]
     ranges = [c for c, _ in rows if isinstance(c, tuple)]
     if numeric and not ranges:  # code rows list only labelled values: the header has the range
         ranges = [c for c in _header_codes(header) if isinstance(c, tuple)]
     singles = [(c, lab) for c, lab in rows if isinstance(c, str)]
+    if numeric and not var.get("typed", True):
+        # FDs without a Tipo column list some sentinels only in the header range
+        # (CGPV 2000: HIJFAL {00..25,99,b} has code rows for 00 and 01-25 only)
+        listed = {c for c, _ in singles}
+        singles += [(c, "") for c in _header_codes(header)
+                    if isinstance(c, str) and c not in listed]
     cats: dict[str, str] = {}
     special: dict[str, str] = {}
     meta = {"Descripción": var["desc"], "Pregunta": var["label"],
             "Tipo": "numeric" if numeric else "string", "Longitud": var["len"],
             "Rango": [], "Categorías": cats, "Especiales": special}
+    if var.get("defn"):                   # Conteo 2005: the mnemonic's definition
+        meta["Definición"] = " ".join(var["defn"].split())
 
     if numeric:
         lo = min((r[0] for r in ranges), default=None)
@@ -599,8 +662,11 @@ def _finish(var: dict, catalogs: dict | None) -> dict:
                 special[code] = label
             elif wide:
                 nota.append(f"{code} = {label}")
-            else:  # a catalog code listed singly (``3101`` — CPV 2020) keeps its catalog label
-                cats[code] = codes.get(code) or label or code
+            else:  # a catalog code listed singly (``3101`` — CPV 2020) keeps its catalog
+                # label, unless the FD spells the same words better (Conteo 2005's catalogs
+                # are in capitals: CASA INDEPENDIENTE / Casa independiente)
+                same = label and _fold(label) == _fold(codes.get(code) or "")
+                cats[code] = label if same else codes.get(code) or label or code
         for code in special:
             cats.pop(code, None)
         if ranges:  # used only if the entry turns out numeric (a year: 1925..2025)
@@ -612,6 +678,17 @@ def _finish(var: dict, catalogs: dict | None) -> dict:
     if nota:
         meta["Nota"] = "; ".join(nota)
     return meta
+
+
+def _code_row(var: dict, code: str, label: str) -> None:
+    """Add one code row to ``var``: a catalog note (CPV 2020), a ``TC_…`` catalog reference
+    (EIC 2015), the blank row (skipped) or codes with their label."""
+    if _CATALOG_RE.search(code):          # "(Según Clasificador de …)" as a row
+        var["note"] = code
+    elif _CATALOG_REF_RE.match(code):     # EIC 2015: "TC_OCUPACION_2015"
+        var["refs"].append((code, label))
+    elif not _BLANK_RE.match(label):
+        var["rows"] += [(c, label) for c in _split_codes(code)]
 
 
 def parse_fd(path: Path, catalogs: dict[str, dict[str, str]] | None = None
@@ -641,30 +718,134 @@ def parse_fd(path: Path, catalogs: dict[str, dict[str, str]] | None = None
         vars_: dict[str, dict] = {}
         current, stem = None, None
         typed = "tipo" in cols                # CPV 2010's FD has no Tipo column
+        split = "hdr" in cols                 # Conteo 2005: header range and codes apart
         for row in rows[i + 1:]:
             get = {field: row.get(cols[field], "") if field in cols else ""
-                   for field in _FD_HEADERS.values()}
+                   for field in _FIELDS}
             if _VARNAME_RE.match(get["var"]):
+                if split:   # the variable row carries its first code and label
+                    current = {**get, "code": get["hdr"], "label": "", "rows": [],
+                               "refs": [], "typed": typed}
+                    if get["cat"]:
+                        current["refs"].append((get["cat"], "Descripción por catálogo"))
+                    vars_[get["var"]] = current
+                    if get["code"] and get["label"]:
+                        _code_row(current, get["code"], get["label"])
+                    continue
                 label = get["label"]
                 if stem and label[:1].islower():
                     label = f"{stem} {label}"
                 current = {**get, "label": label, "rows": [], "refs": [], "typed": typed}
                 vars_[get["var"]] = current
             elif get["code"] and get["label"] and current is not None:
-                if _CATALOG_RE.search(get["code"]):  # "(Según Clasificador de …)" as a row
-                    current["note"] = get["code"]
-                    continue
-                if _CATALOG_REF_RE.match(get["code"]):  # EIC 2015: "TC_OCUPACION_2015"
-                    current["refs"].append((get["code"], get["label"]))
-                    continue
-                if _BLANK_RE.match(get["label"]):
-                    continue
-                current["rows"] += [(code, get["label"]) for code in _split_codes(get["code"])]
+                _code_row(current, get["code"], get["label"])
             elif get["desc"] and get["label"] and not get["code"]:
                 stem, current = get["label"], None
             elif not any(get.values()):  # a section title (outside the table columns)
                 stem, current = None, None
         out[sheet.strip().lower()] = {v: _finish(m, catalogs) for v, m in vars_.items()}
+    return out
+
+
+# --------------------------------------------------------------------------------------
+# CGPV 2000: the FD is a PDF whose annex lists each file's variables as text
+# --------------------------------------------------------------------------------------
+
+# «Descripción de las variables de explotación del archivo de vivienda y hogares (VIVHOG)»
+_PDF_SECTION_RE = re.compile(r"Descripci[oó]n de las variables de explotaci[oó]n del "
+                             r"archivo de[^()]*\(\s*([A-Z]+)\s*\)")
+# A variable header once its lines are joined: «16 Número de cuartos dormitorio 5A CUADORM
+# {01..25,99} 2» (the question number is optional; the mnemonic precedes the range list).
+_PDF_VAR_RE = re.compile(r"^(?P<num>\d+)\s+(?P<desc>.*?)\s+(?:(?P<preg>\d+[A-Z]?)\s+)?"
+                         r"(?P<var>[A-Z][A-Z0-9_]*)\s*\{(?P<codes>[^}]*)\}\s*(?:\d+/\s*)?"
+                         r"(?P<len>\d+)?\s*$", re.DOTALL)
+# A range list that wraps puts the length column's value on its first line, inside the
+# list: «{100,200,300,401 -412,420,430, 3» / «440,501-503, 601-624,999}» (OTROPARE_C).
+_PDF_INNER_LEN_RE = re.compile(r",\s*(\d{1,2})\s+(?=\d)")
+_PDF_CODE_RE = re.compile(r"^\s+(?P<code>\d+(?:\s*-\s*\d+)?|b)\s+(?P<label>\S.*)$")
+
+
+def _pdf_header(lines: list[str]) -> dict | None:
+    """Parse a variable header spread over ``lines`` (a wrapped mnemonic such as
+    ``DOTAGUA`` / ``D`` is rejoined)."""
+    text = " ".join(x.strip() for x in lines)
+    text = re.sub(r"\b([A-Z][A-Z0-9_]{3,}) ([A-Z0-9_]{1,2}) \{", r"\1\2 {", text)
+    m = _PDF_VAR_RE.match(text)
+    if not m:
+        return None
+    codes, length = m["codes"], m["len"]
+    if length is None:
+        inner = _PDF_INNER_LEN_RE.search(codes)
+        if inner is None:
+            return None
+        length, codes = inner.group(1), codes[:inner.start()] + "," + codes[inner.end():]
+    return {"var": m["var"], "desc": " ".join(m["desc"].split()), "label": "",
+            "code": "{" + " ".join(codes.split()) + "}", "len": length, "tipo": "",
+            "rows": [], "refs": [], "typed": False}
+
+
+def parse_fd_pdf(path: Path | bytes,
+                 catalogs: dict | None = None) -> dict[str, dict[str, dict]]:
+    """Parse the CGPV 2000 FD (``fd_muestra_censal_2000.pdf``, a path or its bytes, read
+    with ``pypdf``) into ``{file tag (vivhog/per/min): {VAR: meta}}`` — the shape of
+    :func:`parse_fd`.
+
+    The annex describes each file in a section «Descripción de las variables de explotación
+    del archivo de … (VIVHOG|PER|MIN)»; a file described twice keeps its last section. A
+    variable header starts at the line's first column with its number and may wrap (the
+    range list too); indented lines are code rows (``1 Hombre``, ``001-032 Clave de
+    entidad``, ``b Blanco por pase``) whose labels may wrap; an all-capitals line is a
+    section title. The variables then go through :func:`_finish` as an FD without a
+    ``Tipo`` column (:func:`_quantity` decides the numbers).
+    """
+    from pypdf import PdfReader
+
+    source = io.BytesIO(path) if isinstance(path, bytes) else str(path)
+    text = "\n".join(page.extract_text() for page in PdfReader(source).pages)
+    return parse_fd_text(text, catalogs)
+
+
+def parse_fd_text(text: str, catalogs: dict | None = None) -> dict[str, dict[str, dict]]:
+    """:func:`parse_fd_pdf` on the PDF's extracted text."""
+    starts = list(_PDF_SECTION_RE.finditer(text))
+    out: dict[str, dict[str, dict]] = {}
+    for k, start in enumerate(starts):
+        end = starts[k + 1].start() if k + 1 < len(starts) else len(text)
+        vars_: dict[str, dict] = {}
+        header: list[str] = []
+        current = None
+        last_label: list | None = None
+        for line in text[start.end():end].splitlines():
+            if not line.strip():
+                continue
+            if header:                                   # finishing a wrapped header
+                header.append(line)
+                if (var := _pdf_header(header)) is not None:
+                    vars_[var["var"]], current, last_label, header = var, var, None, []
+                elif len(header) > 12:
+                    header = []
+                continue
+            if re.match(r"^\d+\s", line):                # a new variable
+                header = [line]
+                if (var := _pdf_header(header)) is not None:
+                    vars_[var["var"]], current, last_label, header = var, var, None, []
+                continue
+            m = _PDF_CODE_RE.match(line)
+            if m and current is not None:
+                code = m["code"].replace(" ", "")
+                last_label = [code, m["label"].strip()]
+                current["rows"].append(last_label)
+            elif current is not None and last_label is not None:
+                words = re.sub(r"[^A-Za-zÁÉÍÓÚÑáéíóúñ]", "", line)
+                if words and words == words.upper():       # a section title
+                    last_label = None
+                else:
+                    last_label[1] = f"{last_label[1]} {line.strip()}"
+        for var in vars_.values():
+            raw, var["rows"] = var["rows"], []
+            for code, label in raw:
+                _code_row(var, code.replace("-", ".."), " ".join(label.split()))
+        out[start.group(1).lower()] = {v: _finish(m, catalogs) for v, m in vars_.items()}
     return out
 
 

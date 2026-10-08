@@ -397,7 +397,7 @@ def test_build_cli_guards(capsys):
     out = capsys.readouterr().out
     assert "MC2010_01_dbf.zip" in out and "cpv_personas_2010_01.parquet" in out
     with pytest.raises(SystemExit):
-        _bcpv.main(["--periods", "2005", "--states", "1"])   # edition not enabled yet
+        _bcpv.main(["--periods", "1995", "--states", "1"])   # edition not enabled yet
     with pytest.raises(SystemExit):
         _bcpv.main(["--dry-run", "--states", "33"])
 
@@ -738,16 +738,21 @@ def test_core_yaml_contract():
     assert core["TAMLOC"]["Ordenada"] and core["EDAD"]["Especiales"] == {"999": "No especificado"}
     # the core is copied verbatim into every generated group that has the column, when the
     # entry is in scope for the table (``Tablas``: the ITER's TAMLOC is its own 14-class scale)
+    # (as it applies to the group's editions: ``Recodificar`` → ``Alias``, ``_scoped_entry``)
     for table, gid in _TABLE_GROUPS:
         v = variables_cpv(table, gid)
+        scoped = _core_for(table, _cpv._group_periods(table, gid))
         for col in set(core) & set(v):
-            if col in _core_for(table, _cpv._group_periods(table, gid)):
-                assert v[col] == core[col], (table, gid, col)
+            if col in scoped:
+                assert v[col] == scoped[col], (table, gid, col)
             else:
                 assert v[col] != core[col], (table, gid, col)
     assert all(set(m.get("Tablas") or TABLES) <= set(TABLES) for m in core.values())
     assert all(set(m.get("Periodos") or EDITIONS_BY_PERIOD) <= set(EDITIONS_BY_PERIOD)
                for m in core.values())
+    assert all(set(m.get("Recodificar") or ()) <= set(EDITIONS_BY_PERIOD)
+               and all(set(r.values()) <= set(m["Categorías"]) for r in m["Recodificar"].values())
+               for m in core.values() if m.get("Recodificar"))
 
 
 def test_generated_dictionaries_cover_every_column():
@@ -843,14 +848,21 @@ def test_key_specs_nest_and_skip():
     f2010 = pd.DataFrame({"ID_VIV": ["1"], "ID_PER": ["1"], "ID_MIN": ["1"]})
     assert _cpv._level_key(_cpv._PERSON_KEY_SPEC, f2010) == ["ID_VIV", "ID_PER"]
     assert _cpv._level_key(_cpv._MIGRANT_KEY_SPEC, f2010) == ["ID_VIV", "ID_MIN"]
-    assert {"ID_VIV", "ID_PERSONA", "ID_PER", "ID_MII", "ID_MIN"} <= _cpv._KEY_COLUMNS
-    assert set(_cpv._GEO_CODES) | set(_cpv._POINTERS) | _cpv._KEY_COLUMNS == _cpv._SKIP
+    assert {"ID_VIV", "ID_HOG", "ID_PERSONA", "ID_PER", "ID_MII", "ID_MIN"} <= _cpv._KEY_COLUMNS
+    assert (set(_cpv._GEO_CODES) | set(_cpv._POINTERS) | _cpv._KEY_COLUMNS
+            | set(_cpv._KEY_PARTS)) == _cpv._SKIP
+    assert _cpv._HOUSEHOLD_KEY_SPEC[:1] == _cpv._DWELLING_KEY_SPEC
+    assert _cpv._PERSON_KEY_SPEC[:2] == _cpv._HOUSEHOLD_KEY_SPEC == _cpv._MIGRANT_KEY_SPEC[:2]
+    f2000 = pd.DataFrame(columns=["ID_VIV", "ID_HOG", "ID_PERSONA"])        # 2000/2005
+    assert _cpv._level_key(_cpv._PERSON_KEY_SPEC, f2000) == ["ID_VIV", "ID_HOG", "ID_PERSONA"]
     columns = {c for t in _SM for g in _SM[t]["groups"].values() for c in g["columns"]}
     assert set(_cpv._POINTERS) <= columns           # every pointer exists in 2025
     for ptr in _cpv._POINTERS:     # …and codes person numbers 01-54 as themselves (≥ 96: other)
         for table, gid in _TABLE_GROUPS:              # in every edition that has it
             if ptr not in _cols(table, gid):
                 continue
+            if ptr == "MPER" and _cpv._group_periods(table, gid) == ("2000",):
+                continue         # CGPV 2000: the emigrant's own number (01-20), a key part
             meta = variables_cpv(table, gid)[ptr]
             if sg.norm_tipo(meta) == "numeric":       # EIC 2015 / CPV 2010: the number itself
                 lo, hi = meta["Rango"]
@@ -2353,14 +2365,15 @@ def test_build_plan_2010():
 
 
 def test_schema_map_2010_groups():
-    """2010 is the oldest edition built so far (g01). State 15's DBFs spell the field
-    ``tam_loc`` in lower case, so its files form a second 2010 group (g02)."""
+    """State 15's 2010 DBFs spell the field ``tam_loc`` in lower case, so its files form a
+    second 2010 group, right after the other 31 states' (gids are chronological)."""
     for table, n in (("viviendas", 56), ("personas", 95), ("migrantes", 27)):
         g = _SM[table]["groups"]
-        assert _gid(table, "2010") == "g01" and g["g01"]["periods"] == g["g02"]["periods"] == ["2010"]
-        assert (g["g01"]["files"], g["g02"]["files"]) == (31, 1)
-        assert g["g02"]["states"] == {"2010": [15]} and g["g01"]["n_columns"] == g["g02"]["n_columns"] == n
-        assert [c.upper() for c in g["g02"]["columns"]] == g["g01"]["columns"]
+        a, b = (gid for gid, m in g.items() if m["periods"] == ["2010"])
+        assert _gid(table, "2010") == a and list(g).index(b) == list(g).index(a) + 1
+        assert (g[a]["files"], g[b]["files"]) == (31, 1)
+        assert g[b]["states"] == {"2010": [15]} and g[a]["n_columns"] == g[b]["n_columns"] == n
+        assert [c.upper() for c in g[b]["columns"]] == g[a]["columns"]
         assert _SM[table]["latest"] == _gid(table, "2025")
 
 
@@ -2552,3 +2565,349 @@ def test_fd_2010_real():
     p = doc["personas"]
     assert p["HORTRA"]["Tipo"] == "numeric" and p["HORTRA"]["Rango"] == [0, 168]
     assert p["OTROPARE_C"]["Catálogo"] == "TC_PARENTESCO_2010" and p["ESCOACUM"]["Rango"] == [0, 24]
+
+
+# --- unit 4a: CGPV 2000 + Conteo 2005 (PDF / split-layout FDs, composite keys, households) ---
+
+# The CGPV 2000 FD annex as pypdf extracts it: wrapped headers (a mnemonic split over two
+# lines, a header over six lines with the length on its own line), the length inside a
+# wrapped range list, dash ranges, wrapped labels and capitalized section titles.
+_FD_2000_TEXT = """Introducción (texto que no es el anexo)
+Descripción de las variables de explotación del archivo de vivienda y hogares (VIVHOG) 
+(cuestionario ampliado)
+  LLAVE
+1 Entidad Federativa    ENT {01..32} 2 
+4 Número de vivienda   NUMVIV {000001..999999}  6 
+9 Tamaño de localidad    TAM_LOC {1..7} 1 
+    1 Menor a 2,500 habitantes    
+      2 2,500 a 14,999
+habitantes
+      7 500,000 y más habitantes
+  TOTAL LLAVE      36 
+19 Dotación de agua (días)  7A DOTAGUA
+D 
+{1..5,9,b} 1 
+     1 Diario   
+     9 No especificado   
+     b Blanco por pase    
+  CARACTERÍSTICAS DE LA  
+VIVIENDA  
+21 Tipo de hogar  TIPHOG {1..3} 1 
+     1 Familiar
+Descripción de las variables de explotación del archivo de personas (PER) 
+10 Otro parentesco  1B OTROPARE_C  {100,200,300,401 -412,420,430, 3 
+440,501-503, 601-624,999} 
+11 Sexo 2 SEXO {1,2} 1 
+      1 Hombre   
+      2 Mujer   
+13 Lugar de nacimiento_en  
+otro estado 
+4B LNACEDO_C {001-032,100-535,600,999}  3 
+      001-032 Clave de entidad    
+      100-535 Clave de país   
+      600 País no especificado    
+      999 No especificado   
+42 Nombre de la 
+carrera(normal,  
+carrera técnica o comercial, 
+ 
+profesional, maestría o 
+doctorado) 
+18
+ NOMCAR_C {0011-2993,3111 -4990,5110-6990, 
+7110,9999,b} 
+4 
+74 Cuántos hijos han  muerto 33 HIJFAL {00..25,99,b}  2 
+      00 No tiene hijos fallecidos
+      01-25 Si tiene hijos fallecidos
+77 Fecha de nacimiento (año)  35B FECNACA {1929,1930..2000,9999,b}  4 
+"""
+
+
+def test_parse_fd_text_2000():
+    doc = _fd.parse_fd_text(_FD_2000_TEXT)
+    assert list(doc) == ["vivhog", "per"]
+    v, p = doc["vivhog"], doc["per"]
+    assert list(v) == ["ENT", "NUMVIV", "TAM_LOC", "DOTAGUAD", "TIPHOG"]   # «DOTAGUA» + «D»
+    assert v["ENT"]["Tipo"] == "string" and len(v["ENT"]["Categorías"]) == 32
+    assert v["NUMVIV"]["Tipo"] == "string" and v["NUMVIV"]["Longitud"] == "6"
+    assert v["TAM_LOC"]["Categorías"] == {"1": "Menor a 2,500 habitantes",
+                                          "2": "2,500 a 14,999 habitantes",   # wrapped label
+                                          "7": "500,000 y más habitantes"}
+    assert v["DOTAGUAD"]["Categorías"] == {"1": "Diario"}                   # no section title
+    assert v["DOTAGUAD"]["Especiales"] == {"9": "No especificado"}
+    otro = p["OTROPARE_C"]                                  # length inside the range list
+    assert otro["Longitud"] == "3" and otro["Tipo"] == "string"
+    assert {"100", "401", "412", "503", "624", "999"} <= set(otro["Categorías"])
+    assert p["SEXO"]["Categorías"] == {"1": "Hombre", "2": "Mujer"}
+    lna = p["LNACEDO_C"]                                    # two code ranges: a code list
+    assert lna["Descripción"] == "Lugar de nacimiento_en otro estado" and lna["Tipo"] == "string"
+    assert lna["Especiales"] == {"600": "País no especificado", "999": "No especificado"}
+    car = p["NOMCAR_C"]                                     # a nine-line header
+    assert car["Longitud"] == "4" and car["Tipo"] == "string"
+    assert car["Descripción"].startswith("Nombre de la carrera(normal, carrera técnica")
+    hij = p["HIJFAL"]                                       # one labelled range: a count
+    assert hij["Tipo"] == "numeric" and hij["Rango"] == [0, 25]
+    assert hij["Especiales"] == {"99": "99"}                # listed only in the header
+    fec = p["FECNACA"]                                      # 1929 = «1929 y antes», a value
+    assert fec["Tipo"] == "numeric" and fec["Rango"] == [1929, 2000]
+    assert fec["Especiales"] == {"9999": "9999"}
+
+
+_HDR05 = ["Conse-\ncutivo", "Nombre de la variable", "Núm. de pregunta",
+          "Descripción del mnemónico", "Rangos\nválidos", "Longitud",
+          "Rango  o código a describir", "Descripción de los códigos en la base de datos",
+          "Mnemónico en la base de datos", "Posición en el archivo", "Catálogo"]
+_FD_2005 = {
+    "FD HOGAR": [
+        ["II CONTEO DE POBLACIÓN Y VIVIENDA 2005 (MUESTRA)"],
+        _HDR05,
+        ["LLAVE"],
+        ["1", "Entidad federativa", "C.1_1", "Unidad geográfica mayor", "{01..32}", "2",
+         "{01..32}", "Ver clasificación de Entidades", "Ent", "1", "TC_ENTID"],
+        ["3", "Consecutivo de Vivienda Municipal", None, "Consecutivo por municipio",
+         "{000001..999999}", "6", "{000001..999999}", "Sin descripción", "Cons_mun", "3"],
+        ["5", "Total de personas en el hogar", None, "Personas", "{01..30}", "2", "{01..30}",
+         "Número de personas", "TOPERHOG", "5"],
+    ],
+    "FD VIVIENDAS": [
+        _HDR05,
+        ["6", "Tipo de operativo", None, "Operativo", "{0…9}", "1", "0",
+         "Viviendas particulares sin segmentar", "Tipo_ope", "6", "TC_TOPER"],
+        [None, None, None, None, None, None, "9", "Viviendas colectivas albergues"],
+        ["7", "Clase de vivienda particular", "C.4", "Clases", "{1..7,9,b}", "1", "1",
+         "Casa independiente", "Clavivpa", "7", "TC_CVIVP"],
+        [None, None, None, None, None, None, "9", "No especificado"],
+        [None, None, None, None, None, None, "b", "Sin respuesta por tratarse de colectivas"],
+        ["8", "Cuartos dormitorio", "C.6", "Dormitorios", "{01..25,99}", "2", "01-25",
+         "Número de cuartos", "Cuardom", "8", "TC_NUMCD"],
+        [None, None, None, None, None, None, "99", "No especificado"],
+    ],
+}
+
+
+def test_parse_fd_2005_split_layout(tmp_path):
+    """Conteo 2005's FD puts the description and the data mnemonic in separate columns; a
+    catalog in the last column (sheets ``TC_*`` of ``catalogos_muestra_2005.xls``)."""
+    (tmp_path / "fd.xls").write_bytes(_xls(_FD_2005))
+    (tmp_path / "cat.xls").write_bytes(_xls({
+        "TC_ENTID": [["CVE_ENT", "DESC"], ["01", "AGUASCALIENTES"], ["02", "BAJA CALIFORNIA"]],
+        "TC_CVIVP": [["CLAVIVPA", "DESC"], ["1", "CASA INDEPENDIENTE"], ["9", "NO ESPECIFICADO"]],
+        "TC_NUMCD": [["CUARDOM", "DESC"], ["01", "UNO"], ["99", "NO ESPECIFICADO"]],
+    }))
+    cats = _fd.read_catalogs(tmp_path / "cat.xls")
+    assert cats["TC_ENTID"] == {"01": "AGUASCALIENTES", "02": "BAJA CALIFORNIA"}
+    doc = _fd.parse_fd(tmp_path / "fd.xls", cats)
+    assert set(doc) == {"fd hogar", "fd viviendas"}                   # sheet names, folded
+    h, v = doc["fd hogar"], doc["fd viviendas"]
+    assert list(h) == ["Ent", "Cons_mun", "TOPERHOG"]
+    assert h["Ent"]["Catálogo"] == "TC_ENTID" and h["Ent"]["Descripción"] == "Entidad federativa"
+    assert h["Ent"]["Definición"] == "Unidad geográfica mayor"
+    assert h["TOPERHOG"]["Tipo"] == "numeric" and h["TOPERHOG"]["Rango"] == [1, 30]
+    assert v["Tipo_ope"]["Categorías"] == {"0": "Viviendas particulares sin segmentar",
+                                           "9": "Viviendas colectivas albergues"}
+    assert v["Clavivpa"]["Categorías"]["1"] == "Casa independiente"
+    assert v["Clavivpa"]["Especiales"] == {"9": "No especificado"}
+    cuar = v["Cuardom"]                         # a labelled range row: a count, catalog or not
+    assert cuar["Tipo"] == "numeric" and cuar["Rango"] == [1, 25]
+    assert cuar["Especiales"] == {"99": "No especificado"}
+
+
+def test_fd_docs_2000_2005_tables_and_renames(tmp_path, monkeypatch):
+    """``_fd_docs`` maps the FD sheets / PDF file tags to tables and fixes the two FD
+    misspellings of a data column (2000 TIPHOG, 2005 TOPERHOG)."""
+    d00, d05 = tmp_path / "2000", tmp_path / "2005"
+    d00.mkdir(), d05.mkdir()
+    with zipfile.ZipFile(d00 / "fd_muestra_censal_2000_pdf.zip", "w") as z:
+        z.writestr("fd_muestra_censal_2000.pdf", b"%PDF-")
+        z.writestr("diseno_muestra.pdf", b"%PDF-")
+    monkeypatch.setattr(_bcpv.fd, "parse_fd_pdf",
+                        lambda raw, catalogs=None: _fd.parse_fd_text(_FD_2000_TEXT, catalogs))
+    (d05 / "fd_muestra_2005.xls").write_bytes(_xls(_FD_2005))
+    (d05 / "catalogos_muestra_2005.xls").write_bytes(_xls({"TC_ENTID": [["CVE", "DESC"],
+                                                                         ["01", "AGS"]]}))
+    doc00 = _bcpv._fd_docs(tmp_path, "2000")
+    assert set(doc00) == {"viviendas", "personas"}
+    assert "TIPOHOG" in doc00["viviendas"] and "TIPHOG" not in doc00["viviendas"]
+    doc05 = _bcpv._fd_docs(tmp_path, "2005")
+    assert set(doc05) == {"hogares", "viviendas"}
+    assert "TOTPEHOG" in doc05["hogares"] and doc05["hogares"]["Ent"]["Catálogo"] == "TC_ENTID"
+
+
+def test_schema_map_2000_2005_groups():
+    """2000 and 2005 are the oldest editions built (g01, g02 of the microdata tables); the
+    household table exists for 2005 only."""
+    for table, period, n in (("viviendas", "2000", 52), ("personas", "2000", 81),
+                             ("migrantes", "2000", 19), ("viviendas", "2005", 24),
+                             ("hogares", "2005", 7), ("personas", "2005", 32)):
+        g = _SM[table]["groups"][_gid(table, period)]
+        assert g["periods"] == [period] and g["files"] == 32 and g["n_columns"] == n
+    for table in ("viviendas", "personas"):
+        assert (_gid(table, "2000"), _gid(table, "2005")) == ("g01", "g02")
+    assert _gid("migrantes", "2000") == "g01" and list(_SM["hogares"]["groups"]) == ["g01"]
+    assert _SM["hogares"]["latest"] == "g01"
+    assert {c for c in _SM["hogares"]["groups"]["g01"]["columns"]} == {
+        "ENT", "MUN", "CONS_MUN", "CONS_VIV", "CONS_HOG", "TOTPEHOG", "TICLAHOG"}
+
+
+def test_build_plan_2000_2005():
+    assert {"2000", "2005"} <= set(_bcpv._ENABLED)
+    e00, e05 = get_edition("2000"), get_edition("2005")
+    micro = _bcpv._plan([e00, e05], ["viviendas", "hogares", "personas", "migrantes"],
+                        list(range(1, 33)))
+    assert len(micro) == 64 and sum(len(j[3]) for j in micro) == 192
+    assert e00.member_regex("viviendas", 1).match("VHO_F01.DBF")
+    assert e05.member_regex("hogares", 7).match("trhmue07.DBF") and not e05.weighted
+
+
+def _frame_2000(table: str) -> pd.DataFrame:
+    """Raw CGPV 2000 key parts: two households in dwelling 000001 of locality 0001, one in
+    dwelling 000001 of locality 0002 (NUMVIV restarts in every locality)."""
+    f = pd.DataFrame({"ENT": "01", "MUN": "001", "LOC": ["0001", "0001", "0002"],
+                      "NUMVIV": "000001", "NUMHOG": ["1", "2", "1"], "SEXO": ["1", "2", "2"],
+                      "FACTOR": "00003"}, dtype=str)
+    if table == "migrantes":
+        f["MPER"] = ["01", "01", "01"]
+    return f
+
+
+def test_composite_keys_2000():
+    v = _cpv._composite_keys(_frame_2000("viviendas"), "viviendas")
+    assert list(v.columns[:2]) == ["ID_VIV", "ID_HOG"]
+    assert list(v["ID_VIV"]) == ["010010001000001", "010010001000001", "010010002000001"]
+    assert list(v["ID_HOG"]) == [k + h for k, h in zip(v["ID_VIV"], ["01", "02", "01"])]
+    p = _cpv._composite_keys(pd.concat([_frame_2000("personas")] * 2, ignore_index=True)
+                             .sort_values(["LOC", "NUMHOG"], kind="stable"), "personas")
+    assert list(p["ID_PERSONA"].str[-2:]) == ["01", "02", "01", "02", "01", "02"]   # file order
+    assert p["ID_PERSONA"].is_unique and (p["ID_PERSONA"].str[:17] == p["ID_HOG"]).all()
+    m = _cpv._composite_keys(_frame_2000("migrantes"), "migrantes")
+    assert list(m["ID_MII"]) == [h + "01" for h in m["ID_HOG"]] and "ID_PERSONA" not in m
+    assert _cpv._composite_keys(v, "viviendas") is v                # already derived
+    assert list(_cpv._composite_keys(_frame_2000("viviendas").drop(columns="LOC"),
+                                     "viviendas").columns) == ["ENT", "MUN", "NUMVIV",
+                                                               "NUMHOG", "SEXO", "FACTOR"]
+
+
+def test_composite_keys_2005_and_harmonize():
+    h = pd.DataFrame({"ENT": "09", "MUN": "002", "CONS_MUN": ["000001", "000001", "000002"],
+                      "CONS_VIV": "0007", "CONS_HOG": ["1", "2", "1"], "CONS_PER": "0001",
+                      "SEXO": ["1", "2", "2"], "EDAD": "039"}, dtype=str)
+    k = _cpv._composite_keys(h, "personas")
+    assert list(k["ID_VIV"]) == ["090020000001", "090020000001", "090020000002"]   # 12 digits
+    assert list(k["ID_PERSONA"]) == ["09002000000101" + "0001", "09002000000102" + "0001",
+                                     "09002000000201" + "0001"]
+    viv = _cpv._composite_keys(h.drop(columns=["CONS_HOG", "CONS_PER"]), "viviendas")
+    assert "ID_HOG" not in viv and viv["ID_VIV"].str.len().eq(12).all()
+    ctx = _no_warnings()
+    hz = _cpv._harmonize(h, "personas", periods=("2005",))
+    ctx.__exit__(None, None, None)
+    assert list(hz.columns[:5]) == ["CVEGEO", "ID_VIV", "ID_HOG", "ID_PERSONA", "CVE_ENT"]
+    assert list(hz["SEXO"]) == ["1", "3", "3"]                       # Recodificar 2 → 3
+    assert hz["ID_PERSONA"].equals(k["ID_PERSONA"])                  # same keys raw/harmonized
+    assert _cpv._harmonize(hz, "personas", periods=("2005",)).equals(hz)      # idempotent
+    raw10 = _cpv._harmonize(h.assign(SEXO="2"), "personas", periods=("2010",))
+    assert set(raw10["SEXO"]) == {"2"}                    # no recode outside 2000/2005
+
+
+def test_scoped_entry_recodificar():
+    sexo = variables_cpv_core()["SEXO"]
+    assert sexo["Recodificar"] == {"2000": {"2": "3"}, "2005": {"2": "3"}}
+    s00 = _cpv._scoped_entry(sexo, ("2000",))
+    assert s00["Alias"] == {"2": "3"} and "Recodificar" not in s00
+    assert s00["Categorías"] == {"1": "Hombre", "3": "Mujer"}
+    s20 = _cpv._scoped_entry(sexo, ("2020",))
+    assert "Alias" not in s20 and "Recodificar" not in s20
+    assert _cpv._scoped_entry(sexo) == s20
+    assert _core_for("personas", ["2005"])["SEXO"] == _cpv._scoped_entry(sexo, ("2005",))
+    assert "2" in sg.raw_codes(_core_for("personas", ["2000"])["SEXO"])
+    assert "2" not in sg.raw_codes(_core_for("personas", ["2010"])["SEXO"])
+
+
+def test_required_keys_household_optional():
+    assert _cpv._required("viviendas") == {"CVE_ENT", "ID_VIV"}
+    assert _cpv._required("personas") == {"CVE_ENT", "ID_VIV", "ID_PERSONA"}
+    assert _cpv._required("hogares") == {"CVE_ENT", "ID_VIV", "ID_HOG"}
+    assert sg.level_key(_cpv._KEY_SPEC["personas"], pd.DataFrame(
+        columns=["ID_VIV", "ID_PERSONA"])) == ["ID_VIV", "ID_PERSONA"]   # 2010-2025: no ID_HOG
+    assert sg.level_key(_cpv._KEY_SPEC["personas"], pd.DataFrame(
+        columns=["ID_VIV", "ID_HOG", "ID_PERSONA"])) == ["ID_VIV", "ID_HOG", "ID_PERSONA"]
+    assert {"NUMVIV", "NUMHOG", "CONS_MUN", "CONS_HOG", "CONS_PER", "ID_HOG"} <= _cpv._SKIP
+
+
+_REAL_2000 = (_MIRROR / "cpv_personas_2000_01.parquet").exists()
+_REAL_2005 = (_MIRROR / "cpv_personas_2005_01.parquet").exists()
+_STATES_2000 = [s for s in range(1, 33) if (_MIRROR / f"cpv_personas_2000_{s:02d}.parquet").exists()]
+# CGPV 2000's FACTOR is a separate ratio estimator per municipality whose auxiliary variable
+# is the *preliminary* count of residents of inhabited private dwellings (incl. the estimated
+# occupants of dwellings without information), so it matches no final table exactly; it lies
+# between the final ITER's occupants of private dwellings with information (OCUVIVPAR) and
+# the total population (POBTOT) in every state. (ITER 2000 state rows: POBTOT, OCUVIVPAR.)
+_ITER_2000 = {1: (944_285, 936_872), 9: (8_605_239, 8_450_809), 15: (13_096_686, 12_472_648)}
+_NATIONAL_2000 = (97_014_867, 21_857_601, 22_639_808)    # Σ FACTOR persons, dwellings, households
+
+
+@pytest.mark.parametrize("state", [s for s in _ITER_2000 if s in _STATES_2000])
+def test_cgpv2000_factor_between_iter_totals(state):
+    pobtot, ocuvivpar = _ITER_2000[state]
+    f = pd.read_parquet(_MIRROR / f"cpv_personas_2000_{state:02d}.parquet", columns=["FACTOR"])
+    assert ocuvivpar < f["FACTOR"].astype(int).sum() < pobtot
+
+
+@pytest.mark.skipif(len(_STATES_2000) < 32, reason="needs all 32 states of CGPV 2000")
+def test_cgpv2000_national_real():
+    tot = [0, 0, 0]
+    for s in range(1, 33):
+        p = pd.read_parquet(_MIRROR / f"cpv_personas_2000_{s:02d}.parquet", columns=["FACTOR"])
+        v = pd.read_parquet(_MIRROR / f"cpv_viviendas_2000_{s:02d}.parquet",
+                            columns=["FACTOR", "NUMHOG"])
+        tot[0] += int(p["FACTOR"].astype(int).sum())
+        tot[1] += int(v["FACTOR"][v["NUMHOG"] == "1"].astype(int).sum())
+        tot[2] += int(v["FACTOR"].astype(int).sum())
+    assert tuple(tot) == _NATIONAL_2000
+
+
+@pytest.mark.skipif(not _REAL_2000, reason="no local CGPV 2000 mirror")
+def test_load_cpv_2000_real(local_mirror):
+    ctx = _no_warnings()
+    v, p, m = mxcensus.load_cpv_survey(2000, state=1)
+    hv, hp, hm = mxcensus.load_cpv_survey(2000, state=1, harmonize=True, labels=False)
+    ctx.__exit__(None, None, None)
+    assert (len(v), len(p), len(m)) == (19_132, 87_507, 2_950)
+    assert list(v.index.names) == ["ID_VIV", "ID_HOG"]
+    assert list(p.index.names) == ["ID_VIV", "ID_HOG", "ID_PERSONA"]
+    assert list(m.index.names) == ["ID_VIV", "ID_HOG", "ID_MII"]
+    assert v.index.is_unique and p.index.is_unique and m.index.is_unique
+    assert p.index.droplevel("ID_PERSONA").isin(v.index).all() and m.index.droplevel("ID_MII").isin(v.index).all()
+    assert hp.index.equals(p.index) and hm.index.equals(m.index)          # same keys either way
+    assert p["FACTOR"].sum() == hp["FACTOR"].sum() == 940_778
+    assert v["FACTOR"].sum() == 207_327                                   # households
+    assert v.loc[v["NUMHOG"] == "1", "FACTOR"].sum() == 198_682           # dwellings
+    assert p["SEXO"].cat.categories.tolist() == ["Hombre", "Mujer"]
+    assert set(hp["SEXO"]) == {"1", "3"}                                  # recoded 2 → 3
+    assert (p["SEXO"] == "Mujer").sum() == (hp["SEXO"] == "3").sum()
+    assert str(p["EDAD"].dtype) == "Int64" and p["EDAD"].max() <= 130
+    assert set(hp["CVEGEO"].str.len()) == {5} and str(p["LOC"].dtype) == "str"
+
+
+@pytest.mark.skipif(not _REAL_2005, reason="no local Conteo 2005 mirror")
+def test_load_cpv_2005_real(local_mirror):
+    ctx = _no_warnings()
+    v, p, m = mxcensus.load_cpv_survey(2005, state=1)
+    h = mxcensus.load_cpv_hogares(2005, state=1)
+    hh = mxcensus.load_cpv_hogares(2005, state=1, harmonize=True, labels=False)
+    ctx.__exit__(None, None, None)
+    assert m is None and (len(v), len(h), len(p)) == (24_562, 25_217, 106_171)
+    assert list(v.index.names) == ["ID_VIV"] and list(h.index.names) == ["ID_VIV", "ID_HOG"]
+    assert list(p.index.names) == ["ID_VIV", "ID_HOG", "ID_PERSONA"]
+    assert v.index.is_unique and h.index.is_unique and p.index.is_unique
+    assert h.index.get_level_values("ID_VIV").isin(v.index).all()
+    assert p.index.droplevel("ID_PERSONA").isin(h.index).all()
+    assert hh.index.equals(h.index) and set(v.index.str.len()) == {12}
+    assert "FACTOR" not in v and "FACTOR" not in p                        # unweighted sample
+    assert p["SEXO"].cat.categories.tolist() == ["Hombre", "Mujer"]
+    assert int(pd.to_numeric(h["TOTPEHOG"]).sum()) == len(p)              # members add up
+    # the household level makes 2005's index deeper than 2020's: stack on the columns
+    both = pd.concat({p: mxcensus.load_cpv_personas(p, state=1, harmonize=True, labels=False)
+                      .reset_index() for p in ("2005", "2020")}, names=["PERIOD"])
+    assert set(both["SEXO"]) == {"1", "3"} and both[["CVEGEO", "CVE_ENT", "CVE_MUN", "ID_VIV",
+                                                     "ID_PERSONA"]].notna().all().all()

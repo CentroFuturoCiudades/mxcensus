@@ -236,7 +236,9 @@ EDITIONS: list[CpvEdition] = [
         members={"viviendas": r"VHO_F{nn}\.dbf", "personas": r"PER_F{nn}\.dbf",
                  "migrantes": r"MIN_F{nn}\.dbf", "iter": r"cgpv2000_iter_{nn}\.csv"},
         fmt="dbf", ddi_id=141, biinegi_id=2, mg_period="2000",
-        notes="composite keys ENT/MUN/LOC/NUMVIV/NUMHOG; no downloadable AGEB",
+        notes="composite keys ENT/MUN/LOC/NUMVIV (dwelling, NUMVIV restarts per locality) "
+              "+ NUMHOG; VHO_F has one row per household; persons unnumbered; "
+              "no downloadable AGEB",
     ),
     CpvEdition(
         period="2005", year=2005, kind="conteo",
@@ -249,8 +251,8 @@ EDITIONS: list[CpvEdition] = [
         members={"viviendas": r"trvmue{nn}\.dbf", "hogares": r"trhmue{nn}\.dbf",
                  "personas": r"trpmue{nn}\.dbf", "iter": r"cpv2005_iter_{nn}\.csv"},
         weighted=False, fmt="dbf", ddi_id=140, biinegi_id=3, mg_period="2005",
-        notes="10% sample, no weight (state-level reliability); keys CONS_MUN/CONS_VIV/"
-              "CONS_HOG/CONS_PER; no downloadable AGEB",
+        notes="10% sample, no weight (state-level reliability); keys ENT/MUN/CONS_MUN "
+              "(dwelling) + CONS_HOG + CONS_PER (CONS_VIV is not a key); no downloadable AGEB",
     ),
     CpvEdition(
         period="2010", year=2010, kind="censo",

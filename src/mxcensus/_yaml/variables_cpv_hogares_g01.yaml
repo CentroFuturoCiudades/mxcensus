@@ -1,0 +1,103 @@
+ENT:
+  Descripción: Entidad federativa
+  Definición: Unidad geográfica mayor de la división político-administrativa del país a la que hace referencia
+    la información estadística.
+  Tipo: categorical
+  Longitud: '2'
+  Categorías:
+    '01': Aguascalientes
+    '02': Baja California
+    '03': Baja California Sur
+    '04': Campeche
+    '05': Coahuila de Zaragoza
+    '06': Colima
+    '07': Chiapas
+    08: Chihuahua
+    09: Distrito Federal
+    '10': Durango
+    '11': Guanajuato
+    '12': Guerrero
+    '13': Hidalgo
+    '14': Jalisco
+    '15': México
+    '16': Michoacán de Ocampo
+    '17': Morelos
+    '18': Nayarit
+    '19': Nuevo León
+    '20': Oaxaca
+    '21': Puebla
+    '22': Querétaro Arteaga
+    '23': Quintana Roo
+    '24': San Luis Potosí
+    '25': Sinaloa
+    '26': Sonora
+    '27': Tabasco
+    '28': Tamaulipas
+    '29': Tlaxcala
+    '30': Veracruz de Ignacio de la Llave
+    '31': Yucatán
+    '32': Zacatecas
+    '33': Entidad insuficientemente especificada
+  Catálogo: TC_ENTID
+MUN:
+  Descripción: Municipio o delegación
+  Definición: División territorial político-administrativa de una entidad federativa a la que hace referencia
+    la información estadística.
+  Tipo: string
+  Longitud: '3'
+  Catálogo: TC_MUN
+  Nota: códigos del catálogo TC_MUN (2454 renglones; no enumerados)
+CONS_MUN:
+  Descripción: Consecutivo de Vivienda Municipal
+  Definición: Consecutivo de vivienda por municipio, asignado como identificador único según lo especifica
+    el procedimiento de la muestra
+  Tipo: numeric
+  Longitud: '6'
+  Rango:
+  - 1
+  - 999999
+  Categorías: {}
+CONS_VIV:
+  Descripción: Consecutivo de la vivienda
+  Definición: Número que distingue a una vivienda dentro de una manzana.
+  Tipo: numeric
+  Longitud: '4'
+  Rango:
+  - 1
+  - 9999
+  Categorías: {}
+CONS_HOG:
+  Descripción: Consecutivo de hogar en la vivienda
+  Definición: Número que distingue a un hogar en la vivienda.
+  Tipo: numeric
+  Longitud: '1'
+  Rango:
+  - 1
+  - 5
+  Categorías: {}
+  Especiales:
+    '9': no especificado
+TOTPEHOG:
+  Descripción: Total de personas en el hogar
+  Definición: Total de personas por hogar.
+  Tipo: numeric
+  Longitud: '2'
+  Rango:
+  - 1
+  - 99
+  Categorías: {}
+TICLAHOG:
+  Descripción: Tipo y clase de hogar
+  Definición: Distingue el tipo y la clase de hogares.
+  Tipo: categorical
+  Longitud: '2'
+  Categorías:
+    '11': Familiar nuclear
+    '12': Familiar ampliado
+    '13': Familiar compuesto
+    '21': No familiar unipersonal
+    '22': No familiar corresidente
+  Especiales:
+    '14': No especificado de familiares
+    '99': No especificado
+  Catálogo: TC_TICLH

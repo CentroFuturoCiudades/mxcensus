@@ -1,13 +1,103 @@
 viviendas:
-  latest: g05
+  latest: g07
   fingerprints:
-    7563e7e7d6b8b2fefa855665de0a6ad4ef1d5c3411c2dc5c66ca5fb24171f81b: g01
-    41eb008ffb2c110c8f0de46cd20d1e0a653072ccd2b9faf300c22e60f1651586: g02
-    198f0f5bccd8e39dc081a8154fb6072a77d5f16ffe9b8cdbec833e395855f4f2: g03
-    e66c1319d87f7d8e80b97302b8b30a9d6be44bb5c55a9ac1dce4cc0566c618c5: g04
-    f363a2e501e33e0c00ab8ad5a23902229641bff80daac4abaa39a9b3c137d8c6: g05
+    26ba91aaa7b3dbe984273654b02b2565646210d69b03d597bd6e63d56f80b055: g01
+    b6ce54358fb77236334f4386920ebb97c217bc532c20c08a272c2fb03222f5ab: g02
+    7563e7e7d6b8b2fefa855665de0a6ad4ef1d5c3411c2dc5c66ca5fb24171f81b: g03
+    41eb008ffb2c110c8f0de46cd20d1e0a653072ccd2b9faf300c22e60f1651586: g04
+    198f0f5bccd8e39dc081a8154fb6072a77d5f16ffe9b8cdbec833e395855f4f2: g05
+    e66c1319d87f7d8e80b97302b8b30a9d6be44bb5c55a9ac1dce4cc0566c618c5: g06
+    f363a2e501e33e0c00ab8ad5a23902229641bff80daac4abaa39a9b3c137d8c6: g07
   groups:
     g01:
+      n_columns: 52
+      files: 32
+      periods:
+      - '2000'
+      columns:
+      - ENT
+      - MUN
+      - LOC
+      - NUMVIV
+      - NUMHOG
+      - FACTOR
+      - ESTRATO
+      - UPM
+      - TAM_LOC
+      - CLAVIV
+      - PAREDES
+      - TECHOS
+      - PISOS
+      - COCINA
+      - COCDOR
+      - CUADORM
+      - TOTCUART
+      - DISAGU
+      - DOTAGUAD
+      - DOTAGUAR
+      - SERSAN
+      - USOEXC
+      - CONAGU
+      - DRENAJE
+      - ELECTRI
+      - COMBUST
+      - TENVIV
+      - TENPROP
+      - ANTIGUE
+      - RADIO
+      - TELEVI
+      - VIDEO
+      - LICUAD
+      - REFRIG
+      - LAVADORA
+      - TELEFONO
+      - BOILER
+      - AUTOPROP
+      - COMPU
+      - ELIBAS
+      - ELIBASPE
+      - NUMPERS
+      - GASCOM
+      - NUMHOGS
+      - TOTPERS
+      - NUMINF
+      - MCONMIG
+      - MNUMPER
+      - TIPOHOG
+      - INGTRHOG
+      - OTINGHOG
+      - INGTOHOG
+    g02:
+      n_columns: 24
+      files: 32
+      periods:
+      - '2005'
+      columns:
+      - ENT
+      - MUN
+      - CONS_MUN
+      - CONS_VIV
+      - ZONA_MET
+      - TIPO_OPE
+      - CLAVIVPA
+      - CLAVIVCO
+      - MAT_PISO
+      - CUARDOM
+      - NUMCUAR
+      - DIS_ELEC
+      - DIS_TELE
+      - DIS_REFR
+      - DIS_LAVA
+      - DIS_COMP
+      - NODISBIE
+      - DIS_AGUA
+      - DIS_SANI
+      - CON_AGUA
+      - DIS_DREN
+      - TOPERVIV
+      - ACTAGRFO
+      - TOHOGVIV
+    g03:
       n_columns: 56
       files: 31
       periods:
@@ -102,7 +192,7 @@ viviendas:
       - TAM_LOC
       - CERTEZA
       - IDH125
-    g02:
+    g04:
       n_columns: 56
       files: 1
       periods:
@@ -167,7 +257,7 @@ viviendas:
       - tam_loc
       - CERTEZA
       - IDH125
-    g03:
+    g05:
       n_columns: 88
       files: 32
       periods:
@@ -261,7 +351,7 @@ viviendas:
       - JEFE_SEXO
       - JEFE_EDAD
       - INGTRHOG
-    g04:
+    g06:
       n_columns: 83
       files: 32
       periods:
@@ -350,7 +440,7 @@ viviendas:
       - JEFE_SEXO
       - JEFE_EDAD
       - TAMLOC
-    g05:
+    g07:
       n_columns: 87
       files: 32
       periods:
@@ -443,16 +533,161 @@ viviendas:
       - JEFE_SEXO
       - JEFE_EDAD
       - TAMLOC
-personas:
-  latest: g05
+hogares:
+  latest: g01
   fingerprints:
-    eb79f8416972a3c752533c74d2cea6f348d98c0cad808cc1f32b1d360016cfd9: g01
-    9dcf38abea6bda2f8aba81d04145f5f2d784927d3eb318d5ba428ae6d15d07e6: g02
-    dd6a44775c6c76b55172b60fbd2c7120c84cd9f5c39255b7e79a4e9054ae2323: g03
-    f17c70978ffde6feaebae05711d93ab795be978b61b2814b847c850ab03ad8b4: g04
-    a97c35aad05e9117f41acc66d0476b0147f135cfc8f8b04e7b2698d811351ee0: g05
+    c300065580fe7bb34cf704b76b9d52253489b9a24575ce199de833ffea0b1e26: g01
   groups:
     g01:
+      n_columns: 7
+      files: 32
+      periods:
+      - '2005'
+      columns:
+      - ENT
+      - MUN
+      - CONS_MUN
+      - CONS_VIV
+      - CONS_HOG
+      - TOTPEHOG
+      - TICLAHOG
+personas:
+  latest: g07
+  fingerprints:
+    c3ec87453d71a9ed0e51b26f8ed5d15d3422357496aa4d2f0b7766daa4055893: g01
+    622f1fec6295d50110614c4a075c6eaa1fb2422ce52d0c84f2205c48ff16f031: g02
+    eb79f8416972a3c752533c74d2cea6f348d98c0cad808cc1f32b1d360016cfd9: g03
+    9dcf38abea6bda2f8aba81d04145f5f2d784927d3eb318d5ba428ae6d15d07e6: g04
+    dd6a44775c6c76b55172b60fbd2c7120c84cd9f5c39255b7e79a4e9054ae2323: g05
+    f17c70978ffde6feaebae05711d93ab795be978b61b2814b847c850ab03ad8b4: g06
+    a97c35aad05e9117f41acc66d0476b0147f135cfc8f8b04e7b2698d811351ee0: g07
+  groups:
+    g01:
+      n_columns: 81
+      files: 32
+      periods:
+      - '2000'
+      columns:
+      - ENT
+      - MUN
+      - LOC
+      - NUMVIV
+      - NUMHOG
+      - FACTOR
+      - ESTRATO
+      - UPM
+      - TAM_LOC
+      - OTROPARE_C
+      - SEXO
+      - EDAD
+      - LNACEDO_C
+      - IMSS
+      - ISSSTE
+      - PEMEX
+      - OTRINS_V
+      - NOTIEDER
+      - DISMOV
+      - DISBRA
+      - DISOIR
+      - DISMUDO
+      - DISVER
+      - DISMENT
+      - DISOTRA_C
+      - DISOTRA_V
+      - DISNOTIE
+      - CAUSADIS
+      - SERSALUD
+      - RES95EDO_C
+      - CAUEMI
+      - MUN95OTR_C
+      - HLENGUA
+      - QDIALECT_C
+      - HESPANOL
+      - ALFABET
+      - ASISTEN
+      - ABANESCO
+      - ESCOLARI
+      - NIVACAD
+      - ANTESC
+      - NOMCAR_C
+      - NIVELACAD
+      - ESCOACUM
+      - OTRAREL_C
+      - PERETN
+      - ESTCON
+      - CONACT
+      - OCUACTIV_C
+      - SITTRA
+      - VACACION
+      - AGUINALD
+      - REPUTIL
+      - SERVMED
+      - SARAFORE
+      - HORTRA
+      - INGRESOS
+      - ACTTRAB_C
+      - LTRABMUN_C
+      - LTRABPAI_C
+      - JUBPENR
+      - JUBPENC
+      - AYUFAOPR
+      - AYUFAOPC
+      - AYUFADPR
+      - AYUFADPC
+      - PROCAMPR
+      - PROCAMPC
+      - OTROTIPR
+      - OTROTIPC
+      - OTINGPER
+      - INGTOPER
+      - NUMHIJ
+      - HIJFAL
+      - HIJSOB
+      - FECNACM
+      - FECNACA
+      - SOBREVI
+      - EDAMORD
+      - EDAMORM
+      - EDAMORA
+    g02:
+      n_columns: 32
+      files: 32
+      periods:
+      - '2005'
+      columns:
+      - ENT
+      - MUN
+      - CONS_MUN
+      - CONS_VIV
+      - CONS_HOG
+      - CONS_PER
+      - TIPO_OPE
+      - PARENT
+      - SEXO
+      - EDAD
+      - EDAD_QUI
+      - IMSS
+      - ISSSTE
+      - PEMEX
+      - SEGU_POP
+      - INST_PRI
+      - OTRA_INS
+      - SIN_DERE
+      - LURE2000
+      - HABLENIN
+      - LEINDHAB
+      - HATAMESP
+      - ASIS_ESC
+      - ALFABET
+      - NIVANTES
+      - GRA_APRO
+      - NHIJNAVI
+      - NUHIJSOB
+      - TAM_LOC
+      - ESC_ACUM
+      - NIV_ESCO
+      - ANT_ESCO
+    g03:
       n_columns: 95
       files: 31
       periods:
@@ -586,7 +821,7 @@ personas:
       - TAM_LOC
       - CERTEZA
       - IDH125
-    g02:
+    g04:
       n_columns: 95
       files: 1
       periods:
@@ -690,7 +925,7 @@ personas:
       - tam_loc
       - CERTEZA
       - IDH125
-    g03:
+    g05:
       n_columns: 86
       files: 32
       periods:
@@ -782,7 +1017,7 @@ personas:
       - EDAD_MORIR_M
       - EDAD_MORIR_A
       - TAMLOC
-    g04:
+    g06:
       n_columns: 91
       files: 32
       periods:
@@ -879,7 +1114,7 @@ personas:
       - EDAD_MORIR_A
       - EDAD_MORIR_TD
       - TAMLOC
-    g05:
+    g07:
       n_columns: 92
       files: 32
       periods:
@@ -978,14 +1213,40 @@ personas:
       - TAMLOC
       - SM
 migrantes:
-  latest: g04
+  latest: g05
   fingerprints:
-    aba30f67c5f780bdebd58e430b82c30bf12141d26942cf37df16b82386a460c1: g01
-    603551443540cf00a1b6498d6e3ba33f7fd151a5582c75b5950b2b0583dba2e3: g02
-    3108ed47308d80740670444163f52f4ad59662a363aaf5f3d81d3bcfca293148: g03
-    12cd98af4e00fb958d410d985c12f8d3265c64e85fcda5169b637094196c5415: g04
+    1bea7439f66cdf6b34e9ea43c3e466c16901cf8c9901cda6d676f8e7668869c2: g01
+    aba30f67c5f780bdebd58e430b82c30bf12141d26942cf37df16b82386a460c1: g02
+    603551443540cf00a1b6498d6e3ba33f7fd151a5582c75b5950b2b0583dba2e3: g03
+    3108ed47308d80740670444163f52f4ad59662a363aaf5f3d81d3bcfca293148: g04
+    12cd98af4e00fb958d410d985c12f8d3265c64e85fcda5169b637094196c5415: g05
   groups:
     g01:
+      n_columns: 19
+      files: 32
+      periods:
+      - '2000'
+      columns:
+      - ENT
+      - MUN
+      - LOC
+      - NUMVIV
+      - NUMHOG
+      - FACTOR
+      - ESTRATO
+      - UPM
+      - TAM_LOC
+      - MPER
+      - MSEXO
+      - MEDAD
+      - MLUGORI_C
+      - MFECEMIM
+      - MFECEMIA
+      - MPDESOTR_C
+      - MPAIRES_C
+      - MFECRETM
+      - MFECRETA
+    g02:
       n_columns: 27
       files: 31
       periods:
@@ -1051,7 +1312,7 @@ migrantes:
       - TAM_LOC
       - CERTEZA
       - IDH125
-    g02:
+    g03:
       n_columns: 27
       files: 1
       periods:
@@ -1087,7 +1348,7 @@ migrantes:
       - tam_loc
       - CERTEZA
       - IDH125
-    g03:
+    g04:
       n_columns: 26
       files: 32
       periods:
@@ -1119,7 +1380,7 @@ migrantes:
       - MCONRESACT
       - MPERLS
       - TAMLOC
-    g04:
+    g05:
       n_columns: 27
       files: 32
       periods:

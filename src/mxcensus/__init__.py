@@ -43,6 +43,7 @@ from mxcensus.enigh import (
 from mxcensus.cpv import (
     load_cpv,
     load_cpv_viviendas,
+    load_cpv_hogares,
     load_cpv_personas,
     load_cpv_migrantes,
     load_cpv_survey,
@@ -113,9 +114,10 @@ __all__ = [
     "load_enigh_personas",
     "load_enigh_survey",
     "variables_enigh_labels",
-    # CPV family (censos, conteos y encuestas intercensales; EIC 2025 so far)
+    # CPV family (censos, conteos y encuestas intercensales 2000-2025)
     "load_cpv",
     "load_cpv_viviendas",
+    "load_cpv_hogares",
     "load_cpv_personas",
     "load_cpv_migrantes",
     "load_cpv_survey",

@@ -12,16 +12,22 @@ Editions built so far: the **Encuesta Intercensal 2025** (``viviendas``, ``perso
 the **Censo de Población y Vivienda 2020** (the cuestionario ampliado's ``viviendas``,
 ``personas``, ``migrantes`` and the ``iter``/``ageb`` aggregates, per state; raw names as
 INEGI spells them — ``ENT``/``MUN`` in the microdata, ``ENTIDAD``/``MUN``/``LOC`` in the
-aggregates) and the **Encuesta Intercensal 2015** (``viviendas`` and ``personas`` per state,
+aggregates), the **Encuesta Intercensal 2015** (``viviendas`` and ``personas`` per state,
 no migrant table; ``ENT``/``MUN`` as in 2020, keys and most codes written without their
-zero-padding).
+zero-padding), the **Censo 2010** cuestionario ampliado (DBF; keys unique within a state
+only), the **CGPV 2000** muestra censal (its dwelling file has one row per household;
+``migrantes``) and the **Conteo 2005** sample (``viviendas``, ``hogares``, ``personas``;
+no expansion factor). 2000 and 2005 carry no key column: the keyed loaders derive
+``ID_VIV``/``ID_HOG``/``ID_PERSONA``/``ID_MII`` from the composite parts
+(:func:`_composite_keys`), and their indices carry the household (``ID_HOG``).
 
 Public API:
 
 - :func:`load_cpv` — one raw table (faithful ``dtype=str`` frame) for one edition and one
   or more states.
-- :func:`load_cpv_viviendas` / :func:`load_cpv_personas` / :func:`load_cpv_migrantes` —
-  analysis-ready frames: numeric ``FACTOR``, labelled columns, indexed by the level key.
+- :func:`load_cpv_viviendas` / :func:`load_cpv_hogares` (Conteo 2005) /
+  :func:`load_cpv_personas` / :func:`load_cpv_migrantes` — analysis-ready frames: numeric
+  ``FACTOR``, labelled columns, indexed by the level key.
 - :func:`load_cpv_survey` — ``(viviendas, personas, migrantes)`` with a shared nested
   index: persons and international emigrants both hang from the dwelling (``ID_VIV``).
 - :func:`variables_cpv_labels` — the labelling dictionary of one ``(table, schema group)``.
@@ -83,7 +89,8 @@ _WEIGHTS = {"FACTOR"}
 # Keys and geographic codes: digit strings (their width is edition-specific, so only the
 # all-digits shape is checked here; key widths are checked by the data tests). CPV 2020
 # spells the microdata geography ENT/MUN and the aggregates' ENTIDAD/MUN/LOC/MZA.
-_DIGIT_CODES = frozenset({"ID_VIV", "ID_PERSONA", "ID_MII", "ID_PER", "ID_MIN", "CVEGEO",
+_DIGIT_CODES = frozenset({"ID_VIV", "ID_HOG", "ID_PERSONA", "ID_MII", "ID_PER", "ID_MIN",
+                          "CVEGEO",
                           "CVE_ENT", "CVE_MUN", "LOC50K", "CVE_LOC", "CVE_MZA", "ENT", "MUN",
                           "ENTIDAD", "LOC", "MZA"})
 # Coded strings with their own shape: the urban AGEB key is three digits and a check
@@ -96,15 +103,47 @@ _CODE_REGEX = {"AGEB": rf"^{_AGEB_RE}$", "CVE_AGEB": rf"^{_AGEB_RE}$"}
 # dwelling key and the three frames of :func:`load_cpv_survey` align on ``ID_VIV``. CPV
 # 2010's raw keys are serials unique within a state only (``ID_VIV`` 8 digits, ``ID_PER``
 # 9, ``ID_MIN`` 7): one state per raw keyed call, or ``harmonize=True``, which builds
-# national keys nested like 2020's (:func:`_national_keys`).
+# national keys nested like 2020's (:func:`_national_keys`). CGPV 2000 and Conteo 2005
+# carry no key column at all: the keyed loaders derive ``ID_VIV``/``ID_HOG``/
+# ``ID_PERSONA``/``ID_MII`` from their composite parts (:func:`_composite_keys`). Only
+# those two editions have a household level, so ``ID_HOG`` (absent elsewhere) drops out of
+# the 2010-2025 keys (:func:`mxcensus._schema_groups.level_key`). CGPV 2000's dwelling file
+# has one row per household (dwelling items repeated), so its rows are keyed
+# ``(ID_VIV, ID_HOG)``; Conteo 2005 has a separate household table (``hogares``).
 _DWELLING_KEY_SPEC: list[tuple[str, ...]] = [("ID_VIV",)]
-_PERSON_KEY_SPEC: list[tuple[str, ...]] = _DWELLING_KEY_SPEC + [("ID_PERSONA", "ID_PER")]
-_MIGRANT_KEY_SPEC: list[tuple[str, ...]] = _DWELLING_KEY_SPEC + [("ID_MII", "ID_MIN")]
+_HOUSEHOLD_KEY_SPEC: list[tuple[str, ...]] = _DWELLING_KEY_SPEC + [("ID_HOG",)]
+_PERSON_KEY_SPEC: list[tuple[str, ...]] = _HOUSEHOLD_KEY_SPEC + [("ID_PERSONA", "ID_PER")]
+_MIGRANT_KEY_SPEC: list[tuple[str, ...]] = _HOUSEHOLD_KEY_SPEC + [("ID_MII", "ID_MIN")]
 _KEY_SPEC: dict[str, list[tuple[str, ...]]] = {
-    "viviendas": _DWELLING_KEY_SPEC,
+    "viviendas": _HOUSEHOLD_KEY_SPEC,       # ID_VIV; (ID_VIV, ID_HOG) for CGPV 2000
+    "hogares": _HOUSEHOLD_KEY_SPEC,
     "personas": _PERSON_KEY_SPEC,
     "migrantes": _MIGRANT_KEY_SPEC,
 }
+# Key components a table need not carry: the household exists in 2000/2005 only.
+_OPTIONAL_KEYS = {"viviendas": {"ID_HOG"}, "personas": {"ID_HOG"}, "migrantes": {"ID_HOG"}}
+
+# The composite parts of the 2000/2005 records (raw names; the entity and municipality also
+# under their harmonized names), from which :func:`_composite_keys` derives the keys, each
+# part zero-padded to its width so the concatenation is unambiguous:
+# - CGPV 2000: dwelling = ENT + MUN + LOC + NUMVIV (NUMVIV restarts in every locality),
+#   household = NUMHOG; persons are not numbered (the file lists each household's members
+#   together, not in questionnaire order), so a person is its order in the file within the
+#   household; an emigrant = MPER (numbered within the household).
+# - Conteo 2005: dwelling = ENT + MUN + CONS_MUN (a 6-digit serial within the municipality,
+#   padded to 7 so ID_VIV has the 12 digits of 2010-2025 and harmonize=True's ID_VIV padding
+#   is a no-op — idempotent; CONS_VIV is not a key), household = CONS_HOG, person = CONS_PER
+#   (numbered within the household).
+_COMPOSITE_KEYS: tuple[dict, ...] = (
+    {"dwelling": ((("CVE_ENT", "ENT"), 2), (("CVE_MUN", "MUN"), 3), (("LOC",), 4),
+                  (("NUMVIV",), 6)),
+     "household": ("NUMHOG", 2), "person": (None, 2), "migrant": ("MPER", 2)},
+    {"dwelling": ((("CVE_ENT", "ENT"), 2), (("CVE_MUN", "MUN"), 3), (("CONS_MUN",), 7)),
+     "household": ("CONS_HOG", 2), "person": ("CONS_PER", 4), "migrant": (None, 2)},
+)
+# The raw identifiers those keys are built from (left as strings by labels=True). CONS_VIV
+# (2005) is the dwelling's number in its listing, not part of the key.
+_KEY_PARTS = ("NUMVIV", "NUMHOG", "CONS_MUN", "CONS_VIV", "CONS_HOG", "CONS_PER")
 
 # Columns ``labels=True`` leaves as raw strings: the keys and geographic codes (joinable
 # across tables and with the Marco Geoestadístico), and the person-number pointers — a
@@ -121,7 +160,7 @@ _POINTERS = ("NUMPER", "IDENT_MADRE", "IDENT_PADRE", "IDENT_PAREJA", "DUE1_NUM",
              "MPER", "MPERLS", "NUM_DUE_VIV1", "NUM_DUE_VIV2", "NUM_DUE_TERR", "IDMADRE",
              "IDPADRE", "IDCONYUGE", "NUMINF")
 _KEY_COLUMNS = frozenset(c for spec in _KEY_SPEC.values() for aliases in spec for c in aliases)
-_SKIP = _KEY_COLUMNS | frozenset(_GEO_CODES) | frozenset(_POINTERS)
+_SKIP = _KEY_COLUMNS | frozenset(_GEO_CODES) | frozenset(_POINTERS) | frozenset(_KEY_PARTS)
 
 
 def _fingerprint(columns) -> str:
@@ -176,9 +215,29 @@ def _group_periods(table: str, gid: str) -> tuple[str, ...] | None:
     return tuple(group["periods"]) if group else None
 
 
+def _scoped_entry(meta: dict, periods: Iterable | None = None) -> dict:
+    """A core entry as it applies to the editions ``periods``: an edition's
+    ``Recodificar`` map (its own spelling of a code, e.g. 2000/2005 ``SEXO`` 2 = mujer)
+    joins the entry's ``Alias``; the key itself is dropped. Unchanged for ``periods=None``
+    or editions without a recode."""
+    recode = meta.get("Recodificar")
+    if not recode:
+        return meta
+    out = {k: v for k, v in meta.items() if k != "Recodificar"}
+    maps = [recode.get(str(p)) or {} for p in (periods or ())]
+    if any(maps):
+        alias = dict(meta.get("Alias") or {})
+        for m in maps:
+            alias.update({str(k): str(v) for k, v in m.items()})
+        out["Alias"] = alias
+    return out
+
+
 def _core_for(table: str, periods: Iterable | None = None) -> dict:
-    """The core entries that apply to ``table`` in ``periods`` (:func:`_in_scope`)."""
-    return {c: m for c, m in variables_cpv_core().items() if _in_scope(m, table, periods)}
+    """The core entries that apply to ``table`` in ``periods`` (:func:`_in_scope`), each as
+    it applies to those editions (:func:`_scoped_entry`)."""
+    return {c: _scoped_entry(m, periods) for c, m in variables_cpv_core().items()
+            if _in_scope(m, table, periods)}
 
 
 def _group_of(table: str, df: pd.DataFrame) -> str:
@@ -265,8 +324,49 @@ def _zfill_codes(s: pd.Series, width: int) -> pd.Series:
 
 def _required(table: str) -> set[str]:
     """Canonical columns a harmonized ``table`` frame must carry: the entity and the
-    table's record key."""
-    return {"CVE_ENT", *(aliases[0] for aliases in _KEY_SPEC.get(table, []))}
+    table's record key (the household key only where every edition has it)."""
+    keys = {aliases[0] for aliases in _KEY_SPEC.get(table, [])}
+    return {"CVE_ENT", *(keys - _OPTIONAL_KEYS.get(table, set()))}
+
+
+def _composite_keys(out: pd.DataFrame, table: str) -> pd.DataFrame:
+    """Derive ``ID_VIV``, ``ID_HOG`` and the person (``ID_PERSONA``) or emigrant
+    (``ID_MII``) key from the composite parts of a CGPV 2000 / Conteo 2005 ``table`` frame
+    (:data:`_COMPOSITE_KEYS`), inserted as the first columns; raw or harmonized names.
+
+    ``ID_VIV`` = the dwelling parts concatenated (2000: 15 digits, 2005: 12 — the first
+    two are the entity); ``ID_HOG`` = ``ID_VIV`` + the 2-digit household number;
+    ``ID_PERSONA`` = ``ID_HOG`` + the person number (2005: ``CONS_PER``, 4 digits; 2000:
+    the 2-digit order of the person within the household in file order — the frame must
+    be in the mirror's row order); ``ID_MII`` = ``ID_HOG`` + the 2-digit ``MPER`` (2000).
+    Every raw column is kept. A frame that already has ``ID_VIV`` (every other edition, or
+    a frame already derived) or lacks the parts is returned unchanged.
+    """
+    if "ID_VIV" in out.columns or table not in _KEY_SPEC:
+        return out
+    for spec in _COMPOSITE_KEYS:
+        parts = [(next((c for c in names if c in out.columns), None), width)
+                 for names, width in spec["dwelling"]]
+        if any(col is None for col, _ in parts):
+            continue
+        keys = {"ID_VIV": functools.reduce(lambda a, b: a + b,
+                                           (out[c].str.zfill(w) for c, w in parts))}
+        hog, width = spec["household"]
+        if hog in out.columns:
+            keys["ID_HOG"] = keys["ID_VIV"] + out[hog].str.zfill(width)
+            (per, pwidth), (mig, mwidth) = spec["person"], spec["migrant"]
+            if table == "personas" and per is None:
+                rank = keys["ID_HOG"].groupby(keys["ID_HOG"], sort=False).cumcount() + 1
+                keys["ID_PERSONA"] = keys["ID_HOG"] + rank.astype(str).str.zfill(pwidth)
+            elif table == "personas" and per in out.columns:
+                keys["ID_PERSONA"] = keys["ID_HOG"] + out[per].str.zfill(pwidth)
+            elif table == "migrantes" and mig in out.columns:
+                keys["ID_MII"] = keys["ID_HOG"] + out[mig].str.zfill(mwidth)
+        out = out.copy()
+        for k, (name, col) in enumerate(keys.items()):
+            out.insert(k, name, col)
+        return out
+    return out
 
 
 def _national_keys(out: pd.DataFrame, table: str) -> pd.DataFrame:
@@ -302,7 +402,10 @@ def _harmonize(df: pd.DataFrame, table: str, label: str = "",
     frame that already carries both a source and its target) → national keys for an
     edition whose keys are state-scoped (CPV 2010, :func:`_national_keys`) → zero-pad the
     geographic codes, the keys and ``CLAVIVP`` (:data:`_GEO_PAD`, :data:`_CODE_PAD`; a code
-    only in the editions its core entry covers) → derive ``CVEGEO`` from the leading
+    only in the editions its core entry covers) → the core recodes (an in-scope core
+    entry's ``Alias`` for the frame's editions, :func:`_scoped_entry`: 2015's ``CLAVIVP``
+    ``1``…``9``, 2000/2005's ``SEXO`` ``2`` = mujer → ``3``) → the keys of an edition without key columns (CGPV 2000, Conteo 2005,
+    :func:`_composite_keys`) → derive ``CVEGEO`` from the leading
     :data:`_GEO_PARTS` the frame carries (inserted first) or, when present, **check** it
     against them (a mismatch warns) → numeric ``FACTOR``. A missing required core column
     warns (the rename map may be stale). ``periods`` are the frame's editions (its schema
@@ -328,6 +431,10 @@ def _harmonize(df: pd.DataFrame, table: str, label: str = "",
     for col, width in (_GEO_PAD | _CODE_PAD).items():
         if col in out.columns and (col in _GEO_PAD or col in core):
             out[col] = _zfill_codes(out[col], width)
+    for col, meta in core.items():           # core recodes (Alias, Recodificar): SEXO 2 → 3
+        if meta.get("Alias") and col in out.columns:
+            out[col] = out[col].replace({str(k): str(v) for k, v in meta["Alias"].items()})
+    out = _composite_keys(out, table)        # 2000/2005, from the padded geography
     parts = list(itertools.takewhile(out.columns.__contains__, _GEO_PARTS))
     if len(parts) >= 2:
         geo = functools.reduce(lambda a, b: a + b, (out[c] for c in parts))
@@ -597,6 +704,8 @@ def _load_level(table: str, period, state, harmonize: bool, labels: bool) -> pd.
                          f"keys).")
     df, gids, label = _load_cpv_raw(table=table, period=period, state=state,
                                     harmonize=harmonize)
+    if not harmonize:                       # harmonize=True derived them already
+        df = _composite_keys(df, table)
     spec = _KEY_SPEC[table]
     if labels:
         return _finish_labelled(df, _labels_for(table, gids), label, spec)
@@ -617,8 +726,28 @@ def load_cpv_viviendas(
     required (one code or a sequence, see :func:`load_cpv`). ``labels=True`` (default)
     returns labelled ``Categorical``/numeric columns validated strictly (see
     :func:`load_cpv`); keys and geographic codes stay raw strings.
+
+    Two older editions differ. CGPV 2000's dwelling file has **one row per household**
+    (the dwelling's items repeat in each), indexed ``(ID_VIV, ID_HOG)``: count dwellings
+    on ``ID_HOG``'s first household (``NUMHOG == "1"``). The Conteo 2005 sample has no
+    ``FACTOR``. Both have no key column; the keys are derived from the composite parts
+    (:func:`_composite_keys`).
     """
     return _load_level("viviendas", period, state, harmonize, labels)
+
+
+def load_cpv_hogares(
+    period: str | int | None = None, *, state: int | Sequence[int] | None,
+    harmonize: bool = False, labels: bool = True,
+) -> pd.DataFrame:
+    """The analysis-ready **household** frame of the Conteo 2005 sample (the only edition
+    with a household table: number of members and household class), indexed by
+    ``(ID_VIV, ID_HOG)``. The 2005 sample has **no expansion factor** (``FACTOR``): counts
+    are sample counts. CGPV 2000 has no separate household table — its dwelling file
+    (:func:`load_cpv_viviendas`) has one row per household. Labelled by default
+    (``labels``, see :func:`load_cpv_viviendas`).
+    """
+    return _load_level("hogares", period, state, harmonize, labels)
 
 
 def load_cpv_personas(
@@ -626,7 +755,10 @@ def load_cpv_personas(
     harmonize: bool = False, labels: bool = True,
 ) -> pd.DataFrame:
     """The analysis-ready **person** frame (residents of inhabited private dwellings), with
-    a numeric ``FACTOR``, indexed by the person key ``(ID_VIV, ID_PERSONA)``.
+    a numeric ``FACTOR``, indexed by the person key ``(ID_VIV, ID_PERSONA)`` — in CGPV
+    2000 and Conteo 2005 ``(ID_VIV, ID_HOG, ID_PERSONA)``, persons nested in households
+    (2005 has no ``FACTOR``; 2000's persons are unnumbered, so ``ID_PERSONA`` counts them
+    in file order, :func:`_composite_keys`).
 
     Σ ``FACTOR`` = the expanded population. Person-number pointers (``NUMPER``,
     ``IDENT_MADRE``/``IDENT_PADRE``/``IDENT_PAREJA``) stay raw strings, so a person's mother
@@ -642,7 +774,8 @@ def load_cpv_migrantes(
 ) -> pd.DataFrame:
     """The analysis-ready **international emigrant** frame (people of the dwelling who left
     to live in another country in the reference period), with a numeric ``FACTOR``,
-    indexed by ``(ID_VIV, ID_MII)``.
+    indexed by ``(ID_VIV, ID_MII)`` — CGPV 2000: ``(ID_VIV, ID_HOG, ID_MII)``, its
+    emigrants hang from the household.
 
     Emigrants hang from the dwelling, not from a person. A returned emigrant who lives in
     the dwelling again (``MCONRESACT`` = Sí) carries their number in the person list in
@@ -664,6 +797,11 @@ def load_cpv_survey(
     (``ID_VIV`` ⊂ ``(ID_VIV, ID_PERSONA)``; ``ID_VIV`` ⊂ ``(ID_VIV, ID_MII)``), as the
     extended-census microdata share ``ID_VIV``. The optional emigrant → person link is the
     join ``(ID_VIV, MPERLS) = (ID_VIV, NUMPER)`` (see :func:`load_cpv_migrantes`).
+
+    In CGPV 2000 every index carries the household: ``(ID_VIV, ID_HOG)`` ⊂
+    ``(ID_VIV, ID_HOG, ID_PERSONA)``, ``(ID_VIV, ID_HOG, ID_MII)``. Conteo 2005's
+    household table is :func:`load_cpv_hogares` (not part of the tuple); its persons are
+    indexed ``(ID_VIV, ID_HOG, ID_PERSONA)`` under the dwellings' ``ID_VIV``.
     """
     edition = _edition("personas", period)
     kw = dict(state=state, harmonize=harmonize, labels=labels)

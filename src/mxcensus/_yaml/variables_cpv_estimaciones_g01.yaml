@@ -7,7 +7,7 @@ CVEGEO:
   Longitud: 5 / 9 / 16
 CVE_ENT:
   Descripción: Clave del Área Geoestadística Estatal (01-32; 00 = total nacional en las estimaciones).
-    En 2010, 2015 y 2020 se llama ENT en los microdatos; en 2020, ENTIDAD en el ITER y el AGEB.
+    De 2000 a 2020 se llama ENT en los microdatos; en 2020, ENTIDAD en el ITER y el AGEB.
   Tipo: string
   Longitud: '2'
 NOM_ENT:
@@ -19,7 +19,7 @@ NOM_ENT:
 CVE_MUN:
   Descripción: Clave del Área Geoestadística Municipal (001-570; 000 = total estatal en las estimaciones,
     el ITER y el AGEB; 997 = localidades de menos de 50 000 habitantes de la entidad en las estimaciones).
-    En 2010, 2015 y 2020 se llama MUN.
+    De 2000 a 2020 se llama MUN en los microdatos.
   Tipo: string
   Longitud: '3'
 NOM_MUN:

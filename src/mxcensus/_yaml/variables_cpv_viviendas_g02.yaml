@@ -1,142 +1,217 @@
 ENT:
-  Descripción: Entidad Federativa
+  Descripción: Entidad federativa
+  Definición: Unidad geográfica mayor de la división político-administrativa del país a la que hace referencia
+    la información estadística.
   Tipo: categorical
   Longitud: '2'
   Categorías:
-    '01': '01'
-    '02': '02'
-    '03': '03'
-    '04': '04'
-    '05': '05'
-    '06': '06'
-    '07': '07'
-    08: 08
-    09: 09
-    '10': '10'
-    '11': '11'
-    '12': '12'
-    '13': '13'
-    '14': '14'
-    '15': '15'
-    '16': '16'
-    '17': '17'
-    '18': '18'
-    '19': '19'
-    '20': '20'
-    '21': '21'
-    '22': '22'
-    '23': '23'
-    '24': '24'
-    '25': '25'
-    '26': '26'
-    '27': '27'
-    '28': '28'
-    '29': '29'
-    '30': '30'
-    '31': '31'
-    '32': '32'
-NOM_ENT:
-  Descripción: Nombre de la entidad
-  Tipo: string
-  Longitud: '50'
+    '01': Aguascalientes
+    '02': Baja California
+    '03': Baja California Sur
+    '04': Campeche
+    '05': Coahuila de Zaragoza
+    '06': Colima
+    '07': Chiapas
+    08: Chihuahua
+    09: Distrito Federal
+    '10': Durango
+    '11': Guanajuato
+    '12': Guerrero
+    '13': Hidalgo
+    '14': Jalisco
+    '15': México
+    '16': Michoacán de Ocampo
+    '17': Morelos
+    '18': Nayarit
+    '19': Nuevo León
+    '20': Oaxaca
+    '21': Puebla
+    '22': Querétaro Arteaga
+    '23': Quintana Roo
+    '24': San Luis Potosí
+    '25': Sinaloa
+    '26': Sonora
+    '27': Tabasco
+    '28': Tamaulipas
+    '29': Tlaxcala
+    '30': Veracruz de Ignacio de la Llave
+    '31': Yucatán
+    '32': Zacatecas
+    '33': Entidad insuficientemente especificada
+  Catálogo: TC_ENTID
 MUN:
-  Descripción: Municipio o Delegación
+  Descripción: Municipio o delegación
+  Definición: División territorial político-administrativa de una entidad federativa a la que hace referencia
+    la información estadística.
   Tipo: string
   Longitud: '3'
-  Nota: 001..570 = códigos (no enumerados)
-NOM_MUN:
-  Descripción: Nombre del municipio o delegación
-  Tipo: string
-  Longitud: '50'
-LOC50K:
-  Descripción: Clave de la localidad de 50 000 y más habitantes dentro del municipio; 0000 = localidad
-    de menos de 50 000 habitantes
-  Tipo: string
+  Catálogo: TC_MUN
+  Nota: códigos del catálogo TC_MUN (2454 renglones; no enumerados)
+CONS_MUN:
+  Descripción: Consecutivo de Vivienda Municipal
+  Definición: Consecutivo de vivienda por municipio, asignado como identificador único según lo especifica
+    el procedimiento de la muestra
+  Tipo: numeric
+  Longitud: '6'
+  Rango:
+  - 1
+  - 999999
+  Categorías: {}
+CONS_VIV:
+  Descripción: Consecutivo de la vivienda
+  Definición: Número que distingue a una vivienda dentro de una manzana.
+  Tipo: numeric
   Longitud: '4'
-NOM_LOC:
-  Descripción: Nombre de la localidad
-  Tipo: string
-  Longitud: '70'
-ID_VIV:
-  Descripción: Identificador único de la vivienda (2015, 2020 y 2025 — 12 dígitos; los dos primeros son
-    la entidad, así que es único en todo el país). Los CSV de 2015 lo escriben sin el cero inicial de
-    las entidades 01-09 (11 dígitos); harmonize=True lo rellena. En 2010 es un consecutivo de 8 dígitos
-    único sólo dentro de la entidad; harmonize=True le antepone la entidad (entidad + consecutivo a 10
-    dígitos).
-  Tipo: string
-  Longitud: '12'
-CLAVIVP:
+  Rango:
+  - 1
+  - 9999
+  Categorías: {}
+ZONA_MET:
+  Descripción: Zona Metropolitana
+  Definición: Número del agrupamiento de áreas urbanas o rurales con una o más unidades político administrativas
+    contiguas a ésta
+  Tipo: categorical
+  Longitud: '2'
+  Categorías:
+    '01': Aguascalientes
+    '02': Tijuana
+    '03': Monclova - Frontera
+    '04': Piedras Negras
+    '05': Saltillo
+    '06': La Laguna
+    '07': Colima -Villa de Álvarez
+    08: Tecomán
+    09: Tuxtla-Gutiérrez
+    '10': Chihuahua
+    '11': Juárez
+    '12': Valle de México
+    '13': Moroleón-Uriangato
+    '14': León
+    '15': San Francisco del Rincón
+    '16': Acapulco
+    '17': Pachuca
+    '18': Tulancingo
+    '19': Tula
+    '20': Guadalajara
+    '21': Ocotlán
+    '22': Puerto Vallarta
+    '23': Toluca
+    '24': Zamora - Jacona
+    '25': La Piedad
+    '26': Morelia
+    '27': Cuautla
+    '28': Cuernavaca
+    '29': Tepic
+    '30': Monterrey
+    '31': Oaxaca
+    '32': Puebla-Tlaxcala
+    '33': San Martín Texmelucan
+    '34': Querétaro
+    '35': Cancún
+    '36': Río Verde-Ciudad Fernández
+    '37': San Luis Potosí-Soledad de Graciano Sánchez
+    '38': Guaymas
+    '39': Villahermosa
+    '40': Tampico
+    '41': Matamoros
+    '42': Nuevo Laredo
+    '43': Reynosa-Río Bravo
+    '44': Apizaco
+    '45': Tlaxcala
+    '46': Acayucan
+    '47': Coatzacoalcos
+    '48': Minatitlán
+    '49': Córdoba
+    '50': Xalapa
+    '51': Orizaba
+    '52': Poza Rica
+    '53': Veracruz
+    '54': Mérida
+    '55': Zacatecas-Guadalupe
+    '56': Zona no metropolitana
+  Catálogo: TC_ZONME
+TIPO_OPE:
+  Descripción: Tipo de operativo
+  Definición: Distingue a las viviendas según si se captaron en un operativo normal o especial.
+  Tipo: categorical
+  Longitud: '1'
+  Categorías:
+    '0': Viviendas particulares sin segmentar, operativo normal
+    '1': Viviendas particulares con manzana segmentada, operativo normal
+    '2': Viviendas particulares de personalidades, operativo especial
+    '3': Viviendas particulares del Servicio Exterior Mexicano, operativo especial
+    '4': Viviendas particulares al interior de colectivas, operativo especial
+    '5': Viviendas particulares cuya información fue proporcionada por un vecino, operativo normal, etapa
+      de recuperación
+    '6': Viviendas particulares reportadas como pendientes, operativo normal, etapa de cierre de campo
+    '7': Personas sin vivienda, indigentes, operativo especial
+    '8': Viviendas colectivas, operativo especial
+    '9': Viviendas colectivas albergues damnificados del huracán Stan, Chiapas, operativo especial
+  Catálogo: TC_TOPER
+CLAVIVPA:
   Descripción: Clase de vivienda particular
-  Pregunta: Clase de vivienda particular
+  Definición: Distingue las diferentes clases de viviendas particulares.
   Tipo: categorical
   Longitud: '1'
   Categorías:
     '1': Casa independiente
     '2': Departamento en edificio
-    '3': Vivienda en vecindad
-    '4': Vivienda en cuarto de azotea
+    '3': Vivienda o cuarto en vecindad
+    '4': Vivienda o cuarto en la azotea
     '5': Local no construido para habitación
     '6': Vivienda móvil
     '7': Refugio
   Especiales:
     '9': No especificado
-PAREDES:
-  Descripción: Paredes
-  Pregunta: ¿De qué material es la mayor parte de las paredes o muros de esta vivienda?
-  Tipo: categorical
-  Longitud: '1'
-  Categorías:
-    '1': Material de desecho
-    '2': Lámina de cartón
-    '3': Lámina de asbesto o metálica
-    '4': Carrizo, bambú  o palma
-    '5': Embarro o bajareque
-    '6': Madera
-    '7': Adobe
-    '8': Tabique, ladrillo, block, piedra, cantera, cemento o concreto
-  Especiales:
-    '9': No especificado
-TECHOS:
-  Descripción: Techos
-  Pregunta: ¿De qué material es la mayor parte del techo de esta vivienda?
+  Catálogo: TC_CVIVP
+CLAVIVCO:
+  Descripción: Clase de vivienda colectiva
+  Definición: Distingue las diferentes clases de viviendas colectivas.
   Tipo: categorical
   Longitud: '2'
   Categorías:
-    '01': Material de desecho
-    '02': Lámina de cartón
-    '03': Lámina metálica
-    '04': Lámina de asbesto
-    '05': Palma o paja
-    '06': Madera o tejamanil
-    '07': Terrado con viguería
-    08: Teja
-    09: Losa de concreto o viguetas con bovedilla
+    '01': Hotel, motel, mesón
+    '02': Pensión, casa de huéspedes, casa de asistencia
+    '03': Hospital, sanatorio, casa de salud, clínica, centro de tratamiento médico
+    '04': Casa hogar para menores, orfanatorio, casa-cuna
+    '05': Casa hogar para adultos mayores, asilo de ancianos
+    '06': Albergue para víctimas de violencia intrafamiliar
+    '07': Albergue o dormitorio público para indigentes
+    08: Internado escolar, residencia estudiantil
+    09: Convento, monasterio, congregación religiosa, seminario
+    '10': Cárcel, prisión, reclusorio, penitenciaría, colonia penal
+    '11': Centro de rehabilitación para menores infractores, correcional
+    '12': Campamento de trabajo, barraca de trabajadores, plataforma petrolera, residencia médica
+    '13': Cuartel, campamento, destacamento militar, naval o de policía
+    '14': Campamento de refugiados o damnificados
+    '15': Otra clase
+    '1': Hotel, motel, mesón
+    '2': Pensión, casa de huéspedes, casa de asistencia
+    '3': Hospital, sanatorio, casa de salud, clínica, centro de tratamiento médico
+    '4': Casa hogar para menores, orfanatorio, casa-cuna
+    '5': Casa hogar para adultos mayores, asilo de ancianos
+    '6': Albergue para víctimas de violencia intrafamiliar
+    '7': Albergue o dormitorio público para indigentes
+    '8': Internado escolar, residencia estudiantil
+    '9': Convento, monasterio, congregación religiosa, seminario
   Especiales:
     '99': No especificado
-PISOS:
-  Descripción: Pisos
-  Pregunta: ¿De qué material es la mayor parte del piso de esta vivienda?
+  Catálogo: TC_CVIVC
+MAT_PISO:
+  Descripción: Material del piso
+  Definición: Distingue el material de los pisos.
   Tipo: categorical
   Longitud: '1'
   Categorías:
     '1': Tierra
     '2': Cemento o firme
-    '3': Madera, mosaico u otro recubrimiento
+    '3': Madera, mosaico u otro material
   Especiales:
     '9': No especificado
-COCINA:
-  Descripción: Cocina
-  Pregunta: ¿Esta vivienda tiene un cuarto para cocinar?
-  Tipo: categorical
-  Longitud: '1'
-  Categorías:
-    '1': Sí
-    '3': 'No'
-  Especiales:
-    '9': No especificado
-CUADORM:
-  Descripción: Cuartos dormitorio
-  Pregunta: ¿Cuántos cuartos se usan para dormir sin contar pasillos?
+  Catálogo: TC_MATP
+CUARDOM:
+  Descripción: Número de cuartos dormitorio
+  Definición: Número total de cuartos que se usan para dormir.
   Tipo: numeric
   Longitud: '2'
   Rango:
@@ -145,9 +220,10 @@ CUADORM:
   Categorías: {}
   Especiales:
     '99': No especificado
-TOTCUART:
-  Descripción: Total de cuartos
-  Pregunta: ¿Cuántos cuartos tiene en total esta vivienda contando la cocina? (No cuente pasillos ni baños)
+  Catálogo: TC_NUMCD
+NUMCUAR:
+  Descripción: Número de cuartos
+  Definición: Número total de cuartos que se usan para alojar personas.
   Tipo: numeric
   Longitud: '2'
   Rango:
@@ -156,436 +232,141 @@ TOTCUART:
   Categorías: {}
   Especiales:
     '99': No especificado
-ELECTRI:
-  Descripción: Electricidad
-  Pregunta: ¿Hay luz eléctrica en esta vivienda?
+  Catálogo: TC_NUMCU
+DIS_ELEC:
+  Descripción: Disponibilidad de electricidad
+  Definición: Distingue si la vivienda tiene o no energía eléctrica.
   Tipo: categorical
   Longitud: '1'
   Categorías:
-    '1': Sí
-    '3': 'No'
-  Especiales:
-    '9': No especificado
-DISAGU:
-  Descripción: Agua entubada
-  Pregunta: 'En esta vivienda tienen:'
-  Tipo: categorical
-  Longitud: '1'
-  Categorías:
-    '1': Agua entubada dentro de la vivienda
-    '2': Agua entubada fuera de la vivienda, pero dentro del terreno
-    '3': Agua entubada de llave pública (o hidrante)
-    '4': Agua entubada que acarrean de otra vivienda
-    '5': Agua de pipa
-    '6': Agua de un pozo, río, lago, arroyo u otra
-  Especiales:
-    '9': No especificado
-DOTAGUAD:
-  Descripción: Dotación de agua
-  Pregunta: ¿Cuántos días a la semana les llega el agua?
-  Tipo: categorical
-  Longitud: '1'
-  Categorías:
-    '1': Diario
-    '2': Cada tercer día
-    '3': Dos veces por semana
-    '4': Una vez por semana
-    '5': De vez en cuando
-  Especiales:
-    '9': No especificado
-SERSAN:
-  Descripción: Excusado
-  Pregunta: Tienen excusado, retrete, sanitario, letrina u hoyo negro?
-  Tipo: categorical
-  Longitud: '1'
-  Categorías:
-    '1': Sí
-    '3': 'No'
-  Especiales:
-    '9': No especificado
-USOEXC:
-  Descripción: Uso exclusivo
-  Pregunta: ¿Este servicio sanitario lo comparten con otra vivienda?
-  Tipo: categorical
-  Longitud: '1'
-  Categorías:
-    '1': Sí
-    '3': 'No'
-  Especiales:
-    '9': No especificado
-CONAGU:
-  Descripción: Admisión de agua
-  Pregunta: 'El servicio sanitario:'
-  Tipo: categorical
-  Longitud: '1'
-  Categorías:
-    '5': Tiene descarga directa de agua
-    '6': Le echan agua con cubeta
-    '7': No se le puede echar agua
-  Especiales:
-    '9': No especificado
-DRENAJE:
-  Descripción: Drenaje
-  Pregunta: 'Esta vivienda tiene drenaje o desagüe conectado a:'
-  Tipo: categorical
-  Longitud: '1'
-  Categorías:
-    '1': Red pública
-    '2': Fosa séptica
-    '3': Tubería que va a dar a una barranca o grieta
-    '4': Tubería que va a dar a un río, lago o mar
-    '5': No tiene drenaje
-  Especiales:
-    '9': No especificado
-COMBUST:
-  Descripción: Combustible
-  Pregunta: 'El combustible que más usan para cocinar es:'
-  Tipo: categorical
-  Longitud: '1'
-  Categorías:
-    '1': Gas de cilindro o tanque (estacionario)
-    '2': Gas natural o de tubería
-    '3': Leña
-    '4': Carbón
-    '5': Electricidad
-    '6': Otro combustible
-  Especiales:
-    '9': No especificado
-ELIBAS:
-  Descripción: Eliminación de basura
-  Pregunta: 'La basura de esta vivienda:'
-  Tipo: categorical
-  Longitud: '1'
-  Categorías:
-    '1': La recoge un camión o carrito de basura
-    '2': La tiran en el basurero público
-    '3': La tiran en un contenedor o depósito
-    '4': La queman
-    '5': La entierran
-    '6': La tiran en un terreno baldío o calle
-    '7': La tiran a la barranca o grieta
-    '8': La tiran al río, lago o mar
-  Especiales:
-    '9': No especificado
-TENVIV:
-  Descripción: Tenencia
-  Pregunta: 'En esta vivienda:'
-  Tipo: categorical
-  Longitud: '1'
-  Categorías:
-    '1': Vive el dueño o propietario
-    '2': Pagan renta
-    '3': La ocupan en otra situación
-  Especiales:
-    '9': No especificado
-FADQUI:
-  Descripción: Adquisición
-  Pregunta: 'El dueño o propietario de la vivienda:'
-  Tipo: categorical
-  Longitud: '1'
-  Categorías:
-    '1': La compró hecha
-    '2': La mandó construir
-    '3': La construyó él mismo
-    '4': La obtuvo de otra manera
-  Especiales:
-    '9': No especificado
-ESTUFAG:
-  Descripción: Equipamiento (estufa de gas)
-  Pregunta: '¿En esta vivienda tienen: estufa de gas?'
-  Tipo: categorical
-  Longitud: '1'
-  Categorías:
-    '1': Sí
+    '1': Si
     '2': 'No'
   Especiales:
     '9': No especificado
-ESTUFAL:
-  Descripción: Equipamiento (estufa de leña o carbón con chimenea)
-  Pregunta: '¿En esta vivienda tienen: estufa de leña o carbón con chimenea?'
+  Catálogo: TC_RESINV
+DIS_TELE:
+  Descripción: Disponibilidad de televisión
+  Definición: Distingue si la vivienda tiene o no televisión.
   Tipo: categorical
   Longitud: '1'
   Categorías:
-    '3': Sí
-    '4': 'No'
+    '1': Si
+  Catálogo: TC_RESSIV
+DIS_REFR:
+  Descripción: Disponibilidad de refrigerador
+  Definición: Distingue si la vivienda tiene o no refrigerador.
+  Tipo: categorical
+  Longitud: '1'
+  Categorías:
+    '1': Si
+  Catálogo: TC_RESSIV
+DIS_LAVA:
+  Descripción: Disponibilidad de lavadora
+  Definición: Distingue si la vivienda tiene o no lavadora.
+  Tipo: categorical
+  Longitud: '1'
+  Categorías:
+    '1': Disponen de lavadora
+DIS_COMP:
+  Descripción: Disponibilidad de computadora
+  Definición: Distingue si la vivienda tiene o no compuatdora.
+  Tipo: categorical
+  Longitud: '1'
+  Categorías:
+    '1': Disponen de computadora
+NODISBIE:
+  Descripción: No dispone de bienes
+  Definición: Distingue a las viviendas que no tienen ninguno de los cuatro bienes captados .
+  Tipo: categorical
+  Longitud: '1'
+  Categorías:
+    '5': No dispone de ninguno de los bienes captados.
   Especiales:
     '9': No especificado
-TINACO:
-  Descripción: Equipamiento (tinaco)
-  Pregunta: '¿En esta vivienda tienen: tinaco?'
+  Catálogo: TC_NOBIE
+DIS_AGUA:
+  Descripción: Disponibilidad de agua
+  Definición: Distingue si la vivienda tiene o no agua y la forma de abastecimiento.
   Tipo: categorical
   Longitud: '1'
   Categorías:
-    '1': Sí
+    '1': Disponen de agua de la red pública dentro de la vivienda
+    '2': Disponen de agua de la red pública fuera de la vivienda pero dentro del terreno
+    '3': Se abastecen de una llave pública o hidrante
+    '4': Se abastecen de otra vivienda
+    '5': Se abastecen de agua de pipa
+    '6': Se abastecen de agua de pozo
+    '7': Se abastecen de agua de río, arroyo, lago u otro
+  Especiales:
+    '9': No especificado
+  Catálogo: TC_DAGUA
+DIS_SANI:
+  Descripción: Disponibilidad de sanitario
+  Definición: Distingue si la vivienda tiene o no servicio sanitario.
+  Tipo: categorical
+  Longitud: '1'
+  Categorías:
+    '1': Si
     '2': 'No'
   Especiales:
     '9': No especificado
-BOILER:
-  Descripción: Equipamiento (calentador de agua)
-  Pregunta: '¿En esta vivienda tienen: calentador de agua (boiler)?'
+  Catálogo: TC_RESINV
+CON_AGUA:
+  Descripción: Conexión de agua
+  Definición: De las viviendas que disponen de servicio sanitario, identifica aquellas donde el servicio
+    tiene conexión de agua o si le echan agua con cubeta o si no se le puede echar agua o bien si no especificó
+    esta condición.
   Tipo: categorical
   Longitud: '1'
   Categorías:
-    '3': Sí
-    '4': 'No'
+    '3': Tiene conexión de agua
+    '4': Le echan agua con cubeta
+    '5': No se le puede echar agua
   Especiales:
     '9': No especificado
-CISTERNA:
-  Descripción: Equipamiento (cisterna o aljibe)
-  Pregunta: '¿En esta vivienda tienen: cisterna o aljibe?'
+  Catálogo: TC_CAGUA
+DIS_DREN:
+  Descripción: Disponibilidad de drenaje
+  Definición: Distingue si la vivienda tiene o no drenaje y el tipo de éste.
   Tipo: categorical
   Longitud: '1'
   Categorías:
-    '1': Sí
-    '2': 'No'
+    '1': Disponen de drenaje conectado a la red pública
+    '2': Disponen de drenaje conectado a fosa séptica
+    '3': Disponen de drenaje conectado a barranca o grieta
+    '4': Disponen de drenaje conectado a río, lago o mar
+    '5': No disponen de drenaje
   Especiales:
     '9': No especificado
-REGADERA:
-  Descripción: Equipamiento (regadera)
-  Pregunta: '¿En esta vivienda tienen: regadera?'
-  Tipo: categorical
-  Longitud: '1'
-  Categorías:
-    '3': Sí
-    '4': 'No'
-  Especiales:
-    '9': No especificado
-MEDLUZ:
-  Descripción: Equipamiento (medidor de luz)
-  Pregunta: '¿En esta vivienda tienen: medidor de luz?'
-  Tipo: categorical
-  Longitud: '1'
-  Categorías:
-    '1': Sí
-    '2': 'No'
-  Especiales:
-    '9': No especificado
-RADIO:
-  Descripción: Bienes y TIC (aparato con radio)
-  Pregunta: '¿En esta vivienda tienen: radio?'
-  Tipo: categorical
-  Longitud: '1'
-  Categorías:
-    '1': Sí
-    '2': 'No'
-  Especiales:
-    '9': No especificado
-TELEVI:
-  Descripción: Bienes y TIC (televisor)
-  Pregunta: '¿En esta vivienda tienen: televisor?'
-  Tipo: categorical
-  Longitud: '1'
-  Categorías:
-    '3': Sí
-    '4': 'No'
-  Especiales:
-    '9': No especificado
-REFRIG:
-  Descripción: Bienes y TIC (refrigerador)
-  Pregunta: '¿En esta vivienda tienen: refrigerador?'
-  Tipo: categorical
-  Longitud: '1'
-  Categorías:
-    '1': Sí
-    '2': 'No'
-  Especiales:
-    '9': No especificado
-LAVADORA:
-  Descripción: Bienes y TIC (lavadora)
-  Pregunta: '¿En esta vivienda tienen: lavadora?'
-  Tipo: categorical
-  Longitud: '1'
-  Categorías:
-    '3': Sí
-    '4': 'No'
-  Especiales:
-    '9': No especificado
-AUTOPROP:
-  Descripción: Bienes y TIC (automóvil o camioneta)
-  Pregunta: '¿En esta vivienda tienen: automóvil o camioneta ?'
-  Tipo: categorical
-  Longitud: '1'
-  Categorías:
-    '1': Sí
-    '2': 'No'
-  Especiales:
-    '9': No especificado
-COMPU:
-  Descripción: Bienes y TIC (computadora)
-  Pregunta: '¿En esta vivienda tienen: computadora?'
-  Tipo: categorical
-  Longitud: '1'
-  Categorías:
-    '3': Sí
-    '4': 'No'
-  Especiales:
-    '9': No especificado
-TELEFONO:
-  Descripción: Bienes y TIC (línea telefónica fija)
-  Pregunta: '¿En esta vivienda tienen: línea telefónica fija?'
-  Tipo: categorical
-  Longitud: '1'
-  Categorías:
-    '1': Sí
-    '2': 'No'
-  Especiales:
-    '9': No especificado
-CELULAR:
-  Descripción: Bienes y TIC (teléfono celular)
-  Pregunta: '¿En esta vivienda tienen: teléfono celular?'
-  Tipo: categorical
-  Longitud: '1'
-  Categorías:
-    '3': Sí
-    '4': 'No'
-  Especiales:
-    '9': No especificado
-INTERNET:
-  Descripción: Bienes y TIC (internet)
-  Pregunta: '¿En esta vivienda tienen: internet?'
-  Tipo: categorical
-  Longitud: '1'
-  Categorías:
-    '1': Sí
-    '2': 'No'
-  Especiales:
-    '9': No especificado
-NUMINF:
-  Descripción: Número del informante
-  Pregunta: Número del informante
+  Catálogo: TC_DDREN
+TOPERVIV:
+  Descripción: Total de personas en la vivienda
+  Definición: Total de personas por vivienda.
   Tipo: numeric
-  Longitud: '2'
-  Rango:
-  - 0
-  - 99
-  Categorías: {}
-NUMPERS:
-  Descripción: Número de personas en la vivienda
-  Pregunta: Número de personas en la vivienda
-  Tipo: numeric
-  Longitud: '5'
+  Longitud: '4'
   Rango:
   - 1
-  - 99999
+  - 9999
   Categorías: {}
-TIPOHOG:
-  Descripción: Tipología de los hogares censales
-  Pregunta: Tipo de hogar censal
+ACTAGRFO:
+  Descripción: Actividades agropecuarias y forestales
+  Definición: Distingue si en la vivienda se realizan actividades agropecuarias y forestales.
   Tipo: categorical
   Longitud: '1'
   Categorías:
-    '1': Hogar Nuclear (Familiar)
-    '2': Hogar Ampliado (Familiar)
-    '3': Hogar Compuesto (Familiar)
-    '5': Hogar unipersonal (No familiar)
-    '6': Hogar corresidente (No familiar)
-    '9': No se sabe la composición
-  Especiales:
-    '4': Hogar no especificado (Familiar)
-MCONMIG:
-  Descripción: Condición de migración internacional
-  Pregunta: Durante los últimos 5 años, esto es, de junio de 2005 a la fecha, ¿alguna persona que vive
-    o vivía con ustedes se fue a vivir a otro país?
-  Tipo: categorical
-  Longitud: '1'
-  Categorías:
-    '1': Sí
-    '3': 'No'
-  Especiales:
-    '9': No especificado
-MNUMPERS:
-  Descripción: Número de migrantes internacionales
-  Pregunta: ¿Cuántas personas?
-  Tipo: numeric
-  Longitud: '2'
-  Rango:
-  - 1
-  - 99
-  Categorías: {}
-COMIO1VEZ:
-  Descripción: Acceso a la alimentación (¿alguna persona… sólo comió una vez al día?)
-  Pregunta: 'En los últimos tres meses, por falta de dinero o recursos: ¿alguna de las personas de esta
-    vivienda sólo comió una vez al día?'
-  Tipo: categorical
-  Longitud: '1'
-  Categorías:
-    '1': Sí
+    '1': Si
     '2': 'No'
   Especiales:
     '9': No especificado
-NOCOMI1D:
-  Descripción: Acceso a la alimentación (¿alguna persona… dejó de comer todo un día?)
-  Pregunta: 'En los últimos tres meses, por falta de dinero o recursos: ¿alguna de las personas de esta
-    vivienda dejó de comer todo un día?'
-  Tipo: categorical
-  Longitud: '1'
-  Categorías:
-    '3': Sí
-    '4': 'No'
-  Especiales:
-    '9': No especificado
-SINCOMER:
-  Descripción: Acceso a la alimentación (¿alguna vez se quedaron sin comida?)
-  Pregunta: 'En los últimos tres meses, por falta de dinero o recursos: ¿alguna vez se quedaron sin comida?'
-  Tipo: categorical
-  Longitud: '1'
-  Categorías:
-    '1': Sí
-    '2': 'No'
-  Especiales:
-    '9': No especificado
-INGTRHOG:
-  Descripción: Ingresos por trabajo en el hogar
-  Pregunta: Ingresos mensuales por trabajo en el hogar
+  Catálogo: TC_RESINV
+TOHOGVIV:
+  Descripción: Total de hogares en la vivienda
+  Definición: Total de hogares por vivienda.
   Tipo: numeric
-  Longitud: '6'
-  Rango:
-  - 0
-  - 999998
-  Categorías: {}
-  Especiales:
-    '999999': No especificado
-  Nota: 000000 = No recibe Ingresos; 999998 = Más de 999,999 ingresos
-FACTOR:
-  Descripción: Factor de expansión (constante dentro de la vivienda; calibrado a las estimaciones publicadas
-    — Σ FACTOR = población / viviendas particulares habitadas)
-  Tipo: numeric
-  Longitud: '5'
+  Longitud: '1'
   Rango:
   - 1
-  - 99999
-ESTRATO:
-  Descripción: Estrato de diseño muestral (alfanumérico, p. ej. 400-01-001-0003 en 2010, 01-001-05 en
-    2015, 01-001-0000-03 en 2020 y 15-001-0000-030 en 2025)
-  Tipo: string
-  Longitud: 9 / 14 / 15
-UPM:
-  Descripción: Unidad Primaria de Muestreo (4 dígitos en 2010, 6 en 2015, 5 en 2020 y 2025)
-  Tipo: string
-  Longitud: 4 / 5 / 6
-tam_loc:
-  Descripción: Tamaño de localidad
-  Pregunta: Tamaño de localidad
-  Tipo: categorical
-  Longitud: '2'
-  Categorías:
-    '01': Menos de 2 500 habitantes
-    '02': 2 500 a 14 999 habitantes
-    '03': 15 000 a 99 999 habitantes
-    '04': 100 000 y más habitantes
-CERTEZA:
-  Descripción: Municipio censado con Cuestionario Ampliado
-  Pregunta: Municipio censado con Cuestionario ampliado
-  Tipo: categorical
-  Longitud: '1'
-  Categorías:
-    '1': Sí
-    '0': 'No'
-IDH125:
-  Descripción: Municipio con menor Indice de Desarrollo Humano (IDH)
-  Pregunta: Municipio con menor IDH
-  Tipo: categorical
-  Longitud: '1'
-  Categorías:
-    '1': Sí
-    '0': 'No'
+  - 5
+  Categorías: {}
+  Especiales:
+    '9': No especificado
