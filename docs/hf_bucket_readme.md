@@ -12,7 +12,7 @@ maintained by INEGI.**
 | Family | Files | Source product |
 |---|---|---|
 | Census tabular (`iter_*`, `resargebub_*`, `personas_*`, `viviendas_*`) | 128 | Censo de Población y Vivienda 2020 (ITER, RESAGEBURB, Cuestionario Ampliado) |
-| Censuses & intercensal surveys (`cpv_{table}_{year}_*`; so far EIC 2025 `viviendas`/`personas`/`migrantes` × 32 states + national `estimaciones`) | 97 | Encuesta Intercensal 2025 (microdatos, estimaciones) |
+| Censuses & intercensal surveys (`cpv_{table}_{year}_*`; so far EIC 2025 `viviendas`/`personas`/`migrantes` × 32 states + national `estimaciones`, and CPV 2020 `viviendas`/`personas`/`migrantes`/`iter`/`ageb` × 32 states) | 257 | Encuesta Intercensal 2025 (microdatos, estimaciones); Censo de Población y Vivienda 2020 (Cuestionario Ampliado incl. migrantes, ITER, AGEB y manzana urbana) |
 | Marco Geoestadístico 2020 (`mg_{layer}_{NN}`, 15 layers × 32 states + `ti` for 13 island states) | 493 | Marco Geoestadístico, Censo de Población y Vivienda 2020 (UPC 889463807469) |
 | Marco Geoestadístico 2025 (`mg_{layer}_2025_{NN}`, same layers) | 493 | Marco Geoestadístico, Encuesta Intercensal 2025 (UPC 794551196649) |
 | DENUE economic units (`denue_{YYYYMM}_*`, 25 releases 2010–2026) | 800 | Directorio Estadístico Nacional de Unidades Económicas (DENUE) |
@@ -20,7 +20,7 @@ maintained by INEGI.**
 | ENIGH income/expenditure survey (`enigh_{table}_{year}`, 9 editions 2008–2024 × 10–12 tables) | 99 | Encuesta Nacional de Ingresos y Gastos de los Hogares (ENIGH) |
 
 Files are stored flat at the bucket root as `<name>.parquet`; the full naming scheme and
-schema are documented in the package repository. **Total: 2535 files.**
+schema are documented in the package repository. **Total: 2695 files.**
 
 ## Source & attribution
 
@@ -60,7 +60,7 @@ concern or request removal, open an issue in the
 [package repository](https://github.com/CentroFuturoCiudades/mxcensus/issues).
 
 **ENOE**, **ENIGH**, the census **Cuestionario Ampliado** (`personas_*`/`viviendas_*`) and the
-**Encuesta Intercensal 2025** microdata (`cpv_*`) are **de-identified public microdata** — individual person and household records with no direct identifiers (no
+**Encuesta Intercensal 2025** and **CPV 2020** microdata (`cpv_*`) are **de-identified public microdata** — individual person and household records with no direct identifiers (no
 names, addresses, or contact details); geography is published only down to the AGEB level
 (ENOE/ENIGH) or the municipality and 50k+ locality (census samples). INEGI releases it openly as a public statistical
 product; it is mirrored here unmodified.
@@ -94,6 +94,7 @@ mg_aur, mg_loc_ageb = m.load_mg_census(state=9)
 persons = m.load_enoe_persons(period="2023t1")              # ENOE labor-force person frame (national)
 hog = m.load_enigh_hogares(period="2024")                    # ENIGH household summary (national)
 viv, per, mig = m.load_cpv_survey(state=9)                   # Encuesta Intercensal 2025 microdata
+viv, per, mig = m.load_cpv_survey(2020, state=9)             # Censo 2020 Cuestionario Ampliado
 mun = m.load_mg("mun", state=9, period=2025)                 # MG EIC 2025 municipalities
 ```
 `mxcensus` downloads only the files it needs from this bucket and caches them locally.

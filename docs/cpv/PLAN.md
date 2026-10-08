@@ -19,7 +19,7 @@ unit.
 | **1d** | MG EIC 2025: full `build_marco_geo.py --period 2025` on `wsl` (480 files); `load_mg(layer, *, state, period)`; decide on the CRS-spelling difference (`STEP_0_probe.md` §MG) | 0 | ✅ done 2026-10-07 (`STEP_1d.md`): 493 files (480 + `ti` for 13 island states; 2020 `ti` added too); `load_mg` (default CRS EPSG:6372, a PROJ no-op) tested; national totals = `contenido.txt` exactly; CLI and registry moved to 1e |
 | **1e** | Registry + `upload_hf.py upload`/`verify` + clean-cache fetch; CLI `--dataset cpv --edition` and `--dataset mg --edition` (moved from 1c/1d: the CLI never offers unregistered files); README/CLAUDE.md/`hf_bucket_readme.md`/pyproject; version bump | 1a–1d | ✅ done 2026-10-07 (`STEP_1e.md`): registry 1932 → 2535 (additions only), 603 files uploaded + verified, clean-cache fetch + unpatched loaders OK; CLI `cpv`/`mg`; docs; v0.5.0 |
 | **2a** | CPV 2020 into the family (`viviendas`/`personas`/**`migrantes`**, `iter`, `ageb` as `cpv_*_2020_NN`); 2020 dictionary (RNM DDI probe, else FD xlsx) | 1 | ✅ done 2026-10-07 (`STEP_2a.md`): 160 files on `wsl`, `--validate` 0/257; dictionary = FD xlsx (DDI 632 found but incomplete); 2020 gids `g01`, 2025 → `g02`; core `Tablas` scope |
-| **2b** | 2020↔2025 core harmonization; raw-vs-harmonized and legacy-equality tests; upload | 2a | totals identical; uploaded |
+| **2b** | 2020↔2025 core harmonization; raw-vs-harmonized and legacy-equality tests; upload | 2a | ✅ done 2026-10-07 (`STEP_2b.md`): rows/Σ `FACTOR` identical raw vs harmonized (2020 + 2025, 32 states); 2020 files = legacy cell by cell (32 states); ITER/AGEB geography harmonized too; registry 2535 → 2695, uploaded + verified; v0.6.0 |
 | **3a** | EIC 2015 (`TR_VIVIENDA`/`TR_PERSONA`, DDI 214) | 2 | validate 0; Σ `FACTOR` vs INEGI |
 | **3b** | CPV 2010 microdata (DBF via `dbfread(raw=True)`, code pages, DDI 71, `ID_PER`/`ID_MIN`, state-scoped `ID_VIV`) | 3a | validate 0 |
 | **3c** | Aggregates `load_cpv_iter`/`load_cpv_ageb` (2020 + 2010), `cpv_iter_crosswalk.yaml`, equality with legacy `load_census` | 3b | 2020 equality test passes |
@@ -153,8 +153,11 @@ prefix are shared.
 
 **Harmonization (core-only; the canonical spelling is the latest edition's uppercase)**:
 - Uppercase all names.
-- Rename `ENT→CVE_ENT`, `MUN→CVE_MUN`, `ID_PER→ID_PERSONA`, `ID_MIN→ID_MII`, `TAM_LOC→TAMLOC`.
-- Zero-pad `CVE_ENT` (2), `CVE_MUN` (3) and `LOC50K` (4). Derive `CVEGEO`, or check it when present.
+- Rename `ENT→CVE_ENT`, `MUN→CVE_MUN`, `ID_PER→ID_PERSONA`, `ID_MIN→ID_MII`, `TAM_LOC→TAMLOC`
+  (2b added the first two; the aggregates' `ENTIDAD`/`LOC`/`AGEB`/`MZA` renames are
+  table-scoped).
+- Zero-pad `CVE_ENT` (2), `CVE_MUN` (3), `LOC50K`/`CVE_LOC` (4) and `CVE_MZA` (3). Derive
+  `CVEGEO` from the leading geographic parts (5/9/16 characters), or check it when present.
 - `FACTOR` becomes numeric.
 - A frame holding both a legacy column and its target raises; a missing core source warns.
 - Non-core columns pass through verbatim.
@@ -245,11 +248,16 @@ prefix are shared.
   is complete and parses like 2025's, so it is used; the ITER/AGEB sentinels `*`/`N/D`/`N/A`
   come from `build_cpv._AGG_SPECIALS` since their dictionaries have no footnotes.)
 - First cross-edition harmonization (`ENT`/`MUN`→`CVE_*`; ITER/AGEB `ENTIDAD`/`LOC` → table-scoped).
+  (2b: `_RENAME_CORE` + per-table `_RENAME_TABLE`; AGEB `AGEB`/`MZA` → the MG's
+  `CVE_AGEB`/`CVE_MZA`; `CVEGEO` = the leading geographic parts, 5/9/16 characters with zero
+  parts on total rows. One edition per call; stacking is two calls + `pd.concat`.)
 - A core entry may carry `Tablas` (the tables it applies to): the microdata `TAMLOC` (5
   classes) is not the ITER's (14 classes).
 - Tests:
   - Σ `FACTOR` and row counts identical raw vs harmonized.
-  - Values match the legacy `personas_NN` after casting keys to int.
+  - Values match the legacy `personas_NN` after casting keys to int. (2b: every cell of
+    viviendas/personas/iter/ageb in all 32 states, treating the legacy reader's NA strings —
+    pandas defaults + `N/D` — as NA.)
 
 ### Phase 3 — EIC 2015 + CPV 2010 (+ aggregates)
 - 2015: CSV `TR_VIVIENDA`/`TR_PERSONA`, DDI 214.

@@ -38,6 +38,10 @@ def test_cpv_state_tables_plus_national(fetched):
     fetched.clear()
     _cli.main(["fetch", "1", "--dataset", "cpv", "--edition", "2025"])
     assert fetched[0] == "cpv_viviendas_2025_01.parquet" and len(fetched) == 4
+    fetched.clear()
+    _cli.main(["fetch", "9", "--dataset", "cpv", "--edition", "2020"])   # + ITER/AGEB, per state
+    assert fetched == [f"cpv_{t}_2020_09.parquet"
+                       for t in ("viviendas", "personas", "migrantes", "iter", "ageb")]
 
 
 def test_mg_layers_in_registry(fetched):

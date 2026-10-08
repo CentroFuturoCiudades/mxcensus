@@ -1,6 +1,6 @@
 [project]
 name = "mxcensus"
-version = "0.5.0"
+version = "0.6.0"
 description = "Loaders for INEGI open data: censuses and intercensal surveys (CPV 2020, EIC 2025), Marco Geoestadístico, DENUE, ENOE and ENIGH"
 readme = "README.md"
 authors = [{ name = "Gonzalo Peraza", email = "ggperaza@gmail.com" }]

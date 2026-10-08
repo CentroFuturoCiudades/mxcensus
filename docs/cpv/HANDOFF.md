@@ -1,167 +1,166 @@
 # CPV family — session handoff
 
-**Status (2026-10-07): units 0, 1a–1e and 2a are complete.**
-- The Encuesta Intercensal 2025 is released: registered, uploaded and fetchable.
-- **CPV 2020 is built and validated but not yet registered or uploaded:** 160
-  `cpv_{viviendas,personas,migrantes,iter,ageb}_2020_NN` files on `wsl`, `--validate` 0/257.
-- **Next is unit 2b**: 2020↔2025 core harmonization, the legacy-equality tests, then registry
-  and upload.
+**Status (2026-10-07): units 0, 1a–1e, 2a and 2b are complete.**
+- The Encuesta Intercensal 2025 and the **Censo 2020** are released: registered, uploaded
+  and fetchable (`mxcensus fetch N --dataset cpv --edition 2020`).
+- `harmonize=True` maps the 2020 geography onto the 2025/MG names (`STEP_2b.md`).
+- The 2020 files equal the legacy `viviendas_`/`personas_`/`iter_`/`resargebub_` files cell
+  by cell in all 32 states.
+- **Next is unit 3a**: the Encuesta Intercensal 2015 (build, dictionary, validation; no
+  upload — 3a–3d upload together in 3d).
 
-Design: [`PLAN.md`](PLAN.md) (unit table and session protocol at the top). What 2a did:
-[`STEP_2a.md`](STEP_2a.md). Earlier units:
-[`STEP_1e.md`](STEP_1e.md) (registry, upload, CLI), [`STEP_1d.md`](STEP_1d.md) (MG 2025,
-`load_mg`), [`STEP_1c.md`](STEP_1c.md) (loaders), [`STEP_1b.md`](STEP_1b.md) (dictionaries),
-[`STEP_1a.md`](STEP_1a.md) (build), [`STEP_0_probe.md`](STEP_0_probe.md) (URLs, members,
-editions).
+Design: [`PLAN.md`](PLAN.md) (unit table and session protocol at the top). What 2b did:
+[`STEP_2b.md`](STEP_2b.md). Earlier units: [`STEP_2a.md`](STEP_2a.md) (CPV 2020 build, FD
+dictionary), [`STEP_1e.md`](STEP_1e.md) (registry, upload, CLI), [`STEP_1d.md`](STEP_1d.md)
+(MG 2025, `load_mg`), [`STEP_1c.md`](STEP_1c.md) (loaders), [`STEP_1b.md`](STEP_1b.md)
+(dictionaries), [`STEP_1a.md`](STEP_1a.md) (build), [`STEP_0_probe.md`](STEP_0_probe.md)
+(URLs, members, editions).
 
-Branch: `cpv-integration`. It is **not merged into `main`** and has no `v0.5.0` tag; see the
-open questions. The package version is 0.5.0. The registry has **2535 entries**, none of
-them CPV 2020.
+Branch: `cpv-integration`, version **0.6.0**. At the end of 2b it was **merged into `main`
+(fast-forward) and tagged `v0.6.0`** (EIC 2025 + CPV 2020; there is no `v0.5.0` tag).
+Keep working on `cpv-integration`; merge again at the next release point. The registry has **2695 entries**: 128 legacy census, 986 MG,
+800 DENUE, 425 ENOE, 99 ENIGH and 257 CPV (97 EIC 2025 + 160 CPV 2020).
 
 **Host state.**
-- `wsl:~/mxcensus` holds the full mirror (EIC 2025 + CPV 2020 + everything else) and the
-  logs (`build_cpv_2020.log`).
-- The Mac has CPV 2020 state 01 only, and EIC 2025 states 01/09/15 plus the estimaciones.
-- **wsl's working tree is dirty from 2a**: the code was `scp`'d there and the metadata
-  generated there, with no commit. Once the 2a commit is pushed, clean it and pull:
-
-  ```bash
-  git checkout -- .
-  rm src/mxcensus/_yaml/variables_cpv_{viviendas,personas,migrantes}_g02.yaml \
-     src/mxcensus/_yaml/variables_cpv_{iter,ageb}_g01.yaml
-  git pull --ff-only
-  ```
-
-  Then check `git status` / `git log --oneline -5` on both hosts.
+- `wsl:~/mxcensus` holds the full mirror and the logs (`build_cpv_2020.log`,
+  `variables_2b.log`, `validate_2b.log`, `registry_2b.log`, `upload_2b*.log`,
+  `verify_2b.log`, `pytest_2b*.log`).
+- The Mac has CPV 2020 state 01 only, EIC 2025 states 01/09/15 plus the estimaciones, and
+  all 128 legacy census files.
+- 2a and 2b are pushed. At the end of 2b, `wsl`'s tree was cleaned (2b's `scp`'d copies
+  discarded) and fast-forwarded to the pushed branch. Check `git status` /
+  `git log --oneline -3` on both hosts before starting.
 
 ## Kickoff prompt for the next session
 
 > Continue the CPV census-family integration in this repo (branch cpv-integration).
 > Read docs/cpv/HANDOFF.md first, then the parts of docs/cpv/PLAN.md it points to,
-> and execute the next unit (2b: 2020↔2025 core harmonization — ENT/MUN→CVE_ENT/CVE_MUN
-> in the microdata, table-scoped ITER/AGEB geography; raw-vs-harmonized totals and the
-> legacy-equality tests; then registry +160 and upload of the CPV 2020 files) following
-> the session protocol at the top of PLAN.md. Use .venv/bin/python, not uv run. Run wsl
-> tasks without asking; ask me before committing, pushing, installing packages or
-> uploading. When the unit's gate is met, write docs/cpv/STEP_2b.md, tick the unit table,
-> rewrite HANDOFF.md for unit 3a, update the memory note, ask me before committing, and
-> give me the next handoff prompt.
+> and execute the next unit (3a: Encuesta Intercensal 2015 — probe the state-01 ZIP,
+> dictionary from RNM DDI 214 (the FD is a legacy .xls), enable the 2015 build, full build
+> and metadata on wsl, core verified for 2015, --validate 0, Σ FACTOR vs INEGI's published
+> totals) following the session protocol at the top of PLAN.md. Use .venv/bin/python, not
+> uv run. Run wsl tasks without asking; ask me before committing, pushing, installing
+> packages or uploading. When the unit's gate is met, write docs/cpv/STEP_3a.md, tick the
+> unit table, rewrite HANDOFF.md for unit 3b, update the memory note, ask me before
+> committing, and give me the next handoff prompt.
 
-## Next unit — 2b: harmonization, legacy equality, upload
+## Next unit — 3a: Encuesta Intercensal 2015
 
-Gate: Σ `FACTOR` and row counts are identical raw vs harmonized (2020 and 2025); the 2020
-files equal the legacy ones; the 160 files are registered (additions only), uploaded and
-verified.
+Gate: `build_cpv.py --validate` reports 0 failures over every CPV file (2015 + 2020 + 2025),
+and Σ `FACTOR` matches INEGI's published EIC 2015 totals. No registry or upload in 3a:
+the plan uploads 3a–3d together in 3d.
 
 1. **Read first**:
-   - `PLAN.md` §Harmonization and Phase 2;
-   - `STEP_2a.md` §Findings for 2b;
-   - in `src/mxcensus/cpv.py`: `_harmonize`, `_RENAME_CORE`, `_GEO_PAD`/`_GEO_PARTS`,
-     `_required`, `_latest_schema`, `_labels_for`, `_core_for`/`_in_scope`.
-2. **Microdata harmonization**:
-   - Add `ENT→CVE_ENT` and `MUN→CVE_MUN` to `_RENAME_CORE`. 2020 has no `CVEGEO`, so
-     `_harmonize` derives it (5 digits).
-   - Today a 2020 frame with `harmonize=True` warns "lacks core column(s) ['CVE_ENT']"; it
-     must not after this.
-   - `ID_PER`/`ID_MIN`/`TAM_LOC` are 2010 spellings (3b), not needed yet.
-   - Check that `load_cpv_personas(state=[...], period=…)` mixing editions is not a thing:
-     editions load one at a time; mixing 2020 + 2025 means two calls plus a concat of
-     harmonized frames. Decide whether to offer more.
-3. **Aggregate geography is table-scoped**:
-   - ITER/AGEB spell `ENTIDAD`/`MUN`/`LOC` (+ `AGEB`/`MZA`); `ENTIDAD→CVE_ENT` and
-     `LOC→CVE_LOC` apply only there.
-   - `_RENAME_CORE` is flat today; add a per-table map or a `Tablas`-style scope (mirroring
-     the core's `Tablas`).
-   - Decide the ITER/AGEB `CVEGEO`: ENT+MUN+LOC (9 digits, as the estimaciones) and, for
-     AGEB, whether to add `AGEB`/`MZA` (13/16). It may be simpler to leave the aggregates'
-     harmonization to 3c (`load_cpv_iter`/`load_cpv_ageb`) and only make `_required` not
-     warn for them. Record the choice.
-4. **Cross-edition labels**:
-   - `_labels_for` drops any column whose entries differ between the stacked groups, and it
-     compares whole entries. Between 2020 and 2025, 48/74 viviendas, 52/83 personas and
-     12/24 migrantes shared columns differ somewhere, mostly in `Descripción`/`Pregunta`.
-     Only 7/22/5 differ in label-relevant keys (`Tipo`, `Categorías`, `Especiales`,
-     `Rango`, `Ordenada`, `Alias`, `Decimales`).
-   - Comparing only those keys is the likely fix; it matters only when one call stacks
-     several groups (`harmonize=True`).
-5. **Tests** (`tests/test_cpv.py`):
-   - raw vs harmonized: same rows and Σ `FACTOR`, 2020 and 2025, `_REAL` state 01;
-   - **legacy equality**: `cpv_{viviendas,personas}_2020_NN` equal the legacy
-     `viviendas_NN`/`personas_NN` (inferred dtypes) after numeric casting. 2a found this
-     true on state 01. `_REAL` on the local states; all 32 on `wsl`.
-   - ITER/AGEB vs `iter_NN`/`resargebub_NN` (the legacy keeps `*` as strings in object
-     columns);
-   - `test_census_legacy.py` must stay green (frozen path).
-6. **Registry and upload (`wsl`, ask before uploading)**:
-   - `build_cpv.py --update-registry`: 2535 → **2695**. The diff must be additions only
-     (`git diff --stat`; `STEP_1e.md` has the check).
-   - Dry-run with `hf buckets sync … --dry-run` (`export PATH=$HOME/.local/bin:$PATH`), then
-     `upload_hf.py upload` (never `--delete`), then `upload_hf.py verify` in the background
-     (>10 min).
-   - Clean-cache `POOCH.fetch("cpv_personas_2020_01.parquet")`, then
-     `mxcensus fetch 1 --dataset cpv --edition 2020`. The CLI offers every registered 2020
-     table, ITER/AGEB included, with no code change.
-7. **Docs**:
-   - README: the `cpv` section and the table row (CPV 2020 now in the family, a fetch
-     example).
-   - CLAUDE.md counts: registry 2695; the CPV family has 257 files.
-   - `docs/hf_bucket_readme.md`.
-   - Ask about a version bump (0.5.0 → 0.6.0?).
+   - `PLAN.md` Phase 3 (the 2015 bullet) and the edition matrix row;
+   - `STEP_0_probe.md` (2015: `intercensal/2015/microdatos/eic2015_{NN}_csv.zip`, members
+     `TR_VIVIENDA01.CSV`/`TR_PERSONA01.CSV`, FD `doc/eic2015_fd.xls`, DDI 214,
+     `idBiinegi` 1714);
+   - `STEP_2a.md`: the pattern for adding an edition (dictionary probe, build, metadata
+     order, gid shift, tests);
+   - `CpvEdition("2015")` in `_cpv_catalog.py`. Its member regexes are lower-case `\.csv`;
+     the probed names are upper-case `.CSV`, so check that `find_member` matches
+     case-insensitively.
+2. **Probe the data (Mac)**:
+   - `build_cpv.py --dry-run --periods 2015 --states 1`.
+   - Fetch the state-01 ZIP and read the headers:
+     - geography spelling (`ENT`/`MUN`/`LOC50K`? `NOM_*`?), and whether `ENT` is
+       zero-padded;
+     - key names and widths (`ID_VIV`, `ID_PERSONA`?);
+     - `FACTOR`, `ESTRATO`, `UPM`, `COBERTURA` (likely absent), and `TAMLOC` vs `TAM_LOC`;
+     - the encoding.
+   - Any new spelling of a core column becomes a `_RENAME_CORE` entry once its codes are
+     verified.
+3. **Dictionary**:
+   - The FD is a **legacy BIFF `.xls`**. The stdlib `_dict_fd.read_xlsx` reads only `.xlsx`,
+     and `xlrd` would be a new dependency (ask first).
+   - So the plan's source is **RNM DDI 214** through `scripts/_dict_ddi.py` (`fetch_ddi`,
+     `parse_ddi`, `dictionary_entry`, as `build_enigh.py` uses them). `build_cpv._doc_for`
+     knows only FD workbooks and indicator CSVs, so add a DDI branch keyed by
+     `CpvEdition.ddi_id`, mapping each table to its DDI file stem.
+   - **Check DDI 214's value labels against the data, as 2a did for DDI 632** (`EDAD`,
+     `PARENTESCO`, `IDENT_*`, `ENT` padding, yes/no items, numeric ranges). 632 was a
+     Nesstar export with observed-statistics labels. If 214 is as thin, decide with the
+     user: `xlrd`, a one-off conversion of the `.xls`, or DDI + data enumeration with
+     `Nota`s.
+4. **Build**:
+   - `_ENABLED += ("2015",)`, then a smoke build of state 01 on the Mac.
+   - The full build on `wsl`: `--periods 2015 --retries 6`, run with `run_in_background`
+     and a log.
+   - The EIC 2015 sample is larger than the 2020 cuestionario ampliado; watch the personas
+     sizes and memory.
+5. **Metadata on `wsl`, in order**: `--dictionary --periods 2015`, `--schema-map`,
+   `--report-only`, `--variables`, `--validate --jobs 16`.
+   - **Gids shift again.** 2015 slots in first, so viviendas/personas become 2015 = `g01`,
+     2020 = `g02`, 2025 = `g03`. Migrantes are unchanged (2015 has none: 2020 `g01`, 2025
+     `g02`).
+   - Delete the stale `variables_cpv_{viviendas,personas}_g0*.yaml` before `--variables`.
+   - Update the README examples (`g02` = EIC 2025 becomes `g03`; `g01` = CPV 2020 becomes
+     `g02`). Tests take gids from the map.
+6. **Core**:
+   - Verify every core entry a 2015 table carries (`SEXO`, `EDAD`, `CLAVIVP`, `TAMLOC`,
+     `ESTRATO` width, `UPM`, `FACTOR` range, key widths) against the 2015 FD/DDI and data.
+   - Scope or split any entry that differs (`Tablas`, or a rename once verified).
+   - Update the core header's "verified for" list.
+7. **Data checks and tests**:
+   - Σ `FACTOR` (personas, viviendas) per state and nationally vs INEGI's published EIC
+     2015 totals. Pin the exact figures and their source (tabulados / principales
+     resultados) in `STEP_3a.md`.
+   - Keys unique and nested, `FACTOR` constant within a dwelling, `ENT` = file state.
+   - `tests/test_cpv.py`:
+     - the 2015 build plan, schema groups, planted rejections, and `_REAL` state-01 2015
+       loads (`load_cpv_survey(2015, …)` returns `migrantes=None`);
+     - `_HARM_STATES`/`test_raw_vs_harmonized_totals_real` assume all three microdata
+       tables exist, so loop over the tables the edition publishes.
 
 ## Open questions for the user
 
-- **Dictionary source for 2020**: the handoff said "RNM DDI if one exists". DDI 632 exists,
-  but its value labels are incomplete (see the table in `STEP_2a.md`), so 2a built from the
-  FD xlsx and only records `ddi_id=632`. Confirm or overrule.
-- **Release mechanics**: merge `cpv-integration` into `main` and tag now, or after 2b's
-  upload?
-- **Version bump** with 2b (CPV 2020 becomes fetchable)?
+- **2015 dictionary**: if DDI 214's value labels fall short (step 3), choose `xlrd` (a new
+  build dependency), a one-off `.xls` conversion, or DDI + data enumeration.
 - Commits, pushes and uploads: ask before each (the user's standing instruction for this
   family). wsl runs need no permission.
 
 ## Gotchas (carry forward)
 
-- **CPV gids are chronological**: 2020 = `g01` and 2025 = `g02` for viviendas/personas/
-  migrantes. Code and tests take gids from `cpv_schema_map()` (`latest` is the newest
-  edition's group); never hard-code `g01`. The README examples use `g02`. A new edition
-  (2015, 2010) slots in by year and shifts later gids again.
-- **Core scope**: a core entry with `Tablas` applies only to those tables (`_in_scope`). It
-  is used by `--variables`, `variables_cpv_labels` and `_latest_schema`. `TAMLOC` is
-  microdata-only: the ITER's is 14 classes, unpadded, with `*` on total rows.
-- **Aggregate sentinels**: `build_cpv._AGG_SPECIALS["2020"]` = `*`/`N/D`/`N/A`, because the
-  2020 indicator dictionaries have no footnotes. A later edition with footnoteless
-  dictionaries needs its own entry.
-- **`_dict_fd`** now handles the 2020 FD quirks: brace-wrapped and multi-code cells,
-  wrapped catalog notes, catalog-note rows, abbreviated stems, cp1252 catalogs with `NOM_*`
-  label columns, and the `0.,.999999999` range typo. The 2025 parse was proven
-  byte-identical; re-check that whenever `_dict_fd` changes.
-- **`ageb_14` (2020) is cp1252**; the other 159 files are UTF-8. The sniff handles it.
-- **Metadata modes run on `wsl` only.** `--schema-map`, `--variables` and `--report-only`
-  on the Mac's partial mirror would overwrite the committed 32-state map and report.
+- **CPV gids are chronological** and shift when an older edition joins: 2015 will push 2020
+  to `g02` and 2025 to `g03` (viviendas/personas). Code and tests take gids from
+  `cpv_schema_map()`; never hard-code one.
+- **Harmonization is table-scoped** (`_renames(table)` = `_RENAME_CORE` +
+  `_RENAME_TABLE`):
+  - the 2020 `ENT`/`MUN` → `CVE_*` everywhere;
+  - `ENTIDAD`/`LOC` only in ITER/AGEB, and `AGEB`/`MZA` → `CVE_AGEB`/`CVE_MZA` only in AGEB.
+  - `CVEGEO` concatenates the *leading* `_GEO_PARTS`: 5, 9 or 16 characters, total rows
+    with zero parts.
+  - Editions load one per call; stack with `pd.concat(..., names=["PERIOD"])`.
+- **Legacy files** were built with pandas' default NA strings **plus `na_values=["N/D"]`**.
+  `N/D` and `N/A` are NaN there and kept verbatim in `cpv_*`; the comparator
+  (`_LEGACY_NA`) knows. State 01 has no `N/D`, so only the 32-state run (`wsl`) covers it.
+- **`_labels_for`** compares only `_LABEL_KEYS`. Between 2020 and 2025, 7/22/5
+  (viviendas/personas/migrantes) shared columns label differently.
+- **Core scope**: a core entry with `Tablas` applies only to those tables (`_in_scope`;
+  `TAMLOC` is microdata-only). `CVE_AGEB`/`CVE_MZA` exist only as harmonized names.
+- **Core edits** change the verbatim copies in the generated YAMLs. Rerun `--variables` on
+  `wsl` (2.5 min) or `test_core_yaml_contract` fails.
+- **Aggregate sentinels**: `build_cpv._AGG_SPECIALS["2020"]` = `*`/`N/D`/`N/A`.
+- **`_dict_fd`** handles the 2020 FD quirks; re-check the 2025 parse is byte-identical
+  whenever it changes. It cannot read `.xls`.
+- **`ageb_14` (2020) is cp1252**; the sniff handles it.
+- **Metadata modes run on `wsl` only** (`--schema-map`, `--variables`, `--report-only`); the
+  Mac's partial mirror would overwrite the 32-state outputs.
 - **The CLI offers only registered files** (`POOCH.registry`). Unregistered files are
-  readable through the tests' `local_mirror` fixtures.
-- **`--update-registry` modes**: `build_cpv.py --update-registry`,
-  `build_marco_geo.py --period P --update-registry` (pass `--layers` to limit it). The
-  registry diff must be additions only.
-- **Upload**: `upload_hf.py upload` from `wsl` only, never with `--delete`. Dry-run first;
-  `verify` HEADs every registry URL (~2.7k), so run it in the background. `upload` also
-  pushes `docs/hf_bucket_readme.md` as the bucket README.
-- **INEGI downloads** drop connections and truncate ZIPs; `fetch_zip_verified` retries
-  (raise `--retries`). The 2020 ZIPs are all cached on `wsl` (738 MB).
-- **MG CRS**: two spellings of one LCC projection; `load_mg` returns EPSG:6372 losslessly.
-  `ti` exists only for the 13 island states.
-- **`mxcensus.__version__`** reads installed metadata (the Mac's dev venv may lag).
-- **`_schema_groups.label_frame`** (since 1c): a missing label is `NaN` in a
-  `Categorical`.
-- **Memory**: `load_cpv_survey(state=15)` peaks at 6.4 GB RSS on the Mac for EIC 2025. The
-  2020 CA sample is smaller per state (15: 1.23 M persons vs 2.30 M).
-- **`variables_cpv_core.yaml` is hand-curated**: never regenerate it. After editing it,
-  rerun `--variables` on `wsl`.
-- **INEGI soft-404s** come back as HTTP 200 + `text/html`; rely on ZIP integrity.
-- **`uv run`** may re-sync `.venv`; use `.venv/bin/python`. Both hosts run pyarrow 24.0.0 /
-  pandas 3.0.3, and the builds are byte-identical across them (re-checked on the 2020
-  state-01 files).
+  readable through the tests' `local_mirror` fixture.
+- **Registry**: `--update-registry` upserts. The diff must be additions only (`git diff
+  --numstat`).
+- **Upload**: `upload_hf.py upload` from `wsl` only, never with `--delete`. Dry-run first.
+  `verify` HEADs every registry URL (~2.7k, ~15 min), so run it in the background; a
+  timeout counts as "missing", so re-check misses by hand.
+- **`pkill -f` over ssh**: the pattern also matches the ssh command line that runs it, so it
+  kills its own session (exit 255). Use `pgrep`, then kill by PID.
 - **Long jobs on `wsl`**: with Tailscale SSH, `ssh wsl 'nohup … &'` does not return until
-  the job ends. Use the Bash tool's `run_in_background`.
+  the job ends. Use `run_in_background`. The 32-state CPV tests take well over 10 minutes.
+- **INEGI downloads** drop connections and truncate ZIPs; `fetch_zip_verified` retries.
+  Soft-404s come back as HTTP 200 + `text/html`.
+- **`uv run`** may re-sync `.venv`; use `.venv/bin/python`. Both hosts run pyarrow 24.0.0 /
+  pandas 3.0.3, and builds are byte-identical across them.
+- **Memory**: `load_cpv_survey(state=15)` peaks at 6.4 GB RSS on the Mac for EIC 2025.
 - **Frozen legacy path**: `scripts/build_data.py`, `aggregate.py`, `extended_*.py` and the
   legacy files are pinned by `tests/test_census_legacy.py`.

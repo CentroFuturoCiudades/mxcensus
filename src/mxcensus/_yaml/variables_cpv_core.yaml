@@ -32,8 +32,11 @@
 # country…), Definición and Rangos (an aggregate indicator's definition and its verbatim
 # range text), and Nota (build notes).
 #
-# Names are the CSV's (upper case). Keys and geographic codes are strings: they keep their
-# zero-padding so files stay joinable (ID_PERSONA[:12] == ID_VIV; CVEGEO == CVE_ENT+CVE_MUN).
+# Names are the CSV's (upper case) or, for the geography, the harmonized spelling (the latest
+# edition's and the Marco Geoestadístico's: CVE_ENT/CVE_MUN/CVE_LOC/CVE_AGEB/CVE_MZA — the
+# 2020 ENT/ENTIDAD/MUN/LOC/AGEB/MZA are renamed onto them by harmonize=True, mxcensus.cpv).
+# Keys and geographic codes are strings: they keep their zero-padding so files stay joinable
+# (ID_PERSONA[:12] == ID_VIV; CVEGEO == CVE_ENT+CVE_MUN).
 
 # --- record keys: dwelling ⊃ person; dwelling ⊃ international emigrant ------------------
 ID_VIV:
@@ -55,19 +58,22 @@ ID_MII:
 
 # --- geography ----------------------------------------------------------------------------
 CVEGEO:
-  Descripción: Clave geoestadística integrada. Microdatos — entidad + municipio (5
-    dígitos); estimaciones — entidad + municipio + localidad (9 dígitos), con 00/000/0000
-    para los totales nacional, estatal y municipal.
+  Descripción: Clave geoestadística integrada, la concatenación de las claves geográficas
+    que lleva la tabla (como en el Marco Geoestadístico). Microdatos — entidad + municipio
+    (5 dígitos); estimaciones e ITER — + localidad (9); AGEB — + AGEB + manzana (16). Los
+    renglones de totales llevan sus partes en cero (00/000/0000/0000/000). Los archivos de
+    2020 no la traen; harmonize=True la deriva.
   Tipo: string
-  Longitud: 5 / 9
+  Longitud: 5 / 9 / 16
 CVE_ENT:
   Descripción: Clave del Área Geoestadística Estatal (01-32; 00 = total nacional en las
-    estimaciones)
+    estimaciones). En 2020 se llama ENT en los microdatos y ENTIDAD en el ITER y el AGEB.
   Tipo: string
   Longitud: '2'
 CVE_MUN:
-  Descripción: Clave del Área Geoestadística Municipal (001-570; en las estimaciones 000 =
-    total estatal y 997 = localidades de menos de 50 000 habitantes de la entidad)
+  Descripción: Clave del Área Geoestadística Municipal (001-570; 000 = total estatal en las
+    estimaciones, el ITER y el AGEB; 997 = localidades de menos de 50 000 habitantes de la
+    entidad en las estimaciones). En 2020 se llama MUN.
   Tipo: string
   Longitud: '3'
 LOC50K:
@@ -76,10 +82,22 @@ LOC50K:
   Tipo: string
   Longitud: '4'
 CVE_LOC:
-  Descripción: Clave de la localidad de 50 000 y más habitantes (estimaciones); 0000 = total
-    del municipio, 9997 = localidades de menos de 50 000 habitantes de la entidad
+  Descripción: Clave de la localidad. Estimaciones — localidad de 50 000 y más habitantes,
+    0000 = total del municipio, 9997 = localidades de menos de 50 000 habitantes de la
+    entidad. ITER y AGEB (LOC en 2020) — toda localidad, 0000 = total de la entidad o del
+    municipio; en el ITER 9998/9999 = localidades de una/dos viviendas.
   Tipo: string
   Longitud: '4'
+CVE_AGEB:
+  Descripción: Clave del AGEB urbana dentro de la localidad (AGEB en 2020) — tres dígitos y
+    un carácter 0-9 o A-P; 0000 = total de la entidad, del municipio o de la localidad.
+  Tipo: string
+  Longitud: '4'
+CVE_MZA:
+  Descripción: Clave de la manzana dentro del AGEB (MZA en 2020); 000 = total del AGEB o de
+    un nivel superior.
+  Tipo: string
+  Longitud: '3'
 TAMLOC:
   Descripción: Tamaño de localidad (microdatos)
   Tipo: categorical

@@ -60,6 +60,8 @@ mg_aur, mg_loc_ageb = mxcensus.load_mg_census(state=9)
 # Encuesta Intercensal 2025 — microdata (labelled, weighted) and the published estimates
 viv, per, mig = mxcensus.load_cpv_survey(state=9)
 est = mxcensus.load_cpv_estimaciones(nivel="municipal")
+# …and the Censo 2020 in the same family (cuestionario ampliado + ITER/AGEB)
+viv20, per20, mig20 = mxcensus.load_cpv_survey(2020, state=9, harmonize=True)
 
 # Any Marco Geoestadístico layer, 2020 or 2025 frame
 mun = mxcensus.load_mg("mun", state=9, period=2025)
@@ -82,6 +84,7 @@ mxcensus fetch 9        # all four census datasets for state 9
 mxcensus fetch 9 --dataset denue                  # DENUE (latest release) for state 9
 mxcensus fetch 9 --dataset enoe --period 2023t1   # the five ENOE tables (national — 9 is ignored)
 mxcensus fetch 9 --dataset cpv                    # EIC 2025 microdata for state 9 + the estimates
+mxcensus fetch 9 --dataset cpv --edition 2020     # CPV 2020: microdata + ITER/AGEB for state 9
 mxcensus fetch 9 --dataset mg --edition 2025      # every MG 2025 layer for state 9
 mxcensus info           # cache directory and mirror URL
 ```
@@ -93,7 +96,7 @@ mxcensus info           # cache directory and mirror URL
 | **ITER** | Locality | Aggregate counts (state → municipality → locality) |
 | **RESARGEBUB** | Urban block | AGEB (urban statistical areas) and MZA (city blocks) |
 | **Cuestionario Ampliado** | Microdata | Individual person and household records |
-| **Censuses & intercensal surveys** (`cpv`) | Microdata + estimates | Multi-year family; so far the Encuesta Intercensal 2025 (dwellings, persons, emigrants per state; national estimates) |
+| **Censuses & intercensal surveys** (`cpv`) | Microdata + aggregates | Multi-year family; so far the Encuesta Intercensal 2025 (dwellings, persons, emigrants per state; national estimates) and the Censo 2020 (cuestionario ampliado dwellings, persons, emigrants; ITER and AGEB/block counts; per state) |
 | **Marco Geoestadístico** | Geometries | INEGI's geostatistical frames, 2020 and 2025 (15 layers/state + island polygons) as GeoParquet |
 | **DENUE** | Establishments | Economic-units directory, 25 releases 2010–2026, as point GeoParquet |
 | **ENOE** | Labor force | Quarterly employment-survey microdata, 85 quarters 2005–2026, national (5 tables/quarter) |
@@ -107,8 +110,16 @@ published since 1990, the way ENIGH holds its editions. The first edition mirror
 municipalities and the 233 localities of 50k+ inhabitants, with an expansion weight
 `FACTOR`. Its files are faithful `str`-typed parquet: `cpv_{table}_{year}_{NN}.parquet` per
 state (`viviendas`, `personas`, `migrantes`) and `cpv_estimaciones_2025.parquet`, INEGI's
-national table of estimates. The 2020 Census will be rebuilt into the family next. The
-legacy loaders (`load_census`, `load_extended_*`) and their files are unchanged.
+national table of estimates.
+
+The second edition is the **Censo de Población y Vivienda 2020**: the cuestionario ampliado
+sample (`viviendas`, `personas` and, new to the mirror, the international emigrants
+`migrantes`) and the `iter` (localities) and `ageb` (urban AGEBs and blocks) aggregates, per
+state (`cpv_{table}_2020_{NN}.parquet`). They hold the same values as the legacy
+`viviendas_NN`/`personas_NN`/`iter_NN`/`resargebub_NN` files (checked cell by cell for all
+32 states), but as INEGI's text: zero-padded codes and the aggregates' `*`/`N/D`/`N/A`
+markers kept. The legacy loaders (`load_census`, `load_extended_*`) and their files are
+unchanged.
 
 ```python
 # Analysis-ready, labelled frames indexed by the record key (ID_VIV ⊂ ID_PERSONA / ID_MII)
@@ -118,18 +129,42 @@ per.groupby("SEXO", observed=True)["FACTOR"].sum()          # weighted, labelled
 per = mxcensus.load_cpv_personas(state=[1, 9])              # several states, concatenated
 raw = mxcensus.load_cpv(table="personas", state=1)          # faithful raw codes
 
+# Censo 2020: the same loaders with period=2020 (ITER/AGEB exist only for 2020 so far)
+viv, per, mig = mxcensus.load_cpv_survey(2020, state=1)
+it = mxcensus.load_cpv(table="iter", state=1, labels=True)  # counts Int64, '*'/'N/D' → NA
+
 # The published estimates: one row per geography, one column per indicator
 est = mxcensus.load_cpv_estimaciones(nivel="municipal", state=1)
 ee = mxcensus.load_cpv_estimaciones(estimador="ee")          # standard errors (also li/ls/cv)
 ```
 
-The expansion factors are calibrated to the estimates: Σ `FACTOR` over the microdata equals
-the published population and occupied-dwelling totals **exactly** at every geographic level.
-The microdata are mirrored per state, so `state=` is required (an INEGI code or a sequence of
-them). Variable dictionaries come from INEGI's data dictionary (`eic2025_micro_fd.xlsx`),
-overlaid by a hand-curated core. Every file is fingerprinted into a per-table schema group
-and validated on load. Schema groups, reports and the implementation history live in
-[docs/cpv/](docs/cpv/).
+The EIC 2025 expansion factors are calibrated to the estimates: Σ `FACTOR` over the
+microdata equals the published population and occupied-dwelling totals **exactly** at every
+geographic level. (The 2020 sample expands to the population of inhabited private dwellings,
+125.5 M, not the census total.) The files are mirrored per state, so `state=` is required
+(an INEGI code or a sequence of them). Variable dictionaries come from INEGI's data
+dictionaries (`eic2025_micro_fd.xlsx`, the 2020 cuestionario ampliado workbook and the
+ITER/AGEB indicator dictionaries), overlaid by a hand-curated core. Every file is
+fingerprinted into a per-table schema group and validated on load.
+
+Editions keep INEGI's own column names. `harmonize=True` puts the shared **core** on the
+latest edition's names, which are also the Marco Geoestadístico's: the 2020 `ENT`/`MUN`
+become `CVE_ENT`/`CVE_MUN` and a `CVEGEO` is derived (in the ITER/AGEB also `ENTIDAD`/`LOC`/
+`AGEB`/`MZA` → `CVE_ENT`/`CVE_LOC`/`CVE_AGEB`/`CVE_MZA`, with a 9- or 16-character
+`CVEGEO`). Rows and Σ `FACTOR` are unchanged and every other column stays verbatim. Each
+call loads one edition; stack editions yourself:
+
+```python
+import pandas as pd
+
+frames = {p: mxcensus.load_cpv_personas(p, state=1, harmonize=True, labels=False)
+          for p in (2020, 2025)}
+per = pd.concat(frames, names=["PERIOD"])                   # core columns aligned
+```
+
+Only the core (keys, geography, sample design, `FACTOR`, `CLAVIVP`, `SEXO`, `EDAD`,
+`TAMLOC`) is comparable across editions; other items keep each edition's codes. Schema
+groups, reports and the implementation history live in [docs/cpv/](docs/cpv/).
 
 ### DENUE (multi-temporal)
 
@@ -322,6 +357,7 @@ mxcensus.variables_enigh_core()    # ENIGH analytical-core labels (clase_hog, ed
 mxcensus.variables_enigh_labels("poblacion", "g08")   # merged dictionary (core over DDI)
 mxcensus.cpv_schema_map()          # CPV-family per-table schema groups (viviendas/personas/…)
 mxcensus.variables_cpv("personas", "g02")   # CPV variables for a (table, schema group): g02 = EIC 2025
+mxcensus.variables_cpv("personas", "g01")   # g01 = Censo 2020 (gids are chronological per table)
 mxcensus.variables_cpv_core()      # CPV analytical-core labels (keys, geography, SEXO, EDAD, …)
 mxcensus.variables_cpv_labels("personas", "g02")   # merged dictionary (core over the FD)
 ```
@@ -427,10 +463,12 @@ before and during loading:
   `is_informal` flags), but leaves the underlying values untouched. One source-side encoding
   defect — a few mangled accented characters in two open-text SDEM fields
   (`cs_p21_des`/`cs_p23_des`) — is preserved as published, **not** corrected.
-- **Censuses and intercensal surveys (`cpv`)** — the EIC 2025 CSVs are converted to parquet
-  as **faithful raw** text: every value as INEGI published it, including the estimates'
-  `NA`/`MI` markers. The `load_cpv_*` loaders only **derive** analysis frames (numeric
-  `FACTOR`, a record-key index, labels from INEGI's dictionary), and
+- **Censuses and intercensal surveys (`cpv`)** — the EIC 2025 and Censo 2020 CSVs are
+  converted to parquet as **faithful raw** text: every value as INEGI published it,
+  including the estimates' `NA`/`MI` and the 2020 ITER/AGEB `*`/`N/D`/`N/A` markers. The
+  `load_cpv_*` loaders only **derive** analysis frames (numeric `FACTOR`, a record-key
+  index, labels from INEGI's dictionaries, and — with `harmonize=True` — the latest
+  edition's names for the core geography plus a derived `CVEGEO`), and
   `load_cpv_estimaciones` reshapes the estimates to one row per geography with `NA`/`MI` as
   missing values. No value is imputed or corrected.
 - **ENIGH** — every edition's CSV tables are converted to parquet as **faithful raw** text. The `load_enigh_*` loaders only **derive** analysis frames (numeric weights joined from `concentradohogar` where a table carries none, a hierarchical index, and — with `harmonize=True` — canonical names for the analytical core plus geography derived from `ubica_geo`); no value is imputed or corrected.

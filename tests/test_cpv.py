@@ -644,7 +644,7 @@ def _cols(table, gid):
     return _SM[table]["groups"][gid]["columns"]
 
 
-_CODE_SAMPLE = {"AGEB": "011A"}   # a value of each _CODE_REGEX shape
+_CODE_SAMPLE = {"AGEB": "011A", "CVE_AGEB": "011A"}   # a value of each _CODE_REGEX shape
 
 
 def _valid_value(table: str, gid: str, col: str) -> str:
@@ -936,13 +936,48 @@ def test_harmonize_checks_cvegeo_and_warns_on_missing_core():
     ctx.__exit__(None, None, None)
 
 
-def test_harmonize_rename_and_clash(monkeypatch):
-    monkeypatch.setattr(_cpv, "_RENAME_CORE", {"ENT": "CVE_ENT", "MUN": "CVE_MUN"})
-    h = _cpv._harmonize(pd.DataFrame({"ENT": ["9"], "MUN": ["2"], "ID_VIV": ["x"]}), "viviendas")
+def test_harmonize_rename_and_clash():
+    h = _cpv._harmonize(pd.DataFrame({"ent": ["9"], "MUN": ["2"], "ID_VIV": ["x"]}), "viviendas")
     assert list(h.columns) == ["CVEGEO", "CVE_ENT", "CVE_MUN", "ID_VIV"]
     assert h.iloc[0].tolist() == ["09002", "09", "002", "x"]
     with pytest.raises(ValueError, match=r"both a legacy column and its target.*\['CVE_ENT'\]"):
         _cpv._harmonize(pd.DataFrame({"ENT": ["9"], "CVE_ENT": ["09"]}), "viviendas")
+    with pytest.raises(ValueError, match=r"\['CVE_ENT'\]"):          # two sources, one target
+        _cpv._harmonize(pd.DataFrame({"ENT": ["9"], "ENTIDAD": ["09"]}), "iter")
+
+
+def test_harmonize_aggregates_table_scoped():
+    """The ITER/AGEB spell the entity ENTIDAD and the locality LOC: renamed there only, and
+    CVEGEO is the concatenation of every geographic part (9 / 16 characters)."""
+    geo = {"ENTIDAD": ["01", "01", "01"], "NOM_ENT": ["A"] * 3, "MUN": ["000", "001", "001"],
+           "LOC": ["0000", "0000", "0001"], "POBTOT": ["9", "5", "*"]}
+    ctx = _no_warnings()
+    it = _cpv._harmonize(pd.DataFrame(geo, dtype=str), "iter")
+    ag = _cpv._harmonize(pd.DataFrame({**geo, "AGEB": ["0000", "0000", "045A"],
+                                       "MZA": ["000", "000", "012"]}, dtype=str), "ageb")
+    ctx.__exit__(None, None, None)
+    assert list(it.columns) == ["CVEGEO", "CVE_ENT", "NOM_ENT", "CVE_MUN", "CVE_LOC", "POBTOT"]
+    assert list(it["CVEGEO"]) == ["010000000", "010010000", "010010001"]
+    assert list(ag.columns[-3:]) == ["POBTOT", "CVE_AGEB", "CVE_MZA"]
+    assert list(ag["CVEGEO"]) == ["0100000000000000", "0100100000000000", "010010001045A012"]
+    assert it["POBTOT"].tolist() == ["9", "5", "*"]                  # non-core: verbatim
+    for t, h in (("iter", it), ("ageb", ag)):
+        _cpv._latest_schema(t).validate(h, lazy=True)
+        assert _cpv._harmonize(h, t).equals(h)                       # idempotent
+    bad = ag.copy()
+    bad["CVE_AGEB"] = "45AZ"
+    with pytest.raises(pa.errors.SchemaErrors, match="CVE_AGEB"):
+        _cpv._latest_schema("ageb").validate(bad, lazy=True)
+    # elsewhere ENTIDAD/LOC/AGEB/MZA are not core: kept verbatim (and CVEGEO = ENT+MUN)
+    with pytest.warns(UserWarning, match=r"lacks core column\(s\) \['CVE_ENT'"):
+        v = _cpv._harmonize(pd.DataFrame({"ENTIDAD": ["1"], "MUN": ["2"], "LOC": ["3"],
+                                          "ID_VIV": ["x"]}), "viviendas")
+    assert list(v.columns) == ["ENTIDAD", "CVE_MUN", "LOC", "ID_VIV"]
+    labels = mxcensus.variables_cpv_labels("ageb", _SM["ageb"]["latest"])
+    core = variables_cpv_core()
+    assert labels["CVE_AGEB"] == core["CVE_AGEB"] and labels["CVE_LOC"] == core["CVE_LOC"]
+    assert labels["AGEB"]["Descripción"] == "Clave del AGEB"          # the raw name: FD entry
+    assert "CVE_LOC" not in {_cpv._renames("personas").get(c) for c in ("LOC", "ENTIDAD")}
 
 
 def test_latest_schema_rejects_unpadded_and_bad_core():
@@ -994,11 +1029,18 @@ def test_mixed_schema_groups(fake_mirror, monkeypatch):
     df = mxcensus.load_cpv(table="personas", state=[1, 2], harmonize=True)
     assert len(df) == 6
     base = mxcensus.variables_cpv_labels("personas", gid)
-    other = {**base, "NIVACAD": {**base["NIVACAD"], "Categorías": {"00": "Otro"}}}
+    other = {**base, "NIVACAD": {**base["NIVACAD"], "Categorías": {"00": "Otro"}},
+             "SEXO": {**base["SEXO"], "Descripción": "otra redacción", "Pregunta": "¿?"}}
     monkeypatch.setattr(_cpv, "variables_cpv_labels", lambda t, g: base if g == "gA" else other)
-    with pytest.warns(UserWarning, match=r"\['NIVACAD'\] are documented differently"):
+    with pytest.warns(UserWarning, match=r"\['NIVACAD'\] are labelled differently"):
         lab = mxcensus.load_cpv_personas(state=[1, 2], harmonize=True)
     assert lab["NIVACAD"].dtype == frame_dtype("NIVACAD") and isinstance(lab["SEXO"].dtype, pd.CategoricalDtype)
+    # wording is not a conflict; the newest group's entry is kept
+    with pytest.warns(UserWarning, match="NIVACAD"):
+        merged = _cpv._labels_for("personas", ["gA", "gB"])
+    assert merged["SEXO"]["Descripción"] == "otra redacción" and "NIVACAD" not in merged
+    assert _cpv._label_spec({"Tipo": "Numérico", "Ordenada": False}) == _cpv._label_spec(
+        {"Tipo": "numeric", "Rango": None, "Descripción": "x"})
 
 
 def frame_dtype(col):
@@ -1445,3 +1487,116 @@ def test_load_cpv_2020_aggregates_real(local_mirror):
     assert (it["P_0A2_F"] == "*").sum() == lab["P_0A2_F"].isna().sum()
     assert lab["REL_H_M"].dtype.kind == "f" and str(lab["TAMLOC"].dtype) == "str"
     assert str(ag["AGEB"].dtype) == "str" and str(ag["POBTOT"].dtype) == "Int64"
+
+
+# --- unit 2b: 2020 ↔ 2025 harmonization; equality with the legacy 2020 files --------------
+
+_SURVEY = ("viviendas", "personas", "migrantes")     # the 2020 and 2025 microdata
+
+_HARM_STATES = [(p, s) for p in ("2020", "2025") for s in range(1, 33)
+                if all((_MIRROR / cpv_filename(t, p, s)).exists() for t in _SURVEY)]
+
+
+@pytest.mark.parametrize("period,state", _HARM_STATES)
+def test_raw_vs_harmonized_totals_real(period, state):
+    """Harmonizing renames and pads the core only: same rows and Σ FACTOR, raw ENT/MUN =
+    harmonized CVE_ENT/CVE_MUN, CVEGEO = CVE_ENT + CVE_MUN, every other column verbatim."""
+    for table in _SURVEY:
+        raw = pd.read_parquet(_MIRROR / cpv_filename(table, period, state))
+        ctx = _no_warnings()
+        harm = _cpv._harmonize(raw, table)
+        ctx.__exit__(None, None, None)
+        assert len(harm) == len(raw) and harm["FACTOR"].dtype.kind in "iu"
+        assert harm["FACTOR"].sum() == pd.to_numeric(raw["FACTOR"]).sum()
+        assert set(harm["CVE_ENT"]) == {f"{state:02d}"}
+        assert (harm["CVEGEO"] == harm["CVE_ENT"] + harm["CVE_MUN"]).all()
+        renamed = {"ENT": "CVE_ENT", "MUN": "CVE_MUN"} if period == "2020" else {}
+        assert harm.drop(columns=["CVEGEO", "FACTOR"] if renamed else ["FACTOR"]).equals(
+            raw.rename(columns=renamed).drop(columns="FACTOR"))
+
+
+@_REAL_2020_SKIP
+def test_harmonized_editions_stack_real(local_mirror):
+    """2020 and 2025 through the loaders with harmonize=True: same totals as raw, the core
+    columns aligned, and the documented two-call stacking works."""
+    ctx = _no_warnings()
+    frames = {}
+    for period in ("2020", "2025"):
+        v, p, m = mxcensus.load_cpv_survey(period, state=1, harmonize=True)
+        raw = {t: mxcensus.load_cpv(table=t, period=period, state=1) for t in _SURVEY}
+        for t, f in zip(_SURVEY, (v, p, m)):
+            assert len(f) == len(raw[t])
+            assert f["FACTOR"].sum() == pd.to_numeric(raw[t]["FACTOR"]).sum()
+            assert list(f.columns[:3]) == ["CVEGEO", "CVE_ENT", "CVE_MUN"]
+        frames[period] = mxcensus.load_cpv_personas(period, state=1, harmonize=True, labels=False)
+    it = mxcensus.load_cpv(table="iter", state=1, harmonize=True, labels=True)
+    ag = mxcensus.load_cpv(table="ageb", state=1, harmonize=True, labels=True)
+    ctx.__exit__(None, None, None)
+    both = pd.concat(frames, names=["PERIOD"])
+    assert both.index.names == ["PERIOD", "ID_VIV", "ID_PERSONA"] and both.index.is_unique
+    assert both.groupby(level="PERIOD")["FACTOR"].sum().to_dict() == {"2020": 1_421_198,
+                                                                      "2025": 1_534_416}
+    core = ["CVEGEO", "CVE_ENT", "CVE_MUN", "LOC50K", "COBERTURA", "ESTRATO", "UPM", "FACTOR",
+            "CLAVIVP", "SEXO", "EDAD", "TAMLOC"]
+    assert both[core].notna().all().all()
+    _cpv._latest_schema("personas").validate(both.reset_index(), lazy=True)
+    # the aggregates: the MG's names, CVEGEO 9 (ITER) / 16 (AGEB) characters, unique per row
+    assert list(it.columns[:7]) == ["CVEGEO", "CVE_ENT", "NOM_ENT", "CVE_MUN", "NOM_MUN",
+                                    "CVE_LOC", "NOM_LOC"]
+    assert it["CVEGEO"].str.len().eq(9).all() and it["CVEGEO"].is_unique
+    assert ag["CVEGEO"].str.len().eq(16).all() and ag["CVEGEO"].is_unique
+    assert it.loc[it["CVEGEO"] == "010000000", "POBTOT"].tolist() == [1_425_607]
+    assert ag.loc[ag["CVEGEO"] == "0100000000000000", "POBTOT"].tolist() == [1_425_607]
+
+
+# The legacy CPV 2020 files (scripts/build_data.py, frozen) were read with pandas' inferred
+# dtypes, its default NA strings and ``na_values=["N/D"]``, so a faithful ``N/D`` (an
+# undisclosed locality/block count) or ``N/A`` (REL_H_M/PROM_HNV with a zero denominator) is
+# NaN there; ``*`` was kept as a string.
+_LEGACY_NA = frozenset({"N/D", "", "#N/A", "#N/A N/A", "#NA", "-1.#IND", "-1.#QNAN", "-NaN",
+                        "-nan", "1.#IND", "1.#QNAN", "<NA>", "N/A", "NA", "NULL", "NaN", "None",
+                        "n/a", "nan", "null"})
+_LEGACY_NAME = {"viviendas": "viviendas", "personas": "personas", "iter": "iter",
+                "ageb": "resargebub"}
+_LEGACY_2020 = [(t, s) for s in range(1, 33) for t in _LEGACY_NAME
+                if (_MIRROR / cpv_filename(t, "2020", s)).exists()
+                and (_MIRROR / f"{_LEGACY_NAME[t]}_{s:02d}.parquet").exists()]
+
+
+def _legacy_mismatches(legacy: pd.DataFrame, raw: pd.DataFrame) -> dict[str, int]:
+    """Columns (→ cell count) where a legacy file and its faithful-raw ``cpv_`` rebuild
+    disagree. Numeric legacy columns are compared with the raw strings parsed as numbers,
+    the others as strings; raw cells the legacy reader took as NA (:data:`_LEGACY_NA`)
+    count as NA."""
+    raw = raw.mask(raw.isin(_LEGACY_NA))
+    bad = {}
+    for col in legacy.columns:
+        a, b = legacy[col], raw[col]
+        if a.dtype.kind in "iuf":
+            b = pd.to_numeric(b)
+        same = (a.to_numpy(dtype=object) == b.to_numpy(dtype=object)) | (a.isna() & b.isna()).to_numpy()
+        if not same.all():
+            bad[col] = int((~same).sum())
+    return bad
+
+
+def test_legacy_mismatches_helper():
+    legacy = pd.DataFrame({"N": [1, 2], "F": [1.5, np.nan], "S": ["*", np.nan]})
+    raw = pd.DataFrame({"N": ["01", "2"], "F": ["1.5", "N/A"], "S": ["*", "N/A"]}, dtype=str)
+    assert _legacy_mismatches(legacy, raw) == {}
+    raw.loc[1, "S"] = "N/D"                                   # the legacy na_values
+    assert _legacy_mismatches(legacy, raw) == {}
+    raw.loc[0, "S"], raw.loc[0, "N"] = "x", "3"
+    assert _legacy_mismatches(legacy, raw) == {"N": 1, "S": 1}
+
+
+@pytest.mark.parametrize("table,state", _LEGACY_2020)
+def test_cpv_2020_equals_legacy(table, state):
+    """``cpv_{viviendas,personas,iter,ageb}_2020_NN`` hold the legacy ``viviendas_NN`` /
+    ``personas_NN`` / ``iter_NN`` / ``resargebub_NN`` values: same columns in the same order,
+    same rows, every cell equal after casting (the Mac: state 01; ``wsl``: all 32)."""
+    raw = pd.read_parquet(_MIRROR / cpv_filename(table, "2020", state))
+    legacy = pd.read_parquet(_MIRROR / f"{_LEGACY_NAME[table]}_{state:02d}.parquet")
+    assert list(raw.columns) == list(legacy.columns) and len(raw) == len(legacy)
+    assert all(str(t) == "str" for t in raw.dtypes)
+    assert _legacy_mismatches(legacy, raw) == {}

@@ -30,13 +30,26 @@ states one by one and concatenates them. On a national table it filters rows on
 ``CVE_ENT``.
 
 ``harmonize=True`` applies the cross-edition **core** canonicalization (:func:`_harmonize`):
-upper-case names, the core renames, zero-padded geography, ``CVEGEO`` derived or checked,
-numeric ``FACTOR``; every other column is kept verbatim. For 2025 — the canonical
-edition — it changes nothing but the ``FACTOR`` dtype.
+upper-case names, the core renames (2020 ``ENT``/``MUN`` → ``CVE_ENT``/``CVE_MUN``; in the
+ITER/AGEB also ``ENTIDAD``/``LOC``/``AGEB``/``MZA`` → ``CVE_ENT``/``CVE_LOC``/``CVE_AGEB``/
+``CVE_MZA``), zero-padded geography, ``CVEGEO`` derived or checked, numeric ``FACTOR``;
+every other column is kept verbatim. For 2025 — the canonical edition — it changes nothing
+but the ``FACTOR`` dtype.
+
+Each call loads **one edition**. To stack editions, load each with ``harmonize=True`` and
+concatenate, keeping the edition as an index level::
+
+    frames = {p: load_cpv_personas(p, state=1, harmonize=True, labels=False)
+              for p in (2020, 2025)}
+    personas = pd.concat(frames, names=["PERIOD"])
+
+Only the core columns are comparable across editions; the other items keep each edition's
+own spelling and codes (see ``variables_cpv(table, gid)``).
 """
 from __future__ import annotations
 
 import functools
+import itertools
 import numbers
 import warnings
 from collections.abc import Iterable, Sequence
@@ -63,10 +76,12 @@ _WEIGHTS = {"FACTOR"}
 # all-digits shape is checked here; key widths are checked by the data tests). CPV 2020
 # spells the microdata geography ENT/MUN and the aggregates' ENTIDAD/MUN/LOC/MZA.
 _DIGIT_CODES = frozenset({"ID_VIV", "ID_PERSONA", "ID_MII", "CVEGEO", "CVE_ENT", "CVE_MUN",
-                          "LOC50K", "CVE_LOC", "ENT", "MUN", "ENTIDAD", "LOC", "MZA"})
+                          "LOC50K", "CVE_LOC", "CVE_MZA", "ENT", "MUN", "ENTIDAD", "LOC",
+                          "MZA"})
 # Coded strings with their own shape: the urban AGEB key is three digits and a check
 # character (0-9 or A-P); 0000 marks the ITER/AGEB total rows.
-_CODE_REGEX = {"AGEB": r"^\d{3}[0-9A-P]$"}
+_AGEB_RE = r"\d{3}[0-9A-P]"
+_CODE_REGEX = {"AGEB": rf"^{_AGEB_RE}$", "CVE_AGEB": rf"^{_AGEB_RE}$"}
 
 # Record keys (alias tuples: canonical name first, then the CPV 2010 spellings). Persons
 # and international emigrants are siblings under the dwelling, so both keys extend the
@@ -87,7 +102,7 @@ _KEY_SPEC: dict[str, list[tuple[str, ...]]] = {
 # ``(ID_VIV, IDENT_MADRE)`` joins ``(ID_VIV, NUMPER)`` directly. Person numbers 01-54 are
 # their own labels; the codes from 96 up (lives elsewhere, deceased, no partner, not a
 # resident, don't know, not specified) are documented in the dictionary.
-_GEO_CODES = ("CVEGEO", "CVE_ENT", "CVE_MUN", "LOC50K", "CVE_LOC",
+_GEO_CODES = ("CVEGEO", "CVE_ENT", "CVE_MUN", "LOC50K", "CVE_LOC", "CVE_AGEB", "CVE_MZA",
               "ENT", "MUN", "ENTIDAD", "LOC", "AGEB", "MZA")
 _POINTERS = ("NUMPER", "IDENT_MADRE", "IDENT_PADRE", "IDENT_PAREJA", "DUE1_NUM", "DUE2_NUM",
              "MPER", "MPERLS")
@@ -152,20 +167,40 @@ def _validate(schema: pa.DataFrameSchema, frame: pd.DataFrame, label: str) -> No
 # ---------------------------------------------------------------------------------------
 # Cross-edition harmonization (``harmonize=True``)
 # ---------------------------------------------------------------------------------------
-# Only the core is canonicalized, onto the latest edition's (upper-case) spelling; every
+# Only the core is canonicalized, onto the latest edition's (upper-case) spelling, which is
+# also the Marco Geoestadístico's (CVE_ENT/CVE_MUN/CVE_LOC/CVE_AGEB/CVE_MZA, CVEGEO); every
 # other column stays verbatim — questionnaire items change codes across editions and must
-# not be renamed blindly. The rename map is empty while 2025 is the only edition: CPV 2020
-# (unit 2a) adds ENT→CVE_ENT, MUN→CVE_MUN, ID_PER→ID_PERSONA, ID_MIN→ID_MII and
-# TAM_LOC→TAMLOC once their codes are verified (docs/cpv/PLAN.md §Harmonization).
-_RENAME_CORE: dict[str, str] = {}
-_GEO_PAD: dict[str, int] = {"CVE_ENT": 2, "CVE_MUN": 3, "LOC50K": 4, "CVE_LOC": 4}
-# CVEGEO is the concatenation of the parts a table carries: entity + municipality in the
-# microdata (5 digits), + locality in the estimaciones (9).
-_GEO_PARTS: tuple[str, ...] = ("CVE_ENT", "CVE_MUN", "CVE_LOC")
+# not be renamed blindly. A rename joins only once its codes are verified in every edition
+# it covers (docs/cpv/PLAN.md §Harmonization): CPV 2020 spells the microdata geography
+# ENT/MUN (same codes, zero-padded as 2025's). The aggregates spell the entity ENTIDAD and
+# the locality LOC, names a future microdata table may use for something else, so those
+# renames are scoped to the ITER/AGEB (as ENIGH's per-table map). CPV 2010 will add
+# ID_PER→ID_PERSONA, ID_MIN→ID_MII and TAM_LOC→TAMLOC (unit 3b).
+_RENAME_CORE: dict[str, str] = {"ENT": "CVE_ENT", "MUN": "CVE_MUN"}
+_RENAME_AGG: dict[str, str] = {"ENTIDAD": "CVE_ENT", "LOC": "CVE_LOC"}
+_RENAME_TABLE: dict[str, dict[str, str]] = {
+    "iter": _RENAME_AGG,
+    "ageb": {**_RENAME_AGG, "AGEB": "CVE_AGEB", "MZA": "CVE_MZA"},
+}
+_GEO_PAD: dict[str, int] = {"CVE_ENT": 2, "CVE_MUN": 3, "LOC50K": 4, "CVE_LOC": 4,
+                            "CVE_AGEB": 4, "CVE_MZA": 3}
+# CVEGEO is the concatenation of the leading geographic parts a table carries, as in the
+# Marco Geoestadístico: entity + municipality in the microdata (5 characters), + locality
+# in the estimaciones and the ITER (9), + AGEB + block in the AGEB file (16). Total rows
+# keep their zero parts (00/000/0000/0000/000), so CVEGEO is unique per aggregate row and a
+# block's CVEGEO is the MG manzana's; an AGEB-level row's MG key is its first 13 characters.
+_GEO_PARTS: tuple[str, ...] = ("CVE_ENT", "CVE_MUN", "CVE_LOC", "CVE_AGEB", "CVE_MZA")
 _GEO_REGEX: dict[str, str] = {
     "CVE_ENT": r"^\d{2}$", "CVE_MUN": r"^\d{3}$", "LOC50K": r"^\d{4}$", "CVE_LOC": r"^\d{4}$",
-    "CVEGEO": r"^\d{5}(\d{4})?$",
+    "CVE_AGEB": rf"^{_AGEB_RE}$", "CVE_MZA": r"^\d{3}$",
+    "CVEGEO": rf"^\d{{5}}(\d{{4}}({_AGEB_RE}(\d{{3}})?)?)?$",
 }
+
+
+def _renames(table: str) -> dict[str, str]:
+    """The core renames that apply to ``table``: :data:`_RENAME_CORE` plus the table's own
+    (:data:`_RENAME_TABLE`)."""
+    return {**_RENAME_CORE, **_RENAME_TABLE.get(table, {})}
 
 
 def _zfill_codes(s: pd.Series, width: int) -> pd.Series:
@@ -182,17 +217,19 @@ def _required(table: str) -> set[str]:
 def _harmonize(df: pd.DataFrame, table: str, label: str = "") -> pd.DataFrame:
     """Canonicalize one raw CPV frame's core across editions.
 
-    Steps: upper-case names → :data:`_RENAME_CORE` (refusing a frame that already carries
-    both a source and its target) → zero-pad the geographic codes (:data:`_GEO_PAD`) →
-    derive ``CVEGEO`` from :data:`_GEO_PARTS` (inserted first) or, when present, **check**
-    it against them (a mismatch warns) → numeric ``FACTOR``. A missing required core column
-    warns (the rename map may be stale). Column order and every other value are kept, so it
-    is idempotent and, for 2025, the identity up to the ``FACTOR`` dtype.
+    Steps: upper-case names → the core renames of ``table`` (:func:`_renames`; refusing a
+    frame that already carries both a source and its target) → zero-pad the geographic
+    codes (:data:`_GEO_PAD`) → derive ``CVEGEO`` from the leading :data:`_GEO_PARTS` the
+    frame carries (inserted first) or, when present, **check** it against them (a mismatch
+    warns) → numeric ``FACTOR``. A missing required core column warns (the rename map may be
+    stale). Column order and every other value are kept, so it is idempotent and, for 2025,
+    the identity up to the ``FACTOR`` dtype; a renamed column keeps its position.
     """
     out = df.copy()
     out.columns = [c.upper() for c in out.columns]
-    rename = {s: t for s, t in _RENAME_CORE.items() if s in out.columns}
-    clash = sorted(t for t in rename.values() if t in out.columns)
+    rename = {s: t for s, t in _renames(table).items() if s in out.columns}
+    targets = list(rename.values())
+    clash = sorted({t for t in targets if t in out.columns or targets.count(t) > 1})
     if clash:
         raise ValueError(
             f"CPV {table} {label}: cannot harmonize — both a legacy column and its target "
@@ -202,8 +239,8 @@ def _harmonize(df: pd.DataFrame, table: str, label: str = "") -> pd.DataFrame:
     for col, width in _GEO_PAD.items():
         if col in out.columns:
             out[col] = _zfill_codes(out[col], width)
-    parts = [c for c in _GEO_PARTS if c in out.columns]
-    if parts[:2] == ["CVE_ENT", "CVE_MUN"]:
+    parts = list(itertools.takewhile(out.columns.__contains__, _GEO_PARTS))
+    if len(parts) >= 2:
         geo = functools.reduce(lambda a, b: a + b, (out[c] for c in parts))
         if "CVEGEO" in out.columns:
             bad = int((geo.notna() & out["CVEGEO"].notna() & (geo != out["CVEGEO"])).sum())
@@ -255,30 +292,42 @@ def variables_cpv_labels(table: str, gid: str) -> dict:
     """The labelling dictionary of one CPV ``(table, schema group)``: the per-group
     variables overlaid by :func:`~mxcensus.variables_cpv_core` (the entries in scope for
     ``table``, see :func:`_in_scope`), keyed by both the raw and
-    the harmonized column names (upper case, :data:`_RENAME_CORE`)."""
+    the harmonized column names (upper case, :func:`_renames`)."""
+    rename = _renames(table)
     merged: dict = {}
     for src in (variables_cpv(table, gid), _core_for(table)):
         for col, meta in src.items():
             merged[col] = meta
-            merged[_RENAME_CORE.get(col.upper(), col.upper())] = meta
+            merged[rename.get(col.upper(), col.upper())] = meta
     return merged
+
+
+# The entry keys that decide how a column is labelled and validated (``Descripción``,
+# ``Pregunta``, ``Nota``… are wording only).
+_LABEL_KEYS = ("Tipo", "Categorías", "Especiales", "Rango", "Ordenada", "Alias", "Decimales")
+
+
+def _label_spec(meta: dict) -> tuple:
+    return (_sg.norm_tipo(meta), *(meta.get(k) or None for k in _LABEL_KEYS[1:]))
 
 
 def _labels_for(table: str, gids: list[str]) -> dict:
     """The labelling dictionary for a frame stacked from one or more schema groups (several
-    only under ``harmonize=True``). A column documented differently across the groups is
-    left out — it stays raw — with a warning, rather than labelled with one group's codes."""
+    only under ``harmonize=True``). A column labelled differently across the groups (its
+    :data:`_LABEL_KEYS` differ; wording does not count) is left out — it stays raw — with a
+    warning, rather than labelled with one group's codes. Otherwise the newest group's entry
+    is kept."""
     if len(gids) == 1:
         return variables_cpv_labels(table, gids[0])
     merged: dict = {}
     conflicts: set[str] = set()
-    for gid in gids:
+    for gid in sorted(gids, reverse=True):              # gids are chronological
         for col, meta in variables_cpv_labels(table, gid).items():
-            if col in merged and merged[col] != meta:
+            if col in merged and _label_spec(merged[col]) != _label_spec(meta):
                 conflicts.add(col)
             merged.setdefault(col, meta)
     if conflicts:
-        warnings.warn(f"CPV {table}: {sorted(conflicts)} are documented differently in schema "
+        warnings.warn(f"CPV {table}: {sorted(conflicts)} are labelled differently in schema "
                       f"groups {gids}; left unlabelled.", stacklevel=4)
     return {c: m for c, m in merged.items() if c not in conflicts}
 
