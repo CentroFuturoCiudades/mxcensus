@@ -182,6 +182,28 @@ per = pd.concat(frames, names=["PERIOD"])                   # core columns align
 
 Only the core (keys, geography, sample design, `FACTOR`, `CLAVIVP`, `SEXO`, `EDAD`,
 `TAMLOC`) is comparable across editions; other items keep each edition's codes.
+
+`derived=True` adds the analysis columns of the legacy `load_extended_*` loaders, computed
+from the raw codes: `EDAD_CAT`, `EDUC`, `CONACT_CAT`, `SITUA_CONYUGAL_CAT`, the health
+coverage (`DHSERSAL_*`), commute (`MED_TRASLADO_*`) and financing (`FINANCIAMIENTO_*`)
+dummies, `DIS_CON`/`DIS_LIMI`, the income and room bins… For Censo 2020 they equal the
+legacy columns; the EIC 2025 gets the same columns through a recode of the items INEGI
+renumbered (`SITUA_CONYUGAL`, `DHSERSAL`, two country codes), and EIC 2015 / Censo 2010
+the ones whose items kept their codes (`cpv_derivations()` lists them per edition).
+`cpv_constraints(table, period)` filters the census constraint sets (ITER indicator →
+microdata cells) to the indicators an edition publishes and can reproduce, for
+`get_tables_dict`:
+
+```python
+per = mxcensus.load_cpv_personas(2025, state=1, derived=True)
+per.groupby(["EDAD_CAT", "CONACT_CAT"], observed=True)["FACTOR"].sum()
+tables = mxcensus.get_tables_dict(mxcensus.cpv_constraints("personas", 2025), per.dtypes)
+```
+
+The legacy health-coverage dummies `DHSERSAL_Popular_NGenración_SBienestar` and
+`DHSERSAL_IMSS_Prospera/Bienestar` are named `DHSERSAL_SALUD_PUBLICA` and
+`DHSERSAL_IMSS_BIENESTAR` here: the EIC 2025 swapped the two codes and widened the first
+(any public health centre, including INSABI and Seguro Popular).
 Municipalities were created between editions (2,428 in 1995, 2,478 in 2025; none retired):
 `cpv_mun_lineage()` lists each new code with its parents, and
 `cpv_municipal_units(start, end)` maps every municipality to a unit stable between two

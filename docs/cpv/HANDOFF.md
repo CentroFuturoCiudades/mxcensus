@@ -1,183 +1,69 @@
 # CPV family — session handoff
 
-**Status (2026-10-08, overnight): every edition 1990–2025 is built and validated (units
-0–5b; 3d half done) and 6a added the cross-year municipal crosswalk. Every release
-(registry + upload) waits for `wsl`. The overnight run stopped before 6b: it needs the
-user's decisions (§Next unit). Next: the release batch once `wsl` is back, then 6b.**
-- **Released** (registered, uploaded, fetchable): the Encuesta Intercensal 2025 and the
-  Censo 2020.
-- **Built, not registered or uploaded**:
+**Status (2026-10-08, evening): every unit of the plan is done (0–6b) and every edition is
+released.**
+- **Released** (registered, uploaded, fetchable): every edition 1990–2025 (897 `cpv_`
+  files) and the Marco Geoestadístico 1995–2025 frames. The release batch of 3a–5b
+  (`STEP_6b.md` §Release batch) took the registry from 2695 to **3751** entries; the
+  1,056 files were rebuilt on `wsl` byte-identical to the Mac's. `verify`: 3751 ok, 0
+  missing.
+- **6b**: `derived=True` on `load_cpv_personas/viviendas/survey` adds the legacy
+  `load_extended_*` columns:
+  - 2020 equals legacy in all 32 states;
+  - 2025 through a recode of the renumbered items;
+  - 2015/2010 only the items with identical codes.
 
-  | unit | files |
-  |---|---|
-  | 3a | EIC 2015, 64 |
-  | 3b | Censo 2010 microdata, 96 |
-  | 3c | 2010 ITER/AGEB, 64 |
-  | 3d | MG 2010, 160 |
-  | 4a | CGPV 2000 + Conteo 2005 microdata, 192 |
-  | 4b | 2000/2005 ITER, 64; MG 2000/2005, 192 |
-  | 5a | 1990/1995 ITER, 64 |
-  | 5b | 1990/1995 microdata, 96; MG 1995, 64 |
+  `cpv_constraints(table, period)` filters the census constraints per edition; the
+  EIC 2025 cells equal its estimates.
+- Branch `cpv-integration` at **v0.7.0**, pushed. **`main` stays at v0.6.0**: the user
+  wants to review before the merge.
 
-  They upload together once `wsl` is back (§Release batch). The 2010/2015 Σ `FACTOR`
-  equal INEGI's tabulados exactly. 2000's `FACTOR` is a ratio estimator on preliminary
-  counts, bounded by the ITER (`STEP_4a.md` §Weights). 2005 has no weight.
-- **`wsl` is unreachable**: Tailscale SSH asks for an interactive re-login (`ssh wsl` prints
-  a `login.tailscale.com/a/…` URL). **The user must re-authenticate**: run `ssh wsl` in a
-  terminal and open the URL. Only the HF upload needs `wsl` (it holds the HF token; the
-  Mac has no HF client).
-- **3c's 32-state verification ran on the Mac** and found two census-chain bugs, both
-  fixed (`STEP_3c.md` §Verification). One is a pre-existing crash of the frozen legacy
-  `load_census` in states 08/15/16.
+Design: [`PLAN.md`](PLAN.md) (unit table: all ✅). Recent units:
+- [`STEP_6b.md`](STEP_6b.md): derived columns, the recode table, constraints per edition,
+  the disability-definition finding, the release batch;
+- [`STEP_6a.md`](STEP_6a.md): the municipal lineage, stable units;
+- [`STEP_5b.md`](STEP_5b.md) … [`STEP_0_probe.md`](STEP_0_probe.md).
 
-The user asked (2026-10-07, before going to sleep) for all remaining phases to run in that
-session without their input, and allowed commits, pushes and HF uploads (not package
-installs). A fresh session should confirm with the user before relying on that.
-
-Design: [`PLAN.md`](PLAN.md). Recent units:
-- [`STEP_6a.md`](STEP_6a.md): the municipal lineage from the MG polygons, stable units;
-- [`STEP_5b.md`](STEP_5b.md): the 1990/1995 samples (person files only), their PDF FDs, 1990's
-  reused folios, 1995's three weights, the range reconciliation, MG 1995;
-- [`STEP_5a.md`](STEP_5a.md): 1990/1995 ITER, their descriptor PDFs (poppler), the crosswalk
-  over six censuses, 1995's aggregates-only tiny localities;
-- [`STEP_4b.md`](STEP_4b.md): 2000/2005 ITER, the crosswalk over four censuses
-  (description auto-pairs, `Renombrar` per edition), INEGI's two broken 2000 ITER rows
-  (repaired by the loader), the municipal MGs 2000/2005;
-- [`STEP_4a.md`](STEP_4a.md): 2000/2005 microdata, PDF/split-layout FDs, composite keys,
-  households, `Recodificar`;
-- [`STEP_3d.md`](STEP_3d.md): the national-ZIP MG builder, MG 2010;
-- [`STEP_3c.md`](STEP_3c.md): aggregates, crosswalk, the Mac verification;
-- [`STEP_3b.md`](STEP_3b.md) … [`STEP_0_probe.md`](STEP_0_probe.md).
-
-Branch: `cpv-integration`, version **0.6.0** (`main` = `v0.6.0`). The registry still has
-**2695 entries**.
-
-**Host state.**
-- **The Mac** holds the whole CPV mirror:
-  - every CPV file (897: 2020/2025 from the bucket, 2010/2015 rebuilt from INEGI,
-    1990–2005 built here);
-  - MG 1995/2000/2005/2010 (64 + 192 + 160) and the legacy census files;
-  - every dictionary in `data/dict/fd/` (2000–2025);
-  - the cached INEGI ZIPs, including the 2000/2005 ITER and the 1995/2000/2005 MG ZIPs
-    (the latter in the session scratchpad, re-downloadable).
-
-  Metadata modes and 32-state tests now run on the Mac.
-- **`wsl:~/mxcensus`** is at 3a's HEAD with 3b's files copied in, and still holds the
-  2010/2015 files it built. **`~/mxcensus3c`** (3c's code copy) can be deleted.
+**Host state.** The Mac and `wsl:~/mxcensus` both hold the full mirror (3751 registered
+files) and are at the same commit. `wsl:~/mxcensus3c` (3c's code copy) can be deleted.
 
 ## Kickoff prompt for the next session
 
-> Continue the CPV census-family integration in this repo (branch cpv-integration).
-> Read docs/cpv/HANDOFF.md first, then the parts of docs/cpv/PLAN.md it points to, and
-> execute unit 6b (port the load_extended_* derived columns onto the labelled CPV frames;
-> crosstabs per edition) following the session protocol at the top of PLAN.md. If wsl is
-> reachable, do the pending release batch first (HANDOFF §Release batch). Use
-> .venv/bin/python, not uv run. Run wsl tasks without asking; ask me before committing,
-> pushing, installing packages or uploading. When the unit's gate is met, write
-> docs/cpv/STEP_6b.md, tick the unit table, rewrite HANDOFF.md, update the memory note, ask
-> me before committing, and give me the next handoff prompt.
+> Continue the CPV census-family work in this repo (branch cpv-integration). Read
+> docs/cpv/HANDOFF.md first. Every planned unit is done; start with the open questions
+> there (review of the overnight decisions, merging into main + tag v0.7.0, the
+> disability flags) and agree the next unit with me before implementing it, following the
+> session protocol in docs/cpv/PLAN.md. Use .venv/bin/python, not uv run. Run wsl tasks
+> without asking; ask me before committing, pushing, installing packages or uploading.
 
-## Next unit — 6b: derived columns on the labelled frames; crosstabs per edition
+## Next: decided with the user
 
-Gate: tests (`PLAN.md` §Phase 6). **Not started: it needs decisions first.** The overnight
-probe (2026-10-08) compared the source items of the legacy derived columns across
-editions. It used the CPV dictionaries: codes plus labels folded for case and accents.
-- **The same as 2020 in 2025**: `EDAD`, `INGTRMEN`, `HORTRA`, `NIVACAD`, `ESCOLARI`,
-  `MED_TRASLADO_ESC*`/`TRAB*`, `OCUPACION_C`, `ACTIVIDADES_C`; and in `viviendas`
-  `INGTRHOG`, `FORMA_ADQUI`, `FINANCIAMIENTO1`, `CUADORM`, `TOTCUART`. These derive
-  identically: `EDAD_CAT`, `INGTRMEN_CAT`, `HORTRA_CAT`, `EDUC`, the commute dummies, the
-  coarse occupation/activity, the income bins.
-- **Wording only** (the same codes and meaning): `DIS_*` (code 8 «discapacidad» →
-  «dificultad»), `CONACT` (13/14/16/20/60; 70 reworded).
-- **Recoded in 2025**, a decision per item:
-  - `DHSERSAL1/2`: 05 was Seguro Popular/INSABI and is IMSS-BIENESTAR in 2025; 06 was
-    IMSS-PROSPERA/BIENESTAR and is «un centro de salud … (incluye INSABI y Seguro
-    Popular)» in 2025. The legacy dummies `DHSERSAL_Popular_…`/`DHSERSAL_IMSS_Prospera/
-    Bienestar` need a mapping or new names.
-  - `SITUA_CONYUGAL`: 1–9 became 01–09/99, and «separada(o)» splits in two (02 from a
-    union, 03 from a marriage).
-  - `viviendas.TENENCIA`: 2025 inserts 2 «la están pagando» and 5 «intestada o en
-    litigio», shifting the rest.
-- **2015 and 2010** differ much more: no `DIS_*` (2010 has its own limitation items),
-  other `DHSERSAL`, `NIVACAD`/`ESCOLARI` and commute codes. Support them only item by item.
-- **The legacy preprocessor** (`extended_personas.preprocessor`) cannot simply be re-run:
-  2025 lacks `RELIGION`, `REGIS_NAC` and others it maps.
+No unit is queued. Candidates, roughly by value:
 
-**Recommended design** (to confirm with the user):
-- A registry of derivations in `cpv_derived.py`: name, source items, function on raw codes,
-  and the editions verified, with the check above as a test.
-- 2020 reproduces the legacy columns exactly: test against `load_extended_personas`.
-- 2025 gets the identical and wording-only groups now, and the recoded items once mapped.
+1. **Review and merge**: the user reviews the overnight decisions (below) and the 6b
+   design, then `cpv-integration` → `main` (fast-forward) and tag v0.7.0, as in 2b.
+2. **Disability flags (6b finding).** The legacy `DIS_CON`/`DIS_LIMI` are not INEGI's
+   definitions. INEGI counts code 8 («degree unknown») as a disability and keeps the
+   disabled out of «limitación» (`STEP_6b.md` §Finding). Options:
+   - add INEGI-definition flags next to the legacy ones;
+   - or change the constraints `PCON_DISC`/`PCON_LIMI`/`PSIND_LIM` for the CPV set only.
 
-Steps:
+   The legacy loader must stay as is (2020 = legacy).
+3. **6c: the 2015/2010 recoded items.** Add the editions and `_RECODE` entries:
+   - `DHSERSAL` 2015 (reordered codes, no IMSS-BIENESTAR) and 2010 (8 codes + 9);
+   - `CONACT` 2015 (other scheme: 10–16 work, 20 searched, 31–35 inactive);
+   - `SITUA_CONYUGAL` 2015 (5 = casada, 6 = soltera);
+   - `EDUC` 2015 (`ESCOLARI` numeric) and 2010 (other `NIVACAD` levels);
+   - the 2015 commute items (7 coarser codes: the dummies do not map one to one);
+   - the 2010 limitation items `DISCAP1–8`.
 
-1. **Read** `extended_personas.py` / `extended_viviendas.py` (frozen, 2020 only, pinned by
-   `tests/test_census_legacy.py`). List their derived columns: `EDAD_CAT`, health-coverage
-   and disability dummies and flags, `EDUC`, transport modes, income bins, financing
-   modes… and the raw 2020 items each one reads.
-2. **Map** those items to the CPV editions through the dictionaries:
-   - 2025 has the same questionnaire family as 2020;
-   - 2015/2010 differ (e.g. disability as limitation in 2010; health coverage
-     «derechohabiencia»);
-   - older editions only where the item exists.
-
-   Write the per-edition mapping as code (like the crosswalk review), not by guessing.
-3. **Implement** a function (e.g. `cpv.derive_personas(df, period)` /
-   `derive_viviendas`) that adds the derived columns to a **labelled** CPV frame. Test it
-   against the legacy `load_extended_*` on CPV 2020: the derived columns must be equal
-   for the same state.
-4. **`crosstabs`**: the constraint YAMLs are 2020's; decide per edition which constraints
-   apply, and test one table per edition.
-
-## Release batch (needs `wsl`; 3d's gate, then 4b/5b's)
-
-Everything built since 3a, in one registry update and one upload:
-
-| unit | files | count |
-|---|---|---|
-| 3a | `cpv_{viviendas,personas}_2015_NN` | 64 |
-| 3b | `cpv_{viviendas,personas,migrantes}_2010_NN` | 96 |
-| 3c | `cpv_{iter,ageb}_2010_NN` | 64 |
-| 3d | `mg_{ent,mun,a,l,lpr}_2010_NN` | 160 |
-| 4a | `cpv_{viviendas,personas,migrantes}_2000_NN`, `cpv_{viviendas,hogares,personas}_2005_NN` | 192 |
-| 4b | `cpv_iter_{2000,2005}_NN` | 64 |
-| 4b | `mg_{ent,mun,a}_{2000,2005}_NN` | 192 |
-| 5a | `cpv_iter_{1990,1995}_NN` | 64 |
-| 5b | `cpv_personas_1990_NN`, `cpv_{personas,migrantes}_1995_NN` | 96 |
-| 5b | `mg_{ent,mun}_1995_NN` | 64 |
-
-Total: 1,056 files (640 `cpv_`, 416 `mg_`). `--dictionary` for 1990/1995 needs poppler's
-`pdftotext` on the host (`apt install poppler-utils` on `wsl`, if missing; the Mac has it).
-
-1. Bring `wsl:~/mxcensus` to the branch: `git status`; remove the untracked 3b leftovers
-   (`scripts/_dbf.py`, the old `variables_cpv_*_g0*.yaml` it lists); `git checkout -- .`;
-   `git pull --ff-only`.
-2. Put the Mac-built files on `wsl`. Either rebuild them there:
-   - `build_cpv.py --periods 2000 2005` (all their tables, ~1 min);
-   - `build_cpv.py --periods 1990 1995` (their microdata and ITER, a few minutes);
-   - `build_marco_geo.py --period 2010|2005|2000|1995 --no-registry` (the national ZIPs are
-     cached on the Mac under `data/cache/mg_{period}_national.zip`);
-
-   or `scp` them. Compare `sha256sum` of every 2010/2015 file on both hosts (and of the
-   Mac-built ones after a rebuild): the builds are deterministic, so any difference is a
-   finding.
-3. Registry:
-   - `build_cpv.py --update-registry` adds the `cpv_` files;
-   - `build_marco_geo.py --period 2010|2005|2000|1995 --update-registry` adds the MG files;
-   - the diff must be additions only.
-4. `upload_hf.py upload --dry-run`, then `upload` (never `--delete`); then `verify` in the
-   background and a clean-cache `POOCH.fetch` with the unpatched loaders.
-5. CLI/docs:
-   - `fetch --dataset cpv --edition 1990|1995|2000|2005|2010|2015`, `--dataset mg --edition
-     1995|2000|2005|2010`;
-   - README (the 2015/2010/2005/2000 prose, the ITER/AGEB loaders, `load_cpv_hogares`),
-     CLAUDE.md counts, `docs/hf_bucket_readme.md`;
-   - version 0.7.0, then the merge into `main` + tag if the user wants it as in 2b.
-6. The EIC 2015 frame is still unidentified (`STEP_3d.md`).
+   Each needs a reviewed mapping, like the 2025 one.
+4. **3d leftover**: identify the EIC 2015 geographic frame (`STEP_3d.md`).
 
 ## Open questions for the user
 
-- **Re-authenticate Tailscale SSH on `wsl`** (blocks the release).
+- Merge `cpv-integration` into `main` and tag v0.7.0 (held after the release batch).
+- The disability flags (above).
 - Decisions taken overnight without the user, for their review:
   - (3b) a stdlib DBF reader instead of `dbfread`; national keys for 2010 under
     `harmonize=True`; the core `Periodos` key;
@@ -243,8 +129,6 @@ Total: 1,056 files (640 `cpv_`, 416 `mg_`). `--dictionary` for 1990/1995 needs p
   (the code rules match case-insensitively), `TAMLOC` is a string class code in both
   editions (`_AGG_CODES`), and the crosswalk renames only `TAM_LOC` → `TAMLOC`.
   `cpv_iter_crosswalk.yaml` is generated (`--crosswalk`), never hand-edited.
-- **Tailscale SSH can demand a re-login at any time** (it did at 2026-10-07 ~23:30). A
-  hanging `ssh wsl` that prints a login URL means it needs the user.
 - **Harmonization is table-scoped** (`_renames(table)` = `_RENAME_CORE` + `_RENAME_TABLE`):
   - the 2015/2020 `ENT`/`MUN` → `CVE_*` everywhere;
   - `ENTIDAD`/`LOC` only in ITER/AGEB, and `AGEB`/`MZA` → `CVE_AGEB`/`CVE_MZA` only in AGEB.
@@ -301,13 +185,8 @@ Total: 1,056 files (640 `cpv_`, 416 `mg_`). `--dictionary` for 1990/1995 needs p
   edition's declared CRS (`_edition_crs`). Attribute names stay INEGI's.
 - **`ageb_14` (2020) is cp1252**; the 2015 CSVs are cp1252 too (one ASCII file sniffs
   UTF-8). The sniff handles both.
-- **Metadata modes need the full mirror** (`--schema-map`, `--variables`, `--report-only`
-  rewrite the 32-state outputs). The Mac has it now (`data/parquet`), and so does `wsl`
-  once the Mac-built files are copied.
 - **On the Mac, `rm` and `cp` are aliased to ask for confirmation**, which hangs
   non-interactive commands; use `/bin/rm -f` and `/bin/cp -f`.
-- **The CLI offers only registered files** (`POOCH.registry`). Unregistered files are
-  readable through the tests' `local_mirror` fixture.
 - **Registry**: `--update-registry` upserts. The diff must be additions only (`git diff
   --numstat`).
 - **Upload**: `upload_hf.py upload` from `wsl` only, never with `--delete`. Dry-run first.
@@ -326,3 +205,19 @@ Total: 1,056 files (640 `cpv_`, 416 `mg_`). `--dictionary` for 1990/1995 needs p
   2015 build peaked at 2.7 GB on `wsl`.
 - **Frozen legacy path**: `scripts/build_data.py`, `aggregate.py`, `extended_*.py` and the
   legacy files are pinned by `tests/test_census_legacy.py`.
+- **Derived columns** (6b, `cpv_derived.py`): computed from the **raw** codes before
+  labelling, in the **2020 code space** (`_RECODE[period][item]`), mapped with the frozen
+  legacy YAML maps and dtypes, so 2020 = legacy by construction. A new edition or item:
+  add the edition to the derivation's `periods`, add `_RECODE` entries for renumbered
+  codes, and `test_source_codes_match_2020` checks the dictionaries; then load every state
+  with `derived=True` (an unmapped code raises).
+- **`cpv_constraints`**: `Comparable: false` in the crosswalk flags the *older* editions'
+  columns, never the newest edition's own (2020 keeps all 157 + 46 indicators).
+- **INEGI throttles `wsl`** at times (~50 kB/s on 2026-10-08). The Mac's `data/cache`
+  ZIPs can be copied over (`scp` into `wsl:mxcensus/data/cache/`); the builds read them
+  as cached, and the outputs are byte-identical.
+- **Both hosts hold the full mirror** (3751 registered files) since the release batch;
+  metadata modes and 32-state tests run on either. The CLI still offers only registered
+  files.
+- **Tailscale SSH can demand a re-login at any time.** A hanging `ssh wsl` that prints a
+  login URL needs the user.

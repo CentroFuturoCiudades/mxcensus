@@ -71,6 +71,7 @@ import pandas as pd
 import pandera.pandas as pa
 
 from mxcensus import _schema_groups as _sg
+from mxcensus import cpv_derived as _derived
 from mxcensus._resources import (
     cpv_iter_crosswalk,
     cpv_schema_map,
@@ -755,8 +756,10 @@ def _index_level(df: pd.DataFrame, spec: list[tuple[str, ...]]) -> pd.DataFrame:
     return _sg.index_level("CPV", df, spec)
 
 
-def _load_level(table: str, period, state, harmonize: bool, labels: bool) -> pd.DataFrame:
-    """Raw ``table`` → numeric ``FACTOR``, labelled (``labels``), indexed by its level key."""
+def _load_level(table: str, period, state, harmonize: bool, labels: bool,
+                derived: bool = False) -> pd.DataFrame:
+    """Raw ``table`` → derived columns (``derived``, from the raw codes), numeric
+    ``FACTOR``, labelled (``labels``), indexed by its level key."""
     states = _states(state)
     if not harmonize and states and len(states) > 1 and table not in NATIONAL_TABLES \
             and _edition(table, period).period in _STATE_SCOPED_KEYS:
@@ -768,17 +771,24 @@ def _load_level(table: str, period, state, harmonize: bool, labels: bool) -> pd.
                                     harmonize=harmonize)
     if not harmonize:                       # harmonize=True derived them already
         df = _composite_keys(df, table)
+    if derived:
+        df = _derived.derive(df, table, _edition(table, period).period)
     spec = _KEY_SPEC[table]
     if labels:
-        return _finish_labelled(df, _labels_for(table, gids), label, spec)
-    for col in _WEIGHTS & set(df.columns):
-        df[col] = pd.to_numeric(df[col], errors="coerce")
-    return _index_level(df, spec)
+        out = _finish_labelled(df, _labels_for(table, gids), label, spec)
+    else:
+        for col in _WEIGHTS & set(df.columns):
+            df[col] = pd.to_numeric(df[col], errors="coerce")
+        out = _index_level(df, spec)
+    if derived:
+        schema = _derived.derived_schema(table, _edition(table, period).period)
+        out = _sg.validate_raise("CPV", schema, out, f"{label} derived")
+    return out
 
 
 def load_cpv_viviendas(
     period: str | int | None = None, *, state: int | Sequence[int] | None,
-    harmonize: bool = False, labels: bool = True,
+    harmonize: bool = False, labels: bool = True, derived: bool = False,
 ) -> pd.DataFrame:
     """The analysis-ready **dwelling** frame (inhabited private dwellings: housing
     characteristics, goods, tenure, household-level income and food-security items), with
@@ -794,8 +804,13 @@ def load_cpv_viviendas(
     on ``ID_HOG``'s first household (``NUMHOG == "1"``). The Conteo 2005 sample has no
     ``FACTOR``. Both have no key column; the keys are derived from the composite parts
     (:func:`_composite_keys`).
+
+    ``derived=True`` adds the legacy ``load_extended_viviendas`` columns the edition
+    supports (``CLAVIVP_CAT``, ``CUADORM_CAT``, ``INGTRHOG_CAT``, the ``FINANCIAMIENTO_*``
+    dummies…; :func:`mxcensus.cpv_derivations` lists them per edition), computed from the
+    raw codes and validated (:mod:`mxcensus.cpv_derived`).
     """
-    return _load_level("viviendas", period, state, harmonize, labels)
+    return _load_level("viviendas", period, state, harmonize, labels, derived)
 
 
 def load_cpv_hogares(
@@ -814,7 +829,7 @@ def load_cpv_hogares(
 
 def load_cpv_personas(
     period: str | int | None = None, *, state: int | Sequence[int] | None,
-    harmonize: bool = False, labels: bool = True,
+    harmonize: bool = False, labels: bool = True, derived: bool = False,
 ) -> pd.DataFrame:
     """The analysis-ready **person** frame (residents of inhabited private dwellings), with
     a numeric ``FACTOR``, indexed by the person key ``(ID_VIV, ID_PERSONA)`` — in 1995,
@@ -829,8 +844,14 @@ def load_cpv_personas(
     ``IDENT_MADRE``/``IDENT_PADRE``/``IDENT_PAREJA``) stay raw strings, so a person's mother
     is the row with the same ``ID_VIV`` and ``NUMPER == IDENT_MADRE``. Labelled by default
     (``labels``, see :func:`load_cpv_viviendas`).
+
+    ``derived=True`` adds the legacy ``load_extended_personas`` columns the edition
+    supports (``EDAD_CAT``, ``EDUC``, ``CONACT_CAT``, the ``DHSERSAL_*`` and
+    ``MED_TRASLADO_*`` dummies, ``DIS_CON``/``DIS_LIMI``…; :func:`mxcensus.cpv_derivations`
+    lists them per edition), computed from the raw codes and validated
+    (:mod:`mxcensus.cpv_derived`).
     """
-    return _load_level("personas", period, state, harmonize, labels)
+    return _load_level("personas", period, state, harmonize, labels, derived)
 
 
 def load_cpv_migrantes(
@@ -852,7 +873,7 @@ def load_cpv_migrantes(
 
 def load_cpv_survey(
     period: str | int | None = None, *, state: int | Sequence[int] | None,
-    harmonize: bool = False, labels: bool = True,
+    harmonize: bool = False, labels: bool = True, derived: bool = False,
 ) -> tuple[pd.DataFrame | None, pd.DataFrame, pd.DataFrame | None]:
     """Load the microdata levels with a **shared nested** index.
 
@@ -868,10 +889,14 @@ def load_cpv_survey(
     ``(ID_VIV, ID_HOG, ID_PERSONA)``, ``(ID_VIV, ID_HOG, ID_MII)``. Conteo 2005's
     household table is :func:`load_cpv_hogares` (not part of the tuple); its persons are
     indexed ``(ID_VIV, ID_HOG, ID_PERSONA)`` under the dwellings' ``ID_VIV``.
+
+    ``derived=True`` adds the derived columns to ``viviendas`` and ``personas`` (see
+    :func:`load_cpv_personas`).
     """
     edition = _edition("personas", period)
     kw = dict(state=state, harmonize=harmonize, labels=labels)
-    viviendas = load_cpv_viviendas(edition.period, **kw) if edition.has("viviendas") else None
-    personas = load_cpv_personas(edition.period, **kw)
+    viviendas = load_cpv_viviendas(edition.period, derived=derived, **kw) \
+        if edition.has("viviendas") else None
+    personas = load_cpv_personas(edition.period, derived=derived, **kw)
     migrantes = load_cpv_migrantes(edition.period, **kw) if edition.has("migrantes") else None
     return viviendas, personas, migrantes
