@@ -124,9 +124,10 @@ def test_indicator_doc_codes_and_ageb_fallback(tmp_path):
 # --- bundled metadata: groups, dictionaries, crosswalk ------------------------------------------
 
 def test_schema_map_aggregate_groups():
-    """ITER: 2000, 2005, 2010, 2020 (chronological gids); AGEB: 2010 and 2020 only (no AGEB
-    product for 2000/2005)."""
-    for table, editions in (("iter", {"2000": 132, "2005": 130, "2010": 200, "2020": 286}),
+    """ITER: 1990-2020 (chronological gids); AGEB: 2010 and 2020 only (no AGEB product
+    before 2010)."""
+    for table, editions in (("iter", {"1990": 46, "1995": 44, "2000": 132, "2005": 130,
+                                      "2010": 200, "2020": 286}),
                             ("ageb", {"2010": 198, "2020": 230})):
         g = _SM[table]["groups"]
         assert [m["periods"] for m in g.values()] == [[p] for p in editions]
@@ -148,7 +149,8 @@ def test_aggregate_dictionaries():
 
 def test_crosswalk_covers_every_column_once():
     xw = cpv_iter_crosswalk()
-    for table, periods in (("iter", ("2000", "2005", "2010", "2020")), ("ageb", ("2010", "2020"))):
+    for table, periods in (("iter", ("1990", "1995", "2000", "2005", "2010", "2020")),
+                           ("ageb", ("2010", "2020"))):
         for period in periods:
             cols = [c.upper() for c in _SM[table]["groups"][_gid(table, period)]["columns"]]
             sources = [e[period] for e in xw.values() if period in e and table in e["Tablas"]]
@@ -156,7 +158,7 @@ def test_crosswalk_covers_every_column_once():
     assert all(e.get("Descripción") for e in xw.values())
     renamed = {k: e["Renombrar"] for k, e in xw.items() if e.get("Renombrar")}
     assert renamed["TAMLOC"] == ["2010"] and xw["TAMLOC"]["2010"] == "TAM_LOC"
-    assert {p for ps in renamed.values() for p in ps} == {"2010", "2005", "2000"}
+    assert {p for ps in renamed.values() for p in ps} == {"2010", "2005", "2000", "1995", "1990"}
     assert all(xw[k][p] != k for k, ps in renamed.items() for p in ps)    # only real renames
     assert [k for k, ps in renamed.items() if "2010" in ps] == ["TAMLOC"]
     assert {k for k, e in xw.items() if e.get("Comparable") is False} == {
@@ -392,8 +394,8 @@ def test_indicator_ranges_2005_counts(tmp_path):
 def test_crosswalk_2000_2005_pairs():
     xw = cpv_iter_crosswalk()
     assert xw["POBTOT"]["2005"] == "P_TOTAL" and xw["POBTOT"]["2000"] == "POBTOT"
-    assert xw["POBTOT"]["Renombrar"] == ["2005"]
-    assert xw["POBFEM"]["2000"] == "PFEMENI" and xw["POBFEM"]["Renombrar"] == ["2005", "2000"]
+    assert xw["POBTOT"]["Renombrar"][:1] == ["2005"]               # 2000 keeps POBTOT
+    assert xw["POBFEM"]["2000"] == "PFEMENI" and xw["POBFEM"]["Renombrar"][:2] == ["2005", "2000"]
     assert xw["OCUPVIVPAR"]["2000"] == "OCUVIVPAR" and "2000" in xw["OCUPVIVPAR"]["Renombrar"]
     # another reference date / universe / definition: paired, not renamed, with a note
     for canon, period, src in (("PRES2015", "2005", "P_RE2000"), ("PRES2015", "2000", "P5_RES95"),
@@ -493,3 +495,160 @@ def test_iter_editions_stack_2000_2020(local_mirror):
     assert st.to_dict() == {"2000": 944_285, "2005": 1_065_416, "2010": 1_184_996,
                             "2020": 1_425_607}
     assert both["OCUPVIVPAR"].notna().groupby(level="PERIOD").any().all()
+
+
+# --- unit 5a: CGPV 1990 + Conteo 1995 ITER (DBF; PDF descriptors) --------------------------
+
+def _tsv(words: list[tuple]) -> str:
+    """``pdftotext -tsv`` rows for ``(page, x, y, text)`` words (level 5; one line per
+    distinct (page, y))."""
+    head = "level\tpage_num\tpar_num\tblock_num\tline_num\tword_num\tleft\ttop\twidth\theight\tconf\ttext"
+    lines = {}
+    out = [head]
+    for k, (page, x, y, text) in enumerate(words):
+        line = lines.setdefault((page, y), len(lines))
+        out.append(f"5\t{page}\t0\t0\t{line}\t{k}\t{x}\t{y}\t20\t9\t100\t{text}")
+    return "\n".join(out)
+
+
+_FD_HDR = [(1, 60, 70, "No."), (1, 95, 70, "Categoría"), (1, 250, 70, "Descripción"),
+           (1, 390, 70, "Mnemónico"), (1, 500, 70, "Rango"), (1, 560, 70, "Long.")]
+
+
+def test_parse_iter_fd_top_aligned():
+    """CGPV 1990: a row's number on its cells' first line; a cell may continue on the next
+    page (below that page's header)."""
+    sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "scripts"))
+    import _dict_fd as fd
+    w = list(_FD_HDR) + [
+        (1, 65, 100, "1"), (1, 84, 100, "Población"), (1, 130, 100, "total"),
+        (1, 203, 100, "Total"), (1, 230, 100, "de"), (1, 250, 100, "personas"),
+        (1, 395, 100, "P_TOTAL"), (1, 490, 100, "0..999999999"), (1, 569, 100, "9"),
+        (1, 203, 112, "que"), (1, 225, 112, "residen."),
+        (1, 196, 125, "Identificación"), (1, 260, 125, "geográfica"),          # a title
+        (1, 65, 140, "2"), (1, 84, 140, "Población"), (1, 130, 140, "de"),
+        (1, 203, 140, "Personas"), (1, 395, 140, "POB_LEE"), (1, 490, 140, "0..999999999"),
+        (1, 569, 140, "9"), (1, 84, 152, "6"), (1, 95, 152, "a"), (1, 105, 152, "14"),
+        (1, 203, 152, "político-"),
+        ] + [(2, x, 70, t) for _, x, _, t in _FD_HDR] + [
+        (2, 203, 100, "administrativa."),                       # continues row 2
+        (2, 65, 120, "3"), (2, 84, 120, "Mujeres"), (2, 203, 120, "Total"),
+        (2, 395, 120, "MUJERES"), (2, 490, 120, "0..999999999"), (2, 569, 120, "9"),
+        (2, 100, 300, "Total"), (2, 130, 300, "de"), (2, 150, 300, "caracteres"),
+        (2, 65, 320, "1/"), (2, 84, 320, "El"), (2, 203, 320, "cálculo"),      # footnote
+    ]
+    rows = fd.parse_iter_fd_tsv(_tsv(w), "top")
+    assert [(r["Núm."], r["Mnemónico"], r["Rangos"], r["Longitud"]) for r in rows] == [
+        ("1", "P_TOTAL", "0..999999999", "9"), ("2", "POB_LEE", "0..999999999", "9"),
+        ("3", "MUJERES", "0..999999999", "9")]
+    assert rows[0]["Indicador"] == "Población total"
+    assert rows[0]["Descripción"] == "Total de personas que residen."
+    assert rows[1]["Indicador"] == "Población de 6 a 14"
+    assert rows[1]["Descripción"] == "Personas político-administrativa."
+    assert rows[2]["Descripción"] == "Total"                                 # no footnote
+
+
+def test_parse_iter_fd_centred_and_csv(tmp_path):
+    """Conteo 1995: cells centred on the row number (text above and below it); the rows
+    write a ``diccionario_datos_*.csv`` that ``parse_indicator_csv`` reads."""
+    sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "scripts"))
+    import _dict_fd as fd
+    w = list(_FD_HDR) + [
+        (1, 196, 100, "Total"), (1, 220, 100, "de"), (1, 235, 100, "personas"),
+        (1, 77, 110, "Población"), (1, 196, 110, "que"), (1, 220, 110, "residen"),
+        (1, 55, 110, "10"), (1, 390, 110, "POBTOTAL"), (1, 480, 110, "0..999999999"),
+        (1, 548, 110, "9"), (1, 196, 120, "en"), (1, 210, 120, "el"), (1, 220, 120, "país."),
+        (1, 77, 120, "total"),
+        (1, 196, 135, "Cociente"), (1, 240, 135, "entre"),
+        (1, 77, 140, "Índice"), (1, 110, 140, "de"), (1, 55, 145, "11"),
+        (1, 390, 140, "IM"), (1, 480, 145, "0..999999999"), (1, 548, 145, "9"),
+        (1, 77, 150, "masculinidad"), (1, 196, 145, "hombres"), (1, 240, 145, "y"),
+        (1, 196, 155, "mujeres."),
+    ]
+    rows = fd.parse_iter_fd_tsv(_tsv(w), "center")
+    assert [(r["Indicador"], r["Mnemónico"]) for r in rows] == [
+        ("Población total", "POBTOTAL"), ("Índice de masculinidad", "IM")]
+    assert rows[0]["Descripción"] == "Total de personas que residen en el país."
+    assert rows[1]["Descripción"] == "Cociente entre hombres y mujeres."
+    fd.write_indicator_csv(rows, tmp_path / "d.csv")
+    doc = fd.parse_indicator_csv(tmp_path / "d.csv")
+    assert doc["POBTOTAL"]["Descripción"] == "Población total" and doc["IM"]["Tipo"] == "numeric"
+    assert fd._centred_runs([1, 2, 3, 10, 11], [2, 10.5]) == [(0, 3), (3, 5)]
+
+
+def test_crosswalk_1990_1995_pairs():
+    xw = cpv_iter_crosswalk()
+    assert {p: xw["POBTOT"][p] for p in ("1995", "1990")} == {"1995": "POBTOTAL", "1990": "P_TOTAL"}
+    assert xw["POBMAS"]["1990"] == "HOMBRES" and xw["POBFEM"]["1995"] == "POBTFEM"
+    assert xw["REL_H_M"]["1995"] == "IM" and "1995" in xw["REL_H_M"]["Renombrar"]
+    assert xw["PROM_OCUP"]["1995"] == "PRO_O_VP" and "1995" not in xw["PROM_OCUP"]["Renombrar"]
+    assert xw["PROM_OCUP"]["1990"] == "PROM_VIV" and "1990" in xw["PROM_OCUP"]["Renombrar"]
+    assert xw["VP_2CUAR"] == {**xw["VP_2CUAR"], "2000": "VP_2CUAR", "1990": "VIV_2_C"}
+    assert xw["P_PP5HLIYE"]["1995"] == "P_PP5HLIYE" and xw["P_PP5HLIYE"]["Descripción"]
+    # every reviewed pair is in the crosswalk under its canonical name (a duplicate key in
+    # the review dicts would silently drop one)
+    sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "scripts"))
+    import build_cpv as b
+    for canon, by in b._XW_PAIRS.items():
+        for period, src in by.items():
+            assert xw[canon][period] == src, (canon, period, src)
+    for canon, by in b._XW_PAIRS_RENAMED.items():
+        assert set(by) <= set(xw[canon]["Renombrar"]), canon
+    import ast
+    tree = ast.parse(Path(b.__file__).read_text(encoding="utf-8"))
+    for node in ast.walk(tree):
+        if isinstance(node, ast.Dict):
+            keys = [k.value for k in node.keys if isinstance(k, ast.Constant)]
+            assert len(keys) == len(set(keys)), f"duplicate keys in a dict at line {node.lineno}"
+
+
+def test_repair_spilled_names_without_comma():
+    """Conteo 1995's Urique 1781: «Y» + «GRIEGA» — no comma, but a LONGITUD without digits;
+    2010/2020 coordinates are text with digits and are never touched."""
+    df = pd.DataFrame([["080651781", "Y", "GRIEGA", "108051", "2726", "2020", "40"],
+                       ["090020001", "Azcapotzalco", "99°11'12.27\" W", "19°29'", "2240",
+                        "5", "6"]],
+                      columns=["CVEGEO", "NOM_LOC", "LONGITUD", "LATITUD", "ALTITUD",
+                               "POBTOT", "POBMAS"])
+    with pytest.warns(UserWarning, match="'080651781'"):
+        out = ca._repair_spilled_names(df, "t")
+    assert out.iloc[0].tolist()[:6] == ["080651781", "Y GRIEGA", "108051", "2726", "2020", "40"]
+    assert out.iloc[1].tolist() == df.iloc[1].tolist()
+
+
+_ITER_9095 = {p: [s for s in range(1, 33) if (_MIRROR / cpv_filename("iter", p, s)).exists()]
+              for p in ("1990", "1995")}
+# The ITER's own national rows: 1990 = the XI Censo's published total; 1995 = the
+# «TOTAL NACIONAL» row of INEGI's national ITER file (00_nacional_1995_iter_dbf.zip).
+_NATIONAL_9095 = {"1990": 81_249_645, "1995": 90_638_604}
+_SPILLED_1995 = {8, 20, 22}
+
+
+@pytest.mark.parametrize("period,state", [(p, s) for p in ("1990", "1995") for s in _ITER_9095[p]])
+def test_iter_1990_1995_real(local_mirror, period, state):
+    if period == "1995" and state in _SPILLED_1995:
+        with pytest.warns(UserWarning, match="spilled into LONGITUD"):
+            it = mxcensus.load_cpv_iter(period, state=state)
+    else:
+        ctx = _no_warnings()
+        it = mxcensus.load_cpv_iter(period, state=state)
+        ctx.__exit__(None, None, None)
+    lvl = {n: it[it["NIVEL"] == n] for n in ("estatal", "municipal", "localidad", "agregado")}
+    pob = int(lvl["estatal"]["POBTOT"].iloc[0])
+    mun = lvl["municipal"]["POBTOT"].droplevel("CVE_LOC")
+    assert pob == int(mun.sum())
+    loc = lvl["localidad"].groupby(level=["CVE_ENT", "CVE_MUN"])["POBTOT"].sum()
+    if period == "1995":     # its one- and two-dwelling localities exist only as agregados
+        agg = lvl["agregado"].drop(index="000", level="CVE_MUN", errors="ignore")
+        loc = loc.add(agg.groupby(level=["CVE_ENT", "CVE_MUN"])["POBTOT"].sum(), fill_value=0)
+    assert loc.reindex(mun.index, fill_value=0).equals(mun.astype(loc.dtype))
+    assert {"POBMAS", "POBFEM", "TVIVHAB", "OCUPVIVPAR", "VPH_AGUADV"} <= set(it.columns)
+    assert (lvl["estatal"]["POBMAS"] + lvl["estatal"]["POBFEM"] == lvl["estatal"]["POBTOT"]).all()
+
+
+@pytest.mark.skipif(any(len(v) < 32 for v in _ITER_9095.values()), reason="needs all 32 states")
+def test_iter_1990_1995_national(local_mirror):
+    for period, total in _NATIONAL_9095.items():
+        assert sum(int(pd.read_parquet(_MIRROR / cpv_filename("iter", period, s),
+                                       filters=[("MUN", "==", "000"), ("LOC", "==", "0000")])
+                       .iloc[0, 9]) for s in range(1, 33)) == total

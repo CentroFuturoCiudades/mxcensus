@@ -188,23 +188,28 @@ def _impute_zeros(coarse: pd.DataFrame, fine: pd.DataFrame) -> pd.DataFrame:
 def _repair_spilled_names(df: pd.DataFrame, label: str) -> pd.DataFrame:
     """Undo INEGI's broken name quoting in an ITER row (harmonized names).
 
-    The CGPV 2000 ITER CSV has two locality rows whose name contains ", " and spilled into
-    the next field: Oaxaca 277-0101 «V» + «, LA (R» and Querétaro 012-0011 «D» + «, LA». From
+    Some ITER files have locality rows whose name spilled into the next field: CGPV 2000
+    (Oaxaca 277-0101 «V» + «, LA (R», Querétaro 012-0011 «D» + «, LA») and Conteo 1995 (seven
+    rows in Chihuahua, Oaxaca and Querétaro, e.g. Urique 1781 «Y» + «GRIEGA»). From
     ``LONGITUD`` on every value sits one column to the right, and the row's last value is
-    lost. Such a row (``LONGITUD`` starting with ", ") gets the spill back on ``NOM_LOC``,
-    its values one column to the left and the last one missing. Its coordinates stay
-    truncated as published. The repaired counts make the localities add up to their
-    municipality exactly (POBTOT 143 and 3,402 where the spilled row read the altitude).
-    The mirror and :func:`mxcensus.load_cpv` keep the row verbatim."""
+    lost. Such a row — a ``LONGITUD`` without a single digit (the coordinate is digits, or
+    in 2010/2020 degree-minute-second text) — gets the spill back on ``NOM_LOC``, its values
+    one column to the left and the last one missing. Its coordinates stay truncated as
+    published. The repaired counts are consistent (men + women = total) and make the
+    localities add up to their municipality (2000: POBTOT 143 and 3,402 where the spilled
+    row read the altitude). The mirror and :func:`mxcensus.load_cpv` keep the row verbatim."""
     if not {"NOM_LOC", "LONGITUD"} <= set(df.columns):
         return df
-    bad = df["LONGITUD"].fillna("").str.match(r"^,\s").to_numpy(bool)
+    lon = df["LONGITUD"].fillna("")
+    bad = ((lon != "") & ~lon.str.contains(r"\d")).to_numpy(bool)
     if not bad.any():
         return df
     df = df.copy()
     rest = list(df.columns[df.columns.get_loc("LONGITUD"):])
     values = df.loc[bad, rest].to_numpy(dtype=object)
-    df.loc[bad, "NOM_LOC"] = df.loc[bad, "NOM_LOC"] + df.loc[bad, "LONGITUD"]
+    spill = df.loc[bad, "LONGITUD"]
+    sep = spill.str.startswith(",").map({True: "", False: " "})
+    df.loc[bad, "NOM_LOC"] = df.loc[bad, "NOM_LOC"] + sep + spill
     df.loc[bad, rest] = np.concatenate([values[:, 1:], np.full((bad.sum(), 1), None)], axis=1)
     rows = (df.loc[bad, "CVEGEO"] if "CVEGEO" in df.columns else df.index[bad]).tolist()
     warnings.warn(f"CPV {label}: repaired {int(bad.sum())} ITER row(s) whose locality name "
@@ -251,12 +256,16 @@ def load_cpv_iter(
     missing values of that column in its localities are 0 (``aggregate.impute_zeros_
     univariate`` of the legacy loader).
 
-    ``period`` defaults to the latest census with ITER (2020); 2000, 2005 and 2010 load
-    the same way. The frame is harmonized: the indicators the crosswalk renames take the
+    ``period`` defaults to the latest census with ITER (2020); 1990, 1995, 2000, 2005 and
+    2010 load the same way. In the Conteo 1995 the localities of one and two dwellings are
+    *not* listed one by one: a municipality is its listed localities plus its ``agregado``
+    rows (in the other editions the localities alone add up to it). The frame is harmonized: the indicators the crosswalk renames take the
     canonical (2020) name (CPV 2010 ``TAM_LOC``, Conteo 2005 ``P_TOTAL``/``P_MAS``…, CGPV
-    2000 ``PMASCUL``/``OCUVIVPAR``…); every other indicator keeps its edition's name (see
-    ``cpv_iter_crosswalk``). Two CGPV 2000 rows whose name spilled into ``LONGITUD`` in
-    INEGI's CSV are repaired, with a warning (:func:`_repair_spilled_names`).
+    2000 ``PMASCUL``/``OCUVIVPAR``…, Conteo 1995 ``POBTOTAL``…, CGPV 1990 ``P_TOTAL``/
+    ``HOMBRES``…); every other indicator keeps its edition's name (see
+    ``cpv_iter_crosswalk``). The rows of CGPV 2000 and Conteo 1995 whose locality name
+    spilled into ``LONGITUD`` in INEGI's files are repaired, with a warning
+    (:func:`_repair_spilled_names`).
     """
     levels = None if nivel is None else _choice(nivel, NIVELES_ITER, "nivel")
     df, label = _load_aggregate("iter", period, state, survey_path)

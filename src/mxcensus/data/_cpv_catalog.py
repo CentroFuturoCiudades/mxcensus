@@ -334,8 +334,11 @@ DICTIONARY_URLS: dict[str, dict[str, str]] = {
              "catalogos": "doc/catalogos_2010_dbf.zip"},
     "2005": {"fd": "doc/fd_muestra_2005.xls", "catalogos": "doc/catalogos_muestra_2005.xls"},
     "2000": {"fd": "doc/fd_muestra_censal_2000_pdf.zip"},
-    "1995": {"fd": "doc/fd_encuesta_cpv1995.pdf", "catalogos": "doc/catalogos_cpv1995.pdf"},
-    "1990": {"fd": "doc/fd_cgpv1990.pdf", "catalogos": "doc/catalogos_1990.xls"},
+    # fd_iter: the ITER descriptor (a PDF table, read by scripts/_dict_fd.parse_iter_fd_tsv)
+    "1995": {"fd": "doc/fd_encuesta_cpv1995.pdf", "catalogos": "doc/catalogos_cpv1995.pdf",
+             "fd_iter": "doc/fd_iter_1995.pdf"},
+    "1990": {"fd": "doc/fd_cgpv1990.pdf", "catalogos": "doc/catalogos_1990.xls",
+             "fd_iter": "doc/fd_iter_1990.pdf"},
 }
 
 

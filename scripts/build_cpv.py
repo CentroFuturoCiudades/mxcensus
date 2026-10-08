@@ -19,8 +19,7 @@ memory-mapped and decoded one field at a time by the stdlib reader ``scripts/_db
 the same all-``string`` faithful-raw form (fixed-width padding trimmed, deleted records
 dropped).
 
-Only editions in ``_ENABLED`` build (CGPV 2000, Conteo 2005 and CPV 2010 — DBF —, EIC 2015,
-CPV 2020, EIC 2025);
+Only editions in ``_ENABLED`` build (1990–2010 — DBF —, EIC 2015, CPV 2020, EIC 2025);
 ``--dry-run`` previews any edition.
 
 Dry run (URLs + member patterns, no download):
@@ -96,9 +95,8 @@ _DEFAULT_DICT_DIR = _REPO_ROOT / "data" / "dict" / "fd"
 _DEFAULT_DDI_DIR = _REPO_ROOT / "data" / "dict" / "ddi"
 
 # Editions whose build is enabled (docs/cpv/PLAN.md unit table). The DBF editions are read by
-# scripts/_dbf.py (2010 since unit 3b, 2000/2005 since 4a); the older ones stay
-# dry-run-only until their unit.
-_ENABLED = ("2000", "2005", "2010", "2015", "2020", "2025")
+# scripts/_dbf.py (2010 since unit 3b, 2000/2005 since 4a, the 1990/1995 ITER since 5a).
+_ENABLED = ("1990", "1995", "2000", "2005", "2010", "2015", "2020", "2025")
 
 _HIGH_BYTES = bytes(range(0x80, 0x100))
 _CHUNK = 1 << 24  # 16 MiB
@@ -486,6 +484,8 @@ _AGG_SPECIALS: dict[str, dict[str, str]] = {
     "2010": {"*": "Dato reservado por confidencialidad", "N/D": "No disponible"},
     "2005": {"*": "Dato reservado por confidencialidad"},
     "2000": {"*": "Dato reservado por confidencialidad", "N/D": "No disponible"},
+    "1995": {"*": "Dato reservado por confidencialidad"},
+    "1990": {"*": "Dato reservado por confidencialidad"},
 }
 
 
@@ -494,10 +494,18 @@ _AGG_SPECIALS: dict[str, dict[str, str]] = {
 _AGG_CODES = frozenset({"TAMLOC", "TAM_LOC"})
 
 
+# Indicator-dictionary mnemonics that misspell the data's column, {period: {dict: data}}.
+_INDICATOR_RENAMES: dict[str, dict[str, str]] = {
+    "1995": {"P_P5HLIYE": "P_PP5HLIYE"},     # the ITER DBF field has the doubled P
+}
+
+
 def _indicator_doc(path: Path, period: str) -> dict:
     """An indicator dictionary parsed with the edition's sentinels, the class codes
     (:data:`_AGG_CODES`) typed as strings."""
     doc = fd.parse_indicator_csv(path, _AGG_SPECIALS.get(period))
+    renames = _INDICATOR_RENAMES.get(period, {})
+    doc = {renames.get(k.strip().upper(), k): v for k, v in doc.items()}
     for name, meta in doc.items():
         if name.strip().upper() in _AGG_CODES and meta.get("Tipo") == "numeric":
             meta.update(Tipo="string", Especiales={})
@@ -548,6 +556,15 @@ def _fetch_dictionaries(dict_dir: Path, periods: list[str], cache_dir: Path,
             paths.append(ddi.fetch_ddi(ed.ddi_id, ddi_dir))
             print(f"  {period} DDI {ed.ddi_id}: {paths[-1]}")
         for table in (t for t in ed.tables if t in AGG_TABLES):
+            pdf = DICTIONARY_URLS.get(period, {}).get(f"fd_{table}")
+            if pdf:          # 1990/1995: a PDF descriptor instead of a CSV in the ZIP
+                out = _indicator_dict_path(dict_dir, period, table)
+                rows = fd.parse_iter_fd_tsv(fd.pdf_words(dest / pdf.rsplit("/", 1)[-1]),
+                                            _ITER_FD_ALIGN[period])
+                fd.write_indicator_csv(rows, out)
+                paths.append(out)
+                print(f"  {period} {table}: {pdf} → {out.name} ({len(rows)} indicators)")
+                continue
             product = PRODUCT_OF[table]
             state = 1 if ed.per_state(product) else None  # the dictionary is national
             zip_path = bc.fetch_zip_verified(ed.zip_url(product, state), cache_dir,
@@ -562,6 +579,11 @@ def _fetch_dictionaries(dict_dir: Path, periods: list[str], cache_dir: Path,
             paths.append(out)
             print(f"  {period} {table}: {hits[0]} → {out.name}")
     return paths
+
+
+# How the 1990/1995 ITER descriptor PDFs lay out a row (_dict_fd.parse_iter_fd_tsv): 1990's
+# cells are top-aligned on the row number, 1995's vertically centred on it.
+_ITER_FD_ALIGN = {"1990": "top", "1995": "center"}
 
 
 # FD sheet stem → canonical table, where INEGI names the sheet after its own table
@@ -684,12 +706,12 @@ def _write_variables_yaml(out_dir: Path, map_path: Path, yaml_dir: Path,
 
 _DEFAULT_CROSSWALK = _DEFAULT_YAML_DIR / "cpv_iter_crosswalk.yaml"
 # Censuses whose ITER/AGEB the crosswalk spans (newest first: its names are canonical).
-_XW_PERIODS = ("2020", "2010", "2005", "2000")
+_XW_PERIODS = ("2020", "2010", "2005", "2000", "1995", "1990")
 # Editions whose differently named indicators pair automatically with a newer indicator of
 # the same description (normalized: case, accents, punctuation), renamed by harmonize=True.
-# CGPV 2000 and Conteo 2005 renamed most mnemonics (P_TOTAL, PMASCUL…) with the
+# The censuses before 2010 renamed most mnemonics (P_TOTAL, PMASCUL, POBTMAS…) with the
 # descriptions unchanged. The review rejects the automatic pairs in _XW_UNPAIR.
-_XW_DESC_PERIODS = frozenset({"2005", "2000"})
+_XW_DESC_PERIODS = frozenset({"2005", "2000", "1995", "1990"})
 _XW_UNPAIR = frozenset({("2000", "PCONDISC")})
 # Hand-reviewed pairs of differently named indicators (canonical → {period: source}) that
 # harmonize=True renames onto the canonical name (the same indicator, another name) …
@@ -712,7 +734,7 @@ _XW_PAIRS_RENAMED: dict[str, dict[str, str]] = {
     "PHOGJEF_M": {"2005": "P_HOG_JM", "2000": "PHOGJEFM"},
     "PHOGJEF_F": {"2005": "P_HOG_JF", "2000": "PHOGJEFF"},
     "OCUPVIVPAR": {"2000": "OCUVIVPAR"},
-    "PROM_OCUP": {"2000": "PRO_OVP"},
+    "PROM_OCUP": {"2000": "PRO_OVP", "1990": "PROM_VIV"},
     "PRO_OCUP_C": {"2000": "PRO_OCVP"},
     "VPH_C_SERV": {"2005": "VPH_DREE", "2000": "VP_AGDREL"},
     "VPH_NDEAED": {"2005": "VPH_NADE", "2000": "VP_NOADE"},
@@ -720,7 +742,21 @@ _XW_PAIRS_RENAMED: dict[str, dict[str, str]] = {
     "VPH_RADIO": {"2000": "VP_RADIO"},
     "VPH_TELEF": {"2000": "VP_TELEF"},
     "VPH_AUTOM": {"2000": "VP_AUTOM"},
-    # indicators of 2000 and 2005 only (the 2005 name is canonical)
+    # 1995 and 1990 (their descriptors name some indicators differently)
+    "POBMAS": {"1995": "POBTMAS", "1990": "HOMBRES"},
+    "POBFEM": {"1995": "POBTFEM", "1990": "MUJERES"},
+    "REL_H_M": {"1995": "IM"},                       # «Índice de masculinidad», ×100
+    "VPH_C_ELEC": {"1995": "VIVP_ELEC", "1990": "C_E_ELECT"},
+    "VPH_DRENAJ": {"1995": "VIVP_DREN", "1990": "C_DRENAJE"},
+    "VPH_AGUADV": {"1995": "VIVP_AGUA", "1990": "C_AGUA_ENT"},
+    "VPH_PISODT": {"1990": "PISO_TIE"},
+    "VPH_1CUART": {"1990": "VIV_1_C"},
+    # indicators of 2000 and older only (the 2000 or 2005 name is canonical)
+    "P15_POSPRI": {"1990": "INS_PPRIM"},
+    "VP_PARDES": {"1990": "PARED_LA"},
+    "VP_TECDES": {"1990": "TECHO_LA"},
+    "VP_2CUAR": {"1990": "VIV_2_C"},
+    "VP_PROPIA": {"1990": "VIV_PPROP"},
     "P_6A14_AN": {"2000": "POB6_14"},
     "P_15A24": {"2000": "POB15_24"},
     "P_5_NOAE": {"2000": "P5_NAESC"},
@@ -742,7 +778,8 @@ for _canon, _src in {"PRES2015": {"2005": "P_RE2000", "2000": "P5_RES95"},
                      "PCATOLICA": {"2000": "P5_CATOLIC"},
                      "VPH_AGUADV": {"2005": "VPH_AGDV", "2000": "VP_AGUENT"},
                      "VPH_AGUAFV": {"2005": "VPH_NOAG"},
-                     "VPH_EXCSA": {"2000": "VP_SERSAN"}}.items():
+                     "VPH_EXCSA": {"2000": "VP_SERSAN"},
+                     "PROM_OCUP": {"1995": "PRO_O_VP"}}.items():
     _XW_PAIRS_KEPT.setdefault(_canon, {}).update(_src)
 _XW_PAIRS: dict[str, dict[str, str]] = {
     c: {**_XW_PAIRS_RENAMED.get(c, {}), **_XW_PAIRS_KEPT.get(c, {})}
@@ -783,9 +820,14 @@ _XW_NOTES: dict[str, str] = {
                  "empareja con PCON_DISC de 2020, que usa la escala de dificultad"),
     "PNACOE": "2000 (PNACOENT) incluye a la población nacida en otro país",
     "PCATOLICA": "2000 (P5_CATOLIC) cuenta sólo a la población de 5 años y más",
-    "VPH_AGUADV": ("2000 (VP_AGUENT): agua entubada (dentro o fuera de la vivienda); 2005 "
-                   "(VPH_AGDV): agua entubada de la red pública; 2010 y 2020: en el ámbito de la "
-                   "vivienda"),
+    "VPH_AGUADV": ("1990 y 1995: dentro de la vivienda o del terreno, como en 2010 y 2020 (en "
+                   "el ámbito de la vivienda; renombradas); 2000 (VP_AGUENT): agua entubada "
+                   "(dentro o fuera de la vivienda); 2005 (VPH_AGDV): agua entubada de la red "
+                   "pública — estas dos no se renombran"),
+    "PROM_OCUP": ("1995 (PRO_O_VP, no se renombra) lo define como la población total entre el "
+                  "total de viviendas; 1990 (PROM_VIV) y después, ocupantes de viviendas "
+                  "particulares entre esas viviendas"),
+    "REL_H_M": "1995 lo llama índice de masculinidad (IM): hombres por cada cien mujeres",
     "VPH_AGUAFV": "2005 (VPH_NOAG): sin agua entubada de la red pública",
     "VPH_EXCSA": "2000 (VP_SERSAN): servicio sanitario exclusivo de la vivienda",
     "P15YM_SE": "2000 (P15_SINSTR) dice «sin instrucción»",
@@ -828,7 +870,7 @@ def _write_crosswalk(dict_dir: Path, path: Path, map_path: Path = _DEFAULT_SCHEM
             dpath = _indicator_dict_path(dict_dir, p, t)
             if dpath.exists():
                 docs[(p, t)] = {k.strip().upper(): v
-                                for k, v in fd.parse_indicator_csv(dpath).items()}
+                                for k, v in _indicator_doc(dpath, p).items()}
     paired = {(p, src): canon for canon, by in _XW_PAIRS.items() for p, src in by.items()}
     renamed = {(p, canon) for canon, by in _XW_PAIRS_RENAMED.items() for p in by}
     out: dict[str, dict] = {}

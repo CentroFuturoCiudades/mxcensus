@@ -396,8 +396,10 @@ def test_build_cli_guards(capsys):
     assert _bcpv.main(["--dry-run", "--periods", "2010", "--states", "1"]) == 0
     out = capsys.readouterr().out
     assert "MC2010_01_dbf.zip" in out and "cpv_personas_2010_01.parquet" in out
-    with pytest.raises(SystemExit):
-        _bcpv.main(["--periods", "1995", "--states", "1"])   # edition not enabled yet
+    with pytest.raises(SystemExit):                          # an edition not enabled
+        with pytest.MonkeyPatch.context() as mp:
+            mp.setattr(_bcpv, "_ENABLED", ("2025",))
+            _bcpv.main(["--periods", "1995", "--states", "1"])
     with pytest.raises(SystemExit):
         _bcpv.main(["--dry-run", "--states", "33"])
 

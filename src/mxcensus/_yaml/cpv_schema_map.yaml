@@ -1414,14 +1414,118 @@ migrantes:
       - MPERLS
       - TAMLOC
 iter:
-  latest: g04
+  latest: g06
   fingerprints:
-    e586d06f657fa61ccde93afd04a5d0853cc0444cefd7e4d51dc5688821b57564: g01
-    e1cc0a0d0a99753941e0a091d6603131669031deeddcdd6ade2589673d071f58: g02
-    0e8a8bb04bfc669e61e843eeab7d88093ae064b5660dc05debaafaf0a6672eee: g03
-    0e04519a394870559f99637a52c0a290664ce08f7181e800c624437e72cc4712: g04
+    b418c7a05e34512f07fe42f984c9e8755a4a3fc274cb9c05d88f62ca1d08955b: g01
+    f8771b5bc747251ea51e3eed6e01fe1de323ff085548772a11d9103199396c1c: g02
+    e586d06f657fa61ccde93afd04a5d0853cc0444cefd7e4d51dc5688821b57564: g03
+    e1cc0a0d0a99753941e0a091d6603131669031deeddcdd6ade2589673d071f58: g04
+    0e8a8bb04bfc669e61e843eeab7d88093ae064b5660dc05debaafaf0a6672eee: g05
+    0e04519a394870559f99637a52c0a290664ce08f7181e800c624437e72cc4712: g06
   groups:
     g01:
+      n_columns: 46
+      files: 32
+      periods:
+      - '1990'
+      columns:
+      - ENTIDAD
+      - NOM_ENT
+      - MUN
+      - NOM_MUN
+      - LOC
+      - NOM_LOC
+      - LONGITUD
+      - LATITUD
+      - ALTITUD
+      - P_TOTAL
+      - HOMBRES
+      - MUJERES
+      - POB_LEE
+      - POB_NO_L
+      - ALFABET
+      - ANALFBET
+      - ASIS_ESC
+      - N_AS_ESC
+      - ASIS6_ES
+      - N_AS6_ES
+      - N_HAB_ESP
+      - HABLA_ESP
+      - SIN_INS
+      - PRIM_INC
+      - PRIM_COM
+      - INS_PPRIM
+      - P_E_ACT
+      - P_E_INAC
+      - POB_OCUP
+      - SEC_PRIM
+      - SEC_SEC
+      - SEC_TER
+      - T_VIVHAB
+      - VIV_PART
+      - OCUP_VIV
+      - PROM_VIV
+      - PROM_CUA
+      - PARED_LA
+      - TECHO_LA
+      - PISO_TIE
+      - VIV_1_C
+      - VIV_2_C
+      - C_AGUA_ENT
+      - C_DRENAJE
+      - C_E_ELECT
+      - VIV_PPROP
+    g02:
+      n_columns: 44
+      files: 32
+      periods:
+      - '1995'
+      columns:
+      - ENTIDAD
+      - NOM_ENT
+      - MUN
+      - NOM_MUN
+      - LOC
+      - NOM_LOC
+      - LONGITUD
+      - LATITUD
+      - ALTITUD
+      - POBTOTAL
+      - POBTMAS
+      - POBTFEM
+      - P5YMAS
+      - P6A14
+      - P15YMAS
+      - P6A14SL
+      - P6A14NSL
+      - P15ALFA
+      - P15ANALFA
+      - P5HLIND
+      - P5HLIYE
+      - P5HLIYNE
+      - TOTVIVH
+      - VIV_PART
+      - O_V_PART
+      - PRO_O_VP
+      - VIVP_ELEC
+      - VIVP_AGUA
+      - VIVP_DREN
+      - IM
+      - P_P0A4
+      - P_P5YMAS
+      - P_P6A14
+      - P_P15YMAS
+      - P_P6A14SL
+      - P_P6A14NS
+      - P_P15ALFA
+      - P_P15ANAL
+      - P_P5HLIND
+      - P_PP5HLIYE
+      - P_P5HLIYN
+      - P_VIVP_EL
+      - P_VIVP_AG
+      - P_VIVP_DR
+    g03:
       n_columns: 132
       files: 32
       periods:
@@ -1559,7 +1663,7 @@ iter:
       - pobhog
       - phogjefm
       - phogjeff
-    g02:
+    g04:
       n_columns: 130
       files: 32
       periods:
@@ -1695,7 +1799,7 @@ iter:
       - vph_refr
       - vph_lava
       - vph_pc
-    g03:
+    g05:
       n_columns: 200
       files: 32
       periods:
@@ -1901,7 +2005,7 @@ iter:
       - vph_cel
       - vph_inter
       - tam_loc
-    g04:
+    g06:
       n_columns: 286
       files: 32
       periods:

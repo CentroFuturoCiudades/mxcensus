@@ -15,6 +15,8 @@ ENTIDAD:
   '2010': ENTIDAD
   '2005': ENTIDAD
   '2000': ENTIDAD
+  '1995': ENTIDAD
+  '1990': ENTIDAD
 NOM_ENT:
   Descripción: Entidad federativa
   Tablas:
@@ -24,6 +26,8 @@ NOM_ENT:
   '2010': NOM_ENT
   '2005': NOM_ENT
   '2000': NOM_ENT
+  '1995': NOM_ENT
+  '1990': NOM_ENT
 MUN:
   Descripción: Clave de municipio o demarcación territorial
   Tablas:
@@ -33,6 +37,8 @@ MUN:
   '2010': MUN
   '2005': MUN
   '2000': MUN
+  '1995': MUN
+  '1990': MUN
 NOM_MUN:
   Descripción: Municipio o demarcación territorial
   Tablas:
@@ -42,6 +48,8 @@ NOM_MUN:
   '2010': NOM_MUN
   '2005': NOM_MUN
   '2000': NOM_MUN
+  '1995': NOM_MUN
+  '1990': NOM_MUN
 LOC:
   Descripción: Clave de localidad
   Tablas:
@@ -51,6 +59,8 @@ LOC:
   '2010': LOC
   '2005': LOC
   '2000': LOC
+  '1995': LOC
+  '1990': LOC
 NOM_LOC:
   Descripción: Localidad
   Tablas:
@@ -60,6 +70,8 @@ NOM_LOC:
   '2010': NOM_LOC
   '2005': NOM_LOC
   '2000': NOM_LOC
+  '1995': NOM_LOC
+  '1990': NOM_LOC
 LONGITUD:
   Descripción: Longitud
   Tablas:
@@ -68,6 +80,8 @@ LONGITUD:
   '2010': LONGITUD
   '2005': LONGITUD
   '2000': LONGITUD
+  '1995': LONGITUD
+  '1990': LONGITUD
 LATITUD:
   Descripción: Latitud
   Tablas:
@@ -76,6 +90,8 @@ LATITUD:
   '2010': LATITUD
   '2005': LATITUD
   '2000': LATITUD
+  '1995': LATITUD
+  '1990': LATITUD
 ALTITUD:
   Descripción: Altitud
   Tablas:
@@ -84,6 +100,8 @@ ALTITUD:
   '2010': ALTITUD
   '2005': ALTITUD
   '2000': ALTITUD
+  '1995': ALTITUD
+  '1990': ALTITUD
 POBTOT:
   Descripción: Población total
   Tablas:
@@ -93,8 +111,12 @@ POBTOT:
   '2010': POBTOT
   '2005': P_TOTAL
   '2000': POBTOT
+  '1995': POBTOTAL
+  '1990': P_TOTAL
   Renombrar:
   - '2005'
+  - '1995'
+  - '1990'
 POBFEM:
   Descripción: Población femenina
   Tablas:
@@ -104,9 +126,13 @@ POBFEM:
   '2010': POBFEM
   '2005': P_FEM
   '2000': PFEMENI
+  '1995': POBTFEM
+  '1990': MUJERES
   Renombrar:
   - '2005'
   - '2000'
+  - '1995'
+  - '1990'
 POBMAS:
   Descripción: Población masculina
   Tablas:
@@ -116,9 +142,13 @@ POBMAS:
   '2010': POBMAS
   '2005': P_MAS
   '2000': PMASCUL
+  '1995': POBTMAS
+  '1990': HOMBRES
   Renombrar:
   - '2005'
   - '2000'
+  - '1995'
+  - '1990'
 P_0A2:
   Descripción: Población de 0 a 2 años
   Tablas:
@@ -170,8 +200,10 @@ P_5YMAS:
   '2010': P_5YMAS
   '2005': P_5YMAS
   '2000': P5_MAS
+  '1995': P5YMAS
   Renombrar:
   - '2000'
+  - '1995'
 P_5YMAS_F:
   Descripción: Población femenina de 5 años y más
   Tablas:
@@ -222,8 +254,10 @@ P_15YMAS:
   '2010': P_15YMAS
   '2005': P_15YMAS
   '2000': POB15_
+  '1995': P15YMAS
   Renombrar:
   - '2000'
+  - '1995'
 P_15YMAS_F:
   Descripción: Población femenina de 15 años y más
   Tablas:
@@ -458,6 +492,10 @@ REL_H_M:
   '2020': REL_H_M
   '2010': REL_H_M
   '2005': REL_H_M
+  '1995': IM
+  Renombrar:
+  - '1995'
+  Nota: '1995 lo llama índice de masculinidad (IM): hombres por cada cien mujeres'
 POB0_14:
   Descripción: Población de 0 a 14 años
   Tablas:
@@ -952,8 +990,10 @@ P5_HLI:
   '2010': P5_HLI
   '2005': P5YMAHLI
   '2000': P5_HLI
+  '1995': P5HLIND
   Renombrar:
   - '2005'
+  - '1995'
 P5_HLI_NHE:
   Descripción: Población de 5 años y más que habla alguna lengua indígena y no habla español
   Tablas:
@@ -963,9 +1003,13 @@ P5_HLI_NHE:
   '2010': P5_HLI_NHE
   '2005': P5YMALINE
   '2000': P5_HLIYNE
+  '1995': P5HLIYNE
+  '1990': N_HAB_ESP
   Renombrar:
   - '2005'
   - '2000'
+  - '1995'
+  - '1990'
 P5_HLI_HE:
   Descripción: Población de 5 años y más que habla alguna lengua indígena y habla español
   Tablas:
@@ -975,9 +1019,13 @@ P5_HLI_HE:
   '2010': P5_HLI_HE
   '2005': P5YMALIES
   '2000': P5_HLIYE
+  '1995': P5HLIYE
+  '1990': HABLA_ESP
   Renombrar:
   - '2005'
   - '2000'
+  - '1995'
+  - '1990'
 PHOG_IND:
   Descripción: Población en hogares censales indígenas
   Tablas:
@@ -1264,9 +1312,13 @@ P15YM_AN:
   '2010': P15YM_AN
   '2005': P_15MAAN
   '2000': P15_ANALF
+  '1995': P15ANALFA
+  '1990': ANALFBET
   Renombrar:
   - '2005'
   - '2000'
+  - '1995'
+  - '1990'
 P15YM_AN_F:
   Descripción: Población femenina de 15 años y más analfabeta
   Tablas:
@@ -1296,9 +1348,11 @@ P15YM_SE:
   '2010': P15YM_SE
   '2005': P15YMASE
   '2000': P15_SINSTR
+  '1990': SIN_INS
   Renombrar:
   - '2005'
   - '2000'
+  - '1990'
   Nota: 2000 (P15_SINSTR) dice «sin instrucción»
 P15YM_SE_F:
   Descripción: Población femenina de 15 años y más sin escolaridad
@@ -1328,8 +1382,10 @@ P15PRI_IN:
   '2020': P15PRI_IN
   '2010': P15PRI_IN
   '2000': P15_SPRIMA
+  '1990': PRIM_INC
   Renombrar:
   - '2000'
+  - '1990'
 P15PRI_INF:
   Descripción: Población femenina de 15 años y más con primaria incompleta
   Tablas:
@@ -1352,8 +1408,10 @@ P15PRI_CO:
   '2020': P15PRI_CO
   '2010': P15PRI_CO
   '2000': P15_CPRIMA
+  '1990': PRIM_COM
   Renombrar:
   - '2000'
+  - '1990'
 P15PRI_COF:
   Descripción: Población femenina de 15 años y más con primaria completa
   Tablas:
@@ -1476,8 +1534,10 @@ PEA:
   '2020': PEA
   '2010': PEA
   '2000': PECOACTIV
+  '1990': P_E_ACT
   Renombrar:
   - '2000'
+  - '1990'
 PEA_F:
   Descripción: Población femenina de 12 años y más económicamente activa
   Tablas:
@@ -1500,8 +1560,10 @@ PE_INAC:
   '2020': PE_INAC
   '2010': PE_INAC
   '2000': PECOINACT
+  '1990': P_E_INAC
   Renombrar:
   - '2000'
+  - '1990'
 PE_INAC_F:
   Descripción: Población femenina de 12 años y más no económicamente activa
   Tablas:
@@ -1524,6 +1586,9 @@ POCUPADA:
   '2020': POCUPADA
   '2010': POCUPADA
   '2000': POCUPADA
+  '1990': POB_OCUP
+  Renombrar:
+  - '1990'
 POCUPADA_F:
   Descripción: Población femenina de 12 años y más ocupada
   Tablas:
@@ -1800,9 +1865,13 @@ TVIVHAB:
   '2010': TVIVHAB
   '2005': T_VIVHAB
   '2000': TOTVIVHAB
+  '1995': TOTVIVH
+  '1990': T_VIVHAB
   Renombrar:
   - '2005'
   - '2000'
+  - '1995'
+  - '1990'
 TVIVPAR:
   Descripción: Total de viviendas particulares
   Tablas:
@@ -1819,9 +1888,13 @@ VIVPAR_HAB:
   '2010': VIVPAR_HAB
   '2005': VIVPARHA
   '2000': VIVPARHAB
+  '1995': VIV_PART
+  '1990': VIV_PART
   Renombrar:
   - '2005'
   - '2000'
+  - '1995'
+  - '1990'
 VIVPARH_CV:
   Descripción: Total de viviendas particulares habitadas con características
   Tablas:
@@ -1858,9 +1931,13 @@ OCUPVIVPAR:
   '2010': OCUPVIVPAR
   '2005': O_VIVPAR
   '2000': OCUVIVPAR
+  '1995': O_V_PART
+  '1990': OCUP_VIV
   Renombrar:
   - '2005'
   - '2000'
+  - '1995'
+  - '1990'
 PROM_OCUP:
   Descripción: Promedio de ocupantes en viviendas particulares habitadas
   Tablas:
@@ -1870,9 +1947,14 @@ PROM_OCUP:
   '2010': PROM_OCUP
   '2005': PRO_VIPA
   '2000': PRO_OVP
+  '1995': PRO_O_VP
+  '1990': PROM_VIV
   Renombrar:
   - '2005'
   - '2000'
+  - '1990'
+  Nota: 1995 (PRO_O_VP, no se renombra) lo define como la población total entre el total de viviendas;
+    1990 (PROM_VIV) y después, ocupantes de viviendas particulares entre esas viviendas
 PRO_OCUP_C:
   Descripción: Promedio de ocupantes por cuarto en viviendas particulares habitadas
   Tablas:
@@ -1882,9 +1964,11 @@ PRO_OCUP_C:
   '2010': PRO_OCUP_C
   '2005': PRO_C_VP
   '2000': PRO_OCVP
+  '1990': PROM_CUA
   Renombrar:
   - '2005'
   - '2000'
+  - '1990'
 VPH_PISODT:
   Descripción: Viviendas particulares habitadas con piso de material diferente de tierra
   Tablas:
@@ -1894,9 +1978,11 @@ VPH_PISODT:
   '2010': VPH_PISODT
   '2005': VPH_PIDT
   '2000': VP_PISDES
+  '1990': PISO_TIE
   Renombrar:
   - '2005'
   - '2000'
+  - '1990'
 VPH_PISOTI:
   Descripción: Viviendas particulares habitadas con piso de tierra
   Tablas:
@@ -1935,9 +2021,11 @@ VPH_1CUART:
   '2010': VPH_1CUART
   '2005': VPH_1CUA
   '2000': V_1CUARTO
+  '1990': VIV_1_C
   Renombrar:
   - '2005'
   - '2000'
+  - '1990'
 VPH_2CUART:
   Descripción: Viviendas particulares habitadas con dos cuartos
   Tablas:
@@ -1965,9 +2053,13 @@ VPH_C_ELEC:
   '2010': VPH_C_ELEC
   '2005': VPH_ENEL
   '2000': VP_ELECTR
+  '1995': VIVP_ELEC
+  '1990': C_E_ELECT
   Renombrar:
   - '2005'
   - '2000'
+  - '1995'
+  - '1990'
 VPH_S_ELEC:
   Descripción: Viviendas particulares habitadas que no disponen de energía eléctrica
   Tablas:
@@ -1984,8 +2076,14 @@ VPH_AGUADV:
   '2010': VPH_AGUADV
   '2005': VPH_AGDV
   '2000': VP_AGUENT
-  Nota: '2000 (VP_AGUENT): agua entubada (dentro o fuera de la vivienda); 2005 (VPH_AGDV): agua entubada
-    de la red pública; 2010 y 2020: en el ámbito de la vivienda'
+  '1995': VIVP_AGUA
+  '1990': C_AGUA_ENT
+  Renombrar:
+  - '1995'
+  - '1990'
+  Nota: '1990 y 1995: dentro de la vivienda o del terreno, como en 2010 y 2020 (en el ámbito de la vivienda;
+    renombradas); 2000 (VP_AGUENT): agua entubada (dentro o fuera de la vivienda); 2005 (VPH_AGDV): agua
+    entubada de la red pública — estas dos no se renombran'
 VPH_AEASP:
   Descripción: Viviendas particulares habitadas que disponen de agua entubada y se abastecen del servicio
     público de agua
@@ -2039,9 +2137,13 @@ VPH_DRENAJ:
   '2010': VPH_DRENAJ
   '2005': VPH_DREN
   '2000': VP_DRENAJ
+  '1995': VIVP_DREN
+  '1990': C_DRENAJE
   Renombrar:
   - '2005'
   - '2000'
+  - '1995'
+  - '1990'
 VPH_NODREN:
   Descripción: Viviendas particulares habitadas que no disponen de drenaje
   Tablas:
@@ -2351,8 +2453,10 @@ P_6A14_AN:
   - iter
   '2005': P_6A14_AN
   '2000': POB6_14
+  '1995': P6A14
   Renombrar:
   - '2000'
+  - '1995'
 P_6A14_M:
   Descripción: Población masculina de 6 a 14 años
   Tablas:
@@ -2407,8 +2511,10 @@ P_5_NOAE:
   - iter
   '2005': P_5_NOAE
   '2000': P5_NAESC
+  '1990': N_AS_ESC
   Renombrar:
   - '2000'
+  - '1990'
 P_M_5_NOAE:
   Descripción: Población masculina de 5 años que no asiste a la escuela
   Tablas:
@@ -2425,8 +2531,10 @@ P6A14NOA:
   - iter
   '2005': P6A14NOA
   '2000': P6_14NAESC
+  '1990': N_AS6_ES
   Renombrar:
   - '2000'
+  - '1990'
 PM_6A14NOA:
   Descripción: Población masculina de 6 a 14 años que no asiste a la escuela
   Tablas:
@@ -2572,26 +2680,47 @@ P6_14SLEE:
   Tablas:
   - iter
   '2000': P6_14SLEE
+  '1995': P6A14SL
+  '1990': POB_LEE
+  Renombrar:
+  - '1995'
+  - '1990'
 P6_14NLEE:
   Descripción: Población de 6 a 14 años que no sabe leer y escribir
   Tablas:
   - iter
   '2000': P6_14NLEE
+  '1995': P6A14NSL
+  '1990': POB_NO_L
+  Renombrar:
+  - '1995'
+  - '1990'
 P15_ALFAB:
   Descripción: Población de 15 años y más alfabeta
   Tablas:
   - iter
   '2000': P15_ALFAB
+  '1995': P15ALFA
+  '1990': ALFABET
+  Renombrar:
+  - '1995'
+  - '1990'
 P5_ASIESC:
   Descripción: Población de 5 años que asiste a la escuela
   Tablas:
   - iter
   '2000': P5_ASIESC
+  '1990': ASIS_ESC
+  Renombrar:
+  - '1990'
 P6_14AESC:
   Descripción: Población de 6 a 14 años que asiste a la escuela
   Tablas:
   - iter
   '2000': P6_14AESC
+  '1990': ASIS6_ES
+  Renombrar:
+  - '1990'
 P15_24NESC:
   Descripción: Población de 15 a 24 años que no asiste a la escuela
   Tablas:
@@ -2602,6 +2731,9 @@ P15_POSPRI:
   Tablas:
   - iter
   '2000': P15_POSPRI
+  '1990': INS_PPRIM
+  Renombrar:
+  - '1990'
 P15_SINSEC:
   Descripción: Población de 15 años y más sin instrucción posprimaria
   Tablas:
@@ -2653,16 +2785,25 @@ POCUSECP:
   Tablas:
   - iter
   '2000': POCUSECP
+  '1990': SEC_PRIM
+  Renombrar:
+  - '1990'
 POCUSECS:
   Descripción: Población ocupada en el sector secundario
   Tablas:
   - iter
   '2000': POCUSECS
+  '1990': SEC_SEC
+  Renombrar:
+  - '1990'
 POCUSECT:
   Descripción: Población ocupada en el sector terciario
   Tablas:
   - iter
   '2000': POCUSECT
+  '1990': SEC_TER
+  Renombrar:
+  - '1990'
 POCUNINGR:
   Descripción: Población ocupada que no recibe ingreso por trabajo
   Tablas:
@@ -2724,11 +2865,17 @@ VP_PARDES:
   Tablas:
   - iter
   '2000': VP_PARDES
+  '1990': PARED_LA
+  Renombrar:
+  - '1990'
 VP_TECDES:
   Descripción: Viviendas particulares habitadas con techos de material de desecho y lámina de cartón
   Tablas:
   - iter
   '2000': VP_TECDES
+  '1990': TECHO_LA
+  Renombrar:
+  - '1990'
 VP2_5CUAR:
   Descripción: Viviendas particulares habitadas con 2 a 5 cuartos (no incluye cocina exclusiva)
   Tablas:
@@ -2739,6 +2886,9 @@ VP_2CUAR:
   Tablas:
   - iter
   '2000': VP_2CUAR
+  '1990': VIV_2_C
+  Renombrar:
+  - '1990'
 VP_COCGAS:
   Descripción: Viviendas particulares habitadas que utilizan gas para cocinar
   Tablas:
@@ -2779,6 +2929,9 @@ VP_PROPIA:
   Tablas:
   - iter
   '2000': VP_PROPIA
+  '1990': VIV_PPROP
+  Renombrar:
+  - '1990'
 VP_PPAGAD:
   Descripción: Viviendas particulares habitadas propias pagadas
   Tablas:
@@ -2809,3 +2962,73 @@ VP_BOILER:
   Tablas:
   - iter
   '2000': VP_BOILER
+P_P0A4:
+  Descripción: Porcentaje de Población de 0 a 4 años
+  Tablas:
+  - iter
+  '1995': P_P0A4
+P_P5YMAS:
+  Descripción: Porcentaje de Población de 5 años y mas
+  Tablas:
+  - iter
+  '1995': P_P5YMAS
+P_P6A14:
+  Descripción: Porcentaje de Población de 6 a 14 años
+  Tablas:
+  - iter
+  '1995': P_P6A14
+P_P15YMAS:
+  Descripción: Porcentaje de Población de 15 años y mas
+  Tablas:
+  - iter
+  '1995': P_P15YMAS
+P_P6A14SL:
+  Descripción: Porcentaje de Población de 6 a 14 años que sabe leer y escribir
+  Tablas:
+  - iter
+  '1995': P_P6A14SL
+P_P6A14NS:
+  Descripción: Porcentaje de Población de 6 a 14 años que no sabe leer y escribir
+  Tablas:
+  - iter
+  '1995': P_P6A14NS
+P_P15ALFA:
+  Descripción: Porcentaje de Población de 15 años y mas alfabeta
+  Tablas:
+  - iter
+  '1995': P_P15ALFA
+P_P15ANAL:
+  Descripción: Porcentaje de Población de 15 años y mas analfabeta
+  Tablas:
+  - iter
+  '1995': P_P15ANAL
+P_P5HLIND:
+  Descripción: Porcentaje de Población de 5 años y mas hablante de lengua indígena
+  Tablas:
+  - iter
+  '1995': P_P5HLIND
+P_PP5HLIYE:
+  Descripción: Porcentaje de Población de 5 años y mas hablante de lengua indígena bilingüe
+  Tablas:
+  - iter
+  '1995': P_PP5HLIYE
+P_P5HLIYN:
+  Descripción: Porcentaje de Población de 5 años y mas hablante de lengua indígena monolingüe
+  Tablas:
+  - iter
+  '1995': P_P5HLIYN
+P_VIVP_EL:
+  Descripción: Porcentaje de viviendas particulares con energía eléctrica
+  Tablas:
+  - iter
+  '1995': P_VIVP_EL
+P_VIVP_AG:
+  Descripción: Porcentaje de viviendas particulares con agua entubada
+  Tablas:
+  - iter
+  '1995': P_VIVP_AG
+P_VIVP_DR:
+  Descripción: Porcentaje de viviendas particulares con drenaje
+  Tablas:
+  - iter
+  '1995': P_VIVP_DR

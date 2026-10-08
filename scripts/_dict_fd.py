@@ -909,6 +909,181 @@ def parse_indicator_csv(path: Path, specials: dict[str, str] | None = None
 
 
 # --------------------------------------------------------------------------------------
+# The 1990/1995 ITER descriptors: a table in a PDF («Estructura de la tabla FD ITER…»)
+# --------------------------------------------------------------------------------------
+
+# The columns of the descriptor table, by their header words.
+_ITER_FD_HEADER = ("No.", "Categoría", "Descripción", "Mnemónico", "Rango", "Long.")
+# Section titles printed across the table (not part of any row).
+_ITER_FD_TITLES = {"identificacion geografica", "relacion de indicadores"}
+
+
+def pdf_words(path: Path) -> str:
+    """The word boxes of a PDF as ``pdftotext -tsv`` writes them (poppler). INEGI's
+    1990/1995 descriptors are AES-encrypted with an empty password, which ``pypdf`` reads
+    only with the ``cryptography`` package; poppler reads them as they are."""
+    import shutil
+    import subprocess
+
+    exe = shutil.which("pdftotext")
+    if exe is None:
+        raise RuntimeError("pdftotext (poppler-utils) is required to read the 1990/1995 ITER "
+                           "descriptors: install poppler (brew install poppler / apt install "
+                           "poppler-utils)")
+    return subprocess.run([exe, "-tsv", str(path), "-"], check=True, capture_output=True,
+                          text=True, encoding="utf-8").stdout
+
+
+def parse_iter_fd_tsv(tsv: str, align: str = "top") -> list[dict[str, str]]:
+    """The rows of an ITER descriptor table from its word boxes (:func:`pdf_words`):
+    ``[{Núm., Indicador, Descripción, Mnemónico, Rangos, Longitud}]`` in table order — the
+    columns of INEGI's later ``diccionario_datos_*.csv``.
+
+    Per page, the column edges come from the header words (``No.``, ``Categoría``,
+    ``Mnemónico``, ``Rango``, ``Long.``) and the left edges most lines share (the indicator
+    and description cells are left-aligned). A row is anchored on its number in the ``No.``
+    column. Its mnemonic, range and length are the words of those columns nearest to it.
+    Its indicator and description lines join it by ``align``:
+    - ``"top"`` (CGPV 1990): the number sits on a cell's first line, so a line belongs to
+      the last row at or above it, also across a page break;
+    - ``"center"`` (Conteo 1995): cells are centred on the number, so each column of a page
+      splits into contiguous runs of lines, one per row, the split that best centres every
+      run on its number (:func:`_centred_runs`).
+
+    The header row, the section titles (:data:`_ITER_FD_TITLES`) and everything from the
+    closing «Total de caracteres» line down (footnotes) are left out.
+    """
+    from collections import Counter, defaultdict
+
+    words = []
+    for line in tsv.splitlines()[1:]:
+        f = line.split("\t")
+        if len(f) >= 12 and f[0] == "5" and f[11].strip():
+            words.append({"page": int(f[1]), "key": (int(f[1]), int(f[3]), int(f[2]), int(f[4])),
+                          "x": float(f[6]), "y": float(f[7]), "h": float(f[9]),
+                          "c": float(f[7]) + float(f[9]) / 2,      # vertical centre
+                          "text": f[11]})
+    by_page = defaultdict(list)
+    for w in words:
+        by_page[w["page"]].append(w)
+    anchors: list[dict] = []                 # in reading order
+    fragments: list[tuple] = []              # (page, y, x, column, text)
+    for page in sorted(by_page):
+        ws = by_page[page]
+        hdr = {w["text"]: w for w in ws if w["text"] in _ITER_FD_HEADER}
+        if not {"No.", "Categoría", "Mnemónico", "Rango", "Long."} <= set(hdr):
+            continue
+        top = max(w["y"] + w["h"] for w in hdr.values()) + 1
+        end = min((w["y"] for i, w in enumerate(ws) if w["text"] == "Total"
+                   and [x["text"] for x in ws[i + 1:i + 3]] == ["de", "caracteres"]),
+                  default=float("inf"))
+        ws = [w for w in ws if top < w["y"] < end - 1]
+        lefts = Counter(round(w["x"]) for w in ws)
+        x_mnem, x_rango, x_long = hdr["Mnemónico"]["x"], hdr["Rango"]["x"], hdr["Long."]["x"]
+        x_desc = max((x for x in lefts if hdr["Categoría"]["x"] + 40 < x < x_mnem - 40),
+                     key=lambda x: (lefts[x], -x))
+        x_name = max((x for x in lefts if hdr["No."]["x"] + 5 < x < x_desc - 40),
+                     key=lambda x: (lefts[x], -x))
+        cells = {"mnem": [], "rango": [], "long": []}
+        lines = defaultdict(list)
+        for w in ws:
+            if w["x"] < x_name - 3:
+                if w["text"].isdigit():
+                    anchors.append({"page": page, "y": w["c"], "num": w["text"]})
+            elif w["x"] < x_desc - 3:
+                lines[w["key"]].append(("name", w))
+            elif w["x"] < x_mnem - 30:
+                lines[w["key"]].append(("desc", w))
+            elif w["x"] < x_rango - 30:
+                cells["mnem"].append(w)
+            elif w["x"] < x_long - 10:
+                cells["rango"].append(w)
+            else:
+                cells["long"].append(w)
+        for parts in lines.values():
+            text = " ".join(w["text"] for _, w in parts)
+            if _fold(text) in _ITER_FD_TITLES:
+                continue
+            for col in ("name", "desc"):
+                col_words = [w for c, w in parts if c == col]
+                if col_words:
+                    fragments.append((page, col_words[0]["c"], col_words[0]["x"], col,
+                                      " ".join(w["text"] for w in col_words)))
+        for a in (a for a in anchors if a["page"] == page):
+            for col, cands in cells.items():
+                near = min(cands, key=lambda w: abs(w["c"] - a["y"]), default=None)
+                a[col] = near["text"] if near is not None and abs(near["c"] - a["y"]) < 40 else ""
+    rows = {id(a): {"name": [], "desc": []} for a in anchors}
+    if align == "top":
+        for page, y, x, col, text in sorted(fragments):
+            above = [a for a in anchors if (a["page"], a["y"] - 3) <= (page, y)]
+            if above:
+                rows[id(above[-1])][col].append(text)
+    else:
+        for page in sorted({a["page"] for a in anchors}):
+            same = sorted((a for a in anchors if a["page"] == page), key=lambda a: a["y"])
+            for col in ("name", "desc"):
+                frags = sorted((y, x, text) for p, y, x, c, text in fragments
+                               if p == page and c == col)
+                runs = _centred_runs([y for y, _, _ in frags], [a["y"] for a in same])
+                for a, (i, j) in zip(same, runs):
+                    rows[id(a)][col] += [text for _, _, text in frags[i:j]]
+    def join(parts: list[str]) -> str:
+        # a word hyphenated at a line end joins without a space («político-» «administrativa»)
+        text = re.sub(r"(?<=\w)- (?=[a-záéíóúñ])", "-", " ".join(parts))
+        return " ".join(text.split())
+
+    out = []
+    for a in sorted(anchors, key=lambda a: int(a["num"])):
+        out.append({"Núm.": a["num"], "Indicador": join(rows[id(a)]["name"]),
+                    "Descripción": join(rows[id(a)]["desc"]),
+                    "Mnemónico": a.get("mnem", ""), "Rangos": a.get("rango", ""),
+                    "Longitud": a.get("long", "")})
+    return out
+
+
+def _centred_runs(ys: list[float], anchors: list[float]) -> list[tuple[int, int]]:
+    """Split lines at heights ``ys`` (sorted) into one contiguous run per anchor (sorted),
+    minimizing Σ |mean height of the run − its anchor's height| (an empty run costs 50 pt):
+    the cells of a vertically centred table. Returns ``[(start, end)]`` slices."""
+    n, m, empty = len(ys), len(anchors), 50.0
+    prefix = [0.0]
+    for y in ys:
+        prefix.append(prefix[-1] + y)
+
+    def cost(i: int, j: int, k: int) -> float:
+        return empty if i == j else abs((prefix[j] - prefix[i]) / (j - i) - anchors[k])
+
+    inf = float("inf")
+    best = [[inf] * (n + 1) for _ in range(m + 1)]
+    back = [[0] * (n + 1) for _ in range(m + 1)]
+    best[0][0] = 0.0
+    for k in range(1, m + 1):
+        for j in range(n + 1):
+            for i in range(j + 1):
+                c = best[k - 1][i] + cost(i, j, k - 1)
+                if c < best[k][j]:
+                    best[k][j], back[k][j] = c, i
+    runs, j = [], n
+    for k in range(m, 0, -1):
+        i = back[k][j]
+        runs.append((i, j))
+        j = i
+    return runs[::-1]
+
+
+def write_indicator_csv(rows: list[dict[str, str]], path: Path) -> None:
+    """Write :func:`parse_iter_fd_tsv` rows as a ``diccionario_datos_*.csv`` (UTF-8), the
+    format :func:`parse_indicator_csv` reads."""
+    cols = ["Núm.", "Indicador", "Descripción", "Mnemónico", "Rangos", "Longitud"]
+    with open(path, "w", encoding="utf-8", newline="") as f:
+        w = csv.writer(f)
+        w.writerow(cols)
+        for r in rows:
+            w.writerow([r[c] for c in cols])
+
+
+# --------------------------------------------------------------------------------------
 # One variables-YAML entry from an FD (or indicator) dictionary entry
 # --------------------------------------------------------------------------------------
 
