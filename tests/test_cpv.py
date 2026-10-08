@@ -1059,7 +1059,8 @@ def test_cpv_exports():
 
 @pytest.fixture
 def local_mirror(monkeypatch):
-    """Redirect ``POOCH.fetch`` to ``data/parquet`` (the registry has no cpv entries yet)."""
+    """Redirect ``POOCH.fetch`` to ``data/parquet``, so the real-data tests read the local
+    mirror (no network, no user cache) even though the files are registered (unit 1e)."""
     from mxcensus.data import _registry
 
     def _fetch(fname, **_):

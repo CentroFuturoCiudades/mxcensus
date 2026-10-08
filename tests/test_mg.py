@@ -202,8 +202,8 @@ def _local_states(period: str) -> list[int]:
 
 @pytest.fixture
 def local_mirror(monkeypatch):
-    """Redirect ``POOCH.fetch`` to ``data/parquet`` (the 2025 MG files enter the registry in
-    unit 1e); a missing file raises like Pooch's not-in-registry."""
+    """Redirect ``POOCH.fetch`` to ``data/parquet``, so the real-data tests read the local
+    mirror (no network, no user cache); a missing file raises like Pooch's not-in-registry."""
     from mxcensus.data import _registry
 
     def _fetch(fname, **_):

@@ -1,4 +1,4 @@
-# Mexico Census 2020 / Marco Geoestadístico / DENUE / ENOE / ENIGH — parquet mirror (mxcensus)
+# INEGI censuses / Marco Geoestadístico / DENUE / ENOE / ENIGH — parquet mirror (mxcensus)
 
 A pre-converted **parquet/geoparquet mirror of public [INEGI](https://www.inegi.org.mx)
 open data**, hosted as the data backend for the
@@ -12,13 +12,15 @@ maintained by INEGI.**
 | Family | Files | Source product |
 |---|---|---|
 | Census tabular (`iter_*`, `resargebub_*`, `personas_*`, `viviendas_*`) | 128 | Censo de Población y Vivienda 2020 (ITER, RESAGEBURB, Cuestionario Ampliado) |
-| Marco Geoestadístico (`mg_*`, 15 layers × 32 states) | 480 | Marco Geoestadístico, Censo de Población y Vivienda 2020 (UPC 889463807469) |
+| Censuses & intercensal surveys (`cpv_{table}_{year}_*`; so far EIC 2025 `viviendas`/`personas`/`migrantes` × 32 states + national `estimaciones`) | 97 | Encuesta Intercensal 2025 (microdatos, estimaciones) |
+| Marco Geoestadístico 2020 (`mg_{layer}_{NN}`, 15 layers × 32 states + `ti` for 13 island states) | 493 | Marco Geoestadístico, Censo de Población y Vivienda 2020 (UPC 889463807469) |
+| Marco Geoestadístico 2025 (`mg_{layer}_2025_{NN}`, same layers) | 493 | Marco Geoestadístico, Encuesta Intercensal 2025 (UPC 794551196649) |
 | DENUE economic units (`denue_{YYYYMM}_*`, 25 releases 2010–2026) | 800 | Directorio Estadístico Nacional de Unidades Económicas (DENUE) |
 | ENOE labor-force survey (`enoe_{table}_{period}`, 85 quarters 2005–2026 × 5 tables) | 425 | Encuesta Nacional de Ocupación y Empleo (ENOE) |
 | ENIGH income/expenditure survey (`enigh_{table}_{year}`, 9 editions 2008–2024 × 10–12 tables) | 99 | Encuesta Nacional de Ingresos y Gastos de los Hogares (ENIGH) |
 
 Files are stored flat at the bucket root as `<name>.parquet`; the full naming scheme and
-schema are documented in the package repository. **Total: 1932 files.**
+schema are documented in the package repository. **Total: 2535 files.**
 
 ## Source & attribution
 
@@ -27,7 +29,8 @@ All data originates from INEGI and is redistributed under the
 which permit free use and redistribution with attribution and without implying INEGI's
 endorsement. Please cite the original source:
 
-> Fuente: INEGI. Censo de Población y Vivienda 2020; Marco Geoestadístico 2020; Directorio
+> Fuente: INEGI. Censo de Población y Vivienda 2020; Encuesta Intercensal 2025; Marco
+> Geoestadístico 2020; Marco Geoestadístico, Encuesta Intercensal 2025; Directorio
 > Estadístico Nacional de Unidades Económicas (DENUE); Encuesta Nacional de Ocupación y
 > Empleo (ENOE); Encuesta Nacional de Ingresos y Gastos de los Hogares (ENIGH).
 > https://www.inegi.org.mx
@@ -43,8 +46,8 @@ INEGI's terms when using the data.
 
 ## Personal data & privacy
 
-The census and Marco Geoestadístico data are **aggregate or geometric** and contain no
-personal data.
+The census aggregates (ITER, RESAGEBURB, the EIC 2025 estimaciones) and the Marco
+Geoestadístico are **aggregate or geometric** and contain no personal data.
 
 **DENUE** is a directory of economic units and may contain **personal data of natural
 persons** — e.g. establishment names that are individuals' names (sole proprietors) and,
@@ -56,9 +59,10 @@ with the [Hugging Face Content Policy](https://huggingface.co/content-policy). T
 concern or request removal, open an issue in the
 [package repository](https://github.com/CentroFuturoCiudades/mxcensus/issues).
 
-**ENOE** and **ENIGH** are **de-identified public survey microdata** — individual person and household
-records with no direct identifiers (no names, addresses, or contact details); geography is
-published only down to the AGEB level. INEGI releases it openly as a public statistical
+**ENOE**, **ENIGH**, the census **Cuestionario Ampliado** (`personas_*`/`viviendas_*`) and the
+**Encuesta Intercensal 2025** microdata (`cpv_*`) are **de-identified public microdata** — individual person and household records with no direct identifiers (no
+names, addresses, or contact details); geography is published only down to the AGEB level
+(ENOE/ENIGH) or the municipality and 50k+ locality (census samples). INEGI releases it openly as a public statistical
 product; it is mirrored here unmodified.
 
 ## Transformations applied
@@ -68,10 +72,14 @@ includes parquet conversion, DENUE longitudinal **harmonization** to a common sc
 point-geometry derivation with **state-boundary validation/recovery** (offending
 coordinates corrected or nulled; raw lat/lon retained), and **reporting** (not removal) of
 duplicate rows. Coordinates are parsed with a correctly-rounded float conversion so builds
-are reproducible across machines. **ENOE**/**ENIGH** parquet are faithful-raw text (no harmonization
-or imputation); its per-table schema groups and per-quarter reports are documented
-alongside DENUE's. Full details and per-file reports are in the package repository
-(`docs/denue/`, `docs/enoe/`).
+are reproducible across machines. **ENOE**/**ENIGH**/**CPV** (`cpv_*`) parquet are faithful-raw
+text (no harmonization or imputation); their per-table schema groups and reports are
+documented alongside DENUE's. **Marco Geoestadístico** shapefiles are converted to GeoParquet
+(single-part geometries promoted to Multi*, integer attributes to int32) keeping each
+layer's source CRS: INEGI spells its one Lambert conformal conic projection two ways
+(a custom `MEXICO_ITRF_2008_LCC` WKT and EPSG:6372), which `mxcensus.load_mg` normalises to
+EPSG:6372 without moving any coordinate. Full details and per-file reports are in the
+package repository (`docs/denue/`, `docs/enoe/`, `docs/enigh/`, `docs/cpv/`).
 
 ## How to use
 
@@ -85,6 +93,8 @@ denue = m.load_denue(state=9)                                # latest DENUE, har
 mg_aur, mg_loc_ageb = m.load_mg_census(state=9)
 persons = m.load_enoe_persons(period="2023t1")              # ENOE labor-force person frame (national)
 hog = m.load_enigh_hogares(period="2024")                    # ENIGH household summary (national)
+viv, per, mig = m.load_cpv_survey(state=9)                   # Encuesta Intercensal 2025 microdata
+mun = m.load_mg("mun", state=9, period=2025)                 # MG EIC 2025 municipalities
 ```
 `mxcensus` downloads only the files it needs from this bucket and caches them locally.
 
@@ -94,7 +104,7 @@ If you use this data, please cite **INEGI** (as above) and the package:
 
 ```bibtex
 @software{mxcensus,
-  title  = {mxcensus: Mexico Census 2020 data loader and preprocessor},
+  title  = {mxcensus: loaders for INEGI census, survey and geostatistical open data},
   author = {Peraza, Gonzalo and {Centro para el Futuro de las Ciudades}},
   url    = {https://github.com/CentroFuturoCiudades/mxcensus}
 }

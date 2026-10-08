@@ -1,7 +1,9 @@
 # mxcensus
 
-Data loader and preprocessor for Mexico's **2020 Census** (Censo de Población y
-Vivienda 2020, CPV 2020), published by INEGI.
+Data loaders for INEGI's open data: Mexico's **censuses and intercensal surveys** (the 2020
+Census, CPV 2020, and the Encuesta Intercensal 2025, with earlier editions on the way), the
+**Marco Geoestadístico** (2020 and 2025 frames), the **DENUE** economic-units directory, and
+the **ENOE** and **ENIGH** household surveys.
 
 `mxcensus` fetches pre-converted parquet files from a curated mirror, parses them
 (handling INEGI's censoring and missing-data conventions), and returns clean,
@@ -55,6 +57,13 @@ viviendas = mxcensus.load_extended_viviendas(state=9)
 # Geometries (Marco Geoestadístico) merged with census counts
 mg_aur, mg_loc_ageb = mxcensus.load_mg_census(state=9)
 
+# Encuesta Intercensal 2025 — microdata (labelled, weighted) and the published estimates
+viv, per, mig = mxcensus.load_cpv_survey(state=9)
+est = mxcensus.load_cpv_estimaciones(nivel="municipal")
+
+# Any Marco Geoestadístico layer, 2020 or 2025 frame
+mun = mxcensus.load_mg("mun", state=9, period=2025)
+
 # DENUE economic units — any release, harmonized to the latest schema by default
 denue = mxcensus.load_denue(state=9)                      # latest release
 denue_2010 = mxcensus.load_denue(state=9, release="201000")   # comparable to latest
@@ -72,6 +81,8 @@ Pre-download a state's files (optional; loaders fetch on demand):
 mxcensus fetch 9        # all four census datasets for state 9
 mxcensus fetch 9 --dataset denue                  # DENUE (latest release) for state 9
 mxcensus fetch 9 --dataset enoe --period 2023t1   # the five ENOE tables (national — 9 is ignored)
+mxcensus fetch 9 --dataset cpv                    # EIC 2025 microdata for state 9 + the estimates
+mxcensus fetch 9 --dataset mg --edition 2025      # every MG 2025 layer for state 9
 mxcensus info           # cache directory and mirror URL
 ```
 
@@ -82,10 +93,43 @@ mxcensus info           # cache directory and mirror URL
 | **ITER** | Locality | Aggregate counts (state → municipality → locality) |
 | **RESARGEBUB** | Urban block | AGEB (urban statistical areas) and MZA (city blocks) |
 | **Cuestionario Ampliado** | Microdata | Individual person and household records |
-| **Marco Geoestadístico** | Geometries | INEGI's 2020 geostatistical boundaries (15 layers/state) as GeoParquet |
+| **Censuses & intercensal surveys** (`cpv`) | Microdata + estimates | Multi-year family; so far the Encuesta Intercensal 2025 (dwellings, persons, emigrants per state; national estimates) |
+| **Marco Geoestadístico** | Geometries | INEGI's geostatistical frames, 2020 and 2025 (15 layers/state + island polygons) as GeoParquet |
 | **DENUE** | Establishments | Economic-units directory, 25 releases 2010–2026, as point GeoParquet |
 | **ENOE** | Labor force | Quarterly employment-survey microdata, 85 quarters 2005–2026, national (5 tables/quarter) |
 | **ENIGH** | Income & expenditure | Biennial household income/expenditure microdata, 9 editions 2008–2024 (nueva serie 2016+ and the conciliated NCV 2008–2014), national (10–12 tables/edition) |
+
+### Censuses and intercensal surveys (multi-year)
+
+The `cpv` family is designed to hold every census, conteo and intercensal survey INEGI has
+published since 1990, the way ENIGH holds its editions. The first edition mirrored is the
+**Encuesta Intercensal 2025** (EIC 2025): sample microdata representative of all 2,478
+municipalities and the 233 localities of 50k+ inhabitants, with an expansion weight
+`FACTOR`. Its files are faithful `str`-typed parquet: `cpv_{table}_{year}_{NN}.parquet` per
+state (`viviendas`, `personas`, `migrantes`) and `cpv_estimaciones_2025.parquet`, INEGI's
+national table of estimates. The 2020 Census will be rebuilt into the family next. The
+legacy loaders (`load_census`, `load_extended_*`) and their files are unchanged.
+
+```python
+# Analysis-ready, labelled frames indexed by the record key (ID_VIV ⊂ ID_PERSONA / ID_MII)
+viv, per, mig = mxcensus.load_cpv_survey(state=1)          # Aguascalientes
+per["FACTOR"].sum()                                         # 1,534,416 = published POBTOT
+per.groupby("SEXO", observed=True)["FACTOR"].sum()          # weighted, labelled
+per = mxcensus.load_cpv_personas(state=[1, 9])              # several states, concatenated
+raw = mxcensus.load_cpv(table="personas", state=1)          # faithful raw codes
+
+# The published estimates: one row per geography, one column per indicator
+est = mxcensus.load_cpv_estimaciones(nivel="municipal", state=1)
+ee = mxcensus.load_cpv_estimaciones(estimador="ee")          # standard errors (also li/ls/cv)
+```
+
+The expansion factors are calibrated to the estimates: Σ `FACTOR` over the microdata equals
+the published population and occupied-dwelling totals **exactly** at every geographic level.
+The microdata are mirrored per state, so `state=` is required (an INEGI code or a sequence of
+them). Variable dictionaries come from INEGI's data dictionary (`eic2025_micro_fd.xlsx`),
+overlaid by a hand-curated core. Every file is fingerprinted into a per-table schema group
+and validated on load. Schema groups, reports and the implementation history live in
+[docs/cpv/](docs/cpv/).
 
 ### DENUE (multi-temporal)
 
@@ -232,13 +276,29 @@ modelled. Schema groups and reports live in [docs/enigh/](docs/enigh/).
 
 ### Geometries (Marco Geoestadístico)
 
-All 15 INEGI Marco Geoestadístico 2020 layers per state are mirrored as GeoParquet,
-named `mg_{suffix}_{NN}.parquet` (suffix ∈ `a, ar, cd, e, ent, fm, l, lpr, m, mun, pe,
-pem, sia, sil, sip`; `NN` = state code). Fetch individual layers via
-`mxcensus.data.POOCH.fetch("mg_m_09.parquet")`. The convenience wrapper
-`load_mg_census(state=N)` consumes four of them (`a` urban AGEB, `l` urban locality,
-`lpr` rural locality points, `ar` rural AGEB) and returns census counts joined to
-geometry as a GeoDataFrame.
+Every layer of INEGI's Marco Geoestadístico is mirrored per state as GeoParquet for two
+frames: the **2020** census frame (`mg_{layer}_{NN}.parquet`) and the **Encuesta Intercensal
+2025** frame (`mg_{layer}_2025_{NN}.parquet`). There are 15 layers in every state, `ent`,
+`mun`, `a`/`ar` (urban/rural AGEBs), `l`/`lpr` (locality polygons/rural locality points),
+`m` (blocks), `fm`, `e`, `cd`, `pe`, `pem`, `sia`, `sil`, `sip`, plus `ti` (island
+territory) in the 13 states with islands (`mxcensus.data._catalog.MG_LAYERS` describes each).
+
+```python
+mun = mxcensus.load_mg("mun", state=9)                       # 2020 frame (the default)
+agebs = mxcensus.load_mg("a", state=[1, 9], period=2025)     # several states, concatenated
+pts = mxcensus.load_mg("lpr", state=9, crs="EPSG:4326")      # reprojected
+```
+
+Codes (`CVEGEO`, `CVE_ENT`, `CVE_MUN`, …) stay zero-padded strings, so the 2025
+municipalities join the EIC 2025 estimates and microdata on `CVEGEO`. INEGI ships its one
+Lambert conformal conic projection under two spellings (a custom `MEXICO_ITRF_2008_LCC` WKT
+on most layers, EPSG:6372 on a few), which geopandas treats as different CRSs.
+`load_mg` therefore returns every layer on EPSG:6372 by default, without moving any
+coordinate; pass `crs=None` for the stored CRS.
+
+The convenience wrapper `load_mg_census(state=N)` consumes four 2020 layers (`a` urban
+AGEB, `l` urban locality, `lpr` rural locality points, `ar` rural AGEB) and returns census
+counts joined to geometry as a GeoDataFrame.
 
 ## Variable dictionaries
 
@@ -260,6 +320,10 @@ mxcensus.enigh_schema_map()        # ENIGH per-table schema groups (concentradoh
 mxcensus.variables_enigh("concentradohogar", "g06")   # ENIGH variables for a (table, schema group)
 mxcensus.variables_enigh_core()    # ENIGH analytical-core labels (clase_hog, educa_jefe, …)
 mxcensus.variables_enigh_labels("poblacion", "g08")   # merged dictionary (core over DDI)
+mxcensus.cpv_schema_map()          # CPV-family per-table schema groups (viviendas/personas/…)
+mxcensus.variables_cpv("personas", "g01")   # CPV variables for a (table, schema group)
+mxcensus.variables_cpv_core()      # CPV analytical-core labels (keys, geography, SEXO, EDAD, …)
+mxcensus.variables_cpv_labels("personas", "g01")   # merged dictionary (core over the FD)
 ```
 
 The ENOE and ENIGH per-group dictionaries carry a human-readable `Descripción`, the
@@ -281,7 +345,9 @@ All data originates from INEGI's open-data ("datos abiertos") releases:
 
 - Census tabular data and microdata — Censo de Población y Vivienda 2020:
   <https://www.inegi.org.mx/programas/ccpv/2020/>
-- Geometries — Marco Geoestadístico (Censo 2020):
+- Intercensal survey microdata and estimates — Encuesta Intercensal 2025:
+  <https://www.inegi.org.mx/programas/eic/2025/>
+- Geometries — Marco Geoestadístico (Censo 2020 and Encuesta Intercensal 2025 frames):
   <https://www.inegi.org.mx/temas/mg/>
 - Economic units — Directorio Estadístico Nacional de Unidades Económicas (DENUE):
   <https://www.inegi.org.mx/app/mapa/denue/>
@@ -295,7 +361,11 @@ require you to credit INEGI as the author of the data. Use the citation(s):
 
 > **Fuente: INEGI, Censo de Población y Vivienda 2020.**
 >
+> **Fuente: INEGI, Encuesta Intercensal 2025.**
+>
 > **Fuente: INEGI, Marco Geoestadístico, Censo de Población y Vivienda 2020.**
+>
+> **Fuente: INEGI, Marco Geoestadístico, Encuesta Intercensal 2025.**
 >
 > **Fuente: INEGI, Directorio Estadístico Nacional de Unidades Económicas (DENUE).**
 >
@@ -322,8 +392,10 @@ distribute INEGI's data unaltered. The original INEGI CSV files are transformed
 before and during loading:
 
 - **Format conversion** — the source CSVs are converted to parquet, and the Marco
-  Geoestadístico GeoPackage layers to GeoParquet (rural locality points promoted to
-  MultiPoint), for the mirror.
+  Geoestadístico shapefile/GeoPackage layers to GeoParquet (single-part geometries promoted
+  to their Multi* form, integer attributes to int32), for the mirror. Each layer keeps its
+  source CRS; `load_mg` relabels INEGI's two spellings of the one projection as EPSG:6372
+  by default (no coordinate changes).
 - **Censored values** — INEGI's `*` suppression marker (meaning 0, 1, or 2
   persons) is mapped to masked integers, and zeros are imputed where parent-level
   totals confirm a suppressed value must be 0.
@@ -355,8 +427,14 @@ before and during loading:
   `is_informal` flags), but leaves the underlying values untouched. One source-side encoding
   defect — a few mangled accented characters in two open-text SDEM fields
   (`cs_p21_des`/`cs_p23_des`) — is preserved as published, **not** corrected.
+- **Censuses and intercensal surveys (`cpv`)** — the EIC 2025 CSVs are converted to parquet
+  as **faithful raw** text: every value as INEGI published it, including the estimates'
+  `NA`/`MI` markers. The `load_cpv_*` loaders only **derive** analysis frames (numeric
+  `FACTOR`, a record-key index, labels from INEGI's dictionary), and
+  `load_cpv_estimaciones` reshapes the estimates to one row per geography with `NA`/`MI` as
+  missing values. No value is imputed or corrected.
 - **ENIGH** — every edition's CSV tables are converted to parquet as **faithful raw** text. The `load_enigh_*` loaders only **derive** analysis frames (numeric weights joined from `concentradohogar` where a table carries none, a hierarchical index, and — with `harmonize=True` — canonical names for the analytical core plus geography derived from `ubica_geo`); no value is imputed or corrected.
-- **Labelled survey frames** — with `labels=True` (the default of the ENOE/ENIGH analysis-ready loaders) coded values are replaced by the labels of INEGI's own dictionaries (DDI codebooks + the bundled core), numeric fields are parsed and INEGI's non-response codes (`99`, `&`, …) become missing values. The mirror and `labels=False` keep the codes verbatim.
+- **Labelled survey frames** — with `labels=True` (the default of the ENOE/ENIGH/CPV analysis-ready loaders) coded values are replaced by the labels of INEGI's own dictionaries (DDI codebooks or data dictionaries + the bundled core), numeric fields are parsed and INEGI's non-response codes (`99`, `&`, …) become missing values. The mirror and `labels=False` keep the codes verbatim.
 
 **These transformations are performed by `mxcensus`, not by INEGI.** Any errors,
 imputations, or derived values are the responsibility of this package and must not

@@ -1,4 +1,5 @@
-"""mxcensus — Mexico Census 2020 (CPV 2020) data loader and preprocessor."""
+"""mxcensus — loaders for INEGI open data: censuses and intercensal surveys, Marco
+Geoestadístico, DENUE, ENOE and ENIGH."""
 from importlib.metadata import PackageNotFoundError, version
 
 try:
