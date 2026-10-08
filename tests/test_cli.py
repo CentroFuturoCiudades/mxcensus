@@ -44,6 +44,19 @@ def test_cpv_state_tables_plus_national(fetched):
                        for t in ("viviendas", "personas", "migrantes", "iter", "ageb")]
 
 
+@pytest.mark.parametrize("edition, tables", [
+    ("2015", ("viviendas", "personas")),
+    ("2010", ("viviendas", "personas", "migrantes", "iter", "ageb")),
+    ("2005", ("viviendas", "hogares", "personas", "iter")),
+    ("2000", ("viviendas", "personas", "migrantes", "iter")),
+    ("1995", ("personas", "migrantes", "iter")),
+    ("1990", ("personas", "iter")),
+])
+def test_cpv_older_editions(edition, tables, fetched):
+    _cli.main(["fetch", "15", "--dataset", "cpv", "--edition", edition])
+    assert fetched == [f"cpv_{t}_{edition}_15.parquet" for t in tables]
+
+
 def test_mg_layers_in_registry(fetched):
     _cli.main(["fetch", "9", "--dataset", "mg"])                  # default: the 2020 frame
     assert len(fetched) == 15 and fetched[:2] == ["mg_ent_09.parquet", "mg_mun_09.parquet"]
@@ -51,6 +64,32 @@ def test_mg_layers_in_registry(fetched):
     _cli.main(["fetch", "2", "--dataset", "mg", "--edition", "2025"])   # an island state
     assert len(fetched) == 16 and "mg_ti_2025_02.parquet" in fetched
     assert all(f.endswith("_2025_02.parquet") for f in fetched)
+
+
+@pytest.mark.parametrize("edition, layers", [
+    ("2010", ("ent", "mun", "a", "l", "lpr")),
+    ("2005", ("ent", "mun", "a")),
+    ("2000", ("ent", "mun", "a")),
+    ("1995", ("ent", "mun")),
+])
+def test_mg_national_editions(edition, layers, fetched):
+    _cli.main(["fetch", "9", "--dataset", "mg", "--edition", edition])
+    assert sorted(fetched) == sorted(f"mg_{sfx}_{edition}_09.parquet" for sfx in layers)
+
+
+@pytest.mark.parametrize("argv", [
+    ["fetch", "9", "--dataset", "cpv", "--edition", "2015"],
+    ["fetch", "9", "--dataset", "mg", "--edition", "2010"],
+])
+def test_unmirrored_edition_is_refused(argv, fetched, monkeypatch):
+    from mxcensus.data import _registry
+
+    monkeypatch.setattr(_registry.POOCH, "registry",
+                        {k: v for k, v in _registry.POOCH.registry.items()
+                         if "_2015_" not in k and "_2010_" not in k})
+    with pytest.raises(SystemExit) as exc:
+        _cli.main(argv)
+    assert exc.value.code == 2 and fetched == []
 
 
 @pytest.mark.parametrize("argv", [
@@ -61,9 +100,7 @@ def test_mg_layers_in_registry(fetched):
     ["fetch", "--dataset", "enigh", "--edition", "2015"],         # unknown edition
     ["fetch", "--dataset", "cpv"],                                # missing STATE
     ["fetch", "9", "--dataset", "cpv", "--edition", "2016"],      # unknown edition
-    ["fetch", "9", "--dataset", "cpv", "--edition", "2015"],      # not mirrored yet
     ["fetch", "9", "--dataset", "mg", "--edition", "2015"],       # unknown MG edition
-    ["fetch", "9", "--dataset", "mg", "--edition", "2010"],       # not mirrored yet
     ["fetch", "9", "--dataset", "mg", "--period", "2025"],        # wrong selector
 ])
 def test_argument_errors(argv, fetched):

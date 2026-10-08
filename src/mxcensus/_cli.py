@@ -48,9 +48,10 @@ def main(argv: list[str] | None = None) -> None:
     )
     fetch_p.add_argument(
         "--edition", metavar="YYYY",
-        help="Edition year. --dataset enigh (e.g. 2022) and cpv (e.g. 2025): defaults to the "
-             "latest; --dataset mg (Marco Geoestadístico, 2020 or 2025): defaults to 2020, "
-             "as mxcensus.load_mg",
+        help="Edition year. --dataset enigh (e.g. 2022) and cpv (1990, 1995, 2000, 2005, "
+             "2010, 2015, 2020 or 2025): defaults to the latest; --dataset mg (Marco "
+             "Geoestadístico 1995, 2000, 2005, 2010, 2020 or 2025): defaults to 2020, as "
+             "mxcensus.load_mg",
     )
 
     sub.add_parser("info", help="Show cache directory and mirror info")
