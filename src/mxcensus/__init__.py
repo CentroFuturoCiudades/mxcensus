@@ -49,6 +49,7 @@ from mxcensus.cpv import (
     load_cpv_survey,
     variables_cpv_labels,
 )
+from mxcensus.cpv_geo import cpv_mun_lineage, cpv_municipal_units
 from mxcensus.cpv_aggregates import (
     load_cpv_estimaciones,
     load_cpv_iter,
@@ -125,6 +126,8 @@ __all__ = [
     "load_cpv_iter",
     "load_cpv_ageb",
     "load_cpv_census",
+    "cpv_mun_lineage",
+    "cpv_municipal_units",
     "variables_cpv_labels",
     # Marco Geoestadístico (geometry, per state; 2020 and EIC 2025 frames)
     "load_mg",

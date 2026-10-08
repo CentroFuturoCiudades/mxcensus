@@ -28,7 +28,7 @@ unit.
 | **4b** | 2000 + 2005 ITER (+ crosswalk), municipal MGs 2000/2005; upload | 4a | ◐ done 2026-10-08 on the Mac (`STEP_4b.md`): ITER 2000/2005 (64 files; national POBTOT = INEGI's), `--validate` 0/737; crosswalk 388 indicators (description auto-pairs + reviewed pairs, `Renombrar` per edition); MG 2000/2005 (192 files; municipalities = ITER); **upload pending `wsl`** |
 | **5a** | 1990 + 1995 ITER (DBF) + crosswalk | 4 | ✅ done 2026-10-08 on the Mac (`STEP_5a.md`): 64 files; `--validate` 0/801; dictionaries = INEGI's ITER descriptor PDFs (AES; read via poppler `pdftotext -tsv`, `parse_iter_fd_tsv`); crosswalk 402 indicators; 1995's one/two-dwelling localities exist only as aggregates; 1995 spilled-name rows repaired |
 | **5b** | 1990 + 1995 samples, MG 1995; upload | 5a | ◐ done 2026-10-08 on the Mac (`STEP_5b.md`): 96 files (1995 `datgen95` is a person file → `personas`); `--validate` 0/897; FDs from encrypted PDFs (poppler; `parse_fd_1990_text`/`parse_fd_1995_text`), ranges reconciled with the data; 1990 keys via folio occurrences; 1995's three weights; MG 1995 (64 files); **upload pending `wsl`** |
-| **6a** | Cross-year geographic crosswalk (AGEEML / Archivo Histórico de Localidades) | 5 | helper + tests |
+| **6a** | Cross-year geographic crosswalk (AGEEML / Archivo Histórico de Localidades) | 5 | ✅ done 2026-10-08 (`STEP_6a.md`): municipal lineage from the MG polygons 1995–2025 (50 new codes, none retired; `cpv_mun_lineage.yaml`, `scripts/build_geo_crosswalk.py`); `cpv_mun_lineage()`, `cpv_municipal_units(start, end)`; localities not covered |
 | **6b** | Port `load_extended_*` derived columns onto labelled frames; `crosstabs` per edition | 6a | tests |
 
 ### Session protocol
