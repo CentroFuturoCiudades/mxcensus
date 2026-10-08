@@ -16,8 +16,8 @@ unit.
 | **1a** | `scripts/build_cpv.py`: build mode, `--dry-run`, multi-member ZIPs, faithful-raw parquet; EIC 2025 smoke build locally (states 01, 09 + estimaciones); full 2025 build on `wsl` | 0 | ✅ done 2026-10-07 (`STEP_1a.md`): 97 files on `wsl`, 0 failures, Σ `FACTOR` = published totals |
 | **1b** | Dictionaries: `scripts/_dict_fd.py` (FD xlsx → `parse_ddi` shape), classification catalogs, hand-curated `variables_cpv_core.yaml`, `--dictionary --schema-map --variables --report-only --validate` | 1a | ✅ done 2026-10-07 (`STEP_1b.md`): 0/97 failures on `wsl`; every observed code documented by the FD (stdlib xlsx reader, no `openpyxl`) |
 | **1c** | Loaders: `cpv.py` (`load_cpv`, `load_cpv_viviendas/personas/migrantes`, `load_cpv_survey`, `variables_cpv_labels`), `cpv_aggregates.load_cpv_estimaciones`; `_resources`/`__init__`; `tests/test_cpv.py` (offline + `_REAL`), `test_schema_groups.py` family loops; EIC 2025 data checks (§Verification) | 1b | ✅ done 2026-10-07 (`STEP_1c.md`): pytest green; every Σ `FACTOR` check exact (state, municipality, ≥50k locality, nation on `wsl`); CLI moved to 1e |
-| **1d** | MG EIC 2025: full `build_marco_geo.py --period 2025` on `wsl` (480 files); `load_mg(layer, *, state, period)`; CLI `--dataset mg --edition`; decide on the CRS-spelling difference (`STEP_0_probe.md` §MG) | 0 | 480 files; `load_mg` tested |
-| **1e** | Registry + `upload_hf.py upload`/`verify` + clean-cache fetch; CLI `--dataset cpv --edition` (moved from 1c: the CLI never offers unregistered files); README/CLAUDE.md/`hf_bucket_readme.md`/pyproject; version bump | 1a–1d | clean-cache `POOCH.fetch` of a `cpv_` and an `mg_*_2025_` file |
+| **1d** | MG EIC 2025: full `build_marco_geo.py --period 2025` on `wsl` (480 files); `load_mg(layer, *, state, period)`; decide on the CRS-spelling difference (`STEP_0_probe.md` §MG) | 0 | ✅ done 2026-10-07 (`STEP_1d.md`): 493 files (480 + `ti` for 13 island states; 2020 `ti` added too); `load_mg` (default CRS EPSG:6372, a PROJ no-op) tested; national totals = `contenido.txt` exactly; CLI and registry moved to 1e |
+| **1e** | Registry + `upload_hf.py upload`/`verify` + clean-cache fetch; CLI `--dataset cpv --edition` and `--dataset mg --edition` (moved from 1c/1d: the CLI never offers unregistered files); README/CLAUDE.md/`hf_bucket_readme.md`/pyproject; version bump | 1a–1d | clean-cache `POOCH.fetch` of a `cpv_` and an `mg_*_2025_` file |
 | **2a** | CPV 2020 into the family (`viviendas`/`personas`/**`migrantes`**, `iter`, `ageb` as `cpv_*_2020_NN`); 2020 dictionary (RNM DDI probe, else FD xlsx) | 1 | `--validate` 0 failures |
 | **2b** | 2020↔2025 core harmonization; raw-vs-harmonized and legacy-equality tests; upload | 2a | totals identical; uploaded |
 | **3a** | EIC 2015 (`TR_VIVIENDA`/`TR_PERSONA`, DDI 214) | 2 | validate 0; Σ `FACTOR` vs INEGI |
@@ -67,7 +67,8 @@ conteo and intercensal edition back to 1990 the same way ENIGH takes editions.
 **User decisions (2026-10-07):**
 - Rebuild 2020 into the family under new names. The legacy files and loaders stay untouched.
 - Use the `cpv_` prefix and `load_cpv*` loaders.
-- Mirror **all 15 MG layers** for EIC 2025.
+- Mirror **all MG layers** for EIC 2025: the 15 every state has plus the optional `ti`
+  (territorio insular), which 1d also added for 2020 (13 new `mg_ti_NN` files).
 - Plan every edition **back to 1990** in detail.
 
 ## Edition matrix (verified 2026-10-07; details go into `docs/cpv/STEP_0_probe.md`)
@@ -175,8 +176,10 @@ prefix are shared.
   `(CVE_ENT, CVE_MUN, CVE_LOC)`.
   - An ordered `NIVEL` column takes `nacional | estatal | municipal | resto_estatal (997/9997) | localidad`.
   - `ESTIMADOR` maps to `valor|ee|li|ls|cv`. A list or `None` keeps `ESTIMADOR` as the last index level.
-- Geometry: new `load_mg(layer, *, state, period="2020")`. It reads legacy names for 2020 and
-  `mg_{sfx}_{year}_{NN}` otherwise.
+- Geometry: new `mg.load_mg(layer, *, state, period="2020", crs="EPSG:6372")`. It reads legacy
+  names for 2020 and `mg_{sfx}_{year}_{NN}` otherwise. INEGI spells the one MG projection two
+  ways within each edition; the mirror keeps the source CRS and `crs=` (default EPSG:6372, a
+  PROJ no-op) puts every layer on one CRS object (`STEP_1d.md`).
 
 ## Phases
 
@@ -219,8 +222,11 @@ prefix are shared.
 3. **Loaders:** `cpv.py`, `cpv_aggregates.load_cpv_estimaciones`, `load_mg`. Add `_resources`
    accessors (`cpv_schema_map`, `variables_cpv(table, gid)`, `variables_cpv_core`) and `__init__`
    exports. The CLI comes with the registry (1e).
-4. **MG EIC 2025:** all 15 layers × 32 states (≈2–3 GB) via the parameterised `build_marco_geo.py --period 2025`.
-5. **Registry and upload on the `wsl` build host.** Registry +97 cpv and +480 mg → 2509 entries.
+4. **MG EIC 2025:** all 15 layers × 32 states (≈2–3 GB) + `ti` via the parameterised
+   `build_marco_geo.py --period 2025` (1d: built with `--no-registry`).
+5. **Registry and upload on the `wsl` build host.** Registry +97 cpv, +493 mg 2025 and +13 mg
+   `ti` 2020 → 2535 entries (`build_cpv.py --update-registry`,
+   `build_marco_geo.py --period 2025 --update-registry`, and `--period 2020 --layers ti`).
    Run `upload_hf.py upload` (no `--delete`), `verify`, then a clean-cache `POOCH.fetch`.
 6. **Docs:**
    - `docs/cpv/STEP_1.md` and `HANDOFF.md` (runbook modelled on `docs/enigh/HANDOFF.md`).

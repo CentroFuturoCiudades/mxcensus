@@ -256,6 +256,16 @@ def test_real_layers_and_editions_combine(local_mirror):
 
 
 @_REAL_SKIP
+def test_real_states_mix_spellings(local_mirror):
+    """2020 ``fm`` is EPSG-named in 30 states but custom in 02 and 25, so a multi-state
+    load needs ``crs`` (the default) — ``crs=None`` refuses rather than failing in concat."""
+    with pytest.raises(ValueError, match="stored CRSs differ"):
+        mxcensus.load_mg("fm", state=[1, 2], crs=None)
+    fm = mxcensus.load_mg("fm", state=[1, 2])
+    assert fm.crs.to_epsg() == 6372 and set(fm["CVE_ENT"]) == {"01", "02"}
+
+
+@_REAL_SKIP
 def test_real_layer_columns_match_2020(local_mirror):
     """Every 2025 layer keeps the 2020 attribute columns and geometry type."""
     for s in _local_states("2025"):
