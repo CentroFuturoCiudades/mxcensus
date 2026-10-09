@@ -13,6 +13,9 @@ sexes and the nation, and the result is written to ``docs/cpv/TABULADOS_REPORT.m
   NN_NNA_ESTATAL.xls``, estimator «Parámetro», full precision): exact, in persons.
 - **EIC 2015** — the survey's tabulados (``intercensal/2015/tabulados/NN_tema.xls``,
   estimator «Valor», percentages with six decimals): exact, in persons.
+- **Censo 2020** — the cuestionario ampliado tabulados (``ccpv/2020/tabulados/ampliado/
+  cpv2020_a_eum_NN_tema.xlsx``, «Valor», six decimals; 6p): exact, in persons — the
+  derived columns of the base edition (= the frozen legacy ones) against INEGI.
 
 Each check (:data:`CHECKS`) names its tabulado, how to read the published cells
 (:func:`_c2k_blocks`, :func:`_c2k_sectors`, :func:`_estimates`) and the same cells from
@@ -62,18 +65,24 @@ SOURCES = {
              ("04_02A_ESTATAL.xls", "08_02A_ESTATAL.xls", "08_03A_ESTATAL.xls")),
     "2015": ("intercensal/2015/tabulados",
              ("04_migracion.xls", "08_caracteristicas_economicas.xls", "14_vivienda.xls")),
+    "2020": ("ccpv/2020/tabulados/ampliado",
+             ("cpv2020_a_eum_08_caracteristicas_economicas.xlsx",
+              "cpv2020_a_eum_09_servicios_de_salud.xlsx",
+              "cpv2020_a_eum_10_movilidad_cotidiana.xlsx",
+              "cpv2020_a_eum_11_situacion_conyugal.xlsx", "cpv2020_a_eum_16_vivienda.xlsx")),
 }
 
 # Raw SEXO codes → the tabulados' sexes (T = both).
 _SEXES = {"2000": {"1": "H", "2": "M"}, "2010": {"1": "H", "3": "M"},
-          "2015": {"1": "H", "3": "M"}}
+          "2015": {"1": "H", "3": "M"}, "2020": {"1": "H", "3": "M"}}
 _SEX_LABEL = {"Total": "T", "Hombres": "H", "Mujeres": "M", "HOMBRES": "H", "MUJERES": "M"}
 
 # Largest |Δ| accepted: points (2000 shares: the public sample's weights, a ratio estimator
 # on preliminary counts, put every cell within 0.02 of the tabulados but 7 of the 1,683
 # sector shares, within 0.04; Chiapas worst, STEP_6i.md, STEP_6m.md) or persons (2010/2015
 # counts; 2015's six-decimal percentages leave up to ~0.9 of a person nationally).
-_TOLERANCE = {"2000": {None: 0.04, 7: 0.6}, "2010": {None: 1.0}, "2015": {None: 1.0}}
+_TOLERANCE = {"2000": {None: 0.04, 7: 0.6}, "2010": {None: 1.0}, "2015": {None: 1.0},
+              "2020": {None: 1.0}}
 
 _NATION = 0
 
@@ -89,9 +98,10 @@ def fetch(periods: list[str], tab_dir: Path, retries: int = 2) -> dict[str, Path
             path = dest / name
             if not path.exists():
                 bc.fetch_zip(f"{_BASE}/{rel}/{name}", dest, name)
-                if path.read_bytes()[:8] != fd._OLE_MAGIC:
+                head = path.read_bytes()[:8]
+                if head != fd._OLE_MAGIC and head[:4] != b"PK\x03\x04":
                     path.unlink()
-                    raise RuntimeError(f"{rel}/{name}: not an .xls (INEGI's soft-404?)")
+                    raise RuntimeError(f"{rel}/{name}: not a workbook (INEGI's soft-404?)")
             out[f"{period}/{name}"] = path
     return out
 
@@ -398,6 +408,91 @@ def _words(name: str) -> frozenset[str]:
     return frozenset(re.findall(r"[^\W\d_]+", name.lower()))
 
 
+def _any(frame: pd.DataFrame, *cols: str) -> pd.Series:
+    return np.logical_or.reduce([_dummy(frame, c) for c in cols])
+
+
+def _hours(p):
+    """The employed by hours worked: the tabulado's «hasta 32», «33 a 40» and «no trabajó»
+    (0 hours) together are ``HORTRA_CAT`` up to 40."""
+    h, e = _cat(p, "HORTRA_CAT"), _employed(p)
+    return _counts_of(e, e & h.isin(["0-5", "6-10", "11-20", "21-40"]), e & h.eq("41-48"),
+                      e & h.eq("49-56"), e & h.isin(["57-60", "61-80", "81YMAS"]),
+                      e & h.eq("No especificado"))
+
+
+def _affiliation(p):
+    """Persons by affiliation and institution (one person counts once per institution; the
+    tabulado's ISSSTE includes the state ISSSTE)."""
+    afil, none = _dummy(p, "DHSERSAL_AFIL"), _dummy(p, "DHSERSAL_No afiliado")
+    return _counts_of(pd.Series(True, index=p.index), afil, _dummy(p, "DHSERSAL_IMSS"),
+                      _any(p, "DHSERSAL_ISSSTE", "DHSERSAL_ISSSTE_E"),
+                      *(_dummy(p, f"DHSERSAL_{c}") for c in (
+                          "P_D_M", "SALUD_PUBLICA", "IMSS_BIENESTAR", "Privado", "Otro")),
+                      none, ~afil & ~none)
+
+
+_AFFILIATION_ROWS = (("Total", "Total"), ("Afiliada", "Total"), ("Afiliada", "IMSS"),
+                     ("Afiliada", "ISSSTE"), ("Afiliada", "Pemex, Defensa o Marina"),
+                     ("Afiliada", "Instituto de Salud para el Bienestar"),
+                     ("Afiliada", "IMSS BIENESTAR"), ("Afiliada", "Institución privada"),
+                     ("Afiliada", "Otra institución"), ("No afiliada", "Total"),
+                     ("No especificado", "Total"))
+
+
+def _affiliation_published(wb):
+    """Servicios de salud 04: one row per (state, affiliation, institution); its count."""
+    rows = {(k[0], k[1], k[2].rstrip("0123456789")): v[0]
+            for k, v in _estimates(_sheet(wb, "04"), "Valor").items()}
+    return {(state, "T"): [rows[state, a, i] for a, i in _AFFILIATION_ROWS]
+            for state in {k[0] for k in rows}}
+
+
+# Commute modes (several per person: each dummy set is «any of the person's three answers»).
+_MODES = (("walking", ["Caminando"]), ("bicycle", ["Bicicleta"]),
+          ("metro, trolleybus, metrobús", ["Metro, tren ligero, tren suburbano", "Trolebús",
+                                            "Metrobús (autobús en carril confinado)"]),
+          ("bus", ["Camión, autobús, combi, colectivo"]))
+_MODES_END = (("taxi", ["Taxi (sitio, calle, otro)", "Taxi (App Internet)"]),
+              ("private vehicle", ["Motocicleta o motoneta", "Automóvil o camioneta"]),
+              ("other", ["Otro"]), ("not specified", ["No especificado"]))
+_MODES_ESC = (*_MODES, ("school bus", ["Transporte escolar"]), *_MODES_END)
+_MODES_TRAB = (*_MODES, ("staff transport", ["Transporte de personal"]), *_MODES_END)
+
+
+def _commute(prefix: str, modes: tuple, youngest: int):
+    """Who travels (a first mode given; the tabulados leave out unspecified ages: students
+    3+, the employed 12+) and each mode."""
+    def ours(p):
+        travels = p[f"{prefix}1"].notna() & _age(p).between(youngest, 130)
+        return _counts_of(travels, *(travels & _any(p, *(f"{prefix}_{m}" for m in labels))
+                                     for _, labels in modes))
+    return ours
+
+
+def _partner(p):
+    """The married or in union aged 12+, by whether the partner lives in the dwelling."""
+    union = _age(p).between(12, 130) & _cat(p, "SITUA_CONYUGAL_CAT").eq("casado")
+    partner = _cat(p, "IDENT_PAREJA_CAT")
+    return _counts_of(union, *(union & partner.eq(c) for c in ("Sí", "No", "No especificado")))
+
+
+_FINANCING_2020 = ("INFONAVIT", "FOVISSSTE", "PEMEX", "FONHAPO", "Banco", "Otra institución",
+                   "Le prestó un familiar, amiga(o) o prestamista", "Usó sus propios recursos",
+                   "No especificado")
+
+
+def _financing_2020(v):
+    """The owned dwellings bought or built (a financing answer) by source (up to three)."""
+    dummies = [_dummy(v, f"FINANCIAMIENTO_{f}") for f in _FINANCING_2020]
+    return _counts_of(np.logical_or.reduce(dummies), *dummies)
+
+
+def _total_row(k: tuple) -> tuple | None:
+    """A (state, sex, category) row → (state, sex) for the category «Total»."""
+    return k[:2] if k[2] == "Total" else None
+
+
 def _long(estimator: str, names: tuple[str, ...], sheet: str | None = None):
     """Tabulados with one row per (state, sex, category): the category's count (the first
     value), in the order of ``names``; a missing category raises."""
@@ -422,6 +517,9 @@ def _wide(estimator: str, pick: Callable[[list], list], sheet: str | None = None
         return out
     return read
 
+
+_ECO_2020 = "cpv2020_a_eum_08_caracteristicas_economicas.xlsx"
+_MOV_2020 = "cpv2020_a_eum_10_movilidad_cotidiana.xlsx"
 
 CHECKS: tuple[Check, ...] = (
     Check("2000", "MI01", "Birthplace (`ENT_PAIS_NAC_CAT`), % of all", "C2KMI01.xls",
@@ -510,6 +608,46 @@ CHECKS: tuple[Check, ...] = (
           _wide("Valor", lambda v: _counts(v[0], v[1:]), sheet="18",
                 dims=lambda k: (k[0], "T")),
           _financing_2015, unit="persons", sheet="18"),
+    Check("2020", "08-06", "Employed by occupational division (`OCUPACION_C_COARSE`)",
+          _ECO_2020, "personas", _DIVISIONS,
+          _wide("Valor", lambda v: _counts(v[0], v[1:])[1:], sheet="06"), _occupation,
+          unit="persons", sheet="06"),
+    Check("2020", "08-08", "Employed by sector (`ACTIVIDADES_C_COARSE`)", _ECO_2020,
+          "personas", tuple(n for n, _ in _SECTOR_GROUPS),
+          _wide("Valor", lambda v: _counts(v[0], v[1:])[1:], sheet="08"), _sector,
+          unit="persons", sheet="08"),
+    Check("2020", "08-12", "Hours worked (`HORTRA_CAT`)", _ECO_2020, "personas",
+          ("employed", "up to 40 (none included)", "41-48", "49-56", "more than 56",
+           "not specified"),
+          _wide("Valor", lambda v: (c := _counts(v[0], v[1:]))[:1]
+                + [c[1] + c[2] + c[6], c[3], c[4], c[5], c[7]], sheet="12", dims=_total_row),
+          _hours, unit="persons", sheet="12"),
+    Check("2020", "09-04", "Health affiliation by institution (`DHSERSAL_*`)",
+          "cpv2020_a_eum_09_servicios_de_salud.xlsx", "personas",
+          ("population", "affiliated", "IMSS", "ISSSTE (federal or state)",
+           "PEMEX, Defensa or Marina", "INSABI", "IMSS-BIENESTAR", "private", "other",
+           "not affiliated", "not specified"),
+          _affiliation_published, _affiliation, unit="persons", sheet="04"),
+    Check("2020", "10-06", "Commute to school (`MED_TRASLADO_ESC_*`)", _MOV_2020, "personas",
+          ("students who travel", *(n for n, _ in _MODES_ESC)),
+          _wide("Valor", lambda v: _counts(v[0], v[1:]), sheet="06", dims=_total_row),
+          _commute("MED_TRASLADO_ESC", _MODES_ESC, 3), unit="persons", sheet="06"),
+    Check("2020", "10-12", "Commute to work (`MED_TRASLADO_TRAB_*`)", _MOV_2020, "personas",
+          ("employed who travel", *(n for n, _ in _MODES_TRAB)),
+          _wide("Valor", lambda v: _counts(v[0], v[1:]), sheet="12", dims=_total_row),
+          _commute("MED_TRASLADO_TRAB", _MODES_TRAB, 12), unit="persons", sheet="12"),
+    Check("2020", "11-02", "Partner in the dwelling (`IDENT_PAREJA_CAT`)",
+          "cpv2020_a_eum_11_situacion_conyugal.xlsx", "personas",
+          ("married or in union, 12+", "partner lives here", "partner lives elsewhere",
+           "not specified"),
+          _wide("Valor", lambda v: _counts(v[0], v[1:]), sheet="02", dims=_total_row),
+          _partner, unit="persons", sheet="02"),
+    Check("2020", "16-34", "Financing of the owned dwellings bought or built "
+          "(`FINANCIAMIENTO_*`, several sources)", "cpv2020_a_eum_16_vivienda.xlsx",
+          "viviendas", ("dwellings", *_FINANCING_2020),
+          _wide("Valor", lambda v: _counts(v[0], v[1:]), sheet="34",
+                dims=lambda k: (k[0], "T")),
+          _financing_2020, unit="persons", sheet="34"),
 )
 
 
@@ -563,7 +701,7 @@ def run(periods: list[str], states: list[int], tab_dir: Path = _DEFAULT_TAB_DIR,
         checks = [c for c in CHECKS if c.period == period]
         published = {}
         for c in checks:
-            published[c.key] = c.published(fd.read_xls(paths[f"{period}/{c.source}"]))
+            published[c.key] = c.published(fd.read_workbook(paths[f"{period}/{c.source}"]))
         sums: dict[tuple[str, int, str], list] = {}
         for state in states:
             frames = {}
@@ -644,7 +782,8 @@ def report(rows: list[dict], states: list[int]) -> str:
         bad = sub[sub["delta"].abs() > sub["tolerance"]]
         if len(bad):
             lines += ["Cells beyond tolerance:", "",
-                      "| check | state | sex | cell | published | ours | Δ |", "|---|---|---|---|---|---|---|"]
+                      "| check | state | sex | cell | published | ours | Δ |",
+                      "|---|---|---|---|---|---|---|"]
             for _, r in bad.iterrows():
                 u = by_key[period, r["check"]].unit
                 lines.append(f"| {r['check']} | {int(r['state']):02d} | {r['sex']} | {r['cell']} | "

@@ -49,4 +49,19 @@ Tolerance: 1.0 persons.
 - 04-02: Entity not specified (`ENT_PAIS_NAC` 997) counted as «No especificado», as INEGI's tabulado (the derived column: `OtraEnt`).
 - 04-05: Entity not specified (`ENT_PAIS_RES10` 997) counted as «No especificado».
 
+## 2020
+
+Tolerance: 1.0 persons.
+
+| check | tabulado | cells | median \|Δ\| | 95th pct. \|Δ\| | max \|Δ\| (where) | beyond tolerance |
+|---|---|---|---|---|---|---|
+| 08-06 Employed by occupational division (`OCUPACION_C_COARSE`) | `cpv2020_a_eum_08_caracteristicas_economicas.xlsx` 06 | 990 | 0.00 | 0.01 | 0.17 (00 T «Operadores de maquinaria industrial, ensambladores, choferes y conductores de transporte») | 0 |
+| 08-08 Employed by sector (`ACTIVIDADES_C_COARSE`) | `cpv2020_a_eum_08_caracteristicas_economicas.xlsx` 08 | 594 | 0.00 | 0.01 | 0.21 (00 T «Comercio») | 0 |
+| 08-12 Hours worked (`HORTRA_CAT`) | `cpv2020_a_eum_08_caracteristicas_economicas.xlsx` 12 | 594 | 0.00 | 0.01 | 0.26 (00 T «up to 40 (none included)») | 0 |
+| 09-04 Health affiliation by institution (`DHSERSAL_*`) | `cpv2020_a_eum_09_servicios_de_salud.xlsx` 04 | 363 | 0.00 | 0.00 | 0.00 (01 T «population») | 0 |
+| 10-06 Commute to school (`MED_TRASLADO_ESC_*`) | `cpv2020_a_eum_10_movilidad_cotidiana.xlsx` 06 | 990 | 0.00 | 0.01 | 0.15 (00 T «metro, trolleybus, metrobús») | 0 |
+| 10-12 Commute to work (`MED_TRASLADO_TRAB_*`) | `cpv2020_a_eum_10_movilidad_cotidiana.xlsx` 12 | 990 | 0.00 | 0.01 | 0.22 (00 T «other») | 0 |
+| 11-02 Partner in the dwelling (`IDENT_PAREJA_CAT`) | `cpv2020_a_eum_11_situacion_conyugal.xlsx` 02 | 396 | 0.00 | 0.01 | 0.19 (00 T «not specified») | 0 |
+| 16-34 Financing of the owned dwellings bought or built (`FINANCIAMIENTO_*`, several sources) | `cpv2020_a_eum_16_vivienda.xlsx` 34 | 330 | 0.00 | 0.01 | 0.11 (00 T «No especificado») | 0 |
+
 State 00 is the nation (the sum of the states); sex T = both, H = men, M = women.

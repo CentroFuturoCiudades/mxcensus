@@ -1,7 +1,7 @@
 # CPV family — session handoff
 
-**Status (2026-10-08, night): units 0–6o are done. `main` = **v0.8.0** (tagged, pushed);
-`cpv-integration` adds 6k–6o (a commit each, pushed to `origin/cpv-integration`, not
+**Status (2026-10-08, night): units 0–6p are done. `main` = **v0.8.0** (tagged, pushed);
+`cpv-integration` adds 6k–6p (a commit each, pushed to `origin/cpv-integration`, not
 merged; merge/version are the user's call). The user asked for the night's units to run
 unattended (commit and push each); they review in the morning.**
 - **Released** (registered, uploaded, verified): every edition 1990–2025 (897 `cpv_` files)
@@ -61,8 +61,10 @@ unattended (commit and push each); they review in the morning.**
   the indicators the 1990–2005 ITERs publish under their own names as edition cells (sectors,
   literacy, attendance, ages by sex, basic education, tenure, fuel, goods…; 1990 23 + 9, 1995 10,
   2000 60 + 33, 2005 83 constraints; the 2005/2010 Seguro Popular).
+- **6p** (`STEP_6p.md`): Censo 2020 in `check_cpv_tabulados.py` (INEGI's ampliado tabulados,
+  `.xlsx`): the 2020 derived columns = INEGI's estimates exactly in every state (5,247 cells).
 
-Design: [`PLAN.md`](PLAN.md). Recent units: [`STEP_6o.md`](STEP_6o.md), [`STEP_6n.md`](STEP_6n.md), [`STEP_6m.md`](STEP_6m.md), [`STEP_6l.md`](STEP_6l.md), [`STEP_6k.md`](STEP_6k.md), [`STEP_6j.md`](STEP_6j.md), [`STEP_6i.md`](STEP_6i.md), [`STEP_6h.md`](STEP_6h.md), [`STEP_6g.md`](STEP_6g.md), [`STEP_6f.md`](STEP_6f.md), [`STEP_6e.md`](STEP_6e.md),
+Design: [`PLAN.md`](PLAN.md). Recent units: [`STEP_6p.md`](STEP_6p.md), [`STEP_6o.md`](STEP_6o.md), [`STEP_6n.md`](STEP_6n.md), [`STEP_6m.md`](STEP_6m.md), [`STEP_6l.md`](STEP_6l.md), [`STEP_6k.md`](STEP_6k.md), [`STEP_6j.md`](STEP_6j.md), [`STEP_6i.md`](STEP_6i.md), [`STEP_6h.md`](STEP_6h.md), [`STEP_6g.md`](STEP_6g.md), [`STEP_6f.md`](STEP_6f.md), [`STEP_6e.md`](STEP_6e.md),
 [`STEP_6d.md`](STEP_6d.md),
 [`STEP_6c.md`](STEP_6c.md), [`STEP_6b.md`](STEP_6b.md), … [`STEP_0_probe.md`](STEP_0_probe.md).
 
