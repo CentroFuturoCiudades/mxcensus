@@ -197,7 +197,10 @@ a difficulty of unknown degree as unspecified, and the disabled as limited too),
 `SIN_DISC_LIM`, INEGI's population without disability, limitation or mental condition (only
 persons with all seven answers unspecified are left out; it reproduces every EIC 2025
 `PSIND_LIM` estimate), and
-`MADRE_EN_VIVIENDA`/`PADRE_EN_VIVIENDA` (whether the mother/father lives in the dwelling). For Censo
+`MADRE_EN_VIVIENDA`/`PADRE_EN_VIVIENDA` (whether the mother/father lives in the dwelling), and
+`EDUC_INEGI`, the levels of INEGI's census counts: `EDUC` with technical or commercial
+studies after primaria as their own category (`EDUC` counts them as complete primaria,
+which INEGI's ITER and census tabulados do not; the EIC 2015 tabulados do). For Censo
 2020 the columns equal `load_extended_*`'s; the EIC 2025 gets the same columns through a
 recode of the items INEGI renumbered (`SITUA_CONYUGAL`, `DHSERSAL`, two country codes).
 EIC 2015, Censo 2010, CGPV 2000 and Conteo 2005 get the columns whose items map onto the
@@ -231,12 +234,13 @@ earlier, hours worked and income (1990's converted to new pesos), 1990's religio
 their dwelling frames the rooms, bedrooms, drainage and (1990) dwelling class; neither asked
 each person about health coverage or disability. Against the 1990 and 1995 ITER, the person
 constraints agree to within a few tenths of a point nationally (1990: under one point in
-every state), except 1990's complete primaria: INEGI's 1990 count leaves out technical
-studies after primaria, which the legacy `EDUC` counts as complete primaria. The dwelling
-characteristics run about one point above the ITER nationally.
+every state). The dwelling characteristics run about one point above the ITER nationally.
 `cpv_constraints(table, period)` filters the census constraint sets (ITER indicator →
 microdata cells) to the indicators an edition publishes and can reproduce, for
-`get_tables_dict`. For Censo 2010 it adds the ITER's own limitation indicators (`PCON_LIM`,
+`get_tables_dict`; its education cells read `EDUC_INEGI`, so `P15PRI_CO` leaves out the
+technical studies after primaria as the ITER does in 1990, 2000, 2010 and 2020 (the legacy
+`constraints_personas` cell counts them: 352,797 persons, 2.9% of `P15PRI_CO` in 2020).
+For Censo 2010 it adds the ITER's own limitation indicators (`PCON_LIM`,
 `PSIN_LIM`, `PCLIM_*`) and religion groups (`PNCATOLICA`):
 
 ```python

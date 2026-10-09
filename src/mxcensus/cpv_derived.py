@@ -251,8 +251,16 @@ _BLANK = -1  # a blank (not asked) code, as the legacy dictionaries spell it
 _DUMMY = pd.CategoricalDtype([0, 1])
 # Derived columns the legacy loaders do not have (the others take the legacy dtype).
 _YES_NO = pd.CategoricalDtype(["Sí", "No", "No especificado"])
+# INEGI's levels (its ITER and tabulados, 1990–2020): the legacy EDUC with the técnica or
+# commercial studies after primaria apart, so «Primaria_com» is six grades of primaria only;
+# INEGI tabulates them between básica and media superior.
+_EDUC_INEGI = pd.CategoricalDtype(["Sin Educación", "Primaria_incom", "Primaria_com",
+                                   "Secundaria_incom", "Secundaria_com", "Técnica_primaria",
+                                   "Posbásica", "No especificado", "Blanco por pase"],
+                                  ordered=True)
 _DTYPES = {"DISCAPACIDAD": _YES_NO, "LIMITACION": _YES_NO, "SIN_DISC_LIM": _YES_NO,
-           "LIM_ACTIVIDAD": _YES_NO, "MADRE_EN_VIVIENDA": _YES_NO, "PADRE_EN_VIVIENDA": _YES_NO}
+           "LIM_ACTIVIDAD": _YES_NO, "MADRE_EN_VIVIENDA": _YES_NO, "PADRE_EN_VIVIENDA": _YES_NO,
+           "EDUC_INEGI": _EDUC_INEGI}
 _DIS_ITEMS = ("DIS_VER", "DIS_OIR", "DIS_CAMINAR", "DIS_RECORDAR", "DIS_BANARSE", "DIS_HABLAR")
 # Censo 2010: one item per activity (DISCAP1–7, its code or blank), DISCAP8 = none (17) or
 # not specified (99).
@@ -381,9 +389,18 @@ def _educ_map() -> dict[int, str]:
     return out
 
 
+_TECNICA_PRIMARIA = 6   # NIVACAD (2020): estudios técnicos o comerciales con primaria terminada
+
+
 def _educ(src):
+    """``EDUC`` (the legacy map of level and grade) and ``EDUC_INEGI`` (the same, with the
+    técnica studies after primaria, «Primaria_com» in ``EDUC``, as «Técnica_primaria»)."""
     key = (src["NIVACAD"].fillna(_BLANK) + 1) * 1000 + src["ESCOLARI"].fillna(_BLANK) + 1
-    return {"EDUC": _as(key.map(_educ_map()), "personas", "EDUC")}
+    educ = _as(key.map(_educ_map()), "personas", "EDUC")
+    tecnica = src["NIVACAD"].eq(_TECNICA_PRIMARIA) & educ.notna()
+    return {"EDUC": educ,
+            "EDUC_INEGI": _as(educ.astype(object).mask(tecnica, "Técnica_primaria"),
+                              "personas", "EDUC_INEGI")}
 
 
 def _educ_2000(src):
@@ -439,8 +456,9 @@ def _educ_1990(src):
     posgrado — 2020: 2, 3, 4, 11, 13; a profesional's 9th–11th year → 2020's last, 8, a
     posgrado's 7th–10th → 6), and the years of technical studies after secundaria
     (``TEC_SEC``) or of normal básica (``NOR_BAS``), which lift a complete secundaria to
-    «Posbásica» (2020: 7, 9). Technical studies after primaria (``TEC_PRIM``) need no
-    rule: 2020's 6 is «Primaria_com», as the complete primaria they require."""
+    «Posbásica» (2020: 7, 9). Technical studies after a complete primaria (``TEC_PRIM``) are
+    2020's 6: «Primaria_com» in ``EDUC``, «Técnica_primaria» in ``EDUC_INEGI`` (the 1990
+    ITER's primaria completa leaves them out)."""
     aprobo, presco = src["APROBO"], src["PRESCO"]
     level = src["NIV_EST"].map({1: 2, 2: 3, 3: 4, 4: 11, 5: 13})
     grade = src["ANO_APRO"].mask(level.eq(11) & src["ANO_APRO"].between(9, 98), 8)
@@ -449,6 +467,8 @@ def _educ_1990(src):
     after_sec = level.eq(3) & (tec_sec | normal)
     level = level.mask(after_sec, np.where(tec_sec, 7, 9))
     grade = grade.mask(after_sec, src["TEC_SEC"].where(tec_sec, src["NOR_BAS"]))
+    after_pri = level.eq(2) & grade.eq(6) & src["TEC_PRIM"].gt(0)
+    level, grade = level.mask(after_pri, _TECNICA_PRIMARIA), grade.mask(after_pri, src["TEC_PRIM"])
     none = aprobo.eq(2)                               # no grade: preschool only, or none
     level, grade = level.mask(none, presco.gt(0).astype(int)), grade.mask(none, presco)
     level, grade = level.mask(aprobo.eq(9), 99), grade.mask(aprobo.eq(9), 99)
@@ -758,6 +778,7 @@ _OLDEST = ("1990", "1995")                     # person files only (cpv: dwellin
 _ESC = ("MED_TRASLADO_ESC1", "MED_TRASLADO_ESC2", "MED_TRASLADO_ESC3")
 _TRAB = ("MED_TRASLADO_TRAB1", "MED_TRASLADO_TRAB2", "MED_TRASLADO_TRAB3")
 _FIN = ("FINANCIAMIENTO1", "FINANCIAMIENTO2", "FINANCIAMIENTO3")
+_EDUC = ("EDUC", "EDUC_INEGI")
 
 
 @functools.cache
@@ -773,13 +794,12 @@ def _registry() -> tuple[_Derivation, ...]:
         D(per, ("HORTRA_CAT",), ("HORTRA",), ("1995", "2000", "2010", "2020", "2025"),
           _hortra_cat),
         D(per, ("HORTRA_CAT",), ("HORTRA", "CONACT"), ("1990",), _hortra_1990),
-        D(per, ("EDUC",), ("NIVACAD", "ESCOLARI"), _ALL, _educ),
-        D(per, ("EDUC",), ("NIVACAD", "ANTESC", "ESCOLARI", "NIVELACAD"), ("2000",),
-          _educ_2000),
-        D(per, ("EDUC",), ("NIVANTES", "GRA_APRO"), ("2005",), _educ_2005),
-        D(per, ("EDUC",), ("P5_3", "P5_4B", "P5_4A", "P5_5", "P5_7"), ("1995",), _educ_1995),
-        D(per, ("EDUC",), ("APROBO", "PRESCO", "NIV_EST", "ANO_APRO", "TEC_SEC", "NOR_BAS"),
-          ("1990",), _educ_1990),
+        D(per, _EDUC, ("NIVACAD", "ESCOLARI"), _ALL, _educ),
+        D(per, _EDUC, ("NIVACAD", "ANTESC", "ESCOLARI", "NIVELACAD"), ("2000",), _educ_2000),
+        D(per, _EDUC, ("NIVANTES", "GRA_APRO"), ("2005",), _educ_2005),
+        D(per, _EDUC, ("P5_3", "P5_4B", "P5_4A", "P5_5", "P5_7"), ("1995",), _educ_1995),
+        D(per, _EDUC, ("APROBO", "PRESCO", "NIV_EST", "ANO_APRO", "TEC_PRIM", "TEC_SEC",
+                       "NOR_BAS"), ("1990",), _educ_1990),
         D(per, ("OCUPACION_C_COARSE",), ("OCUPACION_C",), _SINCE_2015,
           _coarse("OCUPACION_C", "OCUPACION_C_COARSE", 10)),
         D(per, ("OCUPACION_C_COARSE",), ("OCUACTIV_C",), ("2010",),
@@ -999,6 +1019,11 @@ def _base_constraints(table: str) -> dict:
     return constraints_personas() if table == "personas" else constraints_viviendas()
 
 
+# Variables the CPV cells read under another name: the neutral DHSERSAL names, and INEGI's
+# levels for the education indicators (its primaria completa leaves out the técnica studies
+# after primaria, which the legacy EDUC counts as «Primaria_com»; STEP_6k.md).
+_CELL_VARS = {**DHSERSAL_RENAMES, "EDUC": "EDUC_INEGI"}
+
 # Indicators whose CPV cells replace the legacy ones: INEGI's disability definitions.
 _CELLS = {"personas": {"PCON_DISC": {"DISCAPACIDAD": ["Sí"]},
                        "PCON_LIMI": {"LIMITACION": ["Sí"]},
@@ -1058,12 +1083,12 @@ _EDITION_CELLS = {
 
 @functools.cache
 def _cpv_constraints(table: str) -> dict:
-    """The legacy constraints in the CPV vocabulary: neutral DHSERSAL names, FD labels,
-    INEGI's disability flags (:data:`_CELLS`)."""
+    """The legacy constraints in the CPV vocabulary: neutral DHSERSAL names, ``EDUC_INEGI``
+    for ``EDUC`` (:data:`_CELL_VARS`), FD labels, INEGI's disability flags (:data:`_CELLS`)."""
     relabel = _relabels(table)
     out = {}
     for ind, cells in _base_constraints(table).items():
-        out[ind] = {DHSERSAL_RENAMES.get(var, var): [relabel.get(var, {}).get(c, c) for c in cats]
+        out[ind] = {_CELL_VARS.get(var, var): [relabel.get(var, {}).get(c, c) for c in cats]
                     for var, cats in (cells or {}).items()}
     out.update(_CELLS.get(table, {}))
     return out
@@ -1131,8 +1156,9 @@ def cpv_constraints(table: str, period: str | int) -> dict:
     The legacy sets (``constraints_personas``/``constraints_viviendas``: Censo 2020 ITER
     indicator → the microdata cells it counts) in the CPV vocabulary — the neutral
     ``DHSERSAL_*`` names, the Censo 2020 dictionary's labels, ``PCON_DISC``/``PCON_LIMI``/
-    ``PSIND_LIM`` on INEGI's ``DISCAPACIDAD``/``LIMITACION``/``SIN_DISC_LIM`` flags —
-    keeping the indicators that
+    ``PSIND_LIM`` on INEGI's ``DISCAPACIDAD``/``LIMITACION``/``SIN_DISC_LIM`` flags, the
+    education indicators on ``EDUC_INEGI`` (INEGI's primaria completa leaves out the técnica
+    studies after primaria) — keeping the indicators that
     (1) the edition publishes (its ITER, through ``cpv_iter_crosswalk`` — for 2010 only
     the indicators comparable with 2020's —; the EIC 2025's national estimates) and (2)
     whose variables and

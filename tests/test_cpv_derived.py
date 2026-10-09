@@ -11,6 +11,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
+import numpy as np
 import pandas as pd
 import pytest
 
@@ -117,8 +118,8 @@ _OWN_CODES = {
     # note); birthplace and 1985 residence (catalog CATPAISE: 001–032, 033–099, 100–998,
     # 999); religion (0 = under 5)
     ("1990", "APROBO"): {0, 1, 2, 9}, ("1990", "NIV_EST"): set(range(6)),
-    ("1990", "ANO_APRO"): {99}, ("1990", "PRESCO"): set(), ("1990", "TEC_SEC"): set(),
-    ("1990", "NOR_BAS"): set(), ("1990", "INGTRMEN"): set(),
+    ("1990", "ANO_APRO"): {99}, ("1990", "PRESCO"): set(), ("1990", "TEC_PRIM"): set(),
+    ("1990", "TEC_SEC"): set(), ("1990", "NOR_BAS"): set(), ("1990", "INGTRMEN"): set(),
     ("1990", "ENT_PAIS_NAC"): set(), ("1990", "ENT_PAIS_RES_5A"): set(),
     ("1990", "RELIGION"): {0, 1, 2, 3, 4, 5, 9},
     # Conteo 1995: ever attended, level, grades, technical career and its requisite; the
@@ -278,13 +279,15 @@ def test_cpv_derivations_listing():
     migration = {"ENT_PAIS_NAC_CAT", "ENT_PAIS_RES_CAT"}
     coresidence = {"IDENT_PAREJA_CAT", "MADRE_EN_VIVIENDA", "PADRE_EN_VIVIENDA"}
     coarse = {"OCUPACION_C_COARSE", "ACTIVIDADES_C_COARSE"}
-    assert p15 == {"EDAD_CAT", "INGTRMEN_CAT", "EDUC", "CONACT_CAT", "SITUA_CONYUGAL_CAT",
+    educ = {"EDUC", "EDUC_INEGI"}                                  # 6k: every edition
+    assert educ <= p20 & p25
+    assert p15 == {"EDAD_CAT", "INGTRMEN_CAT", *educ, "CONACT_CAT", "SITUA_CONYUGAL_CAT",
                    "IDENT_MADRE_CAT", "IDENT_PADRE_CAT", *migration, *coresidence,
                    *dhsersal, *commute, *coarse}
     assert {"MED_TRASLADO_ESC_Caminando", "MED_TRASLADO_TRAB_Transporte de personal"} <= p15 & p20
     assert {"MADRE_EN_VIVIENDA", "PADRE_EN_VIVIENDA", "SIN_DISC_LIM"} <= p20 & p25
     assert set(mxcensus.cpv_derivations("personas", 2010)["COLUMN"]) == {
-        "EDAD_CAT", "INGTRMEN_CAT", "HORTRA_CAT", "EDUC", "CONACT_CAT", "SITUA_CONYUGAL_CAT",
+        "EDAD_CAT", "INGTRMEN_CAT", "HORTRA_CAT", *educ, "CONACT_CAT", "SITUA_CONYUGAL_CAT",
         "LIM_ACTIVIDAD", "RELIGION_CAT", *migration, *coresidence, *dhsersal, *coarse}
     assert set(mxcensus.cpv_derivations("viviendas", 2010)["COLUMN"]) == {
         "CUADORM_CAT", "TOTCUART_CAT", "DRENAJE_CAT", "INGTRHOG_CAT"}
@@ -296,16 +299,16 @@ def test_cpv_derivations_listing():
     dhs2000 = {"DHSERSAL_IMSS", "DHSERSAL_ISSSTE", "DHSERSAL_P_D_M", "DHSERSAL_Otro",
                "DHSERSAL_No afiliado", "DHSERSAL_PUB", "DHSERSAL_AFIL"}
     assert set(mxcensus.cpv_derivations("personas", 2000)["COLUMN"]) == {     # 6i
-        "EDAD_CAT", "INGTRMEN_CAT", "HORTRA_CAT", "EDUC", "ACTIVIDADES_C_COARSE",
+        "EDAD_CAT", "INGTRMEN_CAT", "HORTRA_CAT", *educ, "ACTIVIDADES_C_COARSE",
         "CONACT_CAT", "SITUA_CONYUGAL_CAT", *migration, "RELIGION_CAT", *dhs2000}
     assert set(mxcensus.cpv_derivations("personas", 2005)["COLUMN"]) == {
-        "EDAD_CAT", "EDUC", "ENT_PAIS_RES_CAT", *dhs2000, "DHSERSAL_ISSSTE_E",
+        "EDAD_CAT", *educ, "ENT_PAIS_RES_CAT", *dhs2000, "DHSERSAL_ISSSTE_E",
         "DHSERSAL_SALUD_PUBLICA", "DHSERSAL_Privado"}
     assert set(mxcensus.cpv_derivations("viviendas", 2000)["COLUMN"]) == {
         "CLAVIVP_CAT", "CUADORM_CAT", "TOTCUART_CAT", "DRENAJE_CAT", "INGTRHOG_CAT"}
     assert set(mxcensus.cpv_derivations("viviendas", 2005)["COLUMN"]) == {
         "CLAVIVP_CAT", "CUADORM_CAT", "TOTCUART_CAT", "DRENAJE_CAT"}
-    oldest = {"EDAD_CAT", "INGTRMEN_CAT", "HORTRA_CAT", "EDUC", "CONACT_CAT",          # 6j
+    oldest = {"EDAD_CAT", "INGTRMEN_CAT", "HORTRA_CAT", *educ, "CONACT_CAT",           # 6j
               "SITUA_CONYUGAL_CAT", *migration}
     assert set(mxcensus.cpv_derivations("personas", 1990)["COLUMN"]) == {*oldest, "RELIGION_CAT"}
     assert set(mxcensus.cpv_derivations("personas", 1995)["COLUMN"]) == oldest
@@ -378,6 +381,29 @@ def test_derive_persons_2025_recodes():
     for col, dtype in d.derived_dtypes("personas", "2025").items():
         assert out[col].dtype == dtype, col
     assert out["EDAD_CAT"].cat.ordered
+
+
+def test_educ_inegi():
+    """``EDUC_INEGI`` = ``EDUC`` with the técnica studies after primaria (2020's level 6, any
+    grade) apart: INEGI's primaria completa (the ITER 1990–2020) leaves them out."""
+    legacy = d._legacy_dtypes("personas")["EDUC"]
+    assert d._EDUC_INEGI.ordered and legacy.ordered
+    assert [c for c in d._EDUC_INEGI.categories if c != "Técnica_primaria"] == list(legacy.categories)
+    src = pd.DataFrame({"NIVACAD": [2, 6, 6, 6, 3, 7, 99, np.nan],
+                        "ESCOLARI": [6, 1, 4, 99, 3, 2, 99, np.nan]})
+    out = d._educ(src)
+    assert list(out["EDUC"]) == ["Primaria_com"] * 4 + ["Secundaria_com", "Posbásica",
+                                                        "No especificado", "Blanco por pase"]
+    assert list(out["EDUC_INEGI"]) == ["Primaria_com", *["Técnica_primaria"] * 3,
+                                       *list(out["EDUC"])[4:]]
+    assert out["EDUC_INEGI"].dtype == d.derived_dtypes("personas", "2020")["EDUC_INEGI"]
+    unknown = d._educ(pd.DataFrame({"NIVACAD": [6.0, 2.0], "ESCOLARI": [7.0, 9.0]}))
+    assert unknown["EDUC"].isna().all() and unknown["EDUC_INEGI"].isna().all()   # derive raises
+    # Conteo 1995: a technical career after primaria (its requisite P5_7 1) of a primaria
+    tec95 = d._educ_1995(pd.DataFrame({"P5_3": [np.nan], "P5_4B": [2.0], "P5_4A": [6.0],
+                                       "P5_5": [1.0], "P5_7": [1.0]}))
+    assert (tec95["EDUC"].iloc[0], tec95["EDUC_INEGI"].iloc[0]) == ("Primaria_com",
+                                                                  "Técnica_primaria")
 
 
 def test_disability_flags_inegi_vs_legacy():
@@ -570,6 +596,7 @@ def test_derive_persons_2000_recodes():
     out = d.derive(_persons_2000(), "personas", 2000)
     # técnica after primaria = 2020's 6 («Primaria_com»); never schooled; under 5; maestría
     assert list(out["EDUC"]) == ["Primaria_com", "Sin Educación", "Blanco por pase", "Posbásica"]
+    assert list(out["EDUC_INEGI"]) == ["Técnica_primaria", *list(out["EDUC"])[1:]]
     assert list(out["CONACT_CAT"]) == ["Trabaja", "No trabaja", "Blanco por pase", "No trabaja"]
     assert list(out["SITUA_CONYUGAL_CAT"]) == ["casado", "soltero", "Blanco por pase", "separado"]
     assert list(out["INGTRMEN_CAT"]) == ["1,000-4,999", "Blanco por pase", "Blanco por pase",
@@ -607,6 +634,9 @@ def test_derive_persons_2005_recodes():
     out = d.derive(df, "personas", 2005)
     # técnica after secundaria (62 → 7); under 5; a grade without a level
     assert list(out["EDUC"]) == ["Posbásica", "Blanco por pase", "No especificado"]
+    assert out["EDUC_INEGI"].astype(object).equals(out["EDUC"].astype(object))
+    tec = d.derive(df.assign(NIVANTES=["61", "", "99"]), "personas", 2005)     # after primaria
+    assert tec["EDUC"].iloc[0] == "Primaria_com" and tec["EDUC_INEGI"].iloc[0] == "Técnica_primaria"
     # Seguro Popular + state institution (OTRA_INS 1 → ISSSTE estatal); NE; subrogated private
     assert list(out["DHSERSAL_SALUD_PUBLICA"]) == [1, 0, 0]
     assert list(out["DHSERSAL_ISSSTE_E"]) == [1, 0, 0] and list(out["DHSERSAL_Privado"]) == [0, 0, 1]
@@ -654,9 +684,10 @@ def _persons_1990() -> pd.DataFrame:
 def test_derive_persons_1990_recodes():
     out = d.derive(_persons_1990(), "personas", 1990)
     # técnica after a complete secundaria; preschool only; under 5; primaria 4; técnica after
-    # primaria (2020's 6: «Primaria_com», the legacy rule)
+    # primaria (2020's 6: «Primaria_com», the legacy rule; INEGI's own level, 6k)
     assert list(out["EDUC"]) == ["Posbásica", "Sin Educación", "Blanco por pase",
                                  "Primaria_incom", "Primaria_com"]
+    assert list(out["EDUC_INEGI"]) == [*list(out["EDUC"])[:4], "Técnica_primaria"]
     assert list(out["EDAD_CAT"])[::4] == ["25-49", "No especificado"]
     assert list(out["CONACT_CAT"]) == ["Trabaja", "No trabaja", "Blanco por pase",
                                        "Blanco por pase", "Trabaja"]
@@ -806,6 +837,13 @@ def test_cpv_constraints_per_edition():
     assert c20["PCON_DISC"] == {"DISCAPACIDAD": ["Sí"]}                # INEGI's definitions
     assert c20["PCON_LIMI"] == {"LIMITACION": ["Sí"]}
     assert c20["PSIND_LIM"] == p25["PSIND_LIM"] == {"SIN_DISC_LIM": ["Sí"]}   # 6g
+    # 6k: the education cells on INEGI's levels (primaria completa without técnica)
+    educ = {ind for ind, cells in per.items() if "EDUC" in (cells or {})}
+    assert len(educ) == 18 and {"P15PRI_CO", "P18YM_PB_F"} <= educ
+    for ind in educ:
+        assert c20[ind] == {("EDUC_INEGI" if v == "EDUC" else v): c
+                            for v, c in per[ind].items()}, ind
+    assert c20["P15PRI_COF"]["EDUC_INEGI"] == ["Primaria_com"]
     v20 = mxcensus.cpv_constraints("viviendas", 2020)
     assert "dentro de la vivienda?" in v20["VPH_AGUADV"]["AGUA_ENTUBADA"]   # the FD's wording
     p00, p05 = (mxcensus.cpv_constraints("personas", p) for p in (2000, 2005))   # 6i
@@ -831,6 +869,7 @@ def test_cpv_constraints_per_edition():
             cats = d._categories(table, period)
             for cells in mxcensus.cpv_constraints(table, period).values():
                 assert all(set(c) <= set(cats[v]) for v, c in cells.items())
+                assert "EDUC" not in cells                         # 6k: EDUC_INEGI instead
 
 
 # --- real data ------------------------------------------------------------------------------
@@ -1089,9 +1128,8 @@ def test_2000_equals_tabulados(local_mirror):
 
 # CGPV 1990 (the 10% extract, unweighted) and the Conteo 1995 sample (FAC_POB/FAC_VIV)
 # against their ITER (the counts), state 01: each constraint's share of the population or
-# of the dwellings, in points. 1990's P15PRI_CO counts técnica after primaria (the legacy
-# EDUC rule), which INEGI's 1990 «primaria completa» leaves out: without it the share
-# agrees too. All 32 states and the nation: STEP_6j.md.
+# of the dwellings, in points (P15PRI_CO on EDUC_INEGI, without técnica after primaria, as
+# INEGI's «primaria completa», 6k). All 32 states and the nation: STEP_6j.md, STEP_6k.md.
 _ITER_TOLERANCE = {"1990": 0.7, "1995": 0.5}
 
 
@@ -1108,10 +1146,5 @@ def test_1990_1995_constraints_equal_iter(local_mirror, period):
             for var, cats in cells.items():
                 hit &= frame[var].isin(cats)
             gap[ind] = 100 * (w[hit].sum() / w.sum() - float(it[ind]) / float(it[base]))
-    if period == "1990":
-        raw = mxcensus.load_cpv_personas(1990, state=1, labels=False)
-        tecnica = (pd.to_numeric(raw["TEC_PRIM"]) > 0) & raw["NIV_EST"].eq("1") \
-            & pd.to_numeric(raw["ANO_CUMP"]).between(15, 120)
-        gap["P15PRI_CO"] -= 100 * tecnica.mean()
     assert len(gap) == {"1990": 17, "1995": 9}[period]
     assert max(abs(v) for v in gap.values()) < _ITER_TOLERANCE[period], gap

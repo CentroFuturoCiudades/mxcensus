@@ -1,7 +1,8 @@
 # CPV family — session handoff
 
-**Status (2026-10-08, evening): units 0–6j are done. `main` = `cpv-integration` = **v0.8.0**
-(tagged, pushed): 6f–6j merged after 6j with the user's go-ahead. No unit is queued.**
+**Status (2026-10-08, night): units 0–6k are done. `main` = **v0.8.0** (tagged, pushed);
+`cpv-integration` adds 6k (committed locally, not pushed). 6l (the dictionary fixes) is
+next, agreed for the same session.**
 - **Released** (registered, uploaded, verified): every edition 1990–2025 (897 `cpv_` files)
   and the Marco Geoestadístico 1995–2025 frames, incl. the EIC 2015's (6h); registry
   **4148** entries (`STEP_6b.md` §Release batch, `STEP_6h.md`).
@@ -37,19 +38,24 @@
   person files (user's choice): `load_cpv_viviendas(1990|1995)`, and `load_cpv_survey` no
   longer returns `None` for them. The 1995 `POBFEM`/`POBMAS` cells were fixed (sex is
   `P3_5`). Checked against the 1990/1995 ITER in all 32 states.
+- **6k** (`STEP_6k.md`): INEGI's primaria completa leaves técnica after primaria out in
+  every ITER that publishes it (1990, 2000, 2010, 2020; the 2010/2020 ITER = the básico
+  tabulados' «6 grados» exactly in all 32 states). New derived `EDUC_INEGI` (every edition:
+  `EDUC` with «Técnica_primaria» apart; user's choice over a flag) and the 18 education
+  constraints on it. The frozen legacy `P15PRI_CO` cell overshoots INEGI's by 2.9% (2020).
 
-Design: [`PLAN.md`](PLAN.md). Recent units: [`STEP_6j.md`](STEP_6j.md), [`STEP_6i.md`](STEP_6i.md), [`STEP_6h.md`](STEP_6h.md), [`STEP_6g.md`](STEP_6g.md), [`STEP_6f.md`](STEP_6f.md), [`STEP_6e.md`](STEP_6e.md),
+Design: [`PLAN.md`](PLAN.md). Recent units: [`STEP_6k.md`](STEP_6k.md), [`STEP_6j.md`](STEP_6j.md), [`STEP_6i.md`](STEP_6i.md), [`STEP_6h.md`](STEP_6h.md), [`STEP_6g.md`](STEP_6g.md), [`STEP_6f.md`](STEP_6f.md), [`STEP_6e.md`](STEP_6e.md),
 [`STEP_6d.md`](STEP_6d.md),
 [`STEP_6c.md`](STEP_6c.md), [`STEP_6b.md`](STEP_6b.md), … [`STEP_0_probe.md`](STEP_0_probe.md).
 
 **Host state.** The Mac and `wsl:~/mxcensus` both hold the full mirror (4148 registered
 files; the MG 2015 files were built on the Mac and copied to `wsl` for the upload);
-`wsl:~/mxcensus` is at v0.7.0 (pull before running 6d+ code there).
+`wsl:~/mxcensus` is at v0.8.0 (pulled 2026-10-08).
 `wsl:~/mxcensus3c` (3c's code copy) can be deleted.
 
 ## Kickoff prompt for the next session
 
-> Continue the CPV census-family work in this repo (branch cpv-integration; main = v0.7.1).
+> Continue the CPV census-family work in this repo (branch cpv-integration; main = v0.8.0).
 > Read docs/cpv/HANDOFF.md first. Every planned unit is done; agree the next unit with me
 > (candidates in HANDOFF §Next) before implementing it, following the session protocol in
 > docs/cpv/PLAN.md. Use .venv/bin/python, not uv run. Run wsl tasks without asking; ask me
@@ -57,25 +63,18 @@ files; the MG 2015 files were built on the Mac and copied to `wsl` for the uploa
 
 ## Next: candidates (none decided)
 
-1. `wsl:~/mxcensus` is at v0.7.0: pull (v0.8.0) before running new code there.
-2. **`P15PRI_CO` and technical studies after primaria** (open question below).
-3. **The 2005 FD's `':'` category** in `GRA_APRO` (`STEP_6i.md` §Follow-ups) and **1990's
-   «0» label** (`STEP_6j.md` §Follow-ups): `_dict_fd`/dictionary fixes + `--variables`
-   (keep the 2010–2025 parses byte-identical).
-4. **A BIFF5 reader in `_dict_fd`** (the CGPV 2000 tabulados are Excel 95 workbooks; 6i
+1. **6l (agreed, in progress): the 2005 FD's `':'` category** in `GRA_APRO`/`NHIJNAVI`/
+   `NUHIJSOB` (ellipsis rows, `STEP_6i.md` §Follow-ups) and **1990's «0» label**
+   (`STEP_6j.md` §Follow-ups): `_dict_fd`/`build_cpv` fixes + `--variables` (keep the
+   other parses byte-identical).
+2. **A BIFF5 reader in `_dict_fd`** (the CGPV 2000 tabulados are Excel 95 workbooks; 6i
    used a scratch reader) if the 2000 checks become tests beyond state 01.
-5. Smaller: a 2000 occupation bridge (CMO → SINCO, no published table); own cells for the
+3. Smaller: a 2000 occupation bridge (CMO → SINCO, no published table); own cells for the
    1990 ITER's sector indicators (`POCUSECP/S/T`).
 
 ## Open questions for the user
 
-- **`P15PRI_CO`** (`STEP_6j.md` §Verification): the legacy `EDUC` counts technical studies
-  after primaria as «Primaria_com», so the constraint cell `P15PRI_CO` = `EDUC`
-  «Primaria_com» includes them. INEGI's 1990 «primaria completa» does not: the 1990 sample
-  overshoots it by 10.7%, and by 0.6% without them. INEGI's 2020 definition reads the same
-  («máxima escolaridad 6 grados aprobados en primaria»). This touches 2000/2010/2020 too.
-  Options: keep it as is (now); a finer `EDUC` category (the legacy `EDUC` is frozen); or
-  per-edition cells.
+None (6k settled `P15PRI_CO`).
 
 ## Gotchas (carry forward)
 
@@ -145,8 +144,8 @@ files; the MG 2015 files were built on the Mac and copied to `wsl` for the uploa
   back.
 - **Review dicts** in `build_cpv.py`: a duplicate key in a dict literal silently drops a
   pair. A test now refuses duplicates.
-- **1990/1995 microdata** (5b): person files only (`viviendas`/`hogares` not published,
-  `load_cpv_survey` returns `None` for them). 1990's `ID_VIV` ends in the folio's
+- **1990/1995 microdata** (5b): person files only (`viviendas`/`hogares` not published;
+  since 6j the dwellings are built from the person file). 1990's `ID_VIV` ends in the folio's
   occurrence (`cpv._folio_occurrence`; persons are not in `NUM_PER` order, so never
   re-sort before deriving keys). 1995 weights `FAC_POB`/`FAC_VIV`/`FAC_PROM` are in
   `cpv._WEIGHTS`. Gids: `personas` 1990 = `g01` … 2025 = `g09`; `migrantes` 1995 = `g01` …
@@ -267,6 +266,13 @@ files; the MG 2015 files were built on the Mac and copied to `wsl` for the uploa
   in-scope core entry (`SEXO`, `EDAD`…), whatever the edition calls the item (1995: `P3_5`,
   `P3_6`). Constraint categories (`_categories`) and the code-list test take only the
   group's own columns.
+- **Education constraints read `EDUC_INEGI`** (6k, `cpv_derived._CELL_VARS`): its
+  «Primaria_com» is six grades only, «Técnica_primaria» (2020's `NIVACAD` 6) apart, as the
+  ITER 1990–2020. The legacy `EDUC` and `constraints_personas.yaml` (frozen) count técnica
+  as «Primaria_com». INEGI's own products disagree: the EIC 2015 tabulados put it in «6
+  grados», 1990/2000 ITER in «posprimaria», 2010/2020 apart. The 2010/2020 básico tabulados
+  (`ccpv/2010/tabulados/Basico/07_08B_ESTATAL.xls`, `ccpv/2020/tabulados/
+  cpv2020_b_eum_07_educacion.xlsx`) equal the ITER; the ampliado samples cannot tell.
 - **2010 limitation ≠ 2020 disability.** 2010 asked yes/no per activity (`DISCAP1`–`8`);
   its ITER `PCLIM_VIS`/`PCLIM_MOT2` share 2020's names with another concept (crosswalk
   `Comparable: false`). `_EDITION_CELLS` adds them for 2010 on 2010's own items, whatever
