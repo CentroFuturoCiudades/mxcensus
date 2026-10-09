@@ -236,6 +236,14 @@ their dwelling frames the rooms, bedrooms, drainage and (1990) dwelling class; n
 each person about health coverage or disability. Against the 1990 and 1995 ITER, the person
 constraints agree to within a few tenths of a point nationally (1990: under one point in
 every state). The dwelling characteristics run about one point above the ITER nationally.
+The household head's sex is a dwelling item in Censo 2020 and the EIC 2025 (`JEFE_SEXO`);
+for CGPV 2000, the Conteo 2005 and Censo 2010, `load_cpv_viviendas(derived=True)` reads
+the head from the person file into the same column. Every edition from 1995 on also carries
+it on each person, as `HOGJEF_SEXO` (the sex of the person's own household head; in the
+Conteo 2005, whose dwellings can hold several households, it can differ from the
+dwelling's, which is its first household's head). So the constraints count the
+households and the population by the head's sex (`HOGJEF_F`/`HOGJEF_M`,
+`PHOGJEF_F`/`PHOGJEF_M`), and the EIC 2025 ones equal its estimates in every municipality.
 `cpv_constraints(table, period)` filters the census constraint sets (ITER indicator →
 microdata cells) to the indicators an edition publishes and can reproduce, for
 `get_tables_dict`; its education cells read `EDUC_INEGI`, so `P15PRI_CO` leaves out the

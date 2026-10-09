@@ -24,7 +24,7 @@ therefore equal the legacy ones (tested state by state). Two differences, both d
   loaders only create the observed ones). As in the legacy loaders, a blank second or
   third item sets the ``…_Blanco por pase`` dummy.
 
-Six columns are new: ``SECTOR`` (below), ``DISCAPACIDAD``/``LIMITACION``, INEGI's
+Several columns are new: ``SECTOR`` (below), ``DISCAPACIDAD``/``LIMITACION``, INEGI's
 definitions of disability and limitation (code 8, «degree unknown», is a disability; a
 limitation excludes the disabled; the legacy ``DIS_CON``/``DIS_LIMI`` count otherwise and
 are kept as they are),
@@ -34,6 +34,12 @@ dwelling: the one part of ``IDENT_MADRE``/``IDENT_PADRE`` Censo 2010 also asked)
 CGPV 2000's, the Conteo 2005's and Censo 2010's dwellings get ``JEFE_SEXO``, the item
 Censo 2020 publishes: the household head's ``SEXO``, which the dwelling loader attaches
 from the person file (``cpv._attach_heads``), so ``derive`` reads it as a dwelling source.
+The persons of every edition from 1995 on get ``HOGJEF_SEXO`` (6t), the sex of their own
+household's head, with ``JEFE_SEXO``'s labels: the ``SEXO`` of the person of the same
+household (``ID_HOG`` in 1995–2005; the dwelling in 2010–2025, one household each) whose
+relationship code is the head's (:data:`_HEAD_CODES`), exactly one per household or
+:func:`derive` raises. A person of a Conteo 2005 dwelling's second household gets that
+household's head (the dwelling's ``JEFE_SEXO`` is its first household's).
 
 **Editions.** Censo 2020 and EIC 2025 (same questionnaire family) get every derivation
 whose sources exist; 2025 lacks ``RELIGION`` and ``IDENT_HIJO``. EIC 2015 and Censo 2010
@@ -89,7 +95,9 @@ match after the recode is a test (``tests/test_cpv_derived.py``).
 indicator → microdata cells, ``constraints_*.yaml``) to the indicators an edition can
 reproduce, for :func:`mxcensus.crosstabs.get_tables_dict`, plus the indicators an edition
 publishes under its own definition (:data:`_EDITION_CELLS`: Censo 2010's limitation; the
-legacy cells on the 1990–2010 samples' own items; the 1990–2005 ITERs' own indicators).
+legacy cells on the 1990–2010 samples' own items; the 1990–2005 ITERs' own indicators) and
+the population by its household head's sex (``PHOGJEF_F``/``PHOGJEF_M`` on
+``HOGJEF_SEXO``, :data:`_CELLS`), which the legacy sets lack.
 """
 from __future__ import annotations
 
@@ -218,6 +226,8 @@ _RECODE: dict[str, dict[str, dict[int, float]]] = {
         # specified (2020: 997), 90 a country insufficiently specified, 99 not specified.
         "ENT_PAIS_NAC": {**dict.fromkeys(range(33, 39), 998), 70: 997, 90: 998, 99: 999},
         "ENT_PAIS_RES_5A": {**dict.fromkeys(range(33, 39), 998), 70: 997, 90: 998, 99: 999},
+        # Sex (P3_5): 1 man, 2 woman (2020: 1, 3); read for the household head (6t).
+        "SEXO": {2: 3},
     },
     "1990": {
         # 0 = not asked (under 12) in the activity items, 1–9 as 1995's.
@@ -259,7 +269,19 @@ _ALIASES = {"ENT": ("ENT", "CVE_ENT"),
             "CLAVIVP": ("CLAVIVP", "CLAVIV", "CLAVIVPA", "T_VIV"),
             "CUADORM": ("CUADORM", "CUARDOM", "P_DORMIR", "P1_6"),
             "TOTCUART": ("TOTCUART", "NUMCUAR", "T_CUARTOS", "P1_7"),
-            "DRENAJE": ("DRENAJE", "DIS_DREN", "P1_13")}
+            "DRENAJE": ("DRENAJE", "DIS_DREN", "P1_13"),
+            "SEXO": ("SEXO", "P3_5"),
+            # the relationship to the household head (own codes: _HEAD_CODES)
+            "PARENTESCO": ("PARENTESCO", "PARENT", "OTROPARE_C", "P3_4")}
+
+# The household head's code in each edition's relationship item (6t; codes as numbers):
+# 2020/2025 PARENTESCO 101 «Jefa(e)»; Censo 2010 and EIC 2015 PARENT 01 «Jefe(a)»; the Conteo
+# 2005's PARENT 101 «Jefe(a)» and 102 «Persona sola»; CGPV 2000's OTROPARE_C 100 (the head
+# group of its catalog); the Conteo 1995's P3_4 1 «Jefe o Jefa» (its catalog's 7 «Persona
+# sola» marks a few persons of households that have a 1). One per household in every state.
+_HEAD_CODES: dict[str, tuple[int, ...]] = {
+    "1995": (1,), "2000": (100,), "2005": (101, 102), "2010": (1,), "2015": (1,),
+    "2020": (101,), "2025": (101,)}
 
 _BLANK = -1  # a blank (not asked) code, as the legacy dictionaries spell it
 _DUMMY = pd.CategoricalDtype([0, 1])
@@ -280,6 +302,9 @@ _SECTOR = pd.CategoricalDtype(["Primario", "Secundario", "Terciario", "No especi
 _DTYPES = {"DISCAPACIDAD": _YES_NO, "LIMITACION": _YES_NO, "SIN_DISC_LIM": _YES_NO,
            "LIM_ACTIVIDAD": _YES_NO, "MADRE_EN_VIVIENDA": _YES_NO, "PADRE_EN_VIVIENDA": _YES_NO,
            "EDUC_INEGI": _EDUC_INEGI, "SECTOR": _SECTOR}
+# Derived columns with another table's legacy dtype: the household head's sex on the
+# person (6t) has the dwelling item's.
+_DTYPE_LIKE = {"HOGJEF_SEXO": ("viviendas", "JEFE_SEXO")}
 _DIS_ITEMS = ("DIS_VER", "DIS_OIR", "DIS_CAMINAR", "DIS_RECORDAR", "DIS_BANARSE", "DIS_HABLAR")
 # Censo 2010: one item per activity (DISCAP1–7, its code or blank), DISCAP8 = none (17) or
 # not specified (99).
@@ -325,8 +350,14 @@ def _legacy_dtypes(table: str) -> dict:
     return {name: col.dtype.type for name, col in mod._build_schema().columns.items()}
 
 
+def _legacy_dtype(table: str, name: str) -> pd.CategoricalDtype:
+    """The legacy loader's dtype of ``name`` (or of its :data:`_DTYPE_LIKE` column)."""
+    table, name = _DTYPE_LIKE.get(name, (table, name))
+    return _legacy_dtypes(table)[name]
+
+
 def _as(values, table: str, name: str) -> pd.Series:
-    return pd.Series(values).astype(_DTYPES.get(name) or _legacy_dtypes(table)[name])
+    return pd.Series(values).astype(_DTYPES.get(name) or _legacy_dtype(table, name))
 
 
 def _mapped(codes: pd.Series, table: str, var: str, name: str) -> pd.Series:
@@ -826,6 +857,31 @@ def _jefe_sexo(src):
     return {"JEFE_SEXO": _mapped(src["SEXO"], "viviendas", "JEFE_SEXO", "JEFE_SEXO")}
 
 
+def _hogjef_sexo(heads: tuple[int, ...]):
+    """The sex of each person's household head (6t; ``JEFE_SEXO``'s labels): the ``SEXO``
+    of the one person of the household (``src[_HOUSEHOLD]``) whose ``PARENTESCO`` is in
+    ``heads``. A household without exactly one head raises."""
+    def func(src):
+        household = src[_HOUSEHOLD]
+        is_head = src["PARENTESCO"].isin(heads)
+        n = is_head.groupby(household).transform("sum")
+        if (n != 1).any():
+            bad = household[n != 1].nunique()
+            raise ValueError(f"HOGJEF_SEXO: {bad} households without exactly one head "
+                             f"(PARENTESCO code {' or '.join(map(str, heads))})")
+        sexo = src["SEXO"].where(is_head).groupby(household).transform("max")
+        return {"HOGJEF_SEXO": _mapped(sexo, "viviendas", "JEFE_SEXO", "HOGJEF_SEXO")}
+    return func
+
+
+def _periods_by(codes: Mapping[str, tuple]) -> dict[tuple, tuple[str, ...]]:
+    """Edition → codes, inverted: codes → the editions that share them."""
+    out: dict[tuple, tuple[str, ...]] = {}
+    for period, value in codes.items():
+        out[value] = (*out.get(value, ()), period)
+    return out
+
+
 @dataclass(frozen=True)
 class _Derivation:
     table: str
@@ -833,6 +889,7 @@ class _Derivation:
     sources: tuple[str, ...]
     periods: tuple[str, ...]          # editions whose source codes were verified
     func: Callable[[pd.DataFrame], Mapping[str, pd.Series]]
+    household: bool = False           # func also reads each record's household (_HOUSEHOLD)
 
 
 _NEW = ("2020", "2025")
@@ -931,6 +988,8 @@ def _registry() -> tuple[_Derivation, ...]:
         D(per, ("RELIGION_CAT",), ("OTRAREL_C",), ("2010",), _religion_2010),
         D(per, ("RELIGION_CAT",), ("OTRAREL_C",), ("2000",), _religion_2000),
         D(per, ("RELIGION_CAT",), ("RELIGION",), ("1990",), _religion_1990),
+        *(D(per, ("HOGJEF_SEXO",), ("PARENTESCO", "SEXO"), periods, _hogjef_sexo(heads),
+            household=True) for heads, periods in _periods_by(_HEAD_CODES).items()),
         D(viv, ("CLAVIVP_CAT",), ("CLAVIVP",), ("1990", "2000", "2005", "2010", *_SINCE_2015),
           _cat(viv, "CLAVIVP", "CLAVIVP_CAT")),
         D(viv, ("JEFE_SEXO",), ("SEXO",), ("2000", "2005", "2010"), _jefe_sexo),  # the head's
@@ -981,7 +1040,7 @@ def derived_dtypes(table: str, period: str | int) -> dict[str, pd.CategoricalDty
             if col.startswith(("DHSERSAL_", "MED_TRASLADO_", "FINANCIAMIENTO_")):
                 out[col] = _DUMMY
             else:
-                out[col] = own.get(col) or _DTYPES.get(col) or _legacy_dtypes(table)[col]
+                out[col] = own.get(col) or _DTYPES.get(col) or _legacy_dtype(table, col)
     return out
 
 
@@ -997,6 +1056,25 @@ def _source(df: pd.DataFrame, name: str) -> str:
         if alias in df.columns:
             return alias
     raise KeyError(name)
+
+
+_HOUSEHOLD = "_HOGAR"      # the household's number, in a derivation's ``src`` (household=True)
+
+
+def _household(df: pd.DataFrame) -> pd.Series:
+    """Each record's household, numbered: the entity and ``ID_HOG`` in the editions with a
+    household level (1995–2005), else the entity and ``ID_VIV`` (one household per dwelling;
+    the entity makes Censo 2010's state-scoped serials unique). A frame without keys gets the
+    1995–2005 composite keys (``cpv._composite_keys``)."""
+    from mxcensus.cpv import _composite_keys
+
+    keyed = _composite_keys(df, "personas")
+    key = next((k for k in ("ID_HOG", "ID_VIV") if k in keyed.columns), None)
+    if key is None:
+        raise ValueError("CPV personas: HOGJEF_SEXO needs the household key (ID_HOG or "
+                         "ID_VIV, or the parts they are derived from)")
+    return keyed.groupby([keyed[_source(keyed, "ENT")], keyed[key]], sort=False).ngroup() \
+        .set_axis(df.index)
 
 
 def _codes(raw: pd.Series, recode: Mapping[int, int] | None) -> pd.Series:
@@ -1038,6 +1116,10 @@ def derive(df: pd.DataFrame, table: str, period: str | int) -> pd.DataFrame:
             if s not in cache:
                 cache[s] = _codes(df[col], recode.get(s))
         src = pd.DataFrame({s: cache[s] for s in cols}, index=df.index)
+        if d.household:
+            if _HOUSEHOLD not in cache:
+                cache[_HOUSEHOLD] = _household(df)
+            src[_HOUSEHOLD] = cache[_HOUSEHOLD]
         for name, values in d.func(src).items():
             values = pd.Series(values, index=df.index) if not isinstance(values, pd.Series) \
                 else values.set_axis(df.index)
@@ -1095,10 +1177,14 @@ def _base_constraints(table: str) -> dict:
 # after primaria, which the legacy EDUC counts as «Primaria_com»; STEP_6k.md).
 _CELL_VARS = {**DHSERSAL_RENAMES, "EDUC": "EDUC_INEGI"}
 
-# Indicators whose CPV cells replace the legacy ones: INEGI's disability definitions.
+# Indicators whose CPV cells replace the legacy ones (INEGI's disability definitions) or that
+# the legacy sets lack: the population by its household head's sex (6t; the 2000–2020 ITER,
+# the EIC 2025 estimates).
 _CELLS = {"personas": {"PCON_DISC": {"DISCAPACIDAD": ["Sí"]},
                        "PCON_LIMI": {"LIMITACION": ["Sí"]},
-                       "PSIND_LIM": {"SIN_DISC_LIM": ["Sí"]}}}
+                       "PSIND_LIM": {"SIN_DISC_LIM": ["Sí"]},
+                       "PHOGJEF_F": {"HOGJEF_SEXO": ["Mujer"]},
+                       "PHOGJEF_M": {"HOGJEF_SEXO": ["Hombre"]}}}
 
 _AGES_5PLUS = ["5", "6-7", "8-11", "12-14", "15-17", "18-24", "25-49", "50-59", "60-64",
                "65-130"]
@@ -1433,7 +1519,8 @@ def cpv_constraints(table: str, period: str | int) -> dict:
     ``DHSERSAL_*`` names, the Censo 2020 dictionary's labels, ``PCON_DISC``/``PCON_LIMI``/
     ``PSIND_LIM`` on INEGI's ``DISCAPACIDAD``/``LIMITACION``/``SIN_DISC_LIM`` flags, the
     education indicators on ``EDUC_INEGI`` (INEGI's primaria completa leaves out the técnica
-    studies after primaria) — keeping the indicators that
+    studies after primaria), and the population by its household head's sex
+    (``PHOGJEF_F``/``PHOGJEF_M`` on ``HOGJEF_SEXO``) — keeping the indicators that
     (1) the edition publishes (its ITER, through ``cpv_iter_crosswalk`` — for 2010 only
     the indicators comparable with 2020's —; the EIC 2025's national estimates) and (2)
     whose variables and

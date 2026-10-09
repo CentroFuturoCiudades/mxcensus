@@ -47,6 +47,7 @@ unit.
 | **6q** | More EIC 2015 and Censo 2010 tabulado checks | 6p | ✅ done 2026-10-09 (`STEP_6q.md`): EIC 2015 affiliation, commute, marital status, education and Censo 2010 (national) limitation and parental co-residence, all exact in every state; the check reversed 6e's reading of 2010's «row 99 + blank code» (now «no especificado», as INEGI's `12_01A`) |
 | **6r** | CGPV 2000 hours and education tabulados | 6q | ✅ done 2026-10-09 (`STEP_6r.md`): C2KEM07/ED08/ED11 in the checks (ED08 keeps técnica after primaria apart = `EDUC_INEGI`); 2000's «had a job but did not work» (`CONACT` 20) now at 0 hours in `HORTRA_CAT`, as INEGI's tabulado and 2010–2025 |
 | **6s** | The household head's sex for 2000–2010 | 6r | ✅ done 2026-10-09 (`STEP_6s.md`): `load_cpv_viviendas(derived=True)` takes the head's `SEXO` from the person file (`cpv._attach_heads`; exactly one head per household in every state; 2005: the first household's head, user's choice) → derived `JEFE_SEXO`, so the legacy `HOGJEF_F`/`HOGJEF_M` apply (2000 35, 2005 23, 2010 28 dwelling constraints); = the ITER's female-headed share within 0.8/0.9/1.5 points in all 32 states |
+| **6t** | Persons by their household head's sex | 6s | ✅ done 2026-10-09 (`STEP_6t.md`): new derived `HOGJEF_SEXO` on the persons of 1995–2025 (user's name and editions; 1990 has no household), the head's `SEXO` within the person frame (`_HEAD_CODES`, `derive`'s household grouping, exactly one head per household in every state); `PHOGJEF_F`/`PHOGJEF_M` constraints 2000–2025 (2020 = the legacy set + 2): EIC 2025 exact in all 2,478 municipalities, the 2000–2020 ITER within their sample bands (2020's own dwelling item as far), the 2000/2015 household tabulados in `check_cpv_tabulados.py` |
 
 The user asked (2026-10-08, afternoon) for all four post-6e candidates in one session, one
 unit each (6f–6i), with a local commit per unit; push, merge, version and upload wait for
@@ -56,6 +57,8 @@ the user. 6j (evening) was agreed from the candidates; merge into `main` as 0.8.
 committing and pushing each, for review in the morning.
 On 2026-10-09 the user reviewed 6m–6r, kept every decision and merged them as 0.9.0; 6s (the
 household head's sex for 2000–2010) was agreed from the candidates.
+6t (persons by their household head's sex) followed in the same session; 6s and 6t merge
+into `main` together as 0.10.0.
 
 ### Session protocol
 

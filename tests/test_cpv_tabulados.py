@@ -114,7 +114,8 @@ def test_checks_are_consistent():
     assert len(keys) == len(set(keys))
     for c in ck.CHECKS:
         assert c.source in ck.SOURCES[c.period][1], c.key
-        assert c.table in ("personas", "viviendas") and c.unit in ("points", "persons")
+        assert c.table in ("personas", "viviendas", "hogares") and c.unit in ("points", "persons")
+        assert c.table != "hogares" or c.period == "2000"          # 6t: 2000's household rows
         assert (c.unit == "points") == (c.period == "2000")
         assert c.source.endswith(".xlsx" if c.period == "2020" else ".xls")        # 6p
         assert None in ck._TOLERANCE[c.period]
@@ -130,9 +131,12 @@ def test_state_01_within_tolerance(monkeypatch):
     monkeypatch.setattr(ck, "fetch", lambda periods, tab_dir, retries=2: {
         f"{p}/{n}": tab_dir / p / n for p in periods for n in ck.SOURCES[p][1]})
     rows = ck.run(sorted(ck.SOURCES), [1], _TABS, _MIRROR, log=lambda *a: None)
-    assert len(rows) == 317 + 159 + 120 + 45        # 6p: 2020; 6q: 2015 affiliation, commute,
+    assert len(rows) == 317 + 159 + 120 + 45 + 7    # 6p: 2020; 6q: 2015 affiliation, commute,
     #                                                 marital status, education (2010's are national);
-    #                                                 6r: 2000 hours, education of the 12+/18+
+    #                                                 6r: 2000 hours, education of the 12+/18+;
+    #                                                 6t: 2000/2015 by the head's sex (sex T only)
+    head = [r for r in rows if r["check"] in ("HO04a", "HO04b", "12-05")]
+    assert len(head) == 7 and {r["sex"] for r in head} == {"T"}
     bad = [r for r in rows if abs(r["delta"]) > r["tolerance"]]
     assert not bad, bad[:5]
     exact = [r for r in rows if r["period"] != "2000"]

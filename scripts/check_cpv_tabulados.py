@@ -61,14 +61,14 @@ SOURCES = {
     "2000": ("ccpv/2000/tabulados/ampliado",
              ("C2KMI01.xls", "C2KMI03.xls", "C2KRE02.xls", "C2KSS04.xls", "C2KEC02.xls",
               "C2KEM01.xls", "C2KEM05.xls", "C2KEM07.xls", "C2KED08.xls", "C2KED10.xls",
-              "C2KED11.xls", "C2KVI06.xls", "C2KVI10.xls")),
+              "C2KED11.xls", "C2KVI06.xls", "C2KVI10.xls", "C2KHO04.xls")),
     "2010": ("ccpv/2010/tabulados/Ampliado",
              ("04_02A_ESTATAL.xls", "06_01A_ESTATAL.xls", "08_02A_ESTATAL.xls",
               "08_03A_ESTATAL.xls", "12_01A_ESTATAL.xls")),
     "2015": ("intercensal/2015/tabulados",
              ("04_migracion.xls", "06_educacion.xls", "07_servicios_de_salud.xls",
               "08_caracteristicas_economicas.xls", "10_movilidad_cotidiana.xls",
-              "11_situacion_conyugal.xls", "14_vivienda.xls")),
+              "11_situacion_conyugal.xls", "12_hogares.xls", "14_vivienda.xls")),
     "2020": ("ccpv/2020/tabulados/ampliado",
              ("cpv2020_a_eum_08_caracteristicas_economicas.xlsx",
               "cpv2020_a_eum_09_servicios_de_salud.xlsx",
@@ -211,7 +211,7 @@ class Check:
     key: str
     title: str
     source: str                       # file name in SOURCES[period]
-    table: str                        # personas | viviendas
+    table: str                        # personas | viviendas | hogares (2000's household rows)
     cells: tuple[str, ...]            # the compared cells' names
     published: Callable[[dict], dict]  # workbook → {(state, sex): [values]}
     ours: Callable[[pd.DataFrame], list]  # frame → [(numerator, denominator | None)]
@@ -357,6 +357,15 @@ def _vi10(v):
     dr = _cat(v, "DRENAJE_CAT")
     return _shares(pd.Series(True, index=v.index), dr.eq("Sí"), dr.eq("No"),
                    dr.eq("No especificado"))
+
+
+def _head_sex(col: str):
+    """The households (``JEFE_SEXO``: CGPV 2000's dwelling rows are its households, 6s) or
+    the population in households (``HOGJEF_SEXO``, 6t) by the head's sex, % of all."""
+    def ours(frame):
+        head = _cat(frame, col)
+        return _shares(pd.Series(True, index=frame.index), head.eq("Hombre"), head.eq("Mujer"))
+    return ours
 
 
 def _c2k(cols: str, combine: Callable[[list], list] = lambda v: v, level: str = "persons"):
@@ -588,6 +597,21 @@ def _parents(p):
                       m.eq("No especificado") | f.eq("No especificado"))
 
 
+def _population_by_head(p):
+    head = _cat(p, "HOGJEF_SEXO")
+    return _counts_of(pd.Series(True, index=p.index), head.eq("Hombre"), head.eq("Mujer"))
+
+
+def _population_by_head_published(wb):
+    """EIC 2015 12-05: rows (state, the head's sex — Total/Hombres/Mujeres —, «Hogares» or
+    «Población en hogares»); the population's total column, both sexes of the persons."""
+    out = {}
+    for (state, head, what), values in _estimates(_sheet(wb, "05"), "Valor").items():
+        if what == "Población en hogares":
+            out.setdefault((state, "T"), {})[head] = values[0]
+    return {k: [v["Total"], v["Hombres"], v["Mujeres"]] for k, v in out.items()}
+
+
 def _total_row(k: tuple) -> tuple | None:
     """A (state, sex, category) row → (state, sex) for the category «Total»."""
     return k[:2] if k[2] == "Total" else None
@@ -674,6 +698,11 @@ CHECKS: tuple[Check, ...] = (
     Check("2000", "VI10", "Drainage (`DRENAJE_CAT`), % of the dwellings", "C2KVI10.xls",
           "viviendas", ("has drainage", "has none", "not specified"),
           _c2k("CHI", level="dwellings"), _vi10),
+    Check("2000", "HO04a", "Households by the head's sex (`JEFE_SEXO`, 6s), %", "C2KHO04.xls",
+          "hogares", ("male head", "female head"), _c2k("CD"), _head_sex("JEFE_SEXO")),
+    Check("2000", "HO04b", "Population in households by the head's sex (`HOGJEF_SEXO`), %",
+          "C2KHO04.xls", "personas", ("male head", "female head"), _c2k("FG"),
+          _head_sex("HOGJEF_SEXO"), note="The head's sex is the breakdown: both sexes only."),
     Check("2010", "04_02A", "Residence in 2005 (`ENT_PAIS_RES_CAT`), the 5+",
           "04_02A_ESTATAL.xls", "personas",
           ("population 5+", "same entity", "another entity or country", "not specified"),
@@ -762,6 +791,11 @@ CHECKS: tuple[Check, ...] = (
           _wide("Valor", lambda v: (c := _counts(v[0], v[1:]))[:2]
                 + [c[2] + c[3], c[4] + c[5] + c[6], c[7]], sheet="02", dims=_total_row),
           _marital, unit="persons", sheet="02"),
+    Check("2015", "12-05", "Population in households by the head's sex (`HOGJEF_SEXO`)",
+          "12_hogares.xls", "personas", ("population in households", "male head",
+                                         "female head"),
+          _population_by_head_published, _population_by_head, unit="persons", sheet="05",
+          note="The head's sex is the breakdown: both sexes only."),
     Check("2015", "14-18", "Financing of the owned dwellings bought or built "
           "(`FINANCIAMIENTO_*`)", "14_vivienda.xls", "viviendas",
           ("dwellings", "INFONAVIT, FOVISSSTE or PEMEX", "FONHAPO", "banks",

@@ -968,7 +968,9 @@ def load_cpv_personas(
     supports (``EDAD_CAT``, ``EDUC``, ``CONACT_CAT``, the ``DHSERSAL_*`` and
     ``MED_TRASLADO_*`` dummies, ``DIS_CON``/``DIS_LIMI``…; :func:`mxcensus.cpv_derivations`
     lists them per edition), computed from the raw codes and validated
-    (:mod:`mxcensus.cpv_derived`).
+    (:mod:`mxcensus.cpv_derived`). From 1995 on it includes ``HOGJEF_SEXO``, the sex of the
+    person's own household head (the household's member coded as its head, exactly one per
+    household): the ITER's ``PHOGJEF_F``/``PHOGJEF_M``.
     """
     return _load_level("personas", period, state, harmonize, labels, derived)
 

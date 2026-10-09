@@ -1,9 +1,9 @@
 # CPV family — session handoff
 
-**Status (2026-10-09, midday): units 0–6s are done. `main` = **v0.9.0** (tagged, pushed:
-6k–6r, merged after the user reviewed the night's unattended units 6m–6r and kept every
-decision, §Review). `cpv-integration` adds 6s (the household head's sex for 2000–2010, agreed
-with the user), not merged. No unit is queued.**
+**Status (2026-10-09, afternoon): units 0–6t are done. `main` = **v0.9.0** (tagged, pushed:
+6k–6r, §Review). `cpv-integration` adds 6s (the household head's sex for 2000–2010) and 6t
+(persons by their household head's sex), both agreed with the user, to be merged together
+as **0.10.0** (the user's choice). No unit is queued.**
 - **Released** (registered, uploaded, verified): every edition 1990–2025 (897 `cpv_` files)
   and the Marco Geoestadístico 1995–2025 frames, incl. the EIC 2015's (6h); registry
   **4148** entries (`STEP_6b.md` §Release batch, `STEP_6h.md`).
@@ -78,8 +78,16 @@ with the user), not merged. No unit is queued.**
   dwelling rows, the first household's head. Female-headed share = the ITER's within 0.83
   (2000), 0.94 (2005), 1.51 (2010) points in all 32 states; the method = 2020's `JEFE_SEXO`
   in every dwelling.
+- **6t** (`STEP_6t.md`): new derived `HOGJEF_SEXO` on the persons of 1995 and 2000–2025 (the
+  user's name — distinct from the dwelling's `JEFE_SEXO` — and editions; 1990 has no
+  household number): the `SEXO` of the person's own household head, from the person frame
+  (`cpv_derived._HEAD_CODES`, `_household`: exactly one head per household in every state).
+  The `PHOGJEF_F`/`PHOGJEF_M` constraints (2000–2025; 2020 = the legacy set + 2): EIC 2025
+  exact in all 2,478 municipalities; the ITER within 0.74 (2000), 1.25 (2005, unweighted),
+  1.55 (2010), 2.60 points (2020, whose own dwelling item sits as far); CGPV 2000's `C2KHO04`
+  and EIC 2015's `12_hogares` 05 tabulados in `check_cpv_tabulados.py`.
 
-Design: [`PLAN.md`](PLAN.md). Recent units: [`STEP_6s.md`](STEP_6s.md), [`STEP_6r.md`](STEP_6r.md), [`STEP_6q.md`](STEP_6q.md), [`STEP_6p.md`](STEP_6p.md), [`STEP_6o.md`](STEP_6o.md), [`STEP_6n.md`](STEP_6n.md), [`STEP_6m.md`](STEP_6m.md), [`STEP_6l.md`](STEP_6l.md), [`STEP_6k.md`](STEP_6k.md), [`STEP_6j.md`](STEP_6j.md), [`STEP_6i.md`](STEP_6i.md), [`STEP_6h.md`](STEP_6h.md), [`STEP_6g.md`](STEP_6g.md), [`STEP_6f.md`](STEP_6f.md), [`STEP_6e.md`](STEP_6e.md),
+Design: [`PLAN.md`](PLAN.md). Recent units: [`STEP_6t.md`](STEP_6t.md), [`STEP_6s.md`](STEP_6s.md), [`STEP_6r.md`](STEP_6r.md), [`STEP_6q.md`](STEP_6q.md), [`STEP_6p.md`](STEP_6p.md), [`STEP_6o.md`](STEP_6o.md), [`STEP_6n.md`](STEP_6n.md), [`STEP_6m.md`](STEP_6m.md), [`STEP_6l.md`](STEP_6l.md), [`STEP_6k.md`](STEP_6k.md), [`STEP_6j.md`](STEP_6j.md), [`STEP_6i.md`](STEP_6i.md), [`STEP_6h.md`](STEP_6h.md), [`STEP_6g.md`](STEP_6g.md), [`STEP_6f.md`](STEP_6f.md), [`STEP_6e.md`](STEP_6e.md),
 [`STEP_6d.md`](STEP_6d.md),
 [`STEP_6c.md`](STEP_6c.md), [`STEP_6b.md`](STEP_6b.md), … [`STEP_0_probe.md`](STEP_0_probe.md).
 
@@ -87,15 +95,16 @@ Design: [`PLAN.md`](PLAN.md). Recent units: [`STEP_6s.md`](STEP_6s.md), [`STEP_6
 files; the MG 2015 files were built on the Mac and copied to `wsl` for the upload);
 `wsl:~/mxcensus` was pulled to 6r on 2026-10-09 (the full suite ran there before the
 merge: 1773 passed, 1 h 50 min) and holds a copy of the Mac's tabulados cache
-(`data/dict/tabulados/`).
+(`data/dict/tabulados/`, without 6t's `2000/C2KHO04.xls` and `2015/12_hogares.xls`: the
+script fetches them). 6s and 6t ran on the Mac only.
 `wsl:~/mxcensus3c` (3c's code copy) can be deleted.
 
 ## Kickoff prompt for the next session
 
-> Continue the CPV census-family work in this repo (branch cpv-integration; main = v0.9.0;
-> the branch adds 6s, not merged). Read docs/cpv/HANDOFF.md first, then agree with me
-> whether to merge 6s (and the version) and which next unit to take (candidates in HANDOFF
-> §Next) before implementing it, following the session protocol in docs/cpv/PLAN.md. Use
+> Continue the CPV census-family work in this repo (branch cpv-integration; see
+> docs/cpv/HANDOFF.md for whether 6s/6t are merged as 0.10.0). Read docs/cpv/HANDOFF.md
+> first, then agree with me which next unit to take (candidates in HANDOFF §Next) before
+> implementing it, following the session protocol in docs/cpv/PLAN.md. Use
 > .venv/bin/python, not uv run. Run wsl tasks without asking; ask me before committing,
 > pushing, installing packages or uploading.
 
@@ -129,17 +138,22 @@ and **kept all seven** (merged as 0.9.0):
 
 ## Next: candidates (none decided)
 
-1. **Merge 6s into `main`** (and the version: 0.9.1, or with the next unit): the user's call.
-2. **Persons by their household head's sex** (`PHOGJEF_F`/`PHOGJEF_M`, which the 2000–2020
-   ITERs publish): a person-level column (the sex of one's household head, from the same
-   person file) — a new constraint family for every edition 2000–2025 (the legacy YAML has
-   none, so 2020 = legacy would no longer hold for the person set): a design decision.
-3. **The Conteo 2005's households**: its dwelling rows count `TOTHOG`/`HOGJEF_*` as
+1. **The Conteo 2005's households**: its dwelling rows count `TOTHOG`/`HOGJEF_*` as
    dwellings (6s; its ITER counts households, +1.3% in Aguascalientes, the sample +2.7%); a
    household-level constraint set on `load_cpv_hogares(2005)` (with the dwelling's class)
    would count them exactly.
-4. 2000's media superior and superior apart (`P18_CMEDSU`/`P18_CSUPER`): a finer derived
+2. **`POBHOG` as the person total**: the samples cover the household population (2020's
+   weights add up to `POBHOG` exactly, 2000's to 1.001–1.089 of it, 2010's 1.001–1.030),
+   while the legacy `POBTOT: {}` cell is matched to the ITER's `POBTOT`, which adds the
+   population of collective dwellings and without a dwelling. A `POBHOG` cell (2000–2025,
+   `PHOGJEF_F` + `PHOGJEF_M` in every ITER) would give the crosstabs the sample's own
+   universe: a design decision (the legacy set has `POBTOT` only).
+3. 2000's media superior and superior apart (`P18_CMEDSU`/`P18_CSUPER`): a finer derived
    level (`EDUC_INEGI` merges them into «Posbásica»).
+4. Dictionaries: the Conteo 1995's relationship item `P3_4` is a string item whose FD
+   points at a catalog (`catalogos_cpv1995.pdf`: eight groups — 1 jefe, 7 persona sola…)
+   that `--variables` does not parse, and CGPV 1990's `CVE_PAR` (100 jefe…) is unlabelled
+   too; labelling them is a 6l-style fix.
 5. Smaller: a 2000 occupation bridge (CMO → SINCO, no published table); income in minimum
    wages for 2000 (`P_1SM`…: three wage zones by municipality); a locality-level lineage
    (6a covered municipalities only).
@@ -375,6 +389,19 @@ None.
   `cpv_derivations` lists `JEFE_SEXO ← SEXO` (the person item). 2005's `TOTHOG`/`HOGJEF_*`
   count dwellings, not households. The 2010 sample's female-headed share sits up to 1.5
   points from the census (2020's own sample: 1.7).
+- **Household derivations** (6t): a `_Derivation(household=True)` gets each record's
+  household in `src[_HOUSEHOLD]` (`_household`: entity + `ID_HOG` in 1995–2005, entity +
+  `ID_VIV` from 2010; a frame without keys gets the composite keys). Synthetic person frames
+  must carry the relationship item (`PARENTESCO`/`PARENT`/`OTROPARE_C`/`P3_4`), `SEXO`
+  (1995 `P3_5`) and the key or its parts; rows replicated from one person need a household
+  each (`tests/test_cpv_derived._each_a_household`), or the household has several heads and
+  `derive` raises. The relationship item is own-code per edition (`_HEAD_CODES`), so the
+  code-list test checks only that the head codes are documented.
+- **Head's sex vs the ITER** (6s/6t): the 2020 sample's female-headed share sits up to 2.6
+  points under its ITER (Querétaro) — INEGI's own dwelling item `JEFE_SEXO` as far, so it is
+  the sample's, not a bug; 2010's 1.6. Tabulados by the head's sex publish both sexes of the
+  persons only (`check_cpv_tabulados.py` compares sex T); table `hogares` there = CGPV
+  2000's household rows (`viviendas` keeps one row per dwelling).
 - **`cpv_derived` module names are shared**: `_EMPLOYED` (1990's employed CONACT codes) vs
   the constraint dict `_EMPLOYED_CELLS` (6o) — a shadowed constant silently blanked 1990's
   hours until a test caught it.

@@ -21,9 +21,12 @@ Tolerance: 0.04 points (state 07: 0.6).
 | ED10 Education of the 15+ (`EDUC_INEGI`) | `C2KED10.xls` | 594 | 0.003 | 0.011 | 0.094 (07 M «sin instrucción») | 0 |
 | VI06 Bedrooms (`CUADORM_CAT`), % of the dwellings | `C2KVI06.xls` | 99 | 0.004 | 0.013 | 0.105 (07 T «two or more») | 0 |
 | VI10 Drainage (`DRENAJE_CAT`), % of the dwellings | `C2KVI10.xls` | 99 | 0.002 | 0.007 | 0.019 (07 T «has drainage») | 0 |
+| HO04a Households by the head's sex (`JEFE_SEXO`, 6s), % | `C2KHO04.xls` | 66 | 0.003 | 0.005 | 0.009 (07 T «female head») | 0 |
+| HO04b Population in households by the head's sex (`HOGJEF_SEXO`), % | `C2KHO04.xls` | 66 | 0.002 | 0.005 | 0.005 (11 T «female head») | 0 |
 
 - ED08: Técnica after primaria is its own column here, as `EDUC_INEGI`'s «Técnica_primaria» (6k).
 - ED10: INEGI's 2000 levels put técnica after primaria with secundaria (its footnote 1), so the comparison groups it there.
+- HO04b: The head's sex is the breakdown: both sexes only.
 
 ## 2010
 
@@ -57,11 +60,13 @@ Tolerance: 1.0 persons.
 | 10-03 Commute to school (`MED_TRASLADO_ESC_*`) | `10_movilidad_cotidiana.xls` 03 | 891 | 0.00 | 0.00 | 0.00 (00 M «private vehicle») | 0 |
 | 10-06 Commute to work (`MED_TRASLADO_TRAB_*`) | `10_movilidad_cotidiana.xls` 06 | 891 | 0.00 | 0.00 | 0.00 (00 T «bus, taxi») | 0 |
 | 11-02 Marital status of the 12+ (`SITUA_CONYUGAL_CAT`) | `11_situacion_conyugal.xls` 02 | 495 | 0.00 | 0.03 | 0.51 (00 T «separated, divorced, widowed») | 0 |
+| 12-05 Population in households by the head's sex (`HOGJEF_SEXO`) | `12_hogares.xls` 05 | 99 | 0.00 | 0.00 | 0.00 (01 T «population in households») | 0 |
 | 14-18 Financing of the owned dwellings bought or built (`FINANCIAMIENTO_*`) | `14_vivienda.xls` 18 | 264 | 0.00 | 0.00 | 0.00 (00 T «INFONAVIT, FOVISSSTE or PEMEX») | 0 |
 
 - 04-02: Entity not specified (`ENT_PAIS_NAC` 997) counted as «No especificado», as INEGI's tabulado (the derived column: `OtraEnt`).
 - 04-05: Entity not specified (`ENT_PAIS_RES10` 997) counted as «No especificado».
 - 06-11: Técnica after primaria counts in primaria, in the tabulado as in `EDUC`.
+- 12-05: The head's sex is the breakdown: both sexes only.
 
 ## 2020
 
