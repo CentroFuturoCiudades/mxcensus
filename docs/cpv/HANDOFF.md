@@ -1,9 +1,9 @@
 # CPV family — session handoff
 
-**Status (2026-10-09, afternoon): units 0–6t are done. `main` = **v0.9.0** (tagged, pushed:
-6k–6r, §Review). `cpv-integration` adds 6s (the household head's sex for 2000–2010) and 6t
-(persons by their household head's sex), both agreed with the user, to be merged together
-as **0.10.0** (the user's choice). No unit is queued.**
+**Status (2026-10-09, afternoon): units 0–6t are done. `main` = `cpv-integration` =
+**v0.10.0** (tagged, pushed): 6s (the household head's sex for 2000–2010) and 6t (persons by
+their household head's sex), both agreed with the user, merged together (the user's
+choice; 0.9.0 = 6k–6r, §Review). No unit is queued.**
 - **Released** (registered, uploaded, verified): every edition 1990–2025 (897 `cpv_` files)
   and the Marco Geoestadístico 1995–2025 frames, incl. the EIC 2015's (6h); registry
   **4148** entries (`STEP_6b.md` §Release batch, `STEP_6h.md`).
@@ -101,12 +101,11 @@ script fetches them). 6s and 6t ran on the Mac only.
 
 ## Kickoff prompt for the next session
 
-> Continue the CPV census-family work in this repo (branch cpv-integration; see
-> docs/cpv/HANDOFF.md for whether 6s/6t are merged as 0.10.0). Read docs/cpv/HANDOFF.md
-> first, then agree with me which next unit to take (candidates in HANDOFF §Next) before
-> implementing it, following the session protocol in docs/cpv/PLAN.md. Use
-> .venv/bin/python, not uv run. Run wsl tasks without asking; ask me before committing,
-> pushing, installing packages or uploading.
+> Continue the CPV census-family work in this repo (branch cpv-integration; main = v0.10.0,
+> nothing unmerged). Read docs/cpv/HANDOFF.md first, then agree with me which next unit to
+> take (candidates in HANDOFF §Next) before implementing it, following the session protocol
+> in docs/cpv/PLAN.md. Use .venv/bin/python, not uv run. Run wsl tasks without asking; ask
+> me before committing, pushing, installing packages or uploading.
 
 ## Review: decisions taken unattended (night of 2026-10-08/09) — kept
 
@@ -127,14 +126,15 @@ and **kept all seven** (merged as 0.9.0):
    are 0.02–0.039 off outside Chiapas).
 5. **Left out on purpose**: 2000's disability indicators (`PCONDISC`…; the sample's shares
    are 30–60% above the census's), income in minimum wages, the household head's sex for
-   2000–2010 (`HOGJEF_*`: needs the person file, a design choice — §Next 1).
+   2000–2010 (`HOGJEF_*`: needs the person file — done in 6s).
 6. **6q, a 6e rule reversed on INEGI's evidence**: Censo 2010's pointer «row 99 + blank
    code» is now «no especificado» (was «lives here»): INEGI's tabulado `12_01A` counts it so,
    to the person nationally. `MADRE_EN_VIVIENDA`/`PADRE_EN_VIVIENDA`/`IDENT_PAREJA_CAT`
    (2010) change for ~3.1M persons (weighted); the partner follows by analogy (no tabulado).
 7. **6r, 2000's hours**: `HORTRA_CAT` 2000 sets `CONACT` 20 («had a job but did not work»)
    to 0 hours (INEGI's C2KEM07 «no trabajó»; 2010–2025 record 0 for them).
-8. **Merge and version**: 6k–6r merged into `main` as **0.9.0** (2026-10-09).
+8. **Merge and version**: 6k–6r merged into `main` as **0.9.0** (2026-10-09); 6s–6t as
+   **0.10.0** the same day.
 
 ## Next: candidates (none decided)
 

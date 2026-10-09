@@ -57,8 +57,8 @@ the user. 6j (evening) was agreed from the candidates; merge into `main` as 0.8.
 committing and pushing each, for review in the morning.
 On 2026-10-09 the user reviewed 6m–6r, kept every decision and merged them as 0.9.0; 6s (the
 household head's sex for 2000–2010) was agreed from the candidates.
-6t (persons by their household head's sex) followed in the same session; 6s and 6t merge
-into `main` together as 0.10.0.
+6t (persons by their household head's sex) followed in the same session; 6s and 6t were
+merged into `main` together as 0.10.0 (2026-10-09).
 
 ### Session protocol
 
