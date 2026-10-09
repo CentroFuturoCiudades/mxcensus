@@ -40,11 +40,14 @@ unit.
 | **6j** | Derived columns for 1990/1995 | 6i | ✅ done 2026-10-08 (`STEP_6j.md`): the dwelling frames of 1990/1995 built from their person files (`load_cpv_viviendas`; user's choice), 1990 personas 9 / viviendas 4, 1995 8 / 3 (age, education from their own items, activity, marital status, birthplace, residence five years earlier, hours, income — 1990's in new pesos —, 1990 religion; rooms, bedrooms, drainage, 1990 class); constraints 1990 12 + 5, 1995 6 + 3 (and the 1995 `SEXO` cell fixed: its sex is `P3_5`); = the 1990/1995 ITER shares within tenths of a point for persons, except 1990's `P15PRI_CO` (INEGI leaves out técnica after primaria; open question); 32-state sweep clean |
 | **6k** | `P15PRI_CO` and técnica after primaria (6j's open question) | 6j | ✅ done 2026-10-08 (`STEP_6k.md`): INEGI's primaria completa leaves técnica after primaria out in every ITER that publishes it (1990, 2000 by its dictionary, 2010 and 2020 = the básico tabulados' «6 grados» exactly in all 32 states; the EIC 2015 tabulados fold it in); new `EDUC_INEGI` (every edition; «Técnica_primaria» apart, 1990 via `TEC_PRIM`) and the 18 education constraints on it (user's choice: a finer column, not a flag); `P15PRI_CO` now within 0.29/0.48/0.44 points of the 1990/2000/2010 ITER in every state (was 3.03/1.36/1.29); legacy YAML frozen |
 | **6l** | Dictionary fixes: the 2005 FD's `':'` category, 1990's «0» label | 6k | ✅ done 2026-10-08 (`STEP_6l.md`): `_dict_fd` skips the 2005 FD's vertical-ellipsis rows (`GRA_APRO`/`NHIJNAVI`/`NUHIJSOB` lose `':'`; every other parse byte-identical); `--variables` labels 1990's unlabelled 0 «Blanco por pase» in its 20 coded person items (`_label_blank_zero`); dictionaries regenerated |
+| **6m** | A BIFF5 reader; the tabulado checks as a maintainer script | 6l | ✅ done 2026-10-08 (`STEP_6m.md`): `_dict_fd.read_xls` reads Excel 95 (the CGPV 2000 tabulados; every BIFF8 parse byte-identical); `scripts/check_cpv_tabulados.py` runs the 6e/6f/6i checks (+ EIC 2015 activity, 2000 education on `EDUC_INEGI`) over every state, sex and the nation → `TABULADOS_REPORT.md`: 10,461 cells, 2010/2015 exact, 2000 within 0.04 points outside Chiapas |
 
 The user asked (2026-10-08, afternoon) for all four post-6e candidates in one session, one
 unit each (6f–6i), with a local commit per unit; push, merge, version and upload wait for
 the user. 6j (evening) was agreed from the candidates; merge into `main` as 0.8.0 follows it.
 6k and 6l (night) were agreed from the HANDOFF candidates, one session, a commit each.
+6m onwards (the same night): the user asked for the next units to proceed unattended,
+committing and pushing each, for review in the morning.
 
 ### Session protocol
 

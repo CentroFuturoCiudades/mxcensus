@@ -25,8 +25,9 @@ the non-numeric cell codes (``NA: No aplica.``, ``MI: No disponible por muestra
 insuficiente.``) — those become the indicators' ``Especiales``.
 
 Workbooks are read with the standard library (:func:`read_xlsx`: ``zipfile`` +
-``ElementTree``; :func:`read_xls`: the OLE2 container and BIFF8 records with ``struct``);
-no spreadsheet dependency is needed for the build.
+``ElementTree``; :func:`read_xls`: the OLE2 container and BIFF8 — or Excel 95's BIFF5,
+INEGI's CGPV 2000 tabulados — records with ``struct``); no spreadsheet dependency is needed
+for the build.
 """
 from __future__ import annotations
 
@@ -141,7 +142,7 @@ def read_xlsx(path: Path) -> dict[str, list[dict[str, str]]]:
 
 
 # --------------------------------------------------------------------------------------
-# xls (legacy BIFF8 in an OLE2 compound file; stdlib)
+# xls (legacy BIFF8, or Excel 95's BIFF5, in an OLE2 compound file; stdlib)
 # --------------------------------------------------------------------------------------
 
 _OLE_MAGIC = bytes.fromhex("D0CF11E0A1B11AE1")
@@ -203,7 +204,7 @@ def _ole_stream(data: bytes, name: str) -> bytes:
         mfat_bytes = chain(mfat_start, fat, sector)
         mfat = list(struct.unpack_from(f"<{len(mfat_bytes) // 4}I", mfat_bytes))
         return chain(start, mfat, lambda j: mini[j * mssz:(j + 1) * mssz])[:size]
-    raise LookupError(f"OLE2 file has no {name!r} stream (only BIFF8 workbooks are read)")
+    raise LookupError(f"OLE2 file has no {name!r} stream")
 
 
 class _BiffReader:
@@ -252,6 +253,26 @@ class _BiffReader:
         return text
 
 
+# BIFF5 writes its strings in the workbook's code page (the CODEPAGE record): a Windows code
+# page number, except for these.
+_CODEPAGES = {367: "ascii", 1200: "utf-16-le", 10000: "mac_roman", 32768: "mac_roman",
+              32769: "cp1252"}
+_BIFF5, _BIFF8 = 0x0500, 0x0600
+
+
+class _Biff5Reader:
+    """:class:`_BiffReader`'s interface for BIFF5: a string is a byte count and that many
+    bytes in the workbook's code page, without an option byte (no ``CONTINUE`` split)."""
+
+    def __init__(self, body: bytes, codec: str):
+        self.body, self.p, self.codec = body, 0, codec
+
+    def string(self, len_size: int = 2) -> str:
+        n = int.from_bytes(self.body[self.p:self.p + len_size], "little")
+        self.p += len_size + n
+        return self.body[self.p - n:self.p].decode(self.codec, errors="replace")
+
+
 def _rk(v: int) -> float:
     """Decode an ``RK`` number: a 30-bit integer or the high 30 bits of a double,
     optionally divided by 100."""
@@ -278,19 +299,29 @@ def _col_letter(i: int) -> str:
 
 
 def read_xls(path: Path | bytes) -> dict[str, list[dict[str, str]]]:
-    """:func:`read_xlsx` for a legacy Excel 97–2003 ``.xls`` workbook (BIFF8), same output;
-    ``path`` may also be the file's bytes (a ZIP member).
+    """:func:`read_xlsx` for a legacy Excel 97–2003 ``.xls`` workbook (BIFF8) or an Excel
+    5.0/95 one (BIFF5), same output; ``path`` may also be the file's bytes (a ZIP member).
 
-    Reads the ``Workbook`` stream of the OLE2 container, the shared-string table (``SST``,
-    split across ``CONTINUE`` records), the worksheets' bounds (``BOUNDSHEET``) and their
-    value cells: shared strings (``LABELSST``), inline strings (``LABEL``), numbers
-    (``NUMBER``, ``RK``, ``MULRK``) and formulas' cached results (``FORMULA`` + ``STRING``).
-    Numbers come back as text (``1``, ``1993.5``). Charts and other sheet types are
-    skipped, as are the records of a substream nested in a worksheet (an embedded chart).
-    INEGI's dictionaries for the EIC 2015 (and 2010/2005) are ``.xls``.
+    Reads the ``Workbook`` stream of the OLE2 container (BIFF5: ``Book``), the shared-string
+    table (``SST``, split across ``CONTINUE`` records), the worksheets' bounds
+    (``BOUNDSHEET``) and their value cells: shared strings (``LABELSST``), inline strings
+    (``LABEL``, ``RSTRING``), numbers (``NUMBER``, ``RK``, ``MULRK``) and formulas' cached
+    results (``FORMULA`` + ``STRING``). Numbers come back as text (``1``, ``1993.5``).
+    Charts and other sheet types are skipped, as are the records of a substream nested in a
+    worksheet (an embedded chart). BIFF5 has no shared strings: its strings are 8-bit, in
+    the code page of the ``CODEPAGE`` record (:data:`_CODEPAGES`; cp1252 when absent).
+    INEGI's dictionaries for the EIC 2015 (and 2010/2005) are BIFF8 ``.xls``; the CGPV
+    2000 tabulados are BIFF5.
     """
     data = path if isinstance(path, bytes) else Path(path).read_bytes()
-    wb = _ole_stream(data, "Workbook")
+    try:
+        wb = _ole_stream(data, "Workbook")
+    except LookupError:
+        try:
+            wb = _ole_stream(data, "Book")
+        except LookupError:
+            raise LookupError("OLE2 file has no 'Workbook' (BIFF8) or 'Book' (BIFF5) "
+                              "stream") from None
     records = []
     pos = 0
     while pos + 4 <= len(wb):
@@ -298,11 +329,26 @@ def read_xls(path: Path | bytes) -> dict[str, list[dict[str, str]]]:
         records.append((pos, rid, wb[pos + 4:pos + 4 + size]))
         pos += 4 + size
     index = {pos: k for k, (pos, _, _) in enumerate(records)}
+    if not records or records[0][1] != 0x0809 or len(records[0][2]) < 2:
+        raise ValueError("not a BIFF5/BIFF8 workbook stream (no BOF record first)")
+    version = struct.unpack_from("<H", records[0][2])[0]
+    if version not in (_BIFF5, _BIFF8):
+        raise ValueError(f"unsupported BIFF version {version:#06x} (BIFF5/BIFF8 only)")
+    codec = "cp1252"
+    if version == _BIFF5:
+        for _, rid, body in records:
+            if rid == 0x0042:  # CODEPAGE
+                cp = struct.unpack_from("<H", body)[0]
+                codec = _CODEPAGES.get(cp, f"cp{cp}")
+                break
+
+    def text_reader(body: bytes):
+        return _Biff5Reader(body, codec) if version == _BIFF5 else _BiffReader([body])
 
     sheets, sst = [], []
     for k, (_, rid, body) in enumerate(records):
         if rid == 0x0085 and body[5] == 0:  # BOUNDSHEET of a worksheet
-            name = _BiffReader([body[6:]]).string(len_size=1)
+            name = text_reader(body[6:]).string(len_size=1)
             sheets.append((struct.unpack_from("<I", body)[0], name))
         elif rid == 0x00FC:  # SST, continued by CONTINUE (0x003C) records
             chunks = [body]
@@ -338,9 +384,9 @@ def read_xls(path: Path | bytes) -> dict[str, list[dict[str, str]]]:
             if rid == 0x00FD:  # LABELSST
                 r, c, _, isst = struct.unpack_from("<HHHI", b)
                 put(r, c, sst[isst])
-            elif rid == 0x0204:  # LABEL
+            elif rid in (0x0204, 0x00D6):  # LABEL; RSTRING (BIFF5: rich runs follow)
                 r, c = struct.unpack_from("<HH", b)
-                put(r, c, _BiffReader([b[6:]]).string())
+                put(r, c, text_reader(b[6:]).string())
             elif rid == 0x0203:  # NUMBER
                 r, c, _, x = struct.unpack_from("<HHHd", b)
                 put(r, c, _num_text(x))
@@ -361,7 +407,7 @@ def read_xls(path: Path | bytes) -> dict[str, list[dict[str, str]]]:
                 elif res[0] == 1:
                     put(r, c, "TRUE" if res[2] else "FALSE")
             elif rid == 0x0207 and pending is not None:  # STRING
-                put(*pending, _BiffReader([b]).string())
+                put(*pending, text_reader(b).string())
                 pending = None
         out[name] = [cells[r] for r in sorted(cells)]
     return out

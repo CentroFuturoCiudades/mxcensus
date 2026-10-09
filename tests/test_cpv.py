@@ -1878,13 +1878,116 @@ def test_read_xls_large_stream_and_errors(tmp_path):
     assert len(rows) == 400 and rows[-1] == {"A": "399", "B": "r399", "C": "399.5"}
     with pytest.raises(ValueError, match="not an OLE2"):
         _fd.read_xls(b"PK\x03\x04 not a workbook")
-    with pytest.raises(LookupError, match="no 'Workbook' stream"):
+    with pytest.raises(LookupError, match="no 'Workbook' \\(BIFF8\\) or 'Book'"):
+        _fd.read_xls(_ole(b"x" * 100, name="Other"))
+    with pytest.raises(ValueError, match="no BOF record"):
         _fd.read_xls(_ole(b"x" * 100, name="Book"))
     _xlsx(tmp_path / "a.xlsx", {"H": [["x", 1]]})
     assert _fd.read_workbook(tmp_path / "a.xlsx") == {"H": [{"A": "x", "B": "1"}]}
     (tmp_path / "bad.xls").write_bytes(b"<!DOCTYPE html>")
     with pytest.raises(ValueError, match="neither an .xlsx"):
         _fd.read_workbook(tmp_path / "bad.xls")
+
+
+def _xls5(sheets: dict, codepage: int | None = 1252, cutoff: int = 4096,
+          version: int = 0x0500) -> bytes:
+    """A BIFF5 (Excel 5.0/95) ``.xls``, as INEGI's CGPV 2000 tabulados: a ``Book`` stream,
+    no SST, 8-bit strings in the ``CODEPAGE`` record's code page (none: the reader's
+    default). A cell is ``None``, a ``str`` (LABEL), an ``int`` (RK; a run is a MULRK), a
+    ``float`` (NUMBER), ``("rstring", text)`` (RSTRING with a rich-text run) or
+    ``("formula", value)`` (FORMULA; a STRING record follows a text result)."""
+    enc = _fd._CODEPAGES.get(codepage, f"cp{codepage}") if codepage else "cp1252"
+
+    def s8(text: str, len_size: int = 2) -> bytes:
+        raw = text.encode(enc)
+        return len(raw).to_bytes(len_size, "little") + raw
+
+    bof = lambda dt: _biff(0x0809, struct.pack("<4H", version, dt, 0, 0))  # noqa: E731
+    eof = _biff(0x000A, b"")
+    bodies = []
+    for rows in sheets.values():
+        out = bof(0x0010)
+        for r, row in enumerate(rows):
+            c = 0
+            while c < len(row):
+                v = row[c]
+                if isinstance(v, int):
+                    end = c
+                    while end < len(row) and isinstance(row[end], int):
+                        end += 1
+                    if end - c > 1:
+                        cells = b"".join(struct.pack("<HI", 0, _rk(x)) for x in row[c:end])
+                        out += _biff(0x00BD, struct.pack("<HH", r, c) + cells
+                                     + struct.pack("<H", end - 1))
+                        c = end
+                        continue
+                    out += _biff(0x027E, struct.pack("<3HI", r, c, 0, _rk(v)))
+                elif isinstance(v, float):
+                    out += _biff(0x0203, struct.pack("<3Hd", r, c, 0, v))
+                elif isinstance(v, str):
+                    out += _biff(0x0204, struct.pack("<3H", r, c, 0) + s8(v))
+                elif v and v[0] == "rstring":           # one run: (char 0, font 0)
+                    out += _biff(0x00D6, struct.pack("<3H", r, c, 0) + s8(v[1]) + b"\x01\0\0")
+                elif v and v[0] == "formula":
+                    text = isinstance(v[1], str)
+                    res = bytes([0, 0, 0, 0, 0, 0, 0xFF, 0xFF]) if text else struct.pack("<d", v[1])
+                    out += _biff(0x0006, struct.pack("<3H", r, c, 0) + res + struct.pack("<HIH", 0, 0, 0))
+                    out += _biff(0x0207, s8(v[1])) if text else b""
+                c += 1
+        bodies.append(out + eof)
+    head = bof(0x0005) + (_biff(0x0042, struct.pack("<H", codepage)) if codepage else b"")
+
+    def globals_(offsets):
+        return head + b"".join(_biff(0x0085, struct.pack("<IBB", off, 0, 0) + s8(name, 1))
+                               for name, off in zip(sheets, offsets)) + eof
+
+    pos = len(globals_([0] * len(sheets)))
+    offsets = []
+    for body in bodies:
+        offsets.append(pos)
+        pos += len(body)
+    return _ole(globals_(offsets) + b"".join(bodies), name="Book", cutoff=cutoff)
+
+
+_XLS5_SHEETS = {
+    "Sheet1": [
+        ["INEGI. XII Censo General de Población y Vivienda 2000"],
+        ["ENTIDAD FEDERATIVA", None, ("rstring", "NO ESPE-"), "DISTRIBUCIÓN PORCENTUAL"],
+        ["01 AGUASCALIENTES", 940778, 79, 20.51, 0.46],                # MULRK, NUMBER
+        ["  ", ("formula", "SEGÚN SEXO"), ("formula", 12.5), "—«ñ»—"],
+    ],
+    "Índice": [["Año", -5]],
+}
+_XLS5_EXPECTED = {
+    "Sheet1": [
+        {"A": "INEGI. XII Censo General de Población y Vivienda 2000"},
+        {"A": "ENTIDAD FEDERATIVA", "C": "NO ESPE-", "D": "DISTRIBUCIÓN PORCENTUAL"},
+        {"A": "01 AGUASCALIENTES", "B": "940778", "C": "79", "D": "20.51", "E": "0.46"},
+        {"B": "SEGÚN SEXO", "C": "12.5", "D": "—«ñ»—"},
+    ],
+    "Índice": [{"A": "Año", "B": "-5"}],
+}
+
+
+@pytest.mark.parametrize("codepage,cutoff", [(1252, 4096), (1252, 64), (None, 4096)])
+def test_read_xls_biff5(tmp_path, codepage, cutoff):
+    """Excel 95 workbooks (the CGPV 2000 tabulados): the ``Book`` stream, 8-bit strings in
+    the CODEPAGE's code page (cp1252 without one), RSTRING and STRING records."""
+    data = _xls5(_XLS5_SHEETS, codepage=codepage, cutoff=cutoff)
+    assert _fd.read_xls(data) == _XLS5_EXPECTED
+    (tmp_path / "c2k.xls").write_bytes(data)
+    assert _fd.read_workbook(tmp_path / "c2k.xls") == _XLS5_EXPECTED
+
+
+def test_read_xls_biff5_codepage_and_versions():
+    """A cp850 workbook decodes by its CODEPAGE record; BIFF2–4 (or a stream that does
+    not start with a BOF) is refused."""
+    sheets = {"Hoja": [["Año ÑANDÚ", 1]]}
+    assert _fd.read_xls(_xls5(sheets, codepage=850)) == {"Hoja": [{"A": "Año ÑANDÚ", "B": "1"}]}
+    with pytest.raises(ValueError, match="unsupported BIFF version 0x0400"):
+        _fd.read_xls(_xls5(sheets, version=0x0400))
+    with pytest.raises(ValueError, match="no BOF record"):
+        _fd.read_xls(_ole(_biff(0x000A, b""), name="Book"))
 
 
 def test_read_catalogs_xls_members(tmp_path):

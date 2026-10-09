@@ -1,8 +1,9 @@
 # CPV family — session handoff
 
-**Status (2026-10-08, night): units 0–6l are done. `main` = **v0.8.0** (tagged, pushed);
-`cpv-integration` adds 6k and 6l (a commit each, pushed to `origin/cpv-integration`, not
-merged; merge/version are the user's call). No unit is queued.**
+**Status (2026-10-08, night): units 0–6m are done. `main` = **v0.8.0** (tagged, pushed);
+`cpv-integration` adds 6k–6m (a commit each, pushed to `origin/cpv-integration`, not
+merged; merge/version are the user's call). The user asked for the night's units to run
+unattended (commit and push each); they review in the morning.**
 - **Released** (registered, uploaded, verified): every edition 1990–2025 (897 `cpv_` files)
   and the Marco Geoestadístico 1995–2025 frames, incl. the EIC 2015's (6h); registry
   **4148** entries (`STEP_6b.md` §Release batch, `STEP_6h.md`).
@@ -47,8 +48,12 @@ merged; merge/version are the user's call). No unit is queued.**
   longer make a `':'` category (`GRA_APRO`/`NHIJNAVI`/`NUHIJSOB`; `_dict_fd._ELLIPSIS_RE`);
   CGPV 1990's unlabelled «0» (not asked) is «Blanco por pase» in its 20 coded person items
   (`build_cpv._label_blank_zero`). Only those two YAMLs changed.
+- **6m** (`STEP_6m.md`): `_dict_fd.read_xls` reads Excel 95 (BIFF5: the CGPV 2000 tabulados);
+  `scripts/check_cpv_tabulados.py` runs the 2000/2010/2015 sample-tabulado checks over every
+  state, sex and the nation → `TABULADOS_REPORT.md` (10,461 cells; 2010/2015 exact, 2000
+  within 0.04 points outside Chiapas; 2000 education on `EDUC_INEGI` = INEGI's levels).
 
-Design: [`PLAN.md`](PLAN.md). Recent units: [`STEP_6l.md`](STEP_6l.md), [`STEP_6k.md`](STEP_6k.md), [`STEP_6j.md`](STEP_6j.md), [`STEP_6i.md`](STEP_6i.md), [`STEP_6h.md`](STEP_6h.md), [`STEP_6g.md`](STEP_6g.md), [`STEP_6f.md`](STEP_6f.md), [`STEP_6e.md`](STEP_6e.md),
+Design: [`PLAN.md`](PLAN.md). Recent units: [`STEP_6m.md`](STEP_6m.md), [`STEP_6l.md`](STEP_6l.md), [`STEP_6k.md`](STEP_6k.md), [`STEP_6j.md`](STEP_6j.md), [`STEP_6i.md`](STEP_6i.md), [`STEP_6h.md`](STEP_6h.md), [`STEP_6g.md`](STEP_6g.md), [`STEP_6f.md`](STEP_6f.md), [`STEP_6e.md`](STEP_6e.md),
 [`STEP_6d.md`](STEP_6d.md),
 [`STEP_6c.md`](STEP_6c.md), [`STEP_6b.md`](STEP_6b.md), … [`STEP_0_probe.md`](STEP_0_probe.md).
 
@@ -67,8 +72,7 @@ files; the MG 2015 files were built on the Mac and copied to `wsl` for the uploa
 
 ## Next: candidates (none decided)
 
-1. **A BIFF5 reader in `_dict_fd`** (the CGPV 2000 tabulados are Excel 95 workbooks; 6i
-   used a scratch reader) if the 2000 checks become tests beyond state 01.
+1. (6m did the BIFF5 reader and the tabulado script.)
 2. Smaller: a 2000 occupation bridge (CMO → SINCO, no published table); own cells for the
    1990 ITER's sector indicators (`POCUSECP/S/T`).
 
