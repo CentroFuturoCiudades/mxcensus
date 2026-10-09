@@ -86,6 +86,20 @@ Still 50 new codes in all. `cpv_municipal_units` accepts 2015 as a start or an e
   clean-cache fetch through `load_mg`. Recorded in the follow-up commit (§Upload).
 - `docs/hf_bucket_readme.md` (provenance row, total 4148), README, CLAUDE.md.
 
+## Upload (follow-up commit)
+
+- Copied to `wsl` with `tar` over ssh (1h15, ~0.6 MB/s); all 397 SHA-256 equal the
+  registry's on `wsl`.
+- The first dry run listed 794 uploads: macOS `tar` had added an AppleDouble
+  `._mg_*_2015_*.parquet` beside every file. They were deleted on `wsl`, and the second dry
+  run listed exactly the 397 files (3,751 skipped as identical).
+- `upload_hf.py upload` (no `--delete`) uploaded them and the bucket README (total 4148).
+- From the Mac, a HEAD of every new URL: 397/397 present with the local size.
+- Clean cache (`MXCENSUS_CACHE_DIR` empty, unpatched `POOCH`): `load_mg("mun", state=[2, 23],
+  period=2015)` gives 15 municipalities (Quintana Roo with Bacalar, without Puerto Morelos),
+  `load_mg("ti", state=2, period=2015)` gives 63 polygons, and `mxcensus fetch 9 --dataset mg
+  --edition 2015` fetches 12 files.
+
 ## Tests
 
 - `test_mg_2015_products` (`test_cpv.py`): URLs per state, 32 distinct UPCs with valid

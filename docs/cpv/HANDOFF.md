@@ -30,7 +30,7 @@ unit is queued.**
   and the CPV `PSIND_LIM` cell; exact in every EIC 2025 state and municipality.
 - **6h** (`STEP_6h.md`): the EIC 2015 frame = INEGI's «Cartografía geoestadística urbana y
   rural amanzanada. Cierre de la Encuesta Intercensal 2015» (a UPC per state), MG period
-  2015: 397 files, registry 3751 → 4148 (upload: the follow-up commit); the lineage's 2015 step.
+  2015: 397 files, registry 3751 → 4148, uploaded and verified; the lineage's 2015 step.
 - **6i** (`STEP_6i.md`): CGPV 2000 and Conteo 2005 derived columns (2000: 17 + 5, 2005:
   13 + 4) and constraints (2000: 29 + 4, 2005: 38 + 8); 2000 checked against INEGI's sample
   tabulados (within 0.02 points outside Chiapas).
@@ -169,7 +169,12 @@ None pending: 6e's decisions were taken with the user (`STEP_6e.md` §Decisions)
   non-interactive commands; use `/bin/rm -f` and `/bin/cp -f`.
 - **Registry**: `--update-registry` upserts. The diff must be additions only (`git diff
   --numstat`).
-- **Upload**: `upload_hf.py upload` from `wsl` only, never with `--delete`. Dry-run first.
+- **Upload**: `upload_hf.py upload` from `wsl` only, never with `--delete`. Dry-run first,
+  and count the actions: the dry run must list exactly the new files.
+- **Mac → `wsl` copies** (6h): macOS `tar` adds AppleDouble `._*` sidecars (397 junk
+  `._mg_*.parquet` would have been uploaded). Use `COPYFILE_DISABLE=1 tar …`, or delete
+  `._*` on `wsl` before the dry run. Tailscale carries ~0.6 MB/s; check SHA-256 against the
+  registry on `wsl` after copying.
   `verify` HEADs every registry URL (~2.7k, ~15 min), so run it in the background; a
   timeout counts as "missing", so re-check misses by hand.
 - **`pkill -f` over ssh**: the pattern also matches the ssh command line that runs it, so it
