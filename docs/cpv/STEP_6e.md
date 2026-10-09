@@ -44,7 +44,9 @@ are read as numbers. `ENT_PAIS_RES10` is read as `ENT_PAIS_RES_5A` (`_ALIASES`).
   in a union). Any other code → -99, which no category takes, so `derive` raises.
   - The «99 + blank code» rows (228,326 mothers, 164,768 fathers, 51,296 partners) have
     the age profile of the numbered rows (mothers: median age 13 vs 12; «88»: 41), so they
-    are «lives here, row not given».
+    are «lives here, row not given». **Superseded by 6q** (`STEP_6q.md`): INEGI's ampliado
+    tabulado `12_01A` counts them «no especificado» (to the person nationally), and so
+    does `_pointer_2010` now.
   - Rows go up to 96 in 2010 (2020: 01–54); the pair reading makes that irrelevant.
   - 2010 gets `IDENT_PAREJA_CAT` (2020's Sí/No/NE/Blanco fit exactly) and the two flags,
     not `IDENT_MADRE_CAT`/`IDENT_PADRE_CAT`: its 88 merges 2020's 96/97/98.

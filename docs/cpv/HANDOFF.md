@@ -1,9 +1,9 @@
 # CPV family — session handoff
 
-**Status (2026-10-08, night): units 0–6p are done. `main` = **v0.8.0** (tagged, pushed);
-`cpv-integration` adds 6k–6p (a commit each, pushed to `origin/cpv-integration`, not
-merged; merge/version are the user's call). The user asked for the night's units to run
-unattended (commit and push each); they review in the morning.**
+**Status (2026-10-09, early morning): units 0–6q are done. `main` = **v0.8.0** (tagged,
+pushed); `cpv-integration` adds 6k–6q (a commit each, pushed to `origin/cpv-integration`,
+not merged; merge/version are the user's call). 6m–6q ran unattended overnight at the
+user's request: their decisions wait for review (§Review).**
 - **Released** (registered, uploaded, verified): every edition 1990–2025 (897 `cpv_` files)
   and the Marco Geoestadístico 1995–2025 frames, incl. the EIC 2015's (6h); registry
   **4148** entries (`STEP_6b.md` §Release batch, `STEP_6h.md`).
@@ -63,8 +63,12 @@ unattended (commit and push each); they review in the morning.**
   2000 60 + 33, 2005 83 constraints; the 2005/2010 Seguro Popular).
 - **6p** (`STEP_6p.md`): Censo 2020 in `check_cpv_tabulados.py` (INEGI's ampliado tabulados,
   `.xlsx`): the 2020 derived columns = INEGI's estimates exactly in every state (5,247 cells).
+- **6q** (`STEP_6q.md`): EIC 2015 affiliation, commute, marital status and education, Censo
+  2010 limitation and parental co-residence (national) in the tabulado checks, all exact. It
+  reversed a 6e rule: 2010's pointer «row 99 + blank code» is «no especificado» (INEGI's
+  `12_01A`, to the person), not «lives here».
 
-Design: [`PLAN.md`](PLAN.md). Recent units: [`STEP_6p.md`](STEP_6p.md), [`STEP_6o.md`](STEP_6o.md), [`STEP_6n.md`](STEP_6n.md), [`STEP_6m.md`](STEP_6m.md), [`STEP_6l.md`](STEP_6l.md), [`STEP_6k.md`](STEP_6k.md), [`STEP_6j.md`](STEP_6j.md), [`STEP_6i.md`](STEP_6i.md), [`STEP_6h.md`](STEP_6h.md), [`STEP_6g.md`](STEP_6g.md), [`STEP_6f.md`](STEP_6f.md), [`STEP_6e.md`](STEP_6e.md),
+Design: [`PLAN.md`](PLAN.md). Recent units: [`STEP_6q.md`](STEP_6q.md), [`STEP_6p.md`](STEP_6p.md), [`STEP_6o.md`](STEP_6o.md), [`STEP_6n.md`](STEP_6n.md), [`STEP_6m.md`](STEP_6m.md), [`STEP_6l.md`](STEP_6l.md), [`STEP_6k.md`](STEP_6k.md), [`STEP_6j.md`](STEP_6j.md), [`STEP_6i.md`](STEP_6i.md), [`STEP_6h.md`](STEP_6h.md), [`STEP_6g.md`](STEP_6g.md), [`STEP_6f.md`](STEP_6f.md), [`STEP_6e.md`](STEP_6e.md),
 [`STEP_6d.md`](STEP_6d.md),
 [`STEP_6c.md`](STEP_6c.md), [`STEP_6b.md`](STEP_6b.md), … [`STEP_0_probe.md`](STEP_0_probe.md).
 
@@ -76,20 +80,52 @@ files; the MG 2015 files were built on the Mac and copied to `wsl` for the uploa
 ## Kickoff prompt for the next session
 
 > Continue the CPV census-family work in this repo (branch cpv-integration; main = v0.8.0).
-> Read docs/cpv/HANDOFF.md first. Every planned unit is done; agree the next unit with me
-> (candidates in HANDOFF §Next) before implementing it, following the session protocol in
-> docs/cpv/PLAN.md. Use .venv/bin/python, not uv run. Run wsl tasks without asking; ask me
-> before committing, pushing, installing packages or uploading.
+> Read docs/cpv/HANDOFF.md first, then review the night's unattended units 6m–6q (§Review)
+> with me: decide the open questions, then whether to merge into main and bump the version.
+> Agree any next unit (candidates in HANDOFF §Next) before implementing it, following the
+> session protocol in docs/cpv/PLAN.md. Use .venv/bin/python, not uv run. Run wsl tasks
+> without asking; ask me before committing, pushing, installing packages or uploading.
+
+## Review: decisions taken unattended (night of 2026-10-08/09)
+
+The user asked for the night's units to run without them; these choices wait for review:
+
+1. **6n, a crosswalk change with user-visible effect**: 2000's ITER `VP_CCUART` is no longer
+   renamed to `VPH_1DOR` under `harmonize=True` (it counts one room without the exclusive
+   kitchen, not one bedroom: `STEP_6n.md`). `load_cpv_iter(2000, harmonize=True)` loses
+   `VPH_1DOR` and keeps `VP_CCUART`; 2000 loses the `VPH_1DOR` constraint.
+2. **6o, a new derived column**: `SECTOR` is added by `derived=True` in 1990 and 2000–2025
+   (so 2010–2025 frames gain a column too).
+3. **6n/6o, the constraint sets grew** (1990 17 → 32, 1995 9 → 13, 2000 33 → 93, 2005 46 →
+   104, 2010 142 → 169): crosstabs built from `cpv_constraints` for these editions now have
+   more tables. Each new cell sits within its edition's sample-vs-census band, which for
+   the dwelling goods and the 2005 sample is up to a few points (`STEP_6n.md`, `STEP_6o.md`).
+4. **6m, the 2000 tolerance** of the tabulado checks is 0.04 points (7 of 1,683 sector cells
+   are 0.02–0.039 off outside Chiapas).
+5. **Left out on purpose**: 2000's disability indicators (`PCONDISC`…; the sample's shares
+   are 30–60% above the census's), income in minimum wages, the household head's sex for
+   2000–2010 (`HOGJEF_*`: needs the person file, a design choice — §Next 1).
+6. **6q, a 6e rule reversed on INEGI's evidence**: Censo 2010's pointer «row 99 + blank
+   code» is now «no especificado» (was «lives here»): INEGI's tabulado `12_01A` counts it so,
+   to the person nationally. `MADRE_EN_VIVIENDA`/`PADRE_EN_VIVIENDA`/`IDENT_PAREJA_CAT`
+   (2010) change for ~3.1M persons (weighted); the partner follows by analogy (no tabulado).
+7. **Merge and version**: `main` is still v0.8.0; `cpv-integration` carries 6k–6q.
 
 ## Next: candidates (none decided)
 
-1. (6m did the BIFF5 reader and the tabulado script.)
-2. Smaller: a 2000 occupation bridge (CMO → SINCO, no published table); own cells for the
-   1990 ITER's sector indicators (`POCUSECP/S/T`).
+1. **The household head's sex for 2000–2010** (`HOGJEF_F/M`, `PHOGJEF_*` constraints): the
+   dwelling frames have no head item; `load_cpv_survey(derived=True)` could attach it from
+   the person file (the 2005 `hogares` table too). A design decision: a survey-only column,
+   or `load_cpv_viviendas` reading the person file.
+2. 2000's media superior and superior apart (`P18_CMEDSU`/`P18_CSUPER`): a finer derived
+   level (`EDUC_INEGI` merges them into «Posbásica»).
+3. Smaller: a 2000 occupation bridge (CMO → SINCO, no published table); income in minimum
+   wages for 2000 (`P_1SM`…: three wage zones by municipality); a locality-level lineage
+   (6a covered municipalities only).
 
 ## Open questions for the user
 
-None (6k settled `P15PRI_CO`).
+The §Review items above (none blocks anything).
 
 ## Gotchas (carry forward)
 
@@ -264,8 +300,8 @@ None (6k settled `P15PRI_CO`).
   in both.
 - **2010 pointer pairs** (6e): `IDMADRE`/`IDPADRE`/`IDCONYUGE` = row (up to 96) or 99 «row
   not given»; `…C` = 88 «not here», 99 NE, blank when the person lives here. «99 + blank
-  code» means lives here (`_pointer_2010`); that is why 2010's co-residence NE share
-  (0.6%) is below 2015's (2.2%).
+  code» is **not specified** (6q: INEGI's `12_01A` counts it so, to the person nationally;
+  6e had read it «lives here»), so 2010's co-residence NE share is 3.7%.
 - **INEGI's tabulados as checks** (6e): EIC 2015 `intercensal/2015/tabulados/NN_tema.xls`
   (`04_migracion`, `14_vivienda`, `01_poblacion`…; estimator «Valor», percentages with 6
   decimals) and Censo 2010 ampliado `ccpv/2010/tabulados/Ampliado/NN_NNA_ESTATAL.xls`
@@ -296,3 +332,22 @@ None (6k settled `P15PRI_CO`).
   `Comparable: false`). `_EDITION_CELLS` adds them for 2010 on 2010's own items, whatever
   `Comparable` says. The 2010 sample (cuestionario ampliado) does not reproduce the census
   ITER exactly (`STEP_6d.md` §Verification).
+- **`scripts/check_cpv_tabulados.py`** (6m–6q) takes ~25 min for all editions and 32 states
+  (peaks ~8 GB); `--periods`/`--states` for a quick look (the nation and the 2010
+  national-only checks need all 32). Tabulados cache in `data/dict/tabulados/{period}/`
+  (2000 `C2K*.xls` BIFF5, 2010/2015 `.xls`, 2020 `.xlsx`). INEGI's tabulados leave out
+  unspecified ages (999) from age-defined universes (the commute tables: students 3+,
+  employed 12+); the 2015 percentages have six decimals (≤ ~0.9 of a person nationally).
+- **A crosswalk pair by description can be wrong** (6n): 2000's `VP_CCUART` «con un
+  dormitorio» is one room without the exclusive kitchen. Check a paired indicator's level
+  against the sample before trusting it (`_XW_UNPAIR`).
+- **Sample vs census** (6n/6o): edition cells reproduce their ITER within the edition's band
+  — 2000's census `POBTOT` includes the population without characteristics (age cells
+  3–7 points off in states 02, 06, 15); the 2005 sample is unweighted (Quintana Roo ~11
+  points off); 2010's ampliado bedrooms 2–5 points; 2000's employed share +0.7–1.3.
+- **Sweeps over 2000/2005**: their person frames carry `ID_HOG` in the index; drop
+  duplicate `ID_VIV`s only on dwelling frames. 1995's weights exist only under
+  `harmonize=True` (raw frames have `FAC_POB`, no `FACTOR`).
+- **`cpv_derived` module names are shared**: `_EMPLOYED` (1990's employed CONACT codes) vs
+  the constraint dict `_EMPLOYED_CELLS` (6o) — a shadowed constant silently blanked 1990's
+  hours until a test caught it.

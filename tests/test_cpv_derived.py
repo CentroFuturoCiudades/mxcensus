@@ -567,13 +567,14 @@ def test_derive_persons_2010_recodes():
     # 997 (OtraEnt), 900 (topic omitted) → No especificado, country 600 → OtroPais
     assert list(out["ENT_PAIS_NAC_CAT"]) == ["EstaEnt", "OtroPais", "OtraEnt"]
     assert list(out["ENT_PAIS_RES_CAT"]) == ["Blanco por pase", "OtroPais", "No especificado"]
-    # pointer pairs: a row (99 = row not given; above 54 too) → Sí, 88 → No, 99/99 → NE
+    # pointer pairs: a row (above 54 too) → Sí, 88 → No, 99 code → NE; a row given as 99
+    # (row not given) → NE, as INEGI's tabulado 12_01A (6q; 6e read it «lives here»)
     assert list(out["MADRE_EN_VIVIENDA"]) == ["Sí", "No", "No especificado"]
-    assert list(out["PADRE_EN_VIVIENDA"]) == ["Sí", "No", "No"]
+    assert list(out["PADRE_EN_VIVIENDA"]) == ["No especificado", "No", "No"]
     assert list(out["IDENT_PAREJA_CAT"]) == ["Blanco por pase", "Sí", "Blanco por pase"]
     pareja = d.derive(_persons_2010().assign(IDCONYUGE=["", "99", "99"],
                                              IDCONYUGEC=["88", "", "99"]), "personas", 2010)
-    assert list(pareja["IDENT_PAREJA_CAT"]) == ["No", "Sí", "No especificado"]
+    assert list(pareja["IDENT_PAREJA_CAT"]) == ["No", "No especificado", "No especificado"]
     assert "IDENT_MADRE_CAT" not in out                    # 88 merges 2020's 96/97/98
     # 4-digit SINCO: the first two digits (5999: group 59 → 52); SCIAN sector (ACTTRAB_C)
     assert list(out["OCUPACION_C_COARSE"]) == [

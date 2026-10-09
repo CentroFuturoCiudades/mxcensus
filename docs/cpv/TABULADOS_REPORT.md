@@ -30,8 +30,12 @@ Tolerance: 1.0 persons.
 | 04_02A Residence in 2005 (`ENT_PAIS_RES_CAT`), the 5+ | `04_02A_ESTATAL.xls` | 396 | 0.00 | 0.00 | 0.00 (00 H «same entity») | 0 |
 | 08_02A Employed by occupational division (`OCUPACION_C_COARSE`) | `08_02A_ESTATAL.xls` | 990 | 0.00 | 0.00 | 0.00 (01 T «Funcionarios, directores y jefes») | 0 |
 | 08_03A Employed by sector (`ACTIVIDADES_C_COARSE`) | `08_03A_ESTATAL.xls` | 594 | 0.00 | 0.00 | 0.00 (01 T «Agricultura, ganadería, aprovechamiento forestal, pesca y caza») | 0 |
+| 06_01A Limitation in activity (`LIM_ACTIVIDAD`), nation only | `06_01A_ESTATAL.xls` | 12 | 0.00 | 0.00 | 0.00 (00 T «without») | 0 |
+| 12_01A Parents in the dwelling (`MADRE_EN_VIVIENDA`, `PADRE_EN_VIVIENDA`), nation only | `12_01A_ESTATAL.xls` | 18 | 0.00 | 0.00 | 0.00 (00 T «both») | 0 |
 
 - 04_02A: Entity not specified (`RES05EDO_C` 999) counted as «No especificado», as INEGI's tabulado (the derived column: `OtraEnt`).
+- 06_01A: Published by locality size: the national row only (all 32 states needed).
+- 12_01A: Published by locality size: the national row only (all 32 states needed).
 
 ## 2015
 
@@ -44,10 +48,16 @@ Tolerance: 1.0 persons.
 | 08-02 Activity of the 12+ (`CONACT_CAT`) | `08_caracteristicas_economicas.xls` 02 | 594 | 0.00 | 0.00 | 0.00 (00 T «inactive») | 0 |
 | 08-06 Employed by occupational division (`OCUPACION_C_COARSE`) | `08_caracteristicas_economicas.xls` 06 | 990 | 0.00 | 0.00 | 0.00 (01 T «Funcionarios, directores y jefes») | 0 |
 | 08-07 Employed by sector (`ACTIVIDADES_C_COARSE`) | `08_caracteristicas_economicas.xls` 07 | 594 | 0.00 | 0.00 | 0.00 (01 T «Agricultura, ganadería, aprovechamiento forestal, pesca y caza») | 0 |
+| 06-11 Education of the 15+ (`EDUC`) | `06_educacion.xls` 11 | 693 | 0.00 | 0.00 | 0.00 (00 T «media superior and superior») | 0 |
+| 07-02 Health affiliation by institution (`DHSERSAL_*`) | `07_servicios_de_salud.xls` 02 | 990 | 0.00 | 0.00 | 0.00 (00 T «IMSS») | 0 |
+| 10-03 Commute to school (`MED_TRASLADO_ESC_*`) | `10_movilidad_cotidiana.xls` 03 | 891 | 0.00 | 0.00 | 0.00 (00 M «private vehicle») | 0 |
+| 10-06 Commute to work (`MED_TRASLADO_TRAB_*`) | `10_movilidad_cotidiana.xls` 06 | 891 | 0.00 | 0.00 | 0.00 (00 T «bus, taxi») | 0 |
+| 11-02 Marital status of the 12+ (`SITUA_CONYUGAL_CAT`) | `11_situacion_conyugal.xls` 02 | 495 | 0.00 | 0.03 | 0.51 (00 T «separated, divorced, widowed») | 0 |
 | 14-18 Financing of the owned dwellings bought or built (`FINANCIAMIENTO_*`) | `14_vivienda.xls` 18 | 264 | 0.00 | 0.00 | 0.00 (00 T «INFONAVIT, FOVISSSTE or PEMEX») | 0 |
 
 - 04-02: Entity not specified (`ENT_PAIS_NAC` 997) counted as «No especificado», as INEGI's tabulado (the derived column: `OtraEnt`).
 - 04-05: Entity not specified (`ENT_PAIS_RES10` 997) counted as «No especificado».
+- 06-11: Técnica after primaria counts in primaria, in the tabulado as in `EDUC`.
 
 ## 2020
 

@@ -125,11 +125,13 @@ def test_checks_are_consistent():
 
 @_REAL_SKIP
 def test_state_01_within_tolerance(monkeypatch):
-    """Every check of state 01 (2000, 2010, 2015, 2020) agrees with INEGI's tabulado."""
+    """Every check of state 01 (2000, 2010, 2015, 2020) agrees with INEGI's tabulado (the
+    national-only 2010 checks need all 32 states: the report)."""
     monkeypatch.setattr(ck, "fetch", lambda periods, tab_dir, retries=2: {
         f"{p}/{n}": tab_dir / p / n for p in periods for n in ck.SOURCES[p][1]})
     rows = ck.run(sorted(ck.SOURCES), [1], _TABS, _MIRROR, log=lambda *a: None)
-    assert len(rows) == 317 + 159                                        # 6p: 2020
+    assert len(rows) == 317 + 159 + 120             # 6p: 2020; 6q: 2015 affiliation, commute,
+    #                                                 marital status, education (2010's are national)
     bad = [r for r in rows if abs(r["delta"]) > r["tolerance"]]
     assert not bad, bad[:5]
     exact = [r for r in rows if r["period"] != "2000"]

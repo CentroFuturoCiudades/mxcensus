@@ -62,9 +62,12 @@ SOURCES = {
              ("C2KMI01.xls", "C2KMI03.xls", "C2KRE02.xls", "C2KSS04.xls", "C2KEC02.xls",
               "C2KEM01.xls", "C2KEM05.xls", "C2KED10.xls", "C2KVI06.xls", "C2KVI10.xls")),
     "2010": ("ccpv/2010/tabulados/Ampliado",
-             ("04_02A_ESTATAL.xls", "08_02A_ESTATAL.xls", "08_03A_ESTATAL.xls")),
+             ("04_02A_ESTATAL.xls", "06_01A_ESTATAL.xls", "08_02A_ESTATAL.xls",
+              "08_03A_ESTATAL.xls", "12_01A_ESTATAL.xls")),
     "2015": ("intercensal/2015/tabulados",
-             ("04_migracion.xls", "08_caracteristicas_economicas.xls", "14_vivienda.xls")),
+             ("04_migracion.xls", "06_educacion.xls", "07_servicios_de_salud.xls",
+              "08_caracteristicas_economicas.xls", "10_movilidad_cotidiana.xls",
+              "11_situacion_conyugal.xls", "14_vivienda.xls")),
     "2020": ("ccpv/2020/tabulados/ampliado",
              ("cpv2020_a_eum_08_caracteristicas_economicas.xlsx",
               "cpv2020_a_eum_09_servicios_de_salud.xlsx",
@@ -488,6 +491,75 @@ def _financing_2020(v):
     return _counts_of(np.logical_or.reduce(dummies), *dummies)
 
 
+# EIC 2015 (6q) ----------------------------------------------------------------------
+
+def _affiliation_2015(p):
+    """Persons by affiliation and institution (2015: ISSSTE federal or state together, the
+    Seguro Popular, no IMSS-BIENESTAR)."""
+    afil, none = _dummy(p, "DHSERSAL_AFIL"), _dummy(p, "DHSERSAL_No afiliado")
+    return _counts_of(pd.Series(True, index=p.index), afil, _dummy(p, "DHSERSAL_IMSS"),
+                      _any(p, "DHSERSAL_ISSSTE", "DHSERSAL_ISSSTE_E"),
+                      *(_dummy(p, f"DHSERSAL_{c}") for c in (
+                          "P_D_M", "SALUD_PUBLICA", "Privado", "Otro")),
+                      none, ~afil & ~none)
+
+
+# The EIC 2015's seven commute modes (its own dummies, cpv_derived._traslado_2015), in the
+# tabulados' order; the fourth is the school bus or the staff transport.
+_MODES_2015 = ("Camión, taxi, combi o colectivo", "Metro, metrobús o tren ligero",
+               "Vehículo particular (automóvil, camioneta o motocicleta)", None, "Bicicleta",
+               "Caminando", "Otro", "No especificado")
+
+
+def _commute_2015(prefix: str, fourth: str, youngest: int):
+    def ours(p):
+        travels = p[f"{prefix}1"].notna() & _age(p).between(youngest, 130)
+        return _counts_of(travels, *(travels & _dummy(p, f"{prefix}_{m or fourth}")
+                                     for m in _MODES_2015))
+    return ours
+
+
+def _marital(p):
+    twelve, sc = _age(p).between(12, 130), _cat(p, "SITUA_CONYUGAL_CAT")
+    return _counts_of(twelve, *(twelve & sc.eq(c)
+                                for c in ("soltero", "casado", "separado", "No especificado")))
+
+
+def _educ_2015(p):
+    """The 15+ by the legacy ``EDUC`` (the EIC 2015 tabulados, like it, count técnica after
+    primaria in primaria; 6k)."""
+    f15, e = _age(p).between(15, 130), _cat(p, "EDUC")
+    return _counts_of(f15, *(f15 & e.isin(g) for g in (
+        ["Sin Educación"], ["Primaria_incom", "Primaria_com"], ["Secundaria_incom"],
+        ["Secundaria_com"], ["Posbásica"], ["No especificado"])))
+
+
+def _educ_2015_published(v: list) -> list:
+    """06-11: the 15+ (E); sin escolaridad (F); básica (G) and, as % of it, preescolar,
+    primaria, secundaria (H–J); as % of secundaria, incompleta, completa, NE (K–M); media
+    superior, superior, NE (N–P). Preschool joins «sin escolaridad» and a secundaria of
+    unspecified grade the incomplete one, as in ``EDUC``."""
+    c = _counts(v[0], v[1:12], [0, 0, 2, 2, 2, 5, 5, 5, 0, 0, 0])
+    return [c[0], c[1] + c[3], c[4], c[6] + c[8], c[7], c[9] + c[10], c[11]]
+
+
+# Censo 2010 national (6q: the tabulados by locality size; their national row) --------
+
+def _limitation(p):
+    lim = _cat(p, "LIM_ACTIVIDAD")
+    return _counts_of(pd.Series(True, index=p.index),
+                      *(lim.eq(c) for c in ("Sí", "No", "No especificado")))
+
+
+def _parents(p):
+    """The population by whether the father, the mother, both or neither live in the dwelling;
+    an unspecified answer for either is «No especificado»."""
+    m, f = _cat(p, "MADRE_EN_VIVIENDA"), _cat(p, "PADRE_EN_VIVIENDA")
+    return _counts_of(pd.Series(True, index=p.index), m.eq("Sí") & f.eq("Sí"),
+                      f.eq("Sí") & m.eq("No"), m.eq("Sí") & f.eq("No"), m.eq("No") & f.eq("No"),
+                      m.eq("No especificado") | f.eq("No especificado"))
+
+
 def _total_row(k: tuple) -> tuple | None:
     """A (state, sex, category) row → (state, sex) for the category «Total»."""
     return k[:2] if k[2] == "Total" else None
@@ -574,6 +646,19 @@ CHECKS: tuple[Check, ...] = (
     Check("2010", "08_03A", "Employed by sector (`ACTIVIDADES_C_COARSE`)", "08_03A_ESTATAL.xls",
           "personas", tuple(n for n, _ in _SECTOR_GROUPS),
           _long("Parámetro", tuple(n for n, _ in _SECTOR_GROUPS)), _sector, unit="persons"),
+    Check("2010", "06_01A", "Limitation in activity (`LIM_ACTIVIDAD`), nation only",
+          "06_01A_ESTATAL.xls", "personas",
+          ("population", "with a limitation", "without", "not specified"),
+          _wide("Parámetro", lambda v: _counts(v[0], [v[1], v[8], v[9]])), _limitation,
+          unit="persons",
+          note="Published by locality size: the national row only (all 32 states needed)."),
+    Check("2010", "12_01A", "Parents in the dwelling (`MADRE_EN_VIVIENDA`, "
+          "`PADRE_EN_VIVIENDA`), nation only", "12_01A_ESTATAL.xls", "personas",
+          ("population", "both", "only the father", "only the mother", "neither",
+           "not specified"),
+          _wide("Parámetro", lambda v: _counts(v[0], v[1:]), dims=_total_row), _parents,
+          unit="persons",
+          note="Published by locality size: the national row only (all 32 states needed)."),
     Check("2015", "04-02", "Birthplace (`ENT_PAIS_NAC_CAT`)", "04_migracion.xls", "personas",
           ("population", "this entity", "another entity", "abroad", "not specified"),
           _wide("Valor", lambda v: (c := _counts(v[0], v[1:]))[:3] + [c[3] + c[4], c[5]],
@@ -600,6 +685,42 @@ CHECKS: tuple[Check, ...] = (
           "08_caracteristicas_economicas.xls", "personas", tuple(n for n, _ in _SECTOR_GROUPS),
           _long("Valor", tuple(n for n, _ in _SECTOR_GROUPS), sheet="07"), _sector,
           unit="persons", sheet="07"),
+    Check("2015", "06-11", "Education of the 15+ (`EDUC`)", "06_educacion.xls", "personas",
+          ("population 15+", "no schooling (preschool included)", "primaria",
+           "secundaria incompleta", "secundaria completa", "media superior and superior",
+           "not specified"),
+          _wide("Valor", _educ_2015_published, sheet="11", dims=_total_row), _educ_2015,
+          unit="persons", sheet="11",
+          note="Técnica after primaria counts in primaria, in the tabulado as in `EDUC`."),
+    Check("2015", "07-02", "Health affiliation by institution (`DHSERSAL_*`)",
+          "07_servicios_de_salud.xls", "personas",
+          ("population", "affiliated", "IMSS", "ISSSTE (federal or state)",
+           "PEMEX, Defensa or Marina", "Seguro Popular", "private", "other",
+           "not affiliated", "not specified"),
+          _wide("Valor", lambda v: _counts(v[0], v[1:10], [0, 1, 1, 1, 1, 1, 1, 0, 0]),
+                sheet="02", dims=_total_row),
+          _affiliation_2015, unit="persons", sheet="02"),
+    Check("2015", "10-03", "Commute to school (`MED_TRASLADO_ESC_*`)",
+          "10_movilidad_cotidiana.xls", "personas",
+          ("students who travel", "bus, taxi", "metro, metrobús", "private vehicle",
+           "school bus", "bicycle", "walking", "other", "not specified"),
+          _wide("Valor", lambda v: _counts(v[0], v[1:]), sheet="03", dims=_total_row),
+          _commute_2015("MED_TRASLADO_ESC", "Transporte escolar", 3), unit="persons",
+          sheet="03"),
+    Check("2015", "10-06", "Commute to work (`MED_TRASLADO_TRAB_*`)",
+          "10_movilidad_cotidiana.xls", "personas",
+          ("employed who travel", "bus, taxi", "metro, metrobús", "private vehicle",
+           "staff transport", "bicycle", "walking", "other", "not specified"),
+          _wide("Valor", lambda v: _counts(v[0], v[1:]), sheet="06", dims=_total_row),
+          _commute_2015("MED_TRASLADO_TRAB", "Transporte de personal", 12), unit="persons",
+          sheet="06"),
+    Check("2015", "11-02", "Marital status of the 12+ (`SITUA_CONYUGAL_CAT`)",
+          "11_situacion_conyugal.xls", "personas",
+          ("population 12+", "single", "married or in union", "separated, divorced, widowed",
+           "not specified"),
+          _wide("Valor", lambda v: (c := _counts(v[0], v[1:]))[:2]
+                + [c[2] + c[3], c[4] + c[5] + c[6], c[7]], sheet="02", dims=_total_row),
+          _marital, unit="persons", sheet="02"),
     Check("2015", "14-18", "Financing of the owned dwellings bought or built "
           "(`FINANCIAMIENTO_*`)", "14_vivienda.xls", "viviendas",
           ("dwellings", "INFONAVIT, FOVISSSTE or PEMEX", "FONHAPO", "banks",

@@ -222,8 +222,9 @@ the derived columns as another state (the legacy 2020 rule, kept in every editio
 The coarse occupation (`OCUPACION_C_COARSE`) is the SINCO two-digit group in every edition
 (Censo 2010 codes four digits, EIC 2015 three, as 2020); SINCO 2019 dropped group 59, so
 its few 2010/2015 workers join group 52, where SINCO 2019 put them. The coarse activity is
-the SCIAN sector. Both reproduce INEGI's 2010 and 2015 tabulados by occupational division
-and sector in every state. Censo 2010's religion follows 2020's grouping, which counts the
+the SCIAN sector, and `SECTOR` groups it into INEGI's three sectors (primary, secondary,
+tertiary; also for CGPV 1990, from its own activity code). Both reproduce INEGI's 2010 and
+2015 tabulados by occupational division and sector in every state. Censo 2010's religion follows 2020's grouping, which counts the
 neo-Israelite movements as evangelical (the 2010 ITER: other religions). CGPV 2000 asked
 religion of persons aged 5 and over only, so its `RELIGION_CAT` has a «Blanco por pase»
 category for the under-5s, and its health coverage (one question per institution) has no
@@ -241,13 +242,25 @@ microdata cells) to the indicators an edition publishes and can reproduce, for
 technical studies after primaria as the ITER does in 1990, 2000, 2010 and 2020 (the legacy
 `constraints_personas` cell counts them: 352,797 persons, 2.9% of `P15PRI_CO` in 2020).
 For Censo 2010 it adds the ITER's own limitation indicators (`PCON_LIM`,
-`PSIN_LIM`, `PCLIM_*`) and religion groups (`PNCATOLICA`):
+`PSIN_LIM`, `PCLIM_*`) and religion groups (`PNCATOLICA`); for the older samples, the same
+indicators on each edition's own items and labels (literacy, indigenous language, school
+attendance, floor, electricity, water, sanitary service, goods) and the indicators each
+ITER publishes under its own name (1990/2000 employed by sector, 2000/2005 age groups and
+attendance, 2000 cooking fuel and tenure, 2005 basic education by sex, the 2005/2010
+Seguro Popular…), each within a fraction of a point of the ITER in most states:
 
 ```python
 per = mxcensus.load_cpv_personas(2025, state=1, derived=True)
 per.groupby(["EDAD_CAT", "CONACT_CAT"], observed=True)["FACTOR"].sum()
 tables = mxcensus.get_tables_dict(mxcensus.cpv_constraints("personas", 2025), per.dtypes)
 ```
+
+`scripts/check_cpv_tabulados.py` (maintainer) checks the derived columns against INEGI's
+published sample tabulados in every state, both sexes and the nation, and writes
+[docs/cpv/TABULADOS_REPORT.md](docs/cpv/TABULADOS_REPORT.md): Censo 2020, EIC 2015 and Censo
+2010 match to the person (occupation, sector, hours, health affiliation, commute modes,
+marital status, education, migration, financing, co-residence, limitation); CGPV 2000
+within a few hundredths of a point (its public sample's weights; Chiapas a few tenths).
 
 The legacy health-coverage dummies `DHSERSAL_Popular_NGenración_SBienestar` and
 `DHSERSAL_IMSS_Prospera/Bienestar` are named `DHSERSAL_SALUD_PUBLICA` and

@@ -711,9 +711,12 @@ def _ent_pais_cat(var: str, name: str, abroad: str | None = None):
 def _pointer_2010(number: pd.Series, code: pd.Series) -> pd.Series:
     """Censo 2010's pointer pair («en esta vivienda, ¿vive…? ¿Quién es?»: the row number,
     99 when the row was not given, and the code item: 88 not here, 99 not specified) → a
-    2020 pointer code: 1 (a row of this dwelling), 96 (not here), 99; blank when both are
-    blank (not asked). Any other code becomes -99, which no category takes."""
+    2020 pointer code: 1 (a row of this dwelling), 96 (not here), 99 (not specified: a 99
+    code, or a row given as 99 — INEGI's ampliado tabulado ``12_01A`` counts those not
+    specified, to the person nationally; 6q); blank when both are blank (not asked). Any
+    other code becomes -99, which no category takes."""
     out = code.replace({88: 96}).mask(code.isna() & number.notna(), 1)
+    out = out.mask(code.isna() & number.eq(99), 99)
     return out.where(code.isna() | code.isin([88, 99]), -99)
 
 
