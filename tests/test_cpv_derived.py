@@ -124,16 +124,17 @@ _OWN_CODES = {
     ("1990", "RELIGION"): {0, 1, 2, 3, 4, 5, 9},
     ("1990", "C_A_ECO"): set(),                # 6o: CMAP (catalog CATACTEC), 00000 not asked
     # Conteo 1995: ever attended, level, grades, technical career and its requisite; the
-    # 2-digit birthplace and 1990 residence (its catalog of entities and countries, a PDF)
+    # 2-digit birthplace and 1990 residence (its catalog of entities and countries, a PDF
+    # read since 6u: 32 states, 33–38 continents, 70 Mexico, 90/99 unspecified)
     ("1995", "P5_3"): {5, 6, 9}, ("1995", "P5_4B"): {*range(8), 9}, ("1995", "P5_4A"): set(),
     ("1995", "P5_5"): {1, 2, 9}, ("1995", "P5_7"): {0, 1, 2, 3, 9},
-    ("1995", "ENT_PAIS_NAC"): set(), ("1995", "ENT_PAIS_RES_5A"): set(),
+    **{("1995", item): {*range(1, 39), 70, 90, 99}
+       for item in ("ENT_PAIS_NAC", "ENT_PAIS_RES_5A")},
 }
 # Own-code text items without a catalog in their edition's FD (the code layout is stated in
 # its notes, quoted above).
 _NO_CATALOG = {("2000", "INGTRMEN"), ("2000", "HORTRA"), ("2000", "ENT_PAIS_NAC"),
-               ("2000", "ENT_PAIS_RES_5A"), ("2000", "INGTRHOG"), ("1990", "INGTRMEN"),
-               ("1995", "ENT_PAIS_NAC"), ("1995", "ENT_PAIS_RES_5A")}
+               ("2000", "ENT_PAIS_RES_5A"), ("2000", "INGTRHOG"), ("1990", "INGTRMEN")}
 _LATER_OPTIONS = {*d._ESC[1:], *d._TRAB[1:]}      # list fewer codes (options are ordered)
 # Numeric in 2010/2015, categorical in 2020 (same values; the pointers: row numbers).
 _NUMERIC_CODES = {"ESCOLARI", "IDENT_MADRE", "IDENT_PADRE", "IDENT_PAREJA"}
@@ -158,16 +159,11 @@ def test_source_codes_match_2020(table, period, source):
                 if a in labels and a.upper() in columns)
     new = labels[name]
     if source == "PARENTESCO":                # 6t: own codes; the head's are documented
-        tipo, codes = _codes(new)
-        heads = set(d._HEAD_CODES[period])
+        tipo, codes = _codes(new)             # (6u: 1995 from its catalog PDF, 2000 from
+        heads = set(d._HEAD_CODES[period])    # its FD's code groups)
         labelled = {int(k): v for k, v in (new.get("Categorías") or {}).items()}
-        if period == "1995":                  # «Ver catálogo de parentesco» (its PDF): 1 jefe
-            assert tipo == "string" and not labelled
-        elif period == "2000":                # the catalog's group codes, unlabelled
-            assert heads <= codes and labelled[100] == "100"
-        else:
-            assert heads <= codes
-            assert all(("Jef" in labelled[h]) or labelled[h] == "Persona sola" for h in heads)
+        assert tipo == "categorical" and heads <= codes
+        assert all(("Jef" in labelled[h]) or labelled[h] == "Persona sola" for h in heads)
         return
     key = (table, period, source) if (table, period, source) in _OWN_CODES else (period, source)
     if key in _OWN_CODES:

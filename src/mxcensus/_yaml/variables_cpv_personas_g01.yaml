@@ -284,11 +284,126 @@ TIP_HOGAR:
   Nota: 'códigos observados sin etiqueta en el FD: [''6'']'
 CVE_PAR:
   Descripción: CLAVE DE PARENTESCO
-  Tipo: string
+  Tipo: categorical
   Longitud: '3'
-  Categorías: {}
+  Categorías:
+    '100': JEFE O JEFA
+    '101': JEFE O JEFA
+    '102': JEFE O JEFA
+    '103': JEFE O JEFA
+    '104': JEFE O JEFA
+    '105': JEFE O JEFA
+    '106': JEFE O JEFA
+    '108': JEFE O JEFA
+    '109': JEFE O JEFA
+    '111': JEFE O JEFA
+    '112': JEFE O JEFA
+    '113': JEFE O JEFA
+    '114': JEFE O JEFA
+    '115': JEFE O JEFA
+    '116': JEFE O JEFA
+    '117': JEFE O JEFA
+    '120': JEFE O JEFA
+    '121': JEFE O JEFA
+    '123': JEFE O JEFA
+    '199': JEFE O JEFA
+    '200': ESPOSA(O) O COMPAÑERA(O)
+    '201': ESPOSA(O)
+    '202': COMPAÑERA(O)
+    '203': CONCUBINA(O)
+    '204': MARIDO
+    '300': HIJO(A)
+    '301': HIJO(A)
+    '302': HIJASTRO(A), ENTENADO(A)
+    '303': ADOPTADO(A)
+    '304': RECOGIDO(A)
+    '400': SIRVIENTA(E)
+    '401': SIRVIENTA(E), CRIADO(A), EMPLEADO(A) DOMÉSTICO(A), TRABAJADOR(A) DOMÉSTICO(A)
+    '402': RECAMARERA(O)
+    '403': COCINERO(A)
+    '404': LAVANDERA(O)
+    '405': NIÑERA(O)
+    '406': MOZO
+    '407': JARDINERO
+    '408': VIGILANTE, VELADOR
+    '409': PORTERO(A)
+    '410': CHOFER
+    '411': AMA DE LLAVES
+    '412': MAYORDOMO
+    '500': NO TIENE PARENTESCO
+    '501': NO TIENE PARENTESCO
+    '502': AMIGO(A)
+    '503': NINGUNO
+    '601': PADRE, PAPA, MADRE, MAMA
+    '602': PADRASTRO, MADRASTRA
+    '603': HERMANO(A)
+    '604': MEDIO(A) HERMANO(A), HERMANASTRO(A)
+    '605': ABUELO(A), ABUELITO(A)
+    '606': BISABUELO(A)
+    '607': TATARABUELO(A)
+    '608': NIETO(A)
+    '609': BISNIETO(A)
+    '610': TATARANIETO(A)
+    '611': TIO(A)
+    '612': SOBRINO(A)
+    '613': PRIMO(A)
+    '614': SUEGRO(A)
+    '615': NUERA, YERNO
+    '616': CUÑADO(A)
+    '617': CONCUÑO(A)
+    '618': TUTOR(A)
+    '619': TUTELADO(A)
+    '620': PADRINO, MADRINA
+    '621': AHIJADO(A)
+    '622': COMPADRE, COMADRE
+    '623': FAMILIAR, PARIENTE, OTRO PARENTESCO
+    '700': PERSONA SOLA
+    '701': PERSONA SOLA, SOLO(A)
+    '702': HUESPED
+    '703': ABONADO(A)
+    '705': PERSONA SOLA
+    '708': PERSONA SOLA
+    '711': PERSONA SOLA
+    '712': PERSONA SOLA
+    '713': PERSONA SOLA
+    '714': PERSONA SOLA
+    '715': PERSONA SOLA
+    '716': PERSONA SOLA
+    '721': PERSONA SOLA
+    '723': PERSONA SOLA
+    '799': PERSONA SOLA
+  Especiales:
+    '900': NO ESPECIFICADO
+    '901': NO ESPECIFICADO
+    '902': NO ESPECIFICADO
+    '903': NO ESPECIFICADO
+    '904': NO ESPECIFICADO
+    '905': NO ESPECIFICADO
+    '906': NO ESPECIFICADO
+    '908': NO ESPECIFICADO
+    '909': NO ESPECIFICADO
+    '911': NO ESPECIFICADO
+    '912': NO ESPECIFICADO
+    '913': NO ESPECIFICADO
+    '914': NO ESPECIFICADO
+    '915': NO ESPECIFICADO
+    '916': NO ESPECIFICADO
+    '917': NO ESPECIFICADO
+    '918': NO ESPECIFICADO
+    '920': NO ESPECIFICADO
+    '921': NO ESPECIFICADO
+    '922': NO ESPECIFICADO
+    '923': NO ESPECIFICADO
+    '999': NO ESPECIFICADO
   Catálogo: CATPAREN
-  Nota: catálogo de 59 códigos (no enumerado)
+  Nota: 'grupos de claves del FD: 100..199 = JEFE O JEFA; 200..299 = ESPOSA(O) O COMPAÑERA(O); 300..399
+    = HIJO(A); 400..499 = SIRVIENTA(E); 500..599 = NO TIENE PARENTESCO; 600..699 = OTRO PARENTESCO; 700..799
+    = PERSONA SOLA; 900..999 = NO ESPECIFICADO; claves con la etiqueta de su grupo: [''100'', ''102'',
+    ''103'', ''104'', ''105'', ''106'', ''108'', ''109'', ''111'', ''112'', ''113'', ''114'', ''115'',
+    ''116'', ''117'', ''120'', ''121'', ''123'', ''199'', ''200'', ''300'', ''400'', ''500'', ''700'',
+    ''705'', ''708'', ''711'', ''712'', ''713'', ''714'', ''715'', ''716'', ''721'', ''723'', ''799'',
+    ''900'', ''901'', ''902'', ''903'', ''904'', ''905'', ''906'', ''908'', ''909'', ''911'', ''912'',
+    ''913'', ''914'', ''915'', ''916'', ''917'', ''918'', ''920'', ''921'', ''922'', ''923'']'
 SEXO:
   Descripción: Sexo (códigos 1 y 3 en 2010, 2015, 2020 y 2025; 1990, 2000 y 2005 escriben a la mujer con
     2 — Recodificar; harmonize=True lo lleva a 3; en 1995 es P3_5)

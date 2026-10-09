@@ -3114,10 +3114,11 @@ def test_parse_fd_1990_text(tmp_path):
     (tmp_path / "cat.xls").write_bytes(_xls({
         "CATENT": [["01", "AGUASCALIENTES"], ["02", "BAJA CALIFORNIA"]],
         "CATPAREN": [["1", "JEFE O JEFA"], ["101", "JEFE O JEFA"], ["301", "HIJO(A)"],
-                     ["301", "HIJASTRO(A)"]],                       # synonyms: first wins
+                     ["301", "HIJASTRO(A)"], ["301", "HIJO(A)"]],   # synonyms: joined (6u)
         "CATMUN00": [["C_EDO", "C_MPIO", "C_LEY"], ["1", "1", "AGUASCALIENTES"]]}))
     cats = _fd.read_catalogs(tmp_path / "cat.xls")
-    assert cats["CATPAREN"] == {"1": "JEFE O JEFA", "101": "JEFE O JEFA", "301": "HIJO(A)"}
+    assert cats["CATPAREN"] == {"1": "JEFE O JEFA", "101": "JEFE O JEFA",
+                                "301": "HIJO(A), HIJASTRO(A)"}
     assert "CATMUN00" not in cats
     doc = _fd.parse_fd_1990_text(_FD_1990_TEXT, cats)["personas"]
     assert list(doc) == ["TAM_LOC", "FOLIO_VIV", "ENT", "TAM_DUERME", "CVE_PAR", "SEXO",
@@ -3194,6 +3195,151 @@ def test_parse_fd_1995_text():
     assert p["P4_4A"]["Descripción"] == "TIEMPO RESIDENCIA ANTERIOR — MESES"
 
 
+# The Conteo 1995 catalogs (catalogos_cpv1995.pdf as pdftotext -layout lays it out, 6u).
+_CATALOGS_1995_TEXT = """CONTEO DE POBLACIÓN Y VIVIENDA 1995
+
+Para efectuar la codificación de las respuestas a las preguntas abiertas contenidas en el
+utilizados en el XI Censo General de Población y Vivienda, 1990; por lo que se sugiere
+
+CATÁLOGO DE PARENTESCO
+
+Este catálogo está constituido por ocho grupos y ochenta descripciones, las cuales son
+parentescos que conforman cada grupo.
+
+CLAVE DESCRIPCIÓN
+1     Jefe o Jefa
+
+2      Esposa (o) o Compañera (o)
+
+       Comprende concubina, cónyuge, consorte, etcétera.
+
+9      No especificado
+
+\fCATALOGO DE ENTIDADES FEDERATIVAS Y PAISES
+
+ENTIDADES FEDERATIVAS
+
+CLAVE DESCRIPCIÓN
+01    AGUASCALIENTES
+32    ZACATECAS
+
+CLAVES PARA CONTINENTE O PAIS
+
+34    AMERICA (Excepto Estados Unidos de América)
+99    No especificado, blancos, respuestas no referidas al tema
+CATALOGO DE MUNICIPIOS
+
+CLAVE DESCRIPCION
+01    AGUASCALIENTES
+
+001    AGUASCALIENTES
+CATALOGO DE AREAS METROPOLITANAS
+
+1     A.M. DE ZACATECAS            017   GUADALUPE                 0001   GUADALUPE
+
+CATALOGO DE OCUPACION
+
+CLAVE DESCRIPCION
+11    Profesionistas.
+51    Jefes, supervisores y otros trabajadores de control en la fabricación artesanal e
+      industrial.
+
+CATALOGO DE ACTIVIDAD ECONOMICA
+
+CLAVE DESCRIPCION
+31 y 32 Industrias manufactureras.
+99      Insuficientemente especificado.
+"""
+
+_FD_1995_SEE_TEXT = """ARCHIVO: DATOS GENERALES PARA EXPLOTACION (DATGEN95.DBF)
+
+ENTIDAD FEDERATIVA                 ENT                 {01..32}                   2       1         2
+
+                                             Ver catálogo de entidades y países
+
+MUNICIPIO O DELEGACION             MUN                 {001..570}                 3       7         9
+
+                                             Ver catálogo de municipios
+
+CLAVE DE PARENTESCO               P3_4                                          1          96         96
+
+                                           Ver catálogo de parentesco
+
+CLAVE DE LUGAR DE NACIMIENTO      P3_7B                                         2         100     101
+
+                                           Ver catálogo de entidades y países
+
+CLAVE DE ACTIVIDAD                P7_8                                         2        140     141
+                                           Ver catálogo de rama de actividad
+"""
+
+
+def test_parse_catalogs_1995_text():
+    """6u: the Conteo 1995 catalog PDF's flat sections (relationship groups, states and
+    countries, occupation and activity groups); its per-state municipal and metropolitan
+    catalogs are left out, and so are the groups' «Comprende…» definitions."""
+    cats = _fd.parse_catalogs_1995_text(_CATALOGS_1995_TEXT)
+    assert list(cats) == ["PARENTESCO", "ENTIDADES_FEDERATIVAS_Y_PAISES", "OCUPACION",
+                          "ACTIVIDAD_ECONOMICA"]
+    assert cats["PARENTESCO"] == {"1": "Jefe o Jefa", "2": "Esposa (o) o Compañera (o)",
+                                  "9": "No especificado"}
+    assert cats["ENTIDADES_FEDERATIVAS_Y_PAISES"] == {
+        "01": "AGUASCALIENTES", "32": "ZACATECAS",
+        "34": "AMERICA (Excepto Estados Unidos de América)",
+        "99": "No especificado, blancos, respuestas no referidas al tema"}
+    assert cats["OCUPACION"] == {"11": "Profesionistas", "51": "Jefes, supervisores y otros "
+                                 "trabajadores de control en la fabricación artesanal e industrial"}
+    assert cats["ACTIVIDAD_ECONOMICA"] == {"31": "Industrias manufactureras",
+                                           "32": "Industrias manufactureras",
+                                           "99": "Insuficientemente especificado"}
+    # the FD's «Ver catálogo de X» under a field without codes takes the whole section
+    doc = _fd.parse_fd_1995_text(_FD_1995_SEE_TEXT, cats)["datgen95"]
+    assert doc["P3_4"]["Catálogo"] == "PARENTESCO"
+    assert doc["P3_4"]["Categorías"] == cats["PARENTESCO"]
+    assert doc["P3_7B"]["Catálogo"] == "ENTIDADES_FEDERATIVAS_Y_PAISES"
+    assert doc["P7_8"]["Catálogo"] == "ACTIVIDAD_ECONOMICA"        # «rama de actividad»
+    assert "Catálogo" not in doc["ENT"]          # the FD's own range {01..32}: unchanged
+    assert set(doc["ENT"]["Categorías"]) == {f"{i:02d}" for i in range(1, 33)}
+    assert "Catálogo" not in doc["MUN"] and "municipios" not in doc["MUN"].get("Nota", "")
+    assert "Catálogo" not in _fd.parse_fd_1995_text(_FD_1995_SEE_TEXT)["datgen95"]["P3_4"]
+
+
+def test_label_code_groups(tmp_path, monkeypatch):
+    """6u: an item whose FD documents groups of codes: every observed code takes its own
+    dictionary label (not an identity one) or else its group's; «No especificado» is a
+    sentinel; a code outside the groups raises; core entries are left alone."""
+    pq_ = pytest.importorskip("pyarrow.parquet")
+    paths = [tmp_path / "a.parquet", tmp_path / "b.parquet"]
+    pq_.write_table(pa_.table({"PAR": ["100", "101", "300", None]}), paths[0])
+    pq_.write_table(pa_.table({"PAR": ["908", "601", " 100 "]}), paths[1])
+    groups = ((100, 199, "JEFE"), (300, 399, "HIJO"), (600, 699, "OTRO"),
+              (900, 999, "NO ESPECIFICADO"))
+    monkeypatch.setattr(_bcpv, "_CODE_GROUPS", {("1990", "PAR"): groups})
+    doc = {"PAR": {"Categorías": {"101": "JEFE O JEFA", "601": "PADRE, MADRE", "300": "300"}}}
+    entries = {"PAR": {"Descripción": "PARENTESCO", "Tipo": "string", "Longitud": "3",
+                       "Catálogo": "CATPAREN", "Nota": "catálogo de 3 códigos (no enumerado)"}}
+    _bcpv._label_code_groups(entries, paths, doc, ["1990"], skip=set())
+    e = entries["PAR"]
+    assert list(e) == ["Descripción", "Tipo", "Longitud", "Categorías", "Especiales",
+                       "Catálogo", "Nota"]
+    assert e["Tipo"] == "categorical"
+    assert e["Categorías"] == {"100": "JEFE", "101": "JEFE O JEFA", "300": "HIJO",
+                               "601": "PADRE, MADRE"}
+    assert e["Especiales"] == {"908": "NO ESPECIFICADO"}
+    assert e["Nota"].endswith("claves con la etiqueta de su grupo: ['100', '300', '908']")
+    assert e["Nota"].startswith("grupos de claves del FD: 100..199 = JEFE; 300..399 = HIJO")
+    core = {"PAR": {"Tipo": "string"}}
+    _bcpv._label_code_groups(core, paths, doc, ["1990"], skip={"PAR"})
+    assert core == {"PAR": {"Tipo": "string"}}
+    _bcpv._label_code_groups(core, paths, doc, ["2000"], skip=set())    # another edition
+    assert core == {"PAR": {"Tipo": "string"}}
+    with pytest.raises(ValueError, match="in a group of"):
+        _bcpv._label_code_groups({"PAR": {}}, paths, doc, ["1990", "2000"], skip=set())
+    monkeypatch.setattr(_bcpv, "_CODE_GROUPS", {("1990", "PAR"): groups[:2]})
+    with pytest.raises(ValueError, match="outside the FD's groups"):
+        _bcpv._label_code_groups({"PAR": {}}, paths, doc, ["1990"], skip=set())
+
+
 def test_reconcile_ranges(tmp_path):
     pq_ = pytest.importorskip("pyarrow.parquet")
     path = tmp_path / "x.parquet"
@@ -3244,6 +3390,44 @@ def test_dictionary_fixes_6l():
     assert len(blank) == 20 and {"NIV_EST", "ACT_PRIN", "RELIGION", "PISOS", "TENENCIA"} <= blank
     assert not any((m.get("Categorías") or {}).get("0") == "0" for m in v90.values())
     assert "sin etiqueta en el FD: ['0']" not in str(v90)
+
+
+def test_dictionary_fixes_6u():
+    """The generated dictionaries label the relationship items of 1990–2000: CGPV 1990's
+    CVE_PAR by CATPAREN where it has the code, else by the group of its first digit (the
+    group code G00 shares the catalog's G01 label); the Conteo 1995's P3_4/P9_15 by the
+    catalog PDF's eight groups and its place, occupation and activity items by their
+    sections; CGPV 2000's OTROPARE_C by the FD's seven groups."""
+    v90 = variables_cpv("personas", _gid("personas", "1990"))["CVE_PAR"]
+    assert v90["Tipo"] == "categorical" and v90["Catálogo"] == "CATPAREN"
+    cats, special = v90["Categorías"], v90["Especiales"]
+    assert cats["100"] == cats["101"] == cats["108"] == "JEFE O JEFA"
+    assert cats["300"] == cats["301"] == "HIJO(A)" and cats["302"] == "HIJASTRO(A), ENTENADO(A)"
+    assert cats["601"] == "PADRE, PAPA, MADRE, MAMA" and cats["608"] == "NIETO(A)"
+    assert cats["700"] == "PERSONA SOLA" and cats["702"] == "HUESPED"
+    assert set(special.values()) == {"NO ESPECIFICADO"} and {"900", "908", "999"} <= set(special)
+    assert len(cats) + len(special) == 107 and all(len(c) == 3 for c in [*cats, *special])
+    v95 = variables_cpv("personas", _gid("personas", "1995"))
+    m95 = variables_cpv("migrantes", _gid("migrantes", "1995"))
+    groups = {"1": "Jefe o Jefa", "2": "Esposa (o) o Compañera (o)", "3": "Hijo (a)",
+              "4": "Trabajadores domésticos", "5": "No tiene parentesco",
+              "6": "Otro parentesco", "7": "Persona sola", "9": "No especificado"}
+    for entry in (v95["P3_4"], m95["P9_15"]):
+        assert entry["Tipo"] == "categorical" and entry["Catálogo"] == "PARENTESCO"
+        assert {**entry["Categorías"], **(entry.get("Especiales") or {})} == groups
+    for entry in (v95["P3_7B"], v95["P4_3"], v95["P4_6A"], m95["P9_5"], m95["P9_7"],
+                  m95["P9_9"]):
+        labels = {**entry["Categorías"], **(entry.get("Especiales") or {})}
+        assert entry["Catálogo"] == "ENTIDADES_FEDERATIVAS_Y_PAISES" and len(labels) == 41
+        assert labels["09"] == "DISTRITO FEDERAL" and labels["35"] == "ESTADOS UNIDOS DE AMERICA"
+    assert v95["P7_4"]["Catálogo"] == "OCUPACION" and len(v95["P7_4"]["Categorías"]) == 19
+    assert v95["P7_8"]["Categorías"]["31"] == v95["P7_8"]["Categorías"]["32"]
+    v00 = variables_cpv("personas", _gid("personas", "2000"))["OTROPARE_C"]
+    labels = {**v00["Categorías"], **v00["Especiales"]}
+    assert len(labels) == 46 and v00["Especiales"] == {"999": "No especificado"}
+    assert labels["100"] == "Jefe(a)" and labels["440"] == "Trabajador(es) doméstico(s)"
+    assert {labels[c] for c in ("601", "608", "624")} == {"Otro parentesco"}
+    assert not any(c == lab for c, lab in labels.items())
 
 
 def test_folio_occurrence_and_1990_keys():

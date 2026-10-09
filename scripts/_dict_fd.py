@@ -451,11 +451,16 @@ def _catalog_from_rows(rows: list[list[str]], lead_keys: bool = False
         return None
     if lead_keys and rows[0] and rows[0][0].strip().isdigit():
         # CGPV 1990 catalogos_1990.xls: no header row, code | label; a code repeated for
-        # its synonyms (CATPAREN: 301 Hijo(a), 301 Hijastro(a)…) keeps its first label
+        # its synonyms (CATPAREN: 601 PADRE, 601 PAPA, 601 MADRE…) joins them (6u)
         table: dict[str, str] = {}
         for r in rows:
             if r and r[0].strip():
-                table.setdefault(r[0].strip(), next((c.strip() for c in r[1:] if c.strip()), ""))
+                code = r[0].strip()
+                label = next((c.strip() for c in r[1:] if c.strip()), "")
+                if code not in table:
+                    table[code] = label
+                elif label and label not in table[code].split(", "):
+                    table[code] = f"{table[code]}, {label}"
         return table
     header = [h.strip().upper() for h in rows[0]]
     body = [r for r in rows[1:] if r and any(x.strip() for x in r)]
@@ -1267,7 +1272,10 @@ def parse_fd_1995_text(text: str, catalogs: dict | None = None) -> dict[str, dic
     title above it (``TIEMPO RESIDENCIA ANTERIOR``), and a missing one repeats the previous
     variable's (``FACTORES DE EXPANSION``: ``FAC_POB``, ``FAC_VIV``, ``FAC_PROM``). Indented
     code rows (``1  Hombre``, ``01..25  Número…``, ``b  Por pase``) follow; deeper lines
-    continue a label. The variables go through :func:`_finish` as an FD without ``Tipo``.
+    continue a label. A field the FD gives no codes for but «Ver catálogo de parentesco»
+    takes every code of that section of ``catalogs`` (:func:`parse_catalogs_1995_text`,
+    matched by :func:`match_catalog`). The variables go through :func:`_finish` as an FD
+    without ``Tipo``.
     """
     out: dict[str, dict[str, dict]] = {}
     table = None
@@ -1323,8 +1331,60 @@ def parse_fd_1995_text(text: str, catalogs: dict | None = None) -> dict[str, dic
             raw, var["rows"] = var["rows"], []
             for code, label in raw:
                 _code_row(var, code, " ".join(label.split()))
+            see = _SEE_CATALOG_95_RE.match(_fold(var.get("note_ref", "")))
+            if see and not var["rows"] and not _header_codes(var["code"]):
+                ref = match_catalog(see.group(1), catalogs or {})
+                if ref:          # the section enumerates every code (as EIC 2015's TC_…)
+                    var["refs"].append((ref, "Descripción por catálogo"))
         result[stem] = {v: _finish(m, catalogs) for v, m in vars_.items()}
     return result
+
+
+# Conteo 1995: «Ver catálogo de parentesco» (folded) under a field without codes.
+_SEE_CATALOG_95_RE = re.compile(r"^ver catalogo de (.+)$")
+# The Conteo 1995 catalogs: a «CATÁLOGO DE …» title per section, then «CLAVE DESCRIPCIÓN»
+# rows at the margin («31 y 32 Industrias manufactureras.» = two codes).
+_CAT95_TITLE_RE = re.compile(r"^CAT[AÁ]LOGO DE (?P<name>\S.*?)\s*$")
+_CAT95_ROW_RE = re.compile(r"^(?P<code>\d{1,3}(?:\s+y\s+\d{1,3})?)\s+(?P<label>\D.*?)\s*$")
+# Its municipal catalog numbers the municipalities within each state, and its metropolitan
+# areas (ZONA 01..05) the sample's zones within each state: neither is one code list.
+_CAT95_SKIP = frozenset({"municipios", "areas metropolitanas"})
+
+
+def parse_catalogs_1995_text(text: str) -> dict[str, dict[str, str]]:
+    """The Conteo 1995 catalogs (``catalogos_cpv1995.pdf`` as :func:`pdf_text` lays it out)
+    → ``{stem: {code: label}}``, the shape of :func:`read_catalogs`.
+
+    The stem is the section title after «CATÁLOGO DE», its words joined by ``_``:
+    ``PARENTESCO`` (the eight groups — INEGI lists only them, and the data code nothing
+    finer), ``ENTIDADES_FEDERATIVAS_Y_PAISES`` (the 32 states, six continent codes and three
+    specials), ``OCUPACION`` (the CMO groups) and ``ACTIVIDAD_ECONOMICA`` (the CAE sectors).
+    A line indented right under a row continues its label; after a blank line it is the
+    group's definition («Comprende hijastro (a)…»), left out. Labels lose a final period.
+    """
+    out: dict[str, dict[str, str]] = {}
+    table: dict[str, str] | None = None
+    last: list[str] = []          # the codes of the row a wrapped line continues
+    for line in text.replace("\f", "\n").splitlines():
+        title = _CAT95_TITLE_RE.match(line)
+        if title:
+            name = _fold(title["name"])
+            table = (None if name in _CAT95_SKIP
+                     else out.setdefault("_".join(_words(name)).upper(), {}))
+            last = []
+        elif table is None:
+            continue
+        elif not line.strip():
+            last = []
+        elif m := _CAT95_ROW_RE.match(line):
+            last = re.split(r"\s+y\s+", m["code"])
+            for code in last:
+                table[code] = m["label"]
+        elif last and line[:1].isspace():
+            for code in last:
+                table[code] = f"{table[code]} {line.strip()}"
+    return {stem: {code: label.rstrip(".").strip() for code, label in rows.items()}
+            for stem, rows in out.items() if rows}
 
 
 # --------------------------------------------------------------------------------------

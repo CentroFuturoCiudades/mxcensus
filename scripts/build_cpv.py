@@ -604,8 +604,9 @@ _FD_RENAMES = {
 }
 
 # The editions whose FD is a PDF of text tables (read with poppler, _dict_fd.pdf_text), and
-# their parsers; the 1990 catalogs are a workbook, 1995's a PDF (not read).
+# their parsers; the 1990 catalogs are a workbook, 1995's a PDF of their own (6u).
 _FD_PDF_PARSERS = {"1990": "parse_fd_1990_text", "1995": "parse_fd_1995_text"}
+_CATALOG_PDF_PARSERS = {"1995": "parse_catalogs_1995_text"}
 
 # The member of a dictionary ZIP that holds the FD (CGPV 2000: the PDF annex next to
 # the sample design).
@@ -618,14 +619,18 @@ def _fd_docs(dict_dir: Path, period: str) -> dict:
     applied; ``{}`` when no FD was fetched. The FD is a workbook (``.xlsx``; the legacy
     ``.xls`` of 2005–2015), for CGPV 2000 a PDF inside a ZIP
     (:func:`_dict_fd.parse_fd_pdf`), for 1990/1995 a PDF of text tables
-    (:data:`_FD_PDF_PARSERS`). The catalogs are a ZIP or one ``.xls`` (2005, 1990)."""
+    (:data:`_FD_PDF_PARSERS`). The catalogs are a ZIP, one ``.xls`` (2005, 1990) or a PDF
+    (1995, :data:`_CATALOG_PDF_PARSERS`)."""
     rel = DICTIONARY_URLS.get(period, {})
     book = dict_dir / period / rel.get("fd", "").rsplit("/", 1)[-1]
     if not book.exists() or book.suffix.lower() not in (".xlsx", ".xls", ".zip", ".pdf"):
         return {}
     cat = dict_dir / period / rel.get("catalogos", "").rsplit("/", 1)[-1]
-    catalogs = (fd.read_catalogs(cat)
-                if cat.suffix.lower() in (".zip", ".xls") and cat.exists() else None)
+    catalogs = None
+    if cat.suffix.lower() in (".zip", ".xls") and cat.exists():
+        catalogs = fd.read_catalogs(cat)
+    elif cat.suffix.lower() == ".pdf" and cat.exists():
+        catalogs = getattr(fd, _CATALOG_PDF_PARSERS[period])(fd.pdf_text(cat))
     if book.suffix.lower() == ".pdf":
         docs = getattr(fd, _FD_PDF_PARSERS[period])(fd.pdf_text(book), catalogs)
     elif book.suffix.lower() == ".zip":
@@ -703,6 +708,7 @@ def _write_variables_yaml(out_dir: Path, map_path: Path, yaml_dir: Path,
                                                  entry_fn=fd.fd_entry)
             if set(g["periods"]) & _RANGES_FROM_DATA:
                 _reconcile_ranges(entries, paths, set(core_t))
+            _label_code_groups(entries, paths, doc, g["periods"], set(core_t))
             if set(g["periods"]) & _BLANK_ZERO:
                 _label_blank_zero(entries, set(core_t))
             counts = Counter(sources.values())
@@ -753,6 +759,73 @@ def _reconcile_ranges(entries: dict, paths: list[Path], skip: set[str]) -> None:
             notes.append(f"códigos observados sin etiqueta en el FD: {sentinels}")
         if notes:
             meta["Nota"] = "; ".join(([meta["Nota"]] if meta.get("Nota") else []) + notes)
+
+
+# Coded items whose dictionary documents groups of codes, not each code (6u): every observed
+# code is labelled by its own label in the edition's dictionary (catalog) where it has one,
+# else by its group's, so the entry is categorical (_label_code_groups). (period, column) →
+# the groups (first code, last code, label), transcribed from the FD:
+# - CGPV 2000 (fd_muestra_censal_2000.pdf, «Parentesco»: PARENT merged into OTROPARE_C; its
+#   701–703 huéspedes went to 501): no catalog, so every code takes its group's label;
+# - CGPV 1990 (fd_cgpv1990.pdf, «CATALOGO DE PARENTESCO (CATPAREN) PRIMER DIGITO IGUAL A»): the
+#   first digit, labelled as CATPAREN labels its one-digit group code, so the group code G00
+#   (1.5M heads: 100) shares its label with the catalog's G01 where they name the same.
+_CODE_GROUPS: dict[tuple[str, str], tuple[tuple[int, int, str], ...]] = {
+    ("2000", "OTROPARE_C"): ((100, 100, "Jefe(a)"), (200, 200, "Esposo(a)"),
+                             (300, 300, "Hijo(a)"), (401, 440, "Trabajador(es) doméstico(s)"),
+                             (501, 503, "No tiene parentesco"), (601, 624, "Otro parentesco"),
+                             (999, 999, "No especificado")),
+    ("1990", "CVE_PAR"): ((100, 199, "JEFE O JEFA"), (200, 299, "ESPOSA(O) O COMPAÑERA(O)"),
+                          (300, 399, "HIJO(A)"), (400, 499, "SIRVIENTA(E)"),
+                          (500, 599, "NO TIENE PARENTESCO"), (600, 699, "OTRO PARENTESCO"),
+                          (700, 799, "PERSONA SOLA"), (900, 999, "NO ESPECIFICADO")),
+}
+
+
+def _label_code_groups(entries: dict, paths: list[Path], doc: dict | None,
+                       periods: list[str], skip: set[str]) -> None:
+    """Label each :data:`_CODE_GROUPS` item of a schema group's editions: every code observed
+    in ``paths`` takes its own label in ``doc`` (the FD with its catalog applied; an identity
+    label does not count), else its group's; a «No especificado» label is a sentinel
+    (``Especiales``). The entry becomes categorical, and ``Nota`` lists the groups and the
+    codes labelled by theirs. A code outside every group raises. The core entries
+    (``skip``) are left alone."""
+    for (period, col), groups in _CODE_GROUPS.items():
+        if period not in periods or col not in entries or col in skip:
+            continue
+        if set(periods) != {period}:
+            raise ValueError(f"{col}: the code groups of {period} in a group of {periods}")
+        meta = (doc or {}).get(col) or {}
+        own = {c: lab for c, lab in {**(meta.get("Categorías") or {}),
+                                     **(meta.get("Especiales") or {})}.items() if lab != c}
+        observed: set[str] = set()
+        for path in paths:
+            arr = pq.read_table(path, columns=[col]).column(col)
+            observed |= {v.strip() for v in pc.unique(arr).to_pylist() if v and v.strip()}
+        labels, by_group = {}, []
+        for code in sorted(observed):
+            group = next((lab for lo, hi, lab in groups
+                          if code.isdigit() and lo <= int(code) <= hi), None)
+            if group is None:
+                raise ValueError(f"{period} {col}: code {code!r} outside the FD's groups")
+            labels[code] = own.get(code) or group
+            if code not in own:
+                by_group.append(code)
+        entry = entries[col]
+        entry["Tipo"] = "categorical"
+        entry["Categorías"] = {c: lab for c, lab in labels.items()
+                               if not fd._SENTINEL_RE.search(lab)}
+        special = {c: lab for c, lab in labels.items() if c not in entry["Categorías"]}
+        if special:
+            entry["Especiales"] = special
+        else:
+            entry.pop("Especiales", None)
+        spans = "; ".join(f"{lo}{'' if lo == hi else f'..{hi}'} = {lab}"
+                          for lo, hi, lab in groups)
+        entry["Nota"] = (f"grupos de claves del FD: {spans}; claves con la etiqueta de su "
+                         f"grupo: {by_group}")
+        entries[col] = {k: entry[k] for k in fd._ORDER if k in entry} | {
+            k: v for k, v in entry.items() if k not in fd._ORDER}
 
 
 # Editions that write 0 for «not asked» without labelling it (CGPV 1990: the schooling and

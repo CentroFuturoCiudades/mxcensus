@@ -544,8 +544,18 @@ P3_1:
     '40': '40'
 P3_4:
   Descripción: CLAVE DE PARENTESCO
-  Tipo: string
+  Tipo: categorical
   Longitud: '1'
+  Categorías:
+    '1': Jefe o Jefa
+    '2': Esposa (o) o Compañera (o)
+    '3': Hijo (a)
+    '4': Trabajadores domésticos
+    '5': No tiene parentesco
+    '6': Otro parentesco
+    '7': Persona sola
+    '9': No especificado
+  Catálogo: PARENTESCO
 P3_5:
   Descripción: SEXO
   Tipo: categorical
@@ -566,8 +576,51 @@ P3_6:
   Nota: 00 = Menos de un año; 98 = 98 años o más
 P3_7B:
   Descripción: CLAVE DE LUGAR DE NACIMIENTO
-  Tipo: string
+  Tipo: categorical
   Longitud: '2'
+  Categorías:
+    '01': AGUASCALIENTES
+    '02': BAJA CALIFORNIA
+    '03': BAJA CALIFORNIA SUR
+    '04': CAMPECHE
+    '05': COAHUILA
+    '06': COLIMA
+    '07': CHIAPAS
+    08: CHIHUAHUA
+    09: DISTRITO FEDERAL
+    '10': DURANGO
+    '11': GUANAJUATO
+    '12': GUERRERO
+    '13': HIDALGO
+    '14': JALISCO
+    '15': MEXICO
+    '16': MICHOACAN
+    '17': MORELOS
+    '18': NAYARIT
+    '19': NUEVO LEON
+    '20': OAXACA
+    '21': PUEBLA
+    '22': QUERETARO
+    '23': QUINTANA ROO
+    '24': SAN LUIS POTOSI
+    '25': SINALOA
+    '26': SONORA
+    '27': TABASCO
+    '28': TAMAULIPAS
+    '29': TLAXCALA
+    '30': VERACRUZ
+    '31': YUCATAN
+    '32': ZACATECAS
+    '33': AFRICA
+    '34': AMERICA (Excepto Estados Unidos de América)
+    '35': ESTADOS UNIDOS DE AMERICA
+    '36': ASIA
+    '37': EUROPA
+    '38': OCEANIA
+    '70': México (país)
+    '90': Insuficientemente especificado en otro país
+    '99': No especificado, blancos, respuestas no referidas al tema
+  Catálogo: ENTIDADES_FEDERATIVAS_Y_PAISES
 P3_8:
   Descripción: CONDICION DE RESIDENCIA
   Tipo: categorical
@@ -598,8 +651,51 @@ P4_2:
     '9': No especificado
 P4_3:
   Descripción: CLAVE DE RESIDENCIA ANTERIOR
-  Tipo: string
+  Tipo: categorical
   Longitud: '2'
+  Categorías:
+    '01': AGUASCALIENTES
+    '02': BAJA CALIFORNIA
+    '03': BAJA CALIFORNIA SUR
+    '04': CAMPECHE
+    '05': COAHUILA
+    '06': COLIMA
+    '07': CHIAPAS
+    08: CHIHUAHUA
+    09: DISTRITO FEDERAL
+    '10': DURANGO
+    '11': GUANAJUATO
+    '12': GUERRERO
+    '13': HIDALGO
+    '14': JALISCO
+    '15': MEXICO
+    '16': MICHOACAN
+    '17': MORELOS
+    '18': NAYARIT
+    '19': NUEVO LEON
+    '20': OAXACA
+    '21': PUEBLA
+    '22': QUERETARO
+    '23': QUINTANA ROO
+    '24': SAN LUIS POTOSI
+    '25': SINALOA
+    '26': SONORA
+    '27': TABASCO
+    '28': TAMAULIPAS
+    '29': TLAXCALA
+    '30': VERACRUZ
+    '31': YUCATAN
+    '32': ZACATECAS
+    '33': AFRICA
+    '34': AMERICA (Excepto Estados Unidos de América)
+    '35': ESTADOS UNIDOS DE AMERICA
+    '36': ASIA
+    '37': EUROPA
+    '38': OCEANIA
+    '70': México (país)
+    '90': Insuficientemente especificado en otro país
+    '99': No especificado, blancos, respuestas no referidas al tema
+  Catálogo: ENTIDADES_FEDERATIVAS_Y_PAISES
 P4_4A:
   Descripción: TIEMPO RESIDENCIA ANTERIOR — MESES
   Tipo: numeric
@@ -640,8 +736,51 @@ P4_5B:
   Categorías: {}
 P4_6A:
   Descripción: CLAVE DE ESTADO O PAIS
-  Tipo: string
+  Tipo: categorical
   Longitud: '2'
+  Categorías:
+    '01': AGUASCALIENTES
+    '02': BAJA CALIFORNIA
+    '03': BAJA CALIFORNIA SUR
+    '04': CAMPECHE
+    '05': COAHUILA
+    '06': COLIMA
+    '07': CHIAPAS
+    08: CHIHUAHUA
+    09: DISTRITO FEDERAL
+    '10': DURANGO
+    '11': GUANAJUATO
+    '12': GUERRERO
+    '13': HIDALGO
+    '14': JALISCO
+    '15': MEXICO
+    '16': MICHOACAN
+    '17': MORELOS
+    '18': NAYARIT
+    '19': NUEVO LEON
+    '20': OAXACA
+    '21': PUEBLA
+    '22': QUERETARO
+    '23': QUINTANA ROO
+    '24': SAN LUIS POTOSI
+    '25': SINALOA
+    '26': SONORA
+    '27': TABASCO
+    '28': TAMAULIPAS
+    '29': TLAXCALA
+    '30': VERACRUZ
+    '31': YUCATAN
+    '32': ZACATECAS
+    '33': AFRICA
+    '34': AMERICA (Excepto Estados Unidos de América)
+    '35': ESTADOS UNIDOS DE AMERICA
+    '36': ASIA
+    '37': EUROPA
+    '38': OCEANIA
+    '70': México (país)
+    '90': Insuficientemente especificado en otro país
+    '99': No especificado, blancos, respuestas no referidas al tema
+  Catálogo: ENTIDADES_FEDERATIVAS_Y_PAISES
 P4_6C:
   Descripción: CLAVE DE MUNICIPIO O DELEGACION
   Tipo: string
@@ -788,8 +927,33 @@ P7_1:
     '9': No especificado
 P7_4:
   Descripción: CLAVE DE OCUPACION
-  Tipo: string
+  Tipo: categorical
   Longitud: '2'
+  Categorías:
+    '11': Profesionistas
+    '12': Técnicos
+    '13': Trabajadores de la educación
+    '14': Trabajadores del arte, espectáculos y deportes
+    '21': Funcionarios y directivos de los sectores público, privado y social
+    '41': Trabajadores en actividades agrícolas, ganaderas, silvícolas, y de caza y pesca
+    '51': Jefes, supervisores y otros trabajadores de control en la fabricación artesanal e industrial
+      y en actividades de reparación y mantenimiento
+    '52': Artesanos y trabajadores fabriles en la industria de la transformación y trabajadores en actividades
+      de reparación y mantenimiento
+    '53': Operadores de maquinaria fija de movimiento continuo y equipos en el proceso de producción industrial
+    '54': Ayudantes, peones y similares en el proceso de fabricación artesanal e industrial y en actividades
+      de reparación y mantenimiento
+    '55': Conductores y ayudantes de conductores de maquinaria móvil y medios de transporte
+    '61': Jefes de departamento, coordinadores y supervisores en actividades administrativas y de servicios
+    '62': Trabajadores de apoyo en actividades administrativas
+    '71': Comerciantes, empleados de comercio y agentes de ventas
+    '72': Vendedores ambulantes y trabajadores ambulantes en servicios
+    '81': Trabajadores en servicios personales en establecimientos
+    '82': Trabajadores en servicios domésticos
+    '83': Trabajadores en servicios de protección y vigilancia, y fuerzas armadas
+    '99': Otros trabajadores con ocupaciones no clasificadas anteriormente, insuficientemente especificadas
+      y no especificadas
+  Catálogo: OCUPACION
 P7_5:
   Descripción: SITUACION EN EL TRABAJO
   Tipo: categorical
@@ -815,8 +979,27 @@ P7_6:
   Nota: '98 = 98 horas o más; valores observados bajo el rango del FD: [''00'']'
 P7_8:
   Descripción: CLAVE DE ACTIVIDAD
-  Tipo: string
+  Tipo: categorical
   Longitud: '2'
+  Categorías:
+    '10': Agricultura, ganadería, caza, silvicultura, pesca y servicios relacionados
+    '20': Minería, extracción de petróleo y servicios relacionados
+    '31': Industrias manufactureras
+    '32': Industrias manufactureras
+    '41': Electricidad y agua
+    '42': Construcción y servicios relacionados
+    '50': Comercio y servicios relacionados
+    '60': Transporte, servicios relacionados y comunicaciones
+    '70': Servicios financieros
+    '81': Servicios de administración pública y seguridad social
+    '82': Servicios educativos y de asistencia social
+    '83': Servicios culturales, de esparcimiento, recreativos y deportivos
+    '84': Servicios de restaurantes y hoteles
+    '85': Servicios especializados, asociaciones civiles y religiosas; y servicios de alquiler de bienes
+      muebles e inmuebles
+    '86': Servicios de reparación y mantenimiento, servicios domésticos y diversos
+    '99': Insuficientemente especificado
+  Catálogo: ACTIVIDAD_ECONOMICA
 P7_9A:
   Descripción: INGRESOS POR TRABAJO
   Tipo: string

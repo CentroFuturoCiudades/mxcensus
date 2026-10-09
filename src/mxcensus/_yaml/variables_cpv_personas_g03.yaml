@@ -92,52 +92,60 @@ OTROPARE_C:
   Tipo: categorical
   Longitud: '3'
   Categorías:
-    '100': '100'
-    '200': '200'
-    '300': '300'
-    '401': '401'
-    '402': '402'
-    '403': '403'
-    '404': '404'
-    '405': '405'
-    '406': '406'
-    '407': '407'
-    '408': '408'
-    '409': '409'
-    '410': '410'
-    '411': '411'
-    '412': '412'
-    '420': '420'
-    '430': '430'
-    '440': '440'
-    '501': '501'
-    '502': '502'
-    '503': '503'
-    '601': '601'
-    '602': '602'
-    '603': '603'
-    '604': '604'
-    '605': '605'
-    '606': '606'
-    '607': '607'
-    '608': '608'
-    '609': '609'
-    '610': '610'
-    '611': '611'
-    '612': '612'
-    '613': '613'
-    '614': '614'
-    '615': '615'
-    '616': '616'
-    '617': '617'
-    '618': '618'
-    '619': '619'
-    '620': '620'
-    '621': '621'
-    '622': '622'
-    '623': '623'
-    '624': '624'
-    '999': '999'
+    '100': Jefe(a)
+    '200': Esposo(a)
+    '300': Hijo(a)
+    '401': Trabajador(es) doméstico(s)
+    '402': Trabajador(es) doméstico(s)
+    '403': Trabajador(es) doméstico(s)
+    '404': Trabajador(es) doméstico(s)
+    '405': Trabajador(es) doméstico(s)
+    '406': Trabajador(es) doméstico(s)
+    '407': Trabajador(es) doméstico(s)
+    '408': Trabajador(es) doméstico(s)
+    '409': Trabajador(es) doméstico(s)
+    '410': Trabajador(es) doméstico(s)
+    '411': Trabajador(es) doméstico(s)
+    '412': Trabajador(es) doméstico(s)
+    '420': Trabajador(es) doméstico(s)
+    '430': Trabajador(es) doméstico(s)
+    '440': Trabajador(es) doméstico(s)
+    '501': No tiene parentesco
+    '502': No tiene parentesco
+    '503': No tiene parentesco
+    '601': Otro parentesco
+    '602': Otro parentesco
+    '603': Otro parentesco
+    '604': Otro parentesco
+    '605': Otro parentesco
+    '606': Otro parentesco
+    '607': Otro parentesco
+    '608': Otro parentesco
+    '609': Otro parentesco
+    '610': Otro parentesco
+    '611': Otro parentesco
+    '612': Otro parentesco
+    '613': Otro parentesco
+    '614': Otro parentesco
+    '615': Otro parentesco
+    '616': Otro parentesco
+    '617': Otro parentesco
+    '618': Otro parentesco
+    '619': Otro parentesco
+    '620': Otro parentesco
+    '621': Otro parentesco
+    '622': Otro parentesco
+    '623': Otro parentesco
+    '624': Otro parentesco
+  Especiales:
+    '999': No especificado
+  Nota: 'grupos de claves del FD: 100 = Jefe(a); 200 = Esposo(a); 300 = Hijo(a); 401..440 = Trabajador(es)
+    doméstico(s); 501..503 = No tiene parentesco; 601..624 = Otro parentesco; 999 = No especificado; claves
+    con la etiqueta de su grupo: [''100'', ''200'', ''300'', ''401'', ''402'', ''403'', ''404'', ''405'',
+    ''406'', ''407'', ''408'', ''409'', ''410'', ''411'', ''412'', ''420'', ''430'', ''440'', ''501'',
+    ''502'', ''503'', ''601'', ''602'', ''603'', ''604'', ''605'', ''606'', ''607'', ''608'', ''609'',
+    ''610'', ''611'', ''612'', ''613'', ''614'', ''615'', ''616'', ''617'', ''618'', ''619'', ''620'',
+    ''621'', ''622'', ''623'', ''624'', ''999'']'
 SEXO:
   Descripción: Sexo (códigos 1 y 3 en 2010, 2015, 2020 y 2025; 1990, 2000 y 2005 escriben a la mujer con
     2 — Recodificar; harmonize=True lo lleva a 3; en 1995 es P3_5)
