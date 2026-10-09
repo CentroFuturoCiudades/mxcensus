@@ -91,7 +91,22 @@ from mxcensus.data._cpv_catalog import (
 _WEIGHTS = {"FACTOR", "FAC_POB", "FAC_VIV", "FAC_PROM"}   # Conteo 1995: three estimators
 # The Conteo 1995's estimator for each table's unit, copied to ``FACTOR`` by
 # ``harmonize=True`` (FAC_PROM, for health coverage and disability, has no FACTOR copy).
-_FACTOR_FROM = {"personas": "FAC_POB", "migrantes": "FAC_VIV"}
+_FACTOR_FROM = {"personas": "FAC_POB", "migrantes": "FAC_VIV", "viviendas": "FAC_VIV"}
+
+# CGPV 1990 and the Conteo 1995 publish one person file each, with the dwelling's items on
+# every person (1995: the household's too). Their dwelling frame (load_cpv_viviendas) is
+# built from it: one row per ID_VIV, these columns of its first person (constant within a
+# dwelling, but for one 1990 dwelling: STEP_5b.md). The Conteo's dwellings are weighted by
+# FAC_VIV; 1990's 10% extract is unweighted.
+_DWELLINGS_FROM_PERSONS: dict[str, tuple[str, ...]] = {
+    "1990": ("TAM_LOC", "FOLIO_VIV", "ENT", "MUN", "T_VIV", "PAREDES", "TECHOS", "PISOS",
+             "P_DORMIR", "T_CUARTOS", "CUA_EXCLU", "TAM_DUERME", "TIE_EXCU", "CON_AGUA",
+             "AGUA_ENTU", "DRENAJE", "ELECTRI", "COMBUS", "TENENCIA", "NUM_PERS", "F_G_COC",
+             "N_F_GPOS"),
+    "1995": ("ENT", "ZONA", "ESTRATO", "TAM_LOC", "MUN", "UPM", "VIV", "FAC_VIV", "P1_1",
+             "P1_2", "P1_3", "P1_4", "P1_5", "P1_6", "P1_7", "P1_8", "P1_9", "P1_10", "P1_11",
+             "P1_13", "P1_16", "P1_17", "P1_18", "P2_2", "P2_3"),
+}
 
 # Keys and geographic codes: digit strings (their width is edition-specific, so only the
 # all-digits shape is checked here; key widths are checked by the data tests). CPV 2020
@@ -764,32 +779,66 @@ def _index_level(df: pd.DataFrame, spec: list[tuple[str, ...]]) -> pd.DataFrame:
     return _sg.index_level("CPV", df, spec)
 
 
+def _level_edition(table: str, period: str | int | None) -> CpvEdition:
+    """:func:`_edition`, also for the dwelling frames built from a person file (CGPV 1990,
+    Conteo 1995: :data:`_DWELLINGS_FROM_PERSONS`)."""
+    if table == "viviendas" and period is not None and str(period) in _DWELLINGS_FROM_PERSONS:
+        return get_edition(period)
+    return _edition(table, period)
+
+
+def _dwellings_from_persons(period: str, state, harmonize: bool
+                            ) -> tuple[pd.DataFrame, list[str], str]:
+    """CGPV 1990's or the Conteo 1995's dwelling frame: the raw person file(s) with their
+    composite keys, one row per ``ID_VIV`` (its first person's
+    :data:`_DWELLINGS_FROM_PERSONS` columns); ``harmonize=True`` then harmonizes it as a
+    ``viviendas`` frame (``FACTOR`` = ``FAC_VIV``). Returns ``(frame, the person file's
+    gids, label)``."""
+    persons, gids, label = _load_cpv_raw(table="personas", period=period, state=state)
+    persons = _composite_keys(persons, "personas")
+    first = ~persons["ID_VIV"].duplicated()
+    df = persons.loc[first, ["ID_VIV", *_DWELLINGS_FROM_PERSONS[period]]].reset_index(drop=True)
+    label = f"viviendas from {label}"
+    if harmonize:
+        periods = tuple(dict.fromkeys(p for g in gids for p in _group_periods("personas", g)))
+        df = _harmonize(df, "viviendas", label, periods)
+        _validate(_latest_schema("viviendas", periods), df, f"{label} harmonized")
+    return df, gids, label
+
+
 def _load_level(table: str, period, state, harmonize: bool, labels: bool,
                 derived: bool = False) -> pd.DataFrame:
     """Raw ``table`` → derived columns (``derived``, from the raw codes), numeric
-    ``FACTOR``, labelled (``labels``), indexed by its level key."""
+    ``FACTOR``, labelled (``labels``), indexed by its level key. CGPV 1990's and the
+    Conteo 1995's dwellings come from their person files (:func:`_dwellings_from_persons`)."""
     states = _states(state)
+    edition = _level_edition(table, period)
     if not harmonize and states and len(states) > 1 and table not in NATIONAL_TABLES \
-            and _edition(table, period).period in _STATE_SCOPED_KEYS:
-        raise ValueError(f"CPV {table} {_edition(table, period).label}: the record keys are "
+            and edition.period in _STATE_SCOPED_KEYS:
+        raise ValueError(f"CPV {table} {edition.label}: the record keys are "
                          f"unique within a state only, so states {states} cannot share one "
                          f"index; load them one at a time or pass harmonize=True (national "
                          f"keys).")
-    df, gids, label = _load_cpv_raw(table=table, period=period, state=state,
-                                    harmonize=harmonize)
-    if not harmonize:                       # harmonize=True derived them already
-        df = _composite_keys(df, table)
+    source = table
+    if table == "viviendas" and not edition.has(table):
+        df, gids, label = _dwellings_from_persons(edition.period, state, harmonize)
+        source = "personas"                 # labelled by the person file's dictionary
+    else:
+        df, gids, label = _load_cpv_raw(table=table, period=period, state=state,
+                                        harmonize=harmonize)
+        if not harmonize:                   # harmonize=True derived them already
+            df = _composite_keys(df, table)
     if derived:
-        df = _derived.derive(df, table, _edition(table, period).period)
+        df = _derived.derive(df, table, edition.period)
     spec = _KEY_SPEC[table]
     if labels:
-        out = _finish_labelled(df, _labels_for(table, gids), label, spec)
+        out = _finish_labelled(df, _labels_for(source, gids), label, spec)
     else:
         for col in _WEIGHTS & set(df.columns):
             df[col] = pd.to_numeric(df[col], errors="coerce")
         out = _index_level(df, spec)
     if derived:
-        schema = _derived.derived_schema(table, _edition(table, period).period)
+        schema = _derived.derived_schema(table, edition.period)
         out = _sg.validate_raise("CPV", schema, out, f"{label} derived")
     return out
 
@@ -807,11 +856,14 @@ def load_cpv_viviendas(
     returns labelled ``Categorical``/numeric columns validated strictly (see
     :func:`load_cpv`); keys and geographic codes stay raw strings.
 
-    Two older editions differ. CGPV 2000's dwelling file has **one row per household**
+    Older editions differ. CGPV 2000's dwelling file has **one row per household**
     (the dwelling's items repeat in each), indexed ``(ID_VIV, ID_HOG)``: count dwellings
     on ``ID_HOG``'s first household (``NUMHOG == "1"``). The Conteo 2005 sample has no
     ``FACTOR``. Both have no key column; the keys are derived from the composite parts
-    (:func:`_composite_keys`).
+    (:func:`_composite_keys`). CGPV 1990 and the Conteo 1995 publish no dwelling file: their
+    frame is built from the person file, one row per dwelling with its first person's
+    dwelling items (:data:`_DWELLINGS_FROM_PERSONS`); 1990's is unweighted (a 10% extract),
+    1995's carries ``FAC_VIV`` (``harmonize=True``: ``FACTOR`` = ``FAC_VIV``).
 
     ``derived=True`` adds the legacy ``load_extended_viviendas`` columns the edition
     supports (``CLAVIVP_CAT``, ``CUADORM_CAT``, ``INGTRHOG_CAT``, the ``FINANCIAMIENTO_*``
@@ -847,8 +899,8 @@ def load_cpv_personas(
     adds ``FACTOR`` = ``FAC_POB``, so weight 1995's health and disability items with
     ``FAC_PROM``; 2000's persons are
     unnumbered, so ``ID_PERSONA`` counts them in file order, :func:`_composite_keys`). In
-    1990 and 1995 this is the only microdata table: each person carries the dwelling's
-    (and household's) items.
+    1990 and 1995 this is the only microdata file: each person carries the dwelling's
+    (and household's) items (:func:`load_cpv_viviendas` builds the dwellings from it).
 
     Σ ``FACTOR`` = the expanded population. Person-number pointers (``NUMPER``,
     ``IDENT_MADRE``/``IDENT_PADRE``/``IDENT_PAREJA``) stay raw strings, so a person's mother
@@ -890,8 +942,8 @@ def load_cpv_survey(
 
     Returns ``(viviendas, personas, migrantes)`` = :func:`load_cpv_viviendas`,
     :func:`load_cpv_personas`, :func:`load_cpv_migrantes` (``None`` for an edition without
-    that table: the 1990 and 1995 samples are person files with the dwelling items on each
-    person, so their ``viviendas`` is ``None``; 1990, 2005 and 2015 have no emigrants). The person and emigrant indices both extend the dwelling index
+    that table: 1990, 2005 and 2015 have no emigrants; the 1990 and 1995 samples are person
+    files with the dwelling items on each person, from which their ``viviendas`` is built). The person and emigrant indices both extend the dwelling index
     (``ID_VIV`` ⊂ ``(ID_VIV, ID_PERSONA)``; ``ID_VIV`` ⊂ ``(ID_VIV, ID_MII)``), as the
     extended-census microdata share ``ID_VIV``. The optional emigrant → person link is the
     join ``(ID_VIV, MPERLS) = (ID_VIV, NUMPER)`` (see :func:`load_cpv_migrantes`).
@@ -907,7 +959,7 @@ def load_cpv_survey(
     edition = _edition("personas", period)
     kw = dict(state=state, harmonize=harmonize, labels=labels)
     viviendas = load_cpv_viviendas(edition.period, derived=derived, **kw) \
-        if edition.has("viviendas") else None
+        if edition.has("viviendas") or edition.period in _DWELLINGS_FROM_PERSONS else None
     personas = load_cpv_personas(edition.period, derived=derived, **kw)
     migrantes = load_cpv_migrantes(edition.period, **kw) if edition.has("migrantes") else None
     return viviendas, personas, migrantes

@@ -3139,7 +3139,13 @@ def test_load_cpv_1990_1995_real(local_mirror):
     v90, p90, m90 = mxcensus.load_cpv_survey(1990, state=1)
     v95, p95, m95 = mxcensus.load_cpv_survey(1995, state=1)
     ctx.__exit__(None, None, None)
-    assert v90 is None and m90 is None and v95 is None
+    assert m90 is None
+    # 6j: the dwellings, built from the person files (one row per ID_VIV)
+    assert v90.shape == (13_062, 22) and v95.shape == (2_232, 25)
+    assert list(v90.index.names) == list(v95.index.names) == ["ID_VIV"]
+    assert set(v90.index) == set(p90.index.get_level_values("ID_VIV"))
+    assert set(v95.index) == set(p95.index.get_level_values("ID_VIV"))
+    assert int(v95["FAC_VIV"].sum()) == 172_443 and "ANO_CUMP" not in v90
     assert p90.shape == (71_734, 53) and list(p90.index.names) == ["ID_VIV", "ID_PERSONA"]
     assert p95.shape == (11_098, 105) and list(p95.index.names) == ["ID_VIV", "ID_HOG", "ID_PERSONA"]
     assert list(m95.index.names) == ["ID_VIV", "ID_HOG", "ID_MII"] and len(m95) == 439
@@ -3166,6 +3172,38 @@ def test_harmonize_1995_factor():
     own = _cpv._harmonize(pd.DataFrame({"ENT": ["01"], "FACTOR": ["3"], "FAC_POB": ["9"]}),
                           "personas", periods=("2020",))
     assert own["FACTOR"].tolist() == [3]
+
+
+def test_dwellings_from_persons_offline(monkeypatch):
+    """CGPV 1990's and the Conteo 1995's dwelling frames come from the person file: one
+    row per ``ID_VIV`` with its first person's dwelling items (6j), labelled by the person
+    dictionary; ``harmonize=True`` gives the 1995 dwellings ``FACTOR`` = ``FAC_VIV``."""
+    from mxcensus.data import _registry
+    gid = next(g for g, grp in _SM["personas"]["groups"].items() if "1995" in
+               [str(x) for x in grp["periods"]])
+    frame = _valid_frame("personas", gid)
+    frame = frame.assign(ENT="01", MUN="001", ZONA="01", UPM="01", VIV=["01", "01", "02"],
+                         HOGAR="1", P3_1=["01", "02", "01"], FAC_VIV=["10", "10", "20"],
+                         P1_6=["02", "05", "99"])
+    monkeypatch.setattr(_registry.POOCH, "fetch", lambda f, **_: f)
+    monkeypatch.setattr(pd, "read_parquet", lambda *_a, **_k: frame.copy())
+    raw = mxcensus.load_cpv_viviendas(1995, state=1, labels=False, derived=True)
+    assert list(raw.index) == ["010010101001", "010010101002"]
+    columns = list(_cpv._DWELLINGS_FROM_PERSONS["1995"])
+    assert list(raw.columns) == [*columns, "CUADORM_CAT", "TOTCUART_CAT", "DRENAJE_CAT"]
+    assert raw["FAC_VIV"].tolist() == [10, 20] and raw["P1_6"].tolist() == ["02", "99"]
+    assert raw["CUADORM_CAT"].tolist() == ["2+", "No especificado"]     # the first person's
+    harmonized = mxcensus.load_cpv_viviendas(1995, state=1, labels=False, harmonize=True)
+    assert harmonized["FACTOR"].tolist() == [10.0, 20.0] and "CVE_ENT" in harmonized
+    labelled = mxcensus.load_cpv_viviendas(1995, state=1)
+    assert isinstance(labelled["P1_1"].dtype, pd.CategoricalDtype)
+    with pytest.raises(ValueError, match="not published"):    # no raw dwelling file
+        mxcensus.load_cpv(table="viviendas", period=1995, state=1)
+    assert set(_cpv._DWELLINGS_FROM_PERSONS) == {"1990", "1995"}
+    for period, cols in _cpv._DWELLINGS_FROM_PERSONS.items():         # person-file columns
+        g = next(g for g, grp in _SM["personas"]["groups"].items()
+                 if period in [str(x) for x in grp["periods"]])
+        assert set(cols) <= set(_cols("personas", g)) and len(set(cols)) == len(cols)
 
 
 @pytest.mark.skipif(not _REAL_1995, reason="no local 1995 mirror")

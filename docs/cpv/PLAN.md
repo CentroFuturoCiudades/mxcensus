@@ -37,10 +37,11 @@ unit.
 | **6g** | `PSIND_LIM`'s exact rule | 6f | ✅ done 2026-10-08 (`STEP_6g.md`): not disabled, not limited, no mental condition, leaving out only the persons with all seven answers unspecified; exact in all 32 states, the nation and 2,471 municipalities of the EIC 2025; new `SIN_DISC_LIM` (2020/2025) and the CPV `PSIND_LIM` cell on it (25/25 person estimates exact) |
 | **6h** | The EIC 2015 geographic frame (3d leftover) | 6g | ✅ done 2026-10-08 (`STEP_6h.md`): the survey's own «Cartografía geoestadística urbana y rural amanzanada. Cierre de la Encuesta Intercensal 2015» (a UPC per state; 2,457 municipalities = the EIC 2015's) as MG period 2015: 397 files (12 layers + `ti`), registry 3751 → 4148, uploaded + verified; lineage 2015 step; `MgEdition.products`/`layers`, `mg_layers` |
 | **6i** | Derived columns for 2000/2005 | 6h | ✅ done 2026-10-08 (`STEP_6i.md`): 2000 personas 17 / viviendas 5, 2005 13 / 4 (age, income, hours, education with the 2000/2005 level-and-antecedent items, activity, marital status, birthplace/residence, 2000 religion with «Blanco por pase» under 5, one-item-per-institution coverage, 2000 SCIAN sector, dwelling class/rooms/drainage); constraints 2000 29 + 4, 2005 38 + 8; 2000 = INEGI's sample tabulados within 0.02 points outside Chiapas; 32-state sweep clean |
+| **6j** | Derived columns for 1990/1995 | 6i | ✅ done 2026-10-08 (`STEP_6j.md`): the dwelling frames of 1990/1995 built from their person files (`load_cpv_viviendas`; user's choice), 1990 personas 9 / viviendas 4, 1995 8 / 3 (age, education from their own items, activity, marital status, birthplace, residence five years earlier, hours, income — 1990's in new pesos —, 1990 religion; rooms, bedrooms, drainage, 1990 class); constraints 1990 12 + 5, 1995 6 + 3 (and the 1995 `SEXO` cell fixed: its sex is `P3_5`); = the 1990/1995 ITER shares within tenths of a point for persons, except 1990's `P15PRI_CO` (INEGI leaves out técnica after primaria; open question); 32-state sweep clean |
 
 The user asked (2026-10-08, afternoon) for all four post-6e candidates in one session, one
 unit each (6f–6i), with a local commit per unit; push, merge, version and upload wait for
-the user.
+the user. 6j (evening) was agreed from the candidates; merge into `main` as 0.8.0 follows it.
 
 ### Session protocol
 

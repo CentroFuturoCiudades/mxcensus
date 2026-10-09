@@ -125,8 +125,9 @@ files hold the same values as the legacy `viviendas_NN`/`personas_NN`/`iter_NN`/
 `resargebub_NN` files (checked cell by cell for all 32 states), but as INEGI's text:
 zero-padded codes and the aggregates' `*`/`N/D`/`N/A` markers kept. The legacy loaders
 (`load_census`, `load_extended_*`) and their files are unchanged. The 1990 and 1995 samples
-are person files (each person carries the dwelling's items), and the 1990–2005 samples have
-no key column: `ID_VIV`, `ID_HOG`, `ID_PERSONA` are derived from INEGI's composite parts.
+are person files (each person carries the dwelling's items); `load_cpv_viviendas` builds
+their dwellings from them, one row per dwelling. The 1990–2005 samples have no key column:
+`ID_VIV`, `ID_HOG`, `ID_PERSONA` are derived from INEGI's composite parts.
 
 ¹ `FAC_POB` weights persons, `FAC_VIV` dwellings, households and emigrants, `FAC_PROM` the
 health-coverage and disability items; with `harmonize=True` the persons' `FACTOR` is
@@ -224,7 +225,15 @@ neo-Israelite movements as evangelical (the 2010 ITER: other religions). CGPV 20
 religion of persons aged 5 and over only, so its `RELIGION_CAT` has a «Blanco por pase»
 category for the under-5s, and its health coverage (one question per institution) has no
 Seguro Popular or private columns; the Conteo 2005 adds them. The CGPV 2000 columns
-reproduce INEGI's sample tabulados to within a few hundredths of a point.
+reproduce INEGI's sample tabulados to within a few hundredths of a point. CGPV 1990 and the
+Conteo 1995 get age, education, activity, marital status, birthplace, residence five years
+earlier, hours worked and income (1990's converted to new pesos), 1990's religion, and on
+their dwelling frames the rooms, bedrooms, drainage and (1990) dwelling class; neither asked
+each person about health coverage or disability. Against the 1990 and 1995 ITER, the person
+constraints agree to within a few tenths of a point nationally (1990: under one point in
+every state), except 1990's complete primaria: INEGI's 1990 count leaves out technical
+studies after primaria, which the legacy `EDUC` counts as complete primaria. The dwelling
+characteristics run about one point above the ITER nationally.
 `cpv_constraints(table, period)` filters the census constraint sets (ITER indicator →
 microdata cells) to the indicators an edition publishes and can reproduce, for
 `get_tables_dict`. For Censo 2010 it adds the ITER's own limitation indicators (`PCON_LIM`,

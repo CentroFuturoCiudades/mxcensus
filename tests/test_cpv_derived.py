@@ -67,6 +67,12 @@ _GAPS = {
     ("2000", "NIVACAD"): {5, 7, 8, 10, 12, 14},
     # 2000/2005 dwelling classes: one «casa independiente» (2020: 1–3 by terrain/dúplex)
     ("2000", "CLAVIVP"): {2, 3}, ("2005", "CLAVIVP"): {2, 3},
+    # 1990/1995 (6j): no activity check; 1995's casada(o) is not split; 1990's dwelling
+    # classes (casa sola; departamento or vecindad; no local no construido) and its one
+    # drainage code for the ground, a river or a lake (2020: 3/4)
+    ("1990", "CONACT"): set(range(13, 20)), ("1995", "CONACT"): set(range(13, 20)),
+    ("1995", "SITUA_CONYUGAL"): {6, 7},
+    ("1990", "CLAVIVP"): {2, 3, 5, 7}, ("1990", "DRENAJE"): {4},
 }
 _EXTRAS = {
     ("2010", "DHSERSAL2"): {1}, ("2015", "DHSERSAL2"): {1},       # IMSS as the 2nd option
@@ -106,11 +112,26 @@ _OWN_CODES = {
     ("2005", "IMSS"): {1}, ("2005", "ISSSTE"): {1}, ("2005", "PEMEX"): {1},
     ("2005", "SEGU_POP"): {1}, ("2005", "INST_PRI"): {1}, ("2005", "OTRA_INS"): {1, 2, 3, 9},
     ("2005", "SIN_DERE"): {6, 9}, ("2005", "ENT_PAIS_RES_5A"): {*range(1, 34), 201, 600, 999},
+    # CGPV 1990 (6j): approved a grade (0 = under 5), level, its grades (99), preschool,
+    # technical and normal years; the income (8 digits, 99999997–9 not specified: the FD's
+    # note); birthplace and 1985 residence (catalog CATPAISE: 001–032, 033–099, 100–998,
+    # 999); religion (0 = under 5)
+    ("1990", "APROBO"): {0, 1, 2, 9}, ("1990", "NIV_EST"): set(range(6)),
+    ("1990", "ANO_APRO"): {99}, ("1990", "PRESCO"): set(), ("1990", "TEC_SEC"): set(),
+    ("1990", "NOR_BAS"): set(), ("1990", "INGTRMEN"): set(),
+    ("1990", "ENT_PAIS_NAC"): set(), ("1990", "ENT_PAIS_RES_5A"): set(),
+    ("1990", "RELIGION"): {0, 1, 2, 3, 4, 5, 9},
+    # Conteo 1995: ever attended, level, grades, technical career and its requisite; the
+    # 2-digit birthplace and 1990 residence (its catalog of entities and countries, a PDF)
+    ("1995", "P5_3"): {5, 6, 9}, ("1995", "P5_4B"): {*range(8), 9}, ("1995", "P5_4A"): set(),
+    ("1995", "P5_5"): {1, 2, 9}, ("1995", "P5_7"): {0, 1, 2, 3, 9},
+    ("1995", "ENT_PAIS_NAC"): set(), ("1995", "ENT_PAIS_RES_5A"): set(),
 }
 # Own-code text items without a catalog in their edition's FD (the code layout is stated in
 # its notes, quoted above).
 _NO_CATALOG = {("2000", "INGTRMEN"), ("2000", "HORTRA"), ("2000", "ENT_PAIS_NAC"),
-               ("2000", "ENT_PAIS_RES_5A"), ("2000", "INGTRHOG")}
+               ("2000", "ENT_PAIS_RES_5A"), ("2000", "INGTRHOG"), ("1990", "INGTRMEN"),
+               ("1995", "ENT_PAIS_NAC"), ("1995", "ENT_PAIS_RES_5A")}
 _LATER_OPTIONS = {*d._ESC[1:], *d._TRAB[1:]}      # list fewer codes (options are ordered)
 # Numeric in 2010/2015, categorical in 2020 (same values; the pointers: row numbers).
 _NUMERIC_CODES = {"ESCOLARI", "IDENT_MADRE", "IDENT_PADRE", "IDENT_PAREJA"}
@@ -120,9 +141,13 @@ _NUMERIC_CODES = {"ESCOLARI", "IDENT_MADRE", "IDENT_PADRE", "IDENT_PAREJA"}
 def test_source_codes_match_2020(table, period, source):
     """Every edition a derivation is declared for has the 2020 code list of each source
     item, after the edition's recode (the dictionaries; catalog items: their sentinels),
-    up to the reviewed gaps and extras; own-code items have their own list."""
-    labels = variables_cpv_labels(table, _gid(table, period))
-    name = next(a for a in d._ALIASES.get(source, (source,)) if a in labels)
+    up to the reviewed gaps and extras; own-code items have their own list. The item is
+    the frame's own column (a core entry such as ``EDAD`` labels editions that name it
+    otherwise: 1990 ``ANO_CUMP``, 1995 ``P3_6``); 1990/1995 dwellings: the person file's."""
+    group_table, gid, columns = d._frame_group(table, period)
+    labels = variables_cpv_labels(group_table, gid)
+    name = next(a for a in d._ALIASES.get(source, (source,))
+                if a in labels and a.upper() in columns)
     new = labels[name]
     key = (table, period, source) if (table, period, source) in _OWN_CODES else (period, source)
     if key in _OWN_CODES:
@@ -139,7 +164,7 @@ def test_source_codes_match_2020(table, period, source):
     recode = d._RECODE.get(period, {}).get(source, {})
     if tipo == "string":                      # catalog codes (occupation, country…)
         assert ref.get("Catálogo") and new.get("Catálogo")
-    recoded = {recode.get(c, c) for c in codes}
+    recoded = {c for c in (recode.get(c, c) for c in codes) if c == c}     # NaN = blank
     assert recoded - ref_codes == _EXTRAS.get((period, source), set())
     assert ref_codes - recoded == _GAPS.get((period, source), set())
 
@@ -167,6 +192,15 @@ def test_recode_tables():
     assert set(r10["LNACPAIS_C"].values()) == {997, 998}
     # SINCO 2019 dropped group 59: 2015's 599 and 2010's 5999 join 52 (529)
     assert r15["OCUPACION_C"] == {599: 529} and r10["OCUACTIV_C"] == {5999: 5299}
+    # 1990/1995 (6j): one activity list; 1990's 0 = not asked (blank); 1995's 8 «alguna vez
+    # unida, estado civil desconocido» is not specified; countries are OtroPais (998)
+    r90, r95 = d._RECODE["1990"], d._RECODE["1995"]
+    assert {k: v for k, v in r90["CONACT"].items() if k} == r95["CONACT"]
+    assert all(r90[item][0] != r90[item][0] for item in
+               ("CONACT", "SITUA_CONYUGAL", "ENT_PAIS_RES_5A", "RELIGION", "CUADORM"))
+    assert r95["SITUA_CONYUGAL"][8] == 9 and r95["EDAD"] == r95["HORTRA"] == {99: 999}
+    assert set(r90["ENT_PAIS_NAC"].values()) == set(r95["ENT_PAIS_NAC"].values()) - {999} \
+        == {997, 998}
 
 
 _FD = Path(__file__).resolve().parent.parent / "data" / "dict" / "fd"
@@ -271,7 +305,17 @@ def test_cpv_derivations_listing():
         "CLAVIVP_CAT", "CUADORM_CAT", "TOTCUART_CAT", "DRENAJE_CAT", "INGTRHOG_CAT"}
     assert set(mxcensus.cpv_derivations("viviendas", 2005)["COLUMN"]) == {
         "CLAVIVP_CAT", "CUADORM_CAT", "TOTCUART_CAT", "DRENAJE_CAT"}
-    assert mxcensus.cpv_derivations("personas", 1995).empty
+    oldest = {"EDAD_CAT", "INGTRMEN_CAT", "HORTRA_CAT", "EDUC", "CONACT_CAT",          # 6j
+              "SITUA_CONYUGAL_CAT", *migration}
+    assert set(mxcensus.cpv_derivations("personas", 1990)["COLUMN"]) == {*oldest, "RELIGION_CAT"}
+    assert set(mxcensus.cpv_derivations("personas", 1995)["COLUMN"]) == oldest
+    assert set(mxcensus.cpv_derivations("viviendas", 1990)["COLUMN"]) == {
+        "CLAVIVP_CAT", "CUADORM_CAT", "TOTCUART_CAT", "DRENAJE_CAT"}
+    assert set(mxcensus.cpv_derivations("viviendas", 1995)["COLUMN"]) == {
+        "CUADORM_CAT", "TOTCUART_CAT", "DRENAJE_CAT"}
+    for period in ("1990", "1995"):
+        assert mxcensus.cpv_derivations(period=period)["COLUMN"].is_unique
+    assert mxcensus.cpv_derivations("personas", 1980).empty
     with pytest.raises(ValueError, match="migrantes"):
         d.derived_dtypes("migrantes", "2025")
 
@@ -588,6 +632,115 @@ def test_derive_dwellings_2000_2005():
     assert list(out["TOTCUART_CAT"]) == ["3+", "2"] and list(out["DRENAJE_CAT"]) == ["Sí", "No"]
 
 
+def _persons_1990() -> pd.DataFrame:
+    """Five CGPV 1990 persons (raw codes; 0 = not asked): an employed adult with complete
+    secundaria and technical studies after it, an adult with no grade but preschool, a child
+    under 5, a schoolchild aged 10, an adult with technical studies after primaria."""
+    return pd.DataFrame({
+        "ENT": ["01"] * 5, "ANO_CUMP": ["040", "070", "003", "010", "999"],
+        "APROBO": ["1", "2", "0", "1", "1"], "PRESCO": ["0", "2", "0", "3", "0"],
+        "NIV_EST": ["2", "0", "0", "1", "1"], "ANO_APRO": ["03", "00", "00", "04", "06"],
+        "TEC_PRIM": ["0", "0", "0", "0", "2"], "TEC_SEC": ["2", "0", "0", "0", "0"],
+        "NOR_BAS": ["0", "0", "0", "0", "0"],
+        "ACT_PRIN": ["1", "5", "0", "0", "2"], "EST_CIVIL": ["2", "7", "0", "0", "5"],
+        "HORAS": ["048", "000", "000", "000", "000"],
+        "INGRESO": ["00430000", "00000000", "00000000", "00000000", "99999998"],
+        "CVE_P_NAC": ["001", "014", "001", "050", "221"],
+        "CVE_P_RES": ["001", "999", "000", "001", "300"],
+        "RELIGION": ["2", "4", "0", "3", "9"],
+    }, dtype="str")
+
+
+def test_derive_persons_1990_recodes():
+    out = d.derive(_persons_1990(), "personas", 1990)
+    # técnica after a complete secundaria; preschool only; under 5; primaria 4; técnica after
+    # primaria (2020's 6: «Primaria_com», the legacy rule)
+    assert list(out["EDUC"]) == ["Posbásica", "Sin Educación", "Blanco por pase",
+                                 "Primaria_incom", "Primaria_com"]
+    assert list(out["EDAD_CAT"])[::4] == ["25-49", "No especificado"]
+    assert list(out["CONACT_CAT"]) == ["Trabaja", "No trabaja", "Blanco por pase",
+                                       "Blanco por pase", "Trabaja"]
+    assert list(out["SITUA_CONYUGAL_CAT"]) == ["casado", "separado", "Blanco por pase",
+                                               "Blanco por pase", "separado"]
+    # hours and income: blank unless employed; who had a job worked 0 hours; $430,000 old
+    # pesos = $430 new; «no sabe» (99999998) = not specified
+    assert list(out["HORTRA_CAT"]) == ["41-48", "Blanco por pase", "Blanco por pase",
+                                       "Blanco por pase", "0-5"]
+    assert list(out["INGTRMEN_CAT"]) == ["1-999", "Blanco por pase", "Blanco por pase",
+                                         "Blanco por pase", "No especificado"]
+    # birthplace: here, Jalisco, here, an entity not sufficiently specified (050), a country
+    assert list(out["ENT_PAIS_NAC_CAT"]) == ["EstaEnt", "OtraEnt", "EstaEnt", "OtraEnt",
+                                             "OtroPais"]
+    assert list(out["ENT_PAIS_RES_CAT"]) == ["EstaEnt", "No especificado", "Blanco por pase",
+                                             "EstaEnt", "OtroPais"]
+    assert list(out["RELIGION_CAT"]) == ["Católica", "Otros credos", "Blanco por pase",
+                                         "Protestante/cristiano evangélico", "No especificado"]
+    for col, dtype in d.derived_dtypes("personas", "1990").items():
+        assert out[col].dtype == dtype, col
+    # small amounts stay positive (≥ $1): the ~1% of incomes written in thousands
+    small = d.derive(_persons_1990().assign(INGRESO=["00000258"] + ["00000000"] * 4),
+                     "personas", 1990)
+    assert small["INGTRMEN_CAT"].iloc[0] == "1-999"
+
+
+def test_derive_persons_1995_recodes():
+    df = pd.DataFrame({
+        "ENT": ["09"] * 5, "P3_6": ["35", "99", "03", "60", "20"],
+        "P5_3": ["", "5", "", "6", "9"], "P5_4B": ["3", "2", "", "", ""],
+        "P5_4A": ["3", "4", "", "", ""], "P5_5": ["1", "2", "", "", ""],
+        "P5_7": ["2", "", "", "", ""],
+        "P7_1": ["1", "9", "", "5", "4"], "P6_1": ["5", "8", "", "2", "6"],
+        "P7_6": ["40", "99", "", "", ""], "P7_9MP": ["001286", "999999", "", "", ""],
+        "P3_7B": ["09", "35", "70", "90", "99"], "P4_6A": ["15", "", "", "34", "09"],
+    }, dtype="str")
+    out = d.derive(df, "personas", 1995)
+    # técnica after secundaria; primaria 4; under 5; never attended; attendance unknown
+    assert list(out["EDUC"]) == ["Posbásica", "Primaria_incom", "Blanco por pase",
+                                 "Sin Educación", "No especificado"]
+    assert list(out["EDAD_CAT"])[:2] == ["25-49", "No especificado"]      # 99 = NE
+    assert list(out["CONACT_CAT"]) == ["Trabaja", "No especificado", "Blanco por pase",
+                                       "No trabaja", "No trabaja"]
+    assert list(out["SITUA_CONYUGAL_CAT"]) == ["casado", "No especificado", "Blanco por pase",
+                                               "separado", "soltero"]
+    assert list(out["HORTRA_CAT"])[:2] == ["21-40", "No especificado"]
+    assert list(out["INGTRMEN_CAT"])[:3] == ["1,000-4,999", "No especificado", "Blanco por pase"]
+    # 35 the United States, 70 «México (país)» = entity not specified, 90 a country, 99
+    assert list(out["ENT_PAIS_NAC_CAT"]) == ["EstaEnt", "OtroPais", "OtraEnt", "OtroPais",
+                                             "No especificado"]
+    assert list(out["ENT_PAIS_RES_CAT"]) == ["OtraEnt", "Blanco por pase", "Blanco por pase",
+                                             "OtroPais", "EstaEnt"]
+    for col, dtype in d.derived_dtypes("personas", "1995").items():
+        assert out[col].dtype == dtype, col
+
+
+def test_derive_dwellings_1990_1995():
+    v90 = pd.DataFrame({"T_VIV": ["01", "02", "05", "09"], "P_DORMIR": ["01", "03", "00", "99"],
+                        "T_CUARTOS": ["26", "02", "00", "99"], "DRENAJE": ["3", "4", "0", "9"]},
+                       dtype="str")
+    out = d.derive(v90, "viviendas", 1990)
+    assert list(out["CLAVIVP_CAT"]) == ["Vivienda", "Vivienda", "Otro", "Vivienda"]   # refugio
+    assert list(out["CUADORM_CAT"]) == ["1", "2+", "Blanco por pase", "No especificado"]
+    assert list(out["TOTCUART_CAT"]) == ["3+", "2", "Blanco por pase", "No especificado"]
+    # 3 «desagüe al suelo, a un río o lago» is drainage; a refugio has no characteristics
+    assert list(out["DRENAJE_CAT"]) == ["Sí", "No", "Blanco por pase", "No especificado"]
+    v95 = pd.DataFrame({"P1_6": ["02", "99"], "P1_7": ["01", "04"], "P1_13": ["4", "5"]},
+                       dtype="str")
+    out = d.derive(v95, "viviendas", 1995)
+    assert list(out["CUADORM_CAT"]) == ["2+", "No especificado"]
+    assert list(out["TOTCUART_CAT"]) == ["1", "3+"] and list(out["DRENAJE_CAT"]) == ["Sí", "No"]
+    assert "CLAVIVP_CAT" not in out                                  # no dwelling class
+
+
+def test_derive_1990_1995_unknown_codes():
+    with pytest.raises(ValueError, match="EDUC"):             # a grade approved, no level
+        d.derive(_persons_1990().assign(NIV_EST=["0"] * 5), "personas", 1990)
+    with pytest.raises(ValueError, match="RELIGION_CAT"):
+        d.derive(_persons_1990().assign(RELIGION=["7"] * 5), "personas", 1990)
+    with pytest.raises(ValueError, match="DRENAJE_CAT"):
+        d.derive(pd.DataFrame({"T_VIV": ["01"], "P_DORMIR": ["01"], "T_CUARTOS": ["01"],
+                               "DRENAJE": ["6"]}, dtype="str"), "viviendas", 1990)
+
+
 def test_derive_older_editions_unknown_codes():
     """A code outside an edition's list raises, also for the dummy sets and the 2010 flag."""
     for col, value, name in (("MED_TRASLADO_TRAB1", "8", "MED_TRASLADO_TRAB_"),
@@ -621,7 +774,7 @@ def test_derive_errors():
     with pytest.raises(ValueError, match="hogares"):
         d.derive(df, "hogares", 2005)
     with pytest.warns(UserWarning, match="no derived columns"):
-        assert d.derive(df, "personas", 1995).equals(df)
+        assert d.derive(df, "personas", 1980).equals(df)
 
 
 # --- constraints per edition ----------------------------------------------------------------
@@ -660,10 +813,24 @@ def test_cpv_constraints_per_edition():
     assert {"PDER_ISTE", "PSINDER", "PRESOE15", "P15YM_SE"} <= set(p05)
     assert set(mxcensus.cpv_constraints("viviendas", 2000)) == {
         "TOTHOG", "VPH_1CUART", "VPH_1DOR", "VPH_DRENAJ"}
-    for period in ("2000", "2005", "2010", "2020", "2025"):            # categories all exist
-        cats = d._categories("personas", period)
-        for cells in mxcensus.cpv_constraints("personas", period).values():
-            assert all(set(c) <= set(cats[v]) for v, c in cells.items())
+    p90, p95 = (mxcensus.cpv_constraints("personas", p) for p in (1990, 1995))       # 6j
+    assert set(p90) == {"POBTOT", "POBFEM", "POBMAS", "P5_HLI_HE", "P5_HLI_NHE", "P15YM_AN",
+                        "P15YM_SE", "P15PRI_IN", "P15PRI_CO", "PEA", "PE_INAC", "POCUPADA"}
+    assert p90["P5_HLI_NHE"]["HAB_ESP"] == ["NO"] and p90["PEA"] == per["PEA"]
+    assert set(p95) == {"POBTOT", "POBFEM", "POBMAS", "P_5YMAS", "P_15YMAS", "P15YM_AN"}
+    assert p95["POBFEM"] == {"P3_5": ["Mujer"]}            # 1995 names sex P3_5: no SEXO cell
+    assert set(mxcensus.cpv_constraints("viviendas", 1990)) == {
+        "VPH_1CUART", "VPH_DRENAJ", "VPH_PISODT", "VPH_C_ELEC", "VPH_AGUADV"}
+    assert set(mxcensus.cpv_constraints("viviendas", 1995)) == {
+        "VPH_C_ELEC", "VPH_AGUADV", "VPH_DRENAJ"}
+    assert "SEXO" not in d._categories("personas", "1995")
+    assert "T_VIV" in d._categories("viviendas", "1990")        # the person file's dictionary
+    assert "ANO_CUMP" not in d._categories("viviendas", "1990")  # a person item
+    for table in ("personas", "viviendas"):                       # categories all exist
+        for period in ("1990", "1995", "2000", "2005", "2010", "2020", "2025"):
+            cats = d._categories(table, period)
+            for cells in mxcensus.cpv_constraints(table, period).values():
+                assert all(set(c) <= set(cats[v]) for v, c in cells.items())
 
 
 # --- real data ------------------------------------------------------------------------------
@@ -716,7 +883,8 @@ def test_derived_2020_equals_legacy(local_mirror, table, state):
 
 
 @_REAL_SKIP
-@pytest.mark.parametrize("period", ["2000", "2005", "2010", "2015", "2020", "2025"])
+@pytest.mark.parametrize("period", ["1990", "1995", "2000", "2005", "2010", "2015", "2020",
+                                    "2025"])
 def test_derived_editions_real(local_mirror, period):
     """``derived=True`` on each edition: the declared columns, their dtypes, no missing
     value; the same columns with or without labels and harmonization."""
@@ -734,20 +902,21 @@ def test_derived_editions_real(local_mirror, period):
 
 
 @_REAL_SKIP
-@pytest.mark.parametrize("period", ["2000", "2005", "2010", "2020", "2025"])
+@pytest.mark.parametrize("period", ["1990", "1995", "2000", "2005", "2010", "2020", "2025"])
 def test_crosstab_per_edition(local_mirror, period):
     """One table per edition: the constraints build ``get_tables_dict`` against the derived
-    frame's dtypes, and the age × sex table fills."""
+    frame's dtypes, and the age × sex table fills (1990: age × activity, 1995: age — their
+    ITER splits no age group by sex)."""
     per = mxcensus.load_cpv_personas(period, state=1, derived=True)
     tables = mxcensus.get_tables_dict(mxcensus.cpv_constraints("personas", period), per.dtypes)
-    key = frozenset({"SEXO", "EDAD_CAT"})
+    key = frozenset({"EDAD_CAT", *{"1990": ["CONACT_CAT"], "1995": []}.get(period, ["SEXO"])})
     assert key in tables
     table = mxcensus.create_cont_table(tables[key])
     assert set(table.columns) <= set(per["EDAD_CAT"].cat.categories) and len(table)
     if period == "2010":                       # 2010's own limitation cells
         for var in ("LIM_ACTIVIDAD", "DISCAP2"):
             assert len(mxcensus.create_cont_table(tables[frozenset({var})]).columns)
-    if period == "2020":
+    if period in ("1990", "1995", "2020"):
         viv = mxcensus.load_cpv_viviendas(period, state=1, derived=True)
         assert mxcensus.get_tables_dict(mxcensus.cpv_constraints("viviendas", period), viv.dtypes)
 
@@ -916,3 +1085,33 @@ def test_2000_equals_tabulados(local_mirror):
                    share(twelve & act.eq("No especificado"), twelve))
     for table, published in _C2K_01.items():
         assert got[table] == pytest.approx(published, abs=0.02), table
+
+
+# CGPV 1990 (the 10% extract, unweighted) and the Conteo 1995 sample (FAC_POB/FAC_VIV)
+# against their ITER (the counts), state 01: each constraint's share of the population or
+# of the dwellings, in points. 1990's P15PRI_CO counts técnica after primaria (the legacy
+# EDUC rule), which INEGI's 1990 «primaria completa» leaves out: without it the share
+# agrees too. All 32 states and the nation: STEP_6j.md.
+_ITER_TOLERANCE = {"1990": 0.7, "1995": 0.5}
+
+
+@_REAL_SKIP
+@pytest.mark.parametrize("period", ["1990", "1995"])
+def test_1990_1995_constraints_equal_iter(local_mirror, period):
+    it = mxcensus.load_cpv_iter(period, state=1, nivel="estatal").iloc[0]
+    viv, per, _ = mxcensus.load_cpv_survey(period, state=1, derived=True, harmonize=True)
+    gap = {}
+    for table, frame, base in (("personas", per, "POBTOT"), ("viviendas", viv, "VIVPAR_HAB")):
+        w = frame["FACTOR"] if "FACTOR" in frame else pd.Series(1.0, index=frame.index)
+        for ind, cells in mxcensus.cpv_constraints(table, period).items():
+            hit = pd.Series(True, index=frame.index)
+            for var, cats in cells.items():
+                hit &= frame[var].isin(cats)
+            gap[ind] = 100 * (w[hit].sum() / w.sum() - float(it[ind]) / float(it[base]))
+    if period == "1990":
+        raw = mxcensus.load_cpv_personas(1990, state=1, labels=False)
+        tecnica = (pd.to_numeric(raw["TEC_PRIM"]) > 0) & raw["NIV_EST"].eq("1") \
+            & pd.to_numeric(raw["ANO_CUMP"]).between(15, 120)
+        gap["P15PRI_CO"] -= 100 * tecnica.mean()
+    assert len(gap) == {"1990": 17, "1995": 9}[period]
+    assert max(abs(v) for v in gap.values()) < _ITER_TOLERANCE[period], gap

@@ -1,9 +1,10 @@
 # CPV family — session handoff
 
-**Status (2026-10-08): units 0–6i are done. `main` = v0.7.1 (through 6e); `cpv-integration`
-is ahead by the units of this session (6f–6i), pushed to origin; not merged into `main`. The user
-asked for the four post-6e candidates in one session, one unit each (6f–6i, all done). No
-unit is queued.**
+**Status (2026-10-08, evening): units 0–6j are done. `main` = v0.7.1 (through 6e);
+`cpv-integration` is ahead by 6f–6j (6f–6i pushed to origin). The user agreed 6j (1990/1995
+derived columns) from the candidates and asked to merge `cpv-integration` into `main` as
+**0.8.0** after it (each commit, push and merge with the user's go-ahead). No unit is
+queued.**
 - **Released** (registered, uploaded, verified): every edition 1990–2025 (897 `cpv_` files)
   and the Marco Geoestadístico 1995–2025 frames, incl. the EIC 2015's (6h); registry
   **4148** entries (`STEP_6b.md` §Release batch, `STEP_6h.md`).
@@ -34,8 +35,13 @@ unit is queued.**
 - **6i** (`STEP_6i.md`): CGPV 2000 and Conteo 2005 derived columns (2000: 17 + 5, 2005:
   13 + 4) and constraints (2000: 29 + 4, 2005: 38 + 8); 2000 checked against INEGI's sample
   tabulados (within 0.02 points outside Chiapas).
+- **6j** (`STEP_6j.md`): CGPV 1990 and Conteo 1995 derived columns (1990: 9 + 4, 1995: 8 + 3)
+  and constraints (1990: 12 + 5, 1995: 6 + 3). Their **dwelling frames** are built from the
+  person files (user's choice): `load_cpv_viviendas(1990|1995)`, and `load_cpv_survey` no
+  longer returns `None` for them. The 1995 `POBFEM`/`POBMAS` cells were fixed (sex is
+  `P3_5`). Checked against the 1990/1995 ITER in all 32 states.
 
-Design: [`PLAN.md`](PLAN.md). Recent units: [`STEP_6i.md`](STEP_6i.md), [`STEP_6h.md`](STEP_6h.md), [`STEP_6g.md`](STEP_6g.md), [`STEP_6f.md`](STEP_6f.md), [`STEP_6e.md`](STEP_6e.md),
+Design: [`PLAN.md`](PLAN.md). Recent units: [`STEP_6j.md`](STEP_6j.md), [`STEP_6i.md`](STEP_6i.md), [`STEP_6h.md`](STEP_6h.md), [`STEP_6g.md`](STEP_6g.md), [`STEP_6f.md`](STEP_6f.md), [`STEP_6e.md`](STEP_6e.md),
 [`STEP_6d.md`](STEP_6d.md),
 [`STEP_6c.md`](STEP_6c.md), [`STEP_6b.md`](STEP_6b.md), … [`STEP_0_probe.md`](STEP_0_probe.md).
 
@@ -54,19 +60,26 @@ files; the MG 2015 files were built on the Mac and copied to `wsl` for the uploa
 
 ## Next: candidates (none decided)
 
-1. **Merge / version**: `cpv-integration` (pushed) is ahead of `main` (v0.7.1) by 6f–6i
-   (the user's call: merge into `main`, bump to 0.8.0?).
+1. **Merge / version** (agreed for after 6j): `cpv-integration` → `main` as 0.8.0 (6f–6j).
    `wsl:~/mxcensus` is at v0.7.0: pull before running new code there.
-2. **The 2005 FD's `':'` category** in `GRA_APRO` (`STEP_6i.md` §Follow-ups): a `_dict_fd`
-   fix + `--variables` (keep the 2010–2025 parses byte-identical).
-3. **1990/1995 derived columns** (person files only; their items differ the most), and a
-   2000 occupation bridge (CMO → SINCO, no published table).
+2. **`P15PRI_CO` and technical studies after primaria** (open question below).
+3. **The 2005 FD's `':'` category** in `GRA_APRO` (`STEP_6i.md` §Follow-ups) and **1990's
+   «0» label** (`STEP_6j.md` §Follow-ups): `_dict_fd`/dictionary fixes + `--variables`
+   (keep the 2010–2025 parses byte-identical).
 4. **A BIFF5 reader in `_dict_fd`** (the CGPV 2000 tabulados are Excel 95 workbooks; 6i
    used a scratch reader) if the 2000 checks become tests beyond state 01.
+5. Smaller: a 2000 occupation bridge (CMO → SINCO, no published table); own cells for the
+   1990 ITER's sector indicators (`POCUSECP/S/T`).
 
 ## Open questions for the user
 
-None pending: 6e's decisions were taken with the user (`STEP_6e.md` §Decisions).
+- **`P15PRI_CO`** (`STEP_6j.md` §Verification): the legacy `EDUC` counts technical studies
+  after primaria as «Primaria_com», so the constraint cell `P15PRI_CO` = `EDUC`
+  «Primaria_com» includes them. INEGI's 1990 «primaria completa» does not: the 1990 sample
+  overshoots it by 10.7%, and by 0.6% without them. INEGI's 2020 definition reads the same
+  («máxima escolaridad 6 grados aprobados en primaria»). This touches 2000/2010/2020 too.
+  Options: keep it as is (now); a finer `EDUC` category (the legacy `EDUC` is frozen); or
+  per-edition cells.
 
 ## Gotchas (carry forward)
 
@@ -248,6 +261,16 @@ None pending: 6e's decisions were taken with the user (`STEP_6e.md` §Decisions)
   decimals) and Censo 2010 ampliado `ccpv/2010/tabulados/Ampliado/NN_NNA_ESTATAL.xls`
   («Parámetro», full precision). Read with `scripts/_dict_fd.read_xls`; a wrong name comes
   back as HTTP 200 + `text/html`. Their «5 años y más» leaves out unspecified ages.
+- **1990/1995 dwellings** (6j) are built from the person file (`cpv._DWELLINGS_FROM_PERSONS`,
+  `_dwellings_from_persons`): there is no raw `viviendas` file, so `load_cpv(table=
+  "viviendas", period=1990)` raises, and `cpv_derived._frame_group` labels them with the
+  person group. 1990 writes **0 for «not asked»** (`_NA` in `_RECODE`). Its income is in old
+  pesos (÷ 1,000; ~1% look written in thousands). 1995's 1,151 employed with a blank
+  monthly income have `FAC_POB` = 0.
+- **Core overlays label columns a frame lacks** (6j): `variables_cpv_labels` includes every
+  in-scope core entry (`SEXO`, `EDAD`…), whatever the edition calls the item (1995: `P3_5`,
+  `P3_6`). Constraint categories (`_categories`) and the code-list test take only the
+  group's own columns.
 - **2010 limitation ≠ 2020 disability.** 2010 asked yes/no per activity (`DISCAP1`–`8`);
   its ITER `PCLIM_VIS`/`PCLIM_MOT2` share 2020's names with another concept (crosswalk
   `Comparable: false`). `_EDITION_CELLS` adds them for 2010 on 2010's own items, whatever
