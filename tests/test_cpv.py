@@ -2733,6 +2733,29 @@ def test_parse_fd_2005_split_layout(tmp_path):
     assert cuar["Especiales"] == {"99": "No especificado"}
 
 
+def test_parse_fd_2005_ellipsis_rows(tmp_path):
+    """6l: the vertical ellipsis between an enumeration's first and last rows («: :», Conteo
+    2005) is no code; the catalog enumerates the codes in between."""
+    (tmp_path / "fd.xls").write_bytes(_xls({"FD PERSONAS": [
+        _HDR05,
+        ["26", "Escolaridad (grados aprobados)", "P3.9_1", "Año o grado de escolaridad aprobado.",
+         "{1..9,b}", "1", "1", "Un grado aprobado", "Gra_apro", "26", "TC_GAPRO"],
+        [None, None, None, None, None, None, ":", ":"],
+        [None, None, None, None, None, None, "3", "Tres grados aprobados"],
+        [None, None, None, None, None, None, "9", "No especificado"],
+        [None, None, None, None, None, None, "b", "Sin respuesta por corte de edad"]]}))
+    (tmp_path / "cat.xls").write_bytes(_xls({"TC_GAPRO": [
+        ["GRA_APRO", "DESC"], ["1", "UN GRADO APROBADO"], ["2", "DOS GRADOS APROBADOS"],
+        ["3", "TRES GRADOS APROBADOS"], ["9", "NO ESPECIFICADO"]]}))
+    doc = _fd.parse_fd(tmp_path / "fd.xls", _fd.read_catalogs(tmp_path / "cat.xls"))
+    gra = doc["fd personas"]["Gra_apro"]
+    assert set(gra["Categorías"]) == {"1", "2", "3"} and gra["Categorías"]["3"] == "Tres grados aprobados"
+    assert gra["Especiales"] == {"9": "No especificado"}
+    for code in (":", "...", "…", "⋮", " : "):
+        assert _fd._ELLIPSIS_RE.match(code.strip())
+    assert not _fd._ELLIPSIS_RE.match("1..8") and not _fd._ELLIPSIS_RE.match("b")
+
+
 def test_fd_docs_2000_2005_tables_and_renames(tmp_path, monkeypatch):
     """``_fd_docs`` maps the FD sheets / PDF file tags to tables and fixes the two FD
     misspellings of a data column (2000 TIPHOG, 2005 TOPERHOG)."""
@@ -3080,6 +3103,44 @@ def test_reconcile_ranges(tmp_path):
     assert entries["B"]["Rango"] == [1, 10] and entries["B"]["Especiales"] == {"99": "99"}
     assert entries["C"]["Rango"] == [1, 120] and "sobre el rango" in entries["C"]["Nota"]
     assert entries["D"]["Rango"] == [1, 10] and "Nota" not in entries["D"]    # core: kept
+
+
+def test_label_blank_zero():
+    """6l: CGPV 1990's unlabelled observed 0 (not asked) is «Blanco por pase» in the
+    categorical entries; other unlabelled codes, numeric and core entries are left alone."""
+    unlabelled = "códigos observados sin etiqueta en el FD"
+    entries = {
+        "A": {"Tipo": "categorical", "Categorías": {"1": "SI", "0": "0"},
+              "Nota": f"{unlabelled}: ['0']"},
+        "B": {"Tipo": "categorical", "Categorías": {"1": "SI", "0": "0", "7": "7"},
+              "Nota": f"otra nota; {unlabelled}: ['0', '7']"},
+        "C": {"Tipo": "numeric", "Rango": [0, 3], "Categorías": {}},
+        "D": {"Tipo": "categorical", "Categorías": {"0": "0"}},
+        "E": {"Tipo": "categorical", "Categorías": {"0": "NINGUNO"}},
+    }
+    _bcpv._label_blank_zero(entries, skip={"D"})
+    assert entries["A"]["Categorías"] == {"1": "SI", "0": "Blanco por pase"}
+    assert entries["A"]["Nota"] == "0 = no aplica (sin etiqueta en el FD): «Blanco por pase»"
+    assert entries["B"]["Categorías"]["0"] == "Blanco por pase" and entries["B"]["Categorías"]["7"] == "7"
+    assert entries["B"]["Nota"].startswith(f"otra nota; {unlabelled}: ['7']; 0 = no aplica")
+    assert entries["C"] == {"Tipo": "numeric", "Rango": [0, 3], "Categorías": {}}
+    assert entries["D"]["Categorías"] == {"0": "0"}                       # core: kept
+    assert entries["E"]["Categorías"] == {"0": "NINGUNO"}                 # labelled by the FD
+    assert _bcpv._BLANK_ZERO == {"1990"}
+
+
+def test_dictionary_fixes_6l():
+    """The generated dictionaries: no ellipsis code in the Conteo 2005's; CGPV 1990's «not
+    asked» 0 is «Blanco por pase» in its 20 coded person items (none left as '0')."""
+    v05 = variables_cpv("personas", _gid("personas", "2005"))
+    for col in ("GRA_APRO", "NHIJNAVI", "NUHIJSOB"):
+        assert ":" not in v05[col]["Categorías"], col
+    assert list(v05["GRA_APRO"]["Categorías"]) == [str(i) for i in range(1, 9)]
+    v90 = variables_cpv("personas", _gid("personas", "1990"))
+    blank = {c for c, m in v90.items() if (m.get("Categorías") or {}).get("0") == "Blanco por pase"}
+    assert len(blank) == 20 and {"NIV_EST", "ACT_PRIN", "RELIGION", "PISOS", "TENENCIA"} <= blank
+    assert not any((m.get("Categorías") or {}).get("0") == "0" for m in v90.values())
+    assert "sin etiqueta en el FD: ['0']" not in str(v90)
 
 
 def test_folio_occurrence_and_1990_keys():

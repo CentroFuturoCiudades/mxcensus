@@ -421,7 +421,6 @@ GRA_APRO:
     '6': Seis grados aprobados
     '7': Siete grados aprobados
     '8': Ocho grados aprobados
-    ':': ':'
   Especiales:
     '9': No especificado
   Catálogo: TC_GAPRO
@@ -459,7 +458,6 @@ NHIJNAVI:
     '25': Con 25 hijos nacidos vivos
     '0': Sin hijos nacidos vivos
     '1': Con 1 hijo nacido vivo
-    ':': ':'
   Especiales:
     '99': No especificado
   Catálogo: TC_NUMH
@@ -497,7 +495,6 @@ NUHIJSOB:
     '25': Con 25 hijos sobrevivientes
     '0': Sin hijos sobrevivientes
     '1': Con 1 hijo sobreviviente
-    ':': ':'
   Especiales:
     '99': No especificado
   Catálogo: TC_NHISO

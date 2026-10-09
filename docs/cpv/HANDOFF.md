@@ -1,8 +1,8 @@
 # CPV family — session handoff
 
-**Status (2026-10-08, night): units 0–6k are done. `main` = **v0.8.0** (tagged, pushed);
-`cpv-integration` adds 6k (committed locally, not pushed). 6l (the dictionary fixes) is
-next, agreed for the same session.**
+**Status (2026-10-08, night): units 0–6l are done. `main` = **v0.8.0** (tagged, pushed);
+`cpv-integration` adds 6k and 6l (a commit each, pushed to `origin/cpv-integration`, not
+merged; merge/version are the user's call). No unit is queued.**
 - **Released** (registered, uploaded, verified): every edition 1990–2025 (897 `cpv_` files)
   and the Marco Geoestadístico 1995–2025 frames, incl. the EIC 2015's (6h); registry
   **4148** entries (`STEP_6b.md` §Release batch, `STEP_6h.md`).
@@ -43,8 +43,12 @@ next, agreed for the same session.**
   tabulados' «6 grados» exactly in all 32 states). New derived `EDUC_INEGI` (every edition:
   `EDUC` with «Técnica_primaria» apart; user's choice over a flag) and the 18 education
   constraints on it. The frozen legacy `P15PRI_CO` cell overshoots INEGI's by 2.9% (2020).
+- **6l** (`STEP_6l.md`): dictionary fixes. The Conteo 2005 FD's vertical-ellipsis rows no
+  longer make a `':'` category (`GRA_APRO`/`NHIJNAVI`/`NUHIJSOB`; `_dict_fd._ELLIPSIS_RE`);
+  CGPV 1990's unlabelled «0» (not asked) is «Blanco por pase» in its 20 coded person items
+  (`build_cpv._label_blank_zero`). Only those two YAMLs changed.
 
-Design: [`PLAN.md`](PLAN.md). Recent units: [`STEP_6k.md`](STEP_6k.md), [`STEP_6j.md`](STEP_6j.md), [`STEP_6i.md`](STEP_6i.md), [`STEP_6h.md`](STEP_6h.md), [`STEP_6g.md`](STEP_6g.md), [`STEP_6f.md`](STEP_6f.md), [`STEP_6e.md`](STEP_6e.md),
+Design: [`PLAN.md`](PLAN.md). Recent units: [`STEP_6l.md`](STEP_6l.md), [`STEP_6k.md`](STEP_6k.md), [`STEP_6j.md`](STEP_6j.md), [`STEP_6i.md`](STEP_6i.md), [`STEP_6h.md`](STEP_6h.md), [`STEP_6g.md`](STEP_6g.md), [`STEP_6f.md`](STEP_6f.md), [`STEP_6e.md`](STEP_6e.md),
 [`STEP_6d.md`](STEP_6d.md),
 [`STEP_6c.md`](STEP_6c.md), [`STEP_6b.md`](STEP_6b.md), … [`STEP_0_probe.md`](STEP_0_probe.md).
 
@@ -63,13 +67,9 @@ files; the MG 2015 files were built on the Mac and copied to `wsl` for the uploa
 
 ## Next: candidates (none decided)
 
-1. **6l (agreed, in progress): the 2005 FD's `':'` category** in `GRA_APRO`/`NHIJNAVI`/
-   `NUHIJSOB` (ellipsis rows, `STEP_6i.md` §Follow-ups) and **1990's «0» label**
-   (`STEP_6j.md` §Follow-ups): `_dict_fd`/`build_cpv` fixes + `--variables` (keep the
-   other parses byte-identical).
-2. **A BIFF5 reader in `_dict_fd`** (the CGPV 2000 tabulados are Excel 95 workbooks; 6i
+1. **A BIFF5 reader in `_dict_fd`** (the CGPV 2000 tabulados are Excel 95 workbooks; 6i
    used a scratch reader) if the 2000 checks become tests beyond state 01.
-3. Smaller: a 2000 occupation bridge (CMO → SINCO, no published table); own cells for the
+2. Smaller: a 2000 occupation bridge (CMO → SINCO, no published table); own cells for the
    1990 ITER's sector indicators (`POCUSECP/S/T`).
 
 ## Open questions for the user
@@ -266,6 +266,9 @@ None (6k settled `P15PRI_CO`).
   in-scope core entry (`SEXO`, `EDAD`…), whatever the edition calls the item (1995: `P3_5`,
   `P3_6`). Constraint categories (`_categories`) and the code-list test take only the
   group's own columns.
+- **Dictionary artefacts** (6l): an FD row whose code is only dots/colons is an ellipsis
+  (`_dict_fd._ELLIPSIS_RE`); an edition that writes an unlabelled 0 for «not asked» goes in
+  `build_cpv._BLANK_ZERO` (1990 only). `test_dictionary_fixes_6l` pins both in the YAML.
 - **Education constraints read `EDUC_INEGI`** (6k, `cpv_derived._CELL_VARS`): its
   «Primaria_com» is six grades only, «Técnica_primaria» (2020's `NIVACAD` 6) apart, as the
   ITER 1990–2020. The legacy `EDUC` and `constraints_personas.yaml` (frozen) count técnica

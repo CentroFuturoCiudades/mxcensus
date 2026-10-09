@@ -77,6 +77,9 @@ _BLANK_RE = re.compile(r"^blanco\b", re.IGNORECASE)
 # column, the minimum-wage table, ESCOACUM's reference table).
 _CATALOG_REF_RE = re.compile(r"^TC_\w+$", re.IGNORECASE)
 _CATALOG_DESC_RE = re.compile(r"^descripci[oó]n por cat[aá]logo", re.IGNORECASE)
+# The vertical ellipsis between the first and last rows of an enumeration (Conteo 2005:
+# «1 Un grado aprobado», «: :», «8 Ocho grados aprobados»; its catalog has every code).
+_ELLIPSIS_RE = re.compile(r"^[:.…⋮]+$")
 # Header words that are not codes (folded: ``{Alfanumérico}``, ``Ver catálogo``).
 _NOT_CODES = {"alfanumerico", "vercatalogo"}
 _MAX_EXPAND = 200  # a code range wider than this is never enumerated
@@ -696,12 +699,12 @@ def _finish(var: dict, catalogs: dict | None) -> dict:
 
 def _code_row(var: dict, code: str, label: str) -> None:
     """Add one code row to ``var``: a catalog note (CPV 2020), a ``TC_…`` catalog reference
-    (EIC 2015), the blank row (skipped) or codes with their label."""
+    (EIC 2015), the blank row or an ellipsis (both skipped) or codes with their label."""
     if _CATALOG_RE.search(code):          # "(Según Clasificador de …)" as a row
         var["note"] = code
     elif _CATALOG_REF_RE.match(code):     # EIC 2015: "TC_OCUPACION_2015"
         var["refs"].append((code, label))
-    elif not _BLANK_RE.match(label):
+    elif not _BLANK_RE.match(label) and not _ELLIPSIS_RE.match(code.strip()):
         var["rows"] += [(c, label) for c in _split_codes(code)]
 
 

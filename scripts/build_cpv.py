@@ -703,6 +703,8 @@ def _write_variables_yaml(out_dir: Path, map_path: Path, yaml_dir: Path,
                                                  entry_fn=fd.fd_entry)
             if set(g["periods"]) & _RANGES_FROM_DATA:
                 _reconcile_ranges(entries, paths, set(core_t))
+            if set(g["periods"]) & _BLANK_ZERO:
+                _label_blank_zero(entries, set(core_t))
             counts = Counter(sources.values())
             print(f"  {table}/{gid}: {len(paths)}/{g['files']} file(s) read; {prov}; "
                   + ", ".join(f"{k}={v}" for k, v in sorted(counts.items())), flush=True)
@@ -751,6 +753,33 @@ def _reconcile_ranges(entries: dict, paths: list[Path], skip: set[str]) -> None:
             notes.append(f"códigos observados sin etiqueta en el FD: {sentinels}")
         if notes:
             meta["Nota"] = "; ".join(([meta["Nota"]] if meta.get("Nota") else []) + notes)
+
+
+# Editions that write 0 for «not asked» without labelling it (CGPV 1990: the schooling and
+# religion of the under-5s, the activity and marital status of the under-12s, the refugios'
+# dwelling items): a categorical entry's observed 0 is «Blanco por pase», the blank's label
+# in the other editions' FDs and the legacy dictionaries (_label_blank_zero).
+_BLANK_ZERO = frozenset({"1990"})
+_UNLABELLED_RE = re.compile(r"códigos observados sin etiqueta en el FD: \[([^\]]*)\]")
+
+
+def _label_blank_zero(entries: dict, skip: set[str]) -> None:
+    """Label the code 0 «Blanco por pase» in each categorical entry that labels it with
+    itself (an observed code the FD leaves out, :func:`_dict_ddi.dictionary_entry`), and say
+    so in ``Nota``. The core entries (``skip``) are left alone."""
+    for col, meta in entries.items():
+        cats = meta.get("Categorías") or {}
+        if col in skip or meta.get("Tipo") != "categorical" or cats.get("0") != "0":
+            continue
+        cats["0"] = "Blanco por pase"
+        notes = [n for n in (meta.get("Nota") or "").split("; ") if n]
+        for i, note in enumerate(notes):
+            if m := _UNLABELLED_RE.fullmatch(note):
+                rest = [c for c in m.group(1).split(", ") if c != "'0'"]
+                notes[i] = f"códigos observados sin etiqueta en el FD: [{', '.join(rest)}]" \
+                    if rest else ""
+        notes.append("0 = no aplica (sin etiqueta en el FD): «Blanco por pase»")
+        meta["Nota"] = "; ".join(n for n in notes if n)
 
 
 # --- ITER/AGEB indicator crosswalk across censuses (cpv_iter_crosswalk.yaml) --------------

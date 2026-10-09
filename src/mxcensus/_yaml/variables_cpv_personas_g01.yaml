@@ -80,10 +80,10 @@ PAREDES:
     '6': ADOBE
     '7': TABIQUE, LADRILLO, BLOCK, PIEDRA O CEMENTO
     '8': OTROS MATERIALES
-    '0': '0'
+    '0': Blanco por pase
   Especiales:
     '9': NO ESPECIFICADO
-  Nota: 'códigos observados sin etiqueta en el FD: [''0'']'
+  Nota: '0 = no aplica (sin etiqueta en el FD): «Blanco por pase»'
 TECHOS:
   Descripción: TECHOS
   Tipo: categorical
@@ -95,10 +95,10 @@ TECHOS:
     '4': TEJA
     '5': LOSA DE CONCRETO, TABIQUE O LADRILLO
     '6': OTROS MATERIALES
-    '0': '0'
+    '0': Blanco por pase
   Especiales:
     '9': NO ESPECIFICADO
-  Nota: 'códigos observados sin etiqueta en el FD: [''0'']'
+  Nota: '0 = no aplica (sin etiqueta en el FD): «Blanco por pase»'
 PISOS:
   Descripción: PISOS
   Tipo: categorical
@@ -107,10 +107,10 @@ PISOS:
     '1': TIERRA
     '2': CEMENTO O FIRME
     '3': MADERA, MOSAICO U OTROS RECUBRIMIENTOS
-    '0': '0'
+    '0': Blanco por pase
   Especiales:
     '9': NO ESPECIFICADO
-  Nota: 'códigos observados sin etiqueta en el FD: [''0'']'
+  Nota: '0 = no aplica (sin etiqueta en el FD): «Blanco por pase»'
 P_DORMIR:
   Descripción: CUARTOS PARA DORMIR
   Tipo: numeric
@@ -141,10 +141,10 @@ CUA_EXCLU:
   Categorías:
     '1': DISPONE
     '2': NO DISPONE
-    '0': '0'
+    '0': Blanco por pase
   Especiales:
     '9': NO ESPECIFICADO
-  Nota: 'códigos observados sin etiqueta en el FD: [''0'']'
+  Nota: '0 = no aplica (sin etiqueta en el FD): «Blanco por pase»'
 TAM_DUERME:
   Descripción: COCINA DORMITORIO
   Tipo: categorical
@@ -162,10 +162,10 @@ TIE_EXCU:
   Categorías:
     '1': DISPONE
     '2': NO DISPONE
-    '0': '0'
+    '0': Blanco por pase
   Especiales:
     '9': NO ESPECIFICADO
-  Nota: 'códigos observados sin etiqueta en el FD: [''0'']'
+  Nota: '0 = no aplica (sin etiqueta en el FD): «Blanco por pase»'
 CON_AGUA:
   Descripción: EXCUSADO CON CONEXION DE AGUA
   Tipo: categorical
@@ -185,10 +185,10 @@ AGUA_ENTU:
     '2': FUERA DE VIVIENDA, PERO DENTRO DEL TERRENO
     '3': DE LLAVE PUBLICA O HIDRANTE
     '4': NO DISPONE DE AGUA ENTUBADA
-    '0': '0'
+    '0': Blanco por pase
   Especiales:
     '9': NO ESPECIFICADO
-  Nota: 'códigos observados sin etiqueta en el FD: [''0'']'
+  Nota: '0 = no aplica (sin etiqueta en el FD): «Blanco por pase»'
 DRENAJE:
   Descripción: DRENAJE
   Tipo: categorical
@@ -198,10 +198,10 @@ DRENAJE:
     '2': CONECTADO A FOSA SEPTICA
     '3': CON DESAGUE AL SUELO, A UN RIO O LAGO
     '4': NO DISPONE DE DRENAJE
-    '0': '0'
+    '0': Blanco por pase
   Especiales:
     '9': NO ESPECIFICADO
-  Nota: 'códigos observados sin etiqueta en el FD: [''0'']'
+  Nota: '0 = no aplica (sin etiqueta en el FD): «Blanco por pase»'
 ELECTRI:
   Descripción: ELETRICIDAD
   Tipo: categorical
@@ -209,10 +209,10 @@ ELECTRI:
   Categorías:
     '1': DISPONE
     '2': NO DISPONE
-    '0': '0'
+    '0': Blanco por pase
   Especiales:
     '9': NO ESPECIFICADO
-  Nota: 'códigos observados sin etiqueta en el FD: [''0'']'
+  Nota: '0 = no aplica (sin etiqueta en el FD): «Blanco por pase»'
 COMBUS:
   Descripción: COMBUSTIBLE
   Tipo: categorical
@@ -222,10 +222,10 @@ COMBUS:
     '2': PETROLEO
     '3': GAS
     '4': ELECTRICIDAD
-    '0': '0'
+    '0': Blanco por pase
   Especiales:
     '9': NO ESPECIFICADO
-  Nota: 'códigos observados sin etiqueta en el FD: [''0'']'
+  Nota: '0 = no aplica (sin etiqueta en el FD): «Blanco por pase»'
 TENENCIA:
   Descripción: TENENCIA
   Tipo: categorical
@@ -234,10 +234,10 @@ TENENCIA:
     '1': PROPIA
     '2': RENTADA
     '3': ESTA EN OTRA SITUACION
-    '0': '0'
+    '0': Blanco por pase
   Especiales:
     '9': NO ESPECIFICADO
-  Nota: 'códigos observados sin etiqueta en el FD: [''0'']'
+  Nota: '0 = no aplica (sin etiqueta en el FD): «Blanco por pase»'
 NUM_PERS:
   Descripción: No. DE PERSONAS EN LA VIVIENDA
   Tipo: string
@@ -329,10 +329,10 @@ HAB_IND:
   Categorías:
     '1': SI
     '2': 'NO'
-    '0': '0'
+    '0': Blanco por pase
   Especiales:
     '9': NO ESPECIFICADO
-  Nota: 'códigos observados sin etiqueta en el FD: [''0'']'
+  Nota: '0 = no aplica (sin etiqueta en el FD): «Blanco por pase»'
 CVE_LENG:
   Descripción: CLAVE DE LENGUA INDIGENA
   Tipo: string
@@ -346,10 +346,10 @@ HAB_ESP:
   Categorías:
     '3': SI
     '4': 'NO'
-    '0': '0'
+    '0': Blanco por pase
   Especiales:
     '9': NO ESPECIFICADO
-  Nota: 'códigos observados sin etiqueta en el FD: [''0'']'
+  Nota: '0 = no aplica (sin etiqueta en el FD): «Blanco por pase»'
 RELIGION:
   Descripción: RELIGION
   Tipo: categorical
@@ -360,10 +360,10 @@ RELIGION:
     '3': PROTESTANTE O EVANGELICA
     '4': JUDAICA
     '5': OTRA
-    '0': '0'
+    '0': Blanco por pase
   Especiales:
     '9': NO ESPECIFICADO
-  Nota: 'códigos observados sin etiqueta en el FD: [''0'']'
+  Nota: '0 = no aplica (sin etiqueta en el FD): «Blanco por pase»'
 ALFABETA:
   Descripción: ALFABETISMO
   Tipo: categorical
@@ -371,10 +371,10 @@ ALFABETA:
   Categorías:
     '1': SABE LEER Y ESCRIBIR ALGUN RECADO
     '2': NO SABE LEER NI ESCRIBIR ALGUN RECADO
-    '0': '0'
+    '0': Blanco por pase
   Especiales:
     '9': NO ESPECIFICADO
-  Nota: 'códigos observados sin etiqueta en el FD: [''0'']'
+  Nota: '0 = no aplica (sin etiqueta en el FD): «Blanco por pase»'
 ASISTE:
   Descripción: ASISTENCIA
   Tipo: categorical
@@ -382,10 +382,10 @@ ASISTE:
   Categorías:
     '1': ASISTE A LA ESCUELA ACTUALMENTE
     '2': NO ASISTE A LA ESCUELA ACTUALMENTE
-    '0': '0'
+    '0': Blanco por pase
   Especiales:
     '9': NO ESPECIFICADO
-  Nota: 'códigos observados sin etiqueta en el FD: [''0'']'
+  Nota: '0 = no aplica (sin etiqueta en el FD): «Blanco por pase»'
 APROBO:
   Descripción: APROBO
   Tipo: categorical
@@ -393,10 +393,10 @@ APROBO:
   Categorías:
     '1': APROBO ALGUN GRADO
     '2': NO APROBO NINGUN GRADO
-    '0': '0'
+    '0': Blanco por pase
   Especiales:
     '9': NO ESPECIFICADO
-  Nota: 'códigos observados sin etiqueta en el FD: [''0'']'
+  Nota: '0 = no aplica (sin etiqueta en el FD): «Blanco por pase»'
 PRESCO:
   Descripción: PREESCOLAR
   Tipo: numeric
@@ -443,8 +443,8 @@ NIV_EST:
     '3': PREPARATORIA
     '4': PROFESIONAL
     '5': POSGRADO
-    '0': '0'
-  Nota: 'códigos observados sin etiqueta en el FD: [''0'']'
+    '0': Blanco por pase
+  Nota: '0 = no aplica (sin etiqueta en el FD): «Blanco por pase»'
 ANO_APRO:
   Descripción: AÑOS APROBADOS
   Tipo: numeric
@@ -495,10 +495,10 @@ EST_CIVIL:
     '6': DIVORCIADO(A)
     '7': VIUDO(A)
     '8': SOLTERO(A)
-    '0': '0'
+    '0': Blanco por pase
   Especiales:
     '9': NO ESPECIFICADO
-  Nota: 'códigos observados sin etiqueta en el FD: [''0'']'
+  Nota: '0 = no aplica (sin etiqueta en el FD): «Blanco por pase»'
 ACT_PRIN:
   Descripción: ACTIVIDAD PRINCIPAL
   Tipo: categorical
@@ -512,10 +512,10 @@ ACT_PRIN:
     '6': ESTA JUBILADO O PENSIONADO
     '7': ESTA INCAPACITADO PERMANENTEMENTE PARA TRABAJAR
     '8': NO TRABAJO POR OTRAS RAZONES
-    '0': '0'
+    '0': Blanco por pase
   Especiales:
     '9': NO ESPECIFICADO
-  Nota: 'códigos observados sin etiqueta en el FD: [''0'']'
+  Nota: '0 = no aplica (sin etiqueta en el FD): «Blanco por pase»'
 CVE_OCUP:
   Descripción: CLAVE DE OCUPACION
   Tipo: string
@@ -532,10 +532,10 @@ SIT_TRAB:
     '3': TRABAJADOR POR SU CUENTA
     '4': PATRON O EMPRESARIO
     '5': TRABAJADOR SIN PAGO EN EL NEGOCIO O PREDIO FAMILIAR
-    '0': '0'
+    '0': Blanco por pase
   Especiales:
     '9': NO ESPECIFICADO
-  Nota: 'códigos observados sin etiqueta en el FD: [''0'']'
+  Nota: '0 = no aplica (sin etiqueta en el FD): «Blanco por pase»'
 HORAS:
   Descripción: HORAS TRABAJADAS EN LA SEMANA
   Tipo: numeric
