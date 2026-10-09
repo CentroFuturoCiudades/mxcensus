@@ -1,10 +1,7 @@
 # CPV family — session handoff
 
-**Status (2026-10-08, evening): units 0–6j are done. `main` = v0.7.1 (through 6e);
-`cpv-integration` is ahead by 6f–6j (6f–6i pushed to origin). The user agreed 6j (1990/1995
-derived columns) from the candidates and asked to merge `cpv-integration` into `main` as
-**0.8.0** after it (each commit, push and merge with the user's go-ahead). No unit is
-queued.**
+**Status (2026-10-08, evening): units 0–6j are done. `main` = `cpv-integration` = **v0.8.0**
+(tagged, pushed): 6f–6j merged after 6j with the user's go-ahead. No unit is queued.**
 - **Released** (registered, uploaded, verified): every edition 1990–2025 (897 `cpv_` files)
   and the Marco Geoestadístico 1995–2025 frames, incl. the EIC 2015's (6h); registry
   **4148** entries (`STEP_6b.md` §Release batch, `STEP_6h.md`).
@@ -60,8 +57,7 @@ files; the MG 2015 files were built on the Mac and copied to `wsl` for the uploa
 
 ## Next: candidates (none decided)
 
-1. **Merge / version** (agreed for after 6j): `cpv-integration` → `main` as 0.8.0 (6f–6j).
-   `wsl:~/mxcensus` is at v0.7.0: pull before running new code there.
+1. `wsl:~/mxcensus` is at v0.7.0: pull (v0.8.0) before running new code there.
 2. **`P15PRI_CO` and technical studies after primaria** (open question below).
 3. **The 2005 FD's `':'` category** in `GRA_APRO` (`STEP_6i.md` §Follow-ups) and **1990's
    «0» label** (`STEP_6j.md` §Follow-ups): `_dict_fd`/dictionary fixes + `--variables`
