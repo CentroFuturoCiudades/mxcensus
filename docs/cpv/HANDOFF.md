@@ -1,8 +1,8 @@
 # CPV family — session handoff
 
-**Status (2026-10-09, early morning): units 0–6q are done. `main` = **v0.8.0** (tagged,
-pushed); `cpv-integration` adds 6k–6q (a commit each, pushed to `origin/cpv-integration`,
-not merged; merge/version are the user's call). 6m–6q ran unattended overnight at the
+**Status (2026-10-09, early morning): units 0–6r are done. `main` = **v0.8.0** (tagged,
+pushed); `cpv-integration` adds 6k–6r (a commit each, pushed to `origin/cpv-integration`,
+not merged; merge/version are the user's call). 6m–6r ran unattended overnight at the
 user's request: their decisions wait for review (§Review).**
 - **Released** (registered, uploaded, verified): every edition 1990–2025 (897 `cpv_` files)
   and the Marco Geoestadístico 1995–2025 frames, incl. the EIC 2015's (6h); registry
@@ -67,8 +67,11 @@ user's request: their decisions wait for review (§Review).**
   2010 limitation and parental co-residence (national) in the tabulado checks, all exact. It
   reversed a 6e rule: 2010's pointer «row 99 + blank code» is «no especificado» (INEGI's
   `12_01A`, to the person), not «lives here».
+- **6r** (`STEP_6r.md`): CGPV 2000 hours (EM07) and education of the 12+/18+ (ED08/ED11) in
+  the checks; 2000's `HORTRA_CAT` counts «had a job but did not work» (`CONACT` 20) at 0
+  hours, as INEGI's tabulado and 2010–2025 (the 2000 sample records their usual hours).
 
-Design: [`PLAN.md`](PLAN.md). Recent units: [`STEP_6q.md`](STEP_6q.md), [`STEP_6p.md`](STEP_6p.md), [`STEP_6o.md`](STEP_6o.md), [`STEP_6n.md`](STEP_6n.md), [`STEP_6m.md`](STEP_6m.md), [`STEP_6l.md`](STEP_6l.md), [`STEP_6k.md`](STEP_6k.md), [`STEP_6j.md`](STEP_6j.md), [`STEP_6i.md`](STEP_6i.md), [`STEP_6h.md`](STEP_6h.md), [`STEP_6g.md`](STEP_6g.md), [`STEP_6f.md`](STEP_6f.md), [`STEP_6e.md`](STEP_6e.md),
+Design: [`PLAN.md`](PLAN.md). Recent units: [`STEP_6r.md`](STEP_6r.md), [`STEP_6q.md`](STEP_6q.md), [`STEP_6p.md`](STEP_6p.md), [`STEP_6o.md`](STEP_6o.md), [`STEP_6n.md`](STEP_6n.md), [`STEP_6m.md`](STEP_6m.md), [`STEP_6l.md`](STEP_6l.md), [`STEP_6k.md`](STEP_6k.md), [`STEP_6j.md`](STEP_6j.md), [`STEP_6i.md`](STEP_6i.md), [`STEP_6h.md`](STEP_6h.md), [`STEP_6g.md`](STEP_6g.md), [`STEP_6f.md`](STEP_6f.md), [`STEP_6e.md`](STEP_6e.md),
 [`STEP_6d.md`](STEP_6d.md),
 [`STEP_6c.md`](STEP_6c.md), [`STEP_6b.md`](STEP_6b.md), … [`STEP_0_probe.md`](STEP_0_probe.md).
 
@@ -80,7 +83,7 @@ files; the MG 2015 files were built on the Mac and copied to `wsl` for the uploa
 ## Kickoff prompt for the next session
 
 > Continue the CPV census-family work in this repo (branch cpv-integration; main = v0.8.0).
-> Read docs/cpv/HANDOFF.md first, then review the night's unattended units 6m–6q (§Review)
+> Read docs/cpv/HANDOFF.md first, then review the night's unattended units 6m–6r (§Review)
 > with me: decide the open questions, then whether to merge into main and bump the version.
 > Agree any next unit (candidates in HANDOFF §Next) before implementing it, following the
 > session protocol in docs/cpv/PLAN.md. Use .venv/bin/python, not uv run. Run wsl tasks
@@ -88,7 +91,7 @@ files; the MG 2015 files were built on the Mac and copied to `wsl` for the uploa
 
 ## Review: decisions taken unattended (night of 2026-10-08/09)
 
-The user asked for the night's units to run without them; these choices wait for review:
+The user asked for the night's units (6m–6r) to run without them; these choices wait for review:
 
 1. **6n, a crosswalk change with user-visible effect**: 2000's ITER `VP_CCUART` is no longer
    renamed to `VPH_1DOR` under `harmonize=True` (it counts one room without the exclusive
@@ -109,7 +112,9 @@ The user asked for the night's units to run without them; these choices wait for
    code» is now «no especificado» (was «lives here»): INEGI's tabulado `12_01A` counts it so,
    to the person nationally. `MADRE_EN_VIVIENDA`/`PADRE_EN_VIVIENDA`/`IDENT_PAREJA_CAT`
    (2010) change for ~3.1M persons (weighted); the partner follows by analogy (no tabulado).
-7. **Merge and version**: `main` is still v0.8.0; `cpv-integration` carries 6k–6q.
+7. **6r, 2000's hours**: `HORTRA_CAT` 2000 sets `CONACT` 20 («had a job but did not work»)
+   to 0 hours (INEGI's C2KEM07 «no trabajó»; 2010–2025 record 0 for them).
+8. **Merge and version**: `main` is still v0.8.0; `cpv-integration` carries 6k–6r.
 
 ## Next: candidates (none decided)
 

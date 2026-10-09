@@ -24,9 +24,10 @@ therefore equal the legacy ones (tested state by state). Two differences, both d
   loaders only create the observed ones). As in the legacy loaders, a blank second or
   third item sets the ``…_Blanco por pase`` dummy.
 
-Six columns are new: ``SECTOR`` (below), ``DISCAPACIDAD``/``LIMITACION``, INEGI's definitions of disability
-and limitation (code 8, «degree unknown», is a disability; a limitation excludes the
-disabled; the legacy ``DIS_CON``/``DIS_LIMI`` count otherwise and are kept as they are),
+Six columns are new: ``SECTOR`` (below), ``DISCAPACIDAD``/``LIMITACION``, INEGI's
+definitions of disability and limitation (code 8, «degree unknown», is a disability; a
+limitation excludes the disabled; the legacy ``DIS_CON``/``DIS_LIMI`` count otherwise and
+are kept as they are),
 ``SIN_DISC_LIM``, INEGI's population without either or a mental condition (its
 ``PSIND_LIM``), and ``MADRE_EN_VIVIENDA``/``PADRE_EN_VIVIENDA`` (whether the mother/father lives in the
 dwelling: the one part of ``IDENT_MADRE``/``IDENT_PADRE`` Censo 2010 also asked).
@@ -365,6 +366,13 @@ def _hortra_cat(src):
 
 
 _EMPLOYED = (10, 20)          # CONACT (2020 codes): worked, had a job but did not work
+
+
+def _hortra_2000(src):
+    """CGPV 2000's hours: who had a job but did not work (``CONACT`` 20) reported hours,
+    likely their usual ones; INEGI's sample tabulado (C2KEM07, «no trabajó»), like every
+    later edition's data, gives them none, so they count at 0 hours (6r)."""
+    return _hortra_cat(pd.DataFrame({"HORTRA": src["HORTRA"].mask(src["CONACT"].eq(20), 0)}))
 
 
 def _hortra_1990(src):
@@ -837,8 +845,8 @@ def _registry() -> tuple[_Derivation, ...]:
         D(per, ("EDAD_CAT",), ("EDAD",), (*_OLDEST, *_EVERY), _edad_cat),
         D(per, ("INGTRMEN_CAT",), ("INGTRMEN",), ("1995", *_SINCE_2000), _ingtrmen_cat),
         D(per, ("INGTRMEN_CAT",), ("INGTRMEN", "CONACT"), ("1990",), _ingtrmen_1990),
-        D(per, ("HORTRA_CAT",), ("HORTRA",), ("1995", "2000", "2010", "2020", "2025"),
-          _hortra_cat),
+        D(per, ("HORTRA_CAT",), ("HORTRA",), ("1995", "2010", "2020", "2025"), _hortra_cat),
+        D(per, ("HORTRA_CAT",), ("HORTRA", "CONACT"), ("2000",), _hortra_2000),
         D(per, ("HORTRA_CAT",), ("HORTRA", "CONACT"), ("1990",), _hortra_1990),
         D(per, _EDUC, ("NIVACAD", "ESCOLARI"), _ALL, _educ),
         D(per, _EDUC, ("NIVACAD", "ANTESC", "ESCOLARI", "NIVELACAD"), ("2000",), _educ_2000),

@@ -615,6 +615,9 @@ def test_derive_persons_2000_recodes():
     assert list(out["INGTRMEN_CAT"]) == ["1,000-4,999", "Blanco por pase", "Blanco por pase",
                                          "No especificado"]
     assert list(out["HORTRA_CAT"])[::3] == ["41-48", "No especificado"]
+    # 6r: who had a job but did not work (CONACT 20) reported hours; they count at 0
+    had = d.derive(_persons_2000().assign(CONACT=["20", "40", "", "60"]), "personas", 2000)
+    assert list(had["HORTRA_CAT"])[::3] == ["0-5", "No especificado"]
     # one item per institution: IMSS + other, none, ISSSTE, coverage not known (IMSS 9)
     assert list(out["DHSERSAL_IMSS"]) == [1, 0, 0, 0] and list(out["DHSERSAL_Otro"]) == [1, 0, 0, 0]
     assert list(out["DHSERSAL_No afiliado"]) == [0, 1, 0, 0]

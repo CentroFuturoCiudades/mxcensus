@@ -15,10 +15,14 @@ Tolerance: 0.04 points (state 07: 0.6).
 | EC02 Marital status (`SITUA_CONYUGAL_CAT`), % of the 12+ | `C2KEC02.xls` | 396 | 0.003 | 0.008 | 0.032 (07 M «single») | 0 |
 | EM01 Activity (`CONACT_CAT`) | `C2KEM01.xls` | 495 | 0.002 | 0.005 | 0.048 (07 M «PEA (% of the 12+)») | 0 |
 | EM05 Sector of the employed (`ACTIVIDADES_C_COARSE`) | `C2KEM05.xls` | 1683 | 0.003 | 0.006 | 0.508 (07 M «Agricultura, ganadería, pesca y caza») | 0 |
+| EM07 Hours worked by the employed (`HORTRA_CAT`) | `C2KEM07.xls` | 495 | 0.003 | 0.015 | 0.080 (07 H «more than 56») | 0 |
+| ED08 Education of the 12+ (`EDUC_INEGI`) | `C2KED08.xls` | 693 | 0.003 | 0.009 | 0.091 (07 M «sin instrucción») | 0 |
+| ED11 Education of the 18+ (`EDUC_INEGI`) | `C2KED11.xls` | 297 | 0.004 | 0.012 | 0.083 (07 M «not specified») | 0 |
 | ED10 Education of the 15+ (`EDUC_INEGI`) | `C2KED10.xls` | 594 | 0.003 | 0.011 | 0.094 (07 M «sin instrucción») | 0 |
 | VI06 Bedrooms (`CUADORM_CAT`), % of the dwellings | `C2KVI06.xls` | 99 | 0.004 | 0.013 | 0.105 (07 T «two or more») | 0 |
 | VI10 Drainage (`DRENAJE_CAT`), % of the dwellings | `C2KVI10.xls` | 99 | 0.002 | 0.007 | 0.019 (07 T «has drainage») | 0 |
 
+- ED08: Técnica after primaria is its own column here, as `EDUC_INEGI`'s «Técnica_primaria» (6k).
 - ED10: INEGI's 2000 levels put técnica after primaria with secundaria (its footnote 1), so the comparison groups it there.
 
 ## 2010

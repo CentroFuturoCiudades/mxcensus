@@ -60,7 +60,8 @@ _DEFAULT_REPORT = ROOT / "docs" / "cpv" / "TABULADOS_REPORT.md"
 SOURCES = {
     "2000": ("ccpv/2000/tabulados/ampliado",
              ("C2KMI01.xls", "C2KMI03.xls", "C2KRE02.xls", "C2KSS04.xls", "C2KEC02.xls",
-              "C2KEM01.xls", "C2KEM05.xls", "C2KED10.xls", "C2KVI06.xls", "C2KVI10.xls")),
+              "C2KEM01.xls", "C2KEM05.xls", "C2KEM07.xls", "C2KED08.xls", "C2KED10.xls",
+              "C2KED11.xls", "C2KVI06.xls", "C2KVI10.xls")),
     "2010": ("ccpv/2010/tabulados/Ampliado",
              ("04_02A_ESTATAL.xls", "06_01A_ESTATAL.xls", "08_02A_ESTATAL.xls",
               "08_03A_ESTATAL.xls", "12_01A_ESTATAL.xls")),
@@ -317,6 +318,33 @@ def _ed10(p):
                    e.eq("Primaria_com"),
                    e.isin(["Técnica_primaria", "Secundaria_incom", "Secundaria_com"]),
                    e.eq("Posbásica"), e.eq("No especificado"))
+
+
+def _ed08(p):
+    """The 12+ by INEGI's 2000 levels (C2KED08 lists técnica after primaria apart, as
+    ``EDUC_INEGI``'s «Técnica_primaria», 6k)."""
+    e = _cat(p, "EDUC_INEGI")
+    return _shares(_age(p).between(12, 130), e.eq("Sin Educación"), e.eq("Primaria_incom"),
+                   e.eq("Primaria_com"), e.isin(["Secundaria_incom", "Secundaria_com"]),
+                   e.eq("Técnica_primaria"), e.eq("Posbásica"), e.eq("No especificado"))
+
+
+def _ed11(p):
+    """The 18+ without media superior, with media superior or superior, not specified."""
+    e = _cat(p, "EDUC_INEGI")
+    return _shares(_age(p).between(18, 130),
+                   e.isin(["Sin Educación", "Primaria_incom", "Primaria_com", "Técnica_primaria",
+                           "Secundaria_incom", "Secundaria_com"]),
+                   e.eq("Posbásica"), e.eq("No especificado"))
+
+
+def _em07(p):
+    """The employed by hours worked (C2KEM07's bins: none and up to 40, 41–48, 49–56, more
+    than 56, not specified; ``HORTRA_CAT``'s 0-5 holds who did not work)."""
+    employed = _age(p).between(12, 130) & _cat(p, "CONACT_CAT").eq("Trabaja")
+    h = _cat(p, "HORTRA_CAT")
+    return _shares(employed, h.isin(["0-5", "6-10", "11-20", "21-40"]), h.eq("41-48"),
+                   h.eq("49-56"), h.isin(["57-60", "61-80", "81YMAS"]), h.eq("No especificado"))
 
 
 def _vi06(v):
@@ -619,6 +647,19 @@ CHECKS: tuple[Check, ...] = (
     Check("2000", "EM05", "Sector of the employed (`ACTIVIDADES_C_COARSE`)", "C2KEM05.xls",
           "personas", tuple(n for n, _ in _SECTORS_2000),
           lambda wb: _c2k_sectors(_sheet(wb, None)), _em05),
+    Check("2000", "EM07", "Hours worked by the employed (`HORTRA_CAT`)", "C2KEM07.xls",
+          "personas", ("none or up to 40", "41-48", "49-56", "more than 56", "not specified"),
+          _c2k("CDEFGHIJKLM", lambda v: [sum(v[:6]), v[6], v[7], v[8] + v[9], v[10]]), _em07),
+    Check("2000", "ED08", "Education of the 12+ (`EDUC_INEGI`)", "C2KED08.xls", "personas",
+          ("sin instrucción", "primaria incompleta or grade not specified", "primaria completa",
+           "secundaria", "técnica after primaria", "media superior and superior",
+           "not specified"),
+          _c2k("CDEFGHIJ", lambda v: [v[0], v[1] + v[3], v[2], v[4], v[5], v[6], v[7]]), _ed08,
+          note="Técnica after primaria is its own column here, as `EDUC_INEGI`'s "
+               "«Técnica_primaria» (6k)."),
+    Check("2000", "ED11", "Education of the 18+ (`EDUC_INEGI`)", "C2KED11.xls", "personas",
+          ("without media superior", "media superior or superior", "not specified"),
+          _c2k("CDEFGH", lambda v: [v[0], v[1] + v[2] + v[3] + v[4], v[5]]), _ed11),
     Check("2000", "ED10", "Education of the 15+ (`EDUC_INEGI`)", "C2KED10.xls", "personas",
           ("sin instrucción", "primaria incompleta or grade not specified",
            "primaria completa", "secundaria and técnica after primaria",

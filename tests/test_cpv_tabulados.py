@@ -130,8 +130,9 @@ def test_state_01_within_tolerance(monkeypatch):
     monkeypatch.setattr(ck, "fetch", lambda periods, tab_dir, retries=2: {
         f"{p}/{n}": tab_dir / p / n for p in periods for n in ck.SOURCES[p][1]})
     rows = ck.run(sorted(ck.SOURCES), [1], _TABS, _MIRROR, log=lambda *a: None)
-    assert len(rows) == 317 + 159 + 120             # 6p: 2020; 6q: 2015 affiliation, commute,
-    #                                                 marital status, education (2010's are national)
+    assert len(rows) == 317 + 159 + 120 + 45        # 6p: 2020; 6q: 2015 affiliation, commute,
+    #                                                 marital status, education (2010's are national);
+    #                                                 6r: 2000 hours, education of the 12+/18+
     bad = [r for r in rows if abs(r["delta"]) > r["tolerance"]]
     assert not bad, bad[:5]
     exact = [r for r in rows if r["period"] != "2000"]
