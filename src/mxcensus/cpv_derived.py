@@ -158,6 +158,10 @@ _RECODE: dict[str, dict[str, dict[int, float]]] = {
         "RES05PAI_C": {600: 998, 700: 997, 999: 998},
         # The 4-digit SINCO of 2010 (TC_OCUPACION_2010): 5999 is group 59 (as 2015's 599).
         "OCUACTIV_C": {5999: 5299},
+        # Dwelling class: 2000's classes (casa independiente, departamento, vecindad,
+        # azotea, local no construido, móvil, refugio, not specified); its tabulados'
+        # «viviendas particulares habitadas» leave out 5–7, as 2020's «Otro» (STEP_3b.md).
+        "CLAVIVP": {2: 4, 3: 5, 4: 6, 5: 7, 6: 8, 7: 9, 9: 99},
     },
     "2000": {
         # 14 student, 15 home duties, 16 retired found working by the activity check; 40
@@ -861,7 +865,7 @@ def _registry() -> tuple[_Derivation, ...]:
         D(per, ("RELIGION_CAT",), ("OTRAREL_C",), ("2010",), _religion_2010),
         D(per, ("RELIGION_CAT",), ("OTRAREL_C",), ("2000",), _religion_2000),
         D(per, ("RELIGION_CAT",), ("RELIGION",), ("1990",), _religion_1990),
-        D(viv, ("CLAVIVP_CAT",), ("CLAVIVP",), ("1990", "2000", "2005", *_SINCE_2015),
+        D(viv, ("CLAVIVP_CAT",), ("CLAVIVP",), ("1990", "2000", "2005", "2010", *_SINCE_2015),
           _cat(viv, "CLAVIVP", "CLAVIVP_CAT")),
         D(viv, ("CUADORM_CAT",), ("CUADORM",), (*_OLDEST, *_EVERY),
           _cat(viv, "CUADORM", "CUADORM_CAT")),
@@ -1040,7 +1044,26 @@ _VIVIENDA = {"CLAVIVP_CAT": ["Vivienda"]}
 # group, which also holds the neo-Israelite movements its ITER counts in POTRAS_REL). CGPV
 # 1990 and the Conteo 1995: the legacy cells on their own items (literacy, indigenous
 # language, sex, floor, electricity, water), with their dictionaries' labels; the Conteo
-# 1995 has no dwelling class, so its dwelling cells take every (private) dwelling.
+# 1995 has no dwelling class, so its dwelling cells take every (private) dwelling. CGPV
+# 2000, the Conteo 2005 and Censo 2010 (6n): the legacy cells their items answer under
+# other names or labels, by their ITER's definitions (2000's sanitary service is the
+# exclusive one; «sin ningún bien» lists 2000's ten goods, 2005's four, 2010's nine).
+_SIN_BIENES_2000 = ("RADIO", "TELEVI", "VIDEO", "LICUAD", "REFRIG", "LAVADORA", "TELEFONO",
+                    "BOILER", "AUTOPROP", "COMPU")
+_SIN_BIENES_2010 = ("RADIO", "TELEVI", "REFRIG", "LAVADORA", "AUTOPROP", "COMPU", "TELEFONO",
+                    "CELULAR", "INTERNET")
+_AGUA_DV_2000 = ["Agua entubada dentro de la vivienda",
+                 "Agua entubada fuera de la vivienda, pero dentro del terreno"]
+_AGUA_FV_2000 = ["Agua entubada de llave pública (o hidrante)",
+                 "Agua entubada que acarrean de otra vivienda", "Agua de pipa",
+                 "Agua de un pozo, río lago, arroyo u otra"]
+_AGUA_FV_2010 = [*_AGUA_FV_2000[:3], "Agua de un pozo, río, lago, arroyo u otra"]
+_AGUA_DV_2005 = ["Disponen de agua de la red pública dentro de la vivienda",
+                 "Disponen de agua de la red pública fuera de la vivienda pero dentro del "
+                 "terreno"]
+_AGUA_FV_2005 = ["Se abastecen de una llave pública o hidrante", "Se abastecen de otra vivienda",
+                 "Se abastecen de agua de pipa", "Se abastecen de agua de pozo",
+                 "Se abastecen de agua de río, arroyo, lago u otro"]
 _EDITION_CELLS = {
     ("personas", "1990"): {
         "P15YM_AN": {"EDAD_CAT": _AGES_15PLUS,
@@ -1065,6 +1088,70 @@ _EDITION_CELLS = {
         "VPH_AGUADV": {"P1_8": ["Dentro de la vivienda",
                                 "Fuera de la vivienda, pero dentro del terreno"]},
         "VPH_DRENAJ": {"DRENAJE_CAT": ["Sí"]},
+    },
+    ("personas", "2000"): {
+        "P5_HLI": {"EDAD_CAT": _AGES_5PLUS, "HLENGUA": ["Sí habla algún dialecto"]},
+        "P5_HLI_NHE": {"EDAD_CAT": _AGES_5PLUS, "HLENGUA": ["Sí habla algún dialecto"],
+                       "HESPANOL": ["No habla español"]},
+        "P5_HLI_HE": {"EDAD_CAT": _AGES_5PLUS, "HLENGUA": ["Sí habla algún dialecto"],
+                      "HESPANOL": ["Sí habla español"]},
+        "P15A17A": {"EDAD_CAT": ["15-17"], "ASISTEN": ["Sí va a la escuela"]},
+        "P15YM_AN": {"EDAD_CAT": _AGES_15PLUS, "ALFABET": ["No sabe leer y escribir"]},
+    },
+    ("viviendas", "2000"): {
+        "VPH_PISODT": {**_VIVIENDA, "PISOS": ["Cemento o firme",
+                                              "Madera, mosaico u otros recubrimientos"]},
+        "VPH_C_ELEC": {**_VIVIENDA, "ELECTRI": ["Sí tiene"]},
+        "VPH_AGUADV": {**_VIVIENDA, "DISAGU": _AGUA_DV_2000},
+        "VPH_EXCSA": {**_VIVIENDA, "SERSAN": ["Sí tiene"], "USOEXC": ["Sí es exclusivo"]},
+        "VPH_C_SERV": {**_VIVIENDA, "ELECTRI": ["Sí tiene"], "DISAGU": _AGUA_DV_2000,
+                       "DRENAJE_CAT": ["Sí"]},
+        "VPH_NDEAED": {**_VIVIENDA, "ELECTRI": ["No tiene"], "DISAGU": _AGUA_FV_2000,
+                       "DRENAJE_CAT": ["No"]},
+        "VPH_SNBIEN": {**_VIVIENDA, **{item: ["No tienen en la vivienda"]
+                                       for item in _SIN_BIENES_2000}},
+        **{ind: {**_VIVIENDA, item: ["Sí tienen en la vivienda"]} for ind, item in (
+            ("VPH_REFRI", "REFRIG"), ("VPH_LAVAD", "LAVADORA"), ("VPH_AUTOM", "AUTOPROP"),
+            ("VPH_RADIO", "RADIO"), ("VPH_TV", "TELEVI"), ("VPH_TELEF", "TELEFONO"))},
+    },
+    ("personas", "2005"): {
+        "P5_HLI": {"EDAD_CAT": _AGES_5PLUS, "HABLENIN": ["Si"]},
+        "P5_HLI_NHE": {"EDAD_CAT": _AGES_5PLUS, "HABLENIN": ["Si"],
+                       "HATAMESP": ["No habla español"]},
+        "P5_HLI_HE": {"EDAD_CAT": _AGES_5PLUS, "HABLENIN": ["Si"], "HATAMESP": ["Habla español"]},
+        "P6A11_NOA": {"EDAD_CAT": ["6-7", "8-11"], "ASIS_ESC": ["No"]},
+        "P12A14NOA": {"EDAD_CAT": ["12-14"], "ASIS_ESC": ["No"]},
+    },
+    ("viviendas", "2005"): {
+        "VPH_PISODT": {**_VIVIENDA, "MAT_PISO": ["Cemento o firme",
+                                                 "Madera, mosaico u otro material"]},
+        "VPH_PISOTI": {**_VIVIENDA, "MAT_PISO": ["Tierra"]},
+        "VPH_C_ELEC": {**_VIVIENDA, "DIS_ELEC": ["Si"]},
+        "VPH_AGUADV": {**_VIVIENDA, "DIS_AGUA": _AGUA_DV_2005},
+        "VPH_AGUAFV": {**_VIVIENDA, "DIS_AGUA": _AGUA_FV_2005},
+        "VPH_EXCSA": {**_VIVIENDA, "DIS_SANI": ["Si"]},
+        "VPH_C_SERV": {**_VIVIENDA, "DIS_ELEC": ["Si"], "DIS_AGUA": _AGUA_DV_2005,
+                       "DRENAJE_CAT": ["Sí"]},
+        "VPH_NDEAED": {**_VIVIENDA, "DIS_ELEC": ["No"], "DIS_AGUA": _AGUA_FV_2005,
+                       "DRENAJE_CAT": ["No"]},
+        "VPH_SNBIEN": {**_VIVIENDA, "NODISBIE": ["No dispone de ninguno de los bienes captados."]},
+        "VPH_REFRI": {**_VIVIENDA, "DIS_REFR": ["Si"]},
+        "VPH_LAVAD": {**_VIVIENDA, "DIS_LAVA": ["Disponen de lavadora"]},
+        "VPH_TV": {**_VIVIENDA, "DIS_TELE": ["Si"]},
+        "VPH_PC": {**_VIVIENDA, "DIS_COMP": ["Disponen de computadora"]},
+    },
+    ("viviendas", "2010"): {
+        "VPH_C_ELEC": {**_VIVIENDA, "ELECTRI": ["Sí"]},
+        "VPH_S_ELEC": {**_VIVIENDA, "ELECTRI": ["No"]},
+        "VPH_AGUADV": {**_VIVIENDA, "DISAGU": _AGUA_DV_2000},
+        "VPH_AGUAFV": {**_VIVIENDA, "DISAGU": _AGUA_FV_2010},
+        "VPH_EXCSA": {**_VIVIENDA, "SERSAN": ["Sí"]},
+        "VPH_C_SERV": {**_VIVIENDA, "ELECTRI": ["Sí"], "DISAGU": _AGUA_DV_2000,
+                       "DRENAJE_CAT": ["Sí"]},
+        "VPH_SNBIEN": {**_VIVIENDA, **{item: ["No"] for item in _SIN_BIENES_2010}},
+        "VPH_REFRI": {**_VIVIENDA, "REFRIG": ["Sí"]},
+        "VPH_TV": {**_VIVIENDA, "TELEVI": ["Sí"]},
+        "VPH_PC": {**_VIVIENDA, "COMPU": ["Sí"]},
     },
     ("personas", "2010"): {
         "PNCATOLICA": {"RELIGION_CAT": ["Protestante/cristiano evangélico"]},
@@ -1165,7 +1252,9 @@ def cpv_constraints(table: str, period: str | int) -> dict:
     categories all exist in the edition's labelled frame with ``derived=True``. EIC 2015
     publishes neither, so it has none. An edition's own definitions (Censo 2010's
     limitation in activity: ``PCON_LIM``, ``PSIN_LIM``, ``PCLIM_*`` on ``LIM_ACTIVIDAD``
-    and ``DISCAP1``–``DISCAP7``; its religion groups: ``PNCATOLICA``) are added when it
+    and ``DISCAP1``–``DISCAP7``; its religion groups: ``PNCATOLICA``; the legacy cells on
+    the 1990–2010 samples' own items — literacy, language, attendance, floor, electricity,
+    water, sanitary service, goods, with each dictionary's labels) are added when it
     publishes the indicator. Feed the
     result and the frame's dtypes to :func:`mxcensus.get_tables_dict`.
     """

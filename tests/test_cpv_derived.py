@@ -66,8 +66,8 @@ _GAPS = {
     # 2000: no bachillerato tecnológico, normal de licenciatura, especialidad, doctorado (in
     # maestría); técnica (6) splits into 6/7/8 by its antecedent (_educ_2000)
     ("2000", "NIVACAD"): {5, 7, 8, 10, 12, 14},
-    # 2000/2005 dwelling classes: one «casa independiente» (2020: 1–3 by terrain/dúplex)
-    ("2000", "CLAVIVP"): {2, 3}, ("2005", "CLAVIVP"): {2, 3},
+    # 2000/2005/2010 dwelling classes: one «casa independiente» (2020: 1–3 by terrain/dúplex)
+    ("2000", "CLAVIVP"): {2, 3}, ("2005", "CLAVIVP"): {2, 3}, ("2010", "CLAVIVP"): {2, 3},
     # 1990/1995 (6j): no activity check; 1995's casada(o) is not split; 1990's dwelling
     # classes (casa sola; departamento or vecindad; no local no construido) and its one
     # drainage code for the ground, a river or a lake (2020: 3/4)
@@ -290,7 +290,7 @@ def test_cpv_derivations_listing():
         "EDAD_CAT", "INGTRMEN_CAT", "HORTRA_CAT", *educ, "CONACT_CAT", "SITUA_CONYUGAL_CAT",
         "LIM_ACTIVIDAD", "RELIGION_CAT", *migration, *coresidence, *dhsersal, *coarse}
     assert set(mxcensus.cpv_derivations("viviendas", 2010)["COLUMN"]) == {
-        "CUADORM_CAT", "TOTCUART_CAT", "DRENAJE_CAT", "INGTRHOG_CAT"}
+        "CLAVIVP_CAT", "CUADORM_CAT", "TOTCUART_CAT", "DRENAJE_CAT", "INGTRHOG_CAT"}   # 6n
     v15 = set(mxcensus.cpv_derivations("viviendas", 2015)["COLUMN"])
     assert v15 == {"CLAVIVP_CAT", "CUADORM_CAT", "TOTCUART_CAT", "DRENAJE_CAT", "INGTRHOG_CAT",
                    *(f"FINANCIAMIENTO_{v}" for v in d._financiamiento_2015().values())}
@@ -465,8 +465,12 @@ def test_derive_dwellings_and_older_editions():
     assert "FINANCIAMIENTO_INFONAVIT" not in out
     for col, dtype in d.derived_dtypes("viviendas", "2015").items():
         assert out[col].dtype == dtype, col
-    assert "CLAVIVP_CAT" not in d.derive(viv.drop(columns=["CLAVIVP", "FINANCIAMIENTO"]),
-                                         "viviendas", 2010)
+    # 6n: 2010's classes are 2000's (5 local, 6 móvil, 7 refugio = «Otro», 9 not specified)
+    out10 = d.derive(viv.drop(columns=["FINANCIAMIENTO"]).assign(CLAVIVP=["4", "5"]),
+                     "viviendas", 2010)
+    assert list(out10["CLAVIVP_CAT"]) == ["Vivienda", "Otro"]
+    assert list(d.derive(viv.drop(columns=["FINANCIAMIENTO"]).assign(CLAVIVP=["9", "7"]),
+                         "viviendas", 2010)["CLAVIVP_CAT"]) == ["Vivienda", "Otro"]
 
 
 def _persons_2015() -> pd.DataFrame:
@@ -828,7 +832,11 @@ def test_cpv_constraints_per_edition():
     assert p10["PNCATOLICA"] == {"RELIGION_CAT": ["Protestante/cristiano evangélico"]}
     assert "PRO_CRIEVA" not in p10 and "PNCATOLICA" not in mxcensus.cpv_constraints("personas", 2020)
     assert "PCON_LIM" not in mxcensus.cpv_constraints("personas", 2020)
-    assert mxcensus.cpv_constraints("viviendas", 2010) == {}          # no CLAVIVP_CAT in 2010
+    v10 = mxcensus.cpv_constraints("viviendas", 2010)                 # 6n: 2010 CLAVIVP_CAT
+    assert len(v10) == 26 and "HOGJEF_F" not in v10                  # no head's sex item
+    assert v10["VPH_1DOR"] == {"CLAVIVP_CAT": ["Vivienda"], "CUADORM_CAT": ["1"]}     # legacy
+    assert v10["VPH_C_ELEC"] == {"CLAVIVP_CAT": ["Vivienda"], "ELECTRI": ["Sí"]}      # own items
+    assert set(v10["VPH_SNBIEN"]) == {"CLAVIVP_CAT", *d._SIN_BIENES_2010}            # 9 goods
     p25 = mxcensus.cpv_constraints("personas", 2025)
     assert {"POBTOT", "POBFEM", "P_15YMAS_F", "PDER_SS", "POCUPADA"} <= set(p25)
     assert set(mxcensus.cpv_constraints("viviendas", 2025)) == {"TOTHOG", "HOGJEF_F", "HOGJEF_M"}
@@ -849,8 +857,21 @@ def test_cpv_constraints_per_edition():
     p00, p05 = (mxcensus.cpv_constraints("personas", p) for p in (2000, 2005))   # 6i
     assert {"PCATOLICA", "PDER_SS", "PSINDER", "P12YM_CASA", "PEA", "PNACOE"} <= set(p00)
     assert {"PDER_ISTE", "PSINDER", "PRESOE15", "P15YM_SE"} <= set(p05)
-    assert set(mxcensus.cpv_constraints("viviendas", 2000)) == {
-        "TOTHOG", "VPH_1CUART", "VPH_1DOR", "VPH_DRENAJ"}
+    # 6n: the legacy cells on 2000's and 2005's own items; 2000's VP_CCUART is not one
+    # bedroom (one room without the exclusive kitchen), so 2000 has no VPH_1DOR
+    assert {"P5_HLI", "P5_HLI_NHE", "P5_HLI_HE", "P15A17A", "P15YM_AN"} <= set(p00)
+    assert p00["P15YM_AN"]["ALFABET"] == ["No sabe leer y escribir"]
+    assert {"P5_HLI", "P5_HLI_HE", "P6A11_NOA", "P12A14NOA"} <= set(p05)
+    assert len(p00) == 34 and len(p05) == 43
+    v00 = mxcensus.cpv_constraints("viviendas", 2000)
+    assert set(v00) == {"TOTHOG", "VPH_1CUART", "VPH_DRENAJ", "VPH_PISODT", "VPH_C_ELEC",
+                        "VPH_AGUADV", "VPH_EXCSA", "VPH_C_SERV", "VPH_NDEAED", "VPH_SNBIEN",
+                        "VPH_REFRI", "VPH_LAVAD", "VPH_AUTOM", "VPH_RADIO", "VPH_TV", "VPH_TELEF"}
+    assert v00["VPH_EXCSA"]["USOEXC"] == ["Sí es exclusivo"]          # 2000: exclusive service
+    v05 = mxcensus.cpv_constraints("viviendas", 2005)
+    assert len(v05) == 21 and {"VPH_PISOTI", "VPH_AGUAFV", "VPH_PC", "VPH_1DOR"} <= set(v05)
+    assert v05["VPH_SNBIEN"] == {"CLAVIVP_CAT": ["Vivienda"],
+                                 "NODISBIE": ["No dispone de ninguno de los bienes captados."]}
     p90, p95 = (mxcensus.cpv_constraints("personas", p) for p in (1990, 1995))       # 6j
     assert set(p90) == {"POBTOT", "POBFEM", "POBMAS", "P5_HLI_HE", "P5_HLI_NHE", "P15YM_AN",
                         "P15YM_SE", "P15PRI_IN", "P15PRI_CO", "PEA", "PE_INAC", "POCUPADA"}
@@ -955,9 +976,13 @@ def test_crosstab_per_edition(local_mirror, period):
     if period == "2010":                       # 2010's own limitation cells
         for var in ("LIM_ACTIVIDAD", "DISCAP2"):
             assert len(mxcensus.create_cont_table(tables[frozenset({var})]).columns)
-    if period in ("1990", "1995", "2020"):
+    if period != "2025":                       # 6n: 2000/2005/2010 dwellings too
         viv = mxcensus.load_cpv_viviendas(period, state=1, derived=True)
-        assert mxcensus.get_tables_dict(mxcensus.cpv_constraints("viviendas", period), viv.dtypes)
+        vt = mxcensus.get_tables_dict(mxcensus.cpv_constraints("viviendas", period), viv.dtypes)
+        assert vt
+        if period in ("2000", "2005", "2010"):  # the services table (class × 3 items) builds
+            key = next(k for k in vt if len(k) == 4 and "DRENAJE_CAT" in k)
+            assert mxcensus.create_cont_table(vt[key]).notna().to_numpy().any()
 
 
 # INEGI's tabulados, row «Total»: the population and its percentages by birthplace (this
@@ -1124,6 +1149,40 @@ def test_2000_equals_tabulados(local_mirror):
                    share(twelve & act.eq("No especificado"), twelve))
     for table, published in _C2K_01.items():
         assert got[table] == pytest.approx(published, abs=0.02), table
+
+
+# 6n: the legacy cells on the CGPV 2000, Conteo 2005 and Censo 2010 samples' own items
+# (and every 2010 dwelling cell, which CLAVIVP_CAT enables) against their ITER, state 01:
+# each cell's share of the population or of the dwellings, in points (an indicator the
+# crosswalk keeps under the edition's own name is read under it). The sample's dwelling goods
+# sit within 1.7 points; 2010's bedrooms 2 points off (its ampliado questionnaire). All 32
+# states: STEP_6n.md.
+_CELLS_6N = {("2000", "personas"): 5, ("2000", "viviendas"): 13, ("2005", "personas"): 5,
+             ("2005", "viviendas"): 13, ("2010", "viviendas"): 26}
+
+
+@_REAL_SKIP
+@pytest.mark.parametrize("period,table", sorted(_CELLS_6N))
+def test_6n_cells_equal_iter(local_mirror, period, table):
+    from mxcensus._resources import cpv_iter_crosswalk
+
+    xw = cpv_iter_crosswalk()
+    it = mxcensus.load_cpv_iter(period, state=1, nivel="estatal").iloc[0]
+    loader = mxcensus.load_cpv_personas if table == "personas" else mxcensus.load_cpv_viviendas
+    frame = loader(period, state=1, derived=True)
+    base = it["POBTOT" if table == "personas" else "VIVPAR_HAB"]
+    w = pd.to_numeric(frame["FACTOR"]) if "FACTOR" in frame else pd.Series(1.0, index=frame.index)
+    cons = mxcensus.cpv_constraints(table, period)
+    own = cons if period == "2010" else d._EDITION_CELLS[table, period]
+    gap = {}
+    for ind in own:
+        hit = pd.Series(True, index=frame.index)
+        for var, cats in cons[ind].items():
+            hit &= frame[var].isin(cats)
+        name = ind if ind in it.index else xw[ind][period]
+        gap[ind] = 100 * (w[hit].sum() / w.sum() - float(it[name]) / float(base))
+    assert len(gap) == _CELLS_6N[period, table]
+    assert max(abs(v) for v in gap.values()) < (0.3 if table == "personas" else 2.5), gap
 
 
 # CGPV 1990 (the 10% extract, unweighted) and the Conteo 1995 sample (FAC_POB/FAC_VIV)

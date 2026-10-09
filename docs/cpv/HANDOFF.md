@@ -1,7 +1,7 @@
 # CPV family — session handoff
 
-**Status (2026-10-08, night): units 0–6m are done. `main` = **v0.8.0** (tagged, pushed);
-`cpv-integration` adds 6k–6m (a commit each, pushed to `origin/cpv-integration`, not
+**Status (2026-10-08, night): units 0–6n are done. `main` = **v0.8.0** (tagged, pushed);
+`cpv-integration` adds 6k–6n (a commit each, pushed to `origin/cpv-integration`, not
 merged; merge/version are the user's call). The user asked for the night's units to run
 unattended (commit and push each); they review in the morning.**
 - **Released** (registered, uploaded, verified): every edition 1990–2025 (897 `cpv_` files)
@@ -52,8 +52,13 @@ unattended (commit and push each); they review in the morning.**
   `scripts/check_cpv_tabulados.py` runs the 2000/2010/2015 sample-tabulado checks over every
   state, sex and the nation → `TABULADOS_REPORT.md` (10,461 cells; 2010/2015 exact, 2000
   within 0.04 points outside Chiapas; 2000 education on `EDUC_INEGI` = INEGI's levels).
+- **6n** (`STEP_6n.md`): the legacy constraints the 2000/2005/2010 samples answer on their
+  own items (`_EDITION_CELLS`) and 2010's `CLAVIVP_CAT` (2010 dwellings 0 → 26 constraints;
+  2000 4 → 16, 2005 8 → 21; persons 2000 29 → 34, 2005 38 → 43). Crosswalk fix: 2000's ITER
+  `VP_CCUART` («con un dormitorio» in its dictionary) is one room without the exclusive
+  kitchen, so it no longer becomes `VPH_1DOR` (`_XW_UNPAIR`; 403 indicators).
 
-Design: [`PLAN.md`](PLAN.md). Recent units: [`STEP_6m.md`](STEP_6m.md), [`STEP_6l.md`](STEP_6l.md), [`STEP_6k.md`](STEP_6k.md), [`STEP_6j.md`](STEP_6j.md), [`STEP_6i.md`](STEP_6i.md), [`STEP_6h.md`](STEP_6h.md), [`STEP_6g.md`](STEP_6g.md), [`STEP_6f.md`](STEP_6f.md), [`STEP_6e.md`](STEP_6e.md),
+Design: [`PLAN.md`](PLAN.md). Recent units: [`STEP_6n.md`](STEP_6n.md), [`STEP_6m.md`](STEP_6m.md), [`STEP_6l.md`](STEP_6l.md), [`STEP_6k.md`](STEP_6k.md), [`STEP_6j.md`](STEP_6j.md), [`STEP_6i.md`](STEP_6i.md), [`STEP_6h.md`](STEP_6h.md), [`STEP_6g.md`](STEP_6g.md), [`STEP_6f.md`](STEP_6f.md), [`STEP_6e.md`](STEP_6e.md),
 [`STEP_6d.md`](STEP_6d.md),
 [`STEP_6c.md`](STEP_6c.md), [`STEP_6b.md`](STEP_6b.md), … [`STEP_0_probe.md`](STEP_0_probe.md).
 

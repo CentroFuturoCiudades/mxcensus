@@ -792,7 +792,9 @@ _XW_PERIODS = ("2020", "2010", "2005", "2000", "1995", "1990")
 # The censuses before 2010 renamed most mnemonics (P_TOTAL, PMASCUL, POBTMAS…) with the
 # descriptions unchanged. The review rejects the automatic pairs in _XW_UNPAIR.
 _XW_DESC_PERIODS = frozenset({"2005", "2000", "1995", "1990"})
-_XW_UNPAIR = frozenset({("2000", "PCONDISC")})
+# 2000's VP_CCUART says «con un dormitorio», like 2005's VPH_1DOR, but counts the dwellings
+# with one room when an exclusive kitchen is not counted (6n: the sample reproduces it so).
+_XW_UNPAIR = frozenset({("2000", "PCONDISC"), ("2000", "VP_CCUART")})
 # Hand-reviewed pairs of differently named indicators (canonical → {period: source}) that
 # harmonize=True renames onto the canonical name (the same indicator, another name) …
 _XW_PAIRS_RENAMED: dict[str, dict[str, str]] = {
@@ -911,6 +913,9 @@ _XW_NOTES: dict[str, str] = {
     "VPH_AGUAFV": "2005 (VPH_NOAG): sin agua entubada de la red pública",
     "VPH_EXCSA": "2000 (VP_SERSAN): servicio sanitario exclusivo de la vivienda",
     "P15YM_SE": "2000 (P15_SINSTR) dice «sin instrucción»",
+    "VP_CCUART": ("el diccionario dice «con un dormitorio», pero cuenta las viviendas con un solo "
+                  "cuarto sin contar la cocina exclusiva (la regla de VP2_5CUAR); no se empareja con "
+                  "VPH_1DOR"),
     "PHOG_IND": "2005 dice «hogares indígenas», 2010 y 2020 «hogares censales indígenas»",
     "VPH_C_SERV": ("2000 y 2005: agua entubada, drenaje y energía eléctrica; la definición de "
                    "agua entubada cambia entre censos (VPH_AGUADV)"),

@@ -2001,9 +2001,6 @@ VPH_1DOR:
   '2020': VPH_1DOR
   '2010': VPH_1DOR
   '2005': VPH_1DOR
-  '2000': VP_CCUART
-  Renombrar:
-  - '2000'
 VPH_2YMASD:
   Descripción: Viviendas particulares habitadas con dos dormitorios y más
   Tablas:
@@ -2876,6 +2873,13 @@ VP_TECDES:
   '1990': TECHO_LA
   Renombrar:
   - '1990'
+VP_CCUART:
+  Descripción: Viviendas particulares habitadas con un dormitorio
+  Tablas:
+  - iter
+  '2000': VP_CCUART
+  Nota: el diccionario dice «con un dormitorio», pero cuenta las viviendas con un solo cuarto sin contar
+    la cocina exclusiva (la regla de VP2_5CUAR); no se empareja con VPH_1DOR
 VP2_5CUAR:
   Descripción: Viviendas particulares habitadas con 2 a 5 cuartos (no incluye cocina exclusiva)
   Tablas:
