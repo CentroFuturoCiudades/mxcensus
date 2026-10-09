@@ -1,7 +1,7 @@
 # CPV family — session handoff
 
 **Status (2026-10-08): units 0–6i are done. `main` = v0.7.1 (through 6e); `cpv-integration`
-is ahead by the units of this session (6f onward), committed locally, not pushed. The user
+is ahead by the units of this session (6f–6i), pushed to origin; not merged into `main`. The user
 asked for the four post-6e candidates in one session, one unit each (6f–6i, all done). No
 unit is queued.**
 - **Released** (registered, uploaded, verified): every edition 1990–2025 (897 `cpv_` files)
@@ -54,8 +54,8 @@ files; the MG 2015 files were built on the Mac and copied to `wsl` for the uploa
 
 ## Next: candidates (none decided)
 
-1. **Push / merge / version**: `cpv-integration` is ahead of `main` (v0.7.1) by 6f–6i,
-   committed locally, not pushed (the user's call: push, merge into `main`, bump to 0.8.0?).
+1. **Merge / version**: `cpv-integration` (pushed) is ahead of `main` (v0.7.1) by 6f–6i
+   (the user's call: merge into `main`, bump to 0.8.0?).
    `wsl:~/mxcensus` is at v0.7.0: pull before running new code there.
 2. **The 2005 FD's `':'` category** in `GRA_APRO` (`STEP_6i.md` §Follow-ups): a `_dict_fd`
    fix + `--variables` (keep the 2010–2025 parses byte-identical).
