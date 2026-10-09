@@ -24,7 +24,7 @@ therefore equal the legacy ones (tested state by state). Two differences, both d
   loaders only create the observed ones). As in the legacy loaders, a blank second or
   third item sets the ``…_Blanco por pase`` dummy.
 
-Five columns are new: ``DISCAPACIDAD``/``LIMITACION``, INEGI's definitions of disability
+Six columns are new: ``SECTOR`` (below), ``DISCAPACIDAD``/``LIMITACION``, INEGI's definitions of disability
 and limitation (code 8, «degree unknown», is a disability; a limitation excludes the
 disabled; the legacy ``DIS_CON``/``DIS_LIMI`` count otherwise and are kept as they are),
 ``SIN_DISC_LIM``, INEGI's population without either or a mental condition (its
@@ -57,6 +57,8 @@ reads its marital status from ``ESTCON``, 2015 its residence five years earlier 
 The coarse occupation is SINCO's two-digit group, labelled as in SINCO 2019; the 2010/2015
 group 59, which SINCO 2019 dropped, joins 52 (:data:`_RECODE`). The coarse activity is the
 SCIAN sector, the same in the 2010, 2015 and 2020 catalogs (2010's item: ``ACTTRAB_C``).
+``SECTOR`` (new, 6o) groups it into INEGI's three sectors (primary, secondary, tertiary,
+the 1990/2000 ITER's ``POCUSECP/S/T``) in 1990 (its CMAP division) and 2000–2025.
 
 CGPV 2000 and the Conteo 2005 (unweighted) get the columns their items allow: age,
 education (from their level-and-antecedent items), health coverage (one item per
@@ -82,7 +84,8 @@ match after the recode is a test (``tests/test_cpv_derived.py``).
 **Constraints.** :func:`cpv_constraints` filters the legacy constraint sets (ITER
 indicator → microdata cells, ``constraints_*.yaml``) to the indicators an edition can
 reproduce, for :func:`mxcensus.crosstabs.get_tables_dict`, plus the indicators an edition
-publishes under its own definition (:data:`_EDITION_CELLS`: Censo 2010's limitation).
+publishes under its own definition (:data:`_EDITION_CELLS`: Censo 2010's limitation; the
+legacy cells on the 1990–2010 samples' own items; the 1990–2005 ITERs' own indicators).
 """
 from __future__ import annotations
 
@@ -262,9 +265,14 @@ _EDUC_INEGI = pd.CategoricalDtype(["Sin Educación", "Primaria_incom", "Primaria
                                    "Secundaria_incom", "Secundaria_com", "Técnica_primaria",
                                    "Posbásica", "No especificado", "Blanco por pase"],
                                   ordered=True)
+# INEGI's three sectors of activity (the 1990/2000 ITER's POCUSECP/S/T): primary =
+# agriculture, livestock, forestry, fishing and hunting; secondary = mining, electricity and
+# water, construction, manufacturing; tertiary = trade, transport, services, government.
+_SECTOR = pd.CategoricalDtype(["Primario", "Secundario", "Terciario", "No especificado",
+                               "Blanco por pase"])
 _DTYPES = {"DISCAPACIDAD": _YES_NO, "LIMITACION": _YES_NO, "SIN_DISC_LIM": _YES_NO,
            "LIM_ACTIVIDAD": _YES_NO, "MADRE_EN_VIVIENDA": _YES_NO, "PADRE_EN_VIVIENDA": _YES_NO,
-           "EDUC_INEGI": _EDUC_INEGI}
+           "EDUC_INEGI": _EDUC_INEGI, "SECTOR": _SECTOR}
 _DIS_ITEMS = ("DIS_VER", "DIS_OIR", "DIS_CAMINAR", "DIS_RECORDAR", "DIS_BANARSE", "DIS_HABLAR")
 # Censo 2010: one item per activity (DISCAP1–7, its code or blank), DISCAP8 = none (17) or
 # not specified (99).
@@ -484,6 +492,37 @@ def _coarse(var: str, name: str, divisor: int):
     def fn(src):
         return {name: _mapped(np.floor(src[var] / divisor), "personas", name, name)}
     return fn
+
+
+_SECONDARY = (21, 22, 23, 31, 32, 33)  # SCIAN: mining, utilities, construction, manufacturing
+
+
+def _sector(var: str, divisor: int):
+    """``SECTOR`` of a SCIAN code: its sector (the first two digits; ``divisor`` drops the
+    rest) — 11 primary, 21–23 and 31–33 secondary, 99 not specified, any other sector of
+    the classification tertiary; blank = not employed. An unknown sector stays missing."""
+    def fn(src):
+        sector = np.floor(src[var] / divisor)
+        known = sector.isin(list(_legacy_map("personas", "ACTIVIDADES_C_COARSE")))
+        values = np.select([sector.isna(), sector.eq(11), sector.isin(_SECONDARY),
+                            sector.eq(99), known],
+                           ["Blanco por pase", "Primario", "Secundario", "No especificado",
+                            "Terciario"], None)
+        return {"SECTOR": _as(values, "personas", "SECTOR")}
+    return fn
+
+
+def _sector_1990(src):
+    """CGPV 1990's ``SECTOR``: the CMAP division, the first digit of ``C_A_ECO`` — 1
+    agriculture (primary); 2 mining, 3 manufacturing, 4 electricity and construction
+    (secondary); 5 trade, 6 transport, 7 finance, 8 services (tertiary); 9 not specified;
+    0 = not employed (its 00000)."""
+    division = np.floor(src["C_A_ECO"] / 10000)
+    values = np.select([division.eq(0), division.eq(1), division.isin([2, 3, 4]),
+                        division.isin([5, 6, 7, 8]), division.eq(9)],
+                       ["Blanco por pase", "Primario", "Secundario", "Terciario",
+                        "No especificado"], None)
+    return {"SECTOR": _as(values, "personas", "SECTOR")}
 
 
 def _dis(src):
@@ -812,6 +851,9 @@ def _registry() -> tuple[_Derivation, ...]:
           _coarse("ACTIVIDADES_C", "ACTIVIDADES_C_COARSE", 100)),
         D(per, ("ACTIVIDADES_C_COARSE",), ("ACTTRAB_C",), ("2000",),      # SCIAN subsector
           _coarse("ACTTRAB_C", "ACTIVIDADES_C_COARSE", 10)),
+        D(per, ("SECTOR",), ("ACTIVIDADES_C",), _ALL, _sector("ACTIVIDADES_C", 100)),
+        D(per, ("SECTOR",), ("ACTTRAB_C",), ("2000",), _sector("ACTTRAB_C", 10)),
+        D(per, ("SECTOR",), ("C_A_ECO",), ("1990",), _sector_1990),
         D(per, ("DIS_CON", "DIS_LIMI"), _DIS_ITEMS, _NEW, _dis),
         D(per, ("DISCAPACIDAD", "LIMITACION"), _DIS_ITEMS, _NEW, _dis_inegi),
         D(per, ("SIN_DISC_LIM",), (*_DIS_ITEMS, "DIS_MENTAL"), _NEW, _sin_disc_lim),
@@ -1036,7 +1078,22 @@ _CELLS = {"personas": {"PCON_DISC": {"DISCAPACIDAD": ["Sí"]},
 _AGES_5PLUS = ["5", "6-7", "8-11", "12-14", "15-17", "18-24", "25-49", "50-59", "60-64",
                "65-130"]
 _AGES_15PLUS = _AGES_5PLUS[4:]
+_AGES_12PLUS, _AGES_18PLUS = _AGES_5PLUS[3:], _AGES_5PLUS[5:]
+_AGES_6_14, _AGES_15_24 = ["6-7", "8-11", "12-14"], ["15-17", "18-24"]
 _VIVIENDA = {"CLAVIVP_CAT": ["Vivienda"]}
+# The employed by sector (CGPV 1990 and 2000's ITER; 6o).
+_EMPLOYED_CELLS = {"EDAD_CAT": _AGES_12PLUS, "CONACT_CAT": ["Trabaja"]}
+_SECTOR_CELLS = {ind: {**_EMPLOYED_CELLS, "SECTOR": [sector]} for ind, sector in (
+    ("POCUSECP", "Primario"), ("POCUSECS", "Secundario"), ("POCUSECT", "Terciario"))}
+# INEGI's posprimaria (1990/2000): any level above primaria, técnica after primaria included.
+_POSPRIMARIA = ["Técnica_primaria", "Secundaria_incom", "Secundaria_com", "Posbásica"]
+_SIN_POSPRIMARIA = ["Sin Educación", "Primaria_incom", "Primaria_com"]
+
+
+def _by_sex(cells: dict, names: tuple[str, str, str], sex: str = "SEXO") -> dict:
+    """An indicator and its men's and women's (``names`` = total, men, women)."""
+    total, men, women = names
+    return {total: cells, men: {**cells, sex: ["Hombre"]}, women: {**cells, sex: ["Mujer"]}}
 
 # Indicators an edition publishes under its own definition, on its own items: Censo 2010's
 # limitation in activity (its PCLIM_VIS/PCLIM_MOT2 share 2020's names, not their concept)
@@ -1068,6 +1125,17 @@ _EDITION_CELLS = {
     ("personas", "1990"): {
         "P15YM_AN": {"EDAD_CAT": _AGES_15PLUS,
                      "ALFABETA": ["NO SABE LEER NI ESCRIBIR ALGUN RECADO"]},
+        # 6o: its own indicators (literacy, attendance, posprimaria, sector)
+        "P6_14SLEE": {"EDAD_CAT": _AGES_6_14, "ALFABETA": ["SABE LEER Y ESCRIBIR ALGUN RECADO"]},
+        "P6_14NLEE": {"EDAD_CAT": _AGES_6_14,
+                      "ALFABETA": ["NO SABE LEER NI ESCRIBIR ALGUN RECADO"]},
+        "P15_ALFAB": {"EDAD_CAT": _AGES_15PLUS, "ALFABETA": ["SABE LEER Y ESCRIBIR ALGUN RECADO"]},
+        "P5_ASIESC": {"EDAD_CAT": ["5"], "ASISTE": ["ASISTE A LA ESCUELA ACTUALMENTE"]},
+        "P_5_NOAE": {"EDAD_CAT": ["5"], "ASISTE": ["NO ASISTE A LA ESCUELA ACTUALMENTE"]},
+        "P6_14AESC": {"EDAD_CAT": _AGES_6_14, "ASISTE": ["ASISTE A LA ESCUELA ACTUALMENTE"]},
+        "P6A14NOA": {"EDAD_CAT": _AGES_6_14, "ASISTE": ["NO ASISTE A LA ESCUELA ACTUALMENTE"]},
+        "P15_POSPRI": {"EDAD_CAT": _AGES_15PLUS, "EDUC_INEGI": _POSPRIMARIA},
+        **_SECTOR_CELLS,
         "P5_HLI_HE": {"EDAD_CAT": _AGES_5PLUS, "HAB_IND": ["SI"], "HAB_ESP": ["SI"]},
         "P5_HLI_NHE": {"EDAD_CAT": _AGES_5PLUS, "HAB_IND": ["SI"], "HAB_ESP": ["NO"]},
     },
@@ -1077,11 +1145,21 @@ _EDITION_CELLS = {
         "VPH_C_ELEC": {**_VIVIENDA, "ELECTRI": ["DISPONE"]},
         "VPH_AGUADV": {**_VIVIENDA, "AGUA_ENTU": ["DENTRO DE LA VIVIENDA",
                                                   "FUERA DE VIVIENDA, PERO DENTRO DEL TERRENO"]},
+        # 6o: waste material is «otros materiales» in 1990's lists; two rooms, the kitchen
+        # one they do not sleep in
+        "VP_PARDES": {**_VIVIENDA, "PAREDES": ["LAMINA DE CARTON", "OTROS MATERIALES"]},
+        "VP_TECDES": {**_VIVIENDA, "TECHOS": ["LAMINA DE CARTON", "OTROS MATERIALES"]},
+        "VP_2CUAR": {**_VIVIENDA, "TOTCUART_CAT": ["2"], "TAM_DUERME": ["NO"]},
+        "VP_PROPIA": {**_VIVIENDA, "TENENCIA": ["PROPIA"]},
     },
     ("personas", "1995"): {
         "POBFEM": {"P3_5": ["Mujer"]},
         "POBMAS": {"P3_5": ["Hombre"]},
         "P15YM_AN": {"EDAD_CAT": _AGES_15PLUS, "P5_1": ["No"]},
+        "P_6A14_AN": {"EDAD_CAT": _AGES_6_14},                                    # 6o
+        "P6_14SLEE": {"EDAD_CAT": _AGES_6_14, "P5_1": ["Sí"]},
+        "P6_14NLEE": {"EDAD_CAT": _AGES_6_14, "P5_1": ["No"]},
+        "P15_ALFAB": {"EDAD_CAT": _AGES_15PLUS, "P5_1": ["Sí"]},
     },
     ("viviendas", "1995"): {
         "VPH_C_ELEC": {"P1_16": ["Sí"]},
@@ -1097,6 +1175,33 @@ _EDITION_CELLS = {
                       "HESPANOL": ["Sí habla español"]},
         "P15A17A": {"EDAD_CAT": ["15-17"], "ASISTEN": ["Sí va a la escuela"]},
         "P15YM_AN": {"EDAD_CAT": _AGES_15PLUS, "ALFABET": ["No sabe leer y escribir"]},
+        # 6o: its own indicators
+        "P_0A4": {"EDAD_CAT": ["0-2", "3-4"]},
+        "P_6A14_AN": {"EDAD_CAT": _AGES_6_14},
+        "P_15A24": {"EDAD_CAT": _AGES_15_24},
+        "P5_ASIESC": {"EDAD_CAT": ["5"], "ASISTEN": ["Sí va a la escuela"]},
+        "P_5_NOAE": {"EDAD_CAT": ["5"], "ASISTEN": ["No va a la escuela"]},
+        "P6_14AESC": {"EDAD_CAT": _AGES_6_14, "ASISTEN": ["Sí va a la escuela"]},
+        "P6A14NOA": {"EDAD_CAT": _AGES_6_14, "ASISTEN": ["No va a la escuela"]},
+        "P_15A24A": {"EDAD_CAT": _AGES_15_24, "ASISTEN": ["Sí va a la escuela"]},
+        "P15_24NESC": {"EDAD_CAT": _AGES_15_24, "ASISTEN": ["No va a la escuela"]},
+        "P6_14SLEE": {"EDAD_CAT": _AGES_6_14, "ALFABET": ["Sí sabe leer y escribir"]},
+        "P6_14NLEE": {"EDAD_CAT": _AGES_6_14, "ALFABET": ["No sabe leer y escribir"]},
+        "P15_ALFAB": {"EDAD_CAT": _AGES_15PLUS, "ALFABET": ["Sí sabe leer y escribir"]},
+        "PSOLTER12_": {"EDAD_CAT": _AGES_12PLUS, "SITUA_CONYUGAL_CAT": ["soltero"]},
+        "P5_NCATOLI": {"RELIGION_CAT": ["Protestante/cristiano evangélico", "Otros credos"]},
+        "P5_SINRELI": {"RELIGION_CAT": ["Protestante/cristiano evangélico", "Otros credos",
+                                        "Sin religión / Sin adscripción religiosa"]},
+        "P15_POSPRI": {"EDAD_CAT": _AGES_15PLUS, "EDUC_INEGI": _POSPRIMARIA},
+        "P15_SINSEC": {"EDAD_CAT": _AGES_15PLUS, "EDUC_INEGI": _SIN_POSPRIMARIA},
+        "P15_CONSEC": {"EDAD_CAT": _AGES_15PLUS, "EDUC_INEGI": _POSPRIMARIA[:3]},
+        "P15_CMEDSS": {"EDAD_CAT": _AGES_15PLUS, "EDUC_INEGI": ["Posbásica"]},
+        "P18_SMEDSU": {"EDAD_CAT": _AGES_18PLUS,
+                       "EDUC_INEGI": [*_SIN_POSPRIMARIA, *_POSPRIMARIA[:3]]},
+        **_SECTOR_CELLS,
+        "POCUNINGR": {**_EMPLOYED_CELLS, "INGTRMEN_CAT": ["No recibe ingresos"]},
+        "P41_48HTR": {**_EMPLOYED_CELLS, "HORTRA_CAT": ["41-48"]},
+        "P48_HTR": {**_EMPLOYED_CELLS, "HORTRA_CAT": ["49-56", "57-60", "61-80", "81YMAS"]},
     },
     ("viviendas", "2000"): {
         "VPH_PISODT": {**_VIVIENDA, "PISOS": ["Cemento o firme",
@@ -1112,7 +1217,25 @@ _EDITION_CELLS = {
                                        for item in _SIN_BIENES_2000}},
         **{ind: {**_VIVIENDA, item: ["Sí tienen en la vivienda"]} for ind, item in (
             ("VPH_REFRI", "REFRIG"), ("VPH_LAVAD", "LAVADORA"), ("VPH_AUTOM", "AUTOPROP"),
-            ("VPH_RADIO", "RADIO"), ("VPH_TV", "TELEVI"), ("VPH_TELEF", "TELEFONO"))},
+            ("VPH_RADIO", "RADIO"), ("VPH_TV", "TELEVI"), ("VPH_TELEF", "TELEFONO"),
+            ("VP_VIDEO", "VIDEO"), ("VP_BOILER", "BOILER"))},
+        # 6o: its own indicators (two services «y» — not «only» —, tenure by TENVIV, the
+        # kitchen counted among the rooms)
+        "VP_PARDES": {**_VIVIENDA, "PAREDES": ["Material de deshecho", "Lámina de cartón"]},
+        "VP_TECDES": {**_VIVIENDA, "TECHOS": ["Material de deshecho", "Lámina de cartón"]},
+        "VP_2CUAR": {**_VIVIENDA, "TOTCUART_CAT": ["2"]},
+        **{ind: {**_VIVIENDA, "COMBUST": [fuel]} for ind, fuel in (
+            ("VP_COCGAS", "Gas"), ("VP_COCLEN", "Leña"), ("VP_COCCAR", "Carbón"),
+            ("VP_COCPET", "Petróleo"))},
+        "VP_DREAGU": {**_VIVIENDA, "DRENAJE_CAT": ["Sí"], "DISAGU": _AGUA_DV_2000},
+        "VP_DREELE": {**_VIVIENDA, "DRENAJE_CAT": ["Sí"], "ELECTRI": ["Sí tiene"]},
+        "VP_AGUELE": {**_VIVIENDA, "ELECTRI": ["Sí tiene"], "DISAGU": _AGUA_DV_2000},
+        "VP_PROPIA": {**_VIVIENDA, "TENVIV": ["Sí"]},
+        "VP_PPAGAD": {**_VIVIENDA, "TENPROP": ["Está totalmente pagada"]},
+        "VP_PPAGAN": {**_VIVIENDA, "TENPROP": ["Está pagándose"]},
+        "VP_RENTAD": {**_VIVIENDA, "TENPROP": ["Está rentada"]},
+        "VP_CBIENE": {**_VIVIENDA, **{item: ["Sí tienen en la vivienda"]
+                                      for item in _SIN_BIENES_2000}},
     },
     ("personas", "2005"): {
         "P5_HLI": {"EDAD_CAT": _AGES_5PLUS, "HABLENIN": ["Si"]},
@@ -1121,6 +1244,45 @@ _EDITION_CELLS = {
         "P5_HLI_HE": {"EDAD_CAT": _AGES_5PLUS, "HABLENIN": ["Si"], "HATAMESP": ["Habla español"]},
         "P6A11_NOA": {"EDAD_CAT": ["6-7", "8-11"], "ASIS_ESC": ["No"]},
         "P12A14NOA": {"EDAD_CAT": ["12-14"], "ASIS_ESC": ["No"]},
+        # 6o: its own indicators (ages, attendance, basic education, by sex)
+        **_by_sex({"EDAD_CAT": ["0-2", "3-4"]}, ("P_0A4", "P_0A4_M", "P_0A4_F")),
+        "P_0A14_MA": {"EDAD_CAT": ["0-2", "3-4", "5", *_AGES_6_14], "SEXO": ["Hombre"]},
+        "P_0A14_FE": {"EDAD_CAT": ["0-2", "3-4", "5", *_AGES_6_14], "SEXO": ["Mujer"]},
+        "P_5_AN": {"EDAD_CAT": ["5"]},
+        **_by_sex({"EDAD_CAT": _AGES_6_14}, ("P_6A14_AN", "P_6A14_M", "P_6A14_F")),
+        "P_15A24": {"EDAD_CAT": _AGES_15_24},
+        **_by_sex({"EDAD_CAT": ["15-17", "18-24", "25-49", "50-59"]},
+                  ("P_15A59", "P_15A59_M", "P_15A59_F")),
+        "P_65YMAS_M": {"EDAD_CAT": ["65-130"], "SEXO": ["Hombre"]},
+        "P_65YMAS_F": {"EDAD_CAT": ["65-130"], "SEXO": ["Mujer"]},
+        **_by_sex({"EDAD_CAT": ["5"], "ASIS_ESC": ["No"]},
+                  ("P_5_NOAE", "P_M_5_NOAE", "P_F_5_NOAE")),
+        **_by_sex({"EDAD_CAT": _AGES_6_14, "ASIS_ESC": ["No"]},
+                  ("P6A14NOA", "PM_6A14NOA", "PF_6A14NOA")),
+        **_by_sex({"EDAD_CAT": _AGES_15_24, "ASIS_ESC": ["Si"]},
+                  ("P_15A24A", "P_M_15A24A", "P_F_15A24A")),
+        # basic education incomplete (primaria, técnica after primaria, secundaria 1–2),
+        # complete (secundaria 3), posbásica
+        **_by_sex({"EDAD_CAT": _AGES_15PLUS, "EDUC_INEGI": ["Primaria_incom", "Primaria_com",
+                                                            "Técnica_primaria",
+                                                            "Secundaria_incom"]},
+                  ("P15YM_EBIN", "PM15YMEBIN", "PF15YMEBIN")),
+        **_by_sex({"EDAD_CAT": _AGES_15PLUS, "EDUC_INEGI": ["Secundaria_com"]},
+                  ("P15YM_EBC", "PM15YM_EBC", "PF15YM_EBC")),
+        **_by_sex({"EDAD_CAT": _AGES_15PLUS, "EDUC_INEGI": ["Posbásica"]},
+                  ("P15YMAPB", "PM_15YMAPB", "PF_15YMAPB")),
+        "P5YMAHLI_M": {"EDAD_CAT": _AGES_5PLUS, "HABLENIN": ["Si"], "SEXO": ["Hombre"]},
+        "P5YMAHLI_F": {"EDAD_CAT": _AGES_5PLUS, "HABLENIN": ["Si"], "SEXO": ["Mujer"]},
+        "PM5YMALINE": {"EDAD_CAT": _AGES_5PLUS, "HABLENIN": ["Si"],
+                       "HATAMESP": ["No habla español"], "SEXO": ["Hombre"]},
+        "PF5YMALINE": {"EDAD_CAT": _AGES_5PLUS, "HABLENIN": ["Si"],
+                       "HATAMESP": ["No habla español"], "SEXO": ["Mujer"]},
+        "PMYMALIES": {"EDAD_CAT": _AGES_5PLUS, "HABLENIN": ["Si"],
+                      "HATAMESP": ["Habla español"], "SEXO": ["Hombre"]},
+        "PFYMALIES": {"EDAD_CAT": _AGES_5PLUS, "HABLENIN": ["Si"],
+                      "HATAMESP": ["Habla español"], "SEXO": ["Mujer"]},
+        # the Seguro Popular (2005/2010; not 2020's INSABI: crosswalk Comparable: false)
+        "PDER_SEGP": {"DHSERSAL_SALUD_PUBLICA": [1]},
     },
     ("viviendas", "2005"): {
         "VPH_PISODT": {**_VIVIENDA, "MAT_PISO": ["Cemento o firme",
@@ -1154,6 +1316,7 @@ _EDITION_CELLS = {
         "VPH_PC": {**_VIVIENDA, "COMPU": ["Sí"]},
     },
     ("personas", "2010"): {
+        "PDER_SEGP": {"DHSERSAL_SALUD_PUBLICA": [1]},                     # 6o: Seguro Popular
         "PNCATOLICA": {"RELIGION_CAT": ["Protestante/cristiano evangélico"]},
         "PCON_LIM": {"LIM_ACTIVIDAD": ["Sí"]},
         "PSIN_LIM": {"LIM_ACTIVIDAD": ["No"]},
