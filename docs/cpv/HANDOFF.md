@@ -1,9 +1,9 @@
 # CPV family — session handoff
 
-**Status (2026-10-09, early morning): units 0–6r are done. `main` = **v0.8.0** (tagged,
-pushed); `cpv-integration` adds 6k–6r (a commit each, pushed to `origin/cpv-integration`,
-not merged; merge/version are the user's call). 6m–6r ran unattended overnight at the
-user's request: their decisions wait for review (§Review).**
+**Status (2026-10-09, morning): units 0–6r are done. `main` = `cpv-integration` =
+**v0.9.0** (tagged, pushed): 6k–6r merged after the user reviewed the night's unattended
+units 6m–6r and kept every decision (§Review). Agreed next: 6s, the household head's sex for
+2000–2010 (§Next 1).**
 - **Released** (registered, uploaded, verified): every edition 1990–2025 (897 `cpv_` files)
   and the Marco Geoestadístico 1995–2025 frames, incl. the EIC 2015's (6h); registry
   **4148** entries (`STEP_6b.md` §Release batch, `STEP_6h.md`).
@@ -77,10 +77,9 @@ Design: [`PLAN.md`](PLAN.md). Recent units: [`STEP_6r.md`](STEP_6r.md), [`STEP_6
 
 **Host state.** The Mac and `wsl:~/mxcensus` both hold the full mirror (4148 registered
 files; the MG 2015 files were built on the Mac and copied to `wsl` for the upload);
-`wsl:~/mxcensus` is at v0.8.0 (pulled 2026-10-08): on 2026-10-09 ~04:00 Tailscale SSH asked
-for a re-login (the user's), so it was not pulled to 6r; `git pull --ff-only` there next time
-(no data changed overnight: code, YAML and docs only; the tabulados cache in
-`data/dict/tabulados/` exists only on the Mac — `check_cpv_tabulados.py` fetches it).
+`wsl:~/mxcensus` was pulled to 6r on 2026-10-09 (the full suite ran there before the
+merge: 1773 passed, 1 h 50 min) and holds a copy of the Mac's tabulados cache
+(`data/dict/tabulados/`).
 `wsl:~/mxcensus3c` (3c's code copy) can be deleted.
 
 ## Kickoff prompt for the next session
@@ -92,9 +91,10 @@ for a re-login (the user's), so it was not pulled to 6r; `git pull --ff-only` th
 > session protocol in docs/cpv/PLAN.md. Use .venv/bin/python, not uv run. Run wsl tasks
 > without asking; ask me before committing, pushing, installing packages or uploading.
 
-## Review: decisions taken unattended (night of 2026-10-08/09)
+## Review: decisions taken unattended (night of 2026-10-08/09) — kept
 
-The user asked for the night's units (6m–6r) to run without them; these choices wait for review:
+The user asked for the night's units (6m–6r) to run without them, and on 2026-10-09 reviewed
+and **kept all seven** (merged as 0.9.0):
 
 1. **6n, a crosswalk change with user-visible effect**: 2000's ITER `VP_CCUART` is no longer
    renamed to `VPH_1DOR` under `harmonize=True` (it counts one room without the exclusive
@@ -117,11 +117,13 @@ The user asked for the night's units (6m–6r) to run without them; these choice
    (2010) change for ~3.1M persons (weighted); the partner follows by analogy (no tabulado).
 7. **6r, 2000's hours**: `HORTRA_CAT` 2000 sets `CONACT` 20 («had a job but did not work»)
    to 0 hours (INEGI's C2KEM07 «no trabajó»; 2010–2025 record 0 for them).
-8. **Merge and version**: `main` is still v0.8.0; `cpv-integration` carries 6k–6r.
+8. **Merge and version**: 6k–6r merged into `main` as **0.9.0** (2026-10-09).
 
-## Next: candidates (none decided)
+## Next: candidates (1 agreed as 6s)
 
-1. **The household head's sex for 2000–2010** (`HOGJEF_F/M`, `PHOGJEF_*` constraints): the
+1. **Agreed 2026-10-09 as 6s.** The user's choices: `load_cpv_viviendas(derived=True)` reads
+   the person file (not survey-only), and the Conteo 2005's dwellings take their first
+   household's head. **The household head's sex for 2000–2010** (`HOGJEF_F/M`, `PHOGJEF_*` constraints): the
    dwelling frames have no head item; `load_cpv_survey(derived=True)` could attach it from
    the person file (the 2005 `hogares` table too). A design decision: a survey-only column,
    or `load_cpv_viviendas` reading the person file.
@@ -133,7 +135,7 @@ The user asked for the night's units (6m–6r) to run without them; these choice
 
 ## Open questions for the user
 
-The §Review items above (none blocks anything).
+None.
 
 ## Gotchas (carry forward)
 

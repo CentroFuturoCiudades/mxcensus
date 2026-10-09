@@ -53,6 +53,8 @@ the user. 6j (evening) was agreed from the candidates; merge into `main` as 0.8.
 6k and 6l (night) were agreed from the HANDOFF candidates, one session, a commit each.
 6m onwards (the same night): the user asked for the next units to proceed unattended,
 committing and pushing each, for review in the morning.
+On 2026-10-09 the user reviewed 6m–6r, kept every decision and merged them as 0.9.0; 6s (the
+household head's sex for 2000–2010) was agreed from the candidates.
 
 ### Session protocol
 
