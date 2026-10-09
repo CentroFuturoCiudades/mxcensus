@@ -77,7 +77,10 @@ Design: [`PLAN.md`](PLAN.md). Recent units: [`STEP_6r.md`](STEP_6r.md), [`STEP_6
 
 **Host state.** The Mac and `wsl:~/mxcensus` both hold the full mirror (4148 registered
 files; the MG 2015 files were built on the Mac and copied to `wsl` for the upload);
-`wsl:~/mxcensus` is at v0.8.0 (pulled 2026-10-08).
+`wsl:~/mxcensus` is at v0.8.0 (pulled 2026-10-08): on 2026-10-09 ~04:00 Tailscale SSH asked
+for a re-login (the user's), so it was not pulled to 6r; `git pull --ff-only` there next time
+(no data changed overnight: code, YAML and docs only; the tabulados cache in
+`data/dict/tabulados/` exists only on the Mac — `check_cpv_tabulados.py` fetches it).
 `wsl:~/mxcensus3c` (3c's code copy) can be deleted.
 
 ## Kickoff prompt for the next session
