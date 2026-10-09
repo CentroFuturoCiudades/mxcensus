@@ -108,6 +108,19 @@ _DWELLINGS_FROM_PERSONS: dict[str, tuple[str, ...]] = {
              "P1_13", "P1_16", "P1_17", "P1_18", "P2_2", "P2_3"),
 }
 
+# The household head's sex (2020/2025: the dwelling item JEFE_SEXO) for the editions whose
+# dwelling file has none: derived=True takes it from the person file (6s) — the person whose
+# relationship is jefe(a) (2005: also 102 «persona sola»), exactly one per household in
+# every state. CGPV 2000's dwelling rows are its households; the Conteo 2005's are dwellings
+# (its ITER counts households), so a dwelling takes its first household's head; Censo
+# 2010's household is the dwelling. Edition → (relationship item, head codes, the key parts
+# read with them).
+_HEAD_FROM_PERSONS: dict[str, tuple[str, frozenset[str], tuple[str, ...]]] = {
+    "2000": ("OTROPARE_C", frozenset({"100"}), ("ENT", "MUN", "LOC", "NUMVIV", "NUMHOG")),
+    "2005": ("PARENT", frozenset({"101", "102"}), ("ENT", "MUN", "CONS_MUN", "CONS_HOG")),
+    "2010": ("PARENT", frozenset({"01"}), ("ENT", "ID_VIV")),
+}
+
 # Keys and geographic codes: digit strings (their width is edition-specific, so only the
 # all-digits shape is checked here; key widths are checked by the data tests). CPV 2020
 # spells the microdata geography ENT/MUN and the aggregates' ENTIDAD/MUN/LOC/MZA.
@@ -806,11 +819,46 @@ def _dwellings_from_persons(period: str, state, harmonize: bool
     return df, gids, label
 
 
+def _attach_heads(df: pd.DataFrame, period: str, state, harmonize: bool) -> pd.DataFrame:
+    """``df`` (a CGPV 2000, Conteo 2005 or Censo 2010 dwelling frame, keyed like
+    :func:`load_cpv_viviendas` with ``harmonize``) with its household head's raw ``SEXO``
+    from the person file (:data:`_HEAD_FROM_PERSONS`: only the key parts, the relationship
+    and ``SEXO`` are read). 2000's rows are households; a 2005 dwelling takes the head of its
+    first household. Raises when a household has no head or several, or a record no head."""
+    from mxcensus.data._registry import POOCH
+
+    relationship, codes, parts = _HEAD_FROM_PERSONS[period]
+    persons = pd.concat([pd.read_parquet(POOCH.fetch(cpv_filename("personas", period, s)),
+                                         columns=[*parts, relationship, "SEXO"])
+                         for s in _states(state)], ignore_index=True)
+    persons = _composite_keys(persons, "viviendas")             # 2000/2005: ID_VIV, ID_HOG
+    if harmonize and period in _STATE_SCOPED_KEYS:              # 2010: the national ID_VIV
+        persons = _national_keys(persons.assign(CVE_ENT=persons["ENT"].str.zfill(2)),
+                                 "personas")
+    household = [k for k in ("ID_VIV", "ID_HOG") if k in persons.columns]
+    is_head = persons[relationship].isin(codes)
+    heads = is_head.groupby([persons[k] for k in household]).sum()
+    if (heads != 1).any():
+        bad = heads[heads != 1]
+        raise ValueError(f"CPV personas {period}: {len(bad)} households without exactly one "
+                         f"head ({relationship} in {sorted(codes)}), e.g. {list(bad.index[:3])}")
+    key = [k for k in household if k in df.columns]             # 2005: the dwelling only
+    first = persons.loc[is_head, [*household, "SEXO"]].sort_values(household) \
+        .drop_duplicates(key)
+    sexo = df[key].merge(first, on=key, how="left", validate="many_to_one")["SEXO"]
+    if sexo.isna().any():
+        raise ValueError(f"CPV viviendas {period}: {int(sexo.isna().sum())} records without "
+                         f"a household head in the person file")
+    return df.assign(SEXO=sexo.to_numpy())
+
+
 def _load_level(table: str, period, state, harmonize: bool, labels: bool,
                 derived: bool = False) -> pd.DataFrame:
     """Raw ``table`` → derived columns (``derived``, from the raw codes), numeric
     ``FACTOR``, labelled (``labels``), indexed by its level key. CGPV 1990's and the
-    Conteo 1995's dwellings come from their person files (:func:`_dwellings_from_persons`)."""
+    Conteo 1995's dwellings come from their person files (:func:`_dwellings_from_persons`);
+    with ``derived``, CGPV 2000's, the Conteo 2005's and Censo 2010's take their household
+    head's sex from them (:func:`_attach_heads`, for ``JEFE_SEXO``)."""
     states = _states(state)
     edition = _level_edition(table, period)
     if not harmonize and states and len(states) > 1 and table not in NATIONAL_TABLES \
@@ -829,7 +877,12 @@ def _load_level(table: str, period, state, harmonize: bool, labels: bool,
         if not harmonize:                   # harmonize=True derived them already
             df = _composite_keys(df, table)
     if derived:
+        heads = table == "viviendas" and edition.period in _HEAD_FROM_PERSONS
+        if heads:
+            df = _attach_heads(df, edition.period, state, harmonize)
         df = _derived.derive(df, table, edition.period)
+        if heads:
+            df = df.drop(columns="SEXO")        # the head's: JEFE_SEXO now
     spec = _KEY_SPEC[table]
     if labels:
         out = _finish_labelled(df, _labels_for(source, gids), label, spec)
@@ -868,7 +921,11 @@ def load_cpv_viviendas(
     ``derived=True`` adds the legacy ``load_extended_viviendas`` columns the edition
     supports (``CLAVIVP_CAT``, ``CUADORM_CAT``, ``INGTRHOG_CAT``, the ``FINANCIAMIENTO_*``
     dummies…; :func:`mxcensus.cpv_derivations` lists them per edition), computed from the
-    raw codes and validated (:mod:`mxcensus.cpv_derived`).
+    raw codes and validated (:mod:`mxcensus.cpv_derived`). CGPV 2000, the Conteo 2005 and
+    Censo 2010 have no head item, so it also reads the household head's sex from the person
+    file (the relationship and ``SEXO`` columns only) into ``JEFE_SEXO``, Censo 2020's
+    dwelling item: per household in 2000, the head of the dwelling's first household in
+    2005.
     """
     return _load_level("viviendas", period, state, harmonize, labels, derived)
 

@@ -31,6 +31,9 @@ are kept as they are),
 ``SIN_DISC_LIM``, INEGI's population without either or a mental condition (its
 ``PSIND_LIM``), and ``MADRE_EN_VIVIENDA``/``PADRE_EN_VIVIENDA`` (whether the mother/father lives in the
 dwelling: the one part of ``IDENT_MADRE``/``IDENT_PADRE`` Censo 2010 also asked).
+CGPV 2000's, the Conteo 2005's and Censo 2010's dwellings get ``JEFE_SEXO``, the item
+Censo 2020 publishes: the household head's ``SEXO``, which the dwelling loader attaches
+from the person file (``cpv._attach_heads``), so ``derive`` reads it as a dwelling source.
 
 **Editions.** Censo 2020 and EIC 2025 (same questionnaire family) get every derivation
 whose sources exist; 2025 lacks ``RELIGION`` and ``IDENT_HIJO``. EIC 2015 and Censo 2010
@@ -185,6 +188,8 @@ _RECODE: dict[str, dict[str, dict[int, float]]] = {
         "CLAVIVP": {2: 4, 3: 5, 4: 6, 5: 7, 6: 8, 7: 9, 9: 99},
         # 26 rooms (2020's code list stops at 25; both «3+»).
         "TOTCUART": {26: 25},
+        # Sex: 1 man, 2 woman (2020: 1, 3); read for the household head (6s, JEFE_SEXO).
+        "SEXO": {2: 3},
     },
     "2005": {
         # Level and antecedent (NIVANTES), as 2000's; 84 maestría, 94/95 doctorado.
@@ -196,6 +201,7 @@ _RECODE: dict[str, dict[str, dict[int, float]]] = {
         "ENT_PAIS_RES_5A": {33: 997, 201: 221, 600: 998},
         # Dwelling class (CLAVIVPA): 2000's classes.
         "CLAVIVP": {2: 4, 3: 5, 4: 6, 5: 7, 6: 8, 7: 9, 9: 99},
+        "SEXO": {2: 3},                                     # as 2000's
     },
     "1995": {
         "EDAD": {99: 999},                                  # 99 = not specified (98 = 98+)
@@ -813,6 +819,13 @@ def _ingtrhog_cat(src):
                                  _INCOME_LABELS, right=False, blank=2e6)}
 
 
+def _jefe_sexo(src):
+    """The household head's sex (2020's dwelling item ``JEFE_SEXO``, its labels) from the
+    head's ``SEXO``, which the dwelling loader brings from the person file for the editions
+    without the item (``cpv._attach_heads``: CGPV 2000, Conteo 2005, Censo 2010; 6s)."""
+    return {"JEFE_SEXO": _mapped(src["SEXO"], "viviendas", "JEFE_SEXO", "JEFE_SEXO")}
+
+
 @dataclass(frozen=True)
 class _Derivation:
     table: str
@@ -920,6 +933,7 @@ def _registry() -> tuple[_Derivation, ...]:
         D(per, ("RELIGION_CAT",), ("RELIGION",), ("1990",), _religion_1990),
         D(viv, ("CLAVIVP_CAT",), ("CLAVIVP",), ("1990", "2000", "2005", "2010", *_SINCE_2015),
           _cat(viv, "CLAVIVP", "CLAVIVP_CAT")),
+        D(viv, ("JEFE_SEXO",), ("SEXO",), ("2000", "2005", "2010"), _jefe_sexo),  # the head's
         D(viv, ("CUADORM_CAT",), ("CUADORM",), (*_OLDEST, *_EVERY),
           _cat(viv, "CUADORM", "CUADORM_CAT")),
         D(viv, ("TOTCUART_CAT",), ("TOTCUART",), (*_OLDEST, *_EVERY),
