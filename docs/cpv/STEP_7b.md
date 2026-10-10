@@ -149,9 +149,9 @@ The EIC 2015's students with the place not specified (4.5%, its tabulado's too) 
   checks, sex T).
 
 Full suite on the Mac: **1881 passed, 1 skipped** (32 min, beside the tabulado run and the
-sweep; the first run's one failure was that cell count, then fixed and re-run). `wsl`: the
-full suite on the same code (7a + this unit's patch) for the 0.11.0 release; its result is
-in the release commit's HANDOFF.
+sweep; the first run's one failure was that cell count, then fixed and re-run). `wsl` (the
+same code: 7a + this unit's patch, for the 0.11.0 release): **1882 passed** (1 h 54 min, none
+skipped).
 
 ## Left out
 

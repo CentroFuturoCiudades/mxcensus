@@ -1,14 +1,13 @@
 # CPV family — session handoff
 
-**Status (2026-10-10): units 0–6z, 7a and 7b are done. `main` = v0.10.0 + 6u (merged
-locally, **not pushed, no version bump**; v0.10.0 = 6s–6t, tagged and pushed; 0.9.0 =
-6k–6r, §Review). `cpv-integration` = `main` + 6v + 6w + 6x + 6y + 6z + 7a + 7b (6v: the
-`POBHOG` total and the Conteo 2005's households; 6w: indigenous households and media
-superior/superior apart; 6x: `HOG_IND` on the household records; 6y: the EIC 2025's
-percentages as constraints; 6z: its dwelling and household percentages; 7a: its person
-percentages; 7b: the places by municipality for 2010–2025; all agreed with the user), all
-committed. None merged or pushed: the 0.11.0 release (6u–7b) waits for a `wsl` full-suite
-run (§Next 1). A session starts by checking `git log`/`git status` against this line.**
+**Status (2026-10-10): units 0–6z, 7a and 7b are done. `main` = `cpv-integration` =
+**v0.11.0** = 6u–7b, tagged and pushed (6u: relationship labels; 6v: the `POBHOG` total
+and the Conteo 2005's households; 6w: indigenous households and media superior/superior
+apart; 6x: `HOG_IND` on the household records; 6y: the EIC 2025's percentages as
+constraints; 6z: its dwelling and household percentages; 7a: its person percentages; 7b:
+the places by municipality for 2010–2025; all agreed with the user). Before it: v0.10.0 =
+6s–6t, 0.9.0 = 6k–6r (§Review). The `wsl` full suite on the release code: **1882 passed**
+(1 h 54 min). A session starts by checking `git log`/`git status` against this line.**
 - **Released** (registered, uploaded, verified): every edition 1990–2025 (897 `cpv_` files)
   and the Marco Geoestadístico 1995–2025 frames, incl. the EIC 2015's (6h); registry
   **4148** entries (`STEP_6b.md` §Release batch, `STEP_6h.md`).
@@ -223,14 +222,16 @@ files; the MG 2015 files were built on the Mac and copied to `wsl` for the uploa
 merge: 1773 passed, 1 h 50 min) and holds a copy of the Mac's tabulados cache
 (`data/dict/tabulados/`, without 6t's `2000/C2KHO04.xls` and `2015/12_hogares.xls` and 6w's
 `2015/05_etnicidad.xls` and `2020/cpv2020_a_eum_07_educacion.xlsx`: the script fetches
-them). 6s–7b ran on the Mac only; on 2026-10-10 `wsl` needed a Tailscale re-login, so the
-0.11.0 suite run did not happen there.
+them). 6s–7b were built on the Mac; on 2026-10-10 `wsl` (after a Tailscale re-login: the
+user opens the printed URL) ran the 0.11.0 full suite on 7a + 7b's patch (moved by a `git
+bundle` and a `git diff` over `scp`, byte-identical to the commit; 1882 passed) and was then
+pulled to v0.11.0.
 `wsl:~/mxcensus3c` (3c's code copy) can be deleted.
 
 ## Kickoff prompt for the next session
 
-> Continue the CPV census-family work in this repo (branch cpv-integration = main + 6v–7b;
-> main = v0.10.0 + 6u, merged). Read docs/cpv/HANDOFF.md first, then agree with me which next unit to
+> Continue the CPV census-family work in this repo (branch cpv-integration = main = v0.11.0,
+> pushed). Read docs/cpv/HANDOFF.md first, then agree with me which next unit to
 > take (candidates in HANDOFF §Next) before implementing it, following the session protocol
 > in docs/cpv/PLAN.md. Use .venv/bin/python, not uv run. Run wsl tasks without asking; ask
 > me before committing, pushing, installing packages or uploading.
@@ -266,18 +267,12 @@ and **kept all seven** (merged as 0.9.0):
 
 ## Next: candidates (none decided)
 
-1. **Release 0.11.0** (agreed with the user on 2026-10-10; 6u–7b): get `cpv-integration`
-   onto `wsl` (a `git bundle` over `scp`, or push the branch first if the user agrees), run
-   the full suite there (~2 h, `run_in_background`), then — on the user's word — bump
-   `pyproject.toml`/`uv.lock` to 0.11.0, fast-forward `main` (`git fetch . cpv-integration:main`),
-   tag `v0.11.0` and push `main`, `cpv-integration` and the tag. `wsl` needed a Tailscale
-   re-login on 2026-10-10 (the user opens the printed URL).
-2. **Ratio constraints** for the EIC 2025 percentages whose base is not published (7a left
+1. **Ratio constraints** for the EIC 2025 percentages whose base is not published (7a left
    out 11): the employed's nine commute modes, `PCN_P3NHLI_CLI`, `PCN_HF`. A percentage p of
    an unpublished base B is the linear constraint Σ w·(1{cell} − p/100·1{B}) = 0, which
    needs no count; `cpv_constraints` only speaks counts, so this is a design change (a
    second kind of constraint, and a consumer for it).
-3. Smaller: a 2000 occupation bridge (CMO → SINCO, no published table); income in minimum
+2. Smaller: a 2000 occupation bridge (CMO → SINCO, no published table); income in minimum
    wages for 2000 (`P_1SM`…: three wage zones by municipality); a locality-level lineage (6a
    covered municipalities only); CGPV 1990's undocumented `TIP_HOGAR` 6 (96,370 persons, all
    `N_F_GPOS` 99 and a 9xx relationship: a dwelling without its household composition;

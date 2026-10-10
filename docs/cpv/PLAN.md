@@ -85,7 +85,7 @@ chosen by the user over the persons) followed in a new session the same day.
 choice; the first unit after 6z) followed in the next session the same day.
 7b (HANDOFF candidate 3's «older editions catch up», the user's choice, widened by the
 user to the school and work places by municipality) followed in a new session the same
-day, beside the 0.11.0 release preparation.
+day; 6u–7b were merged into `main` as 0.11.0 (2026-10-10, after a `wsl` full-suite run).
 
 ### Session protocol
 
