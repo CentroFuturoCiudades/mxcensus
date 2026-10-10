@@ -134,6 +134,15 @@ work also 2010), INEGI's tabulados' «mismo municipio / otro municipio / no espe
 otra entidad o país, no especificado». The grouped commute dummies stay 2020/2025: the EIC
 2015 answers bus and taxi with one code.
 
+7c takes ``LUGAR_RES_5A`` (residence in 1995), ``LUGAR_TRAB`` and ``ENT_PAIS_TRAB_INEGI`` to
+CGPV 2000 (Censo 2010's layout: an entity-or-country item and the municipality of every
+Mexican answer; 999 not specified) and adds ``INGTRMEN_SM``, the income from work in
+minimum wages of INEGI's tabulados (CGPV 2000 and its ITER's ``P_1SM`` … ``P10_SM``, Censo
+2010, EIC 2015, Censo 2020): the monthly wage (daily × 30) of the municipality's CONASAMI
+area at the edition's date (:data:`_SALARIOS_MINIMOS`; INEGI's own catalogs for 2010 and
+2015, its FD's annex for 2000, the DOF's northern border zone for 2020), with each edition's
+groups (2000's bounds differ: below 1, from 1 to 2…; 2010–2020 up to 1, above 1 to 2…).
+
 :func:`cpv_derivations` lists the columns per edition. The check that the source codes
 match after the recode is a test (``tests/test_cpv_derived.py``).
 
@@ -251,9 +260,11 @@ _RECODE: dict[str, dict[str, dict[int, float]]] = {
         # (_educ_2000).
         "NIVACAD": {5: 9, 7: 11, 8: 13, 9: 99},
         "ESCOLARI": {9: 99},
-        # Birthplace and residence in 1995: 600 = «otro país, no se sabe cuál» (2020: 998).
+        # Birthplace, residence in 1995 and place of work (7c; its FD: the same codes as the
+        # birthplace): 600 = «otro país, no se sabe cuál» (2020: 998); 999 not specified.
         "ENT_PAIS_NAC": {600: 998},
         "ENT_PAIS_RES_5A": {600: 998},
+        "LTRABPAI_C": {600: 998},
         # Dwelling class (CLAVIV): casa independiente (2020: casa única en el terreno),
         # departamento, vecindad, azotea, local no construido para habitación, vivienda
         # móvil, refugio, not specified.
@@ -331,7 +342,7 @@ _ALIASES = {"ENT": ("ENT", "CVE_ENT"),
             "ENT_PAIS_NAC": ("ENT_PAIS_NAC", "LNACEDO_C", "CVE_P_NAC", "P3_7B"),
             "ENT_PAIS_RES_5A": ("ENT_PAIS_RES_5A", "ENT_PAIS_RES10", "RES95EDO_C", "LURE2000",
                                 "CVE_P_RES", "P4_6A"),
-            "MUN_RES_5A": ("MUN_RES_5A", "MUN_RES10"),                  # 7b: EIC 2015
+            "MUN_RES_5A": ("MUN_RES_5A", "MUN_RES10", "MUN95OTR_C"),    # 7b, 7c: 2015, 2000
             "ACTIVIDADES_C": ("ACTIVIDADES_C", "ACTTRAB_C"),
             "INGTRMEN": ("INGTRMEN", "INGRESOS", "INGRESO", "P7_9MP"),
             "HORTRA": ("HORTRA", "HORAS", "P7_6"),
@@ -416,12 +427,23 @@ _EDAD_QUIN = pd.CategoricalDtype([*(f"{a}-{a + 4}" for a in range(0, 75, 5)), "7
 _LUGAR_RES = pd.CategoricalDtype(["Mismo municipio", "Otro municipio",
                                   "Municipio no especificado", "Otra entidad", "Estados Unidos",
                                   "Otro país", "No especificado", "Blanco por pase"])
+# 7c: the income from work in minimum wages, INEGI's tabulados' groups: CGPV 2000's
+# (C2KEM08; its ITER's P_1SM … P10_SM join the 2–3 and 3–5 groups) are bounded otherwise
+# than 2010–2020's (:func:`_ingtrmen_sm`).
+_SM_2000 = pd.CategoricalDtype(["No recibe ingresos", "Menos de 1 s.m.", "De 1 hasta 2 s.m.",
+                                "Más de 2 y menos de 3 s.m.", "De 3 hasta 5 s.m.",
+                                "Más de 5 hasta 10 s.m.", "Más de 10 s.m.", "No especificado",
+                                "Blanco por pase"], ordered=True)
+_SM = pd.CategoricalDtype(["No recibe ingresos", "Hasta 1 s.m.", "Más de 1 a 2 s.m.",
+                           "Más de 2 a 3 s.m.", "Más de 3 a 5 s.m.", "Más de 5 a 10 s.m.",
+                           "Más de 10 s.m.", "No especificado", "Blanco por pase"], ordered=True)
 _DTYPES = {"DISCAPACIDAD": _YES_NO, "LIMITACION": _YES_NO, "SIN_DISC_LIM": _YES_NO,
            "LIM_ACTIVIDAD": _YES_NO, "MADRE_EN_VIVIENDA": _YES_NO, "PADRE_EN_VIVIENDA": _YES_NO,
            "EDUC_INEGI": _EDUC_INEGI, "EDUC_INEGI_DET": _EDUC_INEGI_DET, "SECTOR": _SECTOR,
            "HOG_IND": _SI_NO, "OCUP_CUARTO_CAT": _OCUP_CUARTO, "CLASE_HOG": _CLASE_HOG,
            "INGR_OTROS": _YES_NO, "EDAD_QUIN": _EDAD_QUIN, "LUGAR_RES_5A": _LUGAR_RES,
-           "LUGAR_ASI": _LUGAR_RES, "LUGAR_TRAB": _LUGAR_RES, "HOG_AFRO": _SI_NO}
+           "LUGAR_ASI": _LUGAR_RES, "LUGAR_TRAB": _LUGAR_RES, "HOG_AFRO": _SI_NO,
+           "INGTRMEN_SM": _SM}
 # Derived columns with another column's legacy dtype: the household head's sex on the
 # person (6t) has the dwelling item's; INEGI's birthplace (6y) the legacy one's; the place
 # of school and work by INEGI's rule (7a) the residence's (with «Blanco por pase»).
@@ -563,6 +585,83 @@ def _ingtrmen_1990(src):
     new = np.maximum(income / 1000, 1).where(income.gt(0), income)
     new = new.mask(income.ge(99_999_997), 999_999).where(src["CONACT"].isin(_EMPLOYED))
     return _ingtrmen_cat(pd.DataFrame({"INGTRMEN": new}))
+
+
+# 7c: the minimum wage of each municipality, for the income in minimum wages of INEGI's
+# tabulados (and CGPV 2000's ITER): the general daily minimum wage of the municipality's
+# CONASAMI area at the edition's date, × 30 (INEGI's monthly wage; × 30.4 misses its
+# tabulados by points). Daily wages in cents; an area maps an entity to its municipalities
+# (_WHOLE: all of them); the rest of the country takes the edition's first wage.
+# - CGPV 2000: its FD's annex «Salarios mínimos generales por entidad federativa y áreas
+#   geográficas vigentes a febrero del 2000» (= DOF 31/12/1999): A 37.90, B 35.10, C 32.70.
+# - Censo 2010: INEGI's catalog TC_TABLA_SALARIOS_MUN_2010 (= DOF 23/12/2009; 2000's
+#   municipalities): 57.46, 55.84, 54.47.
+# - EIC 2015: INEGI's catalog TC_SALARIO_MUN_2015 — the two areas of 2012 (A = the old A and
+#   B), the January–March wages 70.10 and 66.45 —, as published: it puts Coacoatzintla
+#   (30-036) in area A where the DOF names Coatzintla (30-040), and INEGI's tabulados follow
+#   the catalog (to the person; the DOF's municipality misses Veracruz by 525 persons).
+# - Censo 2020: DOF 23/12/2019, the Zona Libre de la Frontera Norte 185.56 (its 43
+#   municipalities and San Quintín, 02-006, split off Ensenada in February 2020: INEGI's
+#   tabulados count it in the zone) and the rest of the country 123.22.
+_WHOLE = None
+_SM_A = {2: _WHOLE, 3: _WHOLE, 9: _WHOLE, 8: (28, 37, 53), 12: (1,),
+         15: (13, 20, 24, 33, 57, 104, 109, 121), 26: (2, 19, 39, 43, 48, 55, 59, 70),
+         28: (7, 14, 15, 22, 24, 25, 27, 32, 33, 35, 40),
+         30: (39, 48, 61, 82, 108, 111, 204, 206)}
+_SM_B = {14: (39, 70, 97, 98, 101, 120), 19: (6, 19, 21, 26, 39, 46, 48),
+         26: (4, 7, 12, 16, 17, 18, 20, 21, 22, 25, 26, 29, 30, 33, 35, 36, 42, 45, 46, 47, 56,
+              58, 60, 62, 64, 65, 71, 72),
+         28: (2, 3, 4, 9, 11, 12, 21, 28, 29, 38, 43), 30: (40, 131, 189)}
+_SM_A_2015 = {**_SM_A, **_SM_B,
+              **{e: tuple(sorted(_SM_A[e] + _SM_B[e])) for e in _SM_A.keys() & _SM_B.keys()},
+              30: (36, 39, 48, 61, 82, 108, 111, 131, 189, 204, 206)}   # the catalog's 036
+_ZLFN = {2: _WHOLE, 5: (2, 12, 13, 14, 22, 23, 25, 38), 8: (5, 15, 28, 35, 37, 42, 52, 53),
+         19: (5,), 26: (2, 4, 17, 19, 39, 43, 48, 55, 59, 60, 70),
+         28: (7, 14, 15, 22, 24, 25, 27, 32, 33, 40)}
+_SALARIOS_MINIMOS: dict[str, tuple[int, tuple[tuple[int, dict], ...]]] = {
+    "2000": (3270, ((3790, _SM_A), (3510, _SM_B))),
+    "2010": (5447, ((5746, _SM_A), (5584, _SM_B))),
+    "2015": (6645, ((7010, _SM_A_2015),)),
+    "2020": (12322, ((18556, _ZLFN),)),
+}
+_INCOME_NE = 999999      # INGTRMEN not specified (999998: an income above 999,997)
+
+
+def _salario_minimo(period: str, ent: pd.Series, mun: pd.Series) -> pd.Series:
+    """The monthly minimum wage (cents) of each row's municipality in ``period``."""
+    rest, areas = _SALARIOS_MINIMOS[period]
+    key = ent * 1000 + mun
+    out = pd.Series(30 * rest, index=ent.index, dtype="int64")
+    for daily, area in areas:
+        whole = [e for e, muns in area.items() if muns is _WHOLE]
+        pairs = [e * 1000 + m for e, muns in area.items() if muns is not _WHOLE for m in muns]
+        out[ent.isin(whole) | key.isin(pairs)] = 30 * daily
+    return out
+
+
+def _ingtrmen_sm(period: str):
+    """The monthly income from work in minimum wages (7c, ``INGTRMEN_SM``), INEGI's groups:
+    2000 below 1, from 1 to 2, above 2 and below 3, from 3 to 5, above 5 to 10, above 10
+    (C2KEM08); 2010–2020 up to 1, above 1 to 2, 2 to 3, 3 to 5, 5 to 10, above 10. «No
+    recibe ingresos» (0), «No especificado» (999999), «Blanco por pase» (not employed). The
+    wage is the municipality's (:func:`_salario_minimo`); compared in cents, exactly."""
+    dtype = _SM_2000 if period == "2000" else _SM
+
+    def fn(src):
+        income = src["INGTRMEN"]
+        wage = _salario_minimo(period, src["ENT"], src["MUN"]).astype(float)
+        cents = income * 100
+        if period == "2000":
+            bounds = [cents.lt(wage), cents.le(2 * wage), cents.lt(3 * wage),
+                      cents.le(5 * wage), cents.le(10 * wage)]
+        else:
+            bounds = [cents.le(k * wage) for k in (1, 2, 3, 5, 10)]
+        cats = list(dtype.categories)
+        values = np.select([income.isna(), income.eq(0), income.eq(_INCOME_NE), *bounds,
+                            income.gt(0)],
+                           [cats[8], cats[0], cats[7], *cats[1:6], cats[6]], None)
+        return {"INGTRMEN_SM": pd.Series(values, index=src.index).astype(dtype)}
+    return fn
 
 
 @functools.cache
@@ -948,11 +1047,11 @@ _USA = 221               # Estados Unidos de América (the 2020 country catalog)
 def _lugar(var: str, mun: str, name: str, abroad: str | None = None):
     """A place by the person's own municipality and entity: the residence five years
     earlier (7a, ``LUGAR_RES_5A``; the EIC 2025's ``PRESM20`` … ``PRESOP20``), the place of
-    school and of work (7b, ``LUGAR_ASI``/``LUGAR_TRAB``; INEGI's 2010–2020 tabulados). The
-    own entity by the municipality (``mun`` against the person's; 999 «Municipio no
-    especificado»), another entity, the United States, another country or the country not
-    specified (998), not specified (the entity not specified, 997, or 999), blank (not
-    asked). Censo 2010 splits the residence's answer: the entity item ``var``, else the
+    school and of work (7b, ``LUGAR_ASI``/``LUGAR_TRAB``; INEGI's 2010–2020 tabulados, 7c:
+    CGPV 2000's). The own entity by the municipality (``mun`` against the person's; 999
+    «Municipio no especificado»), another entity, the United States, another country or the
+    country not specified (998), not specified (the entity not specified, 997, or 999),
+    blank (not asked). Censo 2010 splits the residence's answer: the entity item ``var``, else the
     country item ``abroad``. A code the residence's labels lack, or the own entity without
     a municipality, is left missing (:func:`derive` reports it)."""
     def fn(src):
@@ -1055,11 +1154,15 @@ def _religion_1990(src):
 @functools.cache
 def _period_dtypes(table: str, period: str) -> dict[str, pd.CategoricalDtype]:
     """Derived columns whose categories differ in an edition: CGPV 1990 and 2000 asked
-    religion of persons aged 5+ only, so their ``RELIGION_CAT`` adds «Blanco por pase»."""
+    religion of persons aged 5+ only, so their ``RELIGION_CAT`` adds «Blanco por pase»;
+    CGPV 2000's income groups in minimum wages are bounded otherwise (7c, ``_SM_2000``)."""
+    out = {}
     if table == "personas" and period in ("1990", "2000"):
         cats = list(_legacy_dtypes("personas")["RELIGION_CAT"].categories)
-        return {"RELIGION_CAT": pd.CategoricalDtype([*cats, "Blanco por pase"])}
-    return {}
+        out["RELIGION_CAT"] = pd.CategoricalDtype([*cats, "Blanco por pase"])
+    if table == "personas" and period == "2000":
+        out["INGTRMEN_SM"] = _SM_2000
+    return out
 
 
 def _ingtrhog_cat(src):
@@ -1240,6 +1343,8 @@ def _registry() -> tuple[_Derivation, ...]:
         D(per, ("EDAD_QUIN",), ("EDAD",), (*_OLDEST, *_EVERY), _edad_quin),          # 7a
         D(per, ("INGTRMEN_CAT",), ("INGTRMEN",), ("1995", *_SINCE_2000), _ingtrmen_cat),
         D(per, ("INGTRMEN_CAT",), ("INGTRMEN", "CONACT"), ("1990",), _ingtrmen_1990),
+        *(D(per, ("INGTRMEN_SM",), ("INGTRMEN", "ENT", "MUN"), (p,), _ingtrmen_sm(p))  # 7c
+          for p in _SALARIOS_MINIMOS),
         D(per, ("HORTRA_CAT",), ("HORTRA",), ("1995", "2010", "2020", "2025"), _hortra_cat),
         D(per, ("HORTRA_CAT",), ("HORTRA", "CONACT"), ("2000",), _hortra_2000),
         D(per, ("HORTRA_CAT",), ("HORTRA", "CONACT"), ("1990",), _hortra_1990),
@@ -1287,18 +1392,20 @@ def _registry() -> tuple[_Derivation, ...]:
         D(per, ("DHSERSAL_AFIL_ACCESO",), ("DHSERSAL1", "DHSERSAL2", "DHSERSAL_ACCESO"),
           ("2025",), _afil_acceso),
         # (7b: the EIC 2015's and Censo 2010's places too, and the place of school and of
-        # work by municipality; Censo 2010 asked no place of school)
+        # work by municipality; Censo 2010 asked no place of school; 7c: CGPV 2000's
+        # residence in 1995 and place of work, Censo 2010's layout without its split)
         *(D(per, (f"{item}_INEGI",), (item, "ENT"), _SINCE_2015,
             _ent_pais_inegi(item, f"{item}_INEGI")) for item in ("ENT_PAIS_ASI", "ENT_PAIS_TRAB")),
-        D(per, ("ENT_PAIS_TRAB_INEGI",), ("LTRABPAI_C", "ENT"), ("2010",),
+        D(per, ("ENT_PAIS_TRAB_INEGI",), ("LTRABPAI_C", "ENT"), ("2000", "2010"),
           _ent_pais_inegi("LTRABPAI_C", "ENT_PAIS_TRAB_INEGI")),
-        *(D(per, (name,), (item, mun, "ENT", "MUN"), _SINCE_2015, _lugar(item, mun, name))
-          for name, item, mun in (("LUGAR_RES_5A", "ENT_PAIS_RES_5A", "MUN_RES_5A"),
-                                  ("LUGAR_ASI", "ENT_PAIS_ASI", "MUN_ASI"),
-                                  ("LUGAR_TRAB", "ENT_PAIS_TRAB", "MUN_TRAB"))),
+        *(D(per, (name,), (item, mun, "ENT", "MUN"), periods, _lugar(item, mun, name))
+          for name, item, mun, periods in (
+              ("LUGAR_RES_5A", "ENT_PAIS_RES_5A", "MUN_RES_5A", ("2000", *_SINCE_2015)),
+              ("LUGAR_ASI", "ENT_PAIS_ASI", "MUN_ASI", _SINCE_2015),
+              ("LUGAR_TRAB", "ENT_PAIS_TRAB", "MUN_TRAB", _SINCE_2015))),
         D(per, ("LUGAR_RES_5A",), ("RES05EDO_C", "RES05PAI_C", "MUN05OTR_C", "ENT", "MUN"),
           ("2010",), _lugar("RES05EDO_C", "MUN05OTR_C", "LUGAR_RES_5A", abroad="RES05PAI_C")),
-        D(per, ("LUGAR_TRAB",), ("LTRABPAI_C", "LTRABMUN_C", "ENT", "MUN"), ("2010",),
+        D(per, ("LUGAR_TRAB",), ("LTRABPAI_C", "LTRABMUN_C", "ENT", "MUN"), ("2000", "2010"),
           _lugar("LTRABPAI_C", "LTRABMUN_C", "LUGAR_TRAB")),
         D(per, ("CONACT_CAT",), ("CONACT",), (*_OLDEST, *_SINCE_2000),
           _cat(per, "CONACT", "CONACT_CAT")),
@@ -1937,6 +2044,11 @@ _EDITION_CELLS = {
         "P18_CSUPER": {"EDAD_CAT": _AGES_18PLUS, "EDUC_INEGI_DET": ["Superior", "Posgrado"]},
         **_SECTOR_CELLS,
         "POCUNINGR": {**_EMPLOYED_CELLS, "INGTRMEN_CAT": ["No recibe ingresos"]},
+        # 7c: the income in minimum wages (the municipality's area, February 2000)
+        **{ind: {**_EMPLOYED_CELLS, "INGTRMEN_SM": groups} for ind, groups in (
+            ("P_1SM", ["Menos de 1 s.m."]), ("P1_2SM", ["De 1 hasta 2 s.m."]),
+            ("P2_5SM", ["Más de 2 y menos de 3 s.m.", "De 3 hasta 5 s.m."]),
+            ("P6_10SM", ["Más de 5 hasta 10 s.m."]), ("P10_SM", ["Más de 10 s.m."]))},
         "P41_48HTR": {**_EMPLOYED_CELLS, "HORTRA_CAT": ["41-48"]},
         "P48_HTR": {**_EMPLOYED_CELLS, "HORTRA_CAT": ["49-56", "57-60", "61-80", "81YMAS"]},
     },
@@ -2215,7 +2327,8 @@ def cpv_constraints(table: str, period: str | int) -> dict:
     and ``DISCAP1``–``DISCAP7``; its religion groups: ``PNCATOLICA``; the legacy cells on
     the 1990–2010 samples' own items — literacy, language, attendance, floor, electricity,
     water, sanitary service, goods, with each dictionary's labels; CGPV 2000's media
-    superior and superior, ``P18_CMEDSU``/``P18_CSUPER`` on ``EDUC_INEGI_DET``; the 2005/2010
+    superior and superior, ``P18_CMEDSU``/``P18_CSUPER`` on ``EDUC_INEGI_DET``, and its
+    income in minimum wages, ``P_1SM`` … ``P10_SM`` on ``INGTRMEN_SM`` (7c); the 2005/2010
     ``PHOG_IND``, the head or the partner only; the EIC 2025's born in another state without
     the unspecified one, ``PNACOE`` on ``ENT_PAIS_NAC_INEGI``, its ISSSTE federal or state,
     its toilet or latrine, its water item's wording, its dwelling universe ``VIVPARHAB_C``,

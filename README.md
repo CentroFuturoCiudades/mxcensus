@@ -319,20 +319,30 @@ tables = mxcensus.get_tables_dict(mxcensus.cpv_constraints("personas", 2025), pe
 ```
 
 The places come by municipality, as INEGI's tabulados give them: `LUGAR_RES_5A` (the
-residence five years earlier; 2010–2025), `LUGAR_ASI` (the place of school; 2015–2025) and
-`LUGAR_TRAB` (the place of work; 2010–2025) say the same municipality, another municipality
-of the same entity, a municipality not specified, another entity, the United States, another
-country, not specified, or not asked. `ENT_PAIS_ASI_INEGI`/`ENT_PAIS_TRAB_INEGI` give the
-same at the entity level. Censo 2010 asked no place of school, and it records the residence
-and the place of work in an entity item and a country item.
+residence five years earlier; 2000, 2010–2025), `LUGAR_ASI` (the place of school; 2015–2025)
+and `LUGAR_TRAB` (the place of work; 2000, 2010–2025) say the same municipality, another
+municipality of the same entity, a municipality not specified, another entity, the United
+States, another country, not specified, or not asked. `ENT_PAIS_ASI_INEGI`/
+`ENT_PAIS_TRAB_INEGI` give the same at the entity level. CGPV 2000 and Censo 2010 asked no
+place of school, and Censo 2010 records the residence and the place of work in an entity
+item and a country item.
+
+`INGTRMEN_SM` (2000, 2010, 2015, 2020) is the monthly income from work in minimum wages, in
+the groups of INEGI's tabulados: each person's municipality has its minimum wage at the
+edition's date (the CONASAMI area — three in 2000 and 2010, two in 2015, the northern border
+zone in 2020 —, the daily wage × 30, as INEGI's catalogs give it). CGPV 2000's groups are
+bounded as its ITER's `P_1SM` … `P10_SM` (below 1, from 1 to 2, above 2 and below 3, from 3
+to 5…), which are 2000 constraints; 2010–2020's as their tabulados (up to 1, above 1 to 2…).
 
 `scripts/check_cpv_tabulados.py` (maintainer) checks the derived columns against INEGI's
 published sample tabulados in every state, both sexes and the nation, and writes
 [docs/cpv/TABULADOS_REPORT.md](docs/cpv/TABULADOS_REPORT.md): Censo 2020, EIC 2015 and Censo
 2010 match to the person (occupation, sector, hours, health affiliation, commute modes,
 marital status, education, migration, the places of residence, school and work by
-municipality, household class, tenure and deeds, financing, co-residence, limitation); CGPV
-2000 within a few hundredths of a point (its public sample's weights; Chiapas a few tenths).
+municipality, household class, tenure and deeds, financing, co-residence, limitation, income
+in minimum wages); CGPV 2000 within a few hundredths of a point (its public sample's weights;
+Chiapas a few tenths), but for the residence in 1995 by municipality in four states, where
+INEGI counts up to a point more municipal migrants than the answers give.
 
 The legacy health-coverage dummies `DHSERSAL_Popular_NGenración_SBienestar` and
 `DHSERSAL_IMSS_Prospera/Bienestar` are named `DHSERSAL_SALUD_PUBLICA` and

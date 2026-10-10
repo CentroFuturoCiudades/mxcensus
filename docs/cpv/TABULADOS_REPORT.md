@@ -23,11 +23,17 @@ Tolerance: 0.04 points (state 07: 0.6).
 | VI10 Drainage (`DRENAJE_CAT`), % of the dwellings | `C2KVI10.xls` | 99 | 0.002 | 0.007 | 0.019 (07 T «has drainage») | 0 |
 | HO04a Households by the head's sex (`JEFE_SEXO`, 6s), % | `C2KHO04.xls` | 66 | 0.003 | 0.005 | 0.009 (07 T «female head») | 0 |
 | HO04b Population in households by the head's sex (`HOGJEF_SEXO`), % | `C2KHO04.xls` | 66 | 0.002 | 0.005 | 0.005 (11 T «female head») | 0 |
+| EM08 Income of the employed in minimum wages (`INGTRMEN_SM`) | `C2KEM08.xls` | 792 | 0.003 | 0.008 | 0.071 (07 M «no income») | 0 |
+| EM10 Place of work by municipality (`LUGAR_TRAB`) | `C2KEM10.xls` | 198 | 0.003 | 0.007 | 1.104 (07 T «another municipality») | 0 |
+| MI04 Residence in 1995 by municipality (`LUGAR_RES_5A`), % of the 5+ | `C2KMI04.xls` | 693 | 0.003 | 0.064 | 1.040 (30 M «same municipality») | 0 |
 
 - ED08: Técnica after primaria is its own column here, as `EDUC_INEGI`'s «Técnica_primaria» (6k).
 - ED11: Media superior = técnica after secundaria, preparatoria and normal básica (its columns D–F); superior holds the posgrado (6w).
 - ED10: INEGI's 2000 levels put técnica after primaria with secundaria (its footnote 1), so the comparison groups it there.
 - HO04b: The head's sex is the breakdown: both sexes only.
+- EM08: The monthly minimum wage of the municipality's area in February 2000 (its FD's annex: A 1,137, B 1,053, C 981 = the daily wage × 30); 7c.
+- EM10: Both sexes only; the municipality's cells are % of the same entity. `LTRABPAI_C` 999 is «No especificado» (7c). Chiapas' same/another municipality split is 1.1 points off (its sample's weights).
+- MI04: The person's answer (`MUN95OTR_C` against the current municipality; 7c, user's choice). INEGI counts more municipal migrants in Guanajuato, Oaxaca, Veracruz and Zacatecas (0.08–1.04 points of the same entity); in Zacatecas they are the residents of Trancoso (created after 1995) who answered Trancoso, the other three have no such rule (Campeche's and Sonora's 1996–98 municipalities show none).
 
 ## 2010
 
@@ -37,6 +43,7 @@ Tolerance: 1.0 persons.
 |---|---|---|---|---|---|---|
 | 04_02A Residence in 2005 by municipality (`LUGAR_RES_5A`), the 5+ | `04_02A_ESTATAL.xls` | 693 | 0.00 | 0.00 | 0.00 (00 H «same municipality») | 0 |
 | 08_15A Place of work by municipality (`LUGAR_TRAB`) | `08_15A_ESTATAL.xls` | 693 | 0.00 | 0.00 | 0.00 (00 T «same entity») | 0 |
+| 08_10A Income of the employed in minimum wages (`INGTRMEN_SM`) | `08_10A_ESTATAL.xls` | 891 | 0.00 | 0.00 | 525.00 (15 T «above 3 to 5») | 0 |
 | 08_02A Employed by occupational division (`OCUPACION_C_COARSE`) | `08_02A_ESTATAL.xls` | 990 | 0.00 | 0.00 | 0.00 (01 T «Funcionarios, directores y jefes») | 0 |
 | 08_03A Employed by sector (`ACTIVIDADES_C_COARSE`) | `08_03A_ESTATAL.xls` | 594 | 0.00 | 0.00 | 0.00 (01 T «Agricultura, ganadería, aprovechamiento forestal, pesca y caza») | 0 |
 | 06_01A Limitation in activity (`LIM_ACTIVIDAD`), nation only | `06_01A_ESTATAL.xls` | 12 | 0.00 | 0.00 | 0.00 (00 T «without») | 0 |
@@ -44,6 +51,7 @@ Tolerance: 1.0 persons.
 
 - 04_02A: The entity not specified (`RES05EDO_C` 999) is «No especificado», as INEGI's (the legacy `ENT_PAIS_RES_CAT`: `OtraEnt`); 7b.
 - 08_15A: `LTRABPAI_C` holds the entity and country catalogs; its 999 (the entity's «no especificada») and 900 (topic omitted) are «No especificado» (7b).
+- 08_10A: INEGI's catalog `TC_TABLA_SALARIOS_MUN_2010` (A 1,723.80, B 1,675.20, C 1,634.10; 7c). Exact but in the State of México, up to 525 persons (0.012 points) under INEGI's lower groups, which no change of a municipality's (or two's) area explains.
 - 06_01A: Published by locality size: the national row only (all 32 states needed).
 - 12_01A: Published by locality size: the national row only (all 32 states needed).
 
@@ -58,6 +66,7 @@ Tolerance: 1.0 persons.
 | 10-01 Place of school by municipality (`LUGAR_ASI`) | `10_movilidad_cotidiana.xls` 01 | 693 | 0.00 | 0.00 | 0.00 (00 T «same municipality») | 0 |
 | 10-04 Place of work by municipality (`LUGAR_TRAB`) | `10_movilidad_cotidiana.xls` 04 | 693 | 0.00 | 0.00 | 0.00 (00 H «same municipality») | 0 |
 | 08-02 Activity of the 12+ (`CONACT_CAT`) | `08_caracteristicas_economicas.xls` 02 | 594 | 0.00 | 0.00 | 0.00 (00 T «inactive») | 0 |
+| 08-11 Income of the employed in minimum wages (`INGTRMEN_SM`) | `08_caracteristicas_economicas.xls` 11 | 891 | 0.00 | 0.00 | 0.00 (00 T «above 1 to 2») | 0 |
 | 08-06 Employed by occupational division (`OCUPACION_C_COARSE`) | `08_caracteristicas_economicas.xls` 06 | 990 | 0.00 | 0.00 | 0.00 (01 T «Funcionarios, directores y jefes») | 0 |
 | 08-07 Employed by sector (`ACTIVIDADES_C_COARSE`) | `08_caracteristicas_economicas.xls` 07 | 594 | 0.00 | 0.00 | 0.00 (01 T «Agricultura, ganadería, aprovechamiento forestal, pesca y caza») | 0 |
 | 06-11 Education of the 15+ (`EDUC`) | `06_educacion.xls` 11 | 792 | 0.00 | 0.00 | 0.00 (00 T «media superior») | 0 |
@@ -75,6 +84,7 @@ Tolerance: 1.0 persons.
 
 - 04-02: On `ENT_PAIS_NAC_INEGI`: the entity not specified (997) is «No especificado», as INEGI's (the legacy `ENT_PAIS_NAC_CAT`: `OtraEnt`).
 - 04-05: The entity not specified (997) is «No especificado» (the legacy `ENT_PAIS_RES_CAT`: `OtraEnt`); 7b.
+- 08-11: INEGI's catalog `TC_SALARIO_MUN_2015` as published (A 2,103, B 1,993.5; its Coacoatzintla in area A, where the DOF has Coatzintla); 7c.
 - 06-11: Técnica after primaria counts in primaria, in the tabulado as in `EDUC`; media superior and superior by `EDUC_INEGI_DET` (6w).
 - 05-04: Both sexes only; the households whose head or partner speaks an indigenous language, the EIC 2015's definition (6w).
 - 12-05: The head's sex is the breakdown: both sexes only.
@@ -92,6 +102,7 @@ Tolerance: 1.0 persons.
 | 07-04 Population 18+ with educación superior (`EDUC_INEGI_DET`) | `cpv2020_a_eum_07_educacion.xlsx` 04 | 99 | 0.00 | 0.00 | 0.00 (01 T «18+, superior or posgrado») | 0 |
 | 08-06 Employed by occupational division (`OCUPACION_C_COARSE`) | `cpv2020_a_eum_08_caracteristicas_economicas.xlsx` 06 | 990 | 0.00 | 0.01 | 0.17 (00 T «Operadores de maquinaria industrial, ensambladores, choferes y conductores de transporte») | 0 |
 | 08-08 Employed by sector (`ACTIVIDADES_C_COARSE`) | `cpv2020_a_eum_08_caracteristicas_economicas.xlsx` 08 | 594 | 0.00 | 0.01 | 0.21 (00 T «Comercio») | 0 |
+| 08-18 Income of the employed in minimum wages (`INGTRMEN_SM`) | `cpv2020_a_eum_08_caracteristicas_economicas.xlsx` 18 | 891 | 0.00 | 0.01 | 0.24 (00 T «up to 1») | 0 |
 | 08-12 Hours worked (`HORTRA_CAT`) | `cpv2020_a_eum_08_caracteristicas_economicas.xlsx` 12 | 594 | 0.00 | 0.01 | 0.26 (00 T «up to 40 (none included)») | 0 |
 | 09-04 Health affiliation by institution (`DHSERSAL_*`) | `cpv2020_a_eum_09_servicios_de_salud.xlsx` 04 | 363 | 0.00 | 0.00 | 0.00 (01 T «population») | 0 |
 | 10-02 Place of school by municipality (`LUGAR_ASI`) | `cpv2020_a_eum_10_movilidad_cotidiana.xlsx` 02 | 693 | 0.00 | 0.01 | 0.15 (00 T «not specified») | 0 |
@@ -102,6 +113,7 @@ Tolerance: 1.0 persons.
 | 16-34 Financing of the owned dwellings bought or built (`FINANCIAMIENTO_*`, several sources) | `cpv2020_a_eum_16_vivienda.xlsx` 34 | 330 | 0.00 | 0.01 | 0.11 (00 T «No especificado») | 0 |
 
 - 07-04: Técnica after preparatoria, licenciatura, normal superior, especialidad, maestría, doctorado (6w).
+- 08-18: The Zona Libre de la Frontera Norte (5,566.80; San Quintín included) and the rest of the country (3,696.60), DOF 23/12/2019; 7c.
 - 10-02: 7b.
 - 10-08: 7b.
 

@@ -1,13 +1,10 @@
 # CPV family — session handoff
 
-**Status (2026-10-10): units 0–6z, 7a and 7b are done. `main` = `cpv-integration` =
-**v0.11.0** = 6u–7b, tagged and pushed (6u: relationship labels; 6v: the `POBHOG` total
-and the Conteo 2005's households; 6w: indigenous households and media superior/superior
-apart; 6x: `HOG_IND` on the household records; 6y: the EIC 2025's percentages as
-constraints; 6z: its dwelling and household percentages; 7a: its person percentages; 7b:
-the places by municipality for 2010–2025; all agreed with the user). Before it: v0.10.0 =
-6s–6t, 0.9.0 = 6k–6r (§Review). The `wsl` full suite on the release code: **1882 passed**
-(1 h 54 min). A session starts by checking `git log`/`git status` against this line.**
+**Status (2026-10-10): units 0–6z and 7a–7c are done. `main` = v0.11.0 = 6u–7b, tagged
+and pushed; 7c (CGPV 2000's places, the income in minimum wages 2000–2020) is one commit
+on `cpv-integration` after it (merge, version and push wait for the user). Before 0.11.0:
+v0.10.0 = 6s–6t, 0.9.0 = 6k–6r (§Review). A session starts by checking `git log`/`git status`
+against this line.**
 - **Released** (registered, uploaded, verified): every edition 1990–2025 (897 `cpv_` files)
   and the Marco Geoestadístico 1995–2025 frames, incl. the EIC 2015's (6h); registry
   **4148** entries (`STEP_6b.md` §Release batch, `STEP_6h.md`).
@@ -212,7 +209,24 @@ the places by municipality for 2010–2025; all agreed with the user). Before it
   - No constraint changes; the EIC 2015's grouped commute dummies are not derivable (one
     code for bus and taxi).
 
-Design: [`PLAN.md`](PLAN.md). Recent units: [`STEP_7b.md`](STEP_7b.md), [`STEP_7a.md`](STEP_7a.md), [`STEP_6z.md`](STEP_6z.md), [`STEP_6y.md`](STEP_6y.md), [`STEP_6x.md`](STEP_6x.md), [`STEP_6w.md`](STEP_6w.md), [`STEP_6v.md`](STEP_6v.md), [`STEP_6u.md`](STEP_6u.md), [`STEP_6t.md`](STEP_6t.md), [`STEP_6s.md`](STEP_6s.md), [`STEP_6r.md`](STEP_6r.md), [`STEP_6q.md`](STEP_6q.md), [`STEP_6p.md`](STEP_6p.md), [`STEP_6o.md`](STEP_6o.md), [`STEP_6n.md`](STEP_6n.md), [`STEP_6m.md`](STEP_6m.md), [`STEP_6l.md`](STEP_6l.md), [`STEP_6k.md`](STEP_6k.md), [`STEP_6j.md`](STEP_6j.md), [`STEP_6i.md`](STEP_6i.md), [`STEP_6h.md`](STEP_6h.md), [`STEP_6g.md`](STEP_6g.md), [`STEP_6f.md`](STEP_6f.md), [`STEP_6e.md`](STEP_6e.md),
+- **7c** (`STEP_7c.md`): HANDOFF candidate 2's CGPV 2000 places and income in minimum wages
+  (the user's choice), the wages widened by the user to 2010–2020.
+  - **2000's places**: `LUGAR_RES_5A` (its residence in 1995, `RES95EDO_C` + `MUN95OTR_C`),
+    `LUGAR_TRAB` and `ENT_PAIS_TRAB_INEGI` (`LTRABPAI_C` + `LTRABMUN_C`; its 999 is simply «no
+    especificado»). = C2KEM10 within 0.009 points outside Chiapas; C2KMI04 within 0.013 in 27
+    states, but INEGI counts 0.08–1.04 points more municipal migrants in Guanajuato, Oaxaca,
+    Veracruz, Zacatecas (and Chiapas). Zacatecas = Trancoso's own-code answers; the others
+    have no rule. The person's answer is kept (user's choice).
+  - **`INGTRMEN_SM`** (2000, 2010, 2015, 2020; the user's name): the monthly income from work
+    over the municipality's CONASAMI minimum wage × 30, in INEGI's groups (2000's bounds
+    differ). Wage tables from INEGI's own sources: the 2000 FD's annex, the 2010/2015
+    catalogs `TC_TABLA_SALARIOS_MUN_2010`/`TC_SALARIO_MUN_2015` (2015's slip — Coacoatzintla
+    for Coatzintla — kept: the tabulado follows it), 2020 the DOF's northern border zone +
+    San Quintín. The 2010/2015/2020 tabulados to the person (2010's State of México ≤ 525
+    persons, unexplained), 2000 within 0.02 points.
+  - The 2000 ITER's `P_1SM` … `P10_SM` are 2000 person constraints (65 → 70).
+
+Design: [`PLAN.md`](PLAN.md). Recent units: [`STEP_7c.md`](STEP_7c.md), [`STEP_7b.md`](STEP_7b.md), [`STEP_7a.md`](STEP_7a.md), [`STEP_6z.md`](STEP_6z.md), [`STEP_6y.md`](STEP_6y.md), [`STEP_6x.md`](STEP_6x.md), [`STEP_6w.md`](STEP_6w.md), [`STEP_6v.md`](STEP_6v.md), [`STEP_6u.md`](STEP_6u.md), [`STEP_6t.md`](STEP_6t.md), [`STEP_6s.md`](STEP_6s.md), [`STEP_6r.md`](STEP_6r.md), [`STEP_6q.md`](STEP_6q.md), [`STEP_6p.md`](STEP_6p.md), [`STEP_6o.md`](STEP_6o.md), [`STEP_6n.md`](STEP_6n.md), [`STEP_6m.md`](STEP_6m.md), [`STEP_6l.md`](STEP_6l.md), [`STEP_6k.md`](STEP_6k.md), [`STEP_6j.md`](STEP_6j.md), [`STEP_6i.md`](STEP_6i.md), [`STEP_6h.md`](STEP_6h.md), [`STEP_6g.md`](STEP_6g.md), [`STEP_6f.md`](STEP_6f.md), [`STEP_6e.md`](STEP_6e.md),
 [`STEP_6d.md`](STEP_6d.md),
 [`STEP_6c.md`](STEP_6c.md), [`STEP_6b.md`](STEP_6b.md), … [`STEP_0_probe.md`](STEP_0_probe.md).
 
@@ -226,12 +240,13 @@ them). 6s–7b were built on the Mac; on 2026-10-10 `wsl` (after a Tailscale re-
 user opens the printed URL) ran the 0.11.0 full suite on 7a + 7b's patch (moved by a `git
 bundle` and a `git diff` over `scp`, byte-identical to the commit; 1882 passed) and was then
 pulled to v0.11.0.
+On 2026-10-10 (7c) `wsl:~/mxcensus` ran the 32-state sweep with 7c's patch applied, then was reverted to v0.11.0 (clean; `~/sweep_7c.py`/`.json` beside it). Its tabulados cache lacks 7c's `2000/C2KEM08.xls`, `C2KEM10.xls`, `C2KMI04.xls` and `2010/08_10A_ESTATAL.xls` (the script fetches them).
 `wsl:~/mxcensus3c` (3c's code copy) can be deleted.
 
 ## Kickoff prompt for the next session
 
-> Continue the CPV census-family work in this repo (branch cpv-integration = main = v0.11.0,
-> pushed). Read docs/cpv/HANDOFF.md first, then agree with me which next unit to
+> Continue the CPV census-family work in this repo (branch cpv-integration = main = v0.11.0
+> + unit 7c). Read docs/cpv/HANDOFF.md first, then agree with me which next unit to
 > take (candidates in HANDOFF §Next) before implementing it, following the session protocol
 > in docs/cpv/PLAN.md. Use .venv/bin/python, not uv run. Run wsl tasks without asking; ask
 > me before committing, pushing, installing packages or uploading.
@@ -272,18 +287,17 @@ and **kept all seven** (merged as 0.9.0):
    an unpublished base B is the linear constraint Σ w·(1{cell} − p/100·1{B}) = 0, which
    needs no count; `cpv_constraints` only speaks counts, so this is a design change (a
    second kind of constraint, and a consumer for it).
-2. Smaller: a 2000 occupation bridge (CMO → SINCO, no published table); income in minimum
-   wages for 2000 (`P_1SM`…: three wage zones by municipality); a locality-level lineage (6a
-   covered municipalities only); CGPV 1990's undocumented `TIP_HOGAR` 6 (96,370 persons, all
-   `N_F_GPOS` 99 and a 9xx relationship: a dwelling without its household composition;
-   identity-labelled, `STEP_6u.md` §Left out); more EIC 2015 tabulados in
+2. Smaller: a 2000 occupation bridge (CMO → SINCO, no published table); a locality-level
+   lineage (6a covered municipalities only); CGPV 1990's undocumented `TIP_HOGAR` 6 (96,370
+   persons, all `N_F_GPOS` 99 and a 9xx relationship: a dwelling without its household
+   composition; identity-labelled, `STEP_6u.md` §Left out); more EIC 2015 tabulados in
    `check_cpv_tabulados.py` (acquisition `FORMA_ADQUI` 14-17, the dwelling materials,
    services and goods 14-04…14-33: raw items, a check of the labels and the `CLAVIVP` 7–9
-   universe); **CGPV 2000's places** for `LUGAR_RES_5A`/`LUGAR_TRAB`: it has 2010's layout
-   (`RES95EDO_C` entity-or-country + `MUN95OTR_C`; `LTRABPAI_C` + `LTRABMUN_C`, the
-   municipality given for every Mexican answer, 999 when not; probed on Mexico City in 7b),
-   but its work item's 999 is 6.9% of Mexico City's employed — settle what it means on a
-   C2K tabulado (lugar de trabajo) before deriving.
+   universe); more CGPV 2000 tabulados (C2KMI02/05–13: migration by entity, international
+   migrants — the `migrantes` file —; C2KEM02/03/04/06/09/11: inactivity, participation
+   rates, occupation, position, benefits; all fetched in 7c's probe); the hand-curated wage
+   tables as a generated YAML (`build_cpv.py` from INEGI's catalogs) if a later edition needs
+   one.
 
 ## Open questions for the user
 
@@ -639,3 +653,23 @@ None.
   2015's `CLAVIVP` is un-padded (`pd.to_numeric` before comparing).
 - **2020's FD names no catalog for `MUN_TRAB`** (its `MUN_ASI`/`MUN_RES_5A` name «MUN»):
   `test_source_codes_match_2020` excuses it (`_REF_WITHOUT_CATALOG`).
+- **Minimum wages** (7c, `cpv_derived._SALARIOS_MINIMOS`): hand-transcribed daily wages (cents)
+  and area tables; INEGI's monthly wage is daily × 30 (× 30.4 misses its tabulados by points).
+  2010/2015 = INEGI's own catalogs (`data/dict/fd/{2010,2015}`; a test compares every
+  municipality and skips without them); 2015's catalog has Coacoatzintla (30-036) where the
+  DOF has Coatzintla (30-040), and the tabulado follows the catalog, so the slip is kept on
+  purpose. 2020's border zone includes San Quintín (02-006). Compare incomes in cents: 5 ×
+  1,675.20 = 8,376 must land in «3 a 5».
+- **2000's groups differ** (7c): C2KEM08 and the 2000 ITER bound «menos de 1 / de 1 hasta 2 /
+  más de 2 y menos de 3 / de 3 hasta 5»; 2010–2020 «hasta 1 / más de 1 a 2 / …». So
+  `INGTRMEN_SM` has two dtypes (`_SM_2000` via `_period_dtypes`, `_SM`); a cross-edition
+  stack of it needs a mapping.
+- **CGPV 2000's residence in 1995 by municipality** (7c): INEGI's C2KMI04 counts more
+  municipal migrants than the answers in Guanajuato, Oaxaca, Veracruz, Zacatecas and Chiapas
+  (`Check.tolerance` documents it); Zacatecas = Trancoso's own-code answers. Its place of
+  work (C2KEM10) has no such gap.
+- **`Check.tolerance`** (7c) overrides the edition's tolerance per state (0 = the nation) for
+  one check: use it only for a documented difference of INEGI's own.
+- **Sweeps on `wsl`** (7c): its user cache is not filled, so a sweep through the loaders
+  downloads every file from the bucket; patch `mxcensus.data._registry.POOCH.fetch` to read
+  `data/parquet` (as `check_cpv_tabulados.run` does).

@@ -115,6 +115,10 @@ _OWN_CODES = {
     ("2000", "INGTRMEN"): set(), ("2000", "HORTRA"): set(),
     ("2000", "ENT_PAIS_NAC"): {600, 999}, ("2000", "ENT_PAIS_RES_5A"): {600, 999},
     ("viviendas", "2000", "INGTRHOG"): set(),
+    # 7c: its place of work (the birthplace's codes) and the municipalities of work and of
+    # the 1995 residence (001–570, 999)
+    ("2000", "LTRABPAI_C"): {600, 999}, ("2000", "LTRABMUN_C"): {999},
+    ("2000", "MUN_RES_5A"): {999},
     # Conteo 2005: level and antecedent (0–95, 99), grade (1–8, 9), one item per institution,
     # residence in 2000 (001–033, 201 the US, 600, 999)
     ("2005", "NIVANTES"): {99}, ("2005", "GRA_APRO"): set(range(1, 10)),
@@ -142,7 +146,8 @@ _OWN_CODES = {
 # Own-code text items without a catalog in their edition's FD (the code layout is stated in
 # its notes, quoted above).
 _NO_CATALOG = {("2000", "INGTRMEN"), ("2000", "HORTRA"), ("2000", "ENT_PAIS_NAC"),
-               ("2000", "ENT_PAIS_RES_5A"), ("2000", "INGTRHOG"), ("1990", "INGTRMEN")}
+               ("2000", "ENT_PAIS_RES_5A"), ("2000", "INGTRHOG"), ("1990", "INGTRMEN"),
+               ("2000", "LTRABPAI_C")}                                          # 7c
 _LATER_OPTIONS = {*d._ESC[1:], *d._TRAB[1:]}      # list fewer codes (options are ordered)
 # 2020 catalog items whose FD row names no catalog (7b: the municipality of work; its
 # school and residence municipalities name «MUN»).
@@ -328,7 +333,8 @@ def test_cpv_derivations_listing():
         assert not mxcensus.cpv_derivations(period=period).duplicated(["TABLE", "COLUMN"]).any()
     p25 = set(mxcensus.cpv_derivations("personas", 2025)["COLUMN"])
     p20 = set(mxcensus.cpv_derivations("personas", 2020)["COLUMN"])
-    assert p20 - p25 == {"RELIGION_CAT", "IDENT_HIJO_CAT"}       # 2025 lacks the items
+    assert p20 - p25 == {"RELIGION_CAT", "IDENT_HIJO_CAT",       # 2025 lacks the items
+                         "INGTRMEN_SM"}                          # 7c: and the wage table
     assert {"DHSERSAL_SALUD_PUBLICA", "DHSERSAL_IMSS_BIENESTAR"} <= p25
     assert not set(d.DHSERSAL_RENAMES) & p20                       # legacy names gone
     dhsersal = {c for c in p20 if c.startswith("DHSERSAL_")} - {"DHSERSAL_IMSS_BIENESTAR"}
@@ -350,7 +356,9 @@ def test_cpv_derivations_listing():
     ind = {"HOG_IND"}                                              # 6w: 2000–2025
     clase = {"CLASE_HOG"}                                  # 6z: 2000, 2010–2025 (both tables)
     assert head | ind | clase <= p20 & p25
-    assert p15 == {"EDAD_CAT", "EDAD_QUIN", "INGTRMEN_CAT", *educ, "CONACT_CAT", "SITUA_CONYUGAL_CAT",
+    sm = {"INGTRMEN_SM"}                                           # 7c: 2000, 2010–2020
+    assert p15 == {"EDAD_CAT", "EDAD_QUIN", "INGTRMEN_CAT", *sm, *educ, "CONACT_CAT",
+                   "SITUA_CONYUGAL_CAT",
                    "IDENT_MADRE_CAT", "IDENT_PADRE_CAT", *migration, *coresidence,
                    *dhsersal, *commute, *coarse, *head, *ind, *clase, *work, *school}
     assert {"MED_TRASLADO_ESC_Caminando", "MED_TRASLADO_TRAB_Transporte de personal"} <= p15 & p20
@@ -363,9 +371,9 @@ def test_cpv_derivations_listing():
     assert {"EDAD_QUIN", *work, *school, *groups} <= p20 & p25
     assert {"DHSERSAL_AFIL_ACCESO", "HOG_AFRO"} <= p25 - p20
     assert set(mxcensus.cpv_derivations("personas", 2010)["COLUMN"]) == {
-        "EDAD_CAT", "EDAD_QUIN", "INGTRMEN_CAT", "HORTRA_CAT", *educ, "CONACT_CAT", "SITUA_CONYUGAL_CAT",
-        "LIM_ACTIVIDAD", "RELIGION_CAT", *migration, *coresidence, *dhsersal, *coarse, *head,
-        *ind, *clase, *work}
+        "EDAD_CAT", "EDAD_QUIN", "INGTRMEN_CAT", *sm, "HORTRA_CAT", *educ, "CONACT_CAT",
+        "SITUA_CONYUGAL_CAT", "LIM_ACTIVIDAD", "RELIGION_CAT", *migration, *coresidence,
+        *dhsersal, *coarse, *head, *ind, *clase, *work}
     rooms = {"OCUP_CUARTO_CAT"}                                    # 6z: 2010–2025
     assert set(mxcensus.cpv_derivations("viviendas", 2010)["COLUMN"]) == {   # 6n, 6s, 6x
         "CLAVIVP_CAT", "CUADORM_CAT", "TOTCUART_CAT", "DRENAJE_CAT", "INGTRHOG_CAT", "JEFE_SEXO",
@@ -382,9 +390,9 @@ def test_cpv_derivations_listing():
     dhs2000 = {"DHSERSAL_IMSS", "DHSERSAL_ISSSTE", "DHSERSAL_P_D_M", "DHSERSAL_Otro",
                "DHSERSAL_No afiliado", "DHSERSAL_ISSSTE_T", "DHSERSAL_PUB", "DHSERSAL_AFIL"}
     assert set(mxcensus.cpv_derivations("personas", 2000)["COLUMN"]) == {     # 6i
-        "EDAD_CAT", "EDAD_QUIN", "INGTRMEN_CAT", "HORTRA_CAT", *educ, "ACTIVIDADES_C_COARSE", "SECTOR",
-        "CONACT_CAT", "SITUA_CONYUGAL_CAT", *migration, "RELIGION_CAT", *dhs2000, *head, *ind,
-        *clase}
+        "EDAD_CAT", "EDAD_QUIN", "INGTRMEN_CAT", *sm, "HORTRA_CAT", *educ, "ACTIVIDADES_C_COARSE",
+        "SECTOR", "CONACT_CAT", "SITUA_CONYUGAL_CAT", *migration, "RELIGION_CAT", *dhs2000,
+        *head, *ind, *clase, *work}                    # 7c: the 1995 residence and work
     assert set(mxcensus.cpv_derivations("personas", 2005)["COLUMN"]) == {
         "EDAD_CAT", "EDAD_QUIN", *educ, "ENT_PAIS_RES_CAT", *dhs2000, "DHSERSAL_ISSSTE_E",
         "DHSERSAL_SALUD_PUBLICA", "DHSERSAL_Privado", *head, *ind}
@@ -671,6 +679,133 @@ def test_derive_places_7b():
             d.derive(frame.assign(**bad), "personas", period)
 
 
+def test_derive_places_2000():
+    """7c: CGPV 2000's residence in 1995 (``RES95EDO_C`` entity or country + ``MUN95OTR_C``)
+    and place of work (``LTRABPAI_C`` + ``LTRABMUN_C``), Censo 2010's layout in one item:
+    600 = a country not known, 999 = not specified, 221 the United States."""
+    p00 = pd.concat([_persons_2000()] * 2, ignore_index=True).assign(
+        NUMVIV=[f"{i:06d}" for i in range(8)], NUMHOG="1", OTROPARE_C="100",
+        RES95EDO_C=["", "001", "001", "001", "014", "221", "600", "999"],
+        MUN95OTR_C=["", "001", "005", "999", "039", "", "", ""],
+        LTRABPAI_C=["001", "001", "001", "015", "221", "415", "600", "999"],
+        LTRABMUN_C=["001", "003", "999", "033", "", "", "", ""])
+    out = d.derive(p00, "personas", 2000)
+    assert list(out["LUGAR_RES_5A"]) == [
+        "Blanco por pase", "Mismo municipio", "Otro municipio", "Municipio no especificado",
+        "Otra entidad", "Estados Unidos", "Otro país", "No especificado"]
+    assert list(out["LUGAR_TRAB"]) == [
+        "Mismo municipio", "Otro municipio", "Municipio no especificado", "Otra entidad",
+        "Estados Unidos", "Otro país", "Otro país", "No especificado"]
+    assert list(out["ENT_PAIS_TRAB_INEGI"]) == [
+        *["EstaEnt"] * 3, "OtraEnt", *["OtroPais"] * 3, "No especificado"]
+    with pytest.raises(ValueError, match="LUGAR_RES_5A"):          # own entity, no municipality
+        d.derive(p00.assign(MUN95OTR_C=""), "personas", 2000)
+
+
+# 7c: (edition, entity, municipality) → the monthly minimum wage, and incomes on each side of
+# its bounds → INEGI's groups. 2000: area C (Aguascalientes) 981; 2010: area A (Ecatepec,
+# 15-033) 1,723.80, area B (Coatzintla, 30-040) 1,675.20; 2015: Coatzintla in area B, the
+# catalog's Coacoatzintla (30-036) in A; 2020: San Quintín (02-006) in the border zone,
+# Hermosillo (26-030) the rest of the country.
+_WAGES = {("2000", 1, 1): 981, ("2000", 9, 10): 1137, ("2000", 14, 39): 1053,
+          ("2010", 15, 33): 1723.8, ("2010", 30, 40): 1675.2, ("2010", 30, 36): 1634.1,
+          ("2015", 30, 40): 1993.5, ("2015", 30, 36): 2103, ("2015", 19, 39): 2103,
+          ("2020", 2, 6): 5566.8, ("2020", 26, 30): 3696.6, ("2020", 26, 2): 5566.8,
+          ("2020", 8, 37): 5566.8, ("2020", 19, 39): 3696.6}
+
+
+def test_salario_minimo_7c():
+    for (period, ent, mun), wage in _WAGES.items():
+        got = d._salario_minimo(period, pd.Series([float(ent)]), pd.Series([float(mun)]))
+        assert got.iloc[0] == round(wage * 100), (period, ent, mun)
+    # 2000/2010: the same CONASAMI areas (A 65 municipalities and B 55 in INEGI's 2010
+    # catalog; whole entities: Baja California, Baja California Sur, the Distrito Federal);
+    # 2015: A = both; 2020: the border zone's 43 municipalities and San Quintín
+    assert d._SALARIOS_MINIMOS["2000"][1][0][1] is d._SALARIOS_MINIMOS["2010"][1][0][1]
+    assert sum(len(m) for m in d._SM_A.values() if m) == 65 - 26
+    assert sum(len(m) for m in d._SM_B.values()) == 55
+    assert sum(len(m) for m in d._SM_A_2015.values() if m) == 120 - 26
+    assert sum(len(m) for m in d._ZLFN.values() if m) == 43 - 5
+
+
+def test_derive_income_sm_7c():
+    """INGTRMEN_SM at each bound, compared in cents (5 × 1,675.20 = 8,376 exactly): 2000's
+    groups (below 1; from 1 to 2; above 2, below 3; from 3 to 5; above 5 to 10), 2010–2020's
+    (up to 1; above 1 to 2; …), no income, above 999,997 (999998), not specified (999999),
+    not employed (blank)."""
+    def derive(period, ent, mun, incomes, frame):
+        df = pd.concat([frame] * len(incomes), ignore_index=True).iloc[:len(incomes)]
+        df = _each_a_household(df) if period in ("2020",) else df
+        key = {"2000": "INGRESOS"}.get(period, "INGTRMEN")
+        return list(d.derive(df.assign(**{key: incomes, "ENT": ent, "MUN": mun}),
+                             "personas", period)["INGTRMEN_SM"])
+
+    p00 = pd.concat([_persons_2000()] * 4, ignore_index=True).assign(
+        NUMVIV=[f"{i:06d}" for i in range(16)], NUMHOG="1", OTROPARE_C="100", CONACT="10",
+        MUN95OTR_C="", RES95EDO_C="", LTRABPAI_C="001", LTRABMUN_C="001")
+    cuts = ["0", "980", "981", "1962", "1963", "2942", "2943", "4905", "4906", "9810", "9811",
+            "999998", "999999", ""]
+    assert derive("2000", "01", "001", cuts, p00) == [
+        "No recibe ingresos", "Menos de 1 s.m.", *["De 1 hasta 2 s.m."] * 2,
+        *["Más de 2 y menos de 3 s.m."] * 2, *["De 3 hasta 5 s.m."] * 2,
+        *["Más de 5 hasta 10 s.m."] * 2, "Más de 10 s.m.", "Más de 10 s.m.", "No especificado",
+        "Blanco por pase"]
+    p10 = pd.concat([_persons_2010()] * 4, ignore_index=True).assign(
+        ID_VIV=[f"{i:08d}" for i in range(12)], PARENT="01", LTRABPAI_C="", LTRABMUN_C="",
+        RES05EDO_C="", RES05PAI_C="", MUN05OTR_C="")
+    later = ["No recibe ingresos", "Hasta 1 s.m.", "Más de 1 a 2 s.m.", "Más de 1 a 2 s.m.",
+             "Más de 2 a 3 s.m.", "Más de 3 a 5 s.m.", "Más de 5 a 10 s.m.", "Más de 10 s.m."]
+    assert derive("2010", "30", "040", ["0", "1675", "1676", "3350", "3351", "8376", "8377",
+                                        "16753"], p10) == later
+    assert derive("2010", "15", "033", ["1723", "1724"], p10) == later[1:3]
+    p15 = pd.concat([_persons_2015()] * 2, ignore_index=True).assign(
+        ID_VIV=[f"0100100{i:04d}" for i in range(4)], PARENT="1", ENT_PAIS_TRAB="", MUN_TRAB="")
+    assert derive("2015", "30", "040", ["1993", "1994"], p15) == later[1:3]      # area B
+    assert derive("2015", "30", "036", ["2103", "2104"], p15) == later[1:3]      # catalog's A
+    p20 = _persons_2025().drop(columns=["CVE_ENT", "CVE_MUN"]).assign(   # 2020's own items
+        SITUA_CONYUGAL=["3", "9"], RELIGION="1101", IDENT_HIJO="", ENT_PAIS_TRAB="",
+        MUN_TRAB="", ENT_PAIS_ASI="", MUN_ASI="", MUN_RES_5A="", ENT_PAIS_RES_5A="",
+        ENT_PAIS_NAC="356")                                 # 2025 renumbered Palaos (536)
+    assert derive("2020", "02", "006", ["5566", "5567"], p20) == later[1:3]      # San Quintín
+    assert derive("2020", "26", "030", ["3696", "3697"], p20) == later[1:3]
+    out = d.derive(p00.assign(INGRESOS="1000"), "personas", 2000)
+    assert out["INGTRMEN_SM"].dtype == d.derived_dtypes("personas", "2000")["INGTRMEN_SM"] \
+        == d._SM_2000
+    assert d.derived_dtypes("personas", "2015")["INGTRMEN_SM"] == d._SM
+    assert "INGTRMEN_SM" not in d.derived_dtypes("personas", "2025")             # no table
+
+
+_FD_WAGES = {"2010": ("catalogos_2010_dbf.zip", "TC_TABLA_SALARIOS_MUN_2010.DBF"),
+             "2015": ("eic2015_catalogos.zip", "TC_SALARIO_MUN_2015.xls")}
+
+
+@pytest.mark.parametrize("period", sorted(_FD_WAGES))
+def test_wage_tables_equal_inegi_catalogs(period):
+    """7c: the 2010/2015 wage areas = INEGI's own municipal catalogs (the monthly wage of
+    every municipality; 2015's slip included: Coacoatzintla, not Coatzintla, in area A)."""
+    import sys
+    import zipfile
+
+    zip_name, member = _FD_WAGES[period]
+    if not (_FD / period / zip_name).exists():
+        pytest.skip(f"{period} catalogs not fetched (build_cpv.py --dictionary)")
+    sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "scripts"))
+    import _dbf
+    import _dict_fd
+
+    raw = zipfile.ZipFile(_FD / period / zip_name).read(member)
+    if period == "2010":
+        t = _dbf.read_dbf(raw).table.to_pandas()
+        ent, mun, wage = t["CVE_ENT"], t["CVE_MUN"], t["SALARIO"]
+    else:
+        rows = next(iter(_dict_fd.read_xls(raw).values()))[1:]
+        ent, mun, wage = (pd.Series([r[c] for r in rows]) for c in ("A", "C", "F"))
+    ours = d._salario_minimo(period, pd.to_numeric(ent).astype(float),
+                             pd.to_numeric(mun).astype(float))
+    assert len(ours) > 2400
+    assert (ours.to_numpy() == (pd.to_numeric(wage) * 100).round().to_numpy()).all()
+
+
 def test_educ_inegi():
     """``EDUC_INEGI`` = ``EDUC`` with the técnica studies after primaria (2020's level 6, any
     grade) apart: INEGI's primaria completa (the ITER 1990–2020) leaves them out."""
@@ -942,6 +1077,10 @@ def _persons_2000() -> pd.DataFrame:
         "HLENGUA": ["1", "2", "", "2"],
         # 6z: the households' types (from the dwelling file): nuclear, composition unknown
         "TIPOHOG": ["1", "1", "9", "9"],
+        # 7c: the 1995 municipality (the adult lived in this one) and the place of work (the
+        # employed adult works in another municipality of the entity)
+        "MUN95OTR_C": ["001", "", "", ""], "LTRABPAI_C": ["001", "", "", ""],
+        "LTRABMUN_C": ["002", "", "", ""],
     }, dtype="str")
 
 
@@ -967,6 +1106,14 @@ def test_derive_persons_2000_recodes():
     assert list(out["ENT_PAIS_RES_CAT"]) == ["EstaEnt", "No especificado", "Blanco por pase",
                                              "OtroPais"]
     assert list(out["ACTIVIDADES_C_COARSE"])[0] == "Industrias manufactureras"   # subsector 311
+    # 7c: the 1995 residence and the place of work by municipality; $4,500 in Aguascalientes
+    # (area C: $981 a month) is 4.6 minimum wages
+    assert list(out["LUGAR_RES_5A"]) == ["Mismo municipio", "No especificado", "Blanco por pase",
+                                         "Otro país"]
+    assert list(out["LUGAR_TRAB"]) == ["Otro municipio", *["Blanco por pase"] * 3]
+    assert list(out["ENT_PAIS_TRAB_INEGI"]) == ["EstaEnt", *["Blanco por pase"] * 3]
+    assert list(out["INGTRMEN_SM"]) == ["De 3 hasta 5 s.m.", "Blanco por pase", "Blanco por pase",
+                                        "No especificado"]
     # religion: 0001 católica, 2xxx bíblicas (2020: evangelical), under 5, 9100 ninguna
     assert list(out["RELIGION_CAT"]) == ["Católica", "Protestante/cristiano evangélico",
                                          "Blanco por pase",
@@ -1731,7 +1878,12 @@ def test_cpv_constraints_per_edition():
     assert {"P5_HLI", "P5_HLI_NHE", "P5_HLI_HE", "P15A17A", "P15YM_AN"} <= set(p00)
     assert p00["P15YM_AN"]["ALFABET"] == ["No sabe leer y escribir"]
     assert {"P5_HLI", "P5_HLI_HE", "P6A11_NOA", "P12A14NOA"} <= set(p05)
-    assert len(p00) == 65 and len(p05) == 87       # 6o: own; 6t: +2; 6v: POBHOG; 6w: +2, +1
+    assert len(p00) == 70 and len(p05) == 87       # 6o: own; 6t: +2; 6v: POBHOG; 6w: +2, +1;
+    #                                                7c: 2000's income in minimum wages, +5
+    assert p00["P2_5SM"] == {"EDAD_CAT": d._AGES_12PLUS, "CONACT_CAT": ["Trabaja"],
+                             "INGTRMEN_SM": ["Más de 2 y menos de 3 s.m.", "De 3 hasta 5 s.m."]}
+    assert {p00[i]["INGTRMEN_SM"][0] for i in ("P_1SM", "P1_2SM", "P6_10SM", "P10_SM")} == {
+        "Menos de 1 s.m.", "De 1 hasta 2 s.m.", "Más de 5 hasta 10 s.m.", "Más de 10 s.m."}
     # 6w: 2000's media superior and superior apart (its superior holds the posgrado)
     assert p00["P18_CMEDSU"] == {"EDAD_CAT": d._AGES_18PLUS, "EDUC_INEGI_DET": ["Media_superior"]}
     assert p00["P18_CSUPER"]["EDUC_INEGI_DET"] == ["Superior", "Posgrado"]
@@ -2179,7 +2331,8 @@ def test_2000_equals_tabulados(local_mirror):
 # states: STEP_6n.md, STEP_6o.md.
 # (period, table) → (cells, largest |Δ| in points)
 # 6w: + 2000's P18_CMEDSU/P18_CSUPER (0.26/0.34 points under) and the 2005/2010 PHOG_IND.
-_CELLS_6N = {("2000", "personas"): (33, 1.25), ("2000", "viviendas"): (30, 3.0),
+# 7c: + 2000's income in minimum wages (P_1SM … P10_SM; P10_SM 0.28 points under).
+_CELLS_6N = {("2000", "personas"): (38, 1.25), ("2000", "viviendas"): (30, 3.0),
              ("2005", "personas"): (46, 1.25), ("2005", "viviendas"): (13, 2.5),
              ("2010", "personas"): (12, 3.0), ("2010", "viviendas"): (28, 2.5)}
 

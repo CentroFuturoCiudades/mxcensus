@@ -61,10 +61,12 @@ SOURCES = {
     "2000": ("ccpv/2000/tabulados/ampliado",
              ("C2KMI01.xls", "C2KMI03.xls", "C2KRE02.xls", "C2KSS04.xls", "C2KEC02.xls",
               "C2KEM01.xls", "C2KEM05.xls", "C2KEM07.xls", "C2KED08.xls", "C2KED10.xls",
-              "C2KED11.xls", "C2KVI06.xls", "C2KVI10.xls", "C2KHO04.xls")),
+              "C2KED11.xls", "C2KVI06.xls", "C2KVI10.xls", "C2KHO04.xls",
+              "C2KEM08.xls", "C2KEM10.xls", "C2KMI04.xls")),
     "2010": ("ccpv/2010/tabulados/Ampliado",
              ("04_02A_ESTATAL.xls", "06_01A_ESTATAL.xls", "08_02A_ESTATAL.xls",
-              "08_03A_ESTATAL.xls", "08_15A_ESTATAL.xls", "12_01A_ESTATAL.xls")),
+              "08_03A_ESTATAL.xls", "08_10A_ESTATAL.xls", "08_15A_ESTATAL.xls",
+              "12_01A_ESTATAL.xls")),
     "2015": ("intercensal/2015/tabulados",
              ("04_migracion.xls", "05_etnicidad.xls", "06_educacion.xls",
               "07_servicios_de_salud.xls",
@@ -220,6 +222,9 @@ class Check:
     unit: str = "points"              # points (shares) or persons (counts)
     sheet: str | None = None          # the workbook's sheet (default: its first)
     note: str = ""
+    # state (0 = the nation) → its largest |Δ| for this check, over the edition's
+    # :data:`_TOLERANCE` (7c: differences of INEGI's own, documented in the note)
+    tolerance: dict[int, float] | None = None
 
 
 def _sheet(wb: dict, sheet: str | None) -> list[dict]:
@@ -302,10 +307,14 @@ _SECTORS_2000 = (("Agricultura, ganadería, pesca y caza", {11}), ("Minería", {
                  ("Otros servicios", {81}), ("Gobierno", {93}), ("No especificado", {99}))
 
 
+def _employed_2000(p) -> pd.Series:
+    """CGPV 2000's employed: the 12+ who worked or had a job (``CONACT_CAT``)."""
+    return _age(p).between(12, 130) & _cat(p, "CONACT_CAT").eq("Trabaja")
+
+
 def _em05(p):
-    employed = _age(p).between(12, 130) & _cat(p, "CONACT_CAT").eq("Trabaja")
     code = _code_of(p, "ACTIVIDADES_C_COARSE")
-    return _shares(employed, *(code.isin(g) for _, g in _SECTORS_2000))
+    return _shares(_employed_2000(p), *(code.isin(g) for _, g in _SECTORS_2000))
 
 
 _SUPERIOR = ["Superior", "Posgrado"]          # INEGI's superior holds the posgrado (6w)
@@ -340,10 +349,33 @@ def _ed11(p):
 def _em07(p):
     """The employed by hours worked (C2KEM07's bins: none and up to 40, 41–48, 49–56, more
     than 56, not specified; ``HORTRA_CAT``'s 0-5 holds who did not work)."""
-    employed = _age(p).between(12, 130) & _cat(p, "CONACT_CAT").eq("Trabaja")
     h = _cat(p, "HORTRA_CAT")
-    return _shares(employed, h.isin(["0-5", "6-10", "11-20", "21-40"]), h.eq("41-48"),
+    return _shares(_employed_2000(p), h.isin(["0-5", "6-10", "11-20", "21-40"]), h.eq("41-48"),
                    h.eq("49-56"), h.isin(["57-60", "61-80", "81YMAS"]), h.eq("No especificado"))
+
+
+def _em08(p):
+    """The employed by their income in minimum wages (7c, ``INGTRMEN_SM``: C2KEM08's groups,
+    the municipality's area of February 2000)."""
+    from mxcensus.cpv_derived import _SM_2000
+    sm = _cat(p, "INGTRMEN_SM")
+    return _shares(_employed_2000(p), *(sm.eq(c) for c in _SM_2000.categories[:8]))
+
+
+def _place_shares(col: str, universe: Callable[[pd.DataFrame], pd.Series],
+                  abroad_apart: bool = False):
+    """CGPV 2000's places by municipality (7c; C2KEM10, C2KMI04), as shares: the same
+    entity (% of the universe) and, as % of it, the same municipality, another, not
+    specified; another entity or country (``abroad_apart``: another entity, abroad); not
+    specified."""
+    away = (["Otra entidad"], ["Estados Unidos", "Otro país"]) if abroad_apart else (_ELSEWHERE,)
+
+    def ours(p):
+        u, place = universe(p), _cat(p, col)
+        own = u & place.isin(_OWN_ENTITY)
+        return [(own, u), *((u & place.eq(c), own) for c in _OWN_ENTITY),
+                *((u & place.isin(a), u) for a in away), (u & place.eq("No especificado"), u)]
+    return ours
 
 
 def _vi06(v):
@@ -444,6 +476,22 @@ _SECTOR_GROUPS = (
 
 def _employed(p) -> pd.Series:
     return _cat(p, "OCUPACION_C_COARSE").ne("Blanco por pase") & _age(p).between(12, 130)
+
+
+# 7c: the income in minimum wages (INGTRMEN_SM), in the 2010–2020 tabulados' order
+_SM_CELLS = ("up to 1", "above 1 to 2", "above 2 to 3", "above 3 to 5", "above 5 to 10",
+             "above 10", "no income", "not specified")
+
+
+def _income_sm(p):
+    from mxcensus.cpv_derived import _SM
+    groups = [*_SM.categories[1:7], _SM.categories[0], _SM.categories[7]]
+    e, sm = _employed(p), _cat(p, "INGTRMEN_SM")
+    return _counts_of(e, *(e & sm.eq(c) for c in groups))
+
+
+def _income_sm_published(estimator: str, sheet: str | None = None):
+    return _wide(estimator, lambda v: _counts(v[0], v[1:]), sheet=sheet, dims=_total_row)
 
 
 def _occupation(p):
@@ -799,6 +847,31 @@ CHECKS: tuple[Check, ...] = (
     Check("2000", "HO04b", "Population in households by the head's sex (`HOGJEF_SEXO`), %",
           "C2KHO04.xls", "personas", ("male head", "female head"), _c2k("FG"),
           _head_sex("HOGJEF_SEXO"), note="The head's sex is the breakdown: both sexes only."),
+    Check("2000", "EM08", "Income of the employed in minimum wages (`INGTRMEN_SM`)",
+          "C2KEM08.xls", "personas",
+          ("no income", "below 1", "1 to 2", "above 2, below 3", "3 to 5", "above 5 to 10",
+           "above 10", "not specified"),
+          _c2k("CDEFGHIJ"), _em08,
+          note="The monthly minimum wage of the municipality's area in February 2000 (its FD's "
+               "annex: A 1,137, B 1,053, C 981 = the daily wage × 30); 7c."),
+    Check("2000", "EM10", "Place of work by municipality (`LUGAR_TRAB`)", "C2KEM10.xls",
+          "personas", _PLACE_CELLS, _c2k("CDEFGH"), _place_shares("LUGAR_TRAB", _employed_2000),
+          tolerance={7: 1.2},
+          note="Both sexes only; the municipality's cells are % of the same entity. "
+               "`LTRABPAI_C` 999 is «No especificado» (7c). Chiapas' same/another municipality "
+               "split is 1.1 points off (its sample's weights)."),
+    Check("2000", "MI04", "Residence in 1995 by municipality (`LUGAR_RES_5A`), % of the 5+",
+          "C2KMI04.xls", "personas",
+          ("same entity", "same municipality", "another municipality",
+           "municipality not specified", "another entity", "abroad", "not specified"),
+          _c2k("CDEFGHI"), _place_shares("LUGAR_RES_5A", _five, abroad_apart=True),
+          tolerance={_NATION: 0.1, 7: 0.85, 11: 0.1, 20: 0.25, 30: 1.05, 32: 0.96},
+          note="The person's answer (`MUN95OTR_C` against the current municipality; 7c, "
+               "user's choice). INEGI counts more municipal migrants in Guanajuato, Oaxaca, "
+               "Veracruz and Zacatecas (0.08–1.04 points of the same entity); in Zacatecas "
+               "they are the residents of Trancoso (created after 1995) who answered "
+               "Trancoso, the other three have no such rule (Campeche's and Sonora's "
+               "1996–98 municipalities show none)."),
     Check("2010", "04_02A", "Residence in 2005 by municipality (`LUGAR_RES_5A`), the 5+",
           "04_02A_ESTATAL.xls", "personas", ("population 5+", *_PLACE_CELLS),
           _wide("Parámetro", _place_published), _place("LUGAR_RES_5A", _five), unit="persons",
@@ -810,6 +883,14 @@ CHECKS: tuple[Check, ...] = (
           unit="persons",
           note="`LTRABPAI_C` holds the entity and country catalogs; its 999 (the entity's «no "
                "especificada») and 900 (topic omitted) are «No especificado» (7b)."),
+    Check("2010", "08_10A", "Income of the employed in minimum wages (`INGTRMEN_SM`)",
+          "08_10A_ESTATAL.xls", "personas", ("employed", *_SM_CELLS),
+          _income_sm_published("Parámetro"), _income_sm, unit="persons",
+          tolerance={_NATION: 525.5, 15: 525.5},
+          note="INEGI's catalog `TC_TABLA_SALARIOS_MUN_2010` (A 1,723.80, B 1,675.20, "
+               "C 1,634.10; 7c). Exact but in the State of México, up to 525 persons (0.012 "
+               "points) under INEGI's lower groups, which no change of a municipality's (or "
+               "two's) area explains."),
     Check("2010", "08_02A", "Employed by occupational division (`OCUPACION_C_COARSE`)",
           "08_02A_ESTATAL.xls", "personas", _DIVISIONS,
           _long("Parámetro", _DIVISIONS), _occupation, unit="persons"),
@@ -856,6 +937,11 @@ CHECKS: tuple[Check, ...] = (
           _wide("Valor", lambda v: _counts(v[0], v[1:6], [0, 1, 1, 0, 0]), sheet="02",
                 dims=lambda k: k[:2] if k[2] == "Total" else None),
           _activity_2015, unit="persons", sheet="02"),
+    Check("2015", "08-11", "Income of the employed in minimum wages (`INGTRMEN_SM`)",
+          "08_caracteristicas_economicas.xls", "personas", ("employed", *_SM_CELLS),
+          _income_sm_published("Valor", "11"), _income_sm, unit="persons", sheet="11",
+          note="INEGI's catalog `TC_SALARIO_MUN_2015` as published (A 2,103, B 1,993.5; its "
+               "Coacoatzintla in area A, where the DOF has Coatzintla); 7c."),
     Check("2015", "08-06", "Employed by occupational division (`OCUPACION_C_COARSE`)",
           "08_caracteristicas_economicas.xls", "personas", _DIVISIONS,
           _long("Valor", _DIVISIONS, sheet="06"), _occupation, unit="persons", sheet="06"),
@@ -957,6 +1043,11 @@ CHECKS: tuple[Check, ...] = (
           "personas", tuple(n for n, _ in _SECTOR_GROUPS),
           _wide("Valor", lambda v: _counts(v[0], v[1:])[1:], sheet="08"), _sector,
           unit="persons", sheet="08"),
+    Check("2020", "08-18", "Income of the employed in minimum wages (`INGTRMEN_SM`)",
+          _ECO_2020, "personas", ("employed", *_SM_CELLS), _income_sm_published("Valor", "18"),
+          _income_sm, unit="persons", sheet="18",
+          note="The Zona Libre de la Frontera Norte (5,566.80; San Quintín included) and the "
+               "rest of the country (3,696.60), DOF 23/12/2019; 7c."),
     Check("2020", "08-12", "Hours worked (`HORTRA_CAT`)", _ECO_2020, "personas",
           ("employed", "up to 40 (none included)", "41-48", "49-56", "more than 56",
            "not specified"),
@@ -1031,7 +1122,9 @@ def _value(num: float, den: float, unit: str) -> float:
     return num if unit == "persons" else (100 * num / den if den else np.nan)
 
 
-def _tolerance(period: str, state: int) -> float:
+def _tolerance(period: str, state: int, check: Check | None = None) -> float:
+    if check is not None and check.tolerance and state in check.tolerance:
+        return check.tolerance[state]
     tol = _TOLERANCE[period]
     return tol.get(state, tol[None])
 
@@ -1082,7 +1175,8 @@ def run(periods: list[str], states: list[int], tab_dir: Path = _DEFAULT_TAB_DIR,
                     ours = _value(num, den, c.unit)
                     rows.append({"period": period, "check": c.key, "state": state, "sex": sex,
                                  "cell": name, "published": p, "ours": ours,
-                                 "delta": ours - p, "tolerance": _tolerance(period, state)})
+                                 "delta": ours - p,
+                                 "tolerance": _tolerance(period, state, c)})
     return rows
 
 

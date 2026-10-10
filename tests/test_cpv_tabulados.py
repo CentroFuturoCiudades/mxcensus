@@ -131,7 +131,7 @@ def test_state_01_within_tolerance(monkeypatch):
     monkeypatch.setattr(ck, "fetch", lambda periods, tab_dir, retries=2: {
         f"{p}/{n}": tab_dir / p / n for p in periods for n in ck.SOURCES[p][1]})
     rows = ck.run(sorted(ck.SOURCES), [1], _TABS, _MIRROR, log=lambda *a: None)
-    assert len(rows) == 317 + 159 + 120 + 45 + 7 + 13 + 149   # 6p: 2020; 6q: 2015
+    assert len(rows) == 317 + 159 + 120 + 45 + 7 + 13 + 149 + 132   # 6p: 2020; 6q: 2015
     #                                                 affiliation, commute, marital status,
     #                                                 education (2010's are national); 6r: 2000
     #                                                 hours, education of the 12+/18+; 6t: 2000/2015
@@ -141,7 +141,12 @@ def test_state_01_within_tolerance(monkeypatch):
     #                                                 7b: the places by municipality (2010 04_02A
     #                                                 +9, 08_15A; 2015 04-05 +9, 10-01, 10-04; 2020
     #                                                 10-02, 10-08: 7 cells × 3 sexes), 2015
-    #                                                 household class, tenure, deeds (sex T)
+    #                                                 household class, tenure, deeds (sex T);
+    #                                                 7c: the income in minimum wages (2000
+    #                                                 EM08 8 × 3; 2010/2015/2020 9 × 3), 2000's
+    #                                                 places (EM10 6, sex T; MI04 7 × 3)
+    income = [r for r in rows if r["check"] in ("EM08", "08_10A", "08-11", "08-18")]
+    assert len(income) == 8 * 3 + 3 * 9 * 3
     head = [r for r in rows if r["check"] in ("HO04a", "HO04b", "12-05")]
     assert len(head) == 7 and {r["sex"] for r in head} == {"T"}
     places = [r for r in rows if r["check"] in ("04_02A", "08_15A", "04-05", "10-01", "10-04",
