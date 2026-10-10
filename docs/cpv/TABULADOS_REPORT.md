@@ -35,13 +35,15 @@ Tolerance: 1.0 persons.
 
 | check | tabulado | cells | median \|Δ\| | 95th pct. \|Δ\| | max \|Δ\| (where) | beyond tolerance |
 |---|---|---|---|---|---|---|
-| 04_02A Residence in 2005 (`ENT_PAIS_RES_CAT`), the 5+ | `04_02A_ESTATAL.xls` | 396 | 0.00 | 0.00 | 0.00 (00 H «same entity») | 0 |
+| 04_02A Residence in 2005 by municipality (`LUGAR_RES_5A`), the 5+ | `04_02A_ESTATAL.xls` | 693 | 0.00 | 0.00 | 0.00 (00 H «same municipality») | 0 |
+| 08_15A Place of work by municipality (`LUGAR_TRAB`) | `08_15A_ESTATAL.xls` | 693 | 0.00 | 0.00 | 0.00 (00 T «same entity») | 0 |
 | 08_02A Employed by occupational division (`OCUPACION_C_COARSE`) | `08_02A_ESTATAL.xls` | 990 | 0.00 | 0.00 | 0.00 (01 T «Funcionarios, directores y jefes») | 0 |
 | 08_03A Employed by sector (`ACTIVIDADES_C_COARSE`) | `08_03A_ESTATAL.xls` | 594 | 0.00 | 0.00 | 0.00 (01 T «Agricultura, ganadería, aprovechamiento forestal, pesca y caza») | 0 |
 | 06_01A Limitation in activity (`LIM_ACTIVIDAD`), nation only | `06_01A_ESTATAL.xls` | 12 | 0.00 | 0.00 | 0.00 (00 T «without») | 0 |
 | 12_01A Parents in the dwelling (`MADRE_EN_VIVIENDA`, `PADRE_EN_VIVIENDA`), nation only | `12_01A_ESTATAL.xls` | 18 | 0.00 | 0.00 | 0.00 (00 T «both») | 0 |
 
-- 04_02A: Entity not specified (`RES05EDO_C` 999) counted as «No especificado», as INEGI's tabulado (the derived column: `OtraEnt`).
+- 04_02A: The entity not specified (`RES05EDO_C` 999) is «No especificado», as INEGI's (the legacy `ENT_PAIS_RES_CAT`: `OtraEnt`); 7b.
+- 08_15A: `LTRABPAI_C` holds the entity and country catalogs; its 999 (the entity's «no especificada») and 900 (topic omitted) are «No especificado» (7b).
 - 06_01A: Published by locality size: the national row only (all 32 states needed).
 - 12_01A: Published by locality size: the national row only (all 32 states needed).
 
@@ -51,8 +53,10 @@ Tolerance: 1.0 persons.
 
 | check | tabulado | cells | median \|Δ\| | 95th pct. \|Δ\| | max \|Δ\| (where) | beyond tolerance |
 |---|---|---|---|---|---|---|
-| 04-02 Birthplace (`ENT_PAIS_NAC_CAT`) | `04_migracion.xls` 02 | 495 | 0.00 | 0.03 | 0.87 (00 T «abroad») | 0 |
-| 04-05 Residence in 2010 (`ENT_PAIS_RES_CAT`), the 5+ | `04_migracion.xls` 05 | 396 | 0.00 | 0.02 | 0.48 (00 T «same entity») | 0 |
+| 04-02 Birthplace (`ENT_PAIS_NAC_INEGI`) | `04_migracion.xls` 02 | 495 | 0.00 | 0.03 | 0.87 (00 T «abroad») | 0 |
+| 04-05 Residence in 2010 by municipality (`LUGAR_RES_5A`), the 5+ | `04_migracion.xls` 05 | 693 | 0.00 | 0.02 | 0.51 (00 T «another municipality») | 0 |
+| 10-01 Place of school by municipality (`LUGAR_ASI`) | `10_movilidad_cotidiana.xls` 01 | 693 | 0.00 | 0.00 | 0.00 (00 T «same municipality») | 0 |
+| 10-04 Place of work by municipality (`LUGAR_TRAB`) | `10_movilidad_cotidiana.xls` 04 | 693 | 0.00 | 0.00 | 0.00 (00 H «same municipality») | 0 |
 | 08-02 Activity of the 12+ (`CONACT_CAT`) | `08_caracteristicas_economicas.xls` 02 | 594 | 0.00 | 0.00 | 0.00 (00 T «inactive») | 0 |
 | 08-06 Employed by occupational division (`OCUPACION_C_COARSE`) | `08_caracteristicas_economicas.xls` 06 | 990 | 0.00 | 0.00 | 0.00 (01 T «Funcionarios, directores y jefes») | 0 |
 | 08-07 Employed by sector (`ACTIVIDADES_C_COARSE`) | `08_caracteristicas_economicas.xls` 07 | 594 | 0.00 | 0.00 | 0.00 (01 T «Agricultura, ganadería, aprovechamiento forestal, pesca y caza») | 0 |
@@ -63,13 +67,21 @@ Tolerance: 1.0 persons.
 | 10-06 Commute to work (`MED_TRASLADO_TRAB_*`) | `10_movilidad_cotidiana.xls` 06 | 891 | 0.00 | 0.00 | 0.00 (00 T «bus, taxi») | 0 |
 | 11-02 Marital status of the 12+ (`SITUA_CONYUGAL_CAT`) | `11_situacion_conyugal.xls` 02 | 495 | 0.00 | 0.03 | 0.51 (00 T «separated, divorced, widowed») | 0 |
 | 12-05 Population in households by the head's sex (`HOGJEF_SEXO`) | `12_hogares.xls` 05 | 99 | 0.00 | 0.00 | 0.00 (01 T «population in households») | 0 |
+| 12-05a Households by class (`CLASE_HOG`) and type (`TIPOHOG`) | `12_hogares.xls` 05 | 330 | 0.00 | 0.01 | 0.16 (00 T «not specified») | 0 |
+| 12-05b Population in households by class (`CLASE_HOG`) | `12_hogares.xls` 05 | 132 | 0.00 | 0.03 | 0.47 (00 T «familiar») | 0 |
+| 14-13 Dwellings by tenure (`TENENCIA`) | `14_vivienda.xls` 13 | 198 | 0.00 | 0.00 | 0.00 (00 T «rented») | 0 |
+| 14-16 Owned dwellings by deed (`ESCRITURAS_VIV`) | `14_vivienda.xls` 16 | 198 | 0.00 | 0.00 | 0.00 (00 T «in a non-resident's name») | 0 |
 | 14-18 Financing of the owned dwellings bought or built (`FINANCIAMIENTO_*`) | `14_vivienda.xls` 18 | 264 | 0.00 | 0.00 | 0.00 (00 T «INFONAVIT, FOVISSSTE or PEMEX») | 0 |
 
-- 04-02: Entity not specified (`ENT_PAIS_NAC` 997) counted as «No especificado», as INEGI's tabulado (the derived column: `OtraEnt`).
-- 04-05: Entity not specified (`ENT_PAIS_RES10` 997) counted as «No especificado».
+- 04-02: On `ENT_PAIS_NAC_INEGI`: the entity not specified (997) is «No especificado», as INEGI's (the legacy `ENT_PAIS_NAC_CAT`: `OtraEnt`).
+- 04-05: The entity not specified (997) is «No especificado» (the legacy `ENT_PAIS_RES_CAT`: `OtraEnt`); 7b.
 - 06-11: Técnica after primaria counts in primaria, in the tabulado as in `EDUC`; media superior and superior by `EDUC_INEGI_DET` (6w).
 - 05-04: Both sexes only; the households whose head or partner speaks an indigenous language, the EIC 2015's definition (6w).
 - 12-05: The head's sex is the breakdown: both sexes only.
+- 12-05a: One household per dwelling, every dwelling class (7b).
+- 12-05b: The household's class is the breakdown: both sexes only (7b).
+- 14-13: Locales no construidos para habitación, móviles and refugios (`CLAVIVP` 7–9) left out, as INEGI's dwelling tabulados (7b).
+- 14-16: The owner's sex is the breakdown: its «Total» rows (7b).
 
 ## 2020
 
@@ -82,11 +94,15 @@ Tolerance: 1.0 persons.
 | 08-08 Employed by sector (`ACTIVIDADES_C_COARSE`) | `cpv2020_a_eum_08_caracteristicas_economicas.xlsx` 08 | 594 | 0.00 | 0.01 | 0.21 (00 T «Comercio») | 0 |
 | 08-12 Hours worked (`HORTRA_CAT`) | `cpv2020_a_eum_08_caracteristicas_economicas.xlsx` 12 | 594 | 0.00 | 0.01 | 0.26 (00 T «up to 40 (none included)») | 0 |
 | 09-04 Health affiliation by institution (`DHSERSAL_*`) | `cpv2020_a_eum_09_servicios_de_salud.xlsx` 04 | 363 | 0.00 | 0.00 | 0.00 (01 T «population») | 0 |
+| 10-02 Place of school by municipality (`LUGAR_ASI`) | `cpv2020_a_eum_10_movilidad_cotidiana.xlsx` 02 | 693 | 0.00 | 0.01 | 0.15 (00 T «not specified») | 0 |
+| 10-08 Place of work by municipality (`LUGAR_TRAB`) | `cpv2020_a_eum_10_movilidad_cotidiana.xlsx` 08 | 693 | 0.00 | 0.01 | 0.21 (00 T «not specified») | 0 |
 | 10-06 Commute to school (`MED_TRASLADO_ESC_*`) | `cpv2020_a_eum_10_movilidad_cotidiana.xlsx` 06 | 990 | 0.00 | 0.01 | 0.15 (00 T «metro, trolleybus, metrobús») | 0 |
 | 10-12 Commute to work (`MED_TRASLADO_TRAB_*`) | `cpv2020_a_eum_10_movilidad_cotidiana.xlsx` 12 | 990 | 0.00 | 0.01 | 0.22 (00 T «other») | 0 |
 | 11-02 Partner in the dwelling (`IDENT_PAREJA_CAT`) | `cpv2020_a_eum_11_situacion_conyugal.xlsx` 02 | 396 | 0.00 | 0.01 | 0.19 (00 T «not specified») | 0 |
 | 16-34 Financing of the owned dwellings bought or built (`FINANCIAMIENTO_*`, several sources) | `cpv2020_a_eum_16_vivienda.xlsx` 34 | 330 | 0.00 | 0.01 | 0.11 (00 T «No especificado») | 0 |
 
 - 07-04: Técnica after preparatoria, licenciatura, normal superior, especialidad, maestría, doctorado (6w).
+- 10-02: 7b.
+- 10-08: 7b.
 
 State 00 is the nation (the sum of the states); sex T = both, H = men, M = women.

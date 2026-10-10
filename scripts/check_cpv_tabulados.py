@@ -64,7 +64,7 @@ SOURCES = {
               "C2KED11.xls", "C2KVI06.xls", "C2KVI10.xls", "C2KHO04.xls")),
     "2010": ("ccpv/2010/tabulados/Ampliado",
              ("04_02A_ESTATAL.xls", "06_01A_ESTATAL.xls", "08_02A_ESTATAL.xls",
-              "08_03A_ESTATAL.xls", "12_01A_ESTATAL.xls")),
+              "08_03A_ESTATAL.xls", "08_15A_ESTATAL.xls", "12_01A_ESTATAL.xls")),
     "2015": ("intercensal/2015/tabulados",
              ("04_migracion.xls", "05_etnicidad.xls", "06_educacion.xls",
               "07_servicios_de_salud.xls",
@@ -244,12 +244,6 @@ def _code_of(frame: pd.DataFrame, col: str) -> pd.Series:
     return _cat(frame, col).map({v: k for k, v in _legacy_map("personas", col).items()})
 
 
-def _moved(frame: pd.DataFrame, col: str, item: str, code: str) -> pd.Series:
-    """INEGI's tabulados count a person whose entity is not specified as «No especificado»;
-    the derived columns keep the legacy rule (``OtraEnt``, STEP_6e.md)."""
-    return _cat(frame, col).mask(frame[item].eq(code), "No especificado")
-
-
 def _shares(den: pd.Series, *nums: pd.Series) -> list:
     return [(den & n, den) for n in nums]
 
@@ -386,18 +380,41 @@ def _counts_of(*masks: pd.Series) -> list:
 
 
 def _birthplace_2015(p):
-    nac = _moved(p, "ENT_PAIS_NAC_CAT", "ENT_PAIS_NAC", "997")
+    """INEGI's birthplace (``ENT_PAIS_NAC_INEGI``, 6y: the entity not specified, 997, is
+    «No especificado»; the legacy ``ENT_PAIS_NAC_CAT`` counts it ``OtraEnt``)."""
+    nac = _cat(p, "ENT_PAIS_NAC_INEGI")
     return _counts_of(pd.Series(True, index=p.index), nac.eq("EstaEnt"), nac.eq("OtraEnt"),
                       nac.eq("OtroPais"), nac.eq("No especificado"))
 
 
-def _residence(item: str, code: str):
+# 7b: the places by municipality (LUGAR_RES_5A, LUGAR_ASI, LUGAR_TRAB): INEGI's 2010–2020
+# tabulados publish the universe; the same entity and, as % of it, the same municipality,
+# another, not specified; another entity or country; not specified.
+_OWN_ENTITY = ("Mismo municipio", "Otro municipio", "Municipio no especificado")
+_ELSEWHERE = ["Otra entidad", "Estados Unidos", "Otro país"]
+_PLACE_CELLS = ("same entity", "same municipality", "another municipality",
+                "municipality not specified", "another entity or country", "not specified")
+
+
+def _place(col: str, universe: Callable[[pd.DataFrame], pd.Series]):
     def ours(p):
-        res = _moved(p, "ENT_PAIS_RES_CAT", item, code)
-        five = _age(p).between(5, 130)
-        return _counts_of(five, five & res.eq("EstaEnt"), five & res.isin(["OtraEnt", "OtroPais"]),
-                          five & res.eq("No especificado"))
+        u, place = universe(p), _cat(p, col)
+        return _counts_of(u, u & place.isin(_OWN_ENTITY), *(u & place.eq(c) for c in _OWN_ENTITY),
+                          u & place.isin(_ELSEWHERE), u & place.eq("No especificado"))
     return ours
+
+
+def _place_published(v: list) -> list:
+    return _counts(v[0], v[1:7], [0, 1, 1, 1, 0, 0])
+
+
+def _five(p) -> pd.Series:
+    return _age(p).between(5, 130)
+
+
+def _students(p) -> pd.Series:
+    """The students aged 3+ (the place of school is asked of every student: 7b)."""
+    return _age(p).between(3, 130) & _cat(p, "LUGAR_ASI").ne("Blanco por pase")
 
 
 def _activity_2015(p):
@@ -637,6 +654,57 @@ def _superior(p):
     return _counts_of(_age(p).between(18, 130) & _cat(p, "EDUC_INEGI_DET").isin(_SUPERIOR))
 
 
+# EIC 2015 households and dwellings (7b) ------------------------------------------------
+
+def _households_by_class(v):
+    """The households (one per dwelling, every class) by ``CLASE_HOG`` and, within each
+    class, by the raw ``TIPOHOG``: familiar = nuclear, ampliado, compuesto, not specified
+    (1–4); no familiar = unipersonal, corresidentes (5, 6); not specified (9)."""
+    kind, cls = pd.to_numeric(v["TIPOHOG"]), _cat(v, "CLASE_HOG")
+    return _counts_of(pd.Series(True, index=v.index), cls.eq("Familiar"),
+                      *(kind.eq(k) for k in (1, 2, 3, 4)), cls.eq("No familiar"),
+                      kind.eq(5), kind.eq(6), cls.eq("No especificado"))
+
+
+def _population_by_class(p):
+    """The population in households by its household's ``CLASE_HOG`` (6z: the persons read
+    their household's ``TIPOHOG`` from the dwelling file)."""
+    cls = _cat(p, "CLASE_HOG")
+    return _counts_of(pd.Series(True, index=p.index),
+                      *(cls.eq(c) for c in ("Familiar", "No familiar", "No especificado")))
+
+
+def _household_class_published(what: str, pick: Callable[[list], list] = lambda c: c):
+    """EIC 2015 12-05: rows (state, the head's sex, «Hogares»/«Población en hogares»); the
+    head's sex «Total»: the total, familiar and its four types (% of familiar), no familiar
+    and its two (% of no familiar), not specified."""
+    def read(wb):
+        return {(state, "T"): pick(_counts(v[0], v[1:10], [0, 1, 1, 1, 1, 0, 6, 6, 0]))
+                for (state, head, kind), v in _estimates(_sheet(wb, "05"), "Valor").items()
+                if head == "Total" and kind == what}
+    return read
+
+
+def _dwellings_2015(v) -> pd.Series:
+    """The EIC 2015's «viviendas particulares habitadas» of its dwelling tabulados: every
+    class but the locales no construidos para habitación, móviles and refugios (7–9)."""
+    return ~pd.to_numeric(v["CLAVIVP"]).isin([7, 8, 9])
+
+
+def _tenure_2015(v):
+    """The dwellings by tenure (``TENENCIA``: own, rented, lent, other, not specified)."""
+    vph, tenure = _dwellings_2015(v), pd.to_numeric(v["TENENCIA"])
+    return _counts_of(vph, *(vph & tenure.eq(c) for c in (1, 2, 3, 4, 9)))
+
+
+def _deeds_2015(v):
+    """The owned dwellings (``TENENCIA`` 1) by deed (``ESCRITURAS_VIV``: in the name of a
+    resident, of a non-resident, none, not known, not specified)."""
+    own = _dwellings_2015(v) & pd.to_numeric(v["TENENCIA"]).eq(1)
+    deed = pd.to_numeric(v["ESCRITURAS_VIV"])
+    return _counts_of(own, *(own & deed.eq(c) for c in (1, 2, 3, 8, 9)))
+
+
 def _total_row(k: tuple) -> tuple | None:
     """A (state, sex, category) row → (state, sex) for the category «Total»."""
     return k[:2] if k[2] == "Total" else None
@@ -731,13 +799,17 @@ CHECKS: tuple[Check, ...] = (
     Check("2000", "HO04b", "Population in households by the head's sex (`HOGJEF_SEXO`), %",
           "C2KHO04.xls", "personas", ("male head", "female head"), _c2k("FG"),
           _head_sex("HOGJEF_SEXO"), note="The head's sex is the breakdown: both sexes only."),
-    Check("2010", "04_02A", "Residence in 2005 (`ENT_PAIS_RES_CAT`), the 5+",
-          "04_02A_ESTATAL.xls", "personas",
-          ("population 5+", "same entity", "another entity or country", "not specified"),
-          _wide("Parámetro", lambda v: [_counts(v[0], v[1:])[i] for i in (0, 1, 5, 6)]),
-          _residence("RES05EDO_C", "999"), unit="persons",
-          note="Entity not specified (`RES05EDO_C` 999) counted as «No especificado», as "
-               "INEGI's tabulado (the derived column: `OtraEnt`)."),
+    Check("2010", "04_02A", "Residence in 2005 by municipality (`LUGAR_RES_5A`), the 5+",
+          "04_02A_ESTATAL.xls", "personas", ("population 5+", *_PLACE_CELLS),
+          _wide("Parámetro", _place_published), _place("LUGAR_RES_5A", _five), unit="persons",
+          note="The entity not specified (`RES05EDO_C` 999) is «No especificado», as INEGI's "
+               "(the legacy `ENT_PAIS_RES_CAT`: `OtraEnt`); 7b."),
+    Check("2010", "08_15A", "Place of work by municipality (`LUGAR_TRAB`)",
+          "08_15A_ESTATAL.xls", "personas", ("employed", *_PLACE_CELLS),
+          _wide("Parámetro", _place_published, dims=_total_row), _place("LUGAR_TRAB", _employed),
+          unit="persons",
+          note="`LTRABPAI_C` holds the entity and country catalogs; its 999 (the entity's «no "
+               "especificada») and 900 (topic omitted) are «No especificado» (7b)."),
     Check("2010", "08_02A", "Employed by occupational division (`OCUPACION_C_COARSE`)",
           "08_02A_ESTATAL.xls", "personas", _DIVISIONS,
           _long("Parámetro", _DIVISIONS), _occupation, unit="persons"),
@@ -757,19 +829,27 @@ CHECKS: tuple[Check, ...] = (
           _wide("Parámetro", lambda v: _counts(v[0], v[1:]), dims=_total_row), _parents,
           unit="persons",
           note="Published by locality size: the national row only (all 32 states needed)."),
-    Check("2015", "04-02", "Birthplace (`ENT_PAIS_NAC_CAT`)", "04_migracion.xls", "personas",
+    Check("2015", "04-02", "Birthplace (`ENT_PAIS_NAC_INEGI`)", "04_migracion.xls", "personas",
           ("population", "this entity", "another entity", "abroad", "not specified"),
           _wide("Valor", lambda v: (c := _counts(v[0], v[1:]))[:3] + [c[3] + c[4], c[5]],
                 sheet="02"),
           _birthplace_2015, unit="persons", sheet="02",
-          note="Entity not specified (`ENT_PAIS_NAC` 997) counted as «No especificado», as "
-               "INEGI's tabulado (the derived column: `OtraEnt`)."),
-    Check("2015", "04-05", "Residence in 2010 (`ENT_PAIS_RES_CAT`), the 5+", "04_migracion.xls",
-          "personas", ("population 5+", "same entity", "another entity or country",
-                       "not specified"),
-          _wide("Valor", lambda v: [_counts(v[0], v[1:])[i] for i in (0, 1, 5, 6)], sheet="05"),
-          _residence("ENT_PAIS_RES10", "997"), unit="persons", sheet="05",
-          note="Entity not specified (`ENT_PAIS_RES10` 997) counted as «No especificado»."),
+          note="On `ENT_PAIS_NAC_INEGI`: the entity not specified (997) is «No especificado», "
+               "as INEGI's (the legacy `ENT_PAIS_NAC_CAT`: `OtraEnt`)."),
+    Check("2015", "04-05", "Residence in 2010 by municipality (`LUGAR_RES_5A`), the 5+",
+          "04_migracion.xls", "personas", ("population 5+", *_PLACE_CELLS),
+          _wide("Valor", _place_published, sheet="05"), _place("LUGAR_RES_5A", _five),
+          unit="persons", sheet="05",
+          note="The entity not specified (997) is «No especificado» (the legacy "
+               "`ENT_PAIS_RES_CAT`: `OtraEnt`); 7b."),
+    Check("2015", "10-01", "Place of school by municipality (`LUGAR_ASI`)",
+          "10_movilidad_cotidiana.xls", "personas", ("students 3+", *_PLACE_CELLS),
+          _wide("Valor", _place_published, sheet="01", dims=_total_row),
+          _place("LUGAR_ASI", _students), unit="persons", sheet="01"),
+    Check("2015", "10-04", "Place of work by municipality (`LUGAR_TRAB`)",
+          "10_movilidad_cotidiana.xls", "personas", ("employed", *_PLACE_CELLS),
+          _wide("Valor", _place_published, sheet="04", dims=_total_row),
+          _place("LUGAR_TRAB", _employed), unit="persons", sheet="04"),
     Check("2015", "08-02", "Activity of the 12+ (`CONACT_CAT`)",
           "08_caracteristicas_economicas.xls", "personas",
           ("population 12+", "PEA", "employed", "unemployed", "inactive", "not specified"),
@@ -830,6 +910,32 @@ CHECKS: tuple[Check, ...] = (
                                          "female head"),
           _population_by_head_published, _population_by_head, unit="persons", sheet="05",
           note="The head's sex is the breakdown: both sexes only."),
+    Check("2015", "12-05a", "Households by class (`CLASE_HOG`) and type (`TIPOHOG`)",
+          "12_hogares.xls", "viviendas",
+          ("households", "familiar", "nuclear", "ampliado", "compuesto", "familiar, type not "
+           "specified", "no familiar", "unipersonal", "corresidentes", "not specified"),
+          _household_class_published("Hogares"), _households_by_class, unit="persons",
+          sheet="05", note="One household per dwelling, every dwelling class (7b)."),
+    Check("2015", "12-05b", "Population in households by class (`CLASE_HOG`)",
+          "12_hogares.xls", "personas",
+          ("population in households", "familiar", "no familiar", "not specified"),
+          _household_class_published("Población en hogares",
+                                     lambda c: [c[0], c[1], c[6], c[9]]),
+          _population_by_class, unit="persons", sheet="05",
+          note="The household's class is the breakdown: both sexes only (7b)."),
+    Check("2015", "14-13", "Dwellings by tenure (`TENENCIA`)", "14_vivienda.xls", "viviendas",
+          ("dwellings", "own", "rented", "lent by a relative or another", "other", "not specified"),
+          _wide("Valor", lambda v: _counts(v[0], v[1:]), sheet="13", dims=lambda k: (k[0], "T")),
+          _tenure_2015, unit="persons", sheet="13",
+          note="Locales no construidos para habitación, móviles and refugios (`CLAVIVP` 7–9) "
+               "left out, as INEGI's dwelling tabulados (7b)."),
+    Check("2015", "14-16", "Owned dwellings by deed (`ESCRITURAS_VIV`)", "14_vivienda.xls",
+          "viviendas", ("owned dwellings", "in a resident's name", "in a non-resident's name",
+                        "no deed", "not known", "not specified"),
+          _wide("Valor", lambda v: _counts(v[0], v[1:]), sheet="16",
+                dims=lambda k: (k[0], "T") if k[1] == "Total" else None),
+          _deeds_2015, unit="persons", sheet="16",
+          note="The owner's sex is the breakdown: its «Total» rows (7b)."),
     Check("2015", "14-18", "Financing of the owned dwellings bought or built "
           "(`FINANCIAMIENTO_*`)", "14_vivienda.xls", "viviendas",
           ("dwellings", "INFONAVIT, FOVISSSTE or PEMEX", "FONHAPO", "banks",
@@ -863,6 +969,14 @@ CHECKS: tuple[Check, ...] = (
            "PEMEX, Defensa or Marina", "INSABI", "IMSS-BIENESTAR", "private", "other",
            "not affiliated", "not specified"),
           _affiliation_published, _affiliation, unit="persons", sheet="04"),
+    Check("2020", "10-02", "Place of school by municipality (`LUGAR_ASI`)", _MOV_2020,
+          "personas", ("students 3+", *_PLACE_CELLS),
+          _wide("Valor", _place_published, sheet="02", dims=_total_row),
+          _place("LUGAR_ASI", _students), unit="persons", sheet="02", note="7b."),
+    Check("2020", "10-08", "Place of work by municipality (`LUGAR_TRAB`)", _MOV_2020,
+          "personas", ("employed", *_PLACE_CELLS),
+          _wide("Valor", _place_published, sheet="08", dims=_total_row),
+          _place("LUGAR_TRAB", _employed), unit="persons", sheet="08", note="7b."),
     Check("2020", "10-06", "Commute to school (`MED_TRASLADO_ESC_*`)", _MOV_2020, "personas",
           ("students who travel", *(n for n, _ in _MODES_ESC)),
           _wide("Valor", lambda v: _counts(v[0], v[1:]), sheet="06", dims=_total_row),

@@ -1,13 +1,14 @@
 # CPV family — session handoff
 
-**Status (2026-10-10): units 0–6z and 7a are done (7a = the first unit after 6z). `main` =
-v0.10.0 + 6u (merged locally, **not pushed, no version bump**; v0.10.0 = 6s–6t, tagged and
-pushed; 0.9.0 = 6k–6r, §Review). `cpv-integration` = `main` + 6v + 6w + 6x + 6y + 6z + 7a
-(6v: the `POBHOG` total and the Conteo 2005's households; 6w: indigenous households and
-media superior/superior apart; 6x: `HOG_IND` on the household records; 6y: the EIC 2025's
+**Status (2026-10-10): units 0–6z, 7a and 7b are done. `main` = v0.10.0 + 6u (merged
+locally, **not pushed, no version bump**; v0.10.0 = 6s–6t, tagged and pushed; 0.9.0 =
+6k–6r, §Review). `cpv-integration` = `main` + 6v + 6w + 6x + 6y + 6z + 7a + 7b (6v: the
+`POBHOG` total and the Conteo 2005's households; 6w: indigenous households and media
+superior/superior apart; 6x: `HOG_IND` on the household records; 6y: the EIC 2025's
 percentages as constraints; 6z: its dwelling and household percentages; 7a: its person
-percentages; all agreed with the user), all committed. None merged or pushed. No unit is
-queued. A session starts by checking `git log`/`git status` against this line.**
+percentages; 7b: the places by municipality for 2010–2025; all agreed with the user), all
+committed. None merged or pushed: the 0.11.0 release (6u–7b) waits for a `wsl` full-suite
+run (§Next 1). A session starts by checking `git log`/`git status` against this line.**
 - **Released** (registered, uploaded, verified): every edition 1990–2025 (897 `cpv_` files)
   and the Marco Geoestadístico 1995–2025 frames, incl. the EIC 2015's (6h); registry
   **4148** entries (`STEP_6b.md` §Release batch, `STEP_6h.md`).
@@ -197,7 +198,22 @@ queued. A session starts by checking `git log`/`git status` against this line.**
     same rule). The disability by age takes `PCON_DISC` (user's choice): ≤ 28 persons over
     its unpublished specified-age base (51 persons nationally).
 
-Design: [`PLAN.md`](PLAN.md). Recent units: [`STEP_7a.md`](STEP_7a.md), [`STEP_6z.md`](STEP_6z.md), [`STEP_6y.md`](STEP_6y.md), [`STEP_6x.md`](STEP_6x.md), [`STEP_6w.md`](STEP_6w.md), [`STEP_6v.md`](STEP_6v.md), [`STEP_6u.md`](STEP_6u.md), [`STEP_6t.md`](STEP_6t.md), [`STEP_6s.md`](STEP_6s.md), [`STEP_6r.md`](STEP_6r.md), [`STEP_6q.md`](STEP_6q.md), [`STEP_6p.md`](STEP_6p.md), [`STEP_6o.md`](STEP_6o.md), [`STEP_6n.md`](STEP_6n.md), [`STEP_6m.md`](STEP_6m.md), [`STEP_6l.md`](STEP_6l.md), [`STEP_6k.md`](STEP_6k.md), [`STEP_6j.md`](STEP_6j.md), [`STEP_6i.md`](STEP_6i.md), [`STEP_6h.md`](STEP_6h.md), [`STEP_6g.md`](STEP_6g.md), [`STEP_6f.md`](STEP_6f.md), [`STEP_6e.md`](STEP_6e.md),
+- **7b** (`STEP_7b.md`): the older editions catch up (HANDOFF candidate 3's first items; the
+  user widened it to the places by municipality).
+  - New derived **`LUGAR_ASI`** (2015, 2020, 2025) and **`LUGAR_TRAB`** (2010–2025), the
+    place of school and of work with `LUGAR_RES_5A`'s categories (same municipality, another,
+    municipality not specified, another entity, the US, another country, not specified,
+    blank); `LUGAR_RES_5A` now 2010–2025; `ENT_PAIS_ASI_INEGI` 2015–2025,
+    `ENT_PAIS_TRAB_INEGI` 2010–2025 (`cpv_derived._lugar`).
+  - Censo 2010's work item `LTRABPAI_C` holds the entity and the country catalogs; its 999
+    is the entity's «no especificada» (INEGI's `08_15A`, to the person in every cell).
+  - `check_cpv_tabulados.py`: the places by municipality against the 2010/2015/2020
+    tabulados (exact in every state), the EIC 2015's household class and type, tenure and
+    deeds; its birthplace check reads `ENT_PAIS_NAC_INEGI` (`_moved` is gone).
+  - No constraint changes; the EIC 2015's grouped commute dummies are not derivable (one
+    code for bus and taxi).
+
+Design: [`PLAN.md`](PLAN.md). Recent units: [`STEP_7b.md`](STEP_7b.md), [`STEP_7a.md`](STEP_7a.md), [`STEP_6z.md`](STEP_6z.md), [`STEP_6y.md`](STEP_6y.md), [`STEP_6x.md`](STEP_6x.md), [`STEP_6w.md`](STEP_6w.md), [`STEP_6v.md`](STEP_6v.md), [`STEP_6u.md`](STEP_6u.md), [`STEP_6t.md`](STEP_6t.md), [`STEP_6s.md`](STEP_6s.md), [`STEP_6r.md`](STEP_6r.md), [`STEP_6q.md`](STEP_6q.md), [`STEP_6p.md`](STEP_6p.md), [`STEP_6o.md`](STEP_6o.md), [`STEP_6n.md`](STEP_6n.md), [`STEP_6m.md`](STEP_6m.md), [`STEP_6l.md`](STEP_6l.md), [`STEP_6k.md`](STEP_6k.md), [`STEP_6j.md`](STEP_6j.md), [`STEP_6i.md`](STEP_6i.md), [`STEP_6h.md`](STEP_6h.md), [`STEP_6g.md`](STEP_6g.md), [`STEP_6f.md`](STEP_6f.md), [`STEP_6e.md`](STEP_6e.md),
 [`STEP_6d.md`](STEP_6d.md),
 [`STEP_6c.md`](STEP_6c.md), [`STEP_6b.md`](STEP_6b.md), … [`STEP_0_probe.md`](STEP_0_probe.md).
 
@@ -207,12 +223,13 @@ files; the MG 2015 files were built on the Mac and copied to `wsl` for the uploa
 merge: 1773 passed, 1 h 50 min) and holds a copy of the Mac's tabulados cache
 (`data/dict/tabulados/`, without 6t's `2000/C2KHO04.xls` and `2015/12_hogares.xls` and 6w's
 `2015/05_etnicidad.xls` and `2020/cpv2020_a_eum_07_educacion.xlsx`: the script fetches
-them). 6s–7a ran on the Mac only.
+them). 6s–7b ran on the Mac only; on 2026-10-10 `wsl` needed a Tailscale re-login, so the
+0.11.0 suite run did not happen there.
 `wsl:~/mxcensus3c` (3c's code copy) can be deleted.
 
 ## Kickoff prompt for the next session
 
-> Continue the CPV census-family work in this repo (branch cpv-integration = main + 6v–7a;
+> Continue the CPV census-family work in this repo (branch cpv-integration = main + 6v–7b;
 > main = v0.10.0 + 6u, merged). Read docs/cpv/HANDOFF.md first, then agree with me which next unit to
 > take (candidates in HANDOFF §Next) before implementing it, following the session protocol
 > in docs/cpv/PLAN.md. Use .venv/bin/python, not uv run. Run wsl tasks without asking; ask
@@ -249,23 +266,29 @@ and **kept all seven** (merged as 0.9.0):
 
 ## Next: candidates (none decided)
 
-1. Merge 6v–7a into `main`, push `main`/`cpv-integration` (6u–7a) and a version bump, when
-   the user wants them (`wsl` pull + full suite there first, as for 0.9.0).
+1. **Release 0.11.0** (agreed with the user on 2026-10-10; 6u–7b): get `cpv-integration`
+   onto `wsl` (a `git bundle` over `scp`, or push the branch first if the user agrees), run
+   the full suite there (~2 h, `run_in_background`), then — on the user's word — bump
+   `pyproject.toml`/`uv.lock` to 0.11.0, fast-forward `main` (`git fetch . cpv-integration:main`),
+   tag `v0.11.0` and push `main`, `cpv-integration` and the tag. `wsl` needed a Tailscale
+   re-login on 2026-10-10 (the user opens the printed URL).
 2. **Ratio constraints** for the EIC 2025 percentages whose base is not published (7a left
    out 11): the employed's nine commute modes, `PCN_P3NHLI_CLI`, `PCN_HF`. A percentage p of
    an unpublished base B is the linear constraint Σ w·(1{cell} − p/100·1{B}) = 0, which
    needs no count; `cpv_constraints` only speaks counts, so this is a design change (a
    second kind of constraint, and a consumer for it).
-3. Smaller: `check_cpv_tabulados.py`'s EIC 2015 migration check could read
-   `ENT_PAIS_NAC_INEGI` instead of moving the unspecified group (`_moved`); the 7a place
-   columns for EIC 2015 (it has `ENT_PAIS_ASI`/`ENT_PAIS_TRAB`; its residence in 2010 needs
-   a check of its municipality item) and Censo 2010; a 2000 occupation bridge (CMO → SINCO,
-   no published table); income in minimum wages for 2000 (`P_1SM`…: three wage zones by
-   municipality); a locality-level lineage (6a covered municipalities only); CGPV 1990's
-   undocumented `TIP_HOGAR` 6 (96,370 persons, all `N_F_GPOS` 99 and a 9xx relationship: a
-   dwelling without its household composition; identity-labelled, `STEP_6u.md` §Left
-   out); the EIC 2015 tabulados on the household class (`CLASE_HOG`) and tenure/deeds in
-   `check_cpv_tabulados.py`.
+3. Smaller: a 2000 occupation bridge (CMO → SINCO, no published table); income in minimum
+   wages for 2000 (`P_1SM`…: three wage zones by municipality); a locality-level lineage (6a
+   covered municipalities only); CGPV 1990's undocumented `TIP_HOGAR` 6 (96,370 persons, all
+   `N_F_GPOS` 99 and a 9xx relationship: a dwelling without its household composition;
+   identity-labelled, `STEP_6u.md` §Left out); more EIC 2015 tabulados in
+   `check_cpv_tabulados.py` (acquisition `FORMA_ADQUI` 14-17, the dwelling materials,
+   services and goods 14-04…14-33: raw items, a check of the labels and the `CLAVIVP` 7–9
+   universe); **CGPV 2000's places** for `LUGAR_RES_5A`/`LUGAR_TRAB`: it has 2010's layout
+   (`RES95EDO_C` entity-or-country + `MUN95OTR_C`; `LTRABPAI_C` + `LTRABMUN_C`, the
+   municipality given for every Mexican answer, 999 when not; probed on Mexico City in 7b),
+   but its work item's 999 is 6.9% of Mexico City's employed — settle what it means on a
+   C2K tabulado (lugar de trabajo) before deriving.
 
 ## Open questions for the user
 
@@ -605,3 +628,19 @@ None.
 - **Sweeps through `POOCH`** fetch any file missing from the user cache from the bucket
   (7a: the 2015 dwellings, which the person loader reads for `TIPOHOG`); the tests'
   `local_mirror` fixture reads `data/parquet` instead.
+- **Censo 2010's place of work** (7b): `LTRABPAI_C` («en otro estado o país») holds the
+  entity catalog (001–032, 900 topic omitted, 999) and the country catalog (600, 700,
+  countries) in one column, though its FD names only `Tc_Pais_2010`. Its 999 is the
+  entity's «no especificada» (`_RECODE` → 997, «No especificado»): INEGI's `08_15A` matches to
+  the person only so. Its municipality items (`LTRABMUN_C`, `MUN05OTR_C`) hold the
+  municipality of every Mexican answer, the own one too, despite the FD's «(otro)».
+- **Places by municipality** (7b): `_lugar` compares the place's municipality with the
+  person's own (`MUN`/`CVE_MUN`); the own entity without a municipality raises. The school
+  and work items are asked of exactly the students and the employed (2010–2025), persons of
+  unspecified age included; INEGI's tabulados leave those out, so cells and checks keep the
+  age condition.
+- **EIC 2015 dwelling tabulados** (7b) leave out `CLAVIVP` 7–9 (locales, móviles,
+  refugios: 31,924,863 dwellings); its households count every dwelling (31,949,709).
+  2015's `CLAVIVP` is un-padded (`pd.to_numeric` before comparing).
+- **2020's FD names no catalog for `MUN_TRAB`** (its `MUN_ASI`/`MUN_RES_5A` name «MUN»):
+  `test_source_codes_match_2020` excuses it (`_REF_WITHOUT_CATALOG`).

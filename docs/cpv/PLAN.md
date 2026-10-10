@@ -55,6 +55,7 @@ unit.
 | **6y** | The EIC 2025's percentages as constraints | 6x | ✅ done 2026-10-10 (`STEP_6y.md`): `load_cpv_estimaciones(counts=True)` turns 85 percentages into counts on their bases (`_PERCENT_BASES`, found on the microdata); EIC 2025 constraints 29 + 4 → 94 + 31, each = the estimates at all 2,769 published geographies (counts exactly, percentages to their rounding); INEGI's limitation/disability by activity in 2020 and 2025 (user's choice: the 2020 ITER agrees, the legacy `PCLIM_*` overshoot it), new `ENT_PAIS_NAC_INEGI` (user's choice; 997 «No especificado») and `DHSERSAL_ISSSTE_T`; the survey's own `PDER_ISTE`, `VPH_EXCSA`, water wording as 2025 edition cells |
 | **6z** | The EIC 2025's dwelling and household percentages | 6y | ✅ done 2026-10-10 (`STEP_6z.md`): 63 more counts behind percentages (`_PERCENT_BASES` 85 → 148: dwellings on `VIVPARHAB_C`, deeds on `VPH_PROPIA`, households on `TOTHOG`, the minors' food items on the published `HOG_MEN_ALIM`, `POBHOG_FAM`/`_NFAM` on `POBHOG`); EIC 2025 constraints 94 + 31 → 96 + 92, each = the estimates at every published geography; new derived `OCUP_CUARTO_CAT` (2010–2025), `CLASE_HOG` (2000, 2010–2025, dwellings and persons: the persons read their household's `TIPOHOG`, `cpv._attach_dwellings`) and `INGR_OTROS` (2015–2025); `HOG_MEN_ALIM` left out (user's choice: no rule reproduces the questionnaire's filter of minors) |
 | **7a** | The EIC 2025's person percentages | 6z | ✅ done 2026-10-10 (`STEP_7a.md`): 116 more counts behind percentages (`_PERCENT_BASES` 148 → 264; a base may be a sum: the five-year ages on `POB0_14`+`POB15_64`+`POB65_MAS`, the students' modes on their four commute times; the disability by age on `PCON_DISC`, ≤ 28 persons over its unpublished base); EIC 2025 constraints 96 + 92 → 214 + 93 with `PUSU_SS`, `PHOG_AFRO`, `HOG_AFRO`, each = the estimates at every published geography; new derived `EDAD_QUIN` (every edition), `LUGAR_RES_5A`, `ENT_PAIS_ASI_INEGI`/`ENT_PAIS_TRAB_INEGI`, the grouped commute dummies (2020, 2025), `DHSERSAL_AFIL_ACCESO`, `HOG_AFRO` (2025); 11 left out (user's choices: the employed's 9 modes; `PCN_HF`, `PCN_P3NHLI_CLI`: bases not given) |
+| **7b** | The older editions catch up: the places by municipality | 7a | ✅ done 2026-10-10 (`STEP_7b.md`): new derived `LUGAR_ASI` (2015–2025) and `LUGAR_TRAB` (2010–2025) by municipality (user's choice over entity level only) beside `LUGAR_RES_5A` (now 2010–2025), the EIC 2015's and Censo 2010's `ENT_PAIS_ASI_INEGI`/`ENT_PAIS_TRAB_INEGI` (2010: its work item holds both catalogs, its 999 the entity's — INEGI's `08_15A`); = INEGI's 2010/2015/2020 tabulados to the person in every state; `check_cpv_tabulados.py` also checks the EIC 2015 household class and type, tenure and deeds and reads the birthplace on `ENT_PAIS_NAC_INEGI`; no constraint changes |
 
 The user asked (2026-10-08, afternoon) for all four post-6e candidates in one session, one
 unit each (6f–6i), with a local commit per unit; push, merge, version and upload wait for
@@ -82,6 +83,9 @@ candidates) followed on 2026-10-10.
 chosen by the user over the persons) followed in a new session the same day.
 7a (the persons' 127 percentages, HANDOFF candidate 2, all in one session at the user's
 choice; the first unit after 6z) followed in the next session the same day.
+7b (HANDOFF candidate 3's «older editions catch up», the user's choice, widened by the
+user to the school and work places by municipality) followed in a new session the same
+day, beside the 0.11.0 release preparation.
 
 ### Session protocol
 

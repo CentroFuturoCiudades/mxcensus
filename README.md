@@ -318,12 +318,21 @@ per.groupby(["EDAD_CAT", "CONACT_CAT"], observed=True)["FACTOR"].sum()
 tables = mxcensus.get_tables_dict(mxcensus.cpv_constraints("personas", 2025), per.dtypes)
 ```
 
+The places come by municipality, as INEGI's tabulados give them: `LUGAR_RES_5A` (the
+residence five years earlier; 2010–2025), `LUGAR_ASI` (the place of school; 2015–2025) and
+`LUGAR_TRAB` (the place of work; 2010–2025) say the same municipality, another municipality
+of the same entity, a municipality not specified, another entity, the United States, another
+country, not specified, or not asked. `ENT_PAIS_ASI_INEGI`/`ENT_PAIS_TRAB_INEGI` give the
+same at the entity level. Censo 2010 asked no place of school, and it records the residence
+and the place of work in an entity item and a country item.
+
 `scripts/check_cpv_tabulados.py` (maintainer) checks the derived columns against INEGI's
 published sample tabulados in every state, both sexes and the nation, and writes
 [docs/cpv/TABULADOS_REPORT.md](docs/cpv/TABULADOS_REPORT.md): Censo 2020, EIC 2015 and Censo
 2010 match to the person (occupation, sector, hours, health affiliation, commute modes,
-marital status, education, migration, financing, co-residence, limitation); CGPV 2000
-within a few hundredths of a point (its public sample's weights; Chiapas a few tenths).
+marital status, education, migration, the places of residence, school and work by
+municipality, household class, tenure and deeds, financing, co-residence, limitation); CGPV
+2000 within a few hundredths of a point (its public sample's weights; Chiapas a few tenths).
 
 The legacy health-coverage dummies `DHSERSAL_Popular_NGenración_SBienestar` and
 `DHSERSAL_IMSS_Prospera/Bienestar` are named `DHSERSAL_SALUD_PUBLICA` and

@@ -68,8 +68,10 @@ reads its marital status from ``ESTCON``, 2015 its residence five years earlier 
 - Censo 2010's ``LIM_ACTIVIDAD`` («limitación en la actividad», ``DISCAP1``–``DISCAP8``):
   another question than 2020's difficulty scale, so no ``DIS_*``/``DISCAPACIDAD`` there;
 - Censo 2010's birthplace and residence in 2005, each split in an entity and a country
-  item (``LNACEDO_C``/``LNACPAIS_C``, ``RES05EDO_C``/``RES05PAI_C``), and its co-residence
-  pointer pairs (row number + code item: ``IDMADRE``/``IDMADREC``…), which give
+  item (``LNACEDO_C``/``LNACPAIS_C``, ``RES05EDO_C``/``RES05PAI_C``; the municipality
+  ``MUN05OTR_C``), its place of work, one item holding both catalogs (``LTRABPAI_C``,
+  whose 999 is the entity's «no especificada»; the municipality ``LTRABMUN_C``), and its
+  co-residence pointer pairs (row number + code item: ``IDMADRE``/``IDMADREC``…), which give
   ``IDENT_PAREJA_CAT`` and the two co-residence flags but not ``IDENT_MADRE_CAT``/
   ``IDENT_PADRE_CAT`` (its «no vive aquí» merges 2020's other dwelling, dead, unknown);
 - Censo 2010's 4-digit occupation (``OCUACTIV_C``) and its religion (``OTRAREL_C``, six
@@ -117,14 +119,20 @@ than work: any of the four «otros ingresos» items yes, all four no, else not s
 7a (the EIC 2025's person percentages) adds ``EDAD_QUIN``, five-year age groups up to
 75 and over (every edition); for 2020 and 2025, ``LUGAR_RES_5A``, the residence five years
 earlier by the person's own municipality and entity, the United States apart
-(:func:`_lugar_res`), ``ENT_PAIS_ASI_INEGI``/``ENT_PAIS_TRAB_INEGI``, the place of school
+(:func:`_lugar`), ``ENT_PAIS_ASI_INEGI``/``ENT_PAIS_TRAB_INEGI``, the place of school
 and work by INEGI's rule (as ``ENT_PAIS_NAC_INEGI``), and the summary dummies
 ``MED_TRASLADO_{ESC,TRAB}_{METRO,BUS,TAXI}_T`` (metro or metrobús; trolebús or bus,
 combi, colectivo; either taxi: :data:`_TRASLADO_T`); for the EIC 2025 only,
 ``DHSERSAL_AFIL_ACCESO`` (affiliated, or recognising an access to the public health
 services, an item asked of the not affiliated) and ``HOG_AFRO`` (persons and dwellings, as
 ``HOG_IND``): one of the indigenous household's members (:data:`_AFRO_CODES`) considers
-themself Afro-Mexican or Afro-descendant.
+themself Afro-Mexican or Afro-descendant. 7b takes the places to the EIC 2015 (its
+residence in 2010, school and work) and Censo 2010 (residence in 2005 and work, from its
+split items; it asked no place of school), and adds ``LUGAR_ASI``/``LUGAR_TRAB``, the
+place of school and of work by municipality with ``LUGAR_RES_5A``'s categories (2015–2025;
+work also 2010), INEGI's tabulados' «mismo municipio / otro municipio / no especificado,
+otra entidad o país, no especificado». The grouped commute dummies stay 2020/2025: the EIC
+2015 answers bus and taxi with one code.
 
 :func:`cpv_derivations` lists the columns per edition. The check that the source codes
 match after the recode is a test (``tests/test_cpv_derived.py``).
@@ -223,6 +231,10 @@ _RECODE: dict[str, dict[str, dict[int, float]]] = {
         "RES05EDO_C": {900: 999, 999: 997},
         "LNACPAIS_C": {600: 998, 700: 997, 999: 998},
         "RES05PAI_C": {600: 998, 700: 997, 999: 998},
+        # Place of work (7b): one item for «another state or country» holding both catalogs
+        # (entities 001–032, 900 topic omitted; countries, 600, 700); its 999 is the
+        # entity's «no especificada» (INEGI's tabulado 08_15A counts it not specified).
+        "LTRABPAI_C": {600: 998, 700: 997, 900: 999, 999: 997},
         # The 4-digit SINCO of 2010 (TC_OCUPACION_2010): 5999 is group 59 (as 2015's 599).
         "OCUACTIV_C": {5999: 5299},
         # Dwelling class: 2000's classes (casa independiente, departamento, vecindad,
@@ -319,6 +331,7 @@ _ALIASES = {"ENT": ("ENT", "CVE_ENT"),
             "ENT_PAIS_NAC": ("ENT_PAIS_NAC", "LNACEDO_C", "CVE_P_NAC", "P3_7B"),
             "ENT_PAIS_RES_5A": ("ENT_PAIS_RES_5A", "ENT_PAIS_RES10", "RES95EDO_C", "LURE2000",
                                 "CVE_P_RES", "P4_6A"),
+            "MUN_RES_5A": ("MUN_RES_5A", "MUN_RES10"),                  # 7b: EIC 2015
             "ACTIVIDADES_C": ("ACTIVIDADES_C", "ACTTRAB_C"),
             "INGTRMEN": ("INGTRMEN", "INGRESOS", "INGRESO", "P7_9MP"),
             "HORTRA": ("HORTRA", "HORAS", "P7_6"),
@@ -395,7 +408,9 @@ _CLASE_HOG = pd.CategoricalDtype(["Familiar", "No familiar", "No especificado"])
 # 7a: the five-year age groups (the EIC 2025 estimates' P_0A4 … P_75YMAS) and the place of
 # residence five years earlier with the municipality and the United States apart (its
 # PRESM20 … PRESOP20; the person's own municipality and entity; «Municipio no especificado»:
-# the own entity, municipality 999).
+# the own entity, municipality 999); 7b: the place of school and of work by the same
+# categories (INEGI's 2010–2020 tabulados: same municipality, another, not specified;
+# another entity or country; not specified).
 _EDAD_QUIN = pd.CategoricalDtype([*(f"{a}-{a + 4}" for a in range(0, 75, 5)), "75-130",
                                   "No especificado"], ordered=True)
 _LUGAR_RES = pd.CategoricalDtype(["Mismo municipio", "Otro municipio",
@@ -406,7 +421,7 @@ _DTYPES = {"DISCAPACIDAD": _YES_NO, "LIMITACION": _YES_NO, "SIN_DISC_LIM": _YES_
            "EDUC_INEGI": _EDUC_INEGI, "EDUC_INEGI_DET": _EDUC_INEGI_DET, "SECTOR": _SECTOR,
            "HOG_IND": _SI_NO, "OCUP_CUARTO_CAT": _OCUP_CUARTO, "CLASE_HOG": _CLASE_HOG,
            "INGR_OTROS": _YES_NO, "EDAD_QUIN": _EDAD_QUIN, "LUGAR_RES_5A": _LUGAR_RES,
-           "HOG_AFRO": _SI_NO}
+           "LUGAR_ASI": _LUGAR_RES, "LUGAR_TRAB": _LUGAR_RES, "HOG_AFRO": _SI_NO}
 # Derived columns with another column's legacy dtype: the household head's sex on the
 # person (6t) has the dwelling item's; INEGI's birthplace (6y) the legacy one's; the place
 # of school and work by INEGI's rule (7a) the residence's (with «Blanco por pase»).
@@ -930,24 +945,29 @@ def _ent_pais_inegi(var: str, name: str):
 _USA = 221               # Estados Unidos de América (the 2020 country catalog)
 
 
-def _lugar_res(src):
-    """The place of residence five years earlier (7a; the EIC 2025's ``PRESM20`` …
-    ``PRESOP20``): the own entity by the municipality (``MUN_RES_5A`` against the person's;
-    999 «Municipio no especificado»), another entity, the United States, another country
-    or the country not specified (998), not specified (the entity not specified, 997, or
-    999), blank (not asked: under five). A code the residence's labels lack, or the own
-    entity without a municipality, is left missing (:func:`derive` reports it)."""
-    code, mun = src["ENT_PAIS_RES_5A"], src["MUN_RES_5A"]
-    cat = _mapped(code, "personas", "ENT_PAIS_RES_CAT", "ENT_PAIS_RES_CAT").astype(object)
-    own = code.eq(src["ENT"])
-    values = np.select(
-        [own & mun.eq(src["MUN"]), own & mun.eq(999), own & mun.notna(), own,
-         code.eq(_ENT_NE), code.eq(_USA), cat.eq("OtraEnt"), cat.eq("OtroPais"),
-         cat.eq("No especificado"), cat.eq("Blanco por pase")],
-        ["Mismo municipio", "Municipio no especificado", "Otro municipio", None,
-         "No especificado", "Estados Unidos", "Otra entidad", "Otro país", "No especificado",
-         "Blanco por pase"], None)
-    return {"LUGAR_RES_5A": _as(values, "personas", "LUGAR_RES_5A")}
+def _lugar(var: str, mun: str, name: str, abroad: str | None = None):
+    """A place by the person's own municipality and entity: the residence five years
+    earlier (7a, ``LUGAR_RES_5A``; the EIC 2025's ``PRESM20`` … ``PRESOP20``), the place of
+    school and of work (7b, ``LUGAR_ASI``/``LUGAR_TRAB``; INEGI's 2010–2020 tabulados). The
+    own entity by the municipality (``mun`` against the person's; 999 «Municipio no
+    especificado»), another entity, the United States, another country or the country not
+    specified (998), not specified (the entity not specified, 997, or 999), blank (not
+    asked). Censo 2010 splits the residence's answer: the entity item ``var``, else the
+    country item ``abroad``. A code the residence's labels lack, or the own entity without
+    a municipality, is left missing (:func:`derive` reports it)."""
+    def fn(src):
+        code = src[var] if abroad is None else src[var].fillna(src[abroad])
+        cat = _mapped(code, "personas", "ENT_PAIS_RES_CAT", "ENT_PAIS_RES_CAT").astype(object)
+        own, where = code.eq(src["ENT"]), src[mun]
+        values = np.select(
+            [own & where.eq(src["MUN"]), own & where.eq(999), own & where.notna(), own,
+             code.eq(_ENT_NE), code.eq(_USA), cat.eq("OtraEnt"), cat.eq("OtroPais"),
+             cat.eq("No especificado"), cat.eq("Blanco por pase")],
+            ["Mismo municipio", "Municipio no especificado", "Otro municipio", None,
+             "No especificado", "Estados Unidos", "Otra entidad", "Otro país",
+             "No especificado", "Blanco por pase"], None)
+        return {name: _as(values, "personas", name)}
+    return fn
 
 
 def _pointer_2010(number: pd.Series, code: pd.Series) -> pd.Series:
@@ -1266,10 +1286,20 @@ def _registry() -> tuple[_Derivation, ...]:
           for items, prefix in ((_ESC, "MED_TRASLADO_ESC"), (_TRAB, "MED_TRASLADO_TRAB"))),
         D(per, ("DHSERSAL_AFIL_ACCESO",), ("DHSERSAL1", "DHSERSAL2", "DHSERSAL_ACCESO"),
           ("2025",), _afil_acceso),
-        *(D(per, (f"{item}_INEGI",), (item, "ENT"), _NEW, _ent_pais_inegi(item, f"{item}_INEGI"))
-          for item in ("ENT_PAIS_ASI", "ENT_PAIS_TRAB")),
-        D(per, ("LUGAR_RES_5A",), ("ENT_PAIS_RES_5A", "MUN_RES_5A", "ENT", "MUN"), _NEW,
-          _lugar_res),
+        # (7b: the EIC 2015's and Censo 2010's places too, and the place of school and of
+        # work by municipality; Censo 2010 asked no place of school)
+        *(D(per, (f"{item}_INEGI",), (item, "ENT"), _SINCE_2015,
+            _ent_pais_inegi(item, f"{item}_INEGI")) for item in ("ENT_PAIS_ASI", "ENT_PAIS_TRAB")),
+        D(per, ("ENT_PAIS_TRAB_INEGI",), ("LTRABPAI_C", "ENT"), ("2010",),
+          _ent_pais_inegi("LTRABPAI_C", "ENT_PAIS_TRAB_INEGI")),
+        *(D(per, (name,), (item, mun, "ENT", "MUN"), _SINCE_2015, _lugar(item, mun, name))
+          for name, item, mun in (("LUGAR_RES_5A", "ENT_PAIS_RES_5A", "MUN_RES_5A"),
+                                  ("LUGAR_ASI", "ENT_PAIS_ASI", "MUN_ASI"),
+                                  ("LUGAR_TRAB", "ENT_PAIS_TRAB", "MUN_TRAB"))),
+        D(per, ("LUGAR_RES_5A",), ("RES05EDO_C", "RES05PAI_C", "MUN05OTR_C", "ENT", "MUN"),
+          ("2010",), _lugar("RES05EDO_C", "MUN05OTR_C", "LUGAR_RES_5A", abroad="RES05PAI_C")),
+        D(per, ("LUGAR_TRAB",), ("LTRABPAI_C", "LTRABMUN_C", "ENT", "MUN"), ("2010",),
+          _lugar("LTRABPAI_C", "LTRABMUN_C", "LUGAR_TRAB")),
         D(per, ("CONACT_CAT",), ("CONACT",), (*_OLDEST, *_SINCE_2000),
           _cat(per, "CONACT", "CONACT_CAT")),
         D(per, ("SITUA_CONYUGAL_CAT",), ("SITUA_CONYUGAL",), (*_OLDEST, *_SINCE_2000),

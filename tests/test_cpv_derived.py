@@ -61,6 +61,7 @@ _GAPS = {
     ("2015", "SITUA_CONYUGAL"): {6, 7},        # casada(o) not split by civil/religious
     # 2015's FD declares only 999; 997/998 are rows of its catalog (TC_ENTIDAD_PAIS_2015)
     ("2015", "ENT_PAIS_NAC"): {997, 998}, ("2015", "ENT_PAIS_RES_5A"): {997, 998},
+    ("2015", "ENT_PAIS_ASI"): {997, 998}, ("2015", "ENT_PAIS_TRAB"): {997, 998},     # 7b
     ("2010", "ACTIVIDADES_C"): {9999},         # ACTTRAB_C: a row of TC_SCIAN_2010, no sentinel
     ("2000", "CONACT"): {17},                  # no «limitación, rescued by the activity check»
     # 2000: no bachillerato tecnológico, normal de licenciatura, especialidad, doctorado (in
@@ -89,6 +90,10 @@ _OWN_CODES = {
     # 999), country items (catalog TC_PAIS_2010, no sentinel in the FD)
     **{("2010", item): {*range(1, 33), 900, 999} for item in ("LNACEDO_C", "RES05EDO_C")},
     **{("2010", item): set() for item in ("LNACPAIS_C", "RES05PAI_C")},
+    # 7b: its place of work (one item, both catalogs: TC_PAIS_2010 in the FD, the data's
+    # entity codes, 900 and 999 from TC_ENTIDAD_2010) and the municipalities of work and of
+    # the 2005 residence (TC_MUNICIPIO_2010); no sentinel in the FD
+    **{("2010", item): set() for item in ("LTRABPAI_C", "LTRABMUN_C", "MUN05OTR_C")},
     # its pointer pairs: the row number (99 = row not given), the code (88 not here, 99)
     **{("2010", item): {99} for item in ("IDMADRE", "IDPADRE", "IDCONYUGE")},
     **{("2010", item): {88, 99} for item in ("IDMADREC", "IDPADREC", "IDCONYUGEC")},
@@ -139,6 +144,9 @@ _OWN_CODES = {
 _NO_CATALOG = {("2000", "INGTRMEN"), ("2000", "HORTRA"), ("2000", "ENT_PAIS_NAC"),
                ("2000", "ENT_PAIS_RES_5A"), ("2000", "INGTRHOG"), ("1990", "INGTRMEN")}
 _LATER_OPTIONS = {*d._ESC[1:], *d._TRAB[1:]}      # list fewer codes (options are ordered)
+# 2020 catalog items whose FD row names no catalog (7b: the municipality of work; its
+# school and residence municipalities name «MUN»).
+_REF_WITHOUT_CATALOG = {"MUN_TRAB"}
 # Numeric in 2010/2015, categorical in 2020 (same values; the pointers: row numbers).
 _NUMERIC_CODES = {"ESCOLARI", "IDENT_MADRE", "IDENT_PADRE", "IDENT_PAREJA"}
 # Sources a loader brings from another file → (that file's table, the 2020 table and item
@@ -207,7 +215,7 @@ def test_source_codes_match_2020(table, period, source):
     assert tipo == ref_tipo or expand
     recode = d._RECODE.get(period, {}).get(source, {})
     if tipo == "string":                      # catalog codes (occupation, country…)
-        assert ref.get("Catálogo") and new.get("Catálogo")
+        assert (ref.get("Catálogo") or source in _REF_WITHOUT_CATALOG) and new.get("Catálogo")
     recoded = {c for c in (recode.get(c, c) for c in codes) if c == c}     # NaN = blank
     assert recoded - ref_codes == _EXTRAS.get((period, source), set())
     assert ref_codes - recoded == _GAPS.get((period, source), set())
@@ -234,6 +242,9 @@ def test_recode_tables():
     assert r10["LNACEDO_C"] == r10["RES05EDO_C"] == {900: 999, 999: 997}
     assert r10["LNACPAIS_C"] == r10["RES05PAI_C"]
     assert set(r10["LNACPAIS_C"].values()) == {997, 998}
+    # 7b: the place of work holds both catalogs; its 999 is the entity's (08_15A: NE)
+    assert r10["LTRABPAI_C"] == {**{k: v for k, v in r10["RES05PAI_C"].items() if k != 999},
+                                 **r10["RES05EDO_C"]}
     # SINCO 2019 dropped group 59: 2015's 599 and 2010's 5999 join 52 (529)
     assert r15["OCUPACION_C"] == {599: 529} and r10["OCUACTIV_C"] == {5999: 5299}
     # 1990/1995 (6j): one activity list; 1990's 0 = not asked (blank); 1995's 8 «alguna vez
@@ -327,6 +338,10 @@ def test_cpv_derivations_listing():
                for label in d._traslado_2015(item).values()}
     migration = {"ENT_PAIS_NAC_CAT", "ENT_PAIS_NAC_INEGI",            # 6y: INEGI's too
                  "ENT_PAIS_RES_CAT"}
+    # 7a: the residence five years earlier and the place of work by municipality, INEGI's
+    # place of work; 7b: in 2010 and 2015 too, with the place of school (not asked in 2010)
+    work = {"LUGAR_RES_5A", "LUGAR_TRAB", "ENT_PAIS_TRAB_INEGI"}
+    school = {"LUGAR_ASI", "ENT_PAIS_ASI_INEGI"}
     coresidence = {"IDENT_PAREJA_CAT", "MADRE_EN_VIVIENDA", "PADRE_EN_VIVIENDA"}
     coarse = {"OCUPACION_C_COARSE", "ACTIVIDADES_C_COARSE", "SECTOR"}      # 6o: SECTOR
     educ = {"EDUC", "EDUC_INEGI", "EDUC_INEGI_DET"}               # 6k, 6w: every edition
@@ -337,7 +352,7 @@ def test_cpv_derivations_listing():
     assert head | ind | clase <= p20 & p25
     assert p15 == {"EDAD_CAT", "EDAD_QUIN", "INGTRMEN_CAT", *educ, "CONACT_CAT", "SITUA_CONYUGAL_CAT",
                    "IDENT_MADRE_CAT", "IDENT_PADRE_CAT", *migration, *coresidence,
-                   *dhsersal, *commute, *coarse, *head, *ind, *clase}
+                   *dhsersal, *commute, *coarse, *head, *ind, *clase, *work, *school}
     assert {"MED_TRASLADO_ESC_Caminando", "MED_TRASLADO_TRAB_Transporte de personal"} <= p15 & p20
     assert {"MADRE_EN_VIVIENDA", "PADRE_EN_VIVIENDA", "SIN_DISC_LIM"} <= p20 & p25
     # 7a: five-year ages (every edition), the residence by municipality, the place of school
@@ -345,13 +360,12 @@ def test_cpv_derivations_listing():
     # and the Afro-descendant household (2025)
     groups = {f"{p}_{g}" for p in ("MED_TRASLADO_ESC", "MED_TRASLADO_TRAB")
               for g in ("METRO_T", "BUS_T", "TAXI_T")}
-    places = {"LUGAR_RES_5A", "ENT_PAIS_ASI_INEGI", "ENT_PAIS_TRAB_INEGI"}
-    assert {"EDAD_QUIN", *places, *groups} <= p20 & p25
+    assert {"EDAD_QUIN", *work, *school, *groups} <= p20 & p25
     assert {"DHSERSAL_AFIL_ACCESO", "HOG_AFRO"} <= p25 - p20
     assert set(mxcensus.cpv_derivations("personas", 2010)["COLUMN"]) == {
         "EDAD_CAT", "EDAD_QUIN", "INGTRMEN_CAT", "HORTRA_CAT", *educ, "CONACT_CAT", "SITUA_CONYUGAL_CAT",
         "LIM_ACTIVIDAD", "RELIGION_CAT", *migration, *coresidence, *dhsersal, *coarse, *head,
-        *ind, *clase}
+        *ind, *clase, *work}
     rooms = {"OCUP_CUARTO_CAT"}                                    # 6z: 2010–2025
     assert set(mxcensus.cpv_derivations("viviendas", 2010)["COLUMN"]) == {   # 6n, 6s, 6x
         "CLAVIVP_CAT", "CUADORM_CAT", "TOTCUART_CAT", "DRENAJE_CAT", "INGTRHOG_CAT", "JEFE_SEXO",
@@ -443,6 +457,7 @@ def _persons_2025() -> pd.DataFrame:
     # works in the entity), no access item (affiliated), not Afro-descendant
     df["CVE_MUN"], df["MUN_RES_5A"] = "001", ["001", ""]
     df["ENT_PAIS_ASI"], df["ENT_PAIS_TRAB"] = "", ["001", ""]
+    df["MUN_ASI"], df["MUN_TRAB"] = "", ["001", ""]                          # 7b
     df["DHSERSAL_ACCESO"], df["AFRODES"] = "", "3"
     return df
 
@@ -551,6 +566,7 @@ def test_derive_persons_7a():
         ENT_PAIS_RES_5A=["", "001", "001", "001", "014", "221", "998", "997"],
         MUN_RES_5A=["", "001", "005", "999", "", "", "", ""],
         ENT_PAIS_ASI=["", "001", "014", "221", "998", "997", "999", "536"],
+        MUN_ASI=["", "002", "", "", "", "", "", ""],                         # 7b
         MED_TRASLADO_ESC1=["", "03", "04", "06", "09", "01", "12", "99"],
         MED_TRASLADO_ESC2=["", "05", "", "", "", "08", "", ""],
         DHSERSAL1=["09", "09", "01", "99", "05", "06", "07", "08"],
@@ -566,6 +582,9 @@ def test_derive_persons_7a():
     assert list(out["ENT_PAIS_ASI_INEGI"]) == [                      # 536: Palaos (2020: 356)
         "Blanco por pase", "EstaEnt", "OtraEnt", "OtroPais", "OtroPais", "No especificado",
         "No especificado", "OtroPais"]
+    assert list(out["LUGAR_ASI"]) == [                                    # 7b: by municipality
+        "Blanco por pase", "Otro municipio", "Otra entidad", "Estados Unidos", "Otro país",
+        "No especificado", "No especificado", "Otro país"]
     assert out["ENT_PAIS_ASI_INEGI"].dtype == out["ENT_PAIS_RES_CAT"].dtype
     assert list(out["MED_TRASLADO_ESC_METRO_T"]) == [0, 1, 0, 0, 0, 0, 0, 0]   # 03 + 05: once
     assert list(out["MED_TRASLADO_ESC_BUS_T"]) == [0, 0, 1, 1, 0, 0, 0, 0]
@@ -588,11 +607,68 @@ def test_derive_persons_7a():
     # Censo 2020: the same codes, the own municipality under its raw name
     p20 = df.rename(columns={"CVE_ENT": "ENT", "CVE_MUN": "MUN"}).drop(
         columns=["DHSERSAL_ACCESO", "AFRODES"]).assign(
-        ENT_PAIS_ASI="001", ENT_PAIS_NAC="001", SITUA_CONYUGAL="3", RELIGION="1101",
-        IDENT_HIJO="")
+        ENT_PAIS_ASI="001", MUN_ASI="001", ENT_PAIS_NAC="001", SITUA_CONYUGAL="3",
+        RELIGION="1101", IDENT_HIJO="")
     out20 = d.derive(p20, "personas", "2020")
     assert list(out20["LUGAR_RES_5A"]) == list(out["LUGAR_RES_5A"])
     assert "HOG_AFRO" not in out20 and "DHSERSAL_AFIL_ACCESO" not in out20
+
+
+def test_derive_places_7b():
+    """7b: the places by the own municipality and entity in the EIC 2015 (residence in
+    2010, school, work: 2020's codes, un-padded entities) and Censo 2010 (residence in
+    2005 from its entity or country item; work from its one item holding both catalogs,
+    999 = the entity not specified, 900 = topic omitted, 700 «México (país)»); INEGI's
+    entity-level place as ``LUGAR_*`` without the municipality. The own entity without a
+    municipality raises."""
+    p15 = pd.concat([_persons_2015()] * 4, ignore_index=True).assign(
+        ID_VIV=[f"0100100{i:04d}" for i in range(8)], PARENT="1",
+        ENT_PAIS_RES10=["", "1", "1", "1", "14", "221", "998", "997"],
+        MUN_RES10=["", "001", "005", "999", "039", "", "", ""],
+        ENT_PAIS_ASI=["", "1", "1", "14", "221", "998", "997", "999"],
+        MUN_ASI=["", "001", "999", "", "", "", "", ""],
+        ENT_PAIS_TRAB=["999", "997", "998", "415", "221", "30", "1", "1"],
+        MUN_TRAB=["", "", "", "", "", "", "999", "002"])
+    out = d.derive(p15, "personas", 2015)
+    assert list(out["LUGAR_RES_5A"]) == [
+        "Blanco por pase", "Mismo municipio", "Otro municipio", "Municipio no especificado",
+        "Otra entidad", "Estados Unidos", "Otro país", "No especificado"]
+    assert list(out["LUGAR_ASI"]) == [
+        "Blanco por pase", "Mismo municipio", "Municipio no especificado", "Otra entidad",
+        "Estados Unidos", "Otro país", "No especificado", "No especificado"]
+    assert list(out["LUGAR_TRAB"]) == [
+        "No especificado", "No especificado", "Otro país", "Otro país", "Estados Unidos",
+        "Otra entidad", "Municipio no especificado", "Otro municipio"]
+    own = {"Mismo municipio", "Otro municipio", "Municipio no especificado"}
+    for place in ("ASI", "TRAB"):                                  # INEGI's, by entity
+        inegi = out[f"ENT_PAIS_{place}_INEGI"].astype(object)
+        lugar = out[f"LUGAR_{place}"].astype(object)
+        assert list(inegi) == [
+            "EstaEnt" if v in own else "OtraEnt" if v == "Otra entidad"
+            else "OtroPais" if v in ("Estados Unidos", "Otro país") else v for v in lugar]
+    for col in ("LUGAR_RES_5A", "LUGAR_ASI", "LUGAR_TRAB"):
+        assert out[col].dtype == d.derived_dtypes("personas", "2015")[col] == d._LUGAR_RES
+    p10 = pd.concat([_persons_2010()] * 3, ignore_index=True).assign(
+        ID_VIV=[f"{i:08d}" for i in range(9)], PARENT="01",
+        RES05EDO_C=["", "009", "009", "009", "021", "", "", "900", "999"],
+        RES05PAI_C=["", "", "", "", "", "221", "600", "", ""],
+        MUN05OTR_C=["", "002", "010", "999", "114", "", "", "", ""],
+        LTRABPAI_C=["009", "009", "009", "015", "221", "600", "700", "900", "999"],
+        LTRABMUN_C=["002", "005", "999", "033", "", "", "", "", ""])
+    out = d.derive(p10, "personas", 2010)
+    assert list(out["LUGAR_RES_5A"]) == [
+        "Blanco por pase", "Mismo municipio", "Otro municipio", "Municipio no especificado",
+        "Otra entidad", "Estados Unidos", "Otro país", "No especificado", "No especificado"]
+    assert list(out["LUGAR_TRAB"]) == [
+        "Mismo municipio", "Otro municipio", "Municipio no especificado", "Otra entidad",
+        "Estados Unidos", "Otro país", "No especificado", "No especificado", "No especificado"]
+    assert list(out["ENT_PAIS_TRAB_INEGI"]) == [
+        *["EstaEnt"] * 3, "OtraEnt", "OtroPais", "OtroPais", *["No especificado"] * 3]
+    assert "LUGAR_ASI" not in out and "ENT_PAIS_ASI_INEGI" not in out        # not asked
+    for frame, period, bad in ((p15, 2015, {"MUN_TRAB": ""}),
+                               (p10, 2010, {"LTRABMUN_C": ""})):
+        with pytest.raises(ValueError, match="LUGAR_TRAB"):
+            d.derive(frame.assign(**bad), "personas", period)
 
 
 def test_educ_inegi():
@@ -725,6 +801,9 @@ def _persons_2015() -> pd.DataFrame:
         "MED_TRASLADO_ESC3": ["", ""], "MED_TRASLADO_TRAB1": ["1", "6"],
         "MED_TRASLADO_TRAB2": ["3", ""], "MED_TRASLADO_TRAB3": ["", ""], "ENT": ["01", "01"],
         "ENT_PAIS_NAC": ["014", "221"], "ENT_PAIS_RES10": ["001", "997"],
+        # 7b: their municipality, the 2010 residence's and the places of school and work
+        "MUN": ["001", "001"], "MUN_RES10": ["005", ""], "ENT_PAIS_ASI": ["", ""],
+        "MUN_ASI": ["", ""], "ENT_PAIS_TRAB": ["001", ""], "MUN_TRAB": ["001", ""],
         "IDENT_MADRE": ["3", "98"], "IDENT_PADRE": ["97", "99"],
         "IDENT_PAREJA": ["98", ""], "OCUPACION_C": ["599", ""],
         "ACTIVIDADES_C": ["9399", ""],
@@ -755,6 +834,8 @@ def test_derive_persons_2015_recodes():
     assert "MED_TRASLADO_TRAB_Trolebús" not in out
     assert list(out["ENT_PAIS_NAC_CAT"]) == ["OtraEnt", "OtroPais"]
     assert list(out["ENT_PAIS_RES_CAT"]) == ["EstaEnt", "OtraEnt"]   # ENT_PAIS_RES10; 997
+    assert list(out["LUGAR_RES_5A"]) == ["Otro municipio", "No especificado"]     # 7b
+    assert list(out["LUGAR_TRAB"]) == ["Mismo municipio", "Blanco por pase"]
     assert list(out["IDENT_MADRE_CAT"]) == ["Vive en esta vivienda", "No sabe"]   # un-padded
     assert list(out["IDENT_PADRE_CAT"]) == ["Ya falleció", "No especificado"]
     assert list(out["IDENT_PAREJA_CAT"]) == ["No", "Blanco por pase"]  # 98: no sabe dónde
@@ -778,6 +859,10 @@ def _persons_2010() -> pd.DataFrame:
         "ESTCON": ["", "1", "4"], "DISCAP8": ["17", "", "99"], "ENT": ["09", "09", "09"],
         "LNACEDO_C": ["009", "", "999"], "LNACPAIS_C": ["", "221", ""],
         "RES05EDO_C": ["", "", "900"], "RES05PAI_C": ["", "600", ""],
+        # 7b: their municipality, the 2005 residence's and the place of work (the adult's
+        # entity not specified)
+        "MUN": ["002", "002", "002"], "MUN05OTR_C": ["", "", ""],
+        "LTRABPAI_C": ["", "999", ""], "LTRABMUN_C": ["", "", ""],
         "IDMADRE": ["02", "", "99"], "IDMADREC": ["", "88", "99"],
         "IDPADRE": ["99", "", ""], "IDPADREC": ["", "88", "88"],
         "IDCONYUGE": ["", "57", ""], "IDCONYUGEC": ["", "", ""],
@@ -811,6 +896,9 @@ def test_derive_persons_2010_recodes():
     assert list(out["ENT_PAIS_NAC_CAT"]) == ["EstaEnt", "OtroPais", "OtraEnt"]
     assert list(out["ENT_PAIS_NAC_INEGI"]) == ["EstaEnt", "OtroPais", "No especificado"]  # 6y
     assert list(out["ENT_PAIS_RES_CAT"]) == ["Blanco por pase", "OtroPais", "No especificado"]
+    assert list(out["LUGAR_RES_5A"]) == ["Blanco por pase", "Otro país", "No especificado"]
+    assert list(out["LUGAR_TRAB"]) == list(out["ENT_PAIS_TRAB_INEGI"]) == [         # 7b
+        "Blanco por pase", "No especificado", "Blanco por pase"]
     # pointer pairs: a row (above 54 too) → Sí, 88 → No, 99 code → NE; a row given as 99
     # (row not given) → NE, as INEGI's tabulado 12_01A (6q; 6e read it «lives here»)
     assert list(out["MADRE_EN_VIVIENDA"]) == ["Sí", "No", "No especificado"]
@@ -1846,6 +1934,54 @@ def test_migration_equals_tabulados(local_mirror, period, state, col):
     assert shares == pytest.approx(published, abs=1.5e-6 if period == "2015" else 1e-9)
     assert per.loc[per[item].eq(code), "FACTOR"].sum() == unspecified
     assert (per.loc[per[item].eq(code), col] == "OtraEnt").all()
+
+
+# 7b: INEGI's tabulados, «01 Aguascalientes», both sexes: the universe (the 5+; the
+# students 3+; the employed 12+) and its percentages — the same entity; as % of it, the same
+# municipality, another, not specified; another entity or country; not specified. Censo
+# 2010 ampliado «04_02A»/«08_15A_ESTATAL.xls» («Parámetro»); EIC 2015 «04_migracion.xls» 05,
+# «10_movilidad_cotidiana.xls» 01/04 («Valor», 6 decimals); Censo 2020 ampliado
+# «cpv2020_a_eum_10_movilidad_cotidiana.xlsx» 02/08. All 32 states, both sexes and the
+# nation: scripts/check_cpv_tabulados.py (STEP_7b.md).
+_PLACES_01 = {
+    ("2010", "LUGAR_RES_5A"): (1_057_013, (93.6432191467844, 98.4209266119834,
+                                           1.21698771798133, 0.36208567003528,
+                                           6.07627342331646, 0.28050742989915)),
+    ("2010", "LUGAR_TRAB"): (447_267, (96.5942043566818, 91.4983542961896, 6.69553785118764,
+                                       1.80610785262271, 2.46318194724851, 0.94261369606968)),
+    ("2015", "LUGAR_RES_5A"): (1_184_416, (95.233178, 98.164026, 1.821523, 0.014451,
+                                           4.484066, 0.282755)),
+    ("2015", "LUGAR_ASI"): (398_978, (97.1128733915153, 95.5306238853659, 4.43969555488451,
+                                      0.0296805597495477, 0.48223210302322, 2.40489450546145)),
+    ("2015", "LUGAR_TRAB"): (519_719, (97.4051362370819, 88.7293005394749, 11.1865484865664,
+                                       0.08415097395863, 1.96952583992503, 0.625337922993)),
+    ("2020", "LUGAR_ASI"): (410_833, (99.601298, 95.405613, 4.593653, 0.000733, 0.362434,
+                                      0.036268)),
+    ("2020", "LUGAR_TRAB"): (629_560, (98.415242, 89.949046, 10.032716, 0.018238, 1.571891,
+                                       0.012866)),
+}
+_YOUNGEST = {"LUGAR_RES_5A": 5, "LUGAR_ASI": 3, "LUGAR_TRAB": 12}
+
+
+@_REAL_SKIP
+@pytest.mark.parametrize("period,col", sorted(_PLACES_01))
+def test_places_equal_tabulados(local_mirror, period, col):
+    """The places by municipality (7b: Censo 2010's residence in 2005 and work from its
+    split items, the EIC 2015's residence in 2010, school and work, Censo 2020's school and
+    work) reproduce INEGI's tabulados; the persons of unspecified age, who answer the items,
+    are left out as there."""
+    per = mxcensus.load_cpv_personas(period, state=1, derived=True, labels=False)
+    place = per[col].astype(object)
+    keep = pd.to_numeric(per["EDAD"]).between(_YOUNGEST[col], 130) & place.ne("Blanco por pase")
+    w, place = per.loc[keep, "FACTOR"], place[keep]
+    total, published = _PLACES_01[period, col]
+    assert round(w.sum()) == total
+    own_cats = ["Mismo municipio", "Otro municipio", "Municipio no especificado"]
+    own = w[place.isin(own_cats)].sum()
+    shares = [100 * own / total, *(100 * w[place.eq(c)].sum() / own for c in own_cats),
+              100 * w[place.isin(["Otra entidad", "Estados Unidos", "Otro país"])].sum() / total,
+              100 * w[place.eq("No especificado")].sum() / total]
+    assert shares == pytest.approx(published, abs=1e-9 if period == "2010" else 1.5e-6)
 
 
 # EIC 2015 «14_vivienda.xls» sheet 18 («Valor», «01 Aguascalientes»): the owned dwellings
