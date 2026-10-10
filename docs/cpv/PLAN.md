@@ -49,6 +49,7 @@ unit.
 | **6s** | The household head's sex for 2000–2010 | 6r | ✅ done 2026-10-09 (`STEP_6s.md`): `load_cpv_viviendas(derived=True)` takes the head's `SEXO` from the person file (`cpv._attach_heads`; exactly one head per household in every state; 2005: the first household's head, user's choice) → derived `JEFE_SEXO`, so the legacy `HOGJEF_F`/`HOGJEF_M` apply (2000 35, 2005 23, 2010 28 dwelling constraints); = the ITER's female-headed share within 0.8/0.9/1.5 points in all 32 states |
 | **6t** | Persons by their household head's sex | 6s | ✅ done 2026-10-09 (`STEP_6t.md`): new derived `HOGJEF_SEXO` on the persons of 1995–2025 (user's name and editions; 1990 has no household), the head's `SEXO` within the person frame (`_HEAD_CODES`, `derive`'s household grouping, exactly one head per household in every state); `PHOGJEF_F`/`PHOGJEF_M` constraints 2000–2025 (2020 = the legacy set + 2): EIC 2025 exact in all 2,478 municipalities, the 2000–2020 ITER within their sample bands (2020's own dwelling item as far), the 2000/2015 household tabulados in `check_cpv_tabulados.py` |
 | **6u** | Relationship labels (1990–2000) and the Conteo 1995's catalogs | 6t | ✅ done 2026-10-09 (`STEP_6u.md`): 1990 `CVE_PAR` by `CATPAREN` where it has the code (synonyms joined), else by its first digit's group (user's choice: detail where documented; 107 codes, 54 labels); the Conteo 1995's catalog PDF read (`parse_catalogs_1995_text`): `P3_4`/`P9_15` (8 groups), the six place items (41 codes), `P7_4`/`P7_8`; 2000 `OTROPARE_C` by its FD's seven code groups (`_CODE_GROUPS`, `_label_code_groups`); 2000–2025 FD parses byte-identical, `--validate` 0/897 |
+| **6v** | The samples' universe: `POBHOG` and the Conteo 2005's households | 6u | ✅ done 2026-10-09 (`STEP_6v.md`): new CPV cell `POBHOG: {}` beside `POBTOT` (user's choice; 2000–2025): Censo 2020's weights = `POBHOG` in every state, the EIC 2025's = `POBHOG` = `POBTOT` in all 2,478 municipalities, 2000/2010's above `POBHOG` (0.07–8.9%, 0.06–3.0%) and within 1.2% of `POBTOT`; `load_cpv_hogares(2005, derived=True)` (`CLAVIVP_CAT` from the dwelling, `JEFE_SEXO` from its own head) and `cpv_constraints("hogares", 2005)` = `TOTHOG`/`HOGJEF_F`/`HOGJEF_M`, moved off the 2005 dwellings (user's choice; 23 → 20); female-headed share = the ITER's within 0.29 points (90th pct.; Colima 1.07) |
 
 The user asked (2026-10-08, afternoon) for all four post-6e candidates in one session, one
 unit each (6f–6i), with a local commit per unit; push, merge, version and upload wait for
@@ -63,6 +64,8 @@ merged into `main` together as 0.10.0 (2026-10-09).
 6u (relationship labels, HANDOFF candidate 4, widened by the user to 2000's `OTROPARE_C`
 and the 1995 place items) was agreed the same afternoon; the user had it committed and merged into `main` (no
 version bump, not pushed).
+6v (HANDOFF candidates 1 and 2 as one unit, the user's choice: the `POBHOG` total and the
+Conteo 2005's households) followed the same evening.
 
 ### Session protocol
 

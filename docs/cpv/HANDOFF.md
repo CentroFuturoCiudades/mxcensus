@@ -1,10 +1,10 @@
 # CPV family — session handoff
 
-**Status (2026-10-09, evening): units 0–6u are done. `main` = `cpv-integration` = v0.10.0
-+ 6u (relationship labels for 1990–2000 and the Conteo 1995's catalogs, agreed with the
-user): committed and merged into `main` locally at the user's request, **not pushed and no
-version bump** (v0.10.0 = 6s–6t, tagged and pushed; 0.9.0 = 6k–6r, §Review). No unit is
-queued.**
+**Status (2026-10-09, night): units 0–6v are done. `main` = v0.10.0 + 6u (merged
+locally, **not pushed, no version bump**; v0.10.0 = 6s–6t, tagged and pushed; 0.9.0 =
+6k–6r, §Review). `cpv-integration` = `main` + 6v (the `POBHOG` total and the Conteo 2005's
+households, agreed with the user): committed with the user's go-ahead, not merged, not
+pushed. No unit is queued.**
 - **Released** (registered, uploaded, verified): every edition 1990–2025 (897 `cpv_` files)
   and the Marco Geoestadístico 1995–2025 frames, incl. the EIC 2015's (6h); registry
   **4148** entries (`STEP_6b.md` §Release batch, `STEP_6h.md`).
@@ -98,8 +98,20 @@ queued.**
   `OTROPARE_C` gets its FD's seven code groups (`build_cpv._CODE_GROUPS`; «Jefe(a)» = the
   2,312,035 household rows). 2000–2025 FD parses byte-identical; `--validate` 0/897; full
   suite 1802 passed, 1 skipped (Mac).
+- **6v** (`STEP_6v.md`): the samples' universe (HANDOFF candidates 1 and 2, one unit).
+  - **`POBHOG`**: a new CPV person cell `POBHOG: {}` beside `POBTOT` (user's choice, not a
+    replacement), 2000–2025. The weights add up to `POBHOG` in Censo 2020 in every state.
+    The EIC 2025 has `POBHOG` = `POBTOT`, exact in all 2,478 municipalities. CGPV 2000's and
+    Censo 2010's weights match neither total: above `POBHOG` in every state (0.07–8.9%,
+    0.06–3.0%), within 1.2% of `POBTOT` (three 2010 states above it).
+  - **The Conteo 2005's households**: `load_cpv_hogares(2005, derived=True)` adds
+    `CLAVIVP_CAT` (from the dwelling file, `cpv._attach_dwellings`) and `JEFE_SEXO` (its own
+    head, `_attach_heads`). `cpv_constraints("hogares", 2005)` = `TOTHOG`/`HOGJEF_F`/
+    `HOGJEF_M`, which leave the 2005 dwellings (user's choice; 23 → 20).
+  - The female-headed share is within 0.087 points of the ITER at the median, 0.285 at the
+    90th percentile, 1.07 at most (Colima); 6s's dwelling version had 0.118/0.348/0.935.
 
-Design: [`PLAN.md`](PLAN.md). Recent units: [`STEP_6u.md`](STEP_6u.md), [`STEP_6t.md`](STEP_6t.md), [`STEP_6s.md`](STEP_6s.md), [`STEP_6r.md`](STEP_6r.md), [`STEP_6q.md`](STEP_6q.md), [`STEP_6p.md`](STEP_6p.md), [`STEP_6o.md`](STEP_6o.md), [`STEP_6n.md`](STEP_6n.md), [`STEP_6m.md`](STEP_6m.md), [`STEP_6l.md`](STEP_6l.md), [`STEP_6k.md`](STEP_6k.md), [`STEP_6j.md`](STEP_6j.md), [`STEP_6i.md`](STEP_6i.md), [`STEP_6h.md`](STEP_6h.md), [`STEP_6g.md`](STEP_6g.md), [`STEP_6f.md`](STEP_6f.md), [`STEP_6e.md`](STEP_6e.md),
+Design: [`PLAN.md`](PLAN.md). Recent units: [`STEP_6v.md`](STEP_6v.md), [`STEP_6u.md`](STEP_6u.md), [`STEP_6t.md`](STEP_6t.md), [`STEP_6s.md`](STEP_6s.md), [`STEP_6r.md`](STEP_6r.md), [`STEP_6q.md`](STEP_6q.md), [`STEP_6p.md`](STEP_6p.md), [`STEP_6o.md`](STEP_6o.md), [`STEP_6n.md`](STEP_6n.md), [`STEP_6m.md`](STEP_6m.md), [`STEP_6l.md`](STEP_6l.md), [`STEP_6k.md`](STEP_6k.md), [`STEP_6j.md`](STEP_6j.md), [`STEP_6i.md`](STEP_6i.md), [`STEP_6h.md`](STEP_6h.md), [`STEP_6g.md`](STEP_6g.md), [`STEP_6f.md`](STEP_6f.md), [`STEP_6e.md`](STEP_6e.md),
 [`STEP_6d.md`](STEP_6d.md),
 [`STEP_6c.md`](STEP_6c.md), [`STEP_6b.md`](STEP_6b.md), … [`STEP_0_probe.md`](STEP_0_probe.md).
 
@@ -108,13 +120,13 @@ files; the MG 2015 files were built on the Mac and copied to `wsl` for the uploa
 `wsl:~/mxcensus` was pulled to 6r on 2026-10-09 (the full suite ran there before the
 merge: 1773 passed, 1 h 50 min) and holds a copy of the Mac's tabulados cache
 (`data/dict/tabulados/`, without 6t's `2000/C2KHO04.xls` and `2015/12_hogares.xls`: the
-script fetches them). 6s, 6t and 6u ran on the Mac only.
+script fetches them). 6s, 6t, 6u and 6v ran on the Mac only.
 `wsl:~/mxcensus3c` (3c's code copy) can be deleted.
 
 ## Kickoff prompt for the next session
 
-> Continue the CPV census-family work in this repo (branch cpv-integration; main = v0.10.0
-> + 6u, merged). Read docs/cpv/HANDOFF.md first, then agree with me which next unit to
+> Continue the CPV census-family work in this repo (branch cpv-integration = main + 6v;
+> main = v0.10.0 + 6u, merged). Read docs/cpv/HANDOFF.md first, then agree with me which next unit to
 > take (candidates in HANDOFF §Next) before implementing it, following the session protocol
 > in docs/cpv/PLAN.md. Use .venv/bin/python, not uv run. Run wsl tasks without asking; ask
 > me before committing, pushing, installing packages or uploading.
@@ -150,24 +162,18 @@ and **kept all seven** (merged as 0.9.0):
 
 ## Next: candidates (none decided)
 
-1. **The Conteo 2005's households**: its dwelling rows count `TOTHOG`/`HOGJEF_*` as
-   dwellings (6s; its ITER counts households, +1.3% in Aguascalientes, the sample +2.7%); a
-   household-level constraint set on `load_cpv_hogares(2005)` (with the dwelling's class)
-   would count them exactly.
-2. **`POBHOG` as the person total**: the samples cover the household population (2020's
-   weights add up to `POBHOG` exactly, 2000's to 1.001–1.089 of it, 2010's 1.001–1.030),
-   while the legacy `POBTOT: {}` cell is matched to the ITER's `POBTOT`, which adds the
-   population of collective dwellings and without a dwelling. A `POBHOG` cell (2000–2025,
-   `PHOGJEF_F` + `PHOGJEF_M` in every ITER) would give the crosstabs the sample's own
-   universe: a design decision (the legacy set has `POBTOT` only).
-3. 2000's media superior and superior apart (`P18_CMEDSU`/`P18_CSUPER`): a finer derived
+1. 2000's media superior and superior apart (`P18_CMEDSU`/`P18_CSUPER`): a finer derived
    level (`EDUC_INEGI` merges them into «Posbásica»).
-4. Smaller: a 2000 occupation bridge (CMO → SINCO, no published table); income in minimum
+2. The population in indigenous households (`PHOG_IND` in the 2005–2020 ITER, `HOG_IND`/
+   `PHOG_IND` in the EIC 2025 estimates; INEGI: the head or the partner speaks an
+   indigenous language): a household-level derived flag on the persons, as `HOGJEF_SEXO`.
+3. Smaller: a 2000 occupation bridge (CMO → SINCO, no published table); income in minimum
    wages for 2000 (`P_1SM`…: three wage zones by municipality); a locality-level lineage
    (6a covered municipalities only); CGPV 1990's undocumented `TIP_HOGAR` 6 (96,370
    persons, all `N_F_GPOS` 99 and a 9xx relationship: a dwelling without its household
    composition; identity-labelled, `STEP_6u.md` §Left out).
-5. Push `main`/`cpv-integration` (6u) and a version bump, when the user wants them.
+4. Merge 6v into `main`, push `main`/`cpv-integration` (6u, 6v) and a version bump, when the
+   user wants them.
 
 ## Open questions for the user
 
@@ -422,6 +428,16 @@ None.
   code there (`_label_code_groups`: own catalog label, else the group's; a code outside the
   groups raises). Since 6u, CGPV 1990's catalog workbook joins a code's synonyms
   (`_catalog_from_rows`).
+- **Two person totals** (6v): `POBTOT: {}` (legacy) and `POBHOG: {}` (`_CELLS`), both
+  every sampled person. Censo 2020's weights = `POBHOG`, the EIC 2025's = both; 2000/2010's
+  match neither (above `POBHOG`, about `POBTOT`). A fit should use one of them, not both.
+- **The Conteo 2005's household indicators live on `hogares`** (6v):
+  `cpv_constraints("viviendas", 2005)` has no `TOTHOG`/`HOGJEF_*`
+  (`_HOUSEHOLD_INDICATORS`); `cpv_constraints("hogares", …)` raises outside 2005.
+  `load_cpv_hogares(2005, derived=True)` reads the dwelling file (`CLAVIVPA`,
+  `_DWELLING_FOR_HOUSEHOLDS`) and the person file (the head's `SEXO`). Both are
+  column-projected, and the helper columns are dropped after `derive`. The source-code test
+  maps borrowed sources to their files (`tests/test_cpv_derived._BORROWED`).
 - **The Conteo 1995 catalogs are a PDF** (6u, `_dict_fd.parse_catalogs_1995_text`, poppler):
   one stem per «CATÁLOGO DE …» section. The municipal and metropolitan-area sections are
   per-state tables, skipped (`_CAT95_SKIP`). An FD field without codes but with «Ver

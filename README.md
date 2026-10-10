@@ -145,6 +145,7 @@ raw = mxcensus.load_cpv(table="personas", state=1)          # faithful raw codes
 viv, per, mig = mxcensus.load_cpv_survey(2020, state=1)
 viv15, per15, _ = mxcensus.load_cpv_survey(2015, state=1)    # no emigrants in 2015
 hog05 = mxcensus.load_cpv_hogares(2005, state=1)            # the only household table
+hog05 = mxcensus.load_cpv_hogares(2005, state=1, derived=True)   # + CLAVIVP_CAT, JEFE_SEXO
 it = mxcensus.load_cpv(table="iter", period=2020, state=1, labels=True)  # '*'/'N/D' → NA
 
 # ITER/AGEB by level, on string keys (CVE_ENT, CVE_MUN, CVE_LOC[, CVE_AGEB, CVE_MZA])
@@ -244,6 +245,15 @@ Conteo 2005, whose dwellings can hold several households, it can differ from the
 dwelling's, which is its first household's head). So the constraints count the
 households and the population by the head's sex (`HOGJEF_F`/`HOGJEF_M`,
 `PHOGJEF_F`/`PHOGJEF_M`), and the EIC 2025 ones equal its estimates in every municipality.
+The Conteo 2005's dwelling rows are dwellings, while its ITER counts households, so its
+household constraints (`TOTHOG`, `HOGJEF_F`/`HOGJEF_M`) are counted on its household frame:
+`cpv_constraints("hogares", 2005)` on `load_cpv_hogares(2005, derived=True)`, which adds
+the dwelling's class and the household's own head's sex.
+The person sets carry two totals over every sampled person: the legacy `POBTOT` and
+`POBHOG`, the population in households, which is the samples' own universe. Censo 2020's
+weights add up to `POBHOG` exactly, and in the EIC 2025 the two totals are equal. The CGPV
+2000 and Censo 2010 weights add up to neither: they sit above `POBHOG` and within about
+1% of `POBTOT`.
 `cpv_constraints(table, period)` filters the census constraint sets (ITER indicator →
 microdata cells) to the indicators an edition publishes and can reproduce, for
 `get_tables_dict`; its education cells read `EDUC_INEGI`, so `P15PRI_CO` leaves out the

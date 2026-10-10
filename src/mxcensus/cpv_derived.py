@@ -97,7 +97,10 @@ reproduce, for :func:`mxcensus.crosstabs.get_tables_dict`, plus the indicators a
 publishes under its own definition (:data:`_EDITION_CELLS`: Censo 2010's limitation; the
 legacy cells on the 1990–2010 samples' own items; the 1990–2005 ITERs' own indicators) and
 the population by its household head's sex (``PHOGJEF_F``/``PHOGJEF_M`` on
-``HOGJEF_SEXO``, :data:`_CELLS`), which the legacy sets lack.
+``HOGJEF_SEXO``) and the population in households (``POBHOG``) (:data:`_CELLS`), which the
+legacy sets lack. The Conteo 2005's household indicators are counted on its household
+frame (``cpv_constraints("hogares", 2005)``; its dwelling rows are dwellings), whose
+``derived=True`` adds the dwelling's class and the household's own head's sex.
 """
 from __future__ import annotations
 
@@ -118,7 +121,7 @@ from mxcensus._resources import (
 )
 from mxcensus.utils import expand_cat_map
 
-TABLES = ("personas", "viviendas")
+TABLES = ("personas", "viviendas", "hogares")   # hogares: the Conteo 2005 (6v)
 
 # Edition → source item → {edition code: Censo 2020 code}. Codes not listed are the same;
 # ``_NA`` makes a code blank (CGPV 1990 writes 0 for «not asked»).
@@ -343,7 +346,8 @@ def _legacy_map(table: str, var: str) -> dict:
 
 @functools.cache
 def _legacy_dtypes(table: str) -> dict:
-    """The dtype each derived column has in the legacy loader's schema."""
+    """The dtype each derived column has in the legacy loader's schema (``hogares``, whose
+    columns are dwelling columns: ``extended_viviendas``'s)."""
     from mxcensus import extended_personas, extended_viviendas
 
     mod = extended_personas if table == "personas" else extended_viviendas
@@ -908,7 +912,7 @@ _EDUC = ("EDUC", "EDUC_INEGI")
 @functools.cache
 def _registry() -> tuple[_Derivation, ...]:
     D = _Derivation
-    per, viv = "personas", "viviendas"
+    per, viv, hog = "personas", "viviendas", "hogares"
     esc15, trab15 = _traslado_2015(_ESC[0]), _traslado_2015(_TRAB[0])
     fin15 = _financiamiento_2015()
     return (
@@ -993,6 +997,10 @@ def _registry() -> tuple[_Derivation, ...]:
         D(viv, ("CLAVIVP_CAT",), ("CLAVIVP",), ("1990", "2000", "2005", "2010", *_SINCE_2015),
           _cat(viv, "CLAVIVP", "CLAVIVP_CAT")),
         D(viv, ("JEFE_SEXO",), ("SEXO",), ("2000", "2005", "2010"), _jefe_sexo),  # the head's
+        # 6v: the Conteo 2005's households, their dwelling's class and their own head's sex
+        # (cpv._attach_dwellings, cpv._attach_heads), with the dwelling columns' labels
+        D(hog, ("CLAVIVP_CAT",), ("CLAVIVP",), ("2005",), _cat(viv, "CLAVIVP", "CLAVIVP_CAT")),
+        D(hog, ("JEFE_SEXO",), ("SEXO",), ("2005",), _jefe_sexo),
         D(viv, ("CUADORM_CAT",), ("CUADORM",), (*_OLDEST, *_EVERY),
           _cat(viv, "CUADORM", "CUADORM_CAT")),
         D(viv, ("TOTCUART_CAT",), ("TOTCUART",), (*_OLDEST, *_EVERY),
@@ -1179,8 +1187,12 @@ _CELL_VARS = {**DHSERSAL_RENAMES, "EDUC": "EDUC_INEGI"}
 
 # Indicators whose CPV cells replace the legacy ones (INEGI's disability definitions) or that
 # the legacy sets lack: the population by its household head's sex (6t; the 2000–2020 ITER,
-# the EIC 2025 estimates).
-_CELLS = {"personas": {"PCON_DISC": {"DISCAPACIDAD": ["Sí"]},
+# the EIC 2025 estimates) and the population in households (6v, ``POBHOG``: every person of
+# the sample, as ``POBTOT``; the samples cover the residents of private dwellings, which the
+# ITER's ``POBTOT`` exceeds by the population of collective dwellings and without a dwelling,
+# and in 2000 by the population counted without characteristics; see cpv_constraints).
+_CELLS = {"personas": {"POBHOG": {},
+                       "PCON_DISC": {"DISCAPACIDAD": ["Sí"]},
                        "PCON_LIMI": {"LIMITACION": ["Sí"]},
                        "PSIND_LIM": {"SIN_DISC_LIM": ["Sí"]},
                        "PHOGJEF_F": {"HOGJEF_SEXO": ["Mujer"]},
@@ -1442,10 +1454,21 @@ _EDITION_CELLS = {
 }
 
 
+# The household indicators of the legacy dwelling set. A dwelling is a household from 2010
+# on, and CGPV 2000's dwelling rows are its households, but the Conteo 2005's dwelling file
+# has one row per dwelling (its ITER counts households: +1.3% in Aguascalientes), so in an
+# edition with a household table they are counted on it (6v).
+_HOUSEHOLD_INDICATORS = ("TOTHOG", "HOGJEF_F", "HOGJEF_M")
+
+
 @functools.cache
 def _cpv_constraints(table: str) -> dict:
     """The legacy constraints in the CPV vocabulary: neutral DHSERSAL names, ``EDUC_INEGI``
-    for ``EDUC`` (:data:`_CELL_VARS`), FD labels, INEGI's disability flags (:data:`_CELLS`)."""
+    for ``EDUC`` (:data:`_CELL_VARS`), FD labels, INEGI's disability flags (:data:`_CELLS`);
+    ``hogares``: the dwelling set's :data:`_HOUSEHOLD_INDICATORS`."""
+    if table == "hogares":
+        dwellings = _cpv_constraints("viviendas")
+        return {ind: dwellings[ind] for ind in _HOUSEHOLD_INDICATORS}
     relabel = _relabels(table)
     out = {}
     for ind, cells in _base_constraints(table).items():
@@ -1519,8 +1542,9 @@ def cpv_constraints(table: str, period: str | int) -> dict:
     ``DHSERSAL_*`` names, the Censo 2020 dictionary's labels, ``PCON_DISC``/``PCON_LIMI``/
     ``PSIND_LIM`` on INEGI's ``DISCAPACIDAD``/``LIMITACION``/``SIN_DISC_LIM`` flags, the
     education indicators on ``EDUC_INEGI`` (INEGI's primaria completa leaves out the técnica
-    studies after primaria), and the population by its household head's sex
-    (``PHOGJEF_F``/``PHOGJEF_M`` on ``HOGJEF_SEXO``) — keeping the indicators that
+    studies after primaria), the population by its household head's sex
+    (``PHOGJEF_F``/``PHOGJEF_M`` on ``HOGJEF_SEXO``) and the population in households
+    (``POBHOG``: every person, as ``POBTOT``) — keeping the indicators that
     (1) the edition publishes (its ITER, through ``cpv_iter_crosswalk`` — for 2010 only
     the indicators comparable with 2020's —; the EIC 2025's national estimates) and (2)
     whose variables and
@@ -1532,11 +1556,34 @@ def cpv_constraints(table: str, period: str | int) -> dict:
     water, sanitary service, goods, with each dictionary's labels) are added when it
     publishes the indicator. Feed the
     result and the frame's dtypes to :func:`mxcensus.get_tables_dict`.
+
+    ``table`` is ``personas``, ``viviendas`` or, for the Conteo 2005, ``hogares``: its
+    dwelling file has one row per dwelling, so the household indicators (``TOTHOG``,
+    ``HOGJEF_F``/``HOGJEF_M``) are counted on ``load_cpv_hogares(2005, derived=True)``
+    instead of the dwellings.
+
+    The person sets hold two totals, both every person of the sample: ``POBTOT`` (the
+    ITER's, which adds the population of collective dwellings and without a dwelling) and
+    ``POBHOG`` (the population in households, the samples' universe). The weights add up to
+    ``POBHOG`` in Censo 2020 in every state (the EIC 2025 publishes ``POBHOG`` = ``POBTOT``,
+    and its weights equal both in every municipality). CGPV 2000's and Censo 2010's add up
+    to neither: they are above ``POBHOG`` in every state (2000 by 0.07–8.9%, most where the
+    census counted a population without characteristics, which its ``POBTOT`` includes and
+    its ``POBHOG`` leaves out; 2010 by 0.06–3.0%) and within 1.2% of ``POBTOT`` (below it,
+    except three 2010 states, up to 0.9% above).
     """
+    from mxcensus.data._cpv_catalog import get_edition
+
     period = str(period)
+    households = get_edition(period).has("hogares")
+    if table == "hogares" and not households:
+        raise ValueError(f"CPV hogares: only the Conteo 2005 has a household table, not "
+                         f"{period}")
     own = _EDITION_CELLS.get((table, period), {})
     published = _aggregate_indicators(period) | (
         own.keys() & _aggregate_indicators(period, comparable=False))
+    if table == "viviendas" and households:           # counted on the households (6v)
+        published -= set(_HOUSEHOLD_INDICATORS)
     cats = _categories(table, period)
     return {ind: cells for ind, cells in {**_cpv_constraints(table), **own}.items()
             if ind in published
