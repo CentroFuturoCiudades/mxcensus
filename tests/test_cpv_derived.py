@@ -138,13 +138,16 @@ _NO_CATALOG = {("2000", "INGTRMEN"), ("2000", "HORTRA"), ("2000", "ENT_PAIS_NAC"
 _LATER_OPTIONS = {*d._ESC[1:], *d._TRAB[1:]}      # list fewer codes (options are ordered)
 # Numeric in 2010/2015, categorical in 2020 (same values; the pointers: row numbers).
 _NUMERIC_CODES = {"ESCOLARI", "IDENT_MADRE", "IDENT_PADRE", "IDENT_PAREJA"}
-# Sources a loader brings from another file → (that file's table, the 2020 dwelling item
-# they reproduce): the household head's sex from the person file (cpv._attach_heads; 6s
-# dwellings, 6v the Conteo 2005's households) and the 2005 household's dwelling class
-# (cpv._attach_dwellings, 6v).
-_BORROWED = {("viviendas", "SEXO"): ("personas", "JEFE_SEXO"),
-             ("hogares", "SEXO"): ("personas", "JEFE_SEXO"),
-             ("hogares", "CLAVIVP"): ("viviendas", "CLAVIVP")}
+# Sources a loader brings from another file → (that file's table, the 2020 table and item
+# they are compared with): the household head's sex from the person file (cpv._attach_heads;
+# 6s dwellings, 6v the Conteo 2005's households: 2020's dwelling item JEFE_SEXO), the 2005
+# household's dwelling class (cpv._attach_dwellings, 6v) and the household members' items
+# (cpv._household_members, 6x: HOG_IND on the dwellings and the 2005 households).
+_BORROWED = {("viviendas", "SEXO"): ("personas", "viviendas", "JEFE_SEXO"),
+             ("hogares", "SEXO"): ("personas", "viviendas", "JEFE_SEXO"),
+             ("hogares", "CLAVIVP"): ("viviendas", "viviendas", "CLAVIVP"),
+             **{(table, item): ("personas", "personas", item)
+                for table in ("viviendas", "hogares") for item in ("PARENTESCO", "HLENGUA")}}
 
 
 # 6w: the labels of the relationship codes (other than the head's) whose language makes a
@@ -162,8 +165,11 @@ def test_source_codes_match_2020(table, period, source):
     otherwise: 1990 ``ANO_CUMP``, 1995 ``P3_6``); 1990/1995 dwellings: the person file's, as
     the household head's sex (6s), compared with 2020's ``JEFE_SEXO``; the Conteo 2005's
     households: their dwelling's class and head's sex (6v), compared with 2020's dwelling
-    items."""
-    source_table, ref_name = _BORROWED.get((table, source), (table, source))
+    items; the dwellings' and the 2005 households' indigenous household (6x): the person
+    items of their members."""
+    ref_table = "viviendas" if table == "hogares" else table       # 2020 has no hogares
+    source_table, ref_table, ref_name = _BORROWED.get((table, source),
+                                                      (table, ref_table, source))
     group_table, gid, columns = d._frame_group(source_table, period)
     labels = variables_cpv_labels(group_table, gid)
     name = next(a for a in d._ALIASES.get(source, (source,))
@@ -188,7 +194,6 @@ def test_source_codes_match_2020(table, period, source):
         assert codes <= own if source in _LATER_OPTIONS else codes == own
         assert tipo != "string" or new.get("Catálogo") or (period, source) in _NO_CATALOG
         return
-    ref_table = "viviendas" if table == "hogares" else table       # 2020 has no hogares
     ref = variables_cpv_labels(ref_table, _gid(ref_table, "2020"))[ref_name]
     expand = source in _NUMERIC_CODES
     tipo, codes = _codes(new, numeric_range=expand)
@@ -303,7 +308,7 @@ def test_cpv_derivations_listing():
     assert set(full.columns) == {"TABLE", "COLUMN", "SOURCES", "PERIODS"}
     assert not full.duplicated(["TABLE", "COLUMN", "PERIODS"]).any()
     for period in ("2010", "2015", "2020", "2025"):             # once per edition
-        assert mxcensus.cpv_derivations(period=period)["COLUMN"].is_unique
+        assert not mxcensus.cpv_derivations(period=period).duplicated(["TABLE", "COLUMN"]).any()
     p25 = set(mxcensus.cpv_derivations("personas", 2025)["COLUMN"])
     p20 = set(mxcensus.cpv_derivations("personas", 2020)["COLUMN"])
     assert p20 - p25 == {"RELIGION_CAT", "IDENT_HIJO_CAT"}       # 2025 lacks the items
@@ -331,13 +336,15 @@ def test_cpv_derivations_listing():
         "EDAD_CAT", "INGTRMEN_CAT", "HORTRA_CAT", *educ, "CONACT_CAT", "SITUA_CONYUGAL_CAT",
         "LIM_ACTIVIDAD", "RELIGION_CAT", *migration, *coresidence, *dhsersal, *coarse, *head,
         *ind}
-    assert set(mxcensus.cpv_derivations("viviendas", 2010)["COLUMN"]) == {       # 6n, 6s
-        "CLAVIVP_CAT", "CUADORM_CAT", "TOTCUART_CAT", "DRENAJE_CAT", "INGTRHOG_CAT", "JEFE_SEXO"}
+    assert set(mxcensus.cpv_derivations("viviendas", 2010)["COLUMN"]) == {   # 6n, 6s, 6x
+        "CLAVIVP_CAT", "CUADORM_CAT", "TOTCUART_CAT", "DRENAJE_CAT", "INGTRHOG_CAT", "JEFE_SEXO",
+        *ind}
     v15 = set(mxcensus.cpv_derivations("viviendas", 2015)["COLUMN"])
     assert v15 == {"CLAVIVP_CAT", "CUADORM_CAT", "TOTCUART_CAT", "DRENAJE_CAT", "INGTRHOG_CAT",
-                   *(f"FINANCIAMIENTO_{v}" for v in d._financiamiento_2015().values())}
+                   *(f"FINANCIAMIENTO_{v}" for v in d._financiamiento_2015().values()), *ind}
     v20 = set(mxcensus.cpv_derivations("viviendas", 2020)["COLUMN"])
     assert {"FINANCIAMIENTO_Banco", "FINANCIAMIENTO_FONHAPO"} <= v15 & v20
+    assert ind <= v20 & set(mxcensus.cpv_derivations("viviendas", 2025)["COLUMN"])   # 6x
     dhs2000 = {"DHSERSAL_IMSS", "DHSERSAL_ISSSTE", "DHSERSAL_P_D_M", "DHSERSAL_Otro",
                "DHSERSAL_No afiliado", "DHSERSAL_PUB", "DHSERSAL_AFIL"}
     assert set(mxcensus.cpv_derivations("personas", 2000)["COLUMN"]) == {     # 6i
@@ -347,14 +354,23 @@ def test_cpv_derivations_listing():
         "EDAD_CAT", *educ, "ENT_PAIS_RES_CAT", *dhs2000, "DHSERSAL_ISSSTE_E",
         "DHSERSAL_SALUD_PUBLICA", "DHSERSAL_Privado", *head, *ind}
     assert set(mxcensus.cpv_derivations("viviendas", 2000)["COLUMN"]) == {
-        "CLAVIVP_CAT", "CUADORM_CAT", "TOTCUART_CAT", "DRENAJE_CAT", "INGTRHOG_CAT", "JEFE_SEXO"}
+        "CLAVIVP_CAT", "CUADORM_CAT", "TOTCUART_CAT", "DRENAJE_CAT", "INGTRHOG_CAT", "JEFE_SEXO",
+        *ind}                                       # 6x: its dwelling rows are households
     assert set(mxcensus.cpv_derivations("viviendas", 2005)["COLUMN"]) == {
         "CLAVIVP_CAT", "CUADORM_CAT", "TOTCUART_CAT", "DRENAJE_CAT", "JEFE_SEXO"}
-    # 6v: the Conteo 2005's households (the only household table)
+    # 6v: the Conteo 2005's households (the only household table); 6x: HOG_IND there
     hog = mxcensus.cpv_derivations("hogares")
-    assert set(hog["COLUMN"]) == {"CLAVIVP_CAT", "JEFE_SEXO"} and set(hog["PERIODS"]) == {"2005"}
+    assert set(hog["COLUMN"]) == {"CLAVIVP_CAT", "JEFE_SEXO", *ind}
+    assert set(hog["PERIODS"]) == {"2005"}
     assert d.derived_dtypes("hogares", "2005") == {
-        c: d.derived_dtypes("viviendas", "2005")[c] for c in ("CLAVIVP_CAT", "JEFE_SEXO")}
+        **{c: d.derived_dtypes("viviendas", "2005")[c] for c in ("CLAVIVP_CAT", "JEFE_SEXO")},
+        "HOG_IND": d.derived_dtypes("personas", "2005")["HOG_IND"]}
+    # 6x: the household's HOG_IND, read from the members' person items
+    members = full[full["COLUMN"].eq("HOG_IND") & full["TABLE"].ne("personas")]
+    assert set(members["SOURCES"]) == {"PARENTESCO, HLENGUA"}
+    assert {p for ps in members["PERIODS"] for p in ps.split(", ")} == set(d._IND_CODES)
+    assert d._member_sources("viviendas", "2025") == ("PARENTESCO", "HLENGUA")
+    assert d._member_sources("viviendas", "2005") == d._member_sources("personas", "2025") == ()
     # 6s: 2020/2025 publish JEFE_SEXO as a dwelling item, 1990/1995 no household indicator
     assert all("JEFE_SEXO" not in set(mxcensus.cpv_derivations("viviendas", p)["COLUMN"])
                for p in (1990, 1995, 2015, 2020, 2025))
@@ -368,7 +384,7 @@ def test_cpv_derivations_listing():
     assert set(mxcensus.cpv_derivations("viviendas", 1995)["COLUMN"]) == {
         "CUADORM_CAT", "TOTCUART_CAT", "DRENAJE_CAT"}
     for period in ("1990", "1995"):
-        assert mxcensus.cpv_derivations(period=period)["COLUMN"].is_unique
+        assert not mxcensus.cpv_derivations(period=period).duplicated(["TABLE", "COLUMN"]).any()
     assert mxcensus.cpv_derivations("personas", 1980).empty
     with pytest.raises(ValueError, match="migrantes"):
         d.derived_dtypes("migrantes", "2025")
@@ -406,6 +422,30 @@ def _persons_2025() -> pd.DataFrame:
 def _each_a_household(df: pd.DataFrame) -> pd.DataFrame:
     """Every row its own dwelling and its head (2020/2025 rows replicated for item tests)."""
     return df.assign(ID_VIV=[f"0100{i:08d}" for i in range(len(df))], PARENTESCO="101")
+
+
+# 6x: a head who speaks no indigenous language, in each edition's codes
+_HEAD_ALONE = {"2000": {"OTROPARE_C": "100", "HLENGUA": "2"},
+               "2010": {"PARENT": "01", "HLENGUA": "3"}, "2015": {"PARENT": "1", "HLENGUA": "3"},
+               "2020": {"PARENTESCO": "101", "HLENGUA": "3"},
+               "2025": {"PARENTESCO": "101", "HLENGUA": "3"}}
+
+
+def _derive_dwellings(frame: pd.DataFrame, period: str) -> pd.DataFrame:
+    """``derive`` on a synthetic dwelling frame: one dwelling (2000: household) per row,
+    whose members (6x, ``derive(members=)``) are one head who speaks no indigenous language
+    (``HOG_IND`` «No»)."""
+    if not d._member_sources("viviendas", period):
+        return d.derive(frame, "viviendas", period)
+    n = len(frame)
+    keys = {"ENT": "01", "MUN": "001", "LOC": "0001", "NUMVIV": [f"{i:06d}" for i in range(n)],
+            "NUMHOG": "1"} if period == "2000" else \
+        {"ENT": "01", "ID_VIV": [f"{i:08d}" for i in range(n)]}
+    keyed = frame.assign(**keys)
+    out = d.derive(keyed, "viviendas", period,
+                   members=keyed[list(keys)].assign(**_HEAD_ALONE[period]))
+    assert out["HOG_IND"].eq("No").all()
+    return out
 
 
 def test_derive_persons_2025_recodes():
@@ -543,7 +583,7 @@ def test_derive_dwellings_and_older_editions():
     viv = pd.DataFrame({"CLAVIVP": ["1", "7"], "CUADORM": ["1", "03"], "TOTCUART": ["2", "99"],
                         "DRENAJE": ["5", ""], "INGTRHOG": ["0", "999999"],
                         "FINANCIAMIENTO": ["1", ""]}, dtype="str")
-    out = d.derive(viv, "viviendas", 2015)
+    out = _derive_dwellings(viv, "2015")
     assert list(out["CLAVIVP_CAT"]) == ["Vivienda", "Otro"]
     assert list(out["CUADORM_CAT"]) == ["1", "2+"]
     assert list(out["TOTCUART_CAT"]) == ["2", "No especificado"]
@@ -557,10 +597,10 @@ def test_derive_dwellings_and_older_editions():
         assert out[col].dtype == dtype, col
     # 6n: 2010's classes are 2000's (5 local, 6 móvil, 7 refugio = «Otro», 9 not specified)
     v10 = viv.drop(columns=["FINANCIAMIENTO"]).assign(SEXO=["1", "3"])   # 6s: the head's
-    out10 = d.derive(v10.assign(CLAVIVP=["4", "5"]), "viviendas", 2010)
+    out10 = _derive_dwellings(v10.assign(CLAVIVP=["4", "5"]), "2010")
     assert list(out10["CLAVIVP_CAT"]) == ["Vivienda", "Otro"]
-    assert list(d.derive(v10.assign(CLAVIVP=["9", "7"]),
-                         "viviendas", 2010)["CLAVIVP_CAT"]) == ["Vivienda", "Otro"]
+    assert list(_derive_dwellings(v10.assign(CLAVIVP=["9", "7"]), "2010")["CLAVIVP_CAT"]) \
+        == ["Vivienda", "Otro"]
 
 
 def _persons_2015() -> pd.DataFrame:
@@ -773,7 +813,7 @@ def test_derive_dwellings_2000_2005():
     v00 = pd.DataFrame({"CLAVIV": ["01", "05"], "CUADORM": ["01", "99"], "TOTCUART": ["26", "01"],
                         "DRENAJE": ["5", "9"], "INGTRHOG": ["000000", "999999"],
                         "SEXO": ["1", "2"]}, dtype="str")                # 6s: the head's
-    out = d.derive(v00, "viviendas", 2000)
+    out = _derive_dwellings(v00, "2000")
     assert list(out["CLAVIVP_CAT"]) == ["Vivienda", "Otro"]          # 05 local no construido
     assert list(out["TOTCUART_CAT"]) == ["3+", "1"] and list(out["CUADORM_CAT"]) == ["1", "No especificado"]
     assert list(out["DRENAJE_CAT"]) == ["No", "No especificado"]
@@ -799,14 +839,14 @@ def test_derive_jefe_sexo():
     for period, frame, sexes in (("2000", v00, ["Hombre", "Mujer"]),
                                  ("2005", v05, ["Mujer", "Hombre"]),
                                  ("2010", v10, ["Mujer", "Hombre"])):
-        out = d.derive(frame, "viviendas", period)
+        out = _derive_dwellings(frame, period)
         assert list(out["JEFE_SEXO"]) == sexes
         assert out["JEFE_SEXO"].dtype == d.derived_dtypes("viviendas", period)["JEFE_SEXO"]
     assert list(d.derived_dtypes("viviendas", "2010")["JEFE_SEXO"].categories) == ["Hombre", "Mujer"]
     with pytest.raises(ValueError, match="JEFE_SEXO"):
-        d.derive(v10.assign(SEXO=["2", "1"]), "viviendas", 2010)        # 2010 has no code 2
+        _derive_dwellings(v10.assign(SEXO=["2", "1"]), "2010")      # 2010 has no code 2
     with pytest.raises(ValueError, match="needs 'SEXO'"):
-        d.derive(v10.drop(columns="SEXO"), "viviendas", 2010)
+        _derive_dwellings(v10.drop(columns="SEXO"), "2010")
 
 
 def test_attach_heads(monkeypatch, tmp_path):
@@ -877,7 +917,8 @@ def test_load_hogares_derived(monkeypatch, tmp_path):
     write("personas", pd.DataFrame({
         "ENT": ["01"] * 4, "MUN": ["001"] * 4, "CONS_MUN": ["000001"] * 3 + ["000002"],
         "CONS_HOG": ["01", "01", "02", "01"], "PARENT": ["201", "101", "102", "101"],
-        "SEXO": ["1", "2", "1", "1"]}))
+        "SEXO": ["1", "2", "1", "1"],
+        "HABLENIN": ["1", "2", "2", "9"]}))           # 6x: the first household's partner
     dwellings = pd.DataFrame({"ENT": ["01", "01"], "MUN": ["001", "001"],
                               "CONS_MUN": ["000001", "000002"], "CLAVIVPA": ["1", "7"]})
     write("viviendas", dwellings)
@@ -886,13 +927,15 @@ def test_load_hogares_derived(monkeypatch, tmp_path):
     h = h.sort_index()
     assert list(h["JEFE_SEXO"]) == ["Mujer", "Hombre", "Hombre"]
     assert list(h["CLAVIVP_CAT"]) == ["Vivienda", "Vivienda", "Otro"]          # 7 refugio
-    assert "SEXO" not in h and "CLAVIVPA" not in h
+    assert list(h["HOG_IND"]) == ["Sí", "No", "No"]       # 6x: over its own members only
+    assert "SEXO" not in h and "CLAVIVPA" not in h and "HABLENIN" not in h
     for col, dtype in d.derived_dtypes("hogares", "2005").items():
         assert h[col].dtype == dtype
     assert str(h["TICLAHOG"].iloc[0]) == "Familiar nuclear"                      # labelled
     hh = mxcensus.load_cpv_hogares(2005, state=1, derived=True, harmonize=True, labels=False)
     assert hh.index.equals(mxcensus.load_cpv_hogares(2005, state=1).index)
     assert list(hh.sort_index()["JEFE_SEXO"]) == list(h["JEFE_SEXO"])
+    assert list(hh.sort_index()["HOG_IND"]) == list(h["HOG_IND"])                 # 6x
     tables = mxcensus.get_tables_dict(mxcensus.cpv_constraints("hogares", 2005), h.dtypes)
     assert set(tables) == {frozenset({"CLAVIVP_CAT"}), frozenset({"CLAVIVP_CAT", "JEFE_SEXO"})}
     write("viviendas", dwellings.iloc[:1])
@@ -969,6 +1012,100 @@ def test_derive_hog_ind():
         assert "HOG_IND" not in d.derived_dtypes("personas", period)
     with pytest.raises(ValueError, match="HOG_IND"):
         d.derive(_persons_2010().assign(HLENGUA=["1", "7", "9"]), "personas", 2010)
+
+
+def test_derive_hog_ind_households():
+    """6x: the household's ``HOG_IND`` on its record — the dwelling (CGPV 2000: one row per
+    household; 2010–2025: one household per dwelling) or the Conteo 2005's household —
+    computed over its members (``derive(members=)``, the person rows: 6w's rule and codes),
+    matched on the entity and the household key whatever their zero padding. A record
+    without members raises, and so do a frame without them and an unknown language code."""
+    def dwellings(n: int, **cols) -> pd.DataFrame:
+        return pd.DataFrame({"CLAVIVP": ["1"] * n, "CUADORM": ["1"] * n, "TOTCUART": ["2"] * n,
+                             "DRENAJE": ["1"] * n, "INGTRHOG": ["0"] * n, **cols}, dtype="str")
+
+    fin = {f"FINANCIAMIENTO{i}": [""] for i in (1, 2, 3)}
+    v25 = dwellings(1, **fin, CVE_ENT=["01"], ID_VIV=["010010000001"])
+    grandparent = _persons_2025().assign(PARENTESCO=["101", "406"])    # the grandparent speaks
+    out = d.derive(v25, "viviendas", 2025, members=grandparent)
+    assert list(out["HOG_IND"]) == ["Sí"]
+    assert out["HOG_IND"].dtype == d._SI_NO == d.derived_dtypes("viviendas", "2025")["HOG_IND"]
+    assert list(d.derive(v25, "viviendas", 2025, members=_persons_2025())["HOG_IND"]) == ["No"]
+    v20 = v25.rename(columns={"CVE_ENT": "ENT"})
+    p20 = grandparent.rename(columns={"CVE_ENT": "ENT"})
+    assert list(d.derive(v20, "viviendas", 2020, members=p20)["HOG_IND"]) == ["No"]     # 2020
+    assert list(d.derive(v20, "viviendas", 2020, members=p20.assign(PARENTESCO=["101", "416"]))
+                ["HOG_IND"]) == ["Sí"]                                     # a parent-in-law
+    # EIC 2015: the members' raw keys without the leading zeros, a harmonized dwelling with
+    v15 = dwellings(1, FINANCIAMIENTO=[""], CVE_ENT=["01"], ID_VIV=["010010000001"])
+    p15 = _persons_2015().assign(ENT="1", ID_VIV="10010000001")
+    assert list(d.derive(v15, "viviendas", 2015, members=p15)["HOG_IND"]) == ["Sí"]  # the wife
+    # Censo 2010: state-scoped serials, the entity tells the households apart
+    v10 = dwellings(3, SEXO=["1", "3", "1"], ENT=["09", "09", "10"],
+                    ID_VIV=["00000002", "00000001", "00000001"])
+    p10 = pd.concat([_persons_2010(), _persons_2010().assign(ENT="10", HLENGUA=["3", "3", "3"])],
+                    ignore_index=True)
+    assert list(d.derive(v10, "viviendas", 2010, members=p10)["HOG_IND"]) == ["No", "Sí", "No"]
+    # CGPV 2000: the dwelling rows are households (the composite keys from the parts)
+    v00 = pd.DataFrame({"CLAVIV": ["01", "01"], "CUADORM": ["01", "01"],
+                        "TOTCUART": ["02", "02"], "DRENAJE": ["1", "1"],
+                        "INGTRHOG": ["000100", "000100"], "SEXO": ["1", "1"], "ENT": ["01"] * 2,
+                        "MUN": ["001"] * 2, "LOC": ["0001"] * 2, "NUMVIV": ["000001"] * 2,
+                        "NUMHOG": ["2", "1"]}, dtype="str")
+    assert list(d.derive(v00, "viviendas", 2000, members=_persons_2000())["HOG_IND"]) == [
+        "No", "Sí"]
+    # the Conteo 2005: on the households (its dwelling rows are dwellings: no HOG_IND)
+    h05 = pd.DataFrame({"CLAVIVPA": ["1", "1"], "SEXO": ["2", "1"], "ENT": ["09"] * 2,
+                        "MUN": ["002"] * 2, "CONS_MUN": ["000001"] * 2,
+                        "CONS_HOG": ["01", "02"]}, dtype="str")
+    out = d.derive(h05, "hogares", 2005, members=_persons_2005())
+    assert list(out["HOG_IND"]) == ["Sí", "No"]
+    assert out["HOG_IND"].dtype == d.derived_dtypes("hogares", "2005")["HOG_IND"]
+    assert "HOG_IND" not in d.derived_dtypes("viviendas", "2005")
+    for period in ("1990", "1995"):
+        assert "HOG_IND" not in d.derived_dtypes("viviendas", period)
+    with pytest.raises(ValueError, match="members="):
+        d.derive(v25, "viviendas", 2025)
+    with pytest.raises(ValueError, match="records without members"):
+        d.derive(v25.assign(ID_VIV="010010000009"), "viviendas", 2025, members=grandparent)
+    with pytest.raises(ValueError, match="HOG_IND"):
+        d.derive(v25, "viviendas", 2025, members=grandparent.assign(HLENGUA=["1", "7"]))
+    with pytest.raises(ValueError, match="needs 'HLENGUA', absent from the members"):
+        d.derive(v25, "viviendas", 2025, members=grandparent.drop(columns="HLENGUA"))
+
+
+def test_household_members(monkeypatch, tmp_path):
+    """6x: ``cpv._household_members`` reads the members' person items under the edition's
+    names (2010: ``PARENT``, though the file also has ``OTROPARE_C``; 2005: ``HABLENIN``) and
+    their household key, keyed like the frame: 2000/2005 composite keys, 2010's national
+    ``ID_VIV`` under ``harmonize``, the EIC 2025's ``CVE_ENT``."""
+    from mxcensus import cpv
+    from mxcensus.data import _registry
+
+    files = {}
+    monkeypatch.setattr(_registry.POOCH, "fetch", lambda fname, **_: str(files[fname]))
+
+    def persons(period, frame):
+        name = cpv.cpv_filename("personas", period, 1)
+        files[name] = tmp_path / name
+        frame.astype("string").to_parquet(files[name])
+
+    sources = d._member_sources("viviendas", "2025")
+    persons("2010", pd.DataFrame({"ENT": ["01"] * 2, "ID_VIV": ["00000001"] * 2,
+                                  "PARENT": ["01", "03"], "OTROPARE_C": ["101", "301"],
+                                  "HLENGUA": ["1", "3"], "SEXO": ["1", "3"]}))
+    m10 = cpv._household_members("2010", 1, False, sources)
+    assert list(m10.columns) == ["ENT", "ID_VIV", "PARENT", "HLENGUA"]
+    assert list(cpv._household_members("2010", 1, True, sources)["ID_VIV"]) == ["010000000001"] * 2
+    persons("2025", pd.DataFrame({"CVE_ENT": ["01"], "ID_VIV": ["010010000001"],
+                                  "PARENTESCO": ["101"], "HLENGUA": ["1"]}))
+    assert list(cpv._household_members("2025", 1, False, sources).columns) == [
+        "CVE_ENT", "ID_VIV", "PARENTESCO", "HLENGUA"]
+    persons("2005", _persons_2005())
+    m05 = cpv._household_members("2005", 1, False, d._member_sources("hogares", "2005"))
+    assert list(m05.columns) == ["ID_VIV", "ID_HOG", "ENT", "MUN", "CONS_MUN", "CONS_HOG",
+                                 "PARENT", "HABLENIN"]
+    assert list(m05["ID_HOG"]) == ["09002000000101"] * 2 + ["09002000000102"]
 
 
 def _persons_1990() -> pd.DataFrame:
@@ -1204,7 +1341,12 @@ def test_cpv_constraints_per_edition():
     assert set(v10["VPH_SNBIEN"]) == {"CLAVIVP_CAT", *d._SIN_BIENES_2010}            # 9 goods
     p25 = mxcensus.cpv_constraints("personas", 2025)
     assert {"POBTOT", "POBFEM", "P_15YMAS_F", "PDER_SS", "POCUPADA"} <= set(p25)
-    assert set(mxcensus.cpv_constraints("viviendas", 2025)) == {"TOTHOG", "HOGJEF_F", "HOGJEF_M"}
+    v25 = mxcensus.cpv_constraints("viviendas", 2025)                 # 6x: + HOG_IND
+    assert set(v25) == {"TOTHOG", "HOGJEF_F", "HOGJEF_M", "HOG_IND"}
+    assert v25["HOG_IND"] == {"HOG_IND": ["Sí"]}
+    for period in (2000, 2010, 2020):                  # published by the EIC 2025 only
+        assert "HOG_IND" not in mxcensus.cpv_constraints("viviendas", period)
+    assert "HOG_IND" in d._categories("hogares", "2005")       # 2005: not published either
     c20 = mxcensus.cpv_constraints("personas", 2020)
     assert c20["PDER_SEGP"] == {"DHSERSAL_SALUD_PUBLICA": [1]}        # neutral DHSERSAL name
     assert c20["PCON_DISC"] == {"DISCAPACIDAD": ["Sí"]}                # INEGI's definitions
@@ -1492,8 +1634,8 @@ def test_eic2025_constraints_equal_estimates(local_mirror, table):
             mask &= frame[var].isin(cats)
         assert round(frame.loc[mask, "FACTOR"].sum()) == round(est[ind].iloc[0]), ind
         checked += 1
-    assert checked == {"personas": 29, "viviendas": 3}[table]   # 6t: PHOGJEF_F/M; 6v: POBHOG;
-    #                                                               6w: PHOG_IND
+    assert checked == {"personas": 29, "viviendas": 4}[table]   # 6t: PHOGJEF_F/M; 6v: POBHOG;
+    #                                                               6w: PHOG_IND; 6x: HOG_IND
 
 
 # INEGI's CGPV 2000 ampliado tabulados (C2K*.xls, the sample; percentages with 2 decimals),
@@ -1676,7 +1818,8 @@ def test_hogjef_sexo_equals_published(local_mirror, period):
 
 # 6w: the population in indigenous households (HOG_IND, the PHOG_IND cell), by each edition's
 # own definition. EIC 2025 (state 01): PHOG_IND in every municipality, and HOG_IND through the
-# household heads, exactly (its weights are calibrated to them). Censo 2010 and 2020: the
+# household heads and (6x) the dwellings' own HOG_IND, exactly (its weights are calibrated to
+# them; all 32 states: STEP_6x.md). Censo 2010 and 2020: the
 # municipalities their sample enumerated completely (FACTOR 1 for everyone) equal the ITER to
 # the person wherever their population in households does (Sonora: 34 and 5 municipalities;
 # all 32 states: 2010 364, 2020 184 — STEP_6w.md).
@@ -1694,6 +1837,10 @@ def test_hog_ind_equals_published(local_mirror, period, state):
                            ).groupby(per["CVE_MUN"]).sum().round()
         assert len(est) == 11
         assert got.reindex(est.index).eq(est[["PHOG_IND", "HOG_IND"]]).all().all()
+        # 6x: the dwellings' own HOG_IND (the household's, from the person file)
+        viv = mxcensus.load_cpv_viviendas(period, state=state, derived=True)
+        dwellings = viv["FACTOR"].where(viv["HOG_IND"].eq("Sí"), 0).groupby(viv["CVE_MUN"]).sum()
+        assert dwellings.round().reindex(est.index).eq(est["HOG_IND"]).all()
         return
     mun = per["MUN"]
     full = w.groupby(mun).transform("min").eq(1) & w.groupby(mun).transform("max").eq(1)

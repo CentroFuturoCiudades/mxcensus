@@ -261,6 +261,10 @@ municipality. It also reproduces the 2010 and 2020 ITER's `PHOG_IND` in the muni
 each sample enumerated completely, and the EIC 2015 tabulado of children aged 0–2 in such
 households in every state. `PHOG_IND` is a constraint for 2005–2025 except 2015. As the
 definitions differ, the crosswalk marks 2005/2010's `PHOG_IND` not comparable with 2020's.
+The households carry `HOG_IND` too, under the same name: the dwellings of 2000 (one row per
+household) and 2010–2025, and the Conteo 2005's households. The loader computes it over the
+household's members, read from the person file. On the EIC 2025 dwellings it is a constraint
+(`HOG_IND`, the indigenous households), equal to the estimates in every municipality.
 The Conteo 2005's dwelling rows are dwellings, while its ITER counts households, so its
 household constraints (`TOTHOG`, `HOGJEF_F`/`HOGJEF_M`) are counted on its household frame:
 `cpv_constraints("hogares", 2005)` on `load_cpv_hogares(2005, derived=True)`, which adds

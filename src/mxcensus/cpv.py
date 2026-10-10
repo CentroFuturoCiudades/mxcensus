@@ -113,12 +113,20 @@ _DWELLINGS_FROM_PERSONS: dict[str, tuple[str, ...]] = {
 # relationship is jefe(a) (2005: also 102 «persona sola»), exactly one per household in
 # every state. CGPV 2000's dwelling rows are its households; the Conteo 2005's are dwellings
 # (its ITER counts households), so a dwelling takes its first household's head; Censo
-# 2010's household is the dwelling. Edition → (relationship item, head codes, the key parts
-# read with them).
-_HEAD_FROM_PERSONS: dict[str, tuple[str, frozenset[str], tuple[str, ...]]] = {
-    "2000": ("OTROPARE_C", frozenset({"100"}), ("ENT", "MUN", "LOC", "NUMVIV", "NUMHOG")),
-    "2005": ("PARENT", frozenset({"101", "102"}), ("ENT", "MUN", "CONS_MUN", "CONS_HOG")),
-    "2010": ("PARENT", frozenset({"01"}), ("ENT", "ID_VIV")),
+# 2010's household is the dwelling. Edition → (relationship item, head codes); the key parts
+# read with them: :data:`_HOUSEHOLD_PARTS`.
+_HEAD_FROM_PERSONS: dict[str, tuple[str, frozenset[str]]] = {
+    "2000": ("OTROPARE_C", frozenset({"100"})),
+    "2005": ("PARENT", frozenset({"101", "102"})),
+    "2010": ("PARENT", frozenset({"01"})),
+}
+
+# The person file's columns that give each person's household key (:func:`_person_columns`):
+# CGPV 2000's and the Conteo 2005's composite parts (:func:`_composite_keys`), else the
+# entity and the dwelling (one household per dwelling from 2010 on).
+_HOUSEHOLD_PARTS: dict[str, tuple[str, ...]] = {
+    "2000": ("ENT", "MUN", "LOC", "NUMVIV", "NUMHOG"),
+    "2005": ("ENT", "MUN", "CONS_MUN", "CONS_HOG"),
 }
 
 # The dwelling items a household frame takes from its dwelling for derived=True (6v): the
@@ -826,6 +834,47 @@ def _dwellings_from_persons(period: str, state, harmonize: bool
     return df, gids, label
 
 
+def _person_columns(period: str, state, harmonize: bool,
+                    items: Iterable[str | tuple[str, ...]]) -> pd.DataFrame:
+    """The person file's ``items`` (a name, or its aliases: the first the file has) and each
+    person's household key, keyed like :func:`load_cpv_viviendas`'s frames with
+    ``harmonize``: CGPV 2000's and the Conteo 2005's composite ``ID_VIV``/``ID_HOG``
+    (:data:`_HOUSEHOLD_PARTS`), Censo 2010's national ``ID_VIV`` under ``harmonize``, else
+    the entity and ``ID_VIV`` as the file spells them. Only those columns are read."""
+    import pyarrow.parquet as pq
+
+    from mxcensus.data._registry import POOCH
+
+    frames = []
+    for s in _states(state):
+        path = POOCH.fetch(cpv_filename("personas", period, s))
+        names = set(pq.read_schema(path).names)
+
+        def pick(item: str | tuple[str, ...]) -> str:
+            aliases = (item,) if isinstance(item, str) else item
+            return next((a for a in aliases if a in names), aliases[0])
+
+        parts = _HOUSEHOLD_PARTS.get(period, (("ENT", "CVE_ENT"), "ID_VIV"))
+        columns = list(dict.fromkeys(pick(c) for c in (*parts, *items)))
+        frames.append(pd.read_parquet(path, columns=columns))
+    persons = pd.concat(frames, ignore_index=True)
+    persons = _composite_keys(persons, "viviendas")             # 2000/2005: ID_VIV, ID_HOG
+    if harmonize and period in _STATE_SCOPED_KEYS:              # 2010: the national ID_VIV
+        persons = _national_keys(persons.assign(CVE_ENT=persons["ENT"].str.zfill(2)),
+                                 "personas")
+    return persons
+
+
+def _household_members(period: str, state, harmonize: bool,
+                       sources: Iterable[str]) -> pd.DataFrame:
+    """The person rows a dwelling or household frame's household columns are computed over
+    (``derived=True``, 6x: ``HOG_IND``; :func:`mxcensus.cpv_derived.derive`'s ``members``):
+    the person items ``sources`` under the edition's names (``cpv_derived._ALIASES``) and
+    the household key (:func:`_person_columns`)."""
+    return _person_columns(period, state, harmonize,
+                           [_derived._ALIASES.get(s, (s,)) for s in sources])
+
+
 def _attach_heads(df: pd.DataFrame, period: str, state, harmonize: bool,
                   table: str = "viviendas") -> pd.DataFrame:
     """``df`` (a CGPV 2000, Conteo 2005 or Censo 2010 dwelling frame, or the Conteo 2005's
@@ -834,16 +883,8 @@ def _attach_heads(df: pd.DataFrame, period: str, state, harmonize: bool,
     key parts, the relationship and ``SEXO`` are read). 2000's dwelling rows and 2005's
     household rows are households; a 2005 dwelling takes the head of its first household.
     Raises when a household has no head or several, or a record no head."""
-    from mxcensus.data._registry import POOCH
-
-    relationship, codes, parts = _HEAD_FROM_PERSONS[period]
-    persons = pd.concat([pd.read_parquet(POOCH.fetch(cpv_filename("personas", period, s)),
-                                         columns=[*parts, relationship, "SEXO"])
-                         for s in _states(state)], ignore_index=True)
-    persons = _composite_keys(persons, "viviendas")             # 2000/2005: ID_VIV, ID_HOG
-    if harmonize and period in _STATE_SCOPED_KEYS:              # 2010: the national ID_VIV
-        persons = _national_keys(persons.assign(CVE_ENT=persons["ENT"].str.zfill(2)),
-                                 "personas")
+    relationship, codes = _HEAD_FROM_PERSONS[period]
+    persons = _person_columns(period, state, harmonize, (relationship, "SEXO"))
     household = [k for k in ("ID_VIV", "ID_HOG") if k in persons.columns]
     is_head = persons[relationship].isin(codes)
     heads = is_head.groupby([persons[k] for k in household]).sum()
@@ -889,8 +930,10 @@ def _load_level(table: str, period, state, harmonize: bool, labels: bool,
     Conteo 1995's dwellings come from their person files (:func:`_dwellings_from_persons`);
     with ``derived``, CGPV 2000's, the Conteo 2005's and Censo 2010's dwellings and the
     Conteo 2005's households take their household head's sex from them
-    (:func:`_attach_heads`, for ``JEFE_SEXO``), and the 2005 households their dwelling's
-    class (:func:`_attach_dwellings`, for ``CLAVIVP_CAT``)."""
+    (:func:`_attach_heads`, for ``JEFE_SEXO``), the 2005 households their dwelling's
+    class (:func:`_attach_dwellings`, for ``CLAVIVP_CAT``), and the dwellings and
+    households with a household column (6x: ``HOG_IND``) their members' person rows
+    (:func:`_household_members`, ``derive``'s ``members``)."""
     states = _states(state)
     edition = _level_edition(table, period)
     if not harmonize and states and len(states) > 1 and table not in NATIONAL_TABLES \
@@ -916,7 +959,10 @@ def _load_level(table: str, period, state, harmonize: bool, labels: bool,
         if table in ("viviendas", "hogares") and edition.period in _HEAD_FROM_PERSONS:
             df = _attach_heads(df, edition.period, state, harmonize, table)
             borrowed.append("SEXO")             # the head's: JEFE_SEXO now
-        df = _derived.derive(df, table, edition.period).drop(columns=borrowed)
+        sources = _derived._member_sources(table, edition.period)
+        members = _household_members(edition.period, state, harmonize, sources) \
+            if sources else None                # 6x: the household's HOG_IND
+        df = _derived.derive(df, table, edition.period, members=members).drop(columns=borrowed)
     spec = _KEY_SPEC[table]
     if labels:
         out = _finish_labelled(df, _labels_for(source, gids), label, spec)
@@ -959,7 +1005,12 @@ def load_cpv_viviendas(
     Censo 2010 have no head item, so it also reads the household head's sex from the person
     file (the relationship and ``SEXO`` columns only) into ``JEFE_SEXO``, Censo 2020's
     dwelling item: per household in 2000, the head of the dwelling's first household in
-    2005 (the household constraints of 2005 are counted on :func:`load_cpv_hogares`).
+    2005 (the household constraints of 2005 are counted on :func:`load_cpv_hogares`). In
+    2000 and 2010–2025 it adds ``HOG_IND``, whether the household is indigenous (the
+    persons' ``HOG_IND``, by the edition's own definition), computed over the household's
+    members from the person file (the key, relationship and language columns only); the
+    EIC 2025's ``HOG_IND`` estimates count these dwellings. With one name on both frames,
+    a person ↔ dwelling join needs a suffix for it.
     """
     return _load_level("viviendas", period, state, harmonize, labels, derived)
 
@@ -979,7 +1030,9 @@ def load_cpv_hogares(
     ``CLAVIVPA``) and the household head's sex (``JEFE_SEXO``, from the person file: the
     household's own head, 101 «jefe(a)» or 102 «persona sola»), the columns the household
     constraints read (``cpv_constraints("hogares", 2005)``: ``TOTHOG``, ``HOGJEF_F``/
-    ``HOGJEF_M``, which the ITER counts per household).
+    ``HOGJEF_M``, which the ITER counts per household), and ``HOG_IND`` (whether the
+    household is indigenous: its head or partner speaks an indigenous language, over its
+    own members in the person file).
     """
     return _load_level("hogares", period, state, harmonize, labels, derived)
 
@@ -1056,7 +1109,8 @@ def load_cpv_survey(
     indexed ``(ID_VIV, ID_HOG, ID_PERSONA)`` under the dwellings' ``ID_VIV``.
 
     ``derived=True`` adds the derived columns to ``viviendas`` and ``personas`` (see
-    :func:`load_cpv_personas`).
+    :func:`load_cpv_personas`); both carry ``HOG_IND`` (the household's, 2000–2025 except
+    the Conteo 2005's dwellings), so suffix one when joining them.
     """
     edition = _edition("personas", period)
     kw = dict(state=state, harmonize=harmonize, labels=labels)

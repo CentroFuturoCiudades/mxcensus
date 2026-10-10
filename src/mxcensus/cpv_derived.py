@@ -44,7 +44,12 @@ The persons of 2000–2025 get ``HOG_IND`` (6w, «Sí»/«No»): whether their h
 indigenous, by each edition's own definition — someone among the members its publications
 count speaks an indigenous language (:data:`_IND_CODES`): the head or the partner up to the
 EIC 2015, plus the parents and parents-in-law in Censo 2020, plus the step-parents and
-grandparents in the EIC 2025. Every edition's ``EDUC_INEGI`` comes with ``EDUC_INEGI_DET``
+grandparents in the EIC 2025. The households carry it too (6x): the dwellings of 2000 (one
+row per household) and 2010–2025 (one household per dwelling) and the Conteo 2005's
+households (its dwelling rows are dwellings, so they do not) get their household's
+``HOG_IND``, computed by the same rule over the household's members — the person rows the
+loader reads from the person file and passes as :func:`derive`'s ``members`` (a derivation
+with ``members=True``). Every edition's ``EDUC_INEGI`` comes with ``EDUC_INEGI_DET``
 (6w), its «Posbásica» split into INEGI's media superior, superior and posgrado
 (:data:`_POSBASICA`).
 
@@ -105,7 +110,9 @@ publishes under its own definition (:data:`_EDITION_CELLS`: Censo 2010's limitat
 legacy cells on the 1990–2010 samples' own items; the 1990–2005 ITERs' own indicators) and
 the population by its household head's sex (``PHOGJEF_F``/``PHOGJEF_M`` on
 ``HOGJEF_SEXO``), the population in households (``POBHOG``) and in indigenous households
-(``PHOG_IND`` on ``HOG_IND``) (:data:`_CELLS`), which the legacy sets lack. The Conteo
+(``PHOG_IND`` on ``HOG_IND``) and the indigenous households themselves (``HOG_IND`` on the
+dwellings' ``HOG_IND``: the EIC 2025 estimates) (:data:`_CELLS`), which the legacy sets
+lack. The Conteo
 2005's household indicators are counted on its household frame
 (``cpv_constraints("hogares", 2005)``; its dwelling rows are dwellings), whose
 ``derived=True`` adds the dwelling's class and the household's own head's sex.
@@ -949,6 +956,22 @@ def _periods_by(codes: Mapping[str, tuple]) -> dict[tuple, tuple[str, ...]]:
     return out
 
 
+# The editions whose household records are a household table: the Conteo 2005, whose
+# dwelling file has one row per dwelling (6v). Elsewhere a dwelling row is a household
+# (CGPV 2000's dwelling file has one row per household; one household per dwelling from
+# 2010 on).
+_HOUSEHOLD_TABLE = ("2005",)
+
+
+def _household_records(periods: tuple[str, ...]) -> dict[str, tuple[str, ...]]:
+    """The table whose rows are the households of each of ``periods`` → those editions."""
+    out: dict[str, tuple[str, ...]] = {}
+    for period in periods:
+        table = "hogares" if period in _HOUSEHOLD_TABLE else "viviendas"
+        out[table] = (*out.get(table, ()), period)
+    return out
+
+
 @dataclass(frozen=True)
 class _Derivation:
     table: str
@@ -957,6 +980,10 @@ class _Derivation:
     periods: tuple[str, ...]          # editions whose source codes were verified
     func: Callable[[pd.DataFrame], Mapping[str, pd.Series]]
     household: bool = False           # func also reads each record's household (_HOUSEHOLD)
+    # A household's column on its dwelling or household record (6x): ``sources`` are person
+    # items, read from the household's members (``derive(members=)``), and ``func`` is the
+    # person derivation's; each record takes its household's value.
+    members: bool = False
 
 
 _NEW = ("2020", "2025")
@@ -1059,6 +1086,13 @@ def _registry() -> tuple[_Derivation, ...]:
             household=True) for heads, periods in _periods_by(_HEAD_CODES).items()),
         *(D(per, ("HOG_IND",), ("PARENTESCO", "HLENGUA"), periods, _hog_ind(members),
             household=True) for members, periods in _periods_by(_IND_CODES).items()),
+        # 6x: the household's HOG_IND on its record — the dwelling (2000's dwelling rows are
+        # households; one household per dwelling from 2010) or, in the Conteo 2005, the
+        # household (its dwelling rows are dwellings) — over the person file's members
+        *(D(table, ("HOG_IND",), ("PARENTESCO", "HLENGUA"), editions, _hog_ind(members),
+            household=True, members=True)
+          for members, periods in _periods_by(_IND_CODES).items()
+          for table, editions in _household_records(periods).items()),
         D(viv, ("CLAVIVP_CAT",), ("CLAVIVP",), ("1990", "2000", "2005", "2010", *_SINCE_2015),
           _cat(viv, "CLAVIVP", "CLAVIVP_CAT")),
         D(viv, ("JEFE_SEXO",), ("SEXO",), ("2000", "2005", "2010"), _jefe_sexo),  # the head's
@@ -1134,20 +1168,47 @@ def _source(df: pd.DataFrame, name: str) -> str:
 _HOUSEHOLD = "_HOGAR"      # the household's number, in a derivation's ``src`` (household=True)
 
 
-def _household(df: pd.DataFrame) -> pd.Series:
-    """Each record's household, numbered: the entity and ``ID_HOG`` in the editions with a
-    household level (1995–2005), else the entity and ``ID_VIV`` (one household per dwelling;
-    the entity makes Censo 2010's state-scoped serials unique). A frame without keys gets the
+def _household_keys(df: pd.DataFrame) -> list[pd.Series]:
+    """Each record's household: the entity and ``ID_HOG`` in the editions with a household
+    level (1995–2005), else the entity and ``ID_VIV`` (one household per dwelling; the
+    entity makes Censo 2010's state-scoped serials unique). A frame without keys gets the
     1995–2005 composite keys (``cpv._composite_keys``)."""
     from mxcensus.cpv import _composite_keys
 
     keyed = _composite_keys(df, "personas")
     key = next((k for k in ("ID_HOG", "ID_VIV") if k in keyed.columns), None)
     if key is None:
-        raise ValueError("CPV personas: HOGJEF_SEXO and HOG_IND need the household key "
+        raise ValueError("CPV: HOGJEF_SEXO and HOG_IND need the household key "
                          "(ID_HOG or ID_VIV, or the parts they are derived from)")
-    return keyed.groupby([keyed[_source(keyed, "ENT")], keyed[key]], sort=False).ngroup() \
-        .set_axis(df.index)
+    return [keyed[_source(keyed, "ENT")], keyed[key]]
+
+
+def _household(df: pd.DataFrame) -> pd.Series:
+    """Each record's household, numbered (:func:`_household_keys`)."""
+    ent, key = _household_keys(df)
+    return pd.DataFrame({"ent": ent, "key": key}).groupby(["ent", "key"], sort=False) \
+        .ngroup().set_axis(df.index)
+
+
+def _per_record(values: pd.Series, members: pd.DataFrame, df: pd.DataFrame) -> pd.Series:
+    """A household's value on each of its ``members`` (``values``, on their rows) → on each
+    record of ``df`` (a dwelling or household frame): its household's, matched on the entity
+    and the household key without their zero padding (the 2015 CSVs drop it, harmonized
+    frames restore it). Missing for a record whose household has no member."""
+    def households(frame: pd.DataFrame) -> pd.MultiIndex:
+        return pd.MultiIndex.from_arrays([k.astype("string").str.lstrip("0")
+                                          for k in _household_keys(frame)])
+
+    by_household = pd.Series(values.array, index=households(members))
+    by_household = by_household[~by_household.index.duplicated()]
+    return pd.Series(by_household.reindex(households(df)).array, index=df.index)
+
+
+def _member_sources(table: str, period: str | int) -> tuple[str, ...]:
+    """The person items (2020 names) a ``table`` frame's household columns read from the
+    household's members (``derive(members=)``; 6x); empty when it has none."""
+    return tuple(dict.fromkeys(s for d in _derivations(table, str(period)) if d.members
+                               for s in d.sources))
 
 
 def _codes(raw: pd.Series, recode: Mapping[int, int] | None) -> pd.Series:
@@ -1160,12 +1221,20 @@ def _codes(raw: pd.Series, recode: Mapping[int, int] | None) -> pd.Series:
     return s
 
 
-def derive(df: pd.DataFrame, table: str, period: str | int) -> pd.DataFrame:
+def derive(df: pd.DataFrame, table: str, period: str | int,
+           members: pd.DataFrame | None = None) -> pd.DataFrame:
     """``df`` (a raw CPV ``table`` frame of edition ``period``) plus its derived columns.
 
     Reads the source items' raw codes (zero-padded or not), so call it before labelling;
     the derived columns are ``Categorical`` (0/1 for the dummies). A source code with no
     derived category raises ``ValueError`` (a code the recode table does not know).
+
+    A household's column on a dwelling or household frame (6x: ``HOG_IND``) is computed
+    over ``members``, the raw person rows of the frame's households (the person items it
+    reads and the household key or its parts; ``load_cpv_viviendas``/``load_cpv_hogares``
+    read them from the person file), as on the persons; each record takes its household's
+    value. A frame with such a column and no ``members``, or a record whose household has no
+    member, raises.
     """
     period = str(period)
     derivations = _derivations(table, period)
@@ -1178,31 +1247,44 @@ def derive(df: pd.DataFrame, table: str, period: str | int) -> pd.DataFrame:
         raise ValueError(f"CPV {table} {period}: derived columns already present: {clash}")
     new: dict[str, pd.Series] = {}
     problems: dict[str, list] = {}
-    cache: dict[str, pd.Series] = {}
+    orphans: dict[str, int] = {}
+    caches: dict[bool, dict[str, pd.Series]] = {False: {}, True: {}}    # the frame, members
     for d in derivations:
+        frame, cache = (members if d.members else df), caches[d.members]
+        if frame is None:
+            raise ValueError(f"CPV {table} {period}: {d.columns[0]} is computed over each "
+                             f"household's members: pass members= (the person rows; "
+                             f"load_cpv_{table}(derived=True) reads them)")
         try:
-            cols = {s: _source(df, s) for s in d.sources}
+            cols = {s: _source(frame, s) for s in d.sources}
         except KeyError as exc:
             raise ValueError(f"CPV {table} {period}: {d.columns[0]} needs {exc.args[0]!r}, "
-                             f"absent from the frame") from None
+                             f"absent from the {'members' if d.members else 'frame'}") from None
         for s, col in cols.items():
             if s not in cache:
-                cache[s] = _codes(df[col], recode.get(s))
-        src = pd.DataFrame({s: cache[s] for s in cols}, index=df.index)
+                cache[s] = _codes(frame[col], recode.get(s))
+        src = pd.DataFrame({s: cache[s] for s in cols}, index=frame.index)
         if d.household:
             if _HOUSEHOLD not in cache:
-                cache[_HOUSEHOLD] = _household(df)
+                cache[_HOUSEHOLD] = _household(frame)
             src[_HOUSEHOLD] = cache[_HOUSEHOLD]
         for name, values in d.func(src).items():
-            values = pd.Series(values, index=df.index) if not isinstance(values, pd.Series) \
-                else values.set_axis(df.index)
+            values = pd.Series(values, index=frame.index) if not isinstance(values, pd.Series) \
+                else values.set_axis(frame.index)
             if values.isna().any():
                 bad = src.loc[values.isna().to_numpy()].drop_duplicates().head(12)
                 problems[name] = bad.to_dict("records")
+            if d.members:
+                values = _per_record(values, frame, df)
+                if name not in problems and values.isna().any():
+                    orphans[name] = int(values.isna().sum())
             new[name] = values
     if problems:
         raise ValueError(f"CPV {table} {period}: source codes without a derived category "
                          f"(add them to cpv_derived._RECODE): {problems}")
+    if orphans:
+        raise ValueError(f"CPV {table} {period}: records without members in the person rows "
+                         f"(their household's columns): {orphans}")
     return pd.concat([df, pd.DataFrame(new, index=df.index)], axis=1)
 
 
@@ -1263,7 +1345,10 @@ _CELLS = {"personas": {"POBHOG": {},
                        "PSIND_LIM": {"SIN_DISC_LIM": ["Sí"]},
                        "PHOGJEF_F": {"HOGJEF_SEXO": ["Mujer"]},
                        "PHOGJEF_M": {"HOGJEF_SEXO": ["Hombre"]},
-                       "PHOG_IND": _PHOG_IND}}
+                       "PHOG_IND": _PHOG_IND},
+          # 6x: the indigenous households (the EIC 2025 estimates' HOG_IND), on the
+          # household's HOG_IND of each dwelling
+          "viviendas": {"HOG_IND": _PHOG_IND}}
 
 _AGES_5PLUS = ["5", "6-7", "8-11", "12-14", "15-17", "18-24", "25-49", "50-59", "60-64",
                "65-130"]
@@ -1528,11 +1613,12 @@ _EDITION_CELLS = {
 }
 
 
-# The household indicators of the legacy dwelling set. A dwelling is a household from 2010
-# on, and CGPV 2000's dwelling rows are its households, but the Conteo 2005's dwelling file
-# has one row per dwelling (its ITER counts households: +1.3% in Aguascalientes), so in an
-# edition with a household table they are counted on it (6v).
-_HOUSEHOLD_INDICATORS = ("TOTHOG", "HOGJEF_F", "HOGJEF_M")
+# The household indicators of the dwelling set (the legacy ones and 6x's HOG_IND). A
+# dwelling is a household from 2010 on, and CGPV 2000's dwelling rows are its households,
+# but the Conteo 2005's dwelling file has one row per dwelling (its ITER counts households:
+# +1.3% in Aguascalientes), so in an edition with a household table they are counted on it
+# (6v; the 2005 ITER publishes no HOG_IND).
+_HOUSEHOLD_INDICATORS = ("TOTHOG", "HOGJEF_F", "HOGJEF_M", "HOG_IND")
 
 
 @functools.cache
@@ -1619,7 +1705,8 @@ def cpv_constraints(table: str, period: str | int) -> dict:
     studies after primaria), the population by its household head's sex
     (``PHOGJEF_F``/``PHOGJEF_M`` on ``HOGJEF_SEXO``), the population in households
     (``POBHOG``: every person, as ``POBTOT``) and in indigenous households (``PHOG_IND`` on
-    ``HOG_IND``, each edition's definition) — keeping the indicators that
+    ``HOG_IND``, each edition's definition), the indigenous households (``HOG_IND`` on the
+    dwellings' ``HOG_IND``; published by the EIC 2025 only) — keeping the indicators that
     (1) the edition publishes (its ITER, through ``cpv_iter_crosswalk`` — for 2010 only
     the indicators comparable with 2020's —; the EIC 2025's national estimates) and (2)
     whose variables and
@@ -1635,8 +1722,8 @@ def cpv_constraints(table: str, period: str | int) -> dict:
 
     ``table`` is ``personas``, ``viviendas`` or, for the Conteo 2005, ``hogares``: its
     dwelling file has one row per dwelling, so the household indicators (``TOTHOG``,
-    ``HOGJEF_F``/``HOGJEF_M``) are counted on ``load_cpv_hogares(2005, derived=True)``
-    instead of the dwellings.
+    ``HOGJEF_F``/``HOGJEF_M``; ``HOG_IND``, which the 2005 ITER does not publish) are
+    counted on ``load_cpv_hogares(2005, derived=True)`` instead of the dwellings.
 
     The person sets hold two totals, both every person of the sample: ``POBTOT`` (the
     ITER's, which adds the population of collective dwellings and without a dwelling) and
