@@ -1,13 +1,13 @@
 # CPV family — session handoff
 
-**Status (2026-10-10): units 0–6z are done. `main` = v0.10.0 + 6u (merged
-locally, **not pushed, no version bump**; v0.10.0 = 6s–6t, tagged and pushed; 0.9.0 =
-6k–6r, §Review). `cpv-integration` = `main` + 6v + 6w + 6x + 6y + 6z (6v: the `POBHOG` total
-and the Conteo 2005's households; 6w: indigenous households and media superior/superior
-apart; 6x: `HOG_IND` on the household records; 6y: the EIC 2025's percentages as
-constraints; 6z: its dwelling and household percentages; all agreed with the user), all
-committed. None merged or pushed. No unit is queued. A session starts by checking
-`git log`/`git status` against this line.**
+**Status (2026-10-10): units 0–6z and 7a are done (7a = the first unit after 6z). `main` =
+v0.10.0 + 6u (merged locally, **not pushed, no version bump**; v0.10.0 = 6s–6t, tagged and
+pushed; 0.9.0 = 6k–6r, §Review). `cpv-integration` = `main` + 6v + 6w + 6x + 6y + 6z + 7a
+(6v: the `POBHOG` total and the Conteo 2005's households; 6w: indigenous households and
+media superior/superior apart; 6x: `HOG_IND` on the household records; 6y: the EIC 2025's
+percentages as constraints; 6z: its dwelling and household percentages; 7a: its person
+percentages; all agreed with the user), all committed. None merged or pushed. No unit is
+queued. A session starts by checking `git log`/`git status` against this line.**
 - **Released** (registered, uploaded, verified): every edition 1990–2025 (897 `cpv_` files)
   and the Marco Geoestadístico 1995–2025 frames, incl. the EIC 2015's (6h); registry
   **4148** entries (`STEP_6b.md` §Release batch, `STEP_6h.md`).
@@ -178,7 +178,26 @@ committed. None merged or pushed. No unit is queued. A session starts by checkin
     questionnaire's filter of minors is not in the microdata (a person under 18: never
     below, 0.05% over nationally, exact in half the municipalities).
 
-Design: [`PLAN.md`](PLAN.md). Recent units: [`STEP_6z.md`](STEP_6z.md), [`STEP_6y.md`](STEP_6y.md), [`STEP_6x.md`](STEP_6x.md), [`STEP_6w.md`](STEP_6w.md), [`STEP_6v.md`](STEP_6v.md), [`STEP_6u.md`](STEP_6u.md), [`STEP_6t.md`](STEP_6t.md), [`STEP_6s.md`](STEP_6s.md), [`STEP_6r.md`](STEP_6r.md), [`STEP_6q.md`](STEP_6q.md), [`STEP_6p.md`](STEP_6p.md), [`STEP_6o.md`](STEP_6o.md), [`STEP_6n.md`](STEP_6n.md), [`STEP_6m.md`](STEP_6m.md), [`STEP_6l.md`](STEP_6l.md), [`STEP_6k.md`](STEP_6k.md), [`STEP_6j.md`](STEP_6j.md), [`STEP_6i.md`](STEP_6i.md), [`STEP_6h.md`](STEP_6h.md), [`STEP_6g.md`](STEP_6g.md), [`STEP_6f.md`](STEP_6f.md), [`STEP_6e.md`](STEP_6e.md),
+- **7a** (`STEP_7a.md`): the EIC 2025's person percentages (HANDOFF candidate 2: all 127 in
+  one session, the user's choice).
+  - 116 more counts behind percentages (`_PERCENT_BASES` 148 → 264), plus the published
+    `PUSU_SS`, `PHOG_AFRO` and `HOG_AFRO`: EIC 2025 constraints 96 + 92 → **214 + 93**, each
+    = the estimates at every published geography.
+  - A base may be a **sum** of counts (`_base_parts`): the five-year ages are shares of the
+    population of specified age (`POB0_14` + `POB15_64` + `POB65_MAS`; the women's and men's
+    groups too), the students' modes of the students who commute (their four times).
+  - New derived columns (names and editions the user's): `EDAD_QUIN` (every edition);
+    `LUGAR_RES_5A` (residence in 2020 by the own municipality and entity, the US apart),
+    `ENT_PAIS_ASI_INEGI`/`ENT_PAIS_TRAB_INEGI` (997 → NE), `MED_TRASLADO_{ESC,TRAB}_{METRO,
+    BUS,TAXI}_T` (2020, 2025); `DHSERSAL_AFIL_ACCESO` (affiliated or recognised access) and
+    `HOG_AFRO` (persons and dwellings, 2025's indigenous-household members with `AFRODES` 1).
+  - Left out (11): the employed's 9 commute modes (their base, who commutes, includes «no
+    es posible determinarlo», unpublished: user's choice), `PCN_HF` (a ratio of children),
+    `PCN_P3NHLI_CLI` (its base leaves out the unspecified speakers, unpublished; by the
+    same rule). The disability by age takes `PCON_DISC` (user's choice): ≤ 28 persons over
+    its unpublished specified-age base (51 persons nationally).
+
+Design: [`PLAN.md`](PLAN.md). Recent units: [`STEP_7a.md`](STEP_7a.md), [`STEP_6z.md`](STEP_6z.md), [`STEP_6y.md`](STEP_6y.md), [`STEP_6x.md`](STEP_6x.md), [`STEP_6w.md`](STEP_6w.md), [`STEP_6v.md`](STEP_6v.md), [`STEP_6u.md`](STEP_6u.md), [`STEP_6t.md`](STEP_6t.md), [`STEP_6s.md`](STEP_6s.md), [`STEP_6r.md`](STEP_6r.md), [`STEP_6q.md`](STEP_6q.md), [`STEP_6p.md`](STEP_6p.md), [`STEP_6o.md`](STEP_6o.md), [`STEP_6n.md`](STEP_6n.md), [`STEP_6m.md`](STEP_6m.md), [`STEP_6l.md`](STEP_6l.md), [`STEP_6k.md`](STEP_6k.md), [`STEP_6j.md`](STEP_6j.md), [`STEP_6i.md`](STEP_6i.md), [`STEP_6h.md`](STEP_6h.md), [`STEP_6g.md`](STEP_6g.md), [`STEP_6f.md`](STEP_6f.md), [`STEP_6e.md`](STEP_6e.md),
 [`STEP_6d.md`](STEP_6d.md),
 [`STEP_6c.md`](STEP_6c.md), [`STEP_6b.md`](STEP_6b.md), … [`STEP_0_probe.md`](STEP_0_probe.md).
 
@@ -188,12 +207,12 @@ files; the MG 2015 files were built on the Mac and copied to `wsl` for the uploa
 merge: 1773 passed, 1 h 50 min) and holds a copy of the Mac's tabulados cache
 (`data/dict/tabulados/`, without 6t's `2000/C2KHO04.xls` and `2015/12_hogares.xls` and 6w's
 `2015/05_etnicidad.xls` and `2020/cpv2020_a_eum_07_educacion.xlsx`: the script fetches
-them). 6s–6z ran on the Mac only.
+them). 6s–7a ran on the Mac only.
 `wsl:~/mxcensus3c` (3c's code copy) can be deleted.
 
 ## Kickoff prompt for the next session
 
-> Continue the CPV census-family work in this repo (branch cpv-integration = main + 6v–6z;
+> Continue the CPV census-family work in this repo (branch cpv-integration = main + 6v–7a;
 > main = v0.10.0 + 6u, merged). Read docs/cpv/HANDOFF.md first, then agree with me which next unit to
 > take (candidates in HANDOFF §Next) before implementing it, following the session protocol
 > in docs/cpv/PLAN.md. Use .venv/bin/python, not uv run. Run wsl tasks without asking; ask
@@ -230,27 +249,23 @@ and **kept all seven** (merged as 0.9.0):
 
 ## Next: candidates (none decided)
 
-1. Merge 6v–6z into `main`, push `main`/`cpv-integration` (6u–6z) and a version
-   bump, when the user wants them (`wsl` pull + full suite there first, as for 0.9.0).
-2. The EIC 2025's persons' 127 percentages (6z took the dwellings and households), with
-   6y's method (`STEP_6y.md`: the base search, then `_PERCENT_BASES` + cells, verified at
-   every geography; `STEP_6z.md` has the probe's shape): the 5-year age groups by sex (48),
-   the commute to school and work (31: place, time, mode — the modes on the existing
-   dummies), health use (`PCN_PUSU_*`, `PcSSyRecAc`, `PAFIL_IPUB`: 10; `SERSALUD`,
-   `DHSERSAL_ACCESO`), marital status (7), education levels (4, `EDUC_INEGI_DET`),
-   position at work (4, `SITTRA`), the residence in October 2020 (6: an
-   `ENT_PAIS_RES_INEGI` beside `ENT_PAIS_RES_CAT`, plus `MUN_RES_5A` for «same
-   municipality»), nationality of the born abroad (2), indigenous self-identification (3,
-   `PERTE_INDIGENA`) and understanding (1, `ELENGUA`), disability by sex and age (6),
-   attendance (4); with the published counts `HOG_AFRO`/`PHOG_AFRO` (6x/6w's machinery on
-   `AFRODES`) and `PUSU_SS`. `PCN_HF` is a ratio of children, not persons. Maybe two units.
+1. Merge 6v–7a into `main`, push `main`/`cpv-integration` (6u–7a) and a version bump, when
+   the user wants them (`wsl` pull + full suite there first, as for 0.9.0).
+2. **Ratio constraints** for the EIC 2025 percentages whose base is not published (7a left
+   out 11): the employed's nine commute modes, `PCN_P3NHLI_CLI`, `PCN_HF`. A percentage p of
+   an unpublished base B is the linear constraint Σ w·(1{cell} − p/100·1{B}) = 0, which
+   needs no count; `cpv_constraints` only speaks counts, so this is a design change (a
+   second kind of constraint, and a consumer for it).
 3. Smaller: `check_cpv_tabulados.py`'s EIC 2015 migration check could read
-   `ENT_PAIS_NAC_INEGI` instead of moving the unspecified group (`_moved`); a 2000 occupation bridge (CMO → SINCO, no published table); income in minimum
-   wages for 2000 (`P_1SM`…: three wage zones by municipality); a locality-level lineage
-   (6a covered municipalities only); CGPV 1990's undocumented `TIP_HOGAR` 6 (96,370
-   persons, all `N_F_GPOS` 99 and a 9xx relationship: a dwelling without its household
-   composition; identity-labelled, `STEP_6u.md` §Left out); the EIC 2015 tabulados on the
-   household class (`CLASE_HOG`) and tenure/deeds in `check_cpv_tabulados.py`.
+   `ENT_PAIS_NAC_INEGI` instead of moving the unspecified group (`_moved`); the 7a place
+   columns for EIC 2015 (it has `ENT_PAIS_ASI`/`ENT_PAIS_TRAB`; its residence in 2010 needs
+   a check of its municipality item) and Censo 2010; a 2000 occupation bridge (CMO → SINCO,
+   no published table); income in minimum wages for 2000 (`P_1SM`…: three wage zones by
+   municipality); a locality-level lineage (6a covered municipalities only); CGPV 1990's
+   undocumented `TIP_HOGAR` 6 (96,370 persons, all `N_F_GPOS` 99 and a 9xx relationship: a
+   dwelling without its household composition; identity-labelled, `STEP_6u.md` §Left
+   out); the EIC 2015 tabulados on the household class (`CLASE_HOG`) and tenure/deeds in
+   `check_cpv_tabulados.py`.
 
 ## Open questions for the user
 
@@ -574,3 +589,19 @@ None.
   names (`ALIM_ADL1` = {`ALIM_ADL1`: «Sí»}); `get_tables_dict` does not mind.
 - **A percentage's base may be a published count without a cell** (6z: `HOG_MEN_ALIM`):
   the tests take it from the estimates (`test_eic2025_constraints_equal_estimates`).
+- **Sum bases** (7a): a `_PERCENT_BASES` value may be a tuple of counts, summed
+  (`_base_parts`); tests and scripts must go through `_base_parts`, never use the value as
+  a column name. The five-year ages are shares of the population of **specified** age, the
+  women's and men's too (not of `POBTOT`/`POBFEM`).
+- **The age universe in cells** (7a): persons of unspecified age (999) answer the marital,
+  residence and commute items, and INEGI's numerators leave them out. A cell must carry its
+  indicator's age condition (`EDAD_CAT`), even when the item is asked of that age only.
+- **Unpublished bases** (7a): the disability by age is a share of the disabled of specified
+  age; its counts take `PCON_DISC` (51 more persons nationally), so the test reads their
+  shares on the specified-age cells (`test_eic2025_constraints_equal_estimates`). The
+  employed's modes, `PCN_P3NHLI_CLI` and `PCN_HF` have no count at all.
+- **`HOG_AFRO` on the dwellings** (7a): `_member_sources("viviendas", "2025")` now reads
+  `AFRODES` too, so synthetic 2025 members carry it (`_HEAD_ALONE`).
+- **Sweeps through `POOCH`** fetch any file missing from the user cache from the bucket
+  (7a: the 2015 dwellings, which the person loader reads for `TIPOHOG`); the tests'
+  `local_mirror` fixture reads `data/parquet` instead.

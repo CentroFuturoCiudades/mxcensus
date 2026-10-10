@@ -45,7 +45,8 @@ _GEO_INDEX = ["CVE_ENT", "CVE_MUN", "CVE_LOC"]
 # The EIC 2025 publishes most indicators only as percentages (``PCN_*``, two decimals;
 # ``PNC_P6A14AN*`` is INEGI's misspelling). Each percentage whose count the estimates do not
 # publish → its base, the count it is a percentage of: a published count or another count
-# derived here (the PEA's, the indigenous-language speakers'). Found on the microdata (6y):
+# derived here (the PEA's, the indigenous-language speakers'), or the sum of several (7a: a
+# tuple). Found on the microdata (6y):
 # Σ FACTOR over the indicator's cells ÷ Σ FACTOR over the base's = the percentage within its
 # rounding (≤ 0.005) in every state, municipality and locality of 50,000 or more. Note the
 # bases that are not the population of the age group: the PEA's women and men are shares of
@@ -61,7 +62,7 @@ def _sexed(pct: str, total: str, women: str, men: str) -> dict[str, str]:
 _POB = ("POBTOT", "POBFEM", "POBMAS")
 _HLI = ("P3YM_HLI", "P3YM_HLI_F", "P3YM_HLI_M")
 _PEA = ("PEA", "PEA_F", "PEA_M")
-_PERCENT_BASES: dict[str, str] = {
+_PERCENT_BASES: dict[str, str | tuple[str, ...]] = {
     **_sexed("PCN_PNACENT", *_POB),
     **_sexed("PCN_PNACOE", *_POB),
     "PCN_PNACOP_F": "POBFEM", "PCN_PNACOP_M": "POBMAS",     # PNACOP: a published count
@@ -108,7 +109,46 @@ _PERCENT_BASES: dict[str, str] = {
     **dict.fromkeys((f"PCN_{x}" for x in ("ALIM_MEN1", "ALIM_MEN2", "ALIM_MEN3", "ING_MEN1",
                                           "ING_MEN2", "ING_MEN3")), "HOG_MEN_ALIM"),
     "PCN_POBHOG_FAM": "POBHOG", "PCN_POBHOG_NFAM": "POBHOG",
+    # 7a: the persons'. The five-year age groups, women's and men's too, are shares of the
+    # population of specified age (the published 0–14 + 15–64 + 65+); the students'
+    # commute modes of the students who commute (the four commute times: every student
+    # who commutes says how long). The disability by age is a share of the disabled of
+    # specified age, which is not published: PCON_DISC holds 51 more (unspecified age, in
+    # 21 geographies), so those four counts run ≤ 28 persons over (nationally, where the
+    # rounding alone allows 317); their shares stray beyond the rounding in 6–13 small
+    # geographies, by ≤ 0.23 points (STEP_7a.md).
+    **dict.fromkeys((f"PCN_P_{g}{s}" for g in (*(f"{a}A{a + 4}" for a in range(0, 75, 5)),
+                                               "75YMAS") for s in ("", "_F", "_M")),
+                    ("POB0_14", "POB15_64", "POB65_MAS")),
+    "PCN_PNACOP_NAC": "PNACOP", "PCN_PNACOP_NONAC": "PNACOP",
+    **dict.fromkeys((f"PCN_PRES{x}20" for x in ("M", "OM", "E", "OE", "EUA", "OP")), "P_5YMAS"),
+    **_sexed("PCN_POB_IND", *_POB),
+    **dict.fromkeys((f"PCN_PCON_DISC{x}" for x in ("_F", "_M", "0A14", "15A29", "30A59",
+                                                   "60YM")), "PCON_DISC"),
+    "PCN_P3YM_ASIS": "P_3YMAS",
+    **_sexed("PCN_P6A14_NOA", "P_6A14", "P_6A14_F", "P_6A14_M"),
+    **dict.fromkeys((f"PCN_P15YM_{x}" for x in ("EB", "EMS", "ES", "POS")), "P_15YMAS"),
+    **dict.fromkeys((f"PCN_POCUP_{x}" for x in ("ASA", "EMP", "CPRO", "SPAG", "ENT", "OENT",
+                                                "15MIN", "30MIN", "1HOR", "2HOR", "2HYM")),
+                    "POCUPADA"),
+    "PCN_PcSSyRecAc": "POBTOT", "PCN_PAFIL_IPUB": "PDER_SS",
+    **dict.fromkeys((f"PCN_PUSU_{x}" for x in ("IMSS", "ISTE", "PDOM", "IMSSB", "IPUB", "IPRIV",
+                                               "CFARM", "OTRAI")), "PUSU_SS"),
+    **dict.fromkeys((f"PCN_PASIS_{x}" for x in ("ENT", "OENT", "15MIN", "30MIN", "1HOR",
+                                                "1HYM")), "P3YM_ASIS"),
+    **dict.fromkeys((f"PCN_PASIS_{x}" for x in ("CAM", "BICI", "MET", "TROL", "TESC", "TAXI",
+                                                "MOTO", "AUTO", "OMED")),
+                    ("PASIS_15MIN", "PASIS_30MIN", "PASIS_1HOR", "PASIS_1HYM")),
+    **_sexed("PCN_P12YM_CUL", "P_12YMAS", "P_12YMAS_F", "P_12YMAS_M"),
+    "PCN_P12YM_SOLT_F": "P_12YMAS_F", "PCN_P12YM_SOLT_M": "P_12YMAS_M",
+    "PCN_P12YM_SEPA_F": "P_12YMAS_F", "PCN_P12YM_SEPA_M": "P_12YMAS_M",
 }
+
+
+def _base_parts(pct: str) -> tuple[str, ...]:
+    """The counts whose sum is ``pct``'s base (one, or several: 7a)."""
+    base = _PERCENT_BASES[pct]
+    return (base,) if isinstance(base, str) else base
 
 
 def _count_name(pct: str) -> str:
@@ -124,17 +164,18 @@ def _percent_count_names(columns) -> frozenset[str]:
 def _percent_counts(df: pd.DataFrame, label: str) -> pd.DataFrame:
     """The counts behind ``df``'s percentages: percentage × base / 100, ``Float64``; missing
     where the percentage is (``NA``/``MI``), except 0 where the base is 0. A base derived
-    from another percentage comes first."""
+    from another percentage comes first; a base of several counts is their sum (7a)."""
     counts: dict[str, pd.Series] = {}
     pending = [p for p in _PERCENT_BASES if p in df]
     while pending:
-        ready = [p for p in pending if _PERCENT_BASES[p] in counts or _PERCENT_BASES[p] in df]
+        ready = [p for p in pending if all(b in counts or b in df for b in _base_parts(p))]
         if not ready:
             raise ValueError(f"CPV {label}: no base for the percentages "
                              f"{ {p: _PERCENT_BASES[p] for p in pending} }")
         for pct in ready:
-            base_name = _PERCENT_BASES[pct]
-            base = counts[base_name] if base_name in counts else df[base_name].astype("Float64")
+            parts = [counts[b] if b in counts else df[b].astype("Float64")
+                     for b in _base_parts(pct)]
+            base = parts[0] if len(parts) == 1 else sum(parts[1:], parts[0])
             share = df[pct].astype("Float64")
             counts[_count_name(pct)] = (share * base / 100).mask(
                 share.isna() & base.eq(0).fillna(False), 0.0)
@@ -203,11 +244,17 @@ def load_cpv_estimaciones(
         without the ``PCN_`` prefix (``PCN_VPH_PISOTI`` → ``VPH_PISOTI``; INEGI's
         ``PNC_P6A14AN`` → ``P6A14AN``), = percentage × base / 100. The base is the count the
         percentage is a share of (``_PERCENT_BASES``, verified on the microdata): a
-        published count or another such count (``PEA`` = ``PCN_PEA`` × ``P_12YMAS``, then
-        ``PEA_F`` = ``PCN_PEA_F`` × ``PEA``). INEGI rounds the percentages to two decimals,
-        so a count can be off by base × 0.00005 (5 dwellings in 100,000). A count is missing
-        where its percentage is, except 0 where the base is 0. Every indicator of
-        ``cpv_constraints(table, 2025)`` is then a column.
+        published count, another such count (``PEA`` = ``PCN_PEA`` × ``P_12YMAS``, then
+        ``PEA_F`` = ``PCN_PEA_F`` × ``PEA``) or the sum of several (the five-year age
+        groups: the population of specified age, ``POB0_14`` + ``POB15_64`` +
+        ``POB65_MAS``). INEGI rounds the percentages to two decimals, so a count can be off
+        by base × 0.00005 (5 dwellings in 100,000). The disability by age
+        (``PCON_DISC0A14`` …) takes ``PCON_DISC``, which holds the few disabled of
+        unspecified age its true base leaves out. A count is missing where its percentage
+        is, except 0 where the base is 0. Every indicator of ``cpv_constraints(table,
+        2025)`` is then a column; 11 percentages have no count (a share of children,
+        ``PCN_HF``; bases the estimates do not give: ``PCN_P3NHLI_CLI``, the employed's
+        commute modes ``PCN_POCUP_CAM`` …).
 
     Columns: ``NIVEL`` (ordered categorical), ``CVEGEO`` and the names ``NOM_ENT``/
     ``NOM_MUN``/``NOM_LOC``, then the indicators — counts ``Int64`` (``Float64`` when the

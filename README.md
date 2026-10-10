@@ -291,12 +291,20 @@ Seguro Popular…), each within a fraction of a point of the ITER in most states
 The EIC 2025 estimates publish most indicators only as percentages (`PCN_*`, two
 decimals). `load_cpv_estimaciones(counts=True)` turns each percentage whose base is known
 into a count (percentage × base / 100, named without the prefix), and those counts are
-constraints too: 2025 has 188 (96 person, 92 dwelling), each equal to the estimates at
+constraints too: 2025 has 307 (214 person, 93 dwelling), each equal to the estimates at
 every published geography (a published count exactly; a percentage to its rounding). The
 dwelling set covers walls, roofs, floors, crowding (`OCUP_CUARTO_CAT`), cooking, equipment,
 waste, tenure and deeds, and the household items: the household class (`CLASE_HOG`,
 familiar or not, also on the persons), income from other sources (`INGR_OTROS`), food
-insecurity and forced displacement. Some
+insecurity, forced displacement and Afro-descendant households (`HOG_AFRO`, also on the
+persons). The person set covers five-year age groups by sex (`EDAD_QUIN`), residence in
+2020 by municipality (`LUGAR_RES_5A`), indigenous self-identification, disability by sex and
+age, attendance, education levels, position at work, health affiliation, access
+(`DHSERSAL_AFIL_ACCESO`) and use (`SERSALUD`), the students' and the employed's place
+(`ENT_PAIS_ASI_INEGI`, `ENT_PAIS_TRAB_INEGI`) and time of commute, the students' modes
+(`MED_TRASLADO_ESC_METRO_T`…) and marital status by sex. Eleven percentages have no count:
+a share of children (`PCN_HF`) and three bases the estimates do not give (the employed's
+nine commute modes, `PCN_P3NHLI_CLI`). Some
 follow the survey's own definitions: born in another state leaves out the unspecified state
 (`ENT_PAIS_NAC_INEGI`), the ISSSTE is federal or state (`DHSERSAL_ISSSTE_T`), the sanitary
 service includes a latrine. In 2020 and 2025 the limitation by activity (`PCLIM_*`) counts

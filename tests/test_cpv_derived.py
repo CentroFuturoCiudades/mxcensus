@@ -49,7 +49,7 @@ def _codes(meta: dict, *, numeric_range: bool = False) -> tuple[str, frozenset[i
 
 
 _CASES = [(dv.table, period, src) for dv in d._registry() for period in dv.periods
-          if period != "2020" for src in dv.sources if src != "ENT"]
+          if period != "2020" for src in dv.sources if src not in ("ENT", "MUN")]
 
 # Reviewed differences from the 2020 code list after the recode (6d, STEP_6d.md): the 2020
 # codes an edition does not distinguish, and the codes it adds.
@@ -93,6 +93,9 @@ _OWN_CODES = {
     **{("2010", item): {99} for item in ("IDMADRE", "IDPADRE", "IDCONYUGE")},
     **{("2010", item): {88, 99} for item in ("IDMADREC", "IDPADREC", "IDCONYUGEC")},
     ("2015", "FINANCIAMIENTO"): set(d._financiamiento_2015()) - {d._BLANK},
+    # 7a: the EIC 2025's recognition of an access to the public health services (asked of
+    # the not affiliated; Censo 2020 has no such item)
+    ("2025", "DHSERSAL_ACCESO"): {1, 3, 9},
     # 2010's 4-digit occupation and 6-digit religion: catalogs, no sentinel in the FD
     # (test_catalog_codes_derive reads the catalogs)
     ("2010", "OCUACTIV_C"): set(), ("2010", "OTRAREL_C"): set(),
@@ -149,7 +152,8 @@ _BORROWED = {("viviendas", "SEXO"): ("personas", "viviendas", "JEFE_SEXO"),
              ("hogares", "CLAVIVP"): ("viviendas", "viviendas", "CLAVIVP"),
              ("personas", "TIPOHOG"): ("viviendas", "viviendas", "TIPOHOG"),
              **{(table, item): ("personas", "personas", item)
-                for table in ("viviendas", "hogares") for item in ("PARENTESCO", "HLENGUA")}}
+                for table in ("viviendas", "hogares")
+                for item in ("PARENTESCO", "HLENGUA", "AFRODES")}}            # 7a: AFRODES
 
 
 # 6w: the labels of the relationship codes (other than the head's) whose language makes a
@@ -331,13 +335,21 @@ def test_cpv_derivations_listing():
     ind = {"HOG_IND"}                                              # 6w: 2000–2025
     clase = {"CLASE_HOG"}                                  # 6z: 2000, 2010–2025 (both tables)
     assert head | ind | clase <= p20 & p25
-    assert p15 == {"EDAD_CAT", "INGTRMEN_CAT", *educ, "CONACT_CAT", "SITUA_CONYUGAL_CAT",
+    assert p15 == {"EDAD_CAT", "EDAD_QUIN", "INGTRMEN_CAT", *educ, "CONACT_CAT", "SITUA_CONYUGAL_CAT",
                    "IDENT_MADRE_CAT", "IDENT_PADRE_CAT", *migration, *coresidence,
                    *dhsersal, *commute, *coarse, *head, *ind, *clase}
     assert {"MED_TRASLADO_ESC_Caminando", "MED_TRASLADO_TRAB_Transporte de personal"} <= p15 & p20
     assert {"MADRE_EN_VIVIENDA", "PADRE_EN_VIVIENDA", "SIN_DISC_LIM"} <= p20 & p25
+    # 7a: five-year ages (every edition), the residence by municipality, the place of school
+    # and work by INEGI's rule, the grouped commute modes (2020/2025); the health access
+    # and the Afro-descendant household (2025)
+    groups = {f"{p}_{g}" for p in ("MED_TRASLADO_ESC", "MED_TRASLADO_TRAB")
+              for g in ("METRO_T", "BUS_T", "TAXI_T")}
+    places = {"LUGAR_RES_5A", "ENT_PAIS_ASI_INEGI", "ENT_PAIS_TRAB_INEGI"}
+    assert {"EDAD_QUIN", *places, *groups} <= p20 & p25
+    assert {"DHSERSAL_AFIL_ACCESO", "HOG_AFRO"} <= p25 - p20
     assert set(mxcensus.cpv_derivations("personas", 2010)["COLUMN"]) == {
-        "EDAD_CAT", "INGTRMEN_CAT", "HORTRA_CAT", *educ, "CONACT_CAT", "SITUA_CONYUGAL_CAT",
+        "EDAD_CAT", "EDAD_QUIN", "INGTRMEN_CAT", "HORTRA_CAT", *educ, "CONACT_CAT", "SITUA_CONYUGAL_CAT",
         "LIM_ACTIVIDAD", "RELIGION_CAT", *migration, *coresidence, *dhsersal, *coarse, *head,
         *ind, *clase}
     rooms = {"OCUP_CUARTO_CAT"}                                    # 6z: 2010–2025
@@ -356,11 +368,11 @@ def test_cpv_derivations_listing():
     dhs2000 = {"DHSERSAL_IMSS", "DHSERSAL_ISSSTE", "DHSERSAL_P_D_M", "DHSERSAL_Otro",
                "DHSERSAL_No afiliado", "DHSERSAL_ISSSTE_T", "DHSERSAL_PUB", "DHSERSAL_AFIL"}
     assert set(mxcensus.cpv_derivations("personas", 2000)["COLUMN"]) == {     # 6i
-        "EDAD_CAT", "INGTRMEN_CAT", "HORTRA_CAT", *educ, "ACTIVIDADES_C_COARSE", "SECTOR",
+        "EDAD_CAT", "EDAD_QUIN", "INGTRMEN_CAT", "HORTRA_CAT", *educ, "ACTIVIDADES_C_COARSE", "SECTOR",
         "CONACT_CAT", "SITUA_CONYUGAL_CAT", *migration, "RELIGION_CAT", *dhs2000, *head, *ind,
         *clase}
     assert set(mxcensus.cpv_derivations("personas", 2005)["COLUMN"]) == {
-        "EDAD_CAT", *educ, "ENT_PAIS_RES_CAT", *dhs2000, "DHSERSAL_ISSSTE_E",
+        "EDAD_CAT", "EDAD_QUIN", *educ, "ENT_PAIS_RES_CAT", *dhs2000, "DHSERSAL_ISSSTE_E",
         "DHSERSAL_SALUD_PUBLICA", "DHSERSAL_Privado", *head, *ind}
     assert set(mxcensus.cpv_derivations("viviendas", 2000)["COLUMN"]) == {
         "CLAVIVP_CAT", "CUADORM_CAT", "TOTCUART_CAT", "DRENAJE_CAT", "INGTRHOG_CAT", "JEFE_SEXO",
@@ -378,13 +390,14 @@ def test_cpv_derivations_listing():
     members = full[full["COLUMN"].eq("HOG_IND") & full["TABLE"].ne("personas")]
     assert set(members["SOURCES"]) == {"PARENTESCO, HLENGUA"}
     assert {p for ps in members["PERIODS"] for p in ps.split(", ")} == set(d._IND_CODES)
-    assert d._member_sources("viviendas", "2025") == ("PARENTESCO", "HLENGUA")
+    assert d._member_sources("viviendas", "2020") == ("PARENTESCO", "HLENGUA")
+    assert d._member_sources("viviendas", "2025") == ("PARENTESCO", "HLENGUA", "AFRODES")
     assert d._member_sources("viviendas", "2005") == d._member_sources("personas", "2025") == ()
     # 6s: 2020/2025 publish JEFE_SEXO as a dwelling item, 1990/1995 no household indicator
     assert all("JEFE_SEXO" not in set(mxcensus.cpv_derivations("viviendas", p)["COLUMN"])
                for p in (1990, 1995, 2015, 2020, 2025))
-    oldest = {"EDAD_CAT", "INGTRMEN_CAT", "HORTRA_CAT", *educ, "CONACT_CAT",           # 6j
-              "SITUA_CONYUGAL_CAT", *migration}
+    oldest = {"EDAD_CAT", "EDAD_QUIN", "INGTRMEN_CAT", "HORTRA_CAT", *educ,          # 6j
+              "CONACT_CAT", "SITUA_CONYUGAL_CAT", *migration}
     assert set(mxcensus.cpv_derivations("personas", 1990)["COLUMN"]) == {
         *oldest, "RELIGION_CAT", "SECTOR"}
     assert set(mxcensus.cpv_derivations("personas", 1995)["COLUMN"]) == {*oldest, *head}
@@ -426,6 +439,11 @@ def _persons_2025() -> pd.DataFrame:
     df["ID_VIV"], df["PARENTESCO"], df["SEXO"] = "010010000001", ["101", "301"], ["3", "1"]
     df["HLENGUA"] = ["3", "1"]
     df["TIPOHOG"] = "1"         # 6z: the household's type (nuclear), from the dwelling file
+    # 7a: the own municipality and its 2020 residence there, the place of work (the first
+    # works in the entity), no access item (affiliated), not Afro-descendant
+    df["CVE_MUN"], df["MUN_RES_5A"] = "001", ["001", ""]
+    df["ENT_PAIS_ASI"], df["ENT_PAIS_TRAB"] = "", ["001", ""]
+    df["DHSERSAL_ACCESO"], df["AFRODES"] = "", "3"
     return df
 
 
@@ -438,7 +456,7 @@ def _each_a_household(df: pd.DataFrame) -> pd.DataFrame:
 _HEAD_ALONE = {"2000": {"OTROPARE_C": "100", "HLENGUA": "2"},
                "2010": {"PARENT": "01", "HLENGUA": "3"}, "2015": {"PARENT": "1", "HLENGUA": "3"},
                "2020": {"PARENTESCO": "101", "HLENGUA": "3"},
-               "2025": {"PARENTESCO": "101", "HLENGUA": "3"}}
+               "2025": {"PARENTESCO": "101", "HLENGUA": "3", "AFRODES": "3"}}     # 7a
 
 
 # 6z: a nuclear household of one person with no income from other sources than work
@@ -464,6 +482,7 @@ def _derive_dwellings(frame: pd.DataFrame, period: str) -> pd.DataFrame:
     out = d.derive(keyed, "viviendas", period,
                    members=keyed[list(keys)].assign(**_HEAD_ALONE[period]))
     assert out["HOG_IND"].eq("No").all()
+    assert "HOG_AFRO" not in out or out["HOG_AFRO"].eq("No").all()                # 7a
     return out
 
 
@@ -519,6 +538,62 @@ def test_inegi_birthplace_and_issste():
     assert list(out["DHSERSAL_ISSSTE"]) == [0, 1, 0, 1]
     assert list(out["DHSERSAL_ISSSTE_E"]) == [1, 0, 0, 1]
     assert list(out["DHSERSAL_PUB"]) == [1, 1, 1, 1]
+
+def test_derive_persons_7a():
+    """7a: five-year ages; the residence five years earlier by the own municipality and
+    entity (the United States apart; 998 another country, 997 not specified); the place of
+    school and work by INEGI's rule (as ``ENT_PAIS_NAC_INEGI``); the grouped commute modes
+    (metro or metrobús, trolebús or bus, either taxi); affiliated or recognising an access
+    to the public services; the Afro-descendant household (the indigenous household's
+    members). Unknown codes raise."""
+    df = _each_a_household(pd.concat([_persons_2025()] * 4, ignore_index=True)).assign(
+        EDAD=["000", "004", "005", "074", "075", "110", "999", "034"],
+        ENT_PAIS_RES_5A=["", "001", "001", "001", "014", "221", "998", "997"],
+        MUN_RES_5A=["", "001", "005", "999", "", "", "", ""],
+        ENT_PAIS_ASI=["", "001", "014", "221", "998", "997", "999", "536"],
+        MED_TRASLADO_ESC1=["", "03", "04", "06", "09", "01", "12", "99"],
+        MED_TRASLADO_ESC2=["", "05", "", "", "", "08", "", ""],
+        DHSERSAL1=["09", "09", "01", "99", "05", "06", "07", "08"],
+        DHSERSAL2="", DHSERSAL_ACCESO=["1", "3", "", "", "", "", "", ""],
+        AFRODES=["1", "3", "9", "3", "3", "3", "3", "3"])
+    out = d.derive(df, "personas", 2025)
+    assert list(out["EDAD_QUIN"]) == ["0-4", "0-4", "5-9", "70-74", "75-130", "75-130",
+                                      "No especificado", "30-34"]
+    assert out["EDAD_QUIN"].cat.ordered
+    assert list(out["LUGAR_RES_5A"]) == [
+        "Blanco por pase", "Mismo municipio", "Otro municipio", "Municipio no especificado",
+        "Otra entidad", "Estados Unidos", "Otro país", "No especificado"]
+    assert list(out["ENT_PAIS_ASI_INEGI"]) == [                      # 536: Palaos (2020: 356)
+        "Blanco por pase", "EstaEnt", "OtraEnt", "OtroPais", "OtroPais", "No especificado",
+        "No especificado", "OtroPais"]
+    assert out["ENT_PAIS_ASI_INEGI"].dtype == out["ENT_PAIS_RES_CAT"].dtype
+    assert list(out["MED_TRASLADO_ESC_METRO_T"]) == [0, 1, 0, 0, 0, 0, 0, 0]   # 03 + 05: once
+    assert list(out["MED_TRASLADO_ESC_BUS_T"]) == [0, 0, 1, 1, 0, 0, 0, 0]
+    assert list(out["MED_TRASLADO_ESC_TAXI_T"]) == [0, 0, 0, 0, 1, 1, 0, 0]
+    assert list(out["DHSERSAL_AFIL_ACCESO"]) == [1, 0, 1, 0, 1, 1, 1, 1]       # 99: neither
+    assert list(out["HOG_AFRO"]) == ["Sí", "No", "No", "No", "No", "No", "No", "No"]
+    for col in ("EDAD_QUIN", "LUGAR_RES_5A", "ENT_PAIS_TRAB_INEGI", "HOG_AFRO",
+                "DHSERSAL_AFIL_ACCESO", "MED_TRASLADO_TRAB_BUS_T"):
+        assert out[col].dtype == d.derived_dtypes("personas", "2025")[col], col
+    # the household's: the head's partner counts, a child does not (as HOG_IND)
+    one = _persons_2025().assign(AFRODES=["3", "1"])
+    assert list(d.derive(one, "personas", 2025)["HOG_AFRO"]) == ["No", "No"]
+    assert list(d.derive(one.assign(PARENTESCO=["101", "201"]), "personas", 2025)
+                ["HOG_AFRO"]) == ["Sí", "Sí"]
+    for col, bad in (("HOG_AFRO", {"AFRODES": "7"}), ("DHSERSAL_AFIL_ACCESO",
+                                                       {"DHSERSAL_ACCESO": "5"}),
+                     ("LUGAR_RES_5A", {"ENT_PAIS_RES_5A": "001", "MUN_RES_5A": ""})):
+        with pytest.raises(ValueError, match=col):
+            d.derive(df.assign(**bad), "personas", 2025)
+    # Censo 2020: the same codes, the own municipality under its raw name
+    p20 = df.rename(columns={"CVE_ENT": "ENT", "CVE_MUN": "MUN"}).drop(
+        columns=["DHSERSAL_ACCESO", "AFRODES"]).assign(
+        ENT_PAIS_ASI="001", ENT_PAIS_NAC="001", SITUA_CONYUGAL="3", RELIGION="1101",
+        IDENT_HIJO="")
+    out20 = d.derive(p20, "personas", "2020")
+    assert list(out20["LUGAR_RES_5A"]) == list(out["LUGAR_RES_5A"])
+    assert "HOG_AFRO" not in out20 and "DHSERSAL_AFIL_ACCESO" not in out20
+
 
 def test_educ_inegi():
     """``EDUC_INEGI`` = ``EDUC`` with the técnica studies after primaria (2020's level 6, any
@@ -1133,7 +1208,7 @@ def test_household_members(monkeypatch, tmp_path):
         files[name] = tmp_path / name
         frame.astype("string").to_parquet(files[name])
 
-    sources = d._member_sources("viviendas", "2025")
+    sources = d._member_sources("viviendas", "2010")
     persons("2010", pd.DataFrame({"ENT": ["01"] * 2, "ID_VIV": ["00000001"] * 2,
                                   "PARENT": ["01", "03"], "OTROPARE_C": ["101", "301"],
                                   "HLENGUA": ["1", "3"], "SEXO": ["1", "3"]}))
@@ -1141,9 +1216,9 @@ def test_household_members(monkeypatch, tmp_path):
     assert list(m10.columns) == ["ENT", "ID_VIV", "PARENT", "HLENGUA"]
     assert list(cpv._household_members("2010", 1, True, sources)["ID_VIV"]) == ["010000000001"] * 2
     persons("2025", pd.DataFrame({"CVE_ENT": ["01"], "ID_VIV": ["010010000001"],
-                                  "PARENTESCO": ["101"], "HLENGUA": ["1"]}))
-    assert list(cpv._household_members("2025", 1, False, sources).columns) == [
-        "CVE_ENT", "ID_VIV", "PARENTESCO", "HLENGUA"]
+                                  "PARENTESCO": ["101"], "HLENGUA": ["1"], "AFRODES": ["3"]}))
+    m25 = cpv._household_members("2025", 1, False, d._member_sources("viviendas", "2025"))
+    assert list(m25.columns) == ["CVE_ENT", "ID_VIV", "PARENTESCO", "HLENGUA", "AFRODES"]
     persons("2005", _persons_2005())
     m05 = cpv._household_members("2005", 1, False, d._member_sources("hogares", "2005"))
     assert list(m05.columns) == ["ID_VIV", "ID_HOG", "ENT", "MUN", "CONS_MUN", "CONS_HOG",
@@ -1486,8 +1561,29 @@ def test_cpv_constraints_per_edition():
     counts = {_count_name(p) for p in _PERCENT_BASES}
     est = set(mxcensus._resources.variables_cpv(
         "estimaciones", mxcensus._resources.cpv_schema_map()["estimaciones"]["latest"]))
-    assert len(p25) == 96 and len(v25) == 92               # 6z: + 2 persons, + 38 + 23
+    assert len(p25) == 214 and len(v25) == 93    # 6z: + 2 persons, + 38 + 23; 7a: + 118, + 1
     assert set(p25) | set(v25) <= est | counts and counts <= set(p25) | set(v25)
+    # 7a: the persons' percentages and the published PUSU_SS, HOG_AFRO, PHOG_AFRO; each new
+    # cell stays within its indicator's universe
+    assert p25["P_0A4_F"] == {"EDAD_QUIN": ["0-4"], "SEXO": ["Mujer"]}
+    assert p25["P_75YMAS"] == {"EDAD_QUIN": ["75-130"]}
+    assert p25["PCON_DISC60YM"] == {"DISCAPACIDAD": ["Sí"], "EDAD_QUIN": d._QUIN[12:]}
+    assert p25["PRESE20"] == {"EDAD_CAT": d._AGES_5PLUS, "LUGAR_RES_5A": [
+        "Mismo municipio", "Otro municipio", "Municipio no especificado"]}
+    assert p25["PASIS_OENT"] == {**d._STUDENTS, "ENT_PAIS_ASI_INEGI": ["OtraEnt", "OtroPais"]}
+    assert p25["PASIS_MET"] == {**d._STUDENTS, "MED_TRASLADO_ESC_METRO_T": [1]}
+    assert p25["POCUP_2HYM"] == {**d._EMPLOYED_CELLS, "TIE_TRASLADO_TRAB": ["Más de 2 horas"]}
+    assert p25["PUSU_ISTE"] == {"SERSALUD": ["ISSSTE", "ISSSTE estatal"]}
+    assert len(p25["PUSU_SS"]["SERSALUD"]) == 9                       # 01–09: not 10, 99
+    assert p25["PcSSyRecAc"] == {"DHSERSAL_AFIL_ACCESO": [1]}
+    assert p25["P12YM_CUL_M"] == {"EDAD_CAT": d._AGES_12PLUS,
+                                  "SITUA_CONYUGAL_CAT": ["casado"], "SEXO": ["Hombre"]}
+    assert p25["P12YM_SOLT"] == per["P12YM_SOLT"]                      # the legacy total
+    assert p25["PHOG_AFRO"] == v25["HOG_AFRO"] == {"HOG_AFRO": ["Sí"]}
+    assert not {"POCUP_CAM", "P3NHLI_CLI", "HF"} & set(p25)        # bases not published
+    for period in (2000, 2010, 2020):                                 # the EIC 2025's only
+        assert not {"P_0A4_F", "PRESM20", "PASIS_MET", "PUSU_IMSS", "PHOG_AFRO"} & set(
+            mxcensus.cpv_constraints("personas", period))
     # 6z: the dwellings' other characteristics and the household items (the minors' food
     # items over the published HOG_MEN_ALIM, which has no cell), the population by its
     # household's class
@@ -1646,6 +1742,17 @@ def test_derived_2020_equals_legacy(local_mirror, table, state):
     for col in summary:
         either = legacy["DHSERSAL_ISSSTE"].astype(int) | legacy["DHSERSAL_ISSSTE_E"].astype(int)
         assert new[col].astype(int).equals(either), col
+    for prefix in ("MED_TRASLADO_ESC", "MED_TRASLADO_TRAB"):    # 7a: the grouped modes
+        if table != "personas":
+            break
+        labels = d._legacy_map("personas", f"{prefix}1")
+        for name, group in d._TRASLADO_T.items():
+            either = pd.concat([legacy[f"{prefix}_{labels[c]}"].astype(int)    # unreported
+                                if f"{prefix}_{labels[c]}" in legacy        # codes: 0
+                                else pd.Series(0, index=legacy.index) for c in group],
+                               axis=1).max(axis=1)
+            assert new[f"{prefix}_{name}"].astype(int).equals(either), name
+            summary.add(f"{prefix}_{name}")
     dummies = set(new.columns) - set(shared) - set(d._DTYPES) - set(d._DTYPE_LIKE) - summary
     for col in dummies:                                         # unobserved codes' dummies
         assert (new[col].astype(int) == 0).all(), col
@@ -1806,16 +1913,20 @@ def test_eic2025_constraints_equal_estimates(local_mirror, table):
     behind a percentage (6y, ``load_cpv_estimaciones(counts=True)``) the share of its base's
     cells is the published percentage within its rounding. ``PCON_DISC``/``PCON_LIMI``/
     ``PSIND_LIM`` through INEGI's flags. All 32 states, 2,478 municipalities and the
-    localities of 50,000+: STEP_6b.md, STEP_6g.md, STEP_6y.md."""
-    from mxcensus.cpv_aggregates import _PERCENT_BASES, _count_name
+    localities of 50,000+: STEP_6b.md, STEP_6g.md, STEP_6y.md, STEP_6z.md, STEP_7a.md."""
+    from mxcensus.cpv_aggregates import _PERCENT_BASES, _base_parts, _count_name
     loader = mxcensus.load_cpv_personas if table == "personas" else mxcensus.load_cpv_viviendas
     frame = loader(2025, state=1, derived=True)
     est = mxcensus.load_cpv_estimaciones(survey_path=_MIRROR / "cpv_estimaciones_2025.parquet",
                                          nivel=["estatal", "municipal"], state=1,
                                          counts=True).droplevel([0, 2])
     cons = mxcensus.cpv_constraints(table, 2025)
+    # 7a: the disabled of specified age, the true base of the disability by age (not
+    # published: those counts take PCON_DISC's)
+    base_cells = {"_DISC_EDADESP": {"DISCAPACIDAD": ["Sí"], "EDAD_QUIN": d._QUIN}} \
+        if table == "personas" else {}
     mun, sums = frame["CVE_MUN"].astype(str), {}
-    for ind, cells in cons.items():
+    for ind, cells in {**cons, **base_cells}.items():
         mask = pd.Series(True, index=frame.index)
         for var, cats in cells.items():
             mask &= frame[var].isin(cats)
@@ -1823,19 +1934,23 @@ def test_eic2025_constraints_equal_estimates(local_mirror, table):
         sums[ind] = pd.concat([by, pd.Series({"000": by.sum()})])
     got = pd.DataFrame(sums).reindex(est.index)
     pct = {_count_name(p): p for p in _PERCENT_BASES}
+    by_age = {f"PCON_DISC{a}" for a in ("0A14", "15A29", "30A59", "60YM")}
     for ind in cons:
         if ind in pct:
             pub = est[pct[ind]].astype(float).dropna()
-            base = _PERCENT_BASES[pct[ind]]           # 6z: HOG_MEN_ALIM, published, no cell
-            share = 100 * got[ind] / (got[base] if base in got else est[base].astype(float))
+            # 6z: HOG_MEN_ALIM, published, no cell; 7a: a base of several counts
+            base = sum(got[b] if b in got else est[b].astype(float)
+                       for b in _base_parts(pct[ind]))
+            share = 100 * got[ind] / (got["_DISC_EDADESP"] if ind in by_age else base)
             assert (share[pub.index] - pub).abs().max() <= 0.005 + 1e-9, ind
             assert est[ind].notna().all(), ind
         else:
             pub = est[ind].astype(float).dropna()
             assert got.loc[pub.index, ind].round().eq(pub).all(), ind
     assert len(est) == 12
-    assert len(cons) == {"personas": 96, "viviendas": 92}[table]   # 6t: PHOGJEF_F/M; 6v:
-    #  POBHOG; 6w: PHOG_IND; 6x: HOG_IND; 6y: the percentages (29/4 before); 6z: 2 + 61 more
+    assert len(cons) == {"personas": 214, "viviendas": 93}[table]   # 6t: PHOGJEF_F/M; 6v:
+    #  POBHOG; 6w: PHOG_IND; 6x: HOG_IND; 6y: the percentages (29/4 before); 6z: 2 + 61 more;
+    #  7a: 116 percentages + PUSU_SS, PHOG_AFRO (persons), HOG_AFRO (dwellings)
 
 
 # 6y: INEGI's limitation and disability by activity (a limitation only for the persons with

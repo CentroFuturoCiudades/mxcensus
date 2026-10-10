@@ -114,6 +114,18 @@ file (``cpv._attach_dwellings``, as the Conteo 2005's households read their dwel
 class); ``INGR_OTROS`` (2015–2025), whether a member receives money from a source other
 than work: any of the four «otros ingresos» items yes, all four no, else not specified.
 
+7a (the EIC 2025's person percentages) adds ``EDAD_QUIN``, five-year age groups up to
+75 and over (every edition); for 2020 and 2025, ``LUGAR_RES_5A``, the residence five years
+earlier by the person's own municipality and entity, the United States apart
+(:func:`_lugar_res`), ``ENT_PAIS_ASI_INEGI``/``ENT_PAIS_TRAB_INEGI``, the place of school
+and work by INEGI's rule (as ``ENT_PAIS_NAC_INEGI``), and the summary dummies
+``MED_TRASLADO_{ESC,TRAB}_{METRO,BUS,TAXI}_T`` (metro or metrobús; trolebús or bus,
+combi, colectivo; either taxi: :data:`_TRASLADO_T`); for the EIC 2025 only,
+``DHSERSAL_AFIL_ACCESO`` (affiliated, or recognising an access to the public health
+services, an item asked of the not affiliated) and ``HOG_AFRO`` (persons and dwellings, as
+``HOG_IND``): one of the indigenous household's members (:data:`_AFRO_CODES`) considers
+themself Afro-Mexican or Afro-descendant.
+
 :func:`cpv_derivations` lists the columns per edition. The check that the source codes
 match after the recode is a test (``tests/test_cpv_derived.py``).
 
@@ -131,7 +143,8 @@ with a limitation, ``PCDISC_*`` with the unknown degree) replace the legacy cell
 and 2025. The EIC 2025 publishes most indicators as percentages; their counts
 (``load_cpv_estimaciones(counts=True)``) are indicators too, some on its own definitions
 (:data:`_EDITION_CELLS`: born in another state without the unspecified one, the ISSSTE
-federal or state, toilet or latrine). The Conteo
+federal or state, toilet or latrine; 7a: the persons' five-year ages, residence in 2020,
+commute, health use…). The Conteo
 2005's household indicators are counted on its household frame
 (``cpv_constraints("hogares", 2005)``; its dwelling rows are dwellings), whose
 ``derived=True`` adds the dwelling's class and the household's own head's sex.
@@ -171,6 +184,8 @@ _RECODE: dict[str, dict[str, dict[int, float]]] = {
         # The country catalog renumbered two entries: Isla de Man, Palaos.
         "ENT_PAIS_NAC": {454: 241, 536: 356},
         "ENT_PAIS_RES_5A": {454: 241, 536: 356},
+        "ENT_PAIS_ASI": {454: 241, 536: 356},
+        "ENT_PAIS_TRAB": {454: 241, 536: 356},
     },
     "2015": {
         # 1 = Seguro Popular (2020: 05) first, then IMSS…otra 2–7 (2020: 01–04, 07, 08),
@@ -297,6 +312,7 @@ _RECODE: dict[str, dict[str, dict[int, float]]] = {
 
 # A source read under another name in some editions or under harmonize=True.
 _ALIASES = {"ENT": ("ENT", "CVE_ENT"),
+            "MUN": ("MUN", "CVE_MUN"),
             "EDAD": ("EDAD", "ANO_CUMP", "P3_6"),
             "CONACT": ("CONACT", "ACT_PRIN", "P7_1"),
             "SITUA_CONYUGAL": ("SITUA_CONYUGAL", "ESTCON", "EST_CIVIL", "P6_1"),
@@ -342,7 +358,6 @@ _IND_CODES: dict[str, tuple[int, ...]] = {
     "2000": (100, 200), "2005": (101, 102, 201, 202, 203, 204), "2010": (1, 2),
     "2015": (1, 2), "2020": (101, *_PARTNERS, 401, 416),
     "2025": (101, *_PARTNERS, 401, 402, 406, 407, 416)}
-_SPEAKS = 1          # HLENGUA (2020 codes): 1 speaks an indigenous language, 3 no, 9 NE
 
 _BLANK = -1  # a blank (not asked) code, as the legacy dictionaries spell it
 _DUMMY = pd.CategoricalDtype([0, 1])
@@ -377,15 +392,28 @@ _SECTOR = pd.CategoricalDtype(["Primario", "Secundario", "Terciario", "No especi
 _OCUP_CUARTO = pd.CategoricalDtype(["Hasta 2.5", "Más de 2.5", "No especificado",
                                     "Blanco por pase"])
 _CLASE_HOG = pd.CategoricalDtype(["Familiar", "No familiar", "No especificado"])
+# 7a: the five-year age groups (the EIC 2025 estimates' P_0A4 … P_75YMAS) and the place of
+# residence five years earlier with the municipality and the United States apart (its
+# PRESM20 … PRESOP20; the person's own municipality and entity; «Municipio no especificado»:
+# the own entity, municipality 999).
+_EDAD_QUIN = pd.CategoricalDtype([*(f"{a}-{a + 4}" for a in range(0, 75, 5)), "75-130",
+                                  "No especificado"], ordered=True)
+_LUGAR_RES = pd.CategoricalDtype(["Mismo municipio", "Otro municipio",
+                                  "Municipio no especificado", "Otra entidad", "Estados Unidos",
+                                  "Otro país", "No especificado", "Blanco por pase"])
 _DTYPES = {"DISCAPACIDAD": _YES_NO, "LIMITACION": _YES_NO, "SIN_DISC_LIM": _YES_NO,
            "LIM_ACTIVIDAD": _YES_NO, "MADRE_EN_VIVIENDA": _YES_NO, "PADRE_EN_VIVIENDA": _YES_NO,
            "EDUC_INEGI": _EDUC_INEGI, "EDUC_INEGI_DET": _EDUC_INEGI_DET, "SECTOR": _SECTOR,
            "HOG_IND": _SI_NO, "OCUP_CUARTO_CAT": _OCUP_CUARTO, "CLASE_HOG": _CLASE_HOG,
-           "INGR_OTROS": _YES_NO}
+           "INGR_OTROS": _YES_NO, "EDAD_QUIN": _EDAD_QUIN, "LUGAR_RES_5A": _LUGAR_RES,
+           "HOG_AFRO": _SI_NO}
 # Derived columns with another column's legacy dtype: the household head's sex on the
-# person (6t) has the dwelling item's; INEGI's birthplace (6y) the legacy one's.
+# person (6t) has the dwelling item's; INEGI's birthplace (6y) the legacy one's; the place
+# of school and work by INEGI's rule (7a) the residence's (with «Blanco por pase»).
 _DTYPE_LIKE = {"HOGJEF_SEXO": ("viviendas", "JEFE_SEXO"),
-               "ENT_PAIS_NAC_INEGI": ("personas", "ENT_PAIS_NAC_CAT")}
+               "ENT_PAIS_NAC_INEGI": ("personas", "ENT_PAIS_NAC_CAT"),
+               "ENT_PAIS_ASI_INEGI": ("personas", "ENT_PAIS_RES_CAT"),
+               "ENT_PAIS_TRAB_INEGI": ("personas", "ENT_PAIS_RES_CAT")}
 _DIS_ITEMS = ("DIS_VER", "DIS_OIR", "DIS_CAMINAR", "DIS_RECORDAR", "DIS_BANARSE", "DIS_HABLAR")
 # Censo 2010: one item per activity (DISCAP1–7, its code or blank), DISCAP8 = none (17) or
 # not specified (99).
@@ -469,6 +497,13 @@ def _edad_cat(src):
     return {"EDAD_CAT": _cut(src["EDAD"], "personas", "EDAD_CAT",
                              (0, 3, 5, 6, 8, 12, 15, 18, 25, 50, 60, 65, 200, 1e6),
                              labels, right=False)}
+
+
+def _edad_quin(src):
+    """Five-year age groups (7a), up to «75-130» (``EDAD_CAT``'s bins: 999 = not specified)."""
+    return {"EDAD_QUIN": _cut(src["EDAD"], "personas", "EDAD_QUIN",
+                              (*range(0, 80, 5), 200, 1e6), list(_EDAD_QUIN.categories),
+                              right=False)}
 
 
 def _ingtrmen_cat(src):
@@ -784,6 +819,33 @@ def _dummy_names(table: str, items: tuple[str, ...], prefix: str,
     return tuple(f"{prefix}_{label}" for label in (labels or _legacy_map(table, items[0])).values())
 
 
+# 7a: the commute modes the EIC 2025 estimates group (its PASIS_MET, _TROL, _TAXI and
+# POCUP_*): metro or metrobús, trolebús or camión/autobús/combi/colectivo, either taxi
+# (2020 codes, the same in 2025); summary dummies beside the one per code.
+_TRASLADO_T = {"METRO_T": (3, 5), "BUS_T": (4, 6), "TAXI_T": (8, 9)}
+
+
+def _traslado_t(items: tuple[str, ...], prefix: str):
+    """1 when any of ``items`` has a code of the group (an unknown code is reported by the
+    per-code dummies)."""
+    def fn(src):
+        codes = src[list(items)]
+        flags = {f"{prefix}_{name}": codes.isin(group).any(axis=1)
+                 for name, group in _TRASLADO_T.items()}
+        return _as_dummies(flags, pd.Series(False, index=src.index))
+    return fn
+
+
+def _afil_acceso(src):
+    """Affiliated to any institution (``DHSERSAL_AFIL``) or, not affiliated, recognising an
+    access to the public health services (``DHSERSAL_ACCESO`` 1): the EIC 2025's
+    ``PcSSyRecAc`` (7a). An unknown access code is left missing."""
+    afil = src["DHSERSAL1"].between(1, 8) | src["DHSERSAL2"].between(1, 8)
+    access = src["DHSERSAL_ACCESO"]
+    return _as_dummies({"DHSERSAL_AFIL_ACCESO": afil | access.eq(1)},
+                       access.notna() & ~access.isin([1, 3, 9]))
+
+
 # EIC 2015 commute code → its Censo 2020 code where the mode is the same (4 = transporte
 # escolar/laboral, 2020's «de personal»). Codes 1–3 merge 2020 modes (camión + both taxis,
 # metro + metrobús, automóvil + motocicleta) and keep 2015's wording; 2020's trolebús has no
@@ -850,6 +912,42 @@ def _ent_pais_cat(var: str, name: str, abroad: str | None = None, inegi: str | N
             out[inegi] = _as(cat.mask(code.eq(_ENT_NE), "No especificado"), "personas", inegi)
         return out
     return fn
+
+
+def _ent_pais_inegi(var: str, name: str):
+    """A place item (entity or country) by INEGI's rule (7a; the EIC 2025's ``PASIS_ENT``/
+    ``_OENT``, ``POCUP_ENT``/``_OENT``): ``EstaEnt`` for the person's entity, ``OtraEnt``
+    for another, ``OtroPais`` for a country or the country not specified (998), «No
+    especificado» for the entity not specified (997) or 999; the residence's labels."""
+    def fn(src):
+        code = src[var]
+        cat = _mapped(code, "personas", "ENT_PAIS_RES_CAT", name).mask(code.eq(src["ENT"]),
+                                                                      "EstaEnt")
+        return {name: cat.mask(code.eq(_ENT_NE), "No especificado")}
+    return fn
+
+
+_USA = 221               # Estados Unidos de América (the 2020 country catalog)
+
+
+def _lugar_res(src):
+    """The place of residence five years earlier (7a; the EIC 2025's ``PRESM20`` …
+    ``PRESOP20``): the own entity by the municipality (``MUN_RES_5A`` against the person's;
+    999 «Municipio no especificado»), another entity, the United States, another country
+    or the country not specified (998), not specified (the entity not specified, 997, or
+    999), blank (not asked: under five). A code the residence's labels lack, or the own
+    entity without a municipality, is left missing (:func:`derive` reports it)."""
+    code, mun = src["ENT_PAIS_RES_5A"], src["MUN_RES_5A"]
+    cat = _mapped(code, "personas", "ENT_PAIS_RES_CAT", "ENT_PAIS_RES_CAT").astype(object)
+    own = code.eq(src["ENT"])
+    values = np.select(
+        [own & mun.eq(src["MUN"]), own & mun.eq(999), own & mun.notna(), own,
+         code.eq(_ENT_NE), code.eq(_USA), cat.eq("OtraEnt"), cat.eq("OtroPais"),
+         cat.eq("No especificado"), cat.eq("Blanco por pase")],
+        ["Mismo municipio", "Municipio no especificado", "Otro municipio", None,
+         "No especificado", "Estados Unidos", "Otra entidad", "Otro país", "No especificado",
+         "Blanco por pase"], None)
+    return {"LUGAR_RES_5A": _as(values, "personas", "LUGAR_RES_5A")}
 
 
 def _pointer_2010(number: pd.Series, code: pd.Series) -> pd.Series:
@@ -1026,19 +1124,37 @@ def _hogjef_sexo(heads: tuple[int, ...]):
     return func
 
 
+def _hog_flag(name: str, item: str, members: tuple[int, ...]):
+    """Whether each person's household has one of its ``members`` (relationship codes)
+    answering 1 to ``item`` (codes 1, 3, 9; 2020 codes): «Sí»/«No» (not specified or not
+    asked is not). A household with another code is left missing (:func:`derive` reports
+    it)."""
+    def func(src):
+        household, answer = src[_HOUSEHOLD], src[item]
+        yes = answer.eq(1) & src["PARENTESCO"].isin(members)
+        unknown = (answer.notna() & ~answer.isin([1, 3, 9])).groupby(household).transform("any")
+        values = np.where(yes.groupby(household).transform("any"), "Sí", "No")
+        return {name: _as(values, "personas", name).mask(unknown.to_numpy())}
+    return func
+
+
 def _hog_ind(members: tuple[int, ...]):
     """Whether each person's household is indigenous (6w), by the edition's own definition:
     one of its ``members`` (relationship codes, :data:`_IND_CODES`) speaks an indigenous
     language (``HLENGUA`` 1); not speaking, not specified or not asked (the youngest) is
-    not. A household with a language code other than 1, 3, 9 (2020 codes) is left missing
-    (:func:`derive` reports it)."""
-    def func(src):
-        household, lang = src[_HOUSEHOLD], src["HLENGUA"]
-        speaks = lang.eq(_SPEAKS) & src["PARENTESCO"].isin(members)
-        unknown = (lang.notna() & ~lang.isin([1, 3, 9])).groupby(household).transform("any")
-        values = np.where(speaks.groupby(household).transform("any"), "Sí", "No")
-        return {"HOG_IND": _as(values, "personas", "HOG_IND").mask(unknown.to_numpy())}
-    return func
+    not."""
+    return _hog_flag("HOG_IND", "HLENGUA", members)
+
+
+# 7a: the Afro-descendant households (the EIC 2025's HOG_AFRO/PHOG_AFRO, exact in every
+# geography): one of the indigenous households' members (_IND_CODES: head, partner,
+# parents, step-parents, grandparents, parents-in-law) considers themself Afro-Mexican or
+# Afro-descendant (AFRODES 1). The other editions publish no such count.
+_AFRO_CODES: dict[str, tuple[int, ...]] = {"2025": _IND_CODES["2025"]}
+
+
+def _hog_afro(members: tuple[int, ...]):
+    return _hog_flag("HOG_AFRO", "AFRODES", members)
 
 
 def _periods_by(codes: Mapping[str, tuple]) -> dict[tuple, tuple[str, ...]]:
@@ -1101,6 +1217,7 @@ def _registry() -> tuple[_Derivation, ...]:
     fin15 = _financiamiento_2015()
     return (
         D(per, ("EDAD_CAT",), ("EDAD",), (*_OLDEST, *_EVERY), _edad_cat),
+        D(per, ("EDAD_QUIN",), ("EDAD",), (*_OLDEST, *_EVERY), _edad_quin),          # 7a
         D(per, ("INGTRMEN_CAT",), ("INGTRMEN",), ("1995", *_SINCE_2000), _ingtrmen_cat),
         D(per, ("INGTRMEN_CAT",), ("INGTRMEN", "CONACT"), ("1990",), _ingtrmen_1990),
         D(per, ("HORTRA_CAT",), ("HORTRA",), ("1995", "2010", "2020", "2025"), _hortra_cat),
@@ -1141,6 +1258,18 @@ def _registry() -> tuple[_Derivation, ...]:
           _dummies(per, _TRAB, "MED_TRASLADO_TRAB")),
         D(per, _dummy_names(per, _TRAB, "MED_TRASLADO_TRAB", trab15), _TRAB, ("2015",),
           _dummies(per, _TRAB, "MED_TRASLADO_TRAB", trab15)),
+        # 7a: the EIC 2025 estimates' groups of commute modes, its affiliated or recognising
+        # an access to the public health services, the place of school and of work by
+        # INEGI's rule, the residence five years earlier by municipality
+        *(D(per, tuple(f"{prefix}_{name}" for name in _TRASLADO_T), items, _NEW,
+            _traslado_t(items, prefix))
+          for items, prefix in ((_ESC, "MED_TRASLADO_ESC"), (_TRAB, "MED_TRASLADO_TRAB"))),
+        D(per, ("DHSERSAL_AFIL_ACCESO",), ("DHSERSAL1", "DHSERSAL2", "DHSERSAL_ACCESO"),
+          ("2025",), _afil_acceso),
+        *(D(per, (f"{item}_INEGI",), (item, "ENT"), _NEW, _ent_pais_inegi(item, f"{item}_INEGI"))
+          for item in ("ENT_PAIS_ASI", "ENT_PAIS_TRAB")),
+        D(per, ("LUGAR_RES_5A",), ("ENT_PAIS_RES_5A", "MUN_RES_5A", "ENT", "MUN"), _NEW,
+          _lugar_res),
         D(per, ("CONACT_CAT",), ("CONACT",), (*_OLDEST, *_SINCE_2000),
           _cat(per, "CONACT", "CONACT_CAT")),
         D(per, ("SITUA_CONYUGAL_CAT",), ("SITUA_CONYUGAL",), (*_OLDEST, *_SINCE_2000),
@@ -1186,6 +1315,13 @@ def _registry() -> tuple[_Derivation, ...]:
         *(D(table, ("HOG_IND",), ("PARENTESCO", "HLENGUA"), editions, _hog_ind(members),
             household=True, members=True)
           for members, periods in _periods_by(_IND_CODES).items()
+          for table, editions in _household_records(periods).items()),
+        # 7a: the Afro-descendant households, on the persons and on the household records
+        *(D(per, ("HOG_AFRO",), ("PARENTESCO", "AFRODES"), periods, _hog_afro(members),
+            household=True) for members, periods in _periods_by(_AFRO_CODES).items()),
+        *(D(table, ("HOG_AFRO",), ("PARENTESCO", "AFRODES"), editions, _hog_afro(members),
+            household=True, members=True)
+          for members, periods in _periods_by(_AFRO_CODES).items()
           for table, editions in _household_records(periods).items()),
         D(viv, ("CLAVIVP_CAT",), ("CLAVIVP",), ("1990", "2000", "2005", "2010", *_SINCE_2015),
           _cat(viv, "CLAVIVP", "CLAVIVP_CAT")),
@@ -1598,6 +1734,97 @@ _HOUSEHOLDS_2025 = {
         ("ING_MEN3", "ING_ALIM_MEN3"),
         ("DESP_INSEG", "DESP_INSEGURIDAD"), ("DESP_CATAS", "DESP_CATASTROFES"))},
 }
+# 7a: the EIC 2025's person percentages (the counts behind them: cpv_aggregates.
+# _PERCENT_BASES), each cell within its indicator's universe (the ages, the students, the
+# employed). The five-year age groups by sex; birthplace abroad by nationality; residence
+# five years earlier; self-identification as indigenous; disability by sex and by age;
+# attendance; education levels; position at work; health affiliation, access and use; the
+# students' and the employed's place and time of commute, the students' modes (the
+# employed's are not: their base, who commute, is not published); marital status by sex.
+# Left out: PCN_HF (a share of children, not persons), PCN_P3NHLI_CLI (its base, the 3+
+# who do not speak an indigenous language, leaves out the unspecified, which nothing
+# published gives) and the employed's modes.
+_AGES_3PLUS = ["3-4", *_AGES_5PLUS]
+_QUIN = [*(f"{a}-{a + 4}" for a in range(0, 75, 5)), "75-130"]
+
+
+def _quin_name(group: str) -> str:
+    """«0-4» → ``P_0A4``, «75-130» → ``P_75YMAS`` (the estimates' age-group names)."""
+    lo, hi = group.split("-")
+    return f"P_{lo}YMAS" if hi == "130" else f"P_{lo}A{hi}"
+
+
+_STUDENTS = {"EDAD_CAT": _AGES_3PLUS, "ASISTEN": ["Sí"]}
+_TIEMPOS = {"15MIN": ["Hasta 15 minutos"], "30MIN": ["16 a 30 minutos"],
+            "1HOR": ["31 minutos a 1 hora"]}
+_SERSALUD_2025 = {"IMSS": ["Seguro Social (IMSS)"], "ISTE": ["ISSSTE", "ISSSTE estatal"],
+                  "PDOM": ["PEMEX, la Defensa o la Marina"],
+                  "IMSSB": ["IMSS-BIENESTAR (IMSS-PROSPERA)"],
+                  "IPUB": ["Centro de salud, hospital o instituto público de salud (federal o "
+                           "estatal. Incluye INSABI y Seguro Popular)"],
+                  "IPRIV": ["Consultorio, clínica u hospital privado"],
+                  "CFARM": ["Consultorio de farmacia"], "OTRAI": ["Otro lugar"]}
+_MODES_ESC = {"CAM": "Caminando", "BICI": "Bicicleta", "MET": "METRO_T", "TROL": "BUS_T",
+              "TESC": "Transporte escolar", "TAXI": "TAXI_T", "MOTO": "Motocicleta o motoneta",
+              "AUTO": "Automóvil o camioneta", "OMED": "Otro"}
+_PERSONS_2025 = {
+    **{ind: cells for group in _QUIN
+       for ind, cells in _by_sex({"EDAD_QUIN": [group]},
+                                 (_quin_name(group), f"{_quin_name(group)}_M",
+                                  f"{_quin_name(group)}_F")).items()},
+    "PNACOP_NAC": {"ENT_PAIS_NAC_CAT": ["OtroPais"], "NACIONALIDAD": ["Sí"]},
+    "PNACOP_NONAC": {"ENT_PAIS_NAC_CAT": ["OtroPais"], "NACIONALIDAD": ["No"]},
+    **{ind: {"EDAD_CAT": _AGES_5PLUS, "LUGAR_RES_5A": places} for ind, places in (
+        ("PRESM20", ["Mismo municipio"]), ("PRESOM20", ["Otro municipio"]),
+        ("PRESE20", ["Mismo municipio", "Otro municipio", "Municipio no especificado"]),
+        ("PRESOE20", ["Otra entidad"]), ("PRESEUA20", ["Estados Unidos"]),
+        ("PRESOP20", ["Otro país"]))},
+    **_by_sex({"PERTE_INDIGENA": ["Sí"]}, ("POB_IND", "POB_IND_M", "POB_IND_F")),
+    "PCON_DISC_M": {"DISCAPACIDAD": ["Sí"], "SEXO": ["Hombre"]},
+    "PCON_DISC_F": {"DISCAPACIDAD": ["Sí"], "SEXO": ["Mujer"]},
+    **{ind: {"DISCAPACIDAD": ["Sí"], "EDAD_QUIN": _QUIN[lo:hi]} for ind, lo, hi in (
+        ("PCON_DISC0A14", 0, 3), ("PCON_DISC15A29", 3, 6), ("PCON_DISC30A59", 6, 12),
+        ("PCON_DISC60YM", 12, 16))},
+    "P3YM_ASIS": _STUDENTS,
+    **_by_sex({"EDAD_CAT": _AGES_6_14, "ASISTEN": ["No"]},
+              ("P6A14_NOA", "P6A14_NOA_M", "P6A14_NOA_F")),
+    **{ind: {"EDAD_CAT": _AGES_15PLUS, "EDUC_INEGI_DET": levels} for ind, levels in (
+        ("P15YM_EB", ["Primaria_incom", "Primaria_com", "Técnica_primaria",
+                      "Secundaria_incom", "Secundaria_com"]),
+        ("P15YM_EMS", ["Media_superior"]), ("P15YM_ES", ["Superior"]),
+        ("P15YM_POS", ["Posgrado"]))},
+    **{ind: {**_EMPLOYED_CELLS, "SITTRA": positions} for ind, positions in (
+        ("POCUP_ASA", ["empleada(o) u obrera(o)?", "jornalera(o) o peón(a)?",
+                       "ayudante con pago?"]),
+        ("POCUP_EMP", ["patrón(a) o empleador(a)? (Tiene trabajadores por un sueldo)"]),
+        ("POCUP_CPRO", ["trabajador(a) por cuenta propia? (No tiene trabajadores por un "
+                        "sueldo)"]),
+        ("POCUP_SPAG", ["trabajador(a) sin pago?"]))},
+    "PcSSyRecAc": {"DHSERSAL_AFIL_ACCESO": [1]},
+    "PAFIL_IPUB": {"DHSERSAL_SALUD_PUBLICA": [1]},
+    "PUSU_SS": {"SERSALUD": [c for v in _SERSALUD_2025.values() for c in v]},
+    **{f"PUSU_{ind}": {"SERSALUD": places} for ind, places in _SERSALUD_2025.items()},
+    "PASIS_ENT": {**_STUDENTS, "ENT_PAIS_ASI_INEGI": ["EstaEnt"]},
+    "PASIS_OENT": {**_STUDENTS, "ENT_PAIS_ASI_INEGI": ["OtraEnt", "OtroPais"]},
+    **{f"PASIS_{ind}": {**_STUDENTS, "TIE_TRASLADO_ESCU": times} for ind, times in (
+        *_TIEMPOS.items(), ("1HYM", ["Más de 1 hora y hasta 2 horas", "Más de 2 horas"]))},
+    **{f"PASIS_{ind}": {**_STUDENTS, f"MED_TRASLADO_ESC_{mode}": [1]}
+       for ind, mode in _MODES_ESC.items()},
+    "POCUP_ENT": {**_EMPLOYED_CELLS, "ENT_PAIS_TRAB_INEGI": ["EstaEnt"]},
+    "POCUP_OENT": {**_EMPLOYED_CELLS, "ENT_PAIS_TRAB_INEGI": ["OtraEnt", "OtroPais"]},
+    **{f"POCUP_{ind}": {**_EMPLOYED_CELLS, "TIE_TRASLADO_TRAB": times} for ind, times in (
+        *_TIEMPOS.items(), ("2HOR", ["Más de 1 hora y hasta 2 horas"]),
+        ("2HYM", ["Más de 2 horas"]))},
+    # «casada(o) o en unión libre» = the legacy «casado»; the totals of the single and the
+    # separated are the legacy P12YM_SOLT/_SEPA
+    **{ind: cells for status, name in (("soltero", "SOLT"), ("casado", "CUL"),
+                                       ("separado", "SEPA"))
+       for ind, cells in _by_sex({"EDAD_CAT": _AGES_12PLUS, "SITUA_CONYUGAL_CAT": [status]},
+                                 (f"P12YM_{name}", f"P12YM_{name}_M",
+                                  f"P12YM_{name}_F")).items()
+       if ind not in ("P12YM_SOLT", "P12YM_SEPA")},
+    "PHOG_AFRO": {"HOG_AFRO": ["Sí"]},
+}
 _EDITION_CELLS = {
     ("personas", "1990"): {
         "P15YM_AN": {"EDAD_CAT": _AGES_15PLUS,
@@ -1830,6 +2057,7 @@ _EDITION_CELLS = {
         # 6z: the population in familiar and not familiar households
         "POBHOG_FAM": {"CLASE_HOG": ["Familiar"]},
         "POBHOG_NFAM": {"CLASE_HOG": ["No familiar"]},
+        **_PERSONS_2025,                                                     # 7a
     },
     # 6y: the EIC 2025's dwelling universe (its percentages' base: the class «Vivienda», the
     # legacy VIVPARH_CV), its water item's wording («solo», 2020 «sólo»), and its sanitary
@@ -1843,6 +2071,7 @@ _EDITION_CELLS = {
                                               "letrina (pozo u hoyo)?"]},
         **_DWELLINGS_2025,
         **_HOUSEHOLDS_2025,
+        "HOG_AFRO": {"HOG_AFRO": ["Sí"]},              # 7a: on the household's HOG_AFRO
     },
 }
 
@@ -1965,8 +2194,16 @@ def cpv_constraints(table: str, period: str | int) -> dict:
     cooking place and fuel, water and energy equipment, waste, pay TV, tenure and deeds —,
     its household items — the class on ``CLASE_HOG``, income from other sources on
     ``INGR_OTROS`` and each source, food access and insecurity, forced displacement — and
-    the population by its household's class, ``POBHOG_FAM``/``POBHOG_NFAM``) are added
-    when it publishes the indicator. Its ``HOG_MEN_ALIM`` («hogares con menores de edad»,
+    the population by its household's class, ``POBHOG_FAM``/``POBHOG_NFAM``; 7a: its
+    persons' — the five-year age groups by sex on ``EDAD_QUIN``, birthplace abroad by
+    nationality, residence in 2020 on ``LUGAR_RES_5A``, self-identification as
+    indigenous, disability by sex and age, attendance, education levels, position at
+    work, the affiliated or recognising an access (``DHSERSAL_AFIL_ACCESO``), the users of
+    each health service (``SERSALUD``; ``PUSU_SS``), the students' and the employed's
+    place (``ENT_PAIS_ASI_INEGI``/``ENT_PAIS_TRAB_INEGI``) and time of commute, the
+    students' modes (metro or metrobús, bus, taxi: ``MED_TRASLADO_ESC_METRO_T`` …), marital
+    status by sex, the Afro-descendant households and their population on ``HOG_AFRO``)
+    are added when it publishes the indicator. Its ``HOG_MEN_ALIM`` («hogares con menores de edad»,
     the base of the minors' food items) has no cell: the questionnaire's filter of minors
     is not in the microdata (the households with someone under 18 run 0.05% over). Feed
     the result and the frame's dtypes to :func:`mxcensus.get_tables_dict`. For the EIC

@@ -796,6 +796,7 @@ from mxcensus.cpv_aggregates import (  # noqa: E402
     _PERCENT_BASES,
     ESTIMADORES,
     NIVELES,
+    _base_parts,
     _count_name,
     _percent_counts,
 )
@@ -1166,6 +1167,12 @@ def test_estimaciones_counts(fake_mirror):
     assert e["POCUPADA_F"].round(9).eq(0.01).all()           # … then the employed of them
     assert e["P6A14AN"].eq(1.0).all()                        # INEGI's PNC_ misspelling
     assert e["VPH_PROPRESI"].round(9).eq(0.1).all()          # 6z: of the owned dwellings
+    # 7a: a base of several counts — the age groups' (0–14 + 15–64 + 65+); the students'
+    # modes, of the four commute times (each 10 % of the students, 10 % of the 3+)
+    assert e["P_0A4_F"].eq(3.0).all() and e["P_75YMAS"].eq(3.0).all()
+    assert e["P_0A4"].isna().sum() == 1 and e["P_0A4"].dropna().eq(3.0).all()   # MI
+    assert e["PASIS_15MIN"].round(9).eq(0.1).all()
+    assert e["PASIS_CAM"].round(9).eq(0.04).all()
     assert pd.isna(e.loc[("01", "997", "9997"), "PNACENT_F"])   # POBFEM missing there
     for kw in ({"estimador": "ee"}, {"estimador": None}, {"estimador": ["valor"]}):
         with pytest.raises(ValueError, match="counts=True"):
@@ -1192,19 +1199,25 @@ def test_percent_bases_contract():
     and every base is a published count or another derived count."""
     v = variables_cpv("estimaciones", _SM["estimaciones"]["latest"])
     counts = {_count_name(p) for p in _PERCENT_BASES}
-    assert len(counts) == len(_PERCENT_BASES) == 148           # 6y: 85; 6z: + 63
-    for pct, base in _PERCENT_BASES.items():
+    assert len(counts) == len(_PERCENT_BASES) == 264       # 6y: 85; 6z: + 63; 7a: + 116
+    for pct in _PERCENT_BASES:
         assert v[pct]["Descripción"].startswith("Porcentaje"), pct
         assert _count_name(pct) not in v, pct
-        assert base in counts or not v[base]["Descripción"].startswith(
-            ("Porcentaje", "Promedio")), base
+        for base in _base_parts(pct):                 # 7a: a base may be a sum of counts
+            assert base in counts or not v[base]["Descripción"].startswith(
+                ("Porcentaje", "Promedio")), base
+    assert _base_parts("PCN_P_0A4_F") == ("POB0_14", "POB15_64", "POB65_MAS")
+    assert _base_parts("PCN_PASIS_CAM") == tuple(f"PASIS_{t}" for t in ("15MIN", "30MIN",
+                                                                        "1HOR", "1HYM"))
     unmapped = [c for c in v if c.startswith(("PCN_", "PNC_")) and c not in _PERCENT_BASES]
-    # 278 percentages: 148 mapped, 3 whose count is published (PNACOP, POCUPADA, PDER_SS),
-    # 127 without a constraint cell yet (6z took the dwellings and households: the persons'
-    # age groups, commute, health use… are left)
-    assert len(unmapped) == 130 and {"PCN_PNACOP", "PCN_POCUPADA", "PCN_PDER_SS"} <= set(unmapped)
-    assert not [c for c in unmapped if c.startswith(("PCN_VPH_", "PCN_HOG_", "PCN_ALIM_",
-                                                     "PCN_ING_", "PCN_DESP_", "PCN_POBHOG"))]
+    # 278 percentages: 264 mapped, 3 whose count is published (PNACOP, POCUPADA, PDER_SS) and
+    # 11 left out (7a): a share of children (PCN_HF), and three bases not published — the 3+
+    # who do not speak an indigenous language without the unspecified (PCN_P3NHLI_CLI), the
+    # employed who commute (their nine modes)
+    modes = {f"PCN_POCUP_{m}" for m in ("CAM", "BICI", "MET", "TROL", "TPER", "TAXI", "MOTO",
+                                        "AUTO", "OMED")}
+    assert set(unmapped) == {"PCN_PNACOP", "PCN_POCUPADA", "PCN_PDER_SS", "PCN_HF",
+                             "PCN_P3NHLI_CLI", *modes}
 
 def test_cpv_exports():
     for name in ("load_cpv", "load_cpv_viviendas", "load_cpv_personas", "load_cpv_migrantes",
