@@ -1165,6 +1165,7 @@ def test_estimaciones_counts(fake_mirror):
     assert e["PEA"].eq(1.0).all() and e["PEA_F"].eq(0.1).all()   # the PEA, then its women
     assert e["POCUPADA_F"].round(9).eq(0.01).all()           # … then the employed of them
     assert e["P6A14AN"].eq(1.0).all()                        # INEGI's PNC_ misspelling
+    assert e["VPH_PROPRESI"].round(9).eq(0.1).all()          # 6z: of the owned dwellings
     assert pd.isna(e.loc[("01", "997", "9997"), "PNACENT_F"])   # POBFEM missing there
     for kw in ({"estimador": "ee"}, {"estimador": None}, {"estimador": ["valor"]}):
         with pytest.raises(ValueError, match="counts=True"):
@@ -1191,16 +1192,19 @@ def test_percent_bases_contract():
     and every base is a published count or another derived count."""
     v = variables_cpv("estimaciones", _SM["estimaciones"]["latest"])
     counts = {_count_name(p) for p in _PERCENT_BASES}
-    assert len(counts) == len(_PERCENT_BASES) == 85
+    assert len(counts) == len(_PERCENT_BASES) == 148           # 6y: 85; 6z: + 63
     for pct, base in _PERCENT_BASES.items():
         assert v[pct]["Descripción"].startswith("Porcentaje"), pct
         assert _count_name(pct) not in v, pct
         assert base in counts or not v[base]["Descripción"].startswith(
             ("Porcentaje", "Promedio")), base
     unmapped = [c for c in v if c.startswith(("PCN_", "PNC_")) and c not in _PERCENT_BASES]
-    # 278 percentages: 85 mapped, 3 whose count is published (PNACOP, POCUPADA, PDER_SS),
-    # 190 without a constraint cell yet (age groups, walls, roofs, households…)
-    assert len(unmapped) == 193 and {"PCN_PNACOP", "PCN_POCUPADA", "PCN_PDER_SS"} <= set(unmapped)
+    # 278 percentages: 148 mapped, 3 whose count is published (PNACOP, POCUPADA, PDER_SS),
+    # 127 without a constraint cell yet (6z took the dwellings and households: the persons'
+    # age groups, commute, health use… are left)
+    assert len(unmapped) == 130 and {"PCN_PNACOP", "PCN_POCUPADA", "PCN_PDER_SS"} <= set(unmapped)
+    assert not [c for c in unmapped if c.startswith(("PCN_VPH_", "PCN_HOG_", "PCN_ALIM_",
+                                                     "PCN_ING_", "PCN_DESP_", "PCN_POBHOG"))]
 
 def test_cpv_exports():
     for name in ("load_cpv", "load_cpv_viviendas", "load_cpv_personas", "load_cpv_migrantes",

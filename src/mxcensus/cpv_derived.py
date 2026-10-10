@@ -103,6 +103,17 @@ does ``ENT_PAIS_NAC_INEGI`` (6y), the birthplace beside it (the EIC 2025's ``PNA
 persons nationally). ``DHSERSAL_ISSSTE_T`` (6y) is the ISSSTE, federal or state, beside
 the public (``DHSERSAL_PUB``) and any (``DHSERSAL_AFIL``) affiliation.
 
+Three household columns are new in 6z (the EIC 2025's dwelling and household
+percentages): ``OCUP_CUARTO_CAT``, the occupants per room (``NUMPERS`` ÷ ``TOTCUART``, the
+rooms counting the kitchen: up to 2.5 or more; 2010–2025, one household per dwelling);
+``CLASE_HOG``, the household's class from INEGI's ``TIPOHOG`` («Familiar» = nuclear,
+ampliado, compuesto and the unspecified familiar type 4; «No familiar» = unipersonal,
+corresidente; 9 «No especificado»), on the dwellings of 2000 (one row per household) and
+2010–2025 and on their persons, who read their household's ``TIPOHOG`` from the dwelling
+file (``cpv._attach_dwellings``, as the Conteo 2005's households read their dwelling's
+class); ``INGR_OTROS`` (2015–2025), whether a member receives money from a source other
+than work: any of the four «otros ingresos» items yes, all four no, else not specified.
+
 :func:`cpv_derivations` lists the columns per edition. The check that the source codes
 match after the recode is a test (``tests/test_cpv_derived.py``).
 
@@ -361,10 +372,16 @@ _SI_NO = pd.CategoricalDtype(["Sí", "No"])
 # water, construction, manufacturing; tertiary = trade, transport, services, government.
 _SECTOR = pd.CategoricalDtype(["Primario", "Secundario", "Terciario", "No especificado",
                                "Blanco por pase"])
+# 6z: the occupants per room (the EIC 2025's VPH_2_5OCU: more than 2.5) and the household's
+# class (INEGI's familiar / no familiar, from its TIPOHOG).
+_OCUP_CUARTO = pd.CategoricalDtype(["Hasta 2.5", "Más de 2.5", "No especificado",
+                                    "Blanco por pase"])
+_CLASE_HOG = pd.CategoricalDtype(["Familiar", "No familiar", "No especificado"])
 _DTYPES = {"DISCAPACIDAD": _YES_NO, "LIMITACION": _YES_NO, "SIN_DISC_LIM": _YES_NO,
            "LIM_ACTIVIDAD": _YES_NO, "MADRE_EN_VIVIENDA": _YES_NO, "PADRE_EN_VIVIENDA": _YES_NO,
            "EDUC_INEGI": _EDUC_INEGI, "EDUC_INEGI_DET": _EDUC_INEGI_DET, "SECTOR": _SECTOR,
-           "HOG_IND": _SI_NO}
+           "HOG_IND": _SI_NO, "OCUP_CUARTO_CAT": _OCUP_CUARTO, "CLASE_HOG": _CLASE_HOG,
+           "INGR_OTROS": _YES_NO}
 # Derived columns with another column's legacy dtype: the household head's sex on the
 # person (6t) has the dwelling item's; INEGI's birthplace (6y) the legacy one's.
 _DTYPE_LIKE = {"HOGJEF_SEXO": ("viviendas", "JEFE_SEXO"),
@@ -932,6 +949,59 @@ def _ingtrhog_cat(src):
                                  _INCOME_LABELS, right=False, blank=2e6)}
 
 
+_ROOMS_NE = 99           # TOTCUART (2010–2025): rooms not specified
+
+
+def _ocup_cuarto(src):
+    """Occupants per room (6z): ``NUMPERS`` ÷ ``TOTCUART`` (the rooms counting the kitchen)
+    up to 2.5 or more — the EIC 2025's ``VPH_2_5OCU``, exact at every published geography.
+    Rooms not specified (99) → «No especificado», blank (a dwelling class without
+    characteristics) → «Blanco por pase»; any other room code is left missing."""
+    rooms, persons = src["TOTCUART"], src["NUMPERS"]
+    valid = rooms.between(1, 25) & persons.ge(1)
+    values = pd.Series(None, index=src.index, dtype=object)
+    values[valid] = np.where((persons / rooms)[valid].gt(2.5), "Más de 2.5", "Hasta 2.5")
+    values[rooms.eq(_ROOMS_NE)] = "No especificado"
+    values[rooms.isna()] = "Blanco por pase"
+    return {"OCUP_CUARTO_CAT": _as(values, "viviendas", "OCUP_CUARTO_CAT")}
+
+
+# TIPOHOG (2000–2025, the same codes): nuclear, ampliado, compuesto and «no especificado»
+# (all familiar), unipersonal and corresidente (no familiar), 9 «no se sabe la composición».
+# The EIC 2025 counts 4 as familiar and 9 as neither (its PCN_HOG_FAM/_NFAM).
+_CLASES = {**dict.fromkeys((1, 2, 3, 4), "Familiar"), 5: "No familiar", 6: "No familiar",
+           9: "No especificado"}
+
+
+def _clase_hog(src):
+    """The household's class (6z): familiar or not, from INEGI's household type ``TIPOHOG``
+    (on the dwelling; the persons take their household's from the dwelling file:
+    ``cpv._attach_dwellings``)."""
+    return {"CLASE_HOG": _as(src["TIPOHOG"].map(_CLASES), "viviendas", "CLASE_HOG")}
+
+
+# The household's non-labour income items (2015–2025, «Otros ingresos»; codes yes/no: 1/2,
+# 3/4, 5/6, 7/8; 9 not specified).
+_INGR_OTROS = {"INGR_PEROTROPAIS": (1, 2), "INGR_PERDENTPAIS": (3, 4), "INGR_AYUGOB": (5, 6),
+               "INGR_JUBPEN": (7, 8)}
+
+
+def _ingr_otros(src):
+    """Whether a member receives money from a source other than work (6z; the EIC 2025's
+    ``HOG_PERC``/``HOG_NPERC``): «Sí» when any of the four items is yes, «No» when all four
+    are no, else «No especificado»; a code other than the item's yes, no or 9 is left
+    missing."""
+    def every(codes_of) -> pd.DataFrame:
+        return pd.concat([src[item].isin(codes_of(codes)) for item, codes in
+                          _INGR_OTROS.items()], axis=1)
+
+    values = pd.Series("No especificado", index=src.index, dtype=object)
+    values[every(lambda c: c[:1]).any(axis=1)] = "Sí"
+    values[every(lambda c: c[1:]).all(axis=1)] = "No"
+    values[~every(lambda c: (*c, 9)).all(axis=1)] = None
+    return {"INGR_OTROS": _as(values, "viviendas", "INGR_OTROS")}
+
+
 def _jefe_sexo(src):
     """The household head's sex (2020's dwelling item ``JEFE_SEXO``, its labels) from the
     head's ``SEXO``, which the dwelling loader brings from the person file for the editions
@@ -1131,6 +1201,14 @@ def _registry() -> tuple[_Derivation, ...]:
         D(viv, ("DRENAJE_CAT",), ("DRENAJE",), (*_OLDEST, *_EVERY),
           _cat(viv, "DRENAJE", "DRENAJE_CAT")),
         D(viv, ("INGTRHOG_CAT",), ("INGTRHOG",), _SINCE_2000, _ingtrhog_cat),
+        # 6z: the occupants per room (one household per dwelling from 2010 on), the
+        # household's class (the persons read their household's TIPOHOG, which the person
+        # loader attaches from the dwelling file: cpv._attach_dwellings) and its income
+        # from other sources than work
+        D(viv, ("OCUP_CUARTO_CAT",), ("NUMPERS", "TOTCUART"), _ALL, _ocup_cuarto),
+        D(viv, ("CLASE_HOG",), ("TIPOHOG",), _SINCE_2000, _clase_hog),
+        D(per, ("CLASE_HOG",), ("TIPOHOG",), _SINCE_2000, _clase_hog),
+        D(viv, ("INGR_OTROS",), tuple(_INGR_OTROS), _SINCE_2015, _ingr_otros),
         D(viv, _dummy_names(viv, _FIN, "FINANCIAMIENTO"), _FIN, _NEW,
           _dummies(viv, _FIN, "FINANCIAMIENTO")),
         D(viv, _dummy_names(viv, ("FINANCIAMIENTO",), "FINANCIAMIENTO", fin15),
@@ -1446,6 +1524,80 @@ _AGUA_FV_2005 = ["Se abastecen de una llave pública o hidrante", "Se abastecen 
                  "Se abastecen de agua de pipa", "Se abastecen de agua de pozo",
                  "Se abastecen de agua de río, arroyo, lago u otro"]
 _AGUA_DV_2025 = ["dentro de la vivienda?", "solo en el patio o terreno?"]
+# 6z: the EIC 2025's other dwelling characteristics (their percentages' base: VIVPARHAB_C;
+# the deeds' the owned dwellings, VPH_PROPIA, which counts those being paid for) and its
+# household items (base: TOTHOG; the minors' food items: HOG_MEN_ALIM, «hogares con
+# menores de edad», which no cell reproduces: the questionnaire's filter of minors is not
+# in the microdata). Each = the estimates to their rounding at every published geography.
+_TECHO_LAMINA = ["Lámina metálica", "Lámina de asbesto", "Lámina de fibrocemento"]
+_DWELLINGS_2025 = {ind: {**_VIVIENDA, **cells} for ind, cells in {
+    "VPH_2_5OCU": {"OCUP_CUARTO_CAT": ["Más de 2.5"]},
+    "VPH_PDESH": {"PAREDES": ["Material de desecho", "Lámina de cartón"]},
+    "VPH_PASB": {"PAREDES": ["Lámina de asbesto o metálica", "Carrizo, bambú o palma",
+                             "Embarro o bajareque"]},
+    "VPH_PMAD": {"PAREDES": ["Madera", "Adobe"]},
+    "VPH_PTAB": {"PAREDES": ["Tabique, ladrillo, block, piedra, cantera, cemento o concreto"]},
+    "VPH_TDESH": {"TECHOS": ["Material de desecho", "Lámina de cartón"]},
+    "VPH_TASB": {"TECHOS": _TECHO_LAMINA},
+    "VPH_TLOSA": {"TECHOS": ["Losa de concreto o viguetas con bovedilla"]},
+    "VPH_TOTRO": {"TECHOS": ["Palma o paja", "Madera o tejamanil", "Terrado con viguería",
+                             "Teja"]},
+    "VPH_PISOCEM": {"PISOS": ["Cemento o firme"]},
+    "VPH_PISOMAD": {"PISOS": ["Madera, mosaico u otro recubrimiento"]},
+    "VPH_CINT": {"LUG_COC": ["al interior de la vivienda?"]},
+    "VPH_CSEP": {"LUG_COC": ["en un cuarto separado de la vivienda?"]},
+    "VPH_COTRO": {"LUG_COC": ["en un pasillo o corredor fuera de la vivienda?",
+                              "en un tejabán o techito?", "al aire libre?",
+                              "¿No tiene un espacio para cocinar?"]},
+    "VPH_COMGAS": {"COMBUSTIBLE": ["gas?"]},
+    "VPH_COMELE": {"COMBUSTIBLE": ["electricidad?"]},
+    "VPH_BOMBA": {"BOMBA_AGUA": ["Sí"]},
+    "VPH_REGA": {"REGADERA": ["Sí"]},
+    "VPH_BOILER": {"BOILER": ["Sí"]},
+    "VPH_SOLAR": {"CALENTADOR_SOLAR": ["Sí"]},
+    "VPH_AIRE": {"AIRE_ACON": ["Sí"]},
+    "VPH_PANEL": {"PANEL_SOLAR": ["Sí"]},
+    "VPH_ORGANI": {"SEPARACION1": ["Sí"]},
+    "VPH_ANIMAL": {"SEPARACION2": ["Sí"]},
+    "VPH_PLANTA": {"SEPARACION3": ["Sí"]},
+    "VPH_VENDER": {"SEPARACION4": ["Sí"]},
+    "VPH_CAMBASU": {"DESTINO_BAS": ["se la dan a un camión o carrito recolector de basura?"]},
+    "VPH_CNTBASU": {"DESTINO_BAS": ["la dejan en un contenedor o depósito?"]},
+    "VPH_ELIMBAS": {"DESTINO_BAS": ["la queman?", "la entierran?",
+                                    "la llevan al basurero público?",
+                                    "la tiran en otro lugar? (Calle, baldío, barranca, río)"]},
+    "VPH_TVP": {"SERV_TV_PAGA": ["Sí"]},
+    "VPH_PROPIA": {"TENENCIA": ["vive la persona que es dueña o propietaria?",
+                                "vive la persona que es dueña pero la están pagando?"]},
+    "VPH_ALQUI": {"TENENCIA": ["se paga renta?"]},
+    "VPH_PREST": {"TENENCIA": ["¿Es de un familiar o les prestan la vivienda?"]},
+    "VPH_OTRASIT": {"TENENCIA": ["¿Está intestada o en litigio?",
+                                 "¿La ocupan en otra situación?"]},
+    "VPH_PROPRESI": {"ESCRITURAS": ["a nombre de la persona dueña o propietaria?"]},
+    "VPH_PERNORES": {"ESCRITURAS": ["a nombre de otra persona?"]},
+    "VPH_NOESCRI": {"ESCRITURAS": ["¿No tiene escrituras?"]},
+    "VPH_ESCRIDES": {"ESCRITURAS": ["No sabe"]},
+}.items()}
+_HOUSEHOLDS_2025 = {
+    "HOG_FAM": {"CLASE_HOG": ["Familiar"]},
+    "HOG_NFAM": {"CLASE_HOG": ["No familiar"]},
+    "HOG_PERC": {"INGR_OTROS": ["Sí"]},
+    "HOG_NPERC": {"INGR_OTROS": ["No"]},
+    "HOG_GOB": {"INGR_AYUGOB": ["Sí"]},
+    "HOG_JUB": {"INGR_JUBPEN": ["Sí"]},
+    "HOG_OVIV": {"INGR_PERDENTPAIS": ["Sí"]},
+    "HOG_OPAIS": {"INGR_PEROTROPAIS": ["Sí"]},
+    # ALIMENTACION: «se quedaron sin comida?» (yes = no access to food)
+    "HOG_ALIM_N": {"ALIMENTACION": ["Sí"]},
+    "HOG_ALIM": {"ALIMENTACION": ["No"]},
+    **{ind: {item: ["Sí"]} for ind, item in (
+        ("ALIM_ADL1", "ALIM_ADL1"), ("ALIM_ADL2", "ALIM_ADL2"), ("ALIM_ADL3", "ALIM_ADL3"),
+        ("ING_ADL1", "ING_ALIM_ADL1"), ("ING_ADL2", "ING_ALIM_ADL2"),
+        ("ALIM_MEN1", "ALIM_MEN1"), ("ALIM_MEN2", "ALIM_MEN2"), ("ALIM_MEN3", "ALIM_MEN3"),
+        ("ING_MEN1", "ING_ALIM_MEN1"), ("ING_MEN2", "ING_ALIM_MEN2"),
+        ("ING_MEN3", "ING_ALIM_MEN3"),
+        ("DESP_INSEG", "DESP_INSEGURIDAD"), ("DESP_CATAS", "DESP_CATASTROFES"))},
+}
 _EDITION_CELLS = {
     ("personas", "1990"): {
         "P15YM_AN": {"EDAD_CAT": _AGES_15PLUS,
@@ -1675,6 +1827,9 @@ _EDITION_CELLS = {
         **_by_sex({"EDAD_CAT": _AGES_6_14}, ("P_6A14", "P_6A14_M", "P_6A14_F")),
         **_by_sex({"EDAD_CAT": _AGES_6_14, "ALFABET": ["No"]},
                   ("P6A14AN", "P6A14AN_M", "P6A14AN_F")),
+        # 6z: the population in familiar and not familiar households
+        "POBHOG_FAM": {"CLASE_HOG": ["Familiar"]},
+        "POBHOG_NFAM": {"CLASE_HOG": ["No familiar"]},
     },
     # 6y: the EIC 2025's dwelling universe (its percentages' base: the class «Vivienda», the
     # legacy VIVPARH_CV), its water item's wording («solo», 2020 «sólo»), and its sanitary
@@ -1686,6 +1841,8 @@ _EDITION_CELLS = {
                        "DRENAJE_CAT": ["Sí"]},
         "VPH_EXCSA": {**_VIVIENDA, "SERSAN": ["taza de baño (excusado o sanitario)?",
                                               "letrina (pozo u hoyo)?"]},
+        **_DWELLINGS_2025,
+        **_HOUSEHOLDS_2025,
     },
 }
 
@@ -1803,10 +1960,17 @@ def cpv_constraints(table: str, period: str | int) -> dict:
     ``PHOG_IND``, the head or the partner only; the EIC 2025's born in another state without
     the unspecified one, ``PNACOE`` on ``ENT_PAIS_NAC_INEGI``, its ISSSTE federal or state,
     its toilet or latrine, its water item's wording, its dwelling universe ``VIVPARHAB_C``,
-    the age groups ``P_6A14``/``POB0_14_F``…, ``PNACOP_F``/``_M`` and ``P6A14AN``) are added
-    when it publishes the indicator. Feed the
-    result and the frame's dtypes to :func:`mxcensus.get_tables_dict`. For the EIC 2025,
-    each indicator is a column of ``load_cpv_estimaciones(counts=True)``.
+    the age groups ``P_6A14``/``POB0_14_F``…, ``PNACOP_F``/``_M`` and ``P6A14AN``; 6z: its
+    other dwelling characteristics — crowding on ``OCUP_CUARTO_CAT``, walls, roofs, floors,
+    cooking place and fuel, water and energy equipment, waste, pay TV, tenure and deeds —,
+    its household items — the class on ``CLASE_HOG``, income from other sources on
+    ``INGR_OTROS`` and each source, food access and insecurity, forced displacement — and
+    the population by its household's class, ``POBHOG_FAM``/``POBHOG_NFAM``) are added
+    when it publishes the indicator. Its ``HOG_MEN_ALIM`` («hogares con menores de edad»,
+    the base of the minors' food items) has no cell: the questionnaire's filter of minors
+    is not in the microdata (the households with someone under 18 run 0.05% over). Feed
+    the result and the frame's dtypes to :func:`mxcensus.get_tables_dict`. For the EIC
+    2025, each indicator is a column of ``load_cpv_estimaciones(counts=True)``.
 
     ``table`` is ``personas``, ``viviendas`` or, for the Conteo 2005, ``hogares``: its
     dwelling file has one row per dwelling, so the household indicators (``TOTHOG``,

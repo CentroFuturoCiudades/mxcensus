@@ -291,8 +291,12 @@ Seguro Popular…), each within a fraction of a point of the ITER in most states
 The EIC 2025 estimates publish most indicators only as percentages (`PCN_*`, two
 decimals). `load_cpv_estimaciones(counts=True)` turns each percentage whose base is known
 into a count (percentage × base / 100, named without the prefix), and those counts are
-constraints too: 2025 has 125 (94 person, 31 dwelling), each equal to the estimates at
-every published geography (a published count exactly; a percentage to its rounding). Some
+constraints too: 2025 has 188 (96 person, 92 dwelling), each equal to the estimates at
+every published geography (a published count exactly; a percentage to its rounding). The
+dwelling set covers walls, roofs, floors, crowding (`OCUP_CUARTO_CAT`), cooking, equipment,
+waste, tenure and deeds, and the household items: the household class (`CLASE_HOG`,
+familiar or not, also on the persons), income from other sources (`INGR_OTROS`), food
+insecurity and forced displacement. Some
 follow the survey's own definitions: born in another state leaves out the unspecified state
 (`ENT_PAIS_NAC_INEGI`), the ISSSTE is federal or state (`DHSERSAL_ISSSTE_T`), the sanitary
 service includes a latrine. In 2020 and 2025 the limitation by activity (`PCLIM_*`) counts

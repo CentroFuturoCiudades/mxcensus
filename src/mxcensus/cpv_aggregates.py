@@ -52,7 +52,8 @@ _GEO_INDEX = ["CVE_ENT", "CVE_MUN", "CVE_LOC"]
 # the PEA, the employed and unemployed of the PEA of their sex, the inactive's women and men
 # of the inactive, each institution's affiliates of the affiliated, the disability and
 # limitation by activity of the persons with a disability or a limitation, the speakers who
-# do or do not speak Spanish of the speakers.
+# do or do not speak Spanish of the speakers; the deeds of the owned dwellings (6z), the
+# minors' food items of the households with minors.
 def _sexed(pct: str, total: str, women: str, men: str) -> dict[str, str]:
     return {pct: total, f"{pct}_F": women, f"{pct}_M": men}
 
@@ -87,7 +88,26 @@ _PERCENT_BASES: dict[str, str] = {
     **dict.fromkeys((f"PCN_VPH_{x}" for x in (
         "PISOTI", "1CUART", "2CUART", "3YMASC", "1DOR", "2YMASD", "C_ELEC", "AGUADV",
         "DRENAJ", "C_SERV", "EXCSA", "DSADMA", "TINACO", "CISTER", "REFRI", "LAVAD", "HMICRO",
-        "AUTOM", "MOTO", "BICI", "RADIO", "TV", "PC", "TELEF", "CEL", "INTER")), "VIVPARHAB_C"),
+        "AUTOM", "MOTO", "BICI", "RADIO", "TV", "PC", "TELEF", "CEL", "INTER",
+        # 6z: crowding, walls, roofs, floors, cooking, equipment, waste, pay TV, tenure
+        "2_5OCU", "PDESH", "PASB", "PMAD", "PTAB", "TDESH", "TASB", "TLOSA", "TOTRO",
+        "PISOCEM", "PISOMAD", "CINT", "CSEP", "COTRO", "COMGAS", "COMELE", "BOMBA", "REGA",
+        "BOILER", "SOLAR", "AIRE", "PANEL", "ORGANI", "ANIMAL", "PLANTA", "VENDER",
+        "CAMBASU", "CNTBASU", "ELIMBAS", "TVP", "PROPIA", "ALQUI", "PREST", "OTRASIT")),
+        "VIVPARHAB_C"),
+    # 6z: the deeds, of the owned dwellings (being paid for or not); the households' type,
+    # income and food items, of the households — the minors' of the households with minors
+    # (a published count) —; the population by its household's type, of the population in
+    # households
+    **dict.fromkeys((f"PCN_VPH_{x}" for x in ("PROPRESI", "PERNORES", "NOESCRI", "ESCRIDES")),
+                    "VPH_PROPIA"),
+    **dict.fromkeys((f"PCN_{x}" for x in (
+        "HOG_FAM", "HOG_NFAM", "HOG_PERC", "HOG_NPERC", "HOG_GOB", "HOG_JUB", "HOG_OVIV",
+        "HOG_OPAIS", "HOG_ALIM_N", "HOG_ALIM", "ALIM_ADL1", "ALIM_ADL2", "ALIM_ADL3",
+        "ING_ADL1", "ING_ADL2", "DESP_INSEG", "DESP_CATAS")), "TOTHOG"),
+    **dict.fromkeys((f"PCN_{x}" for x in ("ALIM_MEN1", "ALIM_MEN2", "ALIM_MEN3", "ING_MEN1",
+                                          "ING_MEN2", "ING_MEN3")), "HOG_MEN_ALIM"),
+    "PCN_POBHOG_FAM": "POBHOG", "PCN_POBHOG_NFAM": "POBHOG",
 }
 
 

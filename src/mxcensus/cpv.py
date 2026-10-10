@@ -129,12 +129,18 @@ _HOUSEHOLD_PARTS: dict[str, tuple[str, ...]] = {
     "2005": ("ENT", "MUN", "CONS_MUN", "CONS_HOG"),
 }
 
-# The dwelling items a household frame takes from its dwelling for derived=True (6v): the
-# Conteo 2005's household table has no dwelling class, which the household constraints
-# (TOTHOG, HOGJEF_F/M: CLAVIVP_CAT) read. Edition → (the dwelling key parts, the items).
-_DWELLING_FOR_HOUSEHOLDS: dict[str, tuple[tuple[str, ...], tuple[str, ...]]] = {
-    "2005": (("ENT", "MUN", "CONS_MUN"), ("CLAVIVPA",)),
+# The dwelling items a frame takes from its dwelling (or household) record for derived=True:
+# the Conteo 2005's household table has no dwelling class, which the household constraints
+# (TOTHOG, HOGJEF_F/M: CLAVIVP_CAT) read (6v); the persons have no household type, which
+# their CLASE_HOG reads (6z: CGPV 2000's dwelling rows are its households). (table,
+# edition) → the items.
+_FROM_DWELLINGS: dict[tuple[str, str], tuple[str, ...]] = {
+    ("hogares", "2005"): ("CLAVIVPA",),
+    **{("personas", p): ("TIPOHOG",) for p in ("2000", "2010", "2015", "2020", "2025")},
 }
+# The dwelling file's key parts (:func:`_composite_keys`), where they are not the
+# household's (:data:`_HOUSEHOLD_PARTS`): the Conteo 2005's dwellings have no household.
+_DWELLING_PARTS: dict[str, tuple[str, ...]] = {"2005": ("ENT", "MUN", "CONS_MUN")}
 
 # Keys and geographic codes: digit strings (their width is edition-specific, so only the
 # all-digits shape is checked here; key widths are checked by the data tests). CPV 2020
@@ -841,28 +847,36 @@ def _person_columns(period: str, state, harmonize: bool,
     ``harmonize``: CGPV 2000's and the Conteo 2005's composite ``ID_VIV``/``ID_HOG``
     (:data:`_HOUSEHOLD_PARTS`), Censo 2010's national ``ID_VIV`` under ``harmonize``, else
     the entity and ``ID_VIV`` as the file spells them. Only those columns are read."""
+    return _file_columns("personas", period, state, harmonize, items)
+
+
+def _file_columns(table: str, period: str, state, harmonize: bool,
+                  items: Iterable[str | tuple[str, ...]]) -> pd.DataFrame:
+    """``table``'s (``personas``/``viviendas``) ``items`` and each record's household key,
+    read column-projected (:func:`_person_columns`; a dwelling file's key parts:
+    :data:`_DWELLING_PARTS`)."""
     import pyarrow.parquet as pq
 
     from mxcensus.data._registry import POOCH
 
+    default = _HOUSEHOLD_PARTS.get(period, (("ENT", "CVE_ENT"), "ID_VIV"))
+    parts = _DWELLING_PARTS.get(period, default) if table == "viviendas" else default
     frames = []
     for s in _states(state):
-        path = POOCH.fetch(cpv_filename("personas", period, s))
+        path = POOCH.fetch(cpv_filename(table, period, s))
         names = set(pq.read_schema(path).names)
 
         def pick(item: str | tuple[str, ...]) -> str:
             aliases = (item,) if isinstance(item, str) else item
             return next((a for a in aliases if a in names), aliases[0])
 
-        parts = _HOUSEHOLD_PARTS.get(period, (("ENT", "CVE_ENT"), "ID_VIV"))
         columns = list(dict.fromkeys(pick(c) for c in (*parts, *items)))
         frames.append(pd.read_parquet(path, columns=columns))
-    persons = pd.concat(frames, ignore_index=True)
-    persons = _composite_keys(persons, "viviendas")             # 2000/2005: ID_VIV, ID_HOG
+    out = pd.concat(frames, ignore_index=True)
+    out = _composite_keys(out, "viviendas")                     # 2000/2005: ID_VIV, ID_HOG
     if harmonize and period in _STATE_SCOPED_KEYS:              # 2010: the national ID_VIV
-        persons = _national_keys(persons.assign(CVE_ENT=persons["ENT"].str.zfill(2)),
-                                 "personas")
-    return persons
+        out = _national_keys(out.assign(CVE_ENT=out["ENT"].str.zfill(2)), table)
+    return out
 
 
 def _household_members(period: str, state, harmonize: bool,
@@ -902,25 +916,35 @@ def _attach_heads(df: pd.DataFrame, period: str, state, harmonize: bool,
     return df.assign(SEXO=sexo.to_numpy())
 
 
-def _attach_dwellings(df: pd.DataFrame, period: str, state) -> pd.DataFrame:
-    """``df`` (the Conteo 2005's household frame, with ``ID_VIV``) with its dwelling's raw
-    :data:`_DWELLING_FOR_HOUSEHOLDS` items (only those and the key parts are read from the
-    dwelling file). Raises when a household's dwelling is missing."""
-    from mxcensus.data._registry import POOCH
+def _attach_dwellings(df: pd.DataFrame, table: str, period: str, state,
+                      harmonize: bool) -> pd.DataFrame:
+    """``df`` (a ``table`` frame keyed like :func:`load_cpv_viviendas` with ``harmonize``)
+    with its dwelling record's raw :data:`_FROM_DWELLINGS` items (a column-projected read of
+    the dwelling file, :func:`_file_columns`): the Conteo 2005's households their dwelling's
+    (on ``ID_VIV``), the persons their household's (on ``ID_HOG`` in CGPV 2000, whose
+    dwelling rows are households, else ``ID_VIV``), matched with the entity and without the
+    zero padding (the 2015 CSVs drop it; harmonized frames restore it). Raises when a
+    record's dwelling is missing."""
+    items = _FROM_DWELLINGS[table, period]
+    dwellings = _file_columns("viviendas", period, state, harmonize, items)
+    key = "ID_HOG" if "ID_HOG" in dwellings.columns else "ID_VIV"
 
-    parts, items = _DWELLING_FOR_HOUSEHOLDS[period]
-    dwellings = pd.concat([pd.read_parquet(POOCH.fetch(cpv_filename("viviendas", period, s)),
-                                           columns=[*parts, *items])
-                           for s in _states(state)], ignore_index=True)
-    dwellings = _composite_keys(dwellings, "viviendas")[["ID_VIV", *items]]
-    merged = df[["ID_VIV"]].merge(dwellings, on="ID_VIV", how="left", validate="many_to_one",
-                                  indicator=True)
-    missing = merged["_merge"].ne("both")
+    def records(frame: pd.DataFrame) -> pd.MultiIndex:
+        ent = frame[_derived._source(frame, "ENT")]
+        return pd.MultiIndex.from_arrays([c.astype("string").str.lstrip("0")
+                                          for c in (ent, frame[key])])
+
+    by_record = dwellings[list(items)].set_axis(records(dwellings))
+    if by_record.index.duplicated().any():
+        raise ValueError(f"CPV viviendas {period}: {key} is not unique in the dwelling file")
+    wanted = records(df)
+    values = by_record.reindex(wanted)
+    missing = ~wanted.isin(by_record.index)
     if missing.any():
-        raise ValueError(f"CPV hogares {period}: {int(missing.sum())} households without "
+        raise ValueError(f"CPV {table} {period}: {int(missing.sum())} records without "
                          f"their dwelling in the dwelling file, e.g. "
-                         f"{list(merged.loc[missing, 'ID_VIV'][:3])}")
-    return df.assign(**{c: merged[c].to_numpy() for c in items})
+                         f"{list(df.loc[missing, key][:3])}")
+    return df.assign(**{c: values[c].to_numpy() for c in items})
 
 
 def _load_level(table: str, period, state, harmonize: bool, labels: bool,
@@ -931,7 +955,8 @@ def _load_level(table: str, period, state, harmonize: bool, labels: bool,
     with ``derived``, CGPV 2000's, the Conteo 2005's and Censo 2010's dwellings and the
     Conteo 2005's households take their household head's sex from them
     (:func:`_attach_heads`, for ``JEFE_SEXO``), the 2005 households their dwelling's
-    class (:func:`_attach_dwellings`, for ``CLAVIVP_CAT``), and the dwellings and
+    class and the persons of 2000 and 2010–2025 their household's type
+    (:func:`_attach_dwellings`, for ``CLAVIVP_CAT`` and ``CLASE_HOG``), and the dwellings and
     households with a household column (6x: ``HOG_IND``) their members' person rows
     (:func:`_household_members`, ``derive``'s ``members``)."""
     states = _states(state)
@@ -953,9 +978,9 @@ def _load_level(table: str, period, state, harmonize: bool, labels: bool,
             df = _composite_keys(df, table)
     if derived:
         borrowed: list[str] = []                # helper columns from other files
-        if table == "hogares" and edition.period in _DWELLING_FOR_HOUSEHOLDS:
-            df = _attach_dwellings(df, edition.period, state)
-            borrowed += _DWELLING_FOR_HOUSEHOLDS[edition.period][1]
+        if (table, edition.period) in _FROM_DWELLINGS:
+            df = _attach_dwellings(df, table, edition.period, state, harmonize)
+            borrowed += _FROM_DWELLINGS[table, edition.period]
         if table in ("viviendas", "hogares") and edition.period in _HEAD_FROM_PERSONS:
             df = _attach_heads(df, edition.period, state, harmonize, table)
             borrowed.append("SEXO")             # the head's: JEFE_SEXO now

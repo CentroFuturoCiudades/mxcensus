@@ -1,13 +1,13 @@
 # CPV family — session handoff
 
-**Status (2026-10-10): units 0–6y are done. `main` = v0.10.0 + 6u (merged
+**Status (2026-10-10): units 0–6z are done. `main` = v0.10.0 + 6u (merged
 locally, **not pushed, no version bump**; v0.10.0 = 6s–6t, tagged and pushed; 0.9.0 =
-6k–6r, §Review). `cpv-integration` = `main` + 6v + 6w + 6x + 6y (6v: the `POBHOG` total and
-the Conteo 2005's households; 6w: indigenous households and media superior/superior apart;
-6x: `HOG_IND` on the household records; 6y: the EIC 2025's percentages as constraints; all
-agreed with the user): all four committed (6y with the user's go-ahead, 2026-10-10). None
-merged or pushed. No unit is queued. A session starts by
-checking `git log`/`git status` against this line.**
+6k–6r, §Review). `cpv-integration` = `main` + 6v + 6w + 6x + 6y + 6z (6v: the `POBHOG` total
+and the Conteo 2005's households; 6w: indigenous households and media superior/superior
+apart; 6x: `HOG_IND` on the household records; 6y: the EIC 2025's percentages as
+constraints; 6z: its dwelling and household percentages; all agreed with the user), all
+committed. None merged or pushed. No unit is queued. A session starts by checking
+`git log`/`git status` against this line.**
 - **Released** (registered, uploaded, verified): every edition 1990–2025 (897 `cpv_` files)
   and the Marco Geoestadístico 1995–2025 frames, incl. the EIC 2015's (6h); registry
   **4148** entries (`STEP_6b.md` §Release batch, `STEP_6h.md`).
@@ -162,7 +162,23 @@ checking `git log`/`git status` against this line.**
     without the unspecified state on the new **`ENT_PAIS_NAC_INEGI`** (user's choice; every
     edition with a birthplace).
 
-Design: [`PLAN.md`](PLAN.md). Recent units: [`STEP_6y.md`](STEP_6y.md), [`STEP_6x.md`](STEP_6x.md), [`STEP_6w.md`](STEP_6w.md), [`STEP_6v.md`](STEP_6v.md), [`STEP_6u.md`](STEP_6u.md), [`STEP_6t.md`](STEP_6t.md), [`STEP_6s.md`](STEP_6s.md), [`STEP_6r.md`](STEP_6r.md), [`STEP_6q.md`](STEP_6q.md), [`STEP_6p.md`](STEP_6p.md), [`STEP_6o.md`](STEP_6o.md), [`STEP_6n.md`](STEP_6n.md), [`STEP_6m.md`](STEP_6m.md), [`STEP_6l.md`](STEP_6l.md), [`STEP_6k.md`](STEP_6k.md), [`STEP_6j.md`](STEP_6j.md), [`STEP_6i.md`](STEP_6i.md), [`STEP_6h.md`](STEP_6h.md), [`STEP_6g.md`](STEP_6g.md), [`STEP_6f.md`](STEP_6f.md), [`STEP_6e.md`](STEP_6e.md),
+- **6z** (`STEP_6z.md`): the EIC 2025's dwelling and household percentages (HANDOFF
+  candidate 2's second half; the user chose it over the persons).
+  - 63 more counts behind percentages (`_PERCENT_BASES` 85 → 148): the dwellings' on
+    `VIVPARHAB_C`, the deeds' on the owned dwellings (`VPH_PROPIA`, which counts those being
+    paid for), the households' on `TOTHOG`, the minors' food items on the published
+    `HOG_MEN_ALIM`, `POBHOG_FAM`/`_NFAM` on `POBHOG`. EIC 2025 constraints 94 + 31 →
+    **96 + 92**, each = the estimates at every published geography.
+  - New derived `OCUP_CUARTO_CAT` (occupants per room, 2010–2025; user's editions),
+    `CLASE_HOG` (familiar or not from `TIPOHOG`, 2000 and 2010–2025, dwellings **and persons**:
+    the persons read their household's `TIPOHOG` from the dwelling file,
+    `cpv._attach_dwellings`; user's editions) and `INGR_OTROS` (income from any other source
+    than work, 2015–2025: a cell cannot say «any of four items»).
+  - `HOG_MEN_ALIM` («hogares con menores de edad») is not a constraint (user's choice): the
+    questionnaire's filter of minors is not in the microdata (a person under 18: never
+    below, 0.05% over nationally, exact in half the municipalities).
+
+Design: [`PLAN.md`](PLAN.md). Recent units: [`STEP_6z.md`](STEP_6z.md), [`STEP_6y.md`](STEP_6y.md), [`STEP_6x.md`](STEP_6x.md), [`STEP_6w.md`](STEP_6w.md), [`STEP_6v.md`](STEP_6v.md), [`STEP_6u.md`](STEP_6u.md), [`STEP_6t.md`](STEP_6t.md), [`STEP_6s.md`](STEP_6s.md), [`STEP_6r.md`](STEP_6r.md), [`STEP_6q.md`](STEP_6q.md), [`STEP_6p.md`](STEP_6p.md), [`STEP_6o.md`](STEP_6o.md), [`STEP_6n.md`](STEP_6n.md), [`STEP_6m.md`](STEP_6m.md), [`STEP_6l.md`](STEP_6l.md), [`STEP_6k.md`](STEP_6k.md), [`STEP_6j.md`](STEP_6j.md), [`STEP_6i.md`](STEP_6i.md), [`STEP_6h.md`](STEP_6h.md), [`STEP_6g.md`](STEP_6g.md), [`STEP_6f.md`](STEP_6f.md), [`STEP_6e.md`](STEP_6e.md),
 [`STEP_6d.md`](STEP_6d.md),
 [`STEP_6c.md`](STEP_6c.md), [`STEP_6b.md`](STEP_6b.md), … [`STEP_0_probe.md`](STEP_0_probe.md).
 
@@ -172,12 +188,12 @@ files; the MG 2015 files were built on the Mac and copied to `wsl` for the uploa
 merge: 1773 passed, 1 h 50 min) and holds a copy of the Mac's tabulados cache
 (`data/dict/tabulados/`, without 6t's `2000/C2KHO04.xls` and `2015/12_hogares.xls` and 6w's
 `2015/05_etnicidad.xls` and `2020/cpv2020_a_eum_07_educacion.xlsx`: the script fetches
-them). 6s–6y ran on the Mac only.
+them). 6s–6z ran on the Mac only.
 `wsl:~/mxcensus3c` (3c's code copy) can be deleted.
 
 ## Kickoff prompt for the next session
 
-> Continue the CPV census-family work in this repo (branch cpv-integration = main + 6v–6y;
+> Continue the CPV census-family work in this repo (branch cpv-integration = main + 6v–6z;
 > main = v0.10.0 + 6u, merged). Read docs/cpv/HANDOFF.md first, then agree with me which next unit to
 > take (candidates in HANDOFF §Next) before implementing it, following the session protocol
 > in docs/cpv/PLAN.md. Use .venv/bin/python, not uv run. Run wsl tasks without asking; ask
@@ -214,26 +230,27 @@ and **kept all seven** (merged as 0.9.0):
 
 ## Next: candidates (none decided)
 
-1. Merge 6v–6y into `main`, push `main`/`cpv-integration` (6u–6y) and a version
+1. Merge 6v–6z into `main`, push `main`/`cpv-integration` (6u–6z) and a version
    bump, when the user wants them (`wsl` pull + full suite there first, as for 0.9.0).
-2. The EIC 2025's other 190 percentages (6y left them: their cells are new), with 6y's
-   method (`STEP_6y.md`: the base search, then `_PERCENT_BASES` + cells, verified at every
-   geography). Probably two units:
-   - **persons**: the 5-year age groups by sex (48), the residence in October 2020
-     (`PCN_PRES*20`; an `ENT_PAIS_RES_INEGI` beside `ENT_PAIS_RES_CAT`, as 6y's
-     birthplace), nationality of the born abroad, Afro-descendant households
-     (`HOG_AFRO`/`PHOG_AFRO`, counts), the disability by age and sex, school attendance…;
-   - **dwellings and households**: walls, roofs, cooking place and fuel, waste, water
-     storage and heaters, tenure and deeds, the household types (`PCN_HOG_FAM`/`_NFAM`),
-     income sources (`PCN_HOG_PERC`, `_GOB`, `_JUB`, `_OVIV`, `_OPAIS`), food security
-     (`PCN_*_ADL*`, `PCN_*_MEN*`, `HOG_MEN_ALIM`) and displacement — their bases are
-     households.
+2. The EIC 2025's persons' 127 percentages (6z took the dwellings and households), with
+   6y's method (`STEP_6y.md`: the base search, then `_PERCENT_BASES` + cells, verified at
+   every geography; `STEP_6z.md` has the probe's shape): the 5-year age groups by sex (48),
+   the commute to school and work (31: place, time, mode — the modes on the existing
+   dummies), health use (`PCN_PUSU_*`, `PcSSyRecAc`, `PAFIL_IPUB`: 10; `SERSALUD`,
+   `DHSERSAL_ACCESO`), marital status (7), education levels (4, `EDUC_INEGI_DET`),
+   position at work (4, `SITTRA`), the residence in October 2020 (6: an
+   `ENT_PAIS_RES_INEGI` beside `ENT_PAIS_RES_CAT`, plus `MUN_RES_5A` for «same
+   municipality»), nationality of the born abroad (2), indigenous self-identification (3,
+   `PERTE_INDIGENA`) and understanding (1, `ELENGUA`), disability by sex and age (6),
+   attendance (4); with the published counts `HOG_AFRO`/`PHOG_AFRO` (6x/6w's machinery on
+   `AFRODES`) and `PUSU_SS`. `PCN_HF` is a ratio of children, not persons. Maybe two units.
 3. Smaller: `check_cpv_tabulados.py`'s EIC 2015 migration check could read
    `ENT_PAIS_NAC_INEGI` instead of moving the unspecified group (`_moved`); a 2000 occupation bridge (CMO → SINCO, no published table); income in minimum
    wages for 2000 (`P_1SM`…: three wage zones by municipality); a locality-level lineage
    (6a covered municipalities only); CGPV 1990's undocumented `TIP_HOGAR` 6 (96,370
    persons, all `N_F_GPOS` 99 and a 9xx relationship: a dwelling without its household
-   composition; identity-labelled, `STEP_6u.md` §Left out).
+   composition; identity-labelled, `STEP_6u.md` §Left out); the EIC 2015 tabulados on the
+   household class (`CLASE_HOG`) and tenure/deeds in `check_cpv_tabulados.py`.
 
 ## Open questions for the user
 
@@ -495,7 +512,7 @@ None.
   `cpv_constraints("viviendas", 2005)` has no `TOTHOG`/`HOGJEF_*`
   (`_HOUSEHOLD_INDICATORS`); `cpv_constraints("hogares", …)` raises outside 2005.
   `load_cpv_hogares(2005, derived=True)` reads the dwelling file (`CLAVIVPA`,
-  `_DWELLING_FOR_HOUSEHOLDS`) and the person file (the head's `SEXO`). Both are
+  `_FROM_DWELLINGS` since 6z) and the person file (the head's `SEXO`). Both are
   column-projected, and the helper columns are dropped after `derive`. The source-code test
   maps borrowed sources to their files (`tests/test_cpv_derived._BORROWED`).
 - **The Conteo 1995 catalogs are a PDF** (6u, `_dict_fd.parse_catalogs_1995_text`, poppler):
@@ -547,3 +564,13 @@ None.
 - **Two birthplace columns** (6y): `ENT_PAIS_NAC_CAT` (legacy: the unspecified state is
   `OtraEnt`) and `ENT_PAIS_NAC_INEGI` (it is «No especificado»). Only the EIC 2025's
   `PNACOE` reads the INEGI one; 2020's ITER fits neither exactly.
+- **Household type on the persons** (6z): `derive` on a person frame of 2000 or 2010–2025
+  needs `TIPOHOG`, the dwelling's item, which `cpv._load_level` attaches
+  (`_attach_dwellings`, `_FROM_DWELLINGS`, which replaced 6v's `_DWELLING_FOR_HOUSEHOLDS`)
+  and drops after `derive`. The test person builders carry it; the dwelling builders get
+  `_HOUSEHOLD_ITEMS` (`TIPOHOG`, `NUMPERS`, the four `INGR_*`) through `_derive_dwellings`.
+- **A cell is an AND of per-item category lists** (6z): «any of several items» needs a
+  derived summary column (`INGR_OTROS` for `HOG_PERC`). Some indicator names equal item
+  names (`ALIM_ADL1` = {`ALIM_ADL1`: «Sí»}); `get_tables_dict` does not mind.
+- **A percentage's base may be a published count without a cell** (6z: `HOG_MEN_ALIM`):
+  the tests take it from the estimates (`test_eic2025_constraints_equal_estimates`).
