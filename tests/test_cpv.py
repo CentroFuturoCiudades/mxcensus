@@ -792,7 +792,13 @@ import warnings  # noqa: E402
 import numpy as np  # noqa: E402
 
 from mxcensus import cpv as _cpv  # noqa: E402
-from mxcensus.cpv_aggregates import ESTIMADORES, NIVELES  # noqa: E402
+from mxcensus.cpv_aggregates import (  # noqa: E402
+    _PERCENT_BASES,
+    ESTIMADORES,
+    NIVELES,
+    _count_name,
+    _percent_counts,
+)
 
 _MIRROR = Path(__file__).resolve().parent.parent / "data" / "parquet"
 _REAL = (_MIRROR / "cpv_personas_2025_01.parquet").exists()
@@ -1146,6 +1152,55 @@ def test_estimaciones_estimador_levels_and_filters(fake_mirror):
         with pytest.raises(ValueError, match="must be one of"):
             mxcensus.load_cpv_estimaciones(**kw)
 
+
+
+def test_estimaciones_counts(fake_mirror):
+    """6y: ``counts=True`` adds the counts behind the percentages (percentage × base / 100),
+    a base derived from another percentage first; missing where the base is."""
+    e = mxcensus.load_cpv_estimaciones(counts=True)
+    names = [_count_name(p) for p in _PERCENT_BASES]
+    assert list(e.columns) == [*mxcensus.load_cpv_estimaciones().columns, *names]
+    assert all(str(e[n].dtype) == "Float64" for n in names)
+    assert e["VPH_PISOTI"].eq(1.0).all()                    # 10 % of 10 dwellings
+    assert e["PEA"].eq(1.0).all() and e["PEA_F"].eq(0.1).all()   # the PEA, then its women
+    assert e["POCUPADA_F"].round(9).eq(0.01).all()           # … then the employed of them
+    assert e["P6A14AN"].eq(1.0).all()                        # INEGI's PNC_ misspelling
+    assert pd.isna(e.loc[("01", "997", "9997"), "PNACENT_F"])   # POBFEM missing there
+    for kw in ({"estimador": "ee"}, {"estimador": None}, {"estimador": ["valor"]}):
+        with pytest.raises(ValueError, match="counts=True"):
+            mxcensus.load_cpv_estimaciones(counts=True, **kw)
+
+
+def test_percent_counts_rules():
+    """A missing percentage of a zero base is 0 (INEGI writes «No aplica»), otherwise the
+    count is missing; a percentage without its base raises."""
+    df = pd.DataFrame({"P_12YMAS": pd.array([0, 10, 10, None], dtype="Int64"),
+                       "PCN_PEA": pd.array([None, None, 50, 50], dtype="Float64"),
+                       "PCN_PEA_F": pd.array([None, 20, 20, 20], dtype="Float64")})
+    out = _percent_counts(df, "test")
+    assert list(out.columns) == ["PEA", "PEA_F"]
+    as_list = lambda s: [None if pd.isna(v) else float(v) for v in s]
+    assert as_list(out["PEA"]) == [0.0, None, 5.0, None]
+    assert as_list(out["PEA_F"]) == [0.0, None, 1.0, None]
+    with pytest.raises(ValueError, match="no base"):
+        _percent_counts(df.drop(columns="P_12YMAS"), "test")
+
+
+def test_percent_bases_contract():
+    """Every mapped column is a percentage of the estimates whose count is not published,
+    and every base is a published count or another derived count."""
+    v = variables_cpv("estimaciones", _SM["estimaciones"]["latest"])
+    counts = {_count_name(p) for p in _PERCENT_BASES}
+    assert len(counts) == len(_PERCENT_BASES) == 85
+    for pct, base in _PERCENT_BASES.items():
+        assert v[pct]["Descripción"].startswith("Porcentaje"), pct
+        assert _count_name(pct) not in v, pct
+        assert base in counts or not v[base]["Descripción"].startswith(
+            ("Porcentaje", "Promedio")), base
+    unmapped = [c for c in v if c.startswith(("PCN_", "PNC_")) and c not in _PERCENT_BASES]
+    # 278 percentages: 85 mapped, 3 whose count is published (PNACOP, POCUPADA, PDER_SS),
+    # 190 without a constraint cell yet (age groups, walls, roofs, households…)
+    assert len(unmapped) == 193 and {"PCN_PNACOP", "PCN_POCUPADA", "PCN_PDER_SS"} <= set(unmapped)
 
 def test_cpv_exports():
     for name in ("load_cpv", "load_cpv_viviendas", "load_cpv_personas", "load_cpv_migrantes",

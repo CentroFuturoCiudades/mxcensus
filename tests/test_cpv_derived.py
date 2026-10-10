@@ -319,7 +319,8 @@ def test_cpv_derivations_listing():
     commute = {f"{prefix}_{label}" for prefix, item in (("MED_TRASLADO_ESC", d._ESC[0]),
                                                         ("MED_TRASLADO_TRAB", d._TRAB[0]))
                for label in d._traslado_2015(item).values()}
-    migration = {"ENT_PAIS_NAC_CAT", "ENT_PAIS_RES_CAT"}
+    migration = {"ENT_PAIS_NAC_CAT", "ENT_PAIS_NAC_INEGI",            # 6y: INEGI's too
+                 "ENT_PAIS_RES_CAT"}
     coresidence = {"IDENT_PAREJA_CAT", "MADRE_EN_VIVIENDA", "PADRE_EN_VIVIENDA"}
     coarse = {"OCUPACION_C_COARSE", "ACTIVIDADES_C_COARSE", "SECTOR"}      # 6o: SECTOR
     educ = {"EDUC", "EDUC_INEGI", "EDUC_INEGI_DET"}               # 6k, 6w: every edition
@@ -346,7 +347,7 @@ def test_cpv_derivations_listing():
     assert {"FINANCIAMIENTO_Banco", "FINANCIAMIENTO_FONHAPO"} <= v15 & v20
     assert ind <= v20 & set(mxcensus.cpv_derivations("viviendas", 2025)["COLUMN"])   # 6x
     dhs2000 = {"DHSERSAL_IMSS", "DHSERSAL_ISSSTE", "DHSERSAL_P_D_M", "DHSERSAL_Otro",
-               "DHSERSAL_No afiliado", "DHSERSAL_PUB", "DHSERSAL_AFIL"}
+               "DHSERSAL_No afiliado", "DHSERSAL_ISSSTE_T", "DHSERSAL_PUB", "DHSERSAL_AFIL"}
     assert set(mxcensus.cpv_derivations("personas", 2000)["COLUMN"]) == {     # 6i
         "EDAD_CAT", "INGTRMEN_CAT", "HORTRA_CAT", *educ, "ACTIVIDADES_C_COARSE", "SECTOR",
         "CONACT_CAT", "SITUA_CONYUGAL_CAT", *migration, "RELIGION_CAT", *dhs2000, *head, *ind}
@@ -482,6 +483,24 @@ def test_derive_persons_2025_recodes():
         assert out[col].dtype == dtype, col
     assert out["EDAD_CAT"].cat.ordered
 
+
+
+def test_inegi_birthplace_and_issste():
+    """6y: ``ENT_PAIS_NAC_INEGI`` is ``ENT_PAIS_NAC_CAT`` with the unspecified entity (997,
+    the legacy ``OtraEnt``) «No especificado», as INEGI's ``PNACOE``; ``DHSERSAL_ISSSTE_T``
+    is the ISSSTE, federal or state (the EIC 2025's ``PDER_ISTE``)."""
+    df = _each_a_household(pd.concat([_persons_2025()] * 2, ignore_index=True)).assign(
+        ENT_PAIS_NAC=["997", "014", "001", "999"], DHSERSAL1=["03", "02", "01", "02"],
+        DHSERSAL2=["", "", "", "03"])
+    out = d.derive(df, "personas", 2025)
+    assert list(out["ENT_PAIS_NAC_CAT"]) == ["OtraEnt", "OtraEnt", "EstaEnt", "No especificado"]
+    assert list(out["ENT_PAIS_NAC_INEGI"]) == ["No especificado", "OtraEnt", "EstaEnt",
+                                               "No especificado"]
+    assert out["ENT_PAIS_NAC_INEGI"].dtype == out["ENT_PAIS_NAC_CAT"].dtype
+    assert list(out["DHSERSAL_ISSSTE_T"]) == [1, 1, 0, 1]
+    assert list(out["DHSERSAL_ISSSTE"]) == [0, 1, 0, 1]
+    assert list(out["DHSERSAL_ISSSTE_E"]) == [1, 0, 0, 1]
+    assert list(out["DHSERSAL_PUB"]) == [1, 1, 1, 1]
 
 def test_educ_inegi():
     """``EDUC_INEGI`` = ``EDUC`` with the técnica studies after primaria (2020's level 6, any
@@ -696,6 +715,7 @@ def test_derive_persons_2010_recodes():
     # birthplace and 2005 residence: the entity item, else the country item; entity 999 →
     # 997 (OtraEnt), 900 (topic omitted) → No especificado, country 600 → OtroPais
     assert list(out["ENT_PAIS_NAC_CAT"]) == ["EstaEnt", "OtroPais", "OtraEnt"]
+    assert list(out["ENT_PAIS_NAC_INEGI"]) == ["EstaEnt", "OtroPais", "No especificado"]  # 6y
     assert list(out["ENT_PAIS_RES_CAT"]) == ["Blanco por pase", "OtroPais", "No especificado"]
     # pointer pairs: a row (above 54 too) → Sí, 88 → No, 99 code → NE; a row given as 99
     # (row not given) → NE, as INEGI's tabulado 12_01A (6q; 6e read it «lives here»)
@@ -1342,8 +1362,23 @@ def test_cpv_constraints_per_edition():
     p25 = mxcensus.cpv_constraints("personas", 2025)
     assert {"POBTOT", "POBFEM", "P_15YMAS_F", "PDER_SS", "POCUPADA"} <= set(p25)
     v25 = mxcensus.cpv_constraints("viviendas", 2025)                 # 6x: + HOG_IND
-    assert set(v25) == {"TOTHOG", "HOGJEF_F", "HOGJEF_M", "HOG_IND"}
+    assert {"TOTHOG", "HOGJEF_F", "HOGJEF_M", "HOG_IND"} <= set(v25)
     assert v25["HOG_IND"] == {"HOG_IND": ["Sí"]}
+    # 6y: the EIC 2025's percentages, as the counts load_cpv_estimaciones(counts=True) gives
+    # (29 + 4 counts → 94 + 31); each indicator is a column of it
+    from mxcensus.cpv_aggregates import _PERCENT_BASES, _count_name
+    counts = {_count_name(p) for p in _PERCENT_BASES}
+    est = set(mxcensus._resources.variables_cpv(
+        "estimaciones", mxcensus._resources.cpv_schema_map()["estimaciones"]["latest"]))
+    assert len(p25) == 94 and len(v25) == 31
+    assert set(p25) | set(v25) <= est | counts and counts <= set(p25) | set(v25)
+    assert p25["PNACENT"] == {"ENT_PAIS_NAC_CAT": ["EstaEnt"]}
+    assert p25["PNACOE_F"] == {"ENT_PAIS_NAC_INEGI": ["OtraEnt"], "SEXO": ["Mujer"]}  # no 997
+    assert p25["PDER_ISTE"] == {"DHSERSAL_ISSSTE_T": [1]}                # federal or state
+    assert p25["P6A14AN"] == {"EDAD_CAT": d._AGES_6_14, "ALFABET": ["No"]}
+    assert v25["VIVPARHAB_C"] == d._VIVIENDA                          # the percentages' base
+    assert "solo en el patio o terreno?" in v25["VPH_AGUADV"]["AGUA_ENTUBADA"]
+    assert v25["VPH_EXCSA"]["SERSAN"][-1] == "letrina (pozo u hoyo)?"   # 2020: the toilet only
     for period in (2000, 2010, 2020):                  # published by the EIC 2025 only
         assert "HOG_IND" not in mxcensus.cpv_constraints("viviendas", period)
     assert "HOG_IND" in d._categories("hogares", "2005")       # 2005: not published either
@@ -1361,6 +1396,19 @@ def test_cpv_constraints_per_edition():
     assert c20["P15PRI_COF"]["EDUC_INEGI"] == ["Primaria_com"]
     v20 = mxcensus.cpv_constraints("viviendas", 2020)
     assert "dentro de la vivienda?" in v20["VPH_AGUADV"]["AGUA_ENTUBADA"]   # the FD's wording
+    assert v20["VPH_EXCSA"] == {**d._VIVIENDA, "SERSAN": ["taza de baño (excusado o sanitario)?"]}
+    # 6y: INEGI's limitation (LIMITACION) and disability (with the unknown degree, each
+    # edition's label) by activity in 2020 and 2025; the legacy YAML stays as it was
+    for ind, item in d._LIMITATIONS.items():
+        assert c20[ind] == p25[ind] == {item: ["Lo hace con poca dificultad"],
+                                        "LIMITACION": ["Sí"]}, ind
+        assert "LIMITACION" not in per[ind]
+    for ind, item in d._DISABILITIES.items():
+        assert c20[ind][item][-1] == "Se desconoce el grado de la discapacidad"
+        assert p25[ind][item][-1] == "Se desconoce el grado de la dificultad"
+        assert len(per[ind][item]) == 2                                  # legacy: 3, 4
+    assert c20["PNACOE"] == {"ENT_PAIS_NAC_CAT": ["OtraEnt"]}          # 2020: the legacy cells
+    assert c20["PDER_ISTE"] == {"DHSERSAL_ISSSTE": [1]}
     p00, p05 = (mxcensus.cpv_constraints("personas", p) for p in (2000, 2005))   # 6i
     assert {"PCATOLICA", "PDER_SS", "PSINDER", "P12YM_CASA", "PEA", "PNACOE"} <= set(p00)
     assert {"PDER_ISTE", "PSINDER", "PRESOE15", "P15YM_SE"} <= set(p05)
@@ -1464,7 +1512,11 @@ def test_derived_2020_equals_legacy(local_mirror, table, state):
         assert new[col].astype(object).equals(legacy[col].astype(object)), col
         if not col.startswith(("DHSERSAL_", "MED_TRASLADO_", "FINANCIAMIENTO_")):
             assert new[col].dtype == legacy[col].dtype, col
-    dummies = set(new.columns) - set(shared) - set(d._DTYPES) - set(d._DTYPE_LIKE)
+    summary = {"DHSERSAL_ISSSTE_T"} & set(new.columns)          # 6y: federal or state
+    for col in summary:
+        either = legacy["DHSERSAL_ISSSTE"].astype(int) | legacy["DHSERSAL_ISSSTE_E"].astype(int)
+        assert new[col].astype(int).equals(either), col
+    dummies = set(new.columns) - set(shared) - set(d._DTYPES) - set(d._DTYPE_LIKE) - summary
     for col in dummies:                                         # unobserved codes' dummies
         assert (new[col].astype(int) == 0).all(), col
 
@@ -1619,23 +1671,72 @@ def test_occupation_activity_equal_tabulados(local_mirror, period, state):
 @_REAL_SKIP
 @pytest.mark.parametrize("table", ["personas", "viviendas"])
 def test_eic2025_constraints_equal_estimates(local_mirror, table):
-    """EIC 2025: Σ ``FACTOR`` over each constraint's cells equals the published state
-    estimate exactly (the factors are calibrated to them), ``PCON_DISC``/``PCON_LIMI``/
-    ``PSIND_LIM`` through INEGI's ``DISCAPACIDAD``/``LIMITACION``/``SIN_DISC_LIM``. All 32
-    states (and ``PSIND_LIM`` in 2,471 municipalities): STEP_6b.md, STEP_6g.md."""
+    """EIC 2025, state 01 and its municipalities: Σ ``FACTOR`` over each constraint's cells
+    equals the published count exactly (the factors are calibrated to them); for a count
+    behind a percentage (6y, ``load_cpv_estimaciones(counts=True)``) the share of its base's
+    cells is the published percentage within its rounding. ``PCON_DISC``/``PCON_LIMI``/
+    ``PSIND_LIM`` through INEGI's flags. All 32 states, 2,478 municipalities and the
+    localities of 50,000+: STEP_6b.md, STEP_6g.md, STEP_6y.md."""
+    from mxcensus.cpv_aggregates import _PERCENT_BASES, _count_name
     loader = mxcensus.load_cpv_personas if table == "personas" else mxcensus.load_cpv_viviendas
     frame = loader(2025, state=1, derived=True)
     est = mxcensus.load_cpv_estimaciones(survey_path=_MIRROR / "cpv_estimaciones_2025.parquet",
-                                         nivel="estatal", state=1)
-    checked = 0
-    for ind, cells in mxcensus.cpv_constraints(table, 2025).items():
+                                         nivel=["estatal", "municipal"], state=1,
+                                         counts=True).droplevel([0, 2])
+    cons = mxcensus.cpv_constraints(table, 2025)
+    mun, sums = frame["CVE_MUN"].astype(str), {}
+    for ind, cells in cons.items():
         mask = pd.Series(True, index=frame.index)
         for var, cats in cells.items():
             mask &= frame[var].isin(cats)
-        assert round(frame.loc[mask, "FACTOR"].sum()) == round(est[ind].iloc[0]), ind
-        checked += 1
-    assert checked == {"personas": 29, "viviendas": 4}[table]   # 6t: PHOGJEF_F/M; 6v: POBHOG;
-    #                                                               6w: PHOG_IND; 6x: HOG_IND
+        by = frame["FACTOR"].where(mask, 0).groupby(mun).sum()
+        sums[ind] = pd.concat([by, pd.Series({"000": by.sum()})])
+    got = pd.DataFrame(sums).reindex(est.index)
+    pct = {_count_name(p): p for p in _PERCENT_BASES}
+    for ind in cons:
+        if ind in pct:
+            pub = est[pct[ind]].astype(float).dropna()
+            share = 100 * got[ind] / got[_PERCENT_BASES[pct[ind]]]
+            assert (share[pub.index] - pub).abs().max() <= 0.005 + 1e-9, ind
+            assert est[ind].notna().all(), ind
+        else:
+            pub = est[ind].astype(float).dropna()
+            assert got.loc[pub.index, ind].round().eq(pub).all(), ind
+    assert len(est) == 12
+    assert len(cons) == {"personas": 94, "viviendas": 31}[table]   # 6t: PHOGJEF_F/M; 6v:
+    #                     POBHOG; 6w: PHOG_IND; 6x: HOG_IND; 6y: the percentages (29/4 before)
+
+
+# 6y: INEGI's limitation and disability by activity (a limitation only for the persons with
+# one, LIMITACION; a disability with the unknown degree) equal the Censo 2020 ITER to the
+# person in the municipalities its sample enumerated completely (FACTOR 1 for everyone) where
+# the population in households matches: Sonora's 5; the legacy limitation cells overshoot in
+# 29 of their 30. All 32 states (184 municipalities): the limitation in 168–181, the legacy cells
+# in 0–4, the disability in 179–183 (STEP_6y.md).
+@_REAL_SKIP
+def test_disability_by_activity_2020_iter(local_mirror):
+    per = mxcensus.load_cpv_personas(2020, state=26, derived=True)
+    w, mun = per["FACTOR"], per["MUN"].astype(str)
+    full = (w.groupby(mun).transform("min").eq(1) & w.groupby(mun).transform("max").eq(1))
+    per, mun = per[full.to_numpy()], mun[full.to_numpy()]
+    cons, legacy = mxcensus.cpv_constraints("personas", 2020), mxcensus.constraints_personas()
+
+    def count(cells):
+        mask = pd.Series(True, index=per.index)
+        for var, cats in cells.items():
+            mask &= per[var].isin(cats)
+        return mask.groupby(mun).sum()
+
+    inds = [*d._LIMITATIONS, *d._DISABILITIES]
+    got = pd.DataFrame({ind: count(cons[ind]) for ind in ["POBHOG", *inds]})
+    it = mxcensus.load_cpv_iter(2020, state=26, nivel="municipal").reset_index()
+    it = it.set_index(it["CVE_MUN"].astype(str))[["POBHOG", *inds]].astype(float)
+    same = got.index[got["POBHOG"].eq(it["POBHOG"].reindex(got.index))]
+    assert list(same) == ["007", "008", "015", "050", "067"]
+    assert got.loc[same, inds].eq(it.loc[same, inds]).all().all()
+    for ind, item in d._LIMITATIONS.items():
+        old = count({item: legacy[ind][item]})
+        assert (old[same] >= it.loc[same, ind]).all() and old[same].sum() > it.loc[same, ind].sum()
 
 
 # INEGI's CGPV 2000 ampliado tabulados (C2K*.xls, the sample; percentages with 2 decimals),

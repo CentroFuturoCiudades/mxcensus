@@ -42,6 +42,87 @@ _RESTO_MUN, _RESTO_LOC = "997", "9997"
 _GEO_INDEX = ["CVE_ENT", "CVE_MUN", "CVE_LOC"]
 
 
+# The EIC 2025 publishes most indicators only as percentages (``PCN_*``, two decimals;
+# ``PNC_P6A14AN*`` is INEGI's misspelling). Each percentage whose count the estimates do not
+# publish → its base, the count it is a percentage of: a published count or another count
+# derived here (the PEA's, the indigenous-language speakers'). Found on the microdata (6y):
+# Σ FACTOR over the indicator's cells ÷ Σ FACTOR over the base's = the percentage within its
+# rounding (≤ 0.005) in every state, municipality and locality of 50,000 or more. Note the
+# bases that are not the population of the age group: the PEA's women and men are shares of
+# the PEA, the employed and unemployed of the PEA of their sex, the inactive's women and men
+# of the inactive, each institution's affiliates of the affiliated, the disability and
+# limitation by activity of the persons with a disability or a limitation, the speakers who
+# do or do not speak Spanish of the speakers.
+def _sexed(pct: str, total: str, women: str, men: str) -> dict[str, str]:
+    return {pct: total, f"{pct}_F": women, f"{pct}_M": men}
+
+
+_POB = ("POBTOT", "POBFEM", "POBMAS")
+_HLI = ("P3YM_HLI", "P3YM_HLI_F", "P3YM_HLI_M")
+_PEA = ("PEA", "PEA_F", "PEA_M")
+_PERCENT_BASES: dict[str, str] = {
+    **_sexed("PCN_PNACENT", *_POB),
+    **_sexed("PCN_PNACOE", *_POB),
+    "PCN_PNACOP_F": "POBFEM", "PCN_PNACOP_M": "POBMAS",     # PNACOP: a published count
+    **_sexed("PCN_P3YM_HLI", "P_3YMAS", "P_3YMAS_F", "P_3YMAS_M"),
+    **_sexed("PCN_P3HLINHE", *_HLI),
+    **_sexed("PCN_P3HLI_HE", *_HLI),
+    **_sexed("PCN_POB_AFRO", *_POB),
+    **dict.fromkeys((f"PCN_PCDISC_{a}" for a in ("VIS", "AUD", "MOT", "MEN", "MOT2", "LENG")),
+                    "PCON_DISC"),
+    **dict.fromkeys((f"PCN_PCLIM_{a}" for a in ("VIS", "OAUD", "CSB", "RE_CO", "MOT2", "HACO")),
+                    "PCON_LIMI"),
+    **_sexed("PNC_P6A14AN", "P_6A14", "P_6A14_F", "P_6A14_M"),
+    **_sexed("PCN_P15YM_AN", "P_15YMAS", "P_15YMAS_F", "P_15YMAS_M"),
+    "PCN_P15YM_SE": "P_15YMAS",
+    **_sexed("PCN_PEA", "P_12YMAS", "PEA", "PEA"),
+    **_sexed("PCN_PE_INAC", "P_12YMAS", "PE_INAC", "PE_INAC"),
+    "PCN_POCUPADA_F": "PEA_F", "PCN_POCUPADA_M": "PEA_M",  # POCUPADA: a published count
+    **_sexed("PCN_PDESOCUP", *_PEA),
+    "PCN_PSINDER": "POBTOT",                                # PDER_SS: a published count
+    **dict.fromkeys(("PCN_PDER_IMSS", "PCN_PDER_ISTE", "PCN_PAFIL_PDOM", "PCN_PDER_IMSSB",
+                     "PCN_PAFIL_IPRIV", "PCN_PAFIL_OTRAI"), "PDER_SS"),
+    "PCN_P12YM_SOLT": "P_12YMAS", "PCN_P12YM_SEPA": "P_12YMAS",
+    # dwellings: shares of the inhabited private dwellings with characteristics
+    **dict.fromkeys((f"PCN_VPH_{x}" for x in (
+        "PISOTI", "1CUART", "2CUART", "3YMASC", "1DOR", "2YMASD", "C_ELEC", "AGUADV",
+        "DRENAJ", "C_SERV", "EXCSA", "DSADMA", "TINACO", "CISTER", "REFRI", "LAVAD", "HMICRO",
+        "AUTOM", "MOTO", "BICI", "RADIO", "TV", "PC", "TELEF", "CEL", "INTER")), "VIVPARHAB_C"),
+}
+
+
+def _count_name(pct: str) -> str:
+    """The count behind a percentage: its name without the ``PCN_`` (``PNC_``) prefix."""
+    return pct[4:]
+
+
+def _percent_count_names(columns) -> frozenset[str]:
+    """The counts :func:`load_cpv_estimaciones` derives (``counts=True``) from ``columns``."""
+    return frozenset(_count_name(p) for p in _PERCENT_BASES if p in set(columns))
+
+
+def _percent_counts(df: pd.DataFrame, label: str) -> pd.DataFrame:
+    """The counts behind ``df``'s percentages: percentage × base / 100, ``Float64``; missing
+    where the percentage is (``NA``/``MI``), except 0 where the base is 0. A base derived
+    from another percentage comes first."""
+    counts: dict[str, pd.Series] = {}
+    pending = [p for p in _PERCENT_BASES if p in df]
+    while pending:
+        ready = [p for p in pending if _PERCENT_BASES[p] in counts or _PERCENT_BASES[p] in df]
+        if not ready:
+            raise ValueError(f"CPV {label}: no base for the percentages "
+                             f"{ {p: _PERCENT_BASES[p] for p in pending} }")
+        for pct in ready:
+            base_name = _PERCENT_BASES[pct]
+            base = counts[base_name] if base_name in counts else df[base_name].astype("Float64")
+            share = df[pct].astype("Float64")
+            counts[_count_name(pct)] = (share * base / 100).mask(
+                share.isna() & base.eq(0).fillna(False), 0.0)
+            pending.remove(pct)
+    order = [_count_name(p) for p in _PERCENT_BASES if p in df]
+    return pd.DataFrame({name: counts[name] for name in order}, index=df.index)
+
+
 def _choice(value, allowed: tuple[str, ...], name: str) -> list[str]:
     """``value`` (one name or a sequence; ``None`` = all) → a validated list in
     ``allowed`` order."""
@@ -74,6 +155,7 @@ def load_cpv_estimaciones(
     nivel: str | Sequence[str] | None = None,
     state: int | Sequence[int] | None = None,
     survey_path: Path | None = None,
+    counts: bool = False,
 ) -> pd.DataFrame:
     """The intercensal **estimates** as a labelled frame: one row per geography, one
     column per indicator, indexed by ``(CVE_ENT, CVE_MUN, CVE_LOC)``.
@@ -95,14 +177,29 @@ def load_cpv_estimaciones(
         Keep only these states' rows (``CVE_ENT``; drops the national row).
     survey_path : Path, optional
         Read a local ``cpv_estimaciones_{period}.parquet`` instead of the mirror.
+    counts : bool, default False
+        Also give the counts behind the percentages (``estimador="valor"`` only): one
+        ``Float64`` column per percentage whose count the estimates do not publish, named
+        without the ``PCN_`` prefix (``PCN_VPH_PISOTI`` → ``VPH_PISOTI``; INEGI's
+        ``PNC_P6A14AN`` → ``P6A14AN``), = percentage × base / 100. The base is the count the
+        percentage is a share of (``_PERCENT_BASES``, verified on the microdata): a
+        published count or another such count (``PEA`` = ``PCN_PEA`` × ``P_12YMAS``, then
+        ``PEA_F`` = ``PCN_PEA_F`` × ``PEA``). INEGI rounds the percentages to two decimals,
+        so a count can be off by base × 0.00005 (5 dwellings in 100,000). A count is missing
+        where its percentage is, except 0 where the base is 0. Every indicator of
+        ``cpv_constraints(table, 2025)`` is then a column.
 
     Columns: ``NIVEL`` (ordered categorical), ``CVEGEO`` and the names ``NOM_ENT``/
     ``NOM_MUN``/``NOM_LOC``, then the indicators — counts ``Int64`` (``Float64`` when the
     selected rows hold fractions, e.g. standard errors), percentages and averages
-    ``Float64``; ``NA`` (no aplica) and ``MI`` (muestra insuficiente) become missing.
-    Validated strictly (raises on an out-of-dictionary value); the raw file is available as
-    ``load_cpv(table="estimaciones")``.
+    ``Float64``; ``NA`` (no aplica) and ``MI`` (muestra insuficiente) become missing — and,
+    with ``counts=True``, the derived counts. Validated strictly (raises on an
+    out-of-dictionary value); the raw file is available as ``load_cpv(table="estimaciones")``.
     """
+    if counts and estimador != "valor":
+        raise ValueError(f"counts=True derives the counts of the estimates (estimador="
+                         f"'valor'), not of {estimador!r}: a percentage's standard error or "
+                         f"limits are not its count's")
     wanted = _choice(estimador, ESTIMADORES, "estimador")
     levels = None if nivel is None else _choice(nivel, NIVELES, "nivel")
     raw, gids, label = _load_cpv_raw(survey_path, table="estimaciones", period=period,
@@ -128,7 +225,10 @@ def load_cpv_estimaciones(
     if not df.index.is_unique:
         raise ValueError(f"CPV {label}: the estimates are not unique per {index}.")
     schema = _sg.build_labelled_schema(df.columns, variables, skip=_SKIP)
-    return _sg.validate_raise("CPV", schema, df, f"{label} labelled")
+    df = _sg.validate_raise("CPV", schema, df, f"{label} labelled")
+    if counts:
+        df = pd.concat([df, _percent_counts(df, label)], axis=1)
+    return df
 
 
 # ---------------------------------------------------------------------------------------

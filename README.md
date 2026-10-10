@@ -156,6 +156,8 @@ st, mun, loc, ageb = mxcensus.load_cpv_census(2020, state=1)   # = load_census(s
 # The published estimates: one row per geography, one column per indicator
 est = mxcensus.load_cpv_estimaciones(nivel="municipal", state=1)
 ee = mxcensus.load_cpv_estimaciones(estimador="ee")          # standard errors (also li/ls/cv)
+# … and the counts behind its percentages (PCN_VPH_PISOTI → VPH_PISOTI = % × base / 100)
+cnt = mxcensus.load_cpv_estimaciones(nivel="municipal", state=1, counts=True)
 ```
 
 The EIC 2025 expansion factors are calibrated to the estimates: Σ `FACTOR` over the
@@ -285,7 +287,18 @@ indicators on each edition's own items and labels (literacy, indigenous language
 attendance, floor, electricity, water, sanitary service, goods) and the indicators each
 ITER publishes under its own name (1990/2000 employed by sector, 2000/2005 age groups and
 attendance, 2000 cooking fuel and tenure, 2005 basic education by sex, the 2005/2010
-Seguro Popular…), each within a fraction of a point of the ITER in most states:
+Seguro Popular…), each within a fraction of a point of the ITER in most states.
+The EIC 2025 estimates publish most indicators only as percentages (`PCN_*`, two
+decimals). `load_cpv_estimaciones(counts=True)` turns each percentage whose base is known
+into a count (percentage × base / 100, named without the prefix), and those counts are
+constraints too: 2025 has 125 (94 person, 31 dwelling), each equal to the estimates at
+every published geography (a published count exactly; a percentage to its rounding). Some
+follow the survey's own definitions: born in another state leaves out the unspecified state
+(`ENT_PAIS_NAC_INEGI`), the ISSSTE is federal or state (`DHSERSAL_ISSSTE_T`), the sanitary
+service includes a latrine. In 2020 and 2025 the limitation by activity (`PCLIM_*`) counts
+only the persons with a limitation and no disability (`LIMITACION`), and the disability by
+activity (`PCDISC_*`) includes an unknown degree, as INEGI's 2020 ITER and 2025 estimates do
+(the frozen legacy cells count every «poca dificultad»):
 
 ```python
 per = mxcensus.load_cpv_personas(2025, state=1, derived=True)
@@ -636,7 +649,8 @@ before and during loading:
   index, labels from INEGI's dictionaries, and — with `harmonize=True` — the latest
   edition's names for the core geography plus a derived `CVEGEO`), and
   `load_cpv_estimaciones` reshapes the estimates to one row per geography with `NA`/`MI` as
-  missing values. No value is imputed or corrected.
+  missing values (with `counts=True` it adds counts **derived** from the published
+  percentages and their bases). No value is imputed or corrected.
 - **ENIGH** — every edition's CSV tables are converted to parquet as **faithful raw** text. The `load_enigh_*` loaders only **derive** analysis frames (numeric weights joined from `concentradohogar` where a table carries none, a hierarchical index, and — with `harmonize=True` — canonical names for the analytical core plus geography derived from `ubica_geo`); no value is imputed or corrected.
 - **Labelled survey frames** — with `labels=True` (the default of the ENOE/ENIGH/CPV analysis-ready loaders) coded values are replaced by the labels of INEGI's own dictionaries (DDI codebooks or data dictionaries + the bundled core), numeric fields are parsed and INEGI's non-response codes (`99`, `&`, …) become missing values. The mirror and `labels=False` keep the codes verbatim.
 

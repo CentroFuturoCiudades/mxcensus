@@ -1,13 +1,13 @@
 # CPV family — session handoff
 
-**Status (2026-10-10): units 0–6x are done. `main` = v0.10.0 + 6u (merged
+**Status (2026-10-10): units 0–6y are done. `main` = v0.10.0 + 6u (merged
 locally, **not pushed, no version bump**; v0.10.0 = 6s–6t, tagged and pushed; 0.9.0 =
-6k–6r, §Review). `cpv-integration` = `main` + 6v + 6w + 6x (6v: the `POBHOG` total and the
-Conteo 2005's households; 6w: indigenous households and media superior/superior apart; 6x:
-`HOG_IND` on the household records; all agreed with the user): 6v and 6w committed (6w's
-commit had not happened in its own session: it was made at the start of 6x's, `852b2b1`);
-6x committed with the user's go-ahead (2026-10-10). None merged or pushed. No unit is
-queued. A session starts by checking `git log`/`git status` against this line.**
+6k–6r, §Review). `cpv-integration` = `main` + 6v + 6w + 6x + 6y (6v: the `POBHOG` total and
+the Conteo 2005's households; 6w: indigenous households and media superior/superior apart;
+6x: `HOG_IND` on the household records; 6y: the EIC 2025's percentages as constraints; all
+agreed with the user): all four committed (6y with the user's go-ahead, 2026-10-10). None
+merged or pushed. No unit is queued. A session starts by
+checking `git log`/`git status` against this line.**
 - **Released** (registered, uploaded, verified): every edition 1990–2025 (897 `cpv_` files)
   and the Marco Geoestadístico 1995–2025 frames, incl. the EIC 2015's (6h); registry
   **4148** entries (`STEP_6b.md` §Release batch, `STEP_6h.md`).
@@ -146,7 +146,23 @@ queued. A session starts by checking `git log`/`git status` against this line.**
     harmonized); the EIC 2025's `HOG_IND` estimate is a dwelling constraint (3 → 4), exact in
     every municipality with a published value.
 
-Design: [`PLAN.md`](PLAN.md). Recent units: [`STEP_6x.md`](STEP_6x.md), [`STEP_6w.md`](STEP_6w.md), [`STEP_6v.md`](STEP_6v.md), [`STEP_6u.md`](STEP_6u.md), [`STEP_6t.md`](STEP_6t.md), [`STEP_6s.md`](STEP_6s.md), [`STEP_6r.md`](STEP_6r.md), [`STEP_6q.md`](STEP_6q.md), [`STEP_6p.md`](STEP_6p.md), [`STEP_6o.md`](STEP_6o.md), [`STEP_6n.md`](STEP_6n.md), [`STEP_6m.md`](STEP_6m.md), [`STEP_6l.md`](STEP_6l.md), [`STEP_6k.md`](STEP_6k.md), [`STEP_6j.md`](STEP_6j.md), [`STEP_6i.md`](STEP_6i.md), [`STEP_6h.md`](STEP_6h.md), [`STEP_6g.md`](STEP_6g.md), [`STEP_6f.md`](STEP_6f.md), [`STEP_6e.md`](STEP_6e.md),
+- **6y** (`STEP_6y.md`): the EIC 2025's percentages as constraints (a probe at the session's
+  start: 278 of its 346 indicators are published only as `PCN_*` percentages, so 2025 had
+  33 constraints against 2020's 207).
+  - `load_cpv_estimaciones(counts=True)` (`valor` only): 85 percentages → counts on their
+    bases (`cpv_aggregates._PERCENT_BASES`, each found on the microdata), `Float64`,
+    unrounded (user's choice).
+  - EIC 2025 constraints 29 + 4 → **94 + 31**, each equal to the estimates at all 2,769
+    published geographies (counts exactly, percentages to their rounding), all 32 states.
+  - INEGI's definitions where the legacy cells differ: `PCLIM_*` only for the persons with a
+    limitation, `PCDISC_*` with the unknown degree — in 2020 and 2025 (user's choice: in the
+    184 completely enumerated municipalities the 2020 ITER matches them in 168–183, the
+    legacy limitation cells in 0–4); 2025's own `PDER_ISTE` (federal or state ISSSTE, new
+    dummy `DHSERSAL_ISSSTE_T`), `VPH_EXCSA` (toilet or latrine), water wording; `PNACOE`
+    without the unspecified state on the new **`ENT_PAIS_NAC_INEGI`** (user's choice; every
+    edition with a birthplace).
+
+Design: [`PLAN.md`](PLAN.md). Recent units: [`STEP_6y.md`](STEP_6y.md), [`STEP_6x.md`](STEP_6x.md), [`STEP_6w.md`](STEP_6w.md), [`STEP_6v.md`](STEP_6v.md), [`STEP_6u.md`](STEP_6u.md), [`STEP_6t.md`](STEP_6t.md), [`STEP_6s.md`](STEP_6s.md), [`STEP_6r.md`](STEP_6r.md), [`STEP_6q.md`](STEP_6q.md), [`STEP_6p.md`](STEP_6p.md), [`STEP_6o.md`](STEP_6o.md), [`STEP_6n.md`](STEP_6n.md), [`STEP_6m.md`](STEP_6m.md), [`STEP_6l.md`](STEP_6l.md), [`STEP_6k.md`](STEP_6k.md), [`STEP_6j.md`](STEP_6j.md), [`STEP_6i.md`](STEP_6i.md), [`STEP_6h.md`](STEP_6h.md), [`STEP_6g.md`](STEP_6g.md), [`STEP_6f.md`](STEP_6f.md), [`STEP_6e.md`](STEP_6e.md),
 [`STEP_6d.md`](STEP_6d.md),
 [`STEP_6c.md`](STEP_6c.md), [`STEP_6b.md`](STEP_6b.md), … [`STEP_0_probe.md`](STEP_0_probe.md).
 
@@ -156,12 +172,12 @@ files; the MG 2015 files were built on the Mac and copied to `wsl` for the uploa
 merge: 1773 passed, 1 h 50 min) and holds a copy of the Mac's tabulados cache
 (`data/dict/tabulados/`, without 6t's `2000/C2KHO04.xls` and `2015/12_hogares.xls` and 6w's
 `2015/05_etnicidad.xls` and `2020/cpv2020_a_eum_07_educacion.xlsx`: the script fetches
-them). 6s, 6t, 6u, 6v, 6w and 6x ran on the Mac only.
+them). 6s–6y ran on the Mac only.
 `wsl:~/mxcensus3c` (3c's code copy) can be deleted.
 
 ## Kickoff prompt for the next session
 
-> Continue the CPV census-family work in this repo (branch cpv-integration = main + 6v + 6w + 6x;
+> Continue the CPV census-family work in this repo (branch cpv-integration = main + 6v–6y;
 > main = v0.10.0 + 6u, merged). Read docs/cpv/HANDOFF.md first, then agree with me which next unit to
 > take (candidates in HANDOFF §Next) before implementing it, following the session protocol
 > in docs/cpv/PLAN.md. Use .venv/bin/python, not uv run. Run wsl tasks without asking; ask
@@ -198,15 +214,22 @@ and **kept all seven** (merged as 0.9.0):
 
 ## Next: candidates (none decided)
 
-1. Merge 6v, 6w and 6x into `main`, push `main`/`cpv-integration` (6u–6x) and a version
+1. Merge 6v–6y into `main`, push `main`/`cpv-integration` (6u–6y) and a version
    bump, when the user wants them (`wsl` pull + full suite there first, as for 0.9.0).
-2. The EIC 2025 estimates publish more household indicators the constraints lack:
-   `HOG_AFRO`/`PHOG_AFRO` (Afro-descendant households, the 2020/2025 self-identification
-   items), the household types `PCN_HOG_FAM`/`PCN_HOG_NFAM` (+ their populations), income
-   sources (`PCN_HOG_PERC`, `_GOB`, `_JUB`, `_OVIV`, `_OPAIS`) and food security
-   (`PCN_HOG_ALIM*`, `HOG_MEN_ALIM`). Each needs its definition found on the estimates (as
-   6w's `HOG_IND`), and the `PCN_` ones are percentages, not counts.
-3. Smaller: a 2000 occupation bridge (CMO → SINCO, no published table); income in minimum
+2. The EIC 2025's other 190 percentages (6y left them: their cells are new), with 6y's
+   method (`STEP_6y.md`: the base search, then `_PERCENT_BASES` + cells, verified at every
+   geography). Probably two units:
+   - **persons**: the 5-year age groups by sex (48), the residence in October 2020
+     (`PCN_PRES*20`; an `ENT_PAIS_RES_INEGI` beside `ENT_PAIS_RES_CAT`, as 6y's
+     birthplace), nationality of the born abroad, Afro-descendant households
+     (`HOG_AFRO`/`PHOG_AFRO`, counts), the disability by age and sex, school attendance…;
+   - **dwellings and households**: walls, roofs, cooking place and fuel, waste, water
+     storage and heaters, tenure and deeds, the household types (`PCN_HOG_FAM`/`_NFAM`),
+     income sources (`PCN_HOG_PERC`, `_GOB`, `_JUB`, `_OVIV`, `_OPAIS`), food security
+     (`PCN_*_ADL*`, `PCN_*_MEN*`, `HOG_MEN_ALIM`) and displacement — their bases are
+     households.
+3. Smaller: `check_cpv_tabulados.py`'s EIC 2015 migration check could read
+   `ENT_PAIS_NAC_INEGI` instead of moving the unspecified group (`_moved`); a 2000 occupation bridge (CMO → SINCO, no published table); income in minimum
    wages for 2000 (`P_1SM`…: three wage zones by municipality); a locality-level lineage
    (6a covered municipalities only); CGPV 1990's undocumented `TIP_HOGAR` 6 (96,370
    persons, all `N_F_GPOS` 99 and a 9xx relationship: a dwelling without its household
@@ -503,3 +526,24 @@ None.
   dwelling frame; Censo 2010's raw serials need the same `harmonize` on both sides
   (`_person_columns` builds the national keys).
 - **`HOG_IND` is on both frames** (6x): a person ↔ dwelling join needs a suffix.
+- **EIC 2025 percentages** (6y): most estimates are `PCN_*` percentages (two decimals).
+  `load_cpv_estimaciones(counts=True)` (`valor` only) adds `X` = `PCN_X` × base / 100 for
+  the 85 in `cpv_aggregates._PERCENT_BASES`. Each 2025 constraint is a column of that frame.
+  A derived count is off Σ `FACTOR` by the rounding (base × 0.00005: ≤ 5,268 persons
+  nationally, ≤ 88 in a municipality), so a test compares the **share** (our cells ÷ the
+  base's cells) with the percentage, within 0.005. Bases are not always the age group
+  (`PEA_F` is a share of the PEA, `PDER_IMSS` of the affiliated, `VPH_*` of
+  `VIVPARHAB_C`): find them on the data, never from the description alone.
+- **The base search** (6y, `STEP_6y.md`): Σ `FACTOR` per geography (municipality, ≥50k
+  locality = `LOC50K`, the state remainder 997/9997 = `LOC50K` 0000, state) over every
+  candidate cell, then for each percentage the base whose share is within 0.005 at all 2,769
+  published geographies. Seven municipalities have persons without characteristics: every
+  percentage there is «No aplica».
+- **Legacy vs CPV cells in 2020** (6y): `PCLIM_*` (on `LIMITACION`) and `PCDISC_*` (with the
+  unknown degree) differ from the frozen `constraints_personas.yaml`, as `PCON_DISC`/
+  `PCON_LIMI`/`PSIND_LIM` and the education cells already did; the Censo 2020 ITER agrees
+  with INEGI's. The unknown degree's label differs by edition (2020 «… de la discapacidad»,
+  2025 «… de la dificultad»: `_pcdisc`).
+- **Two birthplace columns** (6y): `ENT_PAIS_NAC_CAT` (legacy: the unspecified state is
+  `OtraEnt`) and `ENT_PAIS_NAC_INEGI` (it is «No especificado»). Only the EIC 2025's
+  `PNACOE` reads the INEGI one; 2020's ITER fits neither exactly.

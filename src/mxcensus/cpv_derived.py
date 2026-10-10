@@ -98,7 +98,10 @@ CGPV 1990 writes 0 for «not asked» (``_NA`` in :data:`_RECODE`); neither asked
 coverage or disability per person (the Conteo counts them per household).
 
 An unspecified entity (2020: 997) counts as ``OtraEnt`` in every edition, the legacy rule;
-INEGI's tabulados count it as not specified (a few hundred persons per edition).
+INEGI's tabulados count it as not specified (a few hundred persons per edition), and so
+does ``ENT_PAIS_NAC_INEGI`` (6y), the birthplace beside it (the EIC 2025's ``PNACOE``: 14,882
+persons nationally). ``DHSERSAL_ISSSTE_T`` (6y) is the ISSSTE, federal or state, beside
+the public (``DHSERSAL_PUB``) and any (``DHSERSAL_AFIL``) affiliation.
 
 :func:`cpv_derivations` lists the columns per edition. The check that the source codes
 match after the recode is a test (``tests/test_cpv_derived.py``).
@@ -112,7 +115,12 @@ the population by its household head's sex (``PHOGJEF_F``/``PHOGJEF_M`` on
 ``HOGJEF_SEXO``), the population in households (``POBHOG``) and in indigenous households
 (``PHOG_IND`` on ``HOG_IND``) and the indigenous households themselves (``HOG_IND`` on the
 dwellings' ``HOG_IND``: the EIC 2025 estimates) (:data:`_CELLS`), which the legacy sets
-lack. The Conteo
+lack. INEGI's limitation and disability by activity (6y; ``PCLIM_*`` only for the persons
+with a limitation, ``PCDISC_*`` with the unknown degree) replace the legacy cells in 2020
+and 2025. The EIC 2025 publishes most indicators as percentages; their counts
+(``load_cpv_estimaciones(counts=True)``) are indicators too, some on its own definitions
+(:data:`_EDITION_CELLS`: born in another state without the unspecified one, the ISSSTE
+federal or state, toilet or latrine). The Conteo
 2005's household indicators are counted on its household frame
 (``cpv_constraints("hogares", 2005)``; its dwelling rows are dwellings), whose
 ``derived=True`` adds the dwelling's class and the household's own head's sex.
@@ -357,9 +365,10 @@ _DTYPES = {"DISCAPACIDAD": _YES_NO, "LIMITACION": _YES_NO, "SIN_DISC_LIM": _YES_
            "LIM_ACTIVIDAD": _YES_NO, "MADRE_EN_VIVIENDA": _YES_NO, "PADRE_EN_VIVIENDA": _YES_NO,
            "EDUC_INEGI": _EDUC_INEGI, "EDUC_INEGI_DET": _EDUC_INEGI_DET, "SECTOR": _SECTOR,
            "HOG_IND": _SI_NO}
-# Derived columns with another table's legacy dtype: the household head's sex on the
-# person (6t) has the dwelling item's.
-_DTYPE_LIKE = {"HOGJEF_SEXO": ("viviendas", "JEFE_SEXO")}
+# Derived columns with another column's legacy dtype: the household head's sex on the
+# person (6t) has the dwelling item's; INEGI's birthplace (6y) the legacy one's.
+_DTYPE_LIKE = {"HOGJEF_SEXO": ("viviendas", "JEFE_SEXO"),
+               "ENT_PAIS_NAC_INEGI": ("personas", "ENT_PAIS_NAC_CAT")}
 _DIS_ITEMS = ("DIS_VER", "DIS_OIR", "DIS_CAMINAR", "DIS_RECORDAR", "DIS_BANARSE", "DIS_HABLAR")
 # Censo 2010: one item per activity (DISCAP1–7, its code or blank), DISCAP8 = none (17) or
 # not specified (99).
@@ -676,14 +685,21 @@ def _as_dummies(flags: Mapping[str, pd.Series], unknown: pd.Series) -> dict[str,
     return {k: v.astype(int).astype(_DUMMY).mask(unknown) for k, v in flags.items()}
 
 
+def _summaries(has: Mapping[int, pd.Series], codes: tuple[int, ...]) -> dict[str, pd.Series]:
+    """The summary dummies: the ISSSTE, federal or state (6y: the EIC 2025's ``PDER_ISTE``;
+    Censo 2020's counts the federal one only), a public institution (1–6), any (1–8)."""
+    def any_of(selected):
+        return pd.concat([has[c] for c in codes if c in selected], axis=1).any(axis=1)
+    return {"DHSERSAL_ISSSTE_T": any_of((2, 3)), "DHSERSAL_PUB": any_of(range(1, 7)),
+            "DHSERSAL_AFIL": any_of(range(1, 9))}
+
+
 def _dhsersal(codes: tuple[int, ...]):
-    """The dummies of the 2020 ``codes`` an edition offers (1–6 public, 1–8 any)."""
+    """The dummies of the 2020 ``codes`` an edition offers, and the summaries."""
     def fn(src):
         d1, d2 = src["DHSERSAL1"], src["DHSERSAL2"]
         has = {code: d1.eq(code) | d2.eq(code) for code in codes}
-        out = {_DHSERSAL[code]: has[code] for code in codes}
-        out["DHSERSAL_PUB"] = pd.concat([has[c] for c in codes if c <= 6], axis=1).any(axis=1)
-        out["DHSERSAL_AFIL"] = pd.concat([has[c] for c in codes if c <= 8], axis=1).any(axis=1)
+        out = {_DHSERSAL[code]: has[code] for code in codes} | _summaries(has, codes)
         known = [*codes, 99]
         unknown = (d1.notna() & ~d1.isin(known)) | (d2.notna() & ~d2.isin(known))
         return _as_dummies(out, unknown)
@@ -723,15 +739,14 @@ def _dhsersal_items(period: str):
             for raw, code in mapping.items():
                 if code in has:
                     has[code] |= v.eq(raw)
-        out = {_DHSERSAL[code]: has[code] for code in codes}
-        out["DHSERSAL_PUB"] = pd.concat([has[c] for c in codes if c <= 6], axis=1).any(axis=1)
-        out["DHSERSAL_AFIL"] = pd.concat([has[c] for c in codes if c <= 8], axis=1).any(axis=1)
+        out = {_DHSERSAL[code]: has[code] for code in codes} | _summaries(has, codes)
         return _as_dummies(out, unknown)
     return fn
 
 
 def _dhsersal_names(codes: tuple[int, ...]) -> tuple[str, ...]:
-    return (*(_DHSERSAL[c] for c in codes), "DHSERSAL_PUB", "DHSERSAL_AFIL")
+    return (*(_DHSERSAL[c] for c in codes), "DHSERSAL_ISSSTE_T", "DHSERSAL_PUB",
+            "DHSERSAL_AFIL")
 
 
 def _dummies(table: str, items: tuple[str, ...], prefix: str,
@@ -801,14 +816,22 @@ def _cat(table: str, var: str, name: str):
     return fn
 
 
-def _ent_pais_cat(var: str, name: str, abroad: str | None = None):
+_ENT_NE = 997            # an entity not specified (2020 code; each edition's via _RECODE)
+
+
+def _ent_pais_cat(var: str, name: str, abroad: str | None = None, inegi: str | None = None):
     """Entity or country → ``OtraEnt``/``OtroPais``/…, ``EstaEnt`` for the person's entity
     (Censo 2010 splits the answer: the entity item ``var``, else the country item
-    ``abroad``)."""
+    ``abroad``). ``inegi`` names INEGI's version too (6y), with the unspecified entity
+    (``OtraEnt`` by the legacy rule) «No especificado»: its tabulados' and the EIC 2025
+    estimates' ``PNACOE`` (exact in every municipality)."""
     def fn(src):
         code = src[var] if abroad is None else src[var].fillna(src[abroad])
-        cat = _mapped(code, "personas", name, name)
-        return {name: cat.mask(code.eq(src["ENT"]), "EstaEnt")}
+        cat = _mapped(code, "personas", name, name).mask(code.eq(src["ENT"]), "EstaEnt")
+        out = {name: cat}
+        if inegi:
+            out[inegi] = _as(cat.mask(code.eq(_ENT_NE), "No especificado"), "personas", inegi)
+        return out
     return fn
 
 
@@ -997,6 +1020,7 @@ _ESC = ("MED_TRASLADO_ESC1", "MED_TRASLADO_ESC2", "MED_TRASLADO_ESC3")
 _TRAB = ("MED_TRASLADO_TRAB1", "MED_TRASLADO_TRAB2", "MED_TRASLADO_TRAB3")
 _FIN = ("FINANCIAMIENTO1", "FINANCIAMIENTO2", "FINANCIAMIENTO3")
 _EDUC = ("EDUC", "EDUC_INEGI", "EDUC_INEGI_DET")
+_NAC = ("ENT_PAIS_NAC_CAT", "ENT_PAIS_NAC_INEGI")      # the legacy rule and INEGI's (6y)
 
 
 @functools.cache
@@ -1051,10 +1075,10 @@ def _registry() -> tuple[_Derivation, ...]:
           _cat(per, "CONACT", "CONACT_CAT")),
         D(per, ("SITUA_CONYUGAL_CAT",), ("SITUA_CONYUGAL",), (*_OLDEST, *_SINCE_2000),
           _cat(per, "SITUA_CONYUGAL", "SITUA_CONYUGAL_CAT")),
-        D(per, ("ENT_PAIS_NAC_CAT",), ("ENT_PAIS_NAC", "ENT"), (*_OLDEST, "2000", *_SINCE_2015),
-          _ent_pais_cat("ENT_PAIS_NAC", "ENT_PAIS_NAC_CAT")),
-        D(per, ("ENT_PAIS_NAC_CAT",), ("LNACEDO_C", "LNACPAIS_C", "ENT"), ("2010",),
-          _ent_pais_cat("LNACEDO_C", "ENT_PAIS_NAC_CAT", abroad="LNACPAIS_C")),
+        D(per, _NAC, ("ENT_PAIS_NAC", "ENT"), (*_OLDEST, "2000", *_SINCE_2015),
+          _ent_pais_cat("ENT_PAIS_NAC", _NAC[0], inegi=_NAC[1])),
+        D(per, _NAC, ("LNACEDO_C", "LNACPAIS_C", "ENT"), ("2010",),
+          _ent_pais_cat("LNACEDO_C", _NAC[0], abroad="LNACPAIS_C", inegi=_NAC[1])),
         D(per, ("ENT_PAIS_RES_CAT",), ("ENT_PAIS_RES_5A", "ENT"),
           (*_OLDEST, "2000", "2005", *_SINCE_2015),
           _ent_pais_cat("ENT_PAIS_RES_5A", "ENT_PAIS_RES_CAT")),
@@ -1339,10 +1363,34 @@ _CELL_VARS = {**DHSERSAL_RENAMES, "EDUC": "EDUC_INEGI"}
 # ITER's ``POBTOT`` exceeds by the population of collective dwellings and without a dwelling,
 # and in 2000 by the population counted without characteristics; see cpv_constraints).
 _PHOG_IND = {"HOG_IND": ["Sí"]}      # each edition's own definition (_IND_CODES; 6w)
+# The limitation and the disability by activity (6y): INEGI counts a limitation in an
+# activity (some difficulty) only for the persons with a limitation, i.e. without a
+# disability in another activity (``LIMITACION``), and a disability (much difficulty, cannot)
+# with the persons whose degree is unknown (the edition's label: _pcdisc). The EIC 2025
+# estimates match to their rounding everywhere; the Censo 2020 ITER, in the 184
+# municipalities its sample enumerated completely, matches the limitation in 168–181 (the
+# legacy cells, some difficulty whatever the rest: 0–4) and the disability in 179–183
+# (legacy 175–182).
+_LIMITATIONS = {"PCLIM_VIS": "DIS_VER", "PCLIM_OAUD": "DIS_OIR", "PCLIM_CSB": "DIS_CAMINAR",
+                "PCLIM_RE_CO": "DIS_RECORDAR", "PCLIM_MOT2": "DIS_BANARSE",
+                "PCLIM_HACO": "DIS_HABLAR"}
+_DISABILITIES = {"PCDISC_VIS": "DIS_VER", "PCDISC_AUD": "DIS_OIR", "PCDISC_MOT": "DIS_CAMINAR",
+                 "PCDISC_MEN": "DIS_RECORDAR", "PCDISC_MOT2": "DIS_BANARSE",
+                 "PCDISC_LENG": "DIS_HABLAR"}
+
+
+def _pcdisc(unknown: str) -> dict:
+    """INEGI's disability by activity, with the edition's label for an unknown degree."""
+    return {ind: {item: ["Lo hace con mucha dificultad", "No puede hacerlo", unknown]}
+            for ind, item in _DISABILITIES.items()}
+
+
 _CELLS = {"personas": {"POBHOG": {},
                        "PCON_DISC": {"DISCAPACIDAD": ["Sí"]},
                        "PCON_LIMI": {"LIMITACION": ["Sí"]},
                        "PSIND_LIM": {"SIN_DISC_LIM": ["Sí"]},
+                       **{ind: {item: ["Lo hace con poca dificultad"], "LIMITACION": ["Sí"]}
+                          for ind, item in _LIMITATIONS.items()},
                        "PHOGJEF_F": {"HOGJEF_SEXO": ["Mujer"]},
                        "PHOGJEF_M": {"HOGJEF_SEXO": ["Hombre"]},
                        "PHOG_IND": _PHOG_IND},
@@ -1355,6 +1403,7 @@ _AGES_5PLUS = ["5", "6-7", "8-11", "12-14", "15-17", "18-24", "25-49", "50-59", 
 _AGES_15PLUS = _AGES_5PLUS[4:]
 _AGES_12PLUS, _AGES_18PLUS = _AGES_5PLUS[3:], _AGES_5PLUS[5:]
 _AGES_6_14, _AGES_15_24 = ["6-7", "8-11", "12-14"], ["15-17", "18-24"]
+_AGES_0_14 = ["0-2", "3-4", "5", *_AGES_6_14]
 _VIVIENDA = {"CLAVIVP_CAT": ["Vivienda"]}
 # The employed by sector (CGPV 1990 and 2000's ITER; 6o).
 _EMPLOYED_CELLS = {"EDAD_CAT": _AGES_12PLUS, "CONACT_CAT": ["Trabaja"]}
@@ -1396,6 +1445,7 @@ _AGUA_DV_2005 = ["Disponen de agua de la red pública dentro de la vivienda",
 _AGUA_FV_2005 = ["Se abastecen de una llave pública o hidrante", "Se abastecen de otra vivienda",
                  "Se abastecen de agua de pipa", "Se abastecen de agua de pozo",
                  "Se abastecen de agua de río, arroyo, lago u otro"]
+_AGUA_DV_2025 = ["dentro de la vivienda?", "solo en el patio o terreno?"]
 _EDITION_CELLS = {
     ("personas", "1990"): {
         "P15YM_AN": {"EDAD_CAT": _AGES_15PLUS,
@@ -1610,6 +1660,33 @@ _EDITION_CELLS = {
         "PCLIM_MEN": {"DISCAP6": ["Poner atención o aprender cosas sencillas"]},
         "PCLIM_MEN2": {"DISCAP7": ["Limitación mental"]},
     },
+    # 6y: INEGI's disability by activity, each edition's «degree unknown» label (_CELLS)
+    ("personas", "2020"): _pcdisc("Se desconoce el grado de la discapacidad"),
+    # 6y: the EIC 2025 estimates' own definitions (their percentages, as counts:
+    # cpv_aggregates._PERCENT_BASES) — the disability by activity; born in another state
+    # without the unspecified state (ENT_PAIS_NAC_INEGI); the ISSSTE federal or state; the
+    # age groups, birthplace abroad and literacy of the 6–14 the legacy sets lack
+    ("personas", "2025"): {
+        **_pcdisc("Se desconoce el grado de la dificultad"),
+        **_by_sex({"ENT_PAIS_NAC_INEGI": ["OtraEnt"]}, ("PNACOE", "PNACOE_M", "PNACOE_F")),
+        **_by_sex({"ENT_PAIS_NAC_CAT": ["OtroPais"]}, ("PNACOP", "PNACOP_M", "PNACOP_F")),
+        "PDER_ISTE": {"DHSERSAL_ISSSTE_T": [1]},
+        **_by_sex({"EDAD_CAT": _AGES_0_14}, ("POB0_14", "POB0_14_M", "POB0_14_F")),
+        **_by_sex({"EDAD_CAT": _AGES_6_14}, ("P_6A14", "P_6A14_M", "P_6A14_F")),
+        **_by_sex({"EDAD_CAT": _AGES_6_14, "ALFABET": ["No"]},
+                  ("P6A14AN", "P6A14AN_M", "P6A14AN_F")),
+    },
+    # 6y: the EIC 2025's dwelling universe (its percentages' base: the class «Vivienda», the
+    # legacy VIVPARH_CV), its water item's wording («solo», 2020 «sólo»), and its sanitary
+    # service, which counts a latrine too (Censo 2020's VPH_EXCSA: the toilet only)
+    ("viviendas", "2025"): {
+        "VIVPARHAB_C": _VIVIENDA,
+        "VPH_AGUADV": {**_VIVIENDA, "AGUA_ENTUBADA": _AGUA_DV_2025},
+        "VPH_C_SERV": {**_VIVIENDA, "ELECTRICIDAD": ["Sí"], "AGUA_ENTUBADA": _AGUA_DV_2025,
+                       "DRENAJE_CAT": ["Sí"]},
+        "VPH_EXCSA": {**_VIVIENDA, "SERSAN": ["taza de baño (excusado o sanitario)?",
+                                              "letrina (pozo u hoyo)?"]},
+    },
 }
 
 
@@ -1642,8 +1719,10 @@ def _cpv_constraints(table: str) -> dict:
 def _aggregate_indicators(period: str, comparable: bool = True) -> frozenset[str]:
     """The indicators an edition publishes: its ITER's (through the crosswalk; an older
     edition's only where comparable, unless ``comparable=False``) or, for the EIC 2025,
-    its national estimates'."""
+    its national estimates' — the counts and the counts behind the percentages
+    (``load_cpv_estimaciones(counts=True)``; 6y)."""
     from mxcensus._resources import cpv_iter_crosswalk
+    from mxcensus.cpv_aggregates import _percent_count_names
     from mxcensus.data._cpv_catalog import get_edition
 
     edition = get_edition(period)
@@ -1658,8 +1737,9 @@ def _aggregate_indicators(period: str, comparable: bool = True) -> frozenset[str
         from mxcensus._resources import cpv_schema_map
 
         groups = cpv_schema_map()["estimaciones"]["groups"]
-        return frozenset(c for g in groups.values() if period in [str(p) for p in g["periods"]]
-                         for c in g["columns"])
+        columns = frozenset(c for g in groups.values()
+                            if period in [str(p) for p in g["periods"]] for c in g["columns"])
+        return columns | _percent_count_names(columns)
     return frozenset()
 
 
@@ -1706,9 +1786,12 @@ def cpv_constraints(table: str, period: str | int) -> dict:
     (``PHOGJEF_F``/``PHOGJEF_M`` on ``HOGJEF_SEXO``), the population in households
     (``POBHOG``: every person, as ``POBTOT``) and in indigenous households (``PHOG_IND`` on
     ``HOG_IND``, each edition's definition), the indigenous households (``HOG_IND`` on the
-    dwellings' ``HOG_IND``; published by the EIC 2025 only) — keeping the indicators that
+    dwellings' ``HOG_IND``; published by the EIC 2025 only), INEGI's limitation and
+    disability by activity (``PCLIM_*`` on ``LIMITACION``, ``PCDISC_*`` with the unknown
+    degree; 2020 and 2025) — keeping the indicators that
     (1) the edition publishes (its ITER, through ``cpv_iter_crosswalk`` — for 2010 only
-    the indicators comparable with 2020's —; the EIC 2025's national estimates) and (2)
+    the indicators comparable with 2020's —; the EIC 2025's national estimates: its counts
+    and the counts behind its percentages, ``load_cpv_estimaciones(counts=True)``) and (2)
     whose variables and
     categories all exist in the edition's labelled frame with ``derived=True``. EIC 2015
     publishes neither, so it has none. An edition's own definitions (Censo 2010's
@@ -1717,8 +1800,13 @@ def cpv_constraints(table: str, period: str | int) -> dict:
     the 1990–2010 samples' own items — literacy, language, attendance, floor, electricity,
     water, sanitary service, goods, with each dictionary's labels; CGPV 2000's media
     superior and superior, ``P18_CMEDSU``/``P18_CSUPER`` on ``EDUC_INEGI_DET``; the 2005/2010
-    ``PHOG_IND``, the head or the partner only) are added when it publishes the indicator. Feed the
-    result and the frame's dtypes to :func:`mxcensus.get_tables_dict`.
+    ``PHOG_IND``, the head or the partner only; the EIC 2025's born in another state without
+    the unspecified one, ``PNACOE`` on ``ENT_PAIS_NAC_INEGI``, its ISSSTE federal or state,
+    its toilet or latrine, its water item's wording, its dwelling universe ``VIVPARHAB_C``,
+    the age groups ``P_6A14``/``POB0_14_F``…, ``PNACOP_F``/``_M`` and ``P6A14AN``) are added
+    when it publishes the indicator. Feed the
+    result and the frame's dtypes to :func:`mxcensus.get_tables_dict`. For the EIC 2025,
+    each indicator is a column of ``load_cpv_estimaciones(counts=True)``.
 
     ``table`` is ``personas``, ``viviendas`` or, for the Conteo 2005, ``hogares``: its
     dwelling file has one row per dwelling, so the household indicators (``TOTHOG``,
