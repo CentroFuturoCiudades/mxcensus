@@ -40,6 +40,13 @@ household (``ID_HOG`` in 1995–2005; the dwelling in 2010–2025, one household
 relationship code is the head's (:data:`_HEAD_CODES`), exactly one per household or
 :func:`derive` raises. A person of a Conteo 2005 dwelling's second household gets that
 household's head (the dwelling's ``JEFE_SEXO`` is its first household's).
+The persons of 2000–2025 get ``HOG_IND`` (6w, «Sí»/«No»): whether their household is
+indigenous, by each edition's own definition — someone among the members its publications
+count speaks an indigenous language (:data:`_IND_CODES`): the head or the partner up to the
+EIC 2015, plus the parents and parents-in-law in Censo 2020, plus the step-parents and
+grandparents in the EIC 2025. Every edition's ``EDUC_INEGI`` comes with ``EDUC_INEGI_DET``
+(6w), its «Posbásica» split into INEGI's media superior, superior and posgrado
+(:data:`_POSBASICA`).
 
 **Editions.** Censo 2020 and EIC 2025 (same questionnaire family) get every derivation
 whose sources exist; 2025 lacks ``RELIGION`` and ``IDENT_HIJO``. EIC 2015 and Censo 2010
@@ -97,9 +104,10 @@ reproduce, for :func:`mxcensus.crosstabs.get_tables_dict`, plus the indicators a
 publishes under its own definition (:data:`_EDITION_CELLS`: Censo 2010's limitation; the
 legacy cells on the 1990–2010 samples' own items; the 1990–2005 ITERs' own indicators) and
 the population by its household head's sex (``PHOGJEF_F``/``PHOGJEF_M`` on
-``HOGJEF_SEXO``) and the population in households (``POBHOG``) (:data:`_CELLS`), which the
-legacy sets lack. The Conteo 2005's household indicators are counted on its household
-frame (``cpv_constraints("hogares", 2005)``; its dwelling rows are dwellings), whose
+``HOGJEF_SEXO``), the population in households (``POBHOG``) and in indigenous households
+(``PHOG_IND`` on ``HOG_IND``) (:data:`_CELLS`), which the legacy sets lack. The Conteo
+2005's household indicators are counted on its household frame
+(``cpv_constraints("hogares", 2005)``; its dwelling rows are dwellings), whose
 ``derived=True`` adds the dwelling's class and the household's own head's sex.
 """
 from __future__ import annotations
@@ -201,6 +209,8 @@ _RECODE: dict[str, dict[str, dict[int, float]]] = {
         "TOTCUART": {26: 25},
         # Sex: 1 man, 2 woman (2020: 1, 3); read for the household head (6s, JEFE_SEXO).
         "SEXO": {2: 3},
+        # Speaks an indigenous language: 1 yes, 2 no (2020: 1, 3), 9 not specified (6w).
+        "HLENGUA": {2: 3},
     },
     "2005": {
         # Level and antecedent (NIVANTES), as 2000's; 84 maestría, 94/95 doctorado.
@@ -213,6 +223,7 @@ _RECODE: dict[str, dict[str, dict[int, float]]] = {
         # Dwelling class (CLAVIVPA): 2000's classes.
         "CLAVIVP": {2: 4, 3: 5, 4: 6, 5: 7, 6: 8, 7: 9, 9: 99},
         "SEXO": {2: 3},                                     # as 2000's
+        "HLENGUA": {2: 3},                                  # HABLENIN, as 2000's (6w)
     },
     "1995": {
         "EDAD": {99: 999},                                  # 99 = not specified (98 = 98+)
@@ -274,7 +285,8 @@ _ALIASES = {"ENT": ("ENT", "CVE_ENT"),
             "TOTCUART": ("TOTCUART", "NUMCUAR", "T_CUARTOS", "P1_7"),
             "DRENAJE": ("DRENAJE", "DIS_DREN", "P1_13"),
             "SEXO": ("SEXO", "P3_5"),
-            # the relationship to the household head (own codes: _HEAD_CODES)
+            "HLENGUA": ("HLENGUA", "HABLENIN"),
+            # the relationship to the household head (own codes: _HEAD_CODES, _IND_CODES)
             "PARENTESCO": ("PARENTESCO", "PARENT", "OTROPARE_C", "P3_4")}
 
 # The household head's code in each edition's relationship item (6t; codes as numbers):
@@ -285,6 +297,26 @@ _ALIASES = {"ENT": ("ENT", "CVE_ENT"),
 _HEAD_CODES: dict[str, tuple[int, ...]] = {
     "1995": (1,), "2000": (100,), "2005": (101, 102), "2010": (1,), "2015": (1,),
     "2020": (101,), "2025": (101,)}
+
+# The members whose indigenous language makes their household indigenous (6w, ``HOG_IND``),
+# by each edition's own definition, verified on its publications: the head and the partner
+# up to the EIC 2015 (2005/2010 ITER ``PHOG_IND``, Censo 2010 exact in the 364 municipalities
+# its sample enumerated completely; the EIC 2015 tabulado «hogares cuyo jefe o jefa y/o
+# cónyuge habla lengua indígena»); Censo 2020 adds the mother or father and the
+# parents-in-law (its ITER, exact in the 184 completely enumerated municipalities;
+# grandparents and step-parents would not be); the EIC 2025 also the step-parents,
+# grandparents and great-grandparents (its estimates, exact in all 2,478 municipalities).
+# CGPV 2000 (no such indicator) takes the head and the partner, the definition of its era.
+# Codes: 2020/2025 PARENTESCO 101 head, 201–203 partner, 401 mother or father, 402
+# step-parent, 406 grandparent, 407 great- or great-great-grandparent, 416 parent-in-law;
+# 2010/2015 PARENT 01 head, 02 partner; 2005 PARENT 101/102 head, 201–204 partner; 2000
+# OTROPARE_C 100 head, 200 partner.
+_PARTNERS = (201, 202, 203)
+_IND_CODES: dict[str, tuple[int, ...]] = {
+    "2000": (100, 200), "2005": (101, 102, 201, 202, 203, 204), "2010": (1, 2),
+    "2015": (1, 2), "2020": (101, *_PARTNERS, 401, 416),
+    "2025": (101, *_PARTNERS, 401, 402, 406, 407, 416)}
+_SPEAKS = 1          # HLENGUA (2020 codes): 1 speaks an indigenous language, 3 no, 9 NE
 
 _BLANK = -1  # a blank (not asked) code, as the legacy dictionaries spell it
 _DUMMY = pd.CategoricalDtype([0, 1])
@@ -297,6 +329,18 @@ _EDUC_INEGI = pd.CategoricalDtype(["Sin Educación", "Primaria_incom", "Primaria
                                    "Secundaria_incom", "Secundaria_com", "Técnica_primaria",
                                    "Posbásica", "No especificado", "Blanco por pase"],
                                   ordered=True)
+# EDUC_INEGI with «Posbásica» split into INEGI's levels (6w; the 2000 ITER's P18_CMEDSU/
+# P18_CSUPER, the EIC 2025 estimates' EMS/ES/POS), by the 2020 NIVACAD: media superior =
+# bachillerato general or tecnológico (4, 5), técnica after secundaria (7), normal básica
+# (9); superior = técnica after preparatoria (8), normal de licenciatura (10), licenciatura
+# (11); posgrado = especialidad, maestría, doctorado (12–14).
+_POSBASICA = {**dict.fromkeys((4, 5, 7, 9), "Media_superior"),
+              **dict.fromkeys((8, 10, 11), "Superior"), **dict.fromkeys((12, 13, 14), "Posgrado")}
+_EDUC_INEGI_DET = pd.CategoricalDtype(["Sin Educación", "Primaria_incom", "Primaria_com",
+                                       "Secundaria_incom", "Secundaria_com", "Técnica_primaria",
+                                       "Media_superior", "Superior", "Posgrado",
+                                       "No especificado", "Blanco por pase"], ordered=True)
+_SI_NO = pd.CategoricalDtype(["Sí", "No"])
 # INEGI's three sectors of activity (the 1990/2000 ITER's POCUSECP/S/T): primary =
 # agriculture, livestock, forestry, fishing and hunting; secondary = mining, electricity and
 # water, construction, manufacturing; tertiary = trade, transport, services, government.
@@ -304,7 +348,8 @@ _SECTOR = pd.CategoricalDtype(["Primario", "Secundario", "Terciario", "No especi
                                "Blanco por pase"])
 _DTYPES = {"DISCAPACIDAD": _YES_NO, "LIMITACION": _YES_NO, "SIN_DISC_LIM": _YES_NO,
            "LIM_ACTIVIDAD": _YES_NO, "MADRE_EN_VIVIENDA": _YES_NO, "PADRE_EN_VIVIENDA": _YES_NO,
-           "EDUC_INEGI": _EDUC_INEGI, "SECTOR": _SECTOR}
+           "EDUC_INEGI": _EDUC_INEGI, "EDUC_INEGI_DET": _EDUC_INEGI_DET, "SECTOR": _SECTOR,
+           "HOG_IND": _SI_NO}
 # Derived columns with another table's legacy dtype: the household head's sex on the
 # person (6t) has the dwelling item's.
 _DTYPE_LIKE = {"HOGJEF_SEXO": ("viviendas", "JEFE_SEXO")}
@@ -454,14 +499,17 @@ _TECNICA_PRIMARIA = 6   # NIVACAD (2020): estudios técnicos o comerciales con p
 
 
 def _educ(src):
-    """``EDUC`` (the legacy map of level and grade) and ``EDUC_INEGI`` (the same, with the
-    técnica studies after primaria, «Primaria_com» in ``EDUC``, as «Técnica_primaria»)."""
+    """``EDUC`` (the legacy map of level and grade), ``EDUC_INEGI`` (the same, with the
+    técnica studies after primaria, «Primaria_com» in ``EDUC``, as «Técnica_primaria») and
+    ``EDUC_INEGI_DET`` (``EDUC_INEGI`` with «Posbásica» split by the level:
+    :data:`_POSBASICA`)."""
     key = (src["NIVACAD"].fillna(_BLANK) + 1) * 1000 + src["ESCOLARI"].fillna(_BLANK) + 1
     educ = _as(key.map(_educ_map()), "personas", "EDUC")
     tecnica = src["NIVACAD"].eq(_TECNICA_PRIMARIA) & educ.notna()
-    return {"EDUC": educ,
-            "EDUC_INEGI": _as(educ.astype(object).mask(tecnica, "Técnica_primaria"),
-                              "personas", "EDUC_INEGI")}
+    inegi = educ.astype(object).mask(tecnica, "Técnica_primaria")
+    det = inegi.mask(inegi.eq("Posbásica"), src["NIVACAD"].map(_POSBASICA))
+    return {"EDUC": educ, "EDUC_INEGI": _as(inegi, "personas", "EDUC_INEGI"),
+            "EDUC_INEGI_DET": _as(det, "personas", "EDUC_INEGI_DET")}
 
 
 def _educ_2000(src):
@@ -878,6 +926,21 @@ def _hogjef_sexo(heads: tuple[int, ...]):
     return func
 
 
+def _hog_ind(members: tuple[int, ...]):
+    """Whether each person's household is indigenous (6w), by the edition's own definition:
+    one of its ``members`` (relationship codes, :data:`_IND_CODES`) speaks an indigenous
+    language (``HLENGUA`` 1); not speaking, not specified or not asked (the youngest) is
+    not. A household with a language code other than 1, 3, 9 (2020 codes) is left missing
+    (:func:`derive` reports it)."""
+    def func(src):
+        household, lang = src[_HOUSEHOLD], src["HLENGUA"]
+        speaks = lang.eq(_SPEAKS) & src["PARENTESCO"].isin(members)
+        unknown = (lang.notna() & ~lang.isin([1, 3, 9])).groupby(household).transform("any")
+        values = np.where(speaks.groupby(household).transform("any"), "Sí", "No")
+        return {"HOG_IND": _as(values, "personas", "HOG_IND").mask(unknown.to_numpy())}
+    return func
+
+
 def _periods_by(codes: Mapping[str, tuple]) -> dict[tuple, tuple[str, ...]]:
     """Edition → codes, inverted: codes → the editions that share them."""
     out: dict[tuple, tuple[str, ...]] = {}
@@ -906,7 +969,7 @@ _OLDEST = ("1990", "1995")                     # person files only (cpv: dwellin
 _ESC = ("MED_TRASLADO_ESC1", "MED_TRASLADO_ESC2", "MED_TRASLADO_ESC3")
 _TRAB = ("MED_TRASLADO_TRAB1", "MED_TRASLADO_TRAB2", "MED_TRASLADO_TRAB3")
 _FIN = ("FINANCIAMIENTO1", "FINANCIAMIENTO2", "FINANCIAMIENTO3")
-_EDUC = ("EDUC", "EDUC_INEGI")
+_EDUC = ("EDUC", "EDUC_INEGI", "EDUC_INEGI_DET")
 
 
 @functools.cache
@@ -994,6 +1057,8 @@ def _registry() -> tuple[_Derivation, ...]:
         D(per, ("RELIGION_CAT",), ("RELIGION",), ("1990",), _religion_1990),
         *(D(per, ("HOGJEF_SEXO",), ("PARENTESCO", "SEXO"), periods, _hogjef_sexo(heads),
             household=True) for heads, periods in _periods_by(_HEAD_CODES).items()),
+        *(D(per, ("HOG_IND",), ("PARENTESCO", "HLENGUA"), periods, _hog_ind(members),
+            household=True) for members, periods in _periods_by(_IND_CODES).items()),
         D(viv, ("CLAVIVP_CAT",), ("CLAVIVP",), ("1990", "2000", "2005", "2010", *_SINCE_2015),
           _cat(viv, "CLAVIVP", "CLAVIVP_CAT")),
         D(viv, ("JEFE_SEXO",), ("SEXO",), ("2000", "2005", "2010"), _jefe_sexo),  # the head's
@@ -1079,8 +1144,8 @@ def _household(df: pd.DataFrame) -> pd.Series:
     keyed = _composite_keys(df, "personas")
     key = next((k for k in ("ID_HOG", "ID_VIV") if k in keyed.columns), None)
     if key is None:
-        raise ValueError("CPV personas: HOGJEF_SEXO needs the household key (ID_HOG or "
-                         "ID_VIV, or the parts they are derived from)")
+        raise ValueError("CPV personas: HOGJEF_SEXO and HOG_IND need the household key "
+                         "(ID_HOG or ID_VIV, or the parts they are derived from)")
     return keyed.groupby([keyed[_source(keyed, "ENT")], keyed[key]], sort=False).ngroup() \
         .set_axis(df.index)
 
@@ -1191,12 +1256,14 @@ _CELL_VARS = {**DHSERSAL_RENAMES, "EDUC": "EDUC_INEGI"}
 # the sample, as ``POBTOT``; the samples cover the residents of private dwellings, which the
 # ITER's ``POBTOT`` exceeds by the population of collective dwellings and without a dwelling,
 # and in 2000 by the population counted without characteristics; see cpv_constraints).
+_PHOG_IND = {"HOG_IND": ["Sí"]}      # each edition's own definition (_IND_CODES; 6w)
 _CELLS = {"personas": {"POBHOG": {},
                        "PCON_DISC": {"DISCAPACIDAD": ["Sí"]},
                        "PCON_LIMI": {"LIMITACION": ["Sí"]},
                        "PSIND_LIM": {"SIN_DISC_LIM": ["Sí"]},
                        "PHOGJEF_F": {"HOGJEF_SEXO": ["Mujer"]},
-                       "PHOGJEF_M": {"HOGJEF_SEXO": ["Hombre"]}}}
+                       "PHOGJEF_M": {"HOGJEF_SEXO": ["Hombre"]},
+                       "PHOG_IND": _PHOG_IND}}
 
 _AGES_5PLUS = ["5", "6-7", "8-11", "12-14", "15-17", "18-24", "25-49", "50-59", "60-64",
                "65-130"]
@@ -1321,6 +1388,9 @@ _EDITION_CELLS = {
         "P15_CMEDSS": {"EDAD_CAT": _AGES_15PLUS, "EDUC_INEGI": ["Posbásica"]},
         "P18_SMEDSU": {"EDAD_CAT": _AGES_18PLUS,
                        "EDUC_INEGI": [*_SIN_POSPRIMARIA, *_POSPRIMARIA[:3]]},
+        # 6w: media superior and superior apart (its superior includes the posgrado)
+        "P18_CMEDSU": {"EDAD_CAT": _AGES_18PLUS, "EDUC_INEGI_DET": ["Media_superior"]},
+        "P18_CSUPER": {"EDAD_CAT": _AGES_18PLUS, "EDUC_INEGI_DET": ["Superior", "Posgrado"]},
         **_SECTOR_CELLS,
         "POCUNINGR": {**_EMPLOYED_CELLS, "INGTRMEN_CAT": ["No recibe ingresos"]},
         "P41_48HTR": {**_EMPLOYED_CELLS, "HORTRA_CAT": ["41-48"]},
@@ -1406,6 +1476,9 @@ _EDITION_CELLS = {
                       "HATAMESP": ["Habla español"], "SEXO": ["Mujer"]},
         # the Seguro Popular (2005/2010; not 2020's INSABI: crosswalk Comparable: false)
         "PDER_SEGP": {"DHSERSAL_SALUD_PUBLICA": [1]},
+        # 6w: indigenous households by the head or the partner only (2005/2010; 2020's adds
+        # parents and parents-in-law: crosswalk Comparable: false)
+        "PHOG_IND": _PHOG_IND,
     },
     ("viviendas", "2005"): {
         "VPH_PISODT": {**_VIVIENDA, "MAT_PISO": ["Cemento o firme",
@@ -1440,6 +1513,7 @@ _EDITION_CELLS = {
     },
     ("personas", "2010"): {
         "PDER_SEGP": {"DHSERSAL_SALUD_PUBLICA": [1]},                     # 6o: Seguro Popular
+        "PHOG_IND": _PHOG_IND,                                  # 6w: head or partner only
         "PNCATOLICA": {"RELIGION_CAT": ["Protestante/cristiano evangélico"]},
         "PCON_LIM": {"LIM_ACTIVIDAD": ["Sí"]},
         "PSIN_LIM": {"LIM_ACTIVIDAD": ["No"]},
@@ -1543,8 +1617,9 @@ def cpv_constraints(table: str, period: str | int) -> dict:
     ``PSIND_LIM`` on INEGI's ``DISCAPACIDAD``/``LIMITACION``/``SIN_DISC_LIM`` flags, the
     education indicators on ``EDUC_INEGI`` (INEGI's primaria completa leaves out the técnica
     studies after primaria), the population by its household head's sex
-    (``PHOGJEF_F``/``PHOGJEF_M`` on ``HOGJEF_SEXO``) and the population in households
-    (``POBHOG``: every person, as ``POBTOT``) — keeping the indicators that
+    (``PHOGJEF_F``/``PHOGJEF_M`` on ``HOGJEF_SEXO``), the population in households
+    (``POBHOG``: every person, as ``POBTOT``) and in indigenous households (``PHOG_IND`` on
+    ``HOG_IND``, each edition's definition) — keeping the indicators that
     (1) the edition publishes (its ITER, through ``cpv_iter_crosswalk`` — for 2010 only
     the indicators comparable with 2020's —; the EIC 2025's national estimates) and (2)
     whose variables and
@@ -1553,8 +1628,9 @@ def cpv_constraints(table: str, period: str | int) -> dict:
     limitation in activity: ``PCON_LIM``, ``PSIN_LIM``, ``PCLIM_*`` on ``LIM_ACTIVIDAD``
     and ``DISCAP1``–``DISCAP7``; its religion groups: ``PNCATOLICA``; the legacy cells on
     the 1990–2010 samples' own items — literacy, language, attendance, floor, electricity,
-    water, sanitary service, goods, with each dictionary's labels) are added when it
-    publishes the indicator. Feed the
+    water, sanitary service, goods, with each dictionary's labels; CGPV 2000's media
+    superior and superior, ``P18_CMEDSU``/``P18_CSUPER`` on ``EDUC_INEGI_DET``; the 2005/2010
+    ``PHOG_IND``, the head or the partner only) are added when it publishes the indicator. Feed the
     result and the frame's dtypes to :func:`mxcensus.get_tables_dict`.
 
     ``table`` is ``personas``, ``viviendas`` or, for the Conteo 2005, ``hogares``: its

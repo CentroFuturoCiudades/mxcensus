@@ -1036,7 +1036,10 @@ PHOG_IND:
   '2005': P_HOG_IND
   Renombrar:
   - '2005'
-  Nota: 2005 dice «hogares indígenas», 2010 y 2020 «hogares censales indígenas»
+  Comparable: false
+  Nota: hogares donde habla lengua indígena la jefa(e) o su cónyuge (2005, 2010); 2020 cuenta además a
+    la madre o el padre y a la suegra(o) de la jefa(e) (exacto en los municipios que su muestra levantó
+    completos). 2005 dice «hogares indígenas», 2010 y 2020 «hogares censales indígenas»
 POB_AFRO:
   Descripción: Población que se considera afromexicana o afrodescendiente
   Tablas:

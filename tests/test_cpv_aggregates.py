@@ -162,7 +162,7 @@ def test_crosswalk_covers_every_column_once():
     assert all(xw[k][p] != k for k, ps in renamed.items() for p in ps)    # only real renames
     assert [k for k, ps in renamed.items() if "2010" in ps] == ["TAMLOC"]
     assert {k for k, e in xw.items() if e.get("Comparable") is False} == {
-        "PCLIM_VIS", "PCLIM_MOT2", "PDER_SEGP"}
+        "PCLIM_VIS", "PCLIM_MOT2", "PDER_SEGP", "PHOG_IND"}      # 6w: other relatives
     assert xw["PRES2015"]["2010"] == "PRES2005" and not xw["PRES2015"].get("Renombrar")
     assert "2020" not in xw["PCON_LIM"] and "Nota" in xw["PCON_LIM"]
 

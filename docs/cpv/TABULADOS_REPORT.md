@@ -17,14 +17,15 @@ Tolerance: 0.04 points (state 07: 0.6).
 | EM05 Sector of the employed (`ACTIVIDADES_C_COARSE`) | `C2KEM05.xls` | 1683 | 0.003 | 0.006 | 0.508 (07 M «Agricultura, ganadería, pesca y caza») | 0 |
 | EM07 Hours worked by the employed (`HORTRA_CAT`) | `C2KEM07.xls` | 495 | 0.003 | 0.015 | 0.080 (07 H «more than 56») | 0 |
 | ED08 Education of the 12+ (`EDUC_INEGI`) | `C2KED08.xls` | 693 | 0.003 | 0.009 | 0.091 (07 M «sin instrucción») | 0 |
-| ED11 Education of the 18+ (`EDUC_INEGI`) | `C2KED11.xls` | 297 | 0.004 | 0.012 | 0.083 (07 M «not specified») | 0 |
-| ED10 Education of the 15+ (`EDUC_INEGI`) | `C2KED10.xls` | 594 | 0.003 | 0.011 | 0.094 (07 M «sin instrucción») | 0 |
+| ED11 Education of the 18+ (`EDUC_INEGI_DET`) | `C2KED11.xls` | 396 | 0.003 | 0.010 | 0.083 (07 M «not specified») | 0 |
+| ED10 Education of the 15+ (`EDUC_INEGI_DET`) | `C2KED10.xls` | 693 | 0.003 | 0.011 | 0.094 (07 M «sin instrucción») | 0 |
 | VI06 Bedrooms (`CUADORM_CAT`), % of the dwellings | `C2KVI06.xls` | 99 | 0.004 | 0.013 | 0.105 (07 T «two or more») | 0 |
 | VI10 Drainage (`DRENAJE_CAT`), % of the dwellings | `C2KVI10.xls` | 99 | 0.002 | 0.007 | 0.019 (07 T «has drainage») | 0 |
 | HO04a Households by the head's sex (`JEFE_SEXO`, 6s), % | `C2KHO04.xls` | 66 | 0.003 | 0.005 | 0.009 (07 T «female head») | 0 |
 | HO04b Population in households by the head's sex (`HOGJEF_SEXO`), % | `C2KHO04.xls` | 66 | 0.002 | 0.005 | 0.005 (11 T «female head») | 0 |
 
 - ED08: Técnica after primaria is its own column here, as `EDUC_INEGI`'s «Técnica_primaria» (6k).
+- ED11: Media superior = técnica after secundaria, preparatoria and normal básica (its columns D–F); superior holds the posgrado (6w).
 - ED10: INEGI's 2000 levels put técnica after primaria with secundaria (its footnote 1), so the comparison groups it there.
 - HO04b: The head's sex is the breakdown: both sexes only.
 
@@ -55,7 +56,8 @@ Tolerance: 1.0 persons.
 | 08-02 Activity of the 12+ (`CONACT_CAT`) | `08_caracteristicas_economicas.xls` 02 | 594 | 0.00 | 0.00 | 0.00 (00 T «inactive») | 0 |
 | 08-06 Employed by occupational division (`OCUPACION_C_COARSE`) | `08_caracteristicas_economicas.xls` 06 | 990 | 0.00 | 0.00 | 0.00 (01 T «Funcionarios, directores y jefes») | 0 |
 | 08-07 Employed by sector (`ACTIVIDADES_C_COARSE`) | `08_caracteristicas_economicas.xls` 07 | 594 | 0.00 | 0.00 | 0.00 (01 T «Agricultura, ganadería, aprovechamiento forestal, pesca y caza») | 0 |
-| 06-11 Education of the 15+ (`EDUC`) | `06_educacion.xls` 11 | 693 | 0.00 | 0.00 | 0.00 (00 T «media superior and superior») | 0 |
+| 06-11 Education of the 15+ (`EDUC`) | `06_educacion.xls` 11 | 792 | 0.00 | 0.00 | 0.00 (00 T «media superior») | 0 |
+| 05-04 Population aged 0–2 in indigenous households (`HOG_IND`) | `05_etnicidad.xls` 04 | 33 | 0.00 | 0.00 | 0.00 (01 T «aged 0–2, the head or partner speaks») | 0 |
 | 07-02 Health affiliation by institution (`DHSERSAL_*`) | `07_servicios_de_salud.xls` 02 | 990 | 0.00 | 0.00 | 0.00 (00 T «IMSS») | 0 |
 | 10-03 Commute to school (`MED_TRASLADO_ESC_*`) | `10_movilidad_cotidiana.xls` 03 | 891 | 0.00 | 0.00 | 0.00 (00 M «private vehicle») | 0 |
 | 10-06 Commute to work (`MED_TRASLADO_TRAB_*`) | `10_movilidad_cotidiana.xls` 06 | 891 | 0.00 | 0.00 | 0.00 (00 T «bus, taxi») | 0 |
@@ -65,7 +67,8 @@ Tolerance: 1.0 persons.
 
 - 04-02: Entity not specified (`ENT_PAIS_NAC` 997) counted as «No especificado», as INEGI's tabulado (the derived column: `OtraEnt`).
 - 04-05: Entity not specified (`ENT_PAIS_RES10` 997) counted as «No especificado».
-- 06-11: Técnica after primaria counts in primaria, in the tabulado as in `EDUC`.
+- 06-11: Técnica after primaria counts in primaria, in the tabulado as in `EDUC`; media superior and superior by `EDUC_INEGI_DET` (6w).
+- 05-04: Both sexes only; the households whose head or partner speaks an indigenous language, the EIC 2015's definition (6w).
 - 12-05: The head's sex is the breakdown: both sexes only.
 
 ## 2020
@@ -74,6 +77,7 @@ Tolerance: 1.0 persons.
 
 | check | tabulado | cells | median \|Δ\| | 95th pct. \|Δ\| | max \|Δ\| (where) | beyond tolerance |
 |---|---|---|---|---|---|---|
+| 07-04 Population 18+ with educación superior (`EDUC_INEGI_DET`) | `cpv2020_a_eum_07_educacion.xlsx` 04 | 99 | 0.00 | 0.00 | 0.00 (01 T «18+, superior or posgrado») | 0 |
 | 08-06 Employed by occupational division (`OCUPACION_C_COARSE`) | `cpv2020_a_eum_08_caracteristicas_economicas.xlsx` 06 | 990 | 0.00 | 0.01 | 0.17 (00 T «Operadores de maquinaria industrial, ensambladores, choferes y conductores de transporte») | 0 |
 | 08-08 Employed by sector (`ACTIVIDADES_C_COARSE`) | `cpv2020_a_eum_08_caracteristicas_economicas.xlsx` 08 | 594 | 0.00 | 0.01 | 0.21 (00 T «Comercio») | 0 |
 | 08-12 Hours worked (`HORTRA_CAT`) | `cpv2020_a_eum_08_caracteristicas_economicas.xlsx` 12 | 594 | 0.00 | 0.01 | 0.26 (00 T «up to 40 (none included)») | 0 |
@@ -82,5 +86,7 @@ Tolerance: 1.0 persons.
 | 10-12 Commute to work (`MED_TRASLADO_TRAB_*`) | `cpv2020_a_eum_10_movilidad_cotidiana.xlsx` 12 | 990 | 0.00 | 0.01 | 0.22 (00 T «other») | 0 |
 | 11-02 Partner in the dwelling (`IDENT_PAREJA_CAT`) | `cpv2020_a_eum_11_situacion_conyugal.xlsx` 02 | 396 | 0.00 | 0.01 | 0.19 (00 T «not specified») | 0 |
 | 16-34 Financing of the owned dwellings bought or built (`FINANCIAMIENTO_*`, several sources) | `cpv2020_a_eum_16_vivienda.xlsx` 34 | 330 | 0.00 | 0.01 | 0.11 (00 T «No especificado») | 0 |
+
+- 07-04: Técnica after preparatoria, licenciatura, normal superior, especialidad, maestría, doctorado (6w).
 
 State 00 is the nation (the sum of the states); sex T = both, H = men, M = women.

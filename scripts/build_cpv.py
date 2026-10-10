@@ -989,12 +989,15 @@ _XW_NOTES: dict[str, str] = {
     "VP_CCUART": ("el diccionario dice «con un dormitorio», pero cuenta las viviendas con un solo "
                   "cuarto sin contar la cocina exclusiva (la regla de VP2_5CUAR); no se empareja con "
                   "VPH_1DOR"),
-    "PHOG_IND": "2005 dice «hogares indígenas», 2010 y 2020 «hogares censales indígenas»",
+    "PHOG_IND": ("hogares donde habla lengua indígena la jefa(e) o su cónyuge (2005, 2010); 2020 "
+                 "cuenta además a la madre o el padre y a la suegra(o) de la jefa(e) (exacto en "
+                 "los municipios que su muestra levantó completos). 2005 dice «hogares "
+                 "indígenas», 2010 y 2020 «hogares censales indígenas»"),
     "VPH_C_SERV": ("2000 y 2005: agua entubada, drenaje y energía eléctrica; la definición de "
                    "agua entubada cambia entre censos (VPH_AGUADV)"),
 }
 # Indicators present in both editions under the same name that measure different things.
-_XW_NOT_COMPARABLE = frozenset({"PCLIM_VIS", "PCLIM_MOT2", "PDER_SEGP"})
+_XW_NOT_COMPARABLE = frozenset({"PCLIM_VIS", "PCLIM_MOT2", "PDER_SEGP", "PHOG_IND"})
 
 
 def _xw_norm(meta: dict) -> str:

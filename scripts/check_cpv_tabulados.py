@@ -66,11 +66,13 @@ SOURCES = {
              ("04_02A_ESTATAL.xls", "06_01A_ESTATAL.xls", "08_02A_ESTATAL.xls",
               "08_03A_ESTATAL.xls", "12_01A_ESTATAL.xls")),
     "2015": ("intercensal/2015/tabulados",
-             ("04_migracion.xls", "06_educacion.xls", "07_servicios_de_salud.xls",
+             ("04_migracion.xls", "05_etnicidad.xls", "06_educacion.xls",
+              "07_servicios_de_salud.xls",
               "08_caracteristicas_economicas.xls", "10_movilidad_cotidiana.xls",
               "11_situacion_conyugal.xls", "12_hogares.xls", "14_vivienda.xls")),
     "2020": ("ccpv/2020/tabulados/ampliado",
-             ("cpv2020_a_eum_08_caracteristicas_economicas.xlsx",
+             ("cpv2020_a_eum_07_educacion.xlsx",
+              "cpv2020_a_eum_08_caracteristicas_economicas.xlsx",
               "cpv2020_a_eum_09_servicios_de_salud.xlsx",
               "cpv2020_a_eum_10_movilidad_cotidiana.xlsx",
               "cpv2020_a_eum_11_situacion_conyugal.xlsx", "cpv2020_a_eum_16_vivienda.xlsx")),
@@ -312,12 +314,15 @@ def _em05(p):
     return _shares(employed, *(code.isin(g) for _, g in _SECTORS_2000))
 
 
+_SUPERIOR = ["Superior", "Posgrado"]          # INEGI's superior holds the posgrado (6w)
+
+
 def _ed10(p):
-    e = _cat(p, "EDUC_INEGI")
+    e = _cat(p, "EDUC_INEGI_DET")
     return _shares(_age(p).between(15, 130), e.eq("Sin Educación"), e.eq("Primaria_incom"),
                    e.eq("Primaria_com"),
                    e.isin(["Técnica_primaria", "Secundaria_incom", "Secundaria_com"]),
-                   e.eq("Posbásica"), e.eq("No especificado"))
+                   e.eq("Media_superior"), e.isin(_SUPERIOR), e.eq("No especificado"))
 
 
 def _ed08(p):
@@ -330,12 +335,12 @@ def _ed08(p):
 
 
 def _ed11(p):
-    """The 18+ without media superior, with media superior or superior, not specified."""
-    e = _cat(p, "EDUC_INEGI")
+    """The 18+ without media superior, with media superior, with superior, not specified."""
+    e = _cat(p, "EDUC_INEGI_DET")
     return _shares(_age(p).between(18, 130),
                    e.isin(["Sin Educación", "Primaria_incom", "Primaria_com", "Técnica_primaria",
                            "Secundaria_incom", "Secundaria_com"]),
-                   e.eq("Posbásica"), e.eq("No especificado"))
+                   e.eq("Media_superior"), e.isin(_SUPERIOR), e.eq("No especificado"))
 
 
 def _em07(p):
@@ -564,11 +569,12 @@ def _marital(p):
 
 def _educ_2015(p):
     """The 15+ by the legacy ``EDUC`` (the EIC 2015 tabulados, like it, count técnica after
-    primaria in primaria; 6k)."""
-    f15, e = _age(p).between(15, 130), _cat(p, "EDUC")
+    primaria in primaria; 6k), its «Posbásica» split by ``EDUC_INEGI_DET`` (6w)."""
+    f15, e, det = _age(p).between(15, 130), _cat(p, "EDUC"), _cat(p, "EDUC_INEGI_DET")
     return _counts_of(f15, *(f15 & e.isin(g) for g in (
         ["Sin Educación"], ["Primaria_incom", "Primaria_com"], ["Secundaria_incom"],
-        ["Secundaria_com"], ["Posbásica"], ["No especificado"])))
+        ["Secundaria_com"])), f15 & det.eq("Media_superior"), f15 & det.isin(_SUPERIOR),
+        f15 & e.eq("No especificado"))
 
 
 def _educ_2015_published(v: list) -> list:
@@ -577,7 +583,7 @@ def _educ_2015_published(v: list) -> list:
     superior, superior, NE (N–P). Preschool joins «sin escolaridad» and a secundaria of
     unspecified grade the incomplete one, as in ``EDUC``."""
     c = _counts(v[0], v[1:12], [0, 0, 2, 2, 2, 5, 5, 5, 0, 0, 0])
-    return [c[0], c[1] + c[3], c[4], c[6] + c[8], c[7], c[9] + c[10], c[11]]
+    return [c[0], c[1] + c[3], c[4], c[6] + c[8], c[7], c[9], c[10], c[11]]
 
 
 # Censo 2010 national (6q: the tabulados by locality size; their national row) --------
@@ -610,6 +616,25 @@ def _population_by_head_published(wb):
         if what == "Población en hogares":
             out.setdefault((state, "T"), {})[head] = values[0]
     return {k: [v["Total"], v["Hombres"], v["Mujeres"]] for k, v in out.items()}
+
+
+def _indigenous_children(p):
+    """The population aged 0–2 in indigenous households (``HOG_IND``: the EIC 2015's head
+    or partner speaks an indigenous language; 6w)."""
+    young = _age(p).between(0, 2)
+    return _counts_of(young & _cat(p, "HOG_IND").eq("Sí"))
+
+
+def _indigenous_children_published(wb):
+    """EIC 2015 05-04: one row per (state, the head's or partner's language), the estimators
+    in columns (C = the value); the «Total» row is the count."""
+    return {(state, "T"): [_num(r.get("C"))] for r in _sheet(wb, "04")
+            if r.get("B") == "Total" and (state := _state_of(r.get("A", ""))) is not None}
+
+
+def _superior(p):
+    """The 18+ with educación superior, the posgrado included (``EDUC_INEGI_DET``; 6w)."""
+    return _counts_of(_age(p).between(18, 130) & _cat(p, "EDUC_INEGI_DET").isin(_SUPERIOR))
 
 
 def _total_row(k: tuple) -> tuple | None:
@@ -681,15 +706,18 @@ CHECKS: tuple[Check, ...] = (
           _c2k("CDEFGHIJ", lambda v: [v[0], v[1] + v[3], v[2], v[4], v[5], v[6], v[7]]), _ed08,
           note="Técnica after primaria is its own column here, as `EDUC_INEGI`'s "
                "«Técnica_primaria» (6k)."),
-    Check("2000", "ED11", "Education of the 18+ (`EDUC_INEGI`)", "C2KED11.xls", "personas",
-          ("without media superior", "media superior or superior", "not specified"),
-          _c2k("CDEFGH", lambda v: [v[0], v[1] + v[2] + v[3] + v[4], v[5]]), _ed11),
-    Check("2000", "ED10", "Education of the 15+ (`EDUC_INEGI`)", "C2KED10.xls", "personas",
-          ("sin instrucción", "primaria incompleta or grade not specified",
-           "primaria completa", "secundaria and técnica after primaria",
-           "media superior and superior", "not specified"),
+    Check("2000", "ED11", "Education of the 18+ (`EDUC_INEGI_DET`)", "C2KED11.xls",
+          "personas", ("without media superior", "media superior", "superior",
+                       "not specified"),
+          _c2k("CDEFGH", lambda v: [v[0], v[1] + v[2] + v[3], v[4], v[5]]), _ed11,
+          note="Media superior = técnica after secundaria, preparatoria and normal básica "
+               "(its columns D–F); superior holds the posgrado (6w)."),
+    Check("2000", "ED10", "Education of the 15+ (`EDUC_INEGI_DET`)", "C2KED10.xls",
+          "personas", ("sin instrucción", "primaria incompleta or grade not specified",
+                       "primaria completa", "secundaria and técnica after primaria",
+                       "media superior", "superior", "not specified"),
           _c2k("CDEFGHIJKL", lambda v: [v[0], v[1] + v[3], v[2], v[4] + v[5] + v[6],
-                                        v[7] + v[8], v[9]]), _ed10,
+                                        v[7], v[8], v[9]]), _ed10,
           note="INEGI's 2000 levels put técnica after primaria with secundaria (its footnote "
                "1), so the comparison groups it there."),
     Check("2000", "VI06", "Bedrooms (`CUADORM_CAT`), % of the dwellings", "C2KVI06.xls",
@@ -757,11 +785,17 @@ CHECKS: tuple[Check, ...] = (
           unit="persons", sheet="07"),
     Check("2015", "06-11", "Education of the 15+ (`EDUC`)", "06_educacion.xls", "personas",
           ("population 15+", "no schooling (preschool included)", "primaria",
-           "secundaria incompleta", "secundaria completa", "media superior and superior",
-           "not specified"),
+           "secundaria incompleta", "secundaria completa", "media superior",
+           "superior (posgrado included)", "not specified"),
           _wide("Valor", _educ_2015_published, sheet="11", dims=_total_row), _educ_2015,
           unit="persons", sheet="11",
-          note="Técnica after primaria counts in primaria, in the tabulado as in `EDUC`."),
+          note="Técnica after primaria counts in primaria, in the tabulado as in `EDUC`; "
+               "media superior and superior by `EDUC_INEGI_DET` (6w)."),
+    Check("2015", "05-04", "Population aged 0–2 in indigenous households (`HOG_IND`)",
+          "05_etnicidad.xls", "personas", ("aged 0–2, the head or partner speaks",),
+          _indigenous_children_published, _indigenous_children, unit="persons", sheet="04",
+          note="Both sexes only; the households whose head or partner speaks an indigenous "
+               "language, the EIC 2015's definition (6w)."),
     Check("2015", "07-02", "Health affiliation by institution (`DHSERSAL_*`)",
           "07_servicios_de_salud.xls", "personas",
           ("population", "affiliated", "IMSS", "ISSSTE (federal or state)",
@@ -804,6 +838,11 @@ CHECKS: tuple[Check, ...] = (
           _wide("Valor", lambda v: _counts(v[0], v[1:]), sheet="18",
                 dims=lambda k: (k[0], "T")),
           _financing_2015, unit="persons", sheet="18"),
+    Check("2020", "07-04", "Population 18+ with educación superior (`EDUC_INEGI_DET`)",
+          "cpv2020_a_eum_07_educacion.xlsx", "personas", ("18+, superior or posgrado",),
+          _wide("Valor", lambda v: v[:1], sheet="04"), _superior, unit="persons", sheet="04",
+          note="Técnica after preparatoria, licenciatura, normal superior, especialidad, "
+               "maestría, doctorado (6w)."),
     Check("2020", "08-06", "Employed by occupational division (`OCUPACION_C_COARSE`)",
           _ECO_2020, "personas", _DIVISIONS,
           _wide("Valor", lambda v: _counts(v[0], v[1:])[1:], sheet="06"), _occupation,

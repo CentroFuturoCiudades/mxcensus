@@ -201,7 +201,10 @@ persons with all seven answers unspecified are left out; it reproduces every EIC
 `MADRE_EN_VIVIENDA`/`PADRE_EN_VIVIENDA` (whether the mother/father lives in the dwelling), and
 `EDUC_INEGI`, the levels of INEGI's census counts: `EDUC` with technical or commercial
 studies after primaria as their own category (`EDUC` counts them as complete primaria,
-which INEGI's ITER and census tabulados do not; the EIC 2015 tabulados do). For Censo
+which INEGI's ITER and census tabulados do not; the EIC 2015 tabulados do), and
+`EDUC_INEGI_DET`, `EDUC_INEGI` with «Posbásica» split into media superior, superior and
+posgrado (INEGI's levels: CGPV 2000's ITER and tabulados, the EIC 2015 and Censo 2020
+tabulados and the EIC 2025 estimates). For Censo
 2020 the columns equal `load_extended_*`'s; the EIC 2025 gets the same columns through a
 recode of the items INEGI renumbered (`SITUA_CONYUGAL`, `DHSERSAL`, two country codes).
 EIC 2015, Censo 2010, CGPV 2000 and Conteo 2005 get the columns whose items map onto the
@@ -245,6 +248,19 @@ Conteo 2005, whose dwellings can hold several households, it can differ from the
 dwelling's, which is its first household's head). So the constraints count the
 households and the population by the head's sex (`HOGJEF_F`/`HOGJEF_M`,
 `PHOGJEF_F`/`PHOGJEF_M`), and the EIC 2025 ones equal its estimates in every municipality.
+The persons of 2000–2025 also get `HOG_IND`, whether their household is indigenous, by each
+edition's own definition. The household counts if one of the following speaks an indigenous
+language:
+
+- up to the EIC 2015, the head or the partner;
+- in Censo 2020, also the head's mother or father and parents-in-law;
+- in the EIC 2025, also step-parents, grandparents and great-grandparents.
+
+`HOG_IND` reproduces the EIC 2025 estimates (`PHOG_IND`, `HOG_IND`) in every
+municipality. It also reproduces the 2010 and 2020 ITER's `PHOG_IND` in the municipalities
+each sample enumerated completely, and the EIC 2015 tabulado of children aged 0–2 in such
+households in every state. `PHOG_IND` is a constraint for 2005–2025 except 2015. As the
+definitions differ, the crosswalk marks 2005/2010's `PHOG_IND` not comparable with 2020's.
 The Conteo 2005's dwelling rows are dwellings, while its ITER counts households, so its
 household constraints (`TOTHOG`, `HOGJEF_F`/`HOGJEF_M`) are counted on its household frame:
 `cpv_constraints("hogares", 2005)` on `load_cpv_hogares(2005, derived=True)`, which adds

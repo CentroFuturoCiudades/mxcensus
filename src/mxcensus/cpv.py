@@ -1010,7 +1010,10 @@ def load_cpv_personas(
     lists them per edition), computed from the raw codes and validated
     (:mod:`mxcensus.cpv_derived`). From 1995 on it includes ``HOGJEF_SEXO``, the sex of the
     person's own household head (the household's member coded as its head, exactly one per
-    household): the ITER's ``PHOGJEF_F``/``PHOGJEF_M``.
+    household): the ITER's ``PHOGJEF_F``/``PHOGJEF_M``. From 2000 on, ``HOG_IND``: whether
+    the person's household is indigenous, by the edition's own definition (the ITER's and
+    the EIC 2025 estimates' ``PHOG_IND``); every edition, ``EDUC_INEGI_DET`` (INEGI's levels
+    with media superior, superior and posgrado apart).
     """
     return _load_level("personas", period, state, harmonize, labels, derived)
 

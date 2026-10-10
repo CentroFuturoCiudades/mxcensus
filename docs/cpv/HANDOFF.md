@@ -1,10 +1,11 @@
 # CPV family — session handoff
 
-**Status (2026-10-09, night): units 0–6v are done. `main` = v0.10.0 + 6u (merged
+**Status (2026-10-09, night): units 0–6w are done. `main` = v0.10.0 + 6u (merged
 locally, **not pushed, no version bump**; v0.10.0 = 6s–6t, tagged and pushed; 0.9.0 =
-6k–6r, §Review). `cpv-integration` = `main` + 6v (the `POBHOG` total and the Conteo 2005's
-households, agreed with the user): committed with the user's go-ahead, not merged, not
-pushed. No unit is queued.**
+6k–6r, §Review). `cpv-integration` = `main` + 6v + 6w (6v: the `POBHOG` total and the
+Conteo 2005's households; 6w: indigenous households and media superior/superior apart,
+both agreed with the user): committed with the user's go-ahead, not merged, not pushed.
+No unit is queued.**
 - **Released** (registered, uploaded, verified): every edition 1990–2025 (897 `cpv_` files)
   and the Marco Geoestadístico 1995–2025 frames, incl. the EIC 2015's (6h); registry
   **4148** entries (`STEP_6b.md` §Release batch, `STEP_6h.md`).
@@ -111,7 +112,27 @@ pushed. No unit is queued.**
   - The female-headed share is within 0.087 points of the ITER at the median, 0.285 at the
     90th percentile, 1.07 at most (Colima); 6s's dwelling version had 0.118/0.348/0.935.
 
-Design: [`PLAN.md`](PLAN.md). Recent units: [`STEP_6v.md`](STEP_6v.md), [`STEP_6u.md`](STEP_6u.md), [`STEP_6t.md`](STEP_6t.md), [`STEP_6s.md`](STEP_6s.md), [`STEP_6r.md`](STEP_6r.md), [`STEP_6q.md`](STEP_6q.md), [`STEP_6p.md`](STEP_6p.md), [`STEP_6o.md`](STEP_6o.md), [`STEP_6n.md`](STEP_6n.md), [`STEP_6m.md`](STEP_6m.md), [`STEP_6l.md`](STEP_6l.md), [`STEP_6k.md`](STEP_6k.md), [`STEP_6j.md`](STEP_6j.md), [`STEP_6i.md`](STEP_6i.md), [`STEP_6h.md`](STEP_6h.md), [`STEP_6g.md`](STEP_6g.md), [`STEP_6f.md`](STEP_6f.md), [`STEP_6e.md`](STEP_6e.md),
+- **6w** (`STEP_6w.md`): HANDOFF candidates 2 and 1 as one unit (the user's choice).
+  - **`HOG_IND`** (persons, 2000–2025, «Sí»/«No»): whether the household is indigenous, by
+    **each edition's own definition** (user's choice). The household counts if one of these
+    speaks an indigenous language:
+    - 2000–2015: the head or the partner;
+    - 2020: also the mother or father and the parents-in-law;
+    - 2025: also the step-parents, grandparents and great-grandparents.
+    - The sets were found on INEGI's numbers, not its dictionaries' wording
+      (`cpv_derived._IND_CODES`): exact in the municipalities the 2010/2020 samples
+      enumerated completely (364/184) and in every EIC 2025 municipality (`PHOG_IND`,
+      `HOG_IND`); EIC 2015 tabulado 05-04.
+    - The `PHOG_IND` constraint is on 2005/2010/2020/2025; the crosswalk marks 2005/2010's
+      `Comparable: false`, so their cells are edition cells. Persons only (user's choice).
+  - **`EDUC_INEGI_DET`** (every edition 1990–2025): `EDUC_INEGI` with «Posbásica» split into
+    «Media_superior», «Superior» and «Posgrado» (user's choices: a new full-scale column,
+    posgrado apart).
+    - 2000's `P18_CMEDSU`/`P18_CSUPER` constraints.
+    - Equal to the EIC 2025 estimates' five levels within rounding in every municipality.
+    - Exact against the EIC 2015/Censo 2020 tabulados; 2000's within tolerance.
+
+Design: [`PLAN.md`](PLAN.md). Recent units: [`STEP_6w.md`](STEP_6w.md), [`STEP_6v.md`](STEP_6v.md), [`STEP_6u.md`](STEP_6u.md), [`STEP_6t.md`](STEP_6t.md), [`STEP_6s.md`](STEP_6s.md), [`STEP_6r.md`](STEP_6r.md), [`STEP_6q.md`](STEP_6q.md), [`STEP_6p.md`](STEP_6p.md), [`STEP_6o.md`](STEP_6o.md), [`STEP_6n.md`](STEP_6n.md), [`STEP_6m.md`](STEP_6m.md), [`STEP_6l.md`](STEP_6l.md), [`STEP_6k.md`](STEP_6k.md), [`STEP_6j.md`](STEP_6j.md), [`STEP_6i.md`](STEP_6i.md), [`STEP_6h.md`](STEP_6h.md), [`STEP_6g.md`](STEP_6g.md), [`STEP_6f.md`](STEP_6f.md), [`STEP_6e.md`](STEP_6e.md),
 [`STEP_6d.md`](STEP_6d.md),
 [`STEP_6c.md`](STEP_6c.md), [`STEP_6b.md`](STEP_6b.md), … [`STEP_0_probe.md`](STEP_0_probe.md).
 
@@ -119,13 +140,14 @@ Design: [`PLAN.md`](PLAN.md). Recent units: [`STEP_6v.md`](STEP_6v.md), [`STEP_6
 files; the MG 2015 files were built on the Mac and copied to `wsl` for the upload);
 `wsl:~/mxcensus` was pulled to 6r on 2026-10-09 (the full suite ran there before the
 merge: 1773 passed, 1 h 50 min) and holds a copy of the Mac's tabulados cache
-(`data/dict/tabulados/`, without 6t's `2000/C2KHO04.xls` and `2015/12_hogares.xls`: the
-script fetches them). 6s, 6t, 6u and 6v ran on the Mac only.
+(`data/dict/tabulados/`, without 6t's `2000/C2KHO04.xls` and `2015/12_hogares.xls` and 6w's
+`2015/05_etnicidad.xls` and `2020/cpv2020_a_eum_07_educacion.xlsx`: the script fetches
+them). 6s, 6t, 6u, 6v and 6w ran on the Mac only.
 `wsl:~/mxcensus3c` (3c's code copy) can be deleted.
 
 ## Kickoff prompt for the next session
 
-> Continue the CPV census-family work in this repo (branch cpv-integration = main + 6v;
+> Continue the CPV census-family work in this repo (branch cpv-integration = main + 6v + 6w;
 > main = v0.10.0 + 6u, merged). Read docs/cpv/HANDOFF.md first, then agree with me which next unit to
 > take (candidates in HANDOFF §Next) before implementing it, following the session protocol
 > in docs/cpv/PLAN.md. Use .venv/bin/python, not uv run. Run wsl tasks without asking; ask
@@ -162,18 +184,16 @@ and **kept all seven** (merged as 0.9.0):
 
 ## Next: candidates (none decided)
 
-1. 2000's media superior and superior apart (`P18_CMEDSU`/`P18_CSUPER`): a finer derived
-   level (`EDUC_INEGI` merges them into «Posbásica»).
-2. The population in indigenous households (`PHOG_IND` in the 2005–2020 ITER, `HOG_IND`/
-   `PHOG_IND` in the EIC 2025 estimates; INEGI: the head or the partner speaks an
-   indigenous language): a household-level derived flag on the persons, as `HOGJEF_SEXO`.
+1. Merge 6v and 6w into `main`, push `main`/`cpv-integration` (6u, 6v, 6w) and a version
+   bump, when the user wants them.
+2. A dwelling-level `HOG_IND` (2020/2025, from the person file as 6s's `JEFE_SEXO`), so the
+   EIC 2025's `HOG_IND` becomes a dwelling constraint (left out of 6w by the user's choice;
+   the method is verified: Σ `FACTOR` of the heads = `HOG_IND` in every municipality).
 3. Smaller: a 2000 occupation bridge (CMO → SINCO, no published table); income in minimum
    wages for 2000 (`P_1SM`…: three wage zones by municipality); a locality-level lineage
    (6a covered municipalities only); CGPV 1990's undocumented `TIP_HOGAR` 6 (96,370
    persons, all `N_F_GPOS` 99 and a 9xx relationship: a dwelling without its household
    composition; identity-labelled, `STEP_6u.md` §Left out).
-4. Merge 6v into `main`, push `main`/`cpv-integration` (6u, 6v) and a version bump, when the
-   user wants them.
 
 ## Open questions for the user
 
@@ -442,3 +462,16 @@ None.
   one stem per «CATÁLOGO DE …» section. The municipal and metropolitan-area sections are
   per-state tables, skipped (`_CAT95_SKIP`). An FD field without codes but with «Ver
   catálogo de X» takes the section `match_catalog(X)` names; `ENT` keeps its own `{01..32}`.
+- **Indigenous households** (6w): each edition counts other relatives (`cpv_derived._IND_CODES`;
+  `STEP_6w.md` has the table), and INEGI's dictionary wording is wrong both ways (the 2020
+  ITER says «ascendientes» but counts only parents and parents-in-law; the EIC 2025 says
+  «madre o padre, suegra(o)» but counts step-parents and grandparents too). `PHOG_IND` is
+  `Comparable: false` in the crosswalk (2005/2010 head or partner only).
+- **Completely enumerated municipalities** (6w): Censo 2010 (767) and 2020 (220) have
+  municipalities whose every sampled person has `FACTOR` 1 — the ampliado went to every
+  dwelling there, so the sample *is* the census and the ITER is matched to the person
+  wherever `POBHOG` matches (364/184). Use them to settle a definition; a weighted
+  state-level fit can mislead (the 2020 sample's indigenous-household population runs
+  4.5% over the ITER).
+- **EIC 2025 estimates write «No aplica» (NA) for a zero** (6w: the 56 municipalities
+  without an indigenous household); compare only the published values.
