@@ -128,17 +128,16 @@ MEDAD:
   - 130
   Categorías: {}
   Especiales:
-    '999': '999'
+    '999': No especificado
+  Nota: '999 sin etiqueta en el FD: «No especificado», como sus demás códigos no especificados (EDAD:
+    999)'
 MLUGORI_C:
   Descripción: Lugar de origen (estado)
-  Tipo: numeric
+  Tipo: string
   Longitud: '3'
-  Rango:
-  - 1
-  - 32
-  Categorías: {}
   Especiales:
-    '999': '999'
+    '999': No especificado
+  Nota: '001..032 = Clave de entidad (no enumerados); sin renglones en el FD: las claves y el 999 de LNACEDO_C'
 MFECEMIM:
   Descripción: Fecha de emigración (mes)
   Tipo: numeric
@@ -148,7 +147,8 @@ MFECEMIM:
   - 12
   Categorías: {}
   Especiales:
-    '99': '99'
+    '99': No especificado
+  Nota: '99 sin etiqueta en el FD: «No especificado», como sus demás códigos no especificados'
 MFECEMIA:
   Descripción: Fecha de emigración (año)
   Tipo: numeric
@@ -158,30 +158,25 @@ MFECEMIA:
   - 2000
   Categorías: {}
   Especiales:
-    '9999': '9999'
+    '9999': No especificado
+  Nota: '9999 sin etiqueta en el FD: «No especificado», como sus demás códigos no especificados'
 MPDESOTR_C:
   Descripción: País de destino (descripción)
-  Tipo: numeric
+  Tipo: string
   Longitud: '3'
-  Rango:
-  - 100
-  - 535
-  Categorías: {}
   Especiales:
-    '600': '600'
-    '999': '999'
+    '600': País no especificado
+    '999': No especificado
+  Nota: '100..535 = Clave de país (no enumerados); sin renglones en el FD: las claves, el 600 y el 999
+    de LNACEDO_C; el texto del FD: «El código precodificado cuando el país de destino fue Estados Unidos,
+    se cambió de 1 a 221»'
 MPAIRES_C:
   Descripción: País de residencia
-  Tipo: numeric
+  Tipo: string
   Longitud: '3'
-  Rango:
-  - 100
-  - 535
-  Categorías: {}
   Especiales:
-    '600': Extranjero, otro país
-    '700': México
     '999': No especificado
+  Nota: 100..535 = País de destino (no enumerados); 600 = Extranjero, otro país; 700 = México
 MFECRETM:
   Descripción: Fecha de retorno (mes)
   Tipo: numeric
@@ -191,10 +186,16 @@ MFECRETM:
   - 12
   Categorías: {}
   Especiales:
-    '99': '99'
+    '99': No especificado
+  Nota: '99 sin etiqueta en el FD: «No especificado», como sus demás códigos no especificados'
 MFECRETA:
   Descripción: Fecha de retorno (año)
   Tipo: numeric
   Longitud: '4'
+  Rango:
+  - 1995
+  - 2000
   Categorías: {}
-  Nota: 'numérica: el FD sólo enumera códigos especiales'
+  Especiales:
+    '9999': No especificado
+  Nota: '9999 sin etiqueta en el FD: «No especificado», como sus demás códigos no especificados'

@@ -166,7 +166,9 @@ CUADORM:
   - 25
   Categorías: {}
   Especiales:
-    '99': '99'
+    '99': No especificado
+  Nota: '99 sin etiqueta en el FD: «No especificado», como sus demás códigos no especificados; el FD de
+    2005 la da a CUARDOM'
 TOTCUART:
   Descripción: Número total de cuartos
   Tipo: numeric
@@ -176,7 +178,9 @@ TOTCUART:
   - 26
   Categorías: {}
   Especiales:
-    '99': '99'
+    '99': No especificado
+  Nota: '99 sin etiqueta en el FD: «No especificado», como sus demás códigos no especificados; el FD de
+    2005 la da a NUMCUAR'
 DISAGU:
   Descripción: Disponibilidad de agua
   Tipo: categorical

@@ -626,12 +626,7 @@ def _fd_docs(dict_dir: Path, period: str) -> dict:
     book = dict_dir / period / rel.get("fd", "").rsplit("/", 1)[-1]
     if not book.exists() or book.suffix.lower() not in (".xlsx", ".xls", ".zip", ".pdf"):
         return {}
-    cat = dict_dir / period / rel.get("catalogos", "").rsplit("/", 1)[-1]
-    catalogs = None
-    if cat.suffix.lower() in (".zip", ".xls") and cat.exists():
-        catalogs = fd.read_catalogs(cat)
-    elif cat.suffix.lower() == ".pdf" and cat.exists():
-        catalogs = getattr(fd, _CATALOG_PDF_PARSERS[period])(fd.pdf_text(cat))
+    catalogs = _edition_catalogs(dict_dir, period)
     if book.suffix.lower() == ".pdf":
         docs = getattr(fd, _FD_PDF_PARSERS[period])(fd.pdf_text(book), catalogs)
     elif book.suffix.lower() == ".zip":
@@ -648,6 +643,20 @@ def _fd_docs(dict_dir: Path, period: str) -> dict:
         renames = _FD_RENAMES.get((period, table), {})
         out[table] = {renames.get(k.upper(), k): v for k, v in doc.items()}
     return out
+
+
+@functools.cache
+def _edition_catalogs(dict_dir: Path, period: str) -> dict | None:
+    """The edition's classification catalogs ``{stem: {code: label}}`` (a ZIP or ``.xls``,
+    :func:`_dict_fd.read_catalogs`; a PDF, :data:`_CATALOG_PDF_PARSERS`); ``None`` when it has
+    none or they were not fetched."""
+    rel = DICTIONARY_URLS.get(period, {})
+    cat = dict_dir / period / rel.get("catalogos", "").rsplit("/", 1)[-1]
+    if cat.suffix.lower() in (".zip", ".xls") and cat.exists():
+        return fd.read_catalogs(cat)
+    if cat.suffix.lower() == ".pdf" and cat.exists():
+        return getattr(fd, _CATALOG_PDF_PARSERS[period])(fd.pdf_text(cat))
+    return None
 
 
 def _doc_for(dict_dir: Path, table: str, periods: list[str]) -> tuple[dict | None, str]:
@@ -713,6 +722,8 @@ def _write_variables_yaml(out_dir: Path, map_path: Path, yaml_dir: Path,
             if set(g["periods"]) & _BLANK_ZERO:
                 _label_blank_zero(entries, set(core_t))
             _label_quantities(entries, g["periods"], set(core_t), doc)
+            _label_codes(entries, g["periods"], set(core_t), doc, dict_dir)
+            _label_sentinels(entries, g["periods"], set(core_t))
             counts = Counter(sources.values())
             print(f"  {table}/{gid}: {len(paths)}/{g['files']} file(s) read; {prov}; "
                   + ", ".join(f"{k}={v}" for k, v in sorted(counts.items())), flush=True)
@@ -951,6 +962,214 @@ def _label_quantities(entries: dict, periods: list[str], skip: set[str],
         entry["Nota"] = "; ".join(notes)
         entries[col] = {k: entry[k] for k in fd._ORDER if k in entry} | {
             k: v for k, v in entry.items() if k not in fd._ORDER}
+
+
+# FD items that are codes, not quantities, which the parser reads as numbers (7r): a code
+# space written as one labelled range («001-570 Clave de municipio»: _dict_fd._quantity reads
+# a count) or as a range list without rows («{001-032,999}»). (period, column) → its type:
+# - «string» where nobody enumerates the codes, as the edition's own birthplace items
+#   (CGPV 2000 LNACEDO_C) and 2010–2025's catalog codes: the FD's ranges (first, last code,
+#   label) and the codes it labels go into ``Nota``, its sentinels into ``Especiales``;
+# - «categorical» where INEGI lists every code: the edition's ``catalog``, or another field
+#   of the group (``like``, the FD's «Igual que en …»).
+# Transcribed from the FDs:
+# - CGPV 2000 (fd_muestra_censal_2000.pdf): the layout's rows and its text — «Municipio de
+#   residencia en 1995»: «los valores que toma dependen del rango de municipios que existen en
+#   la entidad (RES95EDO_C). Adicionalmente puede tomar el valor 999, que implica municipio no
+#   especificado»; «Religión»: «Los códigos precodificados se transforman en claves dentro del
+#   mnemónico OTRAREL_C. El código 1 (ninguna) es la clave 9100. El código 2 (católica) es la
+#   clave 0001»; «País de destino»: «El código precodificado cuando el país de destino fue
+#   Estados Unidos, se cambió de 1 a 221 en MPDESOTR_C». MLUGORI_C and MPDESOTR_C have no
+#   rows: their codes and sentinels are LNACEDO_C's (600 «País no especificado»);
+# - Conteo 2005 (fd_muestra_2005.xls): NIVANTES's catalog TC_ANTES lists every code (its rows
+#   stop at 84; the catalog adds 94/95 doctorado); the data and the FD's rows write 0 unpadded;
+# - Conteo 1995 (fd_encuesta_cpv1995.pdf): P7_11D/F «Igual que en PERIODO (1)» (P7_11B).
+
+
+class _Code(NamedTuple):
+    tipo: str
+    rangos: tuple[tuple[str, str, str], ...] = ()
+    codigos: dict[str, str] = {}
+    especiales: dict[str, str] = {}
+    nota: str = ""
+    catalog: str | None = None
+    like: str | None = None
+
+
+_NOT_SPECIFIED = {"999": "No especificado"}
+_CODES: dict[tuple[str, str], _Code] = {
+    ("2000", "MUN95OTR_C"): _Code(
+        "string", (("001", "570", "Clave de municipio"),), especiales=_NOT_SPECIFIED,
+        nota="el municipio en la entidad de RES95EDO_C"),
+    ("2000", "LTRABMUN_C"): _Code(
+        "string", (("001", "570", "Clave de municipio"),), especiales=_NOT_SPECIFIED,
+        nota="el municipio en la entidad de LTRABPAI_C"),
+    ("2000", "QDIALECT_C"): _Code(
+        "string", (("0111", "1311", "Clave de dialecto o lengua"),),
+        {"5010": "Otras lenguas indígenas de México",
+         "5020": "Otras lenguas indígenas de América"}, {"9999": "No especificado"}),
+    ("2000", "OTRAREL_C"): _Code(
+        "string", (("1101", "9001", "Clave de religión"),),
+        {"0001": "Católica", "9100": "Ninguna"}, {"9999": "No especificado"},
+        "el texto del FD: «El código 1 (ninguna) es la clave 9100. El código 2 (católica) es "
+        "la clave 0001»; 9999 sin etiqueta en el FD"),
+    ("2000", "OCUACTIV_C"): _Code("string", (("1100", "8390", "Clave de ocupación"),),
+                                  especiales={"9999": "No especificado"}),
+    ("2000", "ACTTRAB_C"): _Code("string", (("110", "939", "Clave de actividad"),),
+                                 especiales=_NOT_SPECIFIED),
+    ("2000", "MLUGORI_C"): _Code(
+        "string", (("001", "032", "Clave de entidad"),), especiales=_NOT_SPECIFIED,
+        nota="sin renglones en el FD: las claves y el 999 de LNACEDO_C"),
+    ("2000", "MPDESOTR_C"): _Code(
+        "string", (("100", "535", "Clave de país"),),
+        especiales={"600": "País no especificado", "999": "No especificado"},
+        nota="sin renglones en el FD: las claves, el 600 y el 999 de LNACEDO_C; el texto del "
+             "FD: «El código precodificado cuando el país de destino fue Estados Unidos, se "
+             "cambió de 1 a 221»"),
+    ("2000", "MPAIRES_C"): _Code("string", (("100", "535", "País de destino"),),
+                                 {"600": "Extranjero, otro país", "700": "México"},
+                                 _NOT_SPECIFIED),
+    ("2005", "NIVANTES"): _Code("categorical", catalog="TC_ANTES"),
+    **{("1995", col): _Code("categorical", like="P7_11B",
+                            nota="Igual que en PERIODO (1) (el FD)")
+       for col in ("P7_11D", "P7_11F")},
+}
+
+
+def _label_codes(entries: dict, periods: list[str], skip: set[str], doc: dict | None = None,
+                 dict_dir: Path = _DEFAULT_DICT_DIR) -> None:
+    """Retype each :data:`_CODES` item of a schema group's editions as the codes it is: a
+    «string» with the FD's ranges and labelled codes in ``Nota`` and its sentinels in
+    ``Especiales``, or a «categorical» labelled by its catalog or by the field it repeats.
+    The core entries (``skip``) are left alone. An entry no longer read as a number, or whose
+    FD (``doc``) lists a code not given here, raises (the FD changed)."""
+    for (period, col), spec in sorted(_CODES.items()):
+        if period not in periods or col not in entries or col in skip:
+            continue
+        entry = entries[col]
+        if entry.get("Tipo") != "numeric":
+            raise ValueError(f"{period} {col}: not read as a number ({entry})")
+        meta = (doc or {}).get(col) or {}
+        rest = [n for n in (entry.get("Nota") or "").split("; ")
+                if n and not re.fullmatch(r"\d+ = .*", n)]   # the codes it labelled in range
+        out = {k: entry[k] for k in ("Descripción", "Pregunta", "Definición")
+               if entry.get(k)}
+        out |= {"Tipo": spec.tipo, "Longitud": entry["Longitud"]}
+        notes = []
+        if spec.tipo == "string":
+            listed = set(meta.get("Especiales") or {}) | set(meta.get("Categorías") or {})
+            known = set(spec.especiales) | set(spec.codigos)
+            first = min(int(lo) for lo, _, _ in spec.rangos)
+            last = max(int(hi) for _, hi, _ in spec.rangos)
+            span = [min([first, *(int(c) for c in spec.codigos if int(c) < first)]), last]
+            if not listed <= known or meta.get("Rango", span) != span:
+                raise ValueError(f"{period} {col}: the FD's codes {sorted(listed)} and range "
+                                 f"{meta.get('Rango')} are not {spec}")
+            notes = [f"{lo}..{hi} = {label} (no enumerados)" for lo, hi, label in spec.rangos]
+            notes += [f"{c} = {lab}" for c, lab in spec.codigos.items()]
+            out["Especiales"] = dict(spec.especiales)
+        elif spec.catalog:
+            catalog = (_edition_catalogs(dict_dir, period) or {}).get(spec.catalog)
+            if not catalog:
+                raise ValueError(f"{period} {col}: catálogo {spec.catalog} no disponible")
+            labels = {str(int(c)): lab for c, lab in catalog.items()}
+            out["Categorías"] = {c: lab for c, lab in labels.items()
+                                 if not fd._SENTINEL_RE.search(lab)}
+            out["Especiales"] = {c: lab for c, lab in labels.items()
+                                 if c not in out["Categorías"]}
+            out["Catálogo"] = spec.catalog
+        else:
+            like = entries[spec.like]
+            if like.get("Tipo") != "categorical" or not set(entry.get("Especiales") or {}) <= (
+                    set(like.get("Categorías") or {}) | set(like.get("Especiales") or {})):
+                raise ValueError(f"{period} {col}: not coded as {spec.like} ({like})")
+            out["Categorías"] = dict(like["Categorías"])
+            out["Especiales"] = dict(like.get("Especiales") or {})
+        notes += rest + ([spec.nota] if spec.nota else [])
+        if notes:
+            out["Nota"] = "; ".join(notes)
+        entries[col] = {k: out[k] for k in fd._ORDER if k in out} | {
+            k: v for k, v in out.items() if k not in fd._ORDER}
+
+
+# Numeric sentinels the FD lists without a label (in its header range, «{01..25,99}»), or that
+# only the data show (_reconcile_ranges), which the parser labels with their own code (7r).
+# (period, column) → their labels and where they come from (``Nota``): INEGI's words where its
+# documents give them, else «No especificado», the label of the edition's other sentinels.
+class _Sentinel(NamedTuple):
+    especiales: dict[str, str]
+    nota: str
+
+
+def _no_label(code: str, more: str = "") -> _Sentinel:
+    return _Sentinel({code: "No especificado"},
+                     f"{code} sin etiqueta en el FD: «No especificado», como sus demás "
+                     f"códigos no especificados{more}")
+
+
+_INCOME_1995 = "; 98000 = $98,000 o más"
+_SENTINELS: dict[tuple[str, str], _Sentinel] = {
+    # CGPV 2000 (fd_muestra_censal_2000.pdf)
+    ("2000", "CUADORM"): _no_label("99", "; el FD de 2005 la da a CUARDOM"),
+    ("2000", "TOTCUART"): _no_label("99", "; el FD de 2005 la da a NUMCUAR"),
+    ("2000", "ESCOACUM"): _Sentinel(
+        {"99": "No especificado"},
+        "el texto del FD: «Toma los valores de 99 cuando los años aprobados no fueron "
+        "especificados (ESCOLARI = 9), aunque se tenga especificado el nivel académico»"),
+    **{("2000", col): _Sentinel(
+        {"99": "No especificado"},
+        "el texto del FD (NUMHIJ): «El valor 99 indica que la mujer tuvo hijos pero no se sabe "
+        "cuántos, lo cual implica que alguno de los campos de hijos fallecidos (HIJFAL) o hijos "
+        "sobrevivientes (HIJSOB) tiene un valor no especificado»")
+       for col in ("HIJFAL", "HIJSOB")},
+    ("2000", "FECNACM"): _no_label("99"), ("2000", "FECNACA"): _no_label("9999"),
+    ("2000", "MEDAD"): _no_label("999", " (EDAD: 999)"),
+    ("2000", "MFECEMIM"): _no_label("99"), ("2000", "MFECEMIA"): _no_label("9999"),
+    ("2000", "MFECRETM"): _no_label("99"), ("2000", "MFECRETA"): _no_label("9999"),
+    # Conteo 1995 (fd_encuesta_cpv1995.pdf): the monthly incomes the FD derives from P7_9A and
+    # P7_11A («Mensualizados por persona/hogar»), whose 99999 is «No especificado»; the
+    # second and third other incomes, «Igual que en INGRESO (1)»
+    **{("1995", col): _Sentinel(
+        {"999999": "No especificado"},
+        "999999 sin etiqueta en el FD: «No especificado», la del ingreso que mensualiza "
+        "(P7_9A, P7_11A: 99999)")
+       for col in ("P7_9MP", "P7_9MH", "P7_11MP", "P7_11MH", "INGMENTP", "INGMENTH")},
+    ("1995", "P7_11C"): _Sentinel({"99999": "No especificado"},
+                                  "Igual que en INGRESO (1) (el FD)" + _INCOME_1995
+                                  + "; pesos por el periodo de P7_11D"),
+    ("1995", "P7_11E"): _Sentinel({"99999": "No especificado"},
+                                  "Igual que en INGRESO (1) (el FD)" + _INCOME_1995
+                                  + "; pesos por el periodo de P7_11F"),
+    # CGPV 1990 (fd_cgpv1990.pdf: 01..10): 99 only with TIP_HOGAR 6 and a 9xx relationship
+    ("1990", "N_F_GPOS"): _Sentinel(
+        {"99": "No especificado"},
+        "99 = «No especificado»: sus 96,370 personas tienen TIP_HOGAR 6 (sin etiqueta en el "
+        "FD) y un parentesco no especificado (9xx)"),
+    # Censo 2010: its reference table TC_ESCOACUM_2010 (not a catalog: several levels a code)
+    ("2010", "ESCOACUM"): _Sentinel({"99": "No especificado"},
+                                    "TC_ESCOACUM_2010 es una tabla de referencia (varios "
+                                    "niveles por código), no un catálogo: su 99 = «No "
+                                    "Especificado»"),
+}
+
+
+def _label_sentinels(entries: dict, periods: list[str], skip: set[str]) -> None:
+    """Label each numeric sentinel a schema group's entries label with its own code, by
+    :data:`_SENTINELS`, and say where the label comes from (``Nota``). The core entries
+    (``skip``) are left alone. A self-labelled sentinel not listed, or a listed item whose
+    sentinels differ, raises."""
+    for col, entry in entries.items():
+        if col in skip or entry.get("Tipo") != "numeric":
+            continue
+        own = {c for c, lab in (entry.get("Especiales") or {}).items() if lab == c}
+        spec = next((s for (p, c), s in _SENTINELS.items() if c == col and p in periods), None)
+        if not own and spec is None:
+            continue
+        if spec is None or own != set(spec.especiales):
+            raise ValueError(f"{periods} {col}: sentinels {sorted(own)} labelled with their "
+                             f"own code ({spec})")
+        entry["Especiales"] = {**entry["Especiales"], **spec.especiales}
+        entry["Nota"] = "; ".join([n for n in [entry.get("Nota"), spec.nota] if n])
 
 
 # --- ITER/AGEB indicator crosswalk across censuses (cpv_iter_crosswalk.yaml) --------------

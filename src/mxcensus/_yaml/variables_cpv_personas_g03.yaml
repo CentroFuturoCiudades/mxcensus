@@ -321,14 +321,11 @@ CAUEMI:
     '9': No especificado
 MUN95OTR_C:
   Descripción: Municipio de residencia en 1995_en otro municipio
-  Tipo: numeric
+  Tipo: string
   Longitud: '3'
-  Rango:
-  - 1
-  - 570
-  Categorías: {}
   Especiales:
     '999': No especificado
+  Nota: 001..570 = Clave de municipio (no enumerados); el municipio en la entidad de RES95EDO_C
 HLENGUA:
   Descripción: Habla algún dialecto o lengua indígena
   Tipo: categorical
@@ -340,16 +337,12 @@ HLENGUA:
     '9': No especificado
 QDIALECT_C:
   Descripción: Qué dialecto o lengua habla
-  Tipo: numeric
+  Tipo: string
   Longitud: '4'
-  Rango:
-  - 111
-  - 1311
-  Categorías: {}
   Especiales:
-    '5010': Otras lenguas indígenas de México
-    '5020': Otras lenguas indígenas de América
     '9999': No especificado
+  Nota: 0111..1311 = Clave de dialecto o lengua (no enumerados); 5010 = Otras lenguas indígenas de México;
+    5020 = Otras lenguas indígenas de América
 HESPANOL:
   Descripción: Habla también español
   Tipo: categorical
@@ -475,18 +468,18 @@ ESCOACUM:
   - 24
   Categorías: {}
   Especiales:
-    '99': '99'
+    '99': No especificado
+  Nota: 'el texto del FD: «Toma los valores de 99 cuando los años aprobados no fueron especificados (ESCOLARI
+    = 9), aunque se tenga especificado el nivel académico»'
 OTRAREL_C:
   Descripción: Otra religión
-  Tipo: numeric
+  Tipo: string
   Longitud: '4'
-  Rango:
-  - 1
-  - 9001
-  Categorías: {}
   Especiales:
-    '9100': '9100'
-    '9999': '9999'
+    '9999': No especificado
+  Nota: '1101..9001 = Clave de religión (no enumerados); 0001 = Católica; 9100 = Ninguna; el texto del
+    FD: «El código 1 (ninguna) es la clave 9100. El código 2 (católica) es la clave 0001»; 9999 sin etiqueta
+    en el FD'
 PERETN:
   Descripción: Pertenencia étnica
   Tipo: categorical
@@ -534,14 +527,11 @@ CONACT:
     '99': No especificado
 OCUACTIV_C:
   Descripción: Ocupación u oficio (actividades)
-  Tipo: numeric
+  Tipo: string
   Longitud: '4'
-  Rango:
-  - 1100
-  - 8390
-  Categorías: {}
   Especiales:
     '9999': No especificado
+  Nota: 1100..8390 = Clave de ocupación (no enumerados)
 SITTRA:
   Descripción: Situación en el trabajo
   Tipo: categorical
@@ -626,24 +616,18 @@ INGRESOS:
     (el texto del FD)'
 ACTTRAB_C:
   Descripción: Actividad económica (dónde trabajó)
-  Tipo: numeric
+  Tipo: string
   Longitud: '3'
-  Rango:
-  - 110
-  - 939
-  Categorías: {}
   Especiales:
     '999': No especificado
+  Nota: 110..939 = Clave de actividad (no enumerados)
 LTRABMUN_C:
   Descripción: Lugar de trabajo_otro municipio
-  Tipo: numeric
+  Tipo: string
   Longitud: '3'
-  Rango:
-  - 1
-  - 570
-  Categorías: {}
   Especiales:
     '999': No especificado
+  Nota: 001..570 = Clave de municipio (no enumerados); el municipio en la entidad de LTRABPAI_C
 LTRABPAI_C:
   Descripción: Lugar de trabajo_otro estado o país
   Tipo: string
@@ -802,8 +786,10 @@ HIJFAL:
   - 25
   Categorías: {}
   Especiales:
-    '99': '99'
-  Nota: 00 = No tiene hijos fallecidos
+    '99': No especificado
+  Nota: '00 = No tiene hijos fallecidos; el texto del FD (NUMHIJ): «El valor 99 indica que la mujer tuvo
+    hijos pero no se sabe cuántos, lo cual implica que alguno de los campos de hijos fallecidos (HIJFAL)
+    o hijos sobrevivientes (HIJSOB) tiene un valor no especificado»'
 HIJSOB:
   Descripción: Cuántos hijos viven actualmente
   Tipo: numeric
@@ -813,8 +799,10 @@ HIJSOB:
   - 25
   Categorías: {}
   Especiales:
-    '99': '99'
-  Nota: 00 = No tiene hijos vivos actualmente
+    '99': No especificado
+  Nota: '00 = No tiene hijos vivos actualmente; el texto del FD (NUMHIJ): «El valor 99 indica que la mujer
+    tuvo hijos pero no se sabe cuántos, lo cual implica que alguno de los campos de hijos fallecidos (HIJFAL)
+    o hijos sobrevivientes (HIJSOB) tiene un valor no especificado»'
 FECNACM:
   Descripción: Fecha de nacimiento (mes)
   Tipo: numeric
@@ -824,7 +812,8 @@ FECNACM:
   - 12
   Categorías: {}
   Especiales:
-    '99': '99'
+    '99': No especificado
+  Nota: '99 sin etiqueta en el FD: «No especificado», como sus demás códigos no especificados'
 FECNACA:
   Descripción: Fecha de nacimiento (año)
   Tipo: numeric
@@ -834,7 +823,8 @@ FECNACA:
   - 2000
   Categorías: {}
   Especiales:
-    '9999': '9999'
+    '9999': No especificado
+  Nota: '9999 sin etiqueta en el FD: «No especificado», como sus demás códigos no especificados'
 SOBREVI:
   Descripción: Este último vive actualmente
   Tipo: categorical

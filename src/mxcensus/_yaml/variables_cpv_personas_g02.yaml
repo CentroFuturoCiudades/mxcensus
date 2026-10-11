@@ -1033,7 +1033,9 @@ P7_9MP:
   - 980000
   Categorías: {}
   Especiales:
-    '999999': '999999'
+    '999999': No especificado
+  Nota: '999999 sin etiqueta en el FD: «No especificado», la del ingreso que mensualiza (P7_9A, P7_11A:
+    99999)'
 P7_9MH:
   Descripción: POR HOGAR(*)
   Tipo: numeric
@@ -1043,7 +1045,9 @@ P7_9MH:
   - 980000
   Categorías: {}
   Especiales:
-    '999999': '999999'
+    '999999': No especificado
+  Nota: '999999 sin etiqueta en el FD: «No especificado», la del ingreso que mensualiza (P7_9A, P7_11A:
+    99999)'
 P7_10A:
   Descripción: TIPO DE INGRESO (1)
   Tipo: categorical
@@ -1106,17 +1110,20 @@ P7_11C:
   - 98000
   Categorías: {}
   Especiales:
-    '99999': '99999'
+    '99999': No especificado
+  Nota: Igual que en INGRESO (1) (el FD); 98000 = $98,000 o más; pesos por el periodo de P7_11D
 P7_11D:
   Descripción: PERIODO (2)
-  Tipo: numeric
+  Tipo: categorical
   Longitud: '1'
-  Rango:
-  - 1
-  - 4
-  Categorías: {}
+  Categorías:
+    '1': A la semana
+    '2': A la quincena
+    '3': Al mes
+    '4': Al año
   Especiales:
-    '9': '9'
+    '9': No especificado
+  Nota: Igual que en PERIODO (1) (el FD)
 P7_11E:
   Descripción: INGRESO (3)
   Tipo: numeric
@@ -1126,17 +1133,20 @@ P7_11E:
   - 98000
   Categorías: {}
   Especiales:
-    '99999': '99999'
+    '99999': No especificado
+  Nota: Igual que en INGRESO (1) (el FD); 98000 = $98,000 o más; pesos por el periodo de P7_11F
 P7_11F:
   Descripción: PERIODO (3)
-  Tipo: numeric
+  Tipo: categorical
   Longitud: '1'
-  Rango:
-  - 1
-  - 4
-  Categorías: {}
+  Categorías:
+    '1': A la semana
+    '2': A la quincena
+    '3': Al mes
+    '4': Al año
   Especiales:
-    '9': '9'
+    '9': No especificado
+  Nota: Igual que en PERIODO (1) (el FD)
 P7_11MP:
   Descripción: POR PERSONA(*)
   Tipo: numeric
@@ -1146,7 +1156,9 @@ P7_11MP:
   - 980000
   Categorías: {}
   Especiales:
-    '999999': '999999'
+    '999999': No especificado
+  Nota: '999999 sin etiqueta en el FD: «No especificado», la del ingreso que mensualiza (P7_9A, P7_11A:
+    99999)'
 P7_11MH:
   Descripción: POR HOGAR(*)
   Tipo: numeric
@@ -1156,7 +1168,9 @@ P7_11MH:
   - 980000
   Categorías: {}
   Especiales:
-    '999999': '999999'
+    '999999': No especificado
+  Nota: '999999 sin etiqueta en el FD: «No especificado», la del ingreso que mensualiza (P7_9A, P7_11A:
+    99999)'
 INGMENTP:
   Descripción: POR PERSONA(*)
   Tipo: numeric
@@ -1166,7 +1180,9 @@ INGMENTP:
   - 980000
   Categorías: {}
   Especiales:
-    '999999': '999999'
+    '999999': No especificado
+  Nota: '999999 sin etiqueta en el FD: «No especificado», la del ingreso que mensualiza (P7_9A, P7_11A:
+    99999)'
 INGMENTH:
   Descripción: POR HOGAR(*)
   Tipo: numeric
@@ -1176,5 +1192,6 @@ INGMENTH:
   - 980000
   Categorías: {}
   Especiales:
-    '999999': '999999'
-  Nota: 'valores observados bajo el rango del FD: [''000000'']'
+    '999999': No especificado
+  Nota: 'valores observados bajo el rango del FD: [''000000'']; 999999 sin etiqueta en el FD: «No especificado»,
+    la del ingreso que mensualiza (P7_9A, P7_11A: 99999)'

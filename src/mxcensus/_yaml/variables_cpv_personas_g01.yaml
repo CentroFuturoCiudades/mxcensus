@@ -263,9 +263,11 @@ N_F_GPOS:
   - 1
   - 10
   Categorías: {}
-  Nota: 'numérica: el FD sólo enumera códigos especiales; códigos observados sin etiqueta en el FD: [''99'']'
+  Nota: 'numérica: el FD sólo enumera códigos especiales; códigos observados sin etiqueta en el FD: [''99''];
+    99 = «No especificado»: sus 96,370 personas tienen TIP_HOGAR 6 (sin etiqueta en el FD) y un parentesco
+    no especificado (9xx)'
   Especiales:
-    '99': '99'
+    '99': No especificado
 NUM_PER:
   Descripción: NUMERO DE PERSONA
   Tipo: string

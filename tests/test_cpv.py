@@ -2853,6 +2853,34 @@ def test_parse_fd_text_2000():
     assert fec["Especiales"] == {"9999": "9999"}
 
 
+# 7r: the migration file's layout is the annex's last; after its «Total de caracteres» come
+# the glossary and the minimum-wage annex, whose indented rows are no code rows.
+_FD_2000_END = """Descripción de las variables de explotación del archivo de migración internacional (MIN)
+18 Fecha de retorno (mes)  12A MFECRETM {01..12,99,b}  2
+19 Fecha de retorno (año)  12B MFECRETA
+{1995..2000,9999,b
+} 4
+
+TOTAL MIGRACIÓN
+INTERNACIONAL
+     27
+        Total de caracteres  63
+1/ El último caracter puede ser A o P
+ANEXOS
+Actividad económica. Acción destinada a producir bienes y servicios para el mercado.
+     1 053 Yucatán 981 Zacatecas 981
+FUENTE: Comisión Nacional de los Salarios Mínimos, 2000.
+"""
+
+
+def test_parse_fd_text_2000_layout_end():
+    """The layout ends at «Total de caracteres»: the wrapped range of its last field
+    (``MFECRETA``) is its own, not swallowed by the annex rows that follow."""
+    fec = _fd.parse_fd_text(_FD_2000_END)["min"]["MFECRETA"]
+    assert fec["Tipo"] == "numeric" and fec["Rango"] == [1995, 2000]
+    assert fec["Especiales"] == {"9999": "9999"} and fec["Categorías"] == {}
+
+
 _HDR05 = ["Conse-\ncutivo", "Nombre de la variable", "Núm. de pregunta",
           "Descripción del mnemónico", "Rangos\nválidos", "Longitud",
           "Rango  o código a describir", "Descripción de los códigos en la base de datos",
@@ -3662,6 +3690,121 @@ def test_quantities_7q_real(local_mirror):
         assert out.isna().equals(missing) and out.max() <= rango[1], col
         assert (out[~missing] == pd.to_numeric(raw[~missing])).all(), col
         assert out.notna().any() and raw.isin(sentinels).any(), col
+
+
+# 7r: the codes their FDs make numbers → (table, type, sentinels).
+_CODES_7R = {
+    **{("personas", "2000", col): ("string", sentinels) for col, sentinels in (
+        ("MUN95OTR_C", {"999"}), ("LTRABMUN_C", {"999"}), ("QDIALECT_C", {"9999"}),
+        ("OTRAREL_C", {"9999"}), ("OCUACTIV_C", {"9999"}), ("ACTTRAB_C", {"999"}))},
+    **{("migrantes", "2000", col): ("string", sentinels) for col, sentinels in (
+        ("MLUGORI_C", {"999"}), ("MPDESOTR_C", {"600", "999"}), ("MPAIRES_C", {"999"}))},
+    ("personas", "2005", "NIVANTES"): ("categorical", {"99"}),
+    ("personas", "1995", "P7_11D"): ("categorical", {"9"}),
+    ("personas", "1995", "P7_11F"): ("categorical", {"9"}),
+}
+
+
+def test_dictionary_codes_7r():
+    """Codes their FDs write as one labelled range or a bare range list (CGPV 2000's places,
+    language, religion, occupation, activity; the Conteo 2005's level and antecedent; the
+    Conteo 1995's periods): «string» with the FD's ranges in ``Nota``, as the edition's own
+    birthplace items, or «categorical» where INEGI lists every code. A spec the FD no longer
+    matches raises."""
+    for (table, period, col), (tipo, sentinels) in _CODES_7R.items():
+        entry = variables_cpv(table, _gid(table, period))[col]
+        assert entry["Tipo"] == tipo and "Rango" not in entry, col
+        assert set(entry["Especiales"]) == sentinels, col
+        assert not any(code == lab for code, lab in entry["Especiales"].items()), col
+        if tipo == "string":
+            assert "(no enumerados)" in entry["Nota"] and "Categorías" not in entry, col
+    p00 = variables_cpv("personas", _gid("personas", "2000"))
+    assert "0001 = Católica; 9100 = Ninguna" in p00["OTRAREL_C"]["Nota"]
+    assert p00["QDIALECT_C"]["Nota"].startswith("0111..1311 = Clave de dialecto o lengua")
+    m00 = variables_cpv("migrantes", _gid("migrantes", "2000"))
+    assert m00["MPDESOTR_C"]["Especiales"]["600"] == "País no especificado"
+    assert "600 = Extranjero, otro país; 700 = México" in m00["MPAIRES_C"]["Nota"]
+    niv = variables_cpv("personas", _gid("personas", "2005"))["NIVANTES"]
+    assert list(niv["Categorías"])[:3] == ["0", "10", "20"] and len(niv["Categorías"]) == 14
+    assert niv["Categorías"]["95"] == "Doctorado con antecedente de maestría"
+    p95 = variables_cpv("personas", _gid("personas", "1995"))
+    for col in ("P7_11D", "P7_11F"):
+        assert p95[col]["Categorías"] == p95["P7_11B"]["Categorías"]
+    entry = {"Descripción": "Lugar de origen", "Tipo": "numeric", "Longitud": "3",
+             "Rango": [1, 32], "Especiales": {"999": "999"}}
+    doc = {"MLUGORI_C": {"Rango": [1, 32], "Especiales": {"999": "999"}}}
+    out = {"MLUGORI_C": dict(entry)}
+    _bcpv._label_codes(out, ["2000"], set(), doc)
+    assert list(out["MLUGORI_C"]) == ["Descripción", "Tipo", "Longitud", "Especiales", "Nota"]
+    _bcpv._label_codes({"MLUGORI_C": dict(entry)}, ["2010"], set(), doc)    # another edition
+    with pytest.raises(ValueError, match="FD's codes"):                 # a code more in the FD
+        _bcpv._label_codes({"MLUGORI_C": dict(entry)}, ["2000"], set(),
+                           {"MLUGORI_C": {"Rango": [1, 32], "Especiales": {"998": "", "999": ""}}})
+    with pytest.raises(ValueError, match="FD's codes"):                 # another range
+        _bcpv._label_codes({"MLUGORI_C": dict(entry)}, ["2000"], set(),
+                           {"MLUGORI_C": {"Rango": [1, 33]}})
+    with pytest.raises(ValueError, match="not read as a number"):
+        _bcpv._label_codes({"MLUGORI_C": {**entry, "Tipo": "string"}}, ["2000"], set(), doc)
+
+
+def test_dictionary_sentinels_7r():
+    """No CPV dictionary labels a sentinel with its own code (7r: «No especificado», INEGI's
+    words where its documents give them); an unlisted one, or a listed item whose sentinels
+    differ, raises."""
+    import yaml
+
+    for path in sorted(Path(mxcensus.__file__).parent.joinpath("_yaml").glob(
+            "variables_cpv_*_g*.yaml")):
+        for col, entry in yaml.safe_load(path.read_text(encoding="utf-8")).items():
+            own = [c for c, lab in (entry.get("Especiales") or {}).items() if lab == c]
+            assert not own, (path.name, col, own)
+    for (period, col), spec in _bcpv._SENTINELS.items():
+        table = next(t for t in ("personas", "viviendas", "migrantes")
+                     if col in variables_cpv(t, _gid(t, period)))
+        entry = variables_cpv(table, _gid(table, period))[col]
+        assert entry["Tipo"] == "numeric" and entry["Especiales"] == spec.especiales, col
+        assert spec.nota in entry["Nota"], col
+    assert "aunque se tenga especificado" in variables_cpv(
+        "personas", _gid("personas", "2000"))["ESCOACUM"]["Nota"]
+    fec = variables_cpv("migrantes", _gid("migrantes", "2000"))["MFECRETA"]   # the FD's range
+    assert fec["Rango"] == [1995, 2000] and fec["Especiales"] == {"9999": "No especificado"}
+    entries = {"CUADORM": {"Tipo": "numeric", "Rango": [1, 25], "Especiales": {"99": "99"}},
+               "NUMHOG": {"Tipo": "numeric", "Rango": [1, 9]}}
+    _bcpv._label_sentinels(entries, ["2000"], set())
+    assert entries["CUADORM"]["Especiales"] == {"99": "No especificado"}
+    assert "CUARDOM" in entries["CUADORM"]["Nota"] and "Nota" not in entries["NUMHOG"]
+    with pytest.raises(ValueError, match="own code"):                   # not listed
+        _bcpv._label_sentinels({"X": {"Tipo": "numeric", "Especiales": {"9": "9"}}}, ["2000"],
+                               set())
+    with pytest.raises(ValueError, match="own code"):                   # another sentinel
+        _bcpv._label_sentinels({"CUADORM": {"Tipo": "numeric", "Especiales": {"98": "98"}}},
+                               ["2000"], set())
+
+
+@pytest.mark.skipif(not (_REAL_1995 and _REAL_2000 and _REAL_2005),
+                    reason="no local 1995/2000/2005 mirror")
+def test_codes_7r_real(local_mirror):
+    """7r's codes in labelled frames (state 1): the «string» ones are the raw codes, zero
+    padding and sentinels kept; the «categorical» ones labelled, their sentinel «No
+    especificado»; 2000's return year ``MFECRETA`` an ``Int64`` year, 9999 missing."""
+    loaders = {"personas": mxcensus.load_cpv_personas, "migrantes": mxcensus.load_cpv_migrantes}
+    for (table, period, col), (tipo, sentinels) in _CODES_7R.items():
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore")
+            raw = loaders[table](period, state=1, labels=False)[col]
+            out = loaders[table](period, state=1)[col]
+        assert out.index.equals(raw.index) and out.isna().equals(raw.isna()), col
+        if tipo == "string":
+            assert out.equals(raw) and raw.dropna().str.len().nunique() == 1, col
+        else:
+            assert isinstance(out.dtype, pd.CategoricalDtype), col
+            assert (out[raw.isin(sentinels)] == "No especificado").all(), col
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore")
+        raw = mxcensus.load_cpv_migrantes(2000, state=1, labels=False)["MFECRETA"]
+        out = mxcensus.load_cpv_migrantes(2000, state=1)["MFECRETA"]
+    assert out.dtype == pd.Int64Dtype() and out.isna().equals(raw.isna() | (raw == "9999"))
+    assert out.between(1995, 2000).fillna(True).all() and out.notna().any()
 
 
 @pytest.mark.filterwarnings("ignore:.*lacks core column")   # keyless synthetic frames

@@ -394,19 +394,26 @@ NIVANTES:
   Descripción: Nivel y antecedente escolar
   Definición: Identifica el grado de estudio más alto aprobado y el antecedente en el caso de la normal
     y estudios técnicos o comerciales.
-  Tipo: numeric
+  Tipo: categorical
   Longitud: '2'
-  Rango:
-  - 0
-  - 95
-  Categorías: {}
+  Categorías:
+    '0': Sin escolaridad
+    '10': Preescolar
+    '20': Primaria
+    '30': Secundaria
+    '40': Preparatoria o bachillerato
+    '51': Normal con antecedente de primaria
+    '52': Normal con antecedente de secundaria
+    '61': Estudios técnicos con antecedente de primaria
+    '62': Estudios técnicos con antecedente de secundaria
+    '63': Estudios técnicos con antecedente de preparatoria
+    '73': Profesional
+    '84': Maestría
+    '94': Doctorado con antecedente de licenciatura
+    '95': Doctorado con antecedente de maestría
   Especiales:
     '99': No especificado
   Catálogo: TC_ANTES
-  Nota: 0 = Sin escolaridad; 10 = Preescolar; 20 = Primaria; 30 = Secundaria; 40 = Preparatoria o bachillerato;
-    51 = Normal con antecedente de primaria; 52 = Normal con antecedente de secundaria; 61 = Estudios
-    técnicos con antecedente de primaria; 62 = Estudios técnicos con antecedente de secundaria; 63 = Estudios
-    técnicos con antecedente de preparatoria; 73 = Profesional; 84 = Maestría
 GRA_APRO:
   Descripción: Escolaridad (grados aprobados)
   Definición: Año o grado de escolaridad aprobado.

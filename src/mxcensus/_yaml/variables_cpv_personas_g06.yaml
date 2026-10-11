@@ -615,8 +615,9 @@ ESCOACUM:
   - 24
   Categorías: {}
   Especiales:
-    '99': '99'
-  Nota: clasificador «Tc_escoacum_2010» no disponible
+    '99': No especificado
+  Nota: 'clasificador «Tc_escoacum_2010» no disponible; TC_ESCOACUM_2010 es una tabla de referencia (varios
+    niveles por código), no un catálogo: su 99 = «No Especificado»'
 NIV_CAR:
   Descripción: Nivel carrera
   Pregunta: Nivel de la carrera

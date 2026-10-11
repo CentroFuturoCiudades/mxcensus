@@ -105,14 +105,14 @@ _OWN_CODES = {
     # (test_catalog_codes_derive reads the catalogs)
     ("2010", "OCUACTIV_C"): set(), ("2010", "OTRAREL_C"): set(),
     # CGPV 2000 (6i): the SCIAN subsector (110–939) and 999; normal/técnica antecedent; level
-    # and antecedent; one item per institution; religion (0001, 1101–9001, 9100, 9999: the
-    # FD declares the last two); the birthplace and 1995 residence items are text in its FD
-    # (entity 001–032, country 100–535 as 2020, 600 country unknown, 999); 7q: its income,
-    # hours and household income are numeric (build_cpv._QUANTITIES), as 2020's
+    # and antecedent; one item per institution; religion (0001 católica, 1101–9001, 9100
+    # ninguna, 9999: 7r, text, its sentinel 9999); the birthplace and 1995 residence items are
+    # text in its FD (entity 001–032, country 100–535 as 2020, 600 country unknown, 999); 7q:
+    # its income, hours and household income are numeric (build_cpv._QUANTITIES), as 2020's
     ("2000", "ACTTRAB_C"): {999}, ("2000", "ANTESC"): {1, 2, 3, 9},
     ("2000", "NIVELACAD"): {0, 10, 20, 30, 40, 51, 52, 61, 62, 63, 73, 80, 90},
     ("2000", "IMSS"): {1, 9}, ("2000", "ISSSTE"): {2}, ("2000", "PEMEX"): {3},
-    ("2000", "OTRINS_V"): {4}, ("2000", "NOTIEDER"): {5}, ("2000", "OTRAREL_C"): {9100, 9999},
+    ("2000", "OTRINS_V"): {4}, ("2000", "NOTIEDER"): {5}, ("2000", "OTRAREL_C"): {9999},
     ("2000", "ENT_PAIS_NAC"): {600, 999}, ("2000", "ENT_PAIS_RES_5A"): {600, 999},
     # 7f: its household number (1–9) and kitchen items (a room for cooking 1/2, slept in 3/4)
     ("2000", "NUMHOG"): set(), ("2000", "COCINA"): {1, 2, 9}, ("2000", "COCDOR"): {3, 4, 9},
@@ -120,9 +120,10 @@ _OWN_CODES = {
     # the 1995 residence (001–570, 999)
     ("2000", "LTRABPAI_C"): {600, 999}, ("2000", "LTRABMUN_C"): {999},
     ("2000", "MUN_RES_5A"): {999},
-    # Conteo 2005: level and antecedent (0–95, 99), grade (1–8, 9), one item per institution,
-    # residence in 2000 (001–033, 201 the US, 600, 999)
-    ("2005", "NIVANTES"): {99}, ("2005", "GRA_APRO"): set(range(1, 10)),
+    # Conteo 2005: level and antecedent (7r: its catalog TC_ANTES's 14 codes, 99), grade
+    # (1–8, 9), one item per institution, residence in 2000 (001–033, 201 the US, 600, 999)
+    ("2005", "NIVANTES"): {0, 10, 20, 30, 40, 51, 52, 61, 62, 63, 73, 84, 94, 95, 99},
+    ("2005", "GRA_APRO"): set(range(1, 10)),
     ("2005", "IMSS"): {1}, ("2005", "ISSSTE"): {1}, ("2005", "PEMEX"): {1},
     ("2005", "SEGU_POP"): {1}, ("2005", "INST_PRI"): {1}, ("2005", "OTRA_INS"): {1, 2, 3, 9},
     ("2005", "SIN_DERE"): {6, 9}, ("2005", "ENT_PAIS_RES_5A"): {*range(1, 34), 201, 600, 999},
@@ -146,9 +147,11 @@ _OWN_CODES = {
        for item in ("ENT_PAIS_NAC", "ENT_PAIS_RES_5A")},
 }
 # Own-code text items without a catalog in their edition's FD (the code layout is stated in
-# its notes, quoted above).
+# its notes, quoted above; 7r: CGPV 2000's activity, religion and municipalities, text since).
 _NO_CATALOG = {("2000", "ENT_PAIS_NAC"), ("2000", "ENT_PAIS_RES_5A"),
-               ("2000", "LTRABPAI_C")}                                          # 7c
+               ("2000", "LTRABPAI_C"),                                          # 7c
+               ("2000", "ACTTRAB_C"), ("2000", "OTRAREL_C"), ("2000", "LTRABMUN_C"),
+               ("2000", "MUN_RES_5A")}                                          # 7r
 _LATER_OPTIONS = {*d._ESC[1:], *d._TRAB[1:]}      # list fewer codes (options are ordered)
 # 2020 catalog items whose FD row names no catalog (7b: the municipality of work; its
 # school and residence municipalities name «MUN»).

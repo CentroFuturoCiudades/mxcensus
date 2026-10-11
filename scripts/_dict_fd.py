@@ -831,6 +831,10 @@ _PDF_VAR_RE = re.compile(r"^(?P<num>\d+)\s+(?P<desc>.*?)\s+(?:(?P<preg>\d+[A-Z]?
 # list: «{100,200,300,401 -412,420,430, 3» / «440,501-503, 601-624,999}» (OTROPARE_C).
 _PDF_INNER_LEN_RE = re.compile(r",\s*(\d{1,2})\s+(?=\d)")
 _PDF_CODE_RE = re.compile(r"^\s+(?P<code>\d+(?:\s*-\s*\d+)?|b)\s+(?P<label>\S.*)$")
+# The line that closes a file's layout («Total de caracteres 63»). The migration file's is the
+# annex's last: before 7r, the glossary and the minimum-wage annex after it became code rows
+# of its last field (MFECRETA).
+_PDF_END_RE = re.compile(r"Total de caracteres", re.IGNORECASE)
 
 
 def _pdf_header(lines: list[str]) -> dict | None:
@@ -886,6 +890,9 @@ def parse_fd_text(text: str, catalogs: dict | None = None) -> dict[str, dict[str
         for line in text[start.end():end].splitlines():
             if not line.strip():
                 continue
+            if _PDF_END_RE.search(line):                 # the layout ends: what follows (the
+                current, last_label, header = None, None, []   # glossary, the annexes)
+                continue                                 # is no code row of its last field
             if header:                                   # finishing a wrapped header
                 header.append(line)
                 if (var := _pdf_header(header)) is not None:
