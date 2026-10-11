@@ -1,15 +1,15 @@
 # CPV family — session handoff
 
-**Status (2026-10-10/11, overnight): units 0–6z and 7a–7m are done. `main` = v0.11.0 =
+**Status (2026-10-10/11, overnight): units 0–6z and 7a–7n are done. `main` = v0.11.0 =
 6u–7b, tagged and pushed; 7c (CGPV 2000's places, the income in minimum wages 2000–2020), 7d
 (more tabulado checks: the EIC 2015's dwellings, CGPV 2000's employment and migration), 7e
 (ratio constraints), 7f (CGPV 2000 per dwelling, the 1990/1995 averages), 7g (constraint
 keys = the published columns; every constraint against the census), 7h (the Censo
 2010/2020 dwelling tabulados, the owners' sex), 7i (CGPV 2000's dwelling tabulados) and 7j
 (the EIC 2015's person tabulados), 7k (CGPV 2000's population, disability, fertility and
-language tabulados), 7l (CGPV 2000's household and education tabulados) and 7m (Censo
-2010's person and migrant tabulados) are commits on `cpv-integration` after it, not pushed.
-7g–7m ran unattended (the user asked for
+language tabulados), 7l (CGPV 2000's household and education tabulados), 7m and 7n (Censo
+2010's and 2020's person and migrant tabulados) are commits on `cpv-integration` after it,
+not pushed. 7g–7n ran unattended (the user asked for
 the night's units to run without them: a local commit per unit, no push, merge, version or
 upload) — their decisions wait for the user's review (§Review: night of 2026-10-10/11). Before 0.11.0:
 v0.10.0 = 6s–6t, 0.9.0 = 6k–6r. A session starts by checking `git log`/`git status` against
@@ -368,7 +368,14 @@ this line.**
   and the `migrantes` file's 04_04A–06A by the state left: **11,913 cells, every one exact**;
   the report 137,029 cells.
 
-Design: [`PLAN.md`](PLAN.md). Recent units: [`STEP_7m.md`](STEP_7m.md), [`STEP_7l.md`](STEP_7l.md), [`STEP_7k.md`](STEP_7k.md), [`STEP_7j.md`](STEP_7j.md), [`STEP_7i.md`](STEP_7i.md), [`STEP_7h.md`](STEP_7h.md), [`STEP_7g.md`](STEP_7g.md), [`STEP_7f.md`](STEP_7f.md), [`STEP_7e.md`](STEP_7e.md), [`STEP_7d.md`](STEP_7d.md), [`STEP_7c.md`](STEP_7c.md), [`STEP_7b.md`](STEP_7b.md), [`STEP_7a.md`](STEP_7a.md), [`STEP_6z.md`](STEP_6z.md), [`STEP_6y.md`](STEP_6y.md), [`STEP_6x.md`](STEP_6x.md), [`STEP_6w.md`](STEP_6w.md), [`STEP_6v.md`](STEP_6v.md), [`STEP_6u.md`](STEP_6u.md), [`STEP_6t.md`](STEP_6t.md), [`STEP_6s.md`](STEP_6s.md), [`STEP_6r.md`](STEP_6r.md), [`STEP_6q.md`](STEP_6q.md), [`STEP_6p.md`](STEP_6p.md), [`STEP_6o.md`](STEP_6o.md), [`STEP_6n.md`](STEP_6n.md), [`STEP_6m.md`](STEP_6m.md), [`STEP_6l.md`](STEP_6l.md), [`STEP_6k.md`](STEP_6k.md), [`STEP_6j.md`](STEP_6j.md), [`STEP_6i.md`](STEP_6i.md), [`STEP_6h.md`](STEP_6h.md), [`STEP_6g.md`](STEP_6g.md), [`STEP_6f.md`](STEP_6f.md), [`STEP_6e.md`](STEP_6e.md),
+- **7n** (`STEP_7n.md`): HANDOFF candidate 3's Censo 2020 ampliado workbooks 01/04/05,
+  unattended; checks only. 01-02 (`EDAD_QUIN` × sex), 01-04 (birth registration), 04-02 (the
+  born abroad by nationality), 05-02/04 (self-identification, understanding an indigenous
+  language), 04-04–10 (the `migrantes` file by the state left): **10,758 cells, every one
+  exact**; the report 147,787 cells. Full suite on the Mac on 7l's head: 1920 passed, 1 skipped
+  (7m and 7n touched only the check script and its tests).
+
+Design: [`PLAN.md`](PLAN.md). Recent units: [`STEP_7n.md`](STEP_7n.md), [`STEP_7m.md`](STEP_7m.md), [`STEP_7l.md`](STEP_7l.md), [`STEP_7k.md`](STEP_7k.md), [`STEP_7j.md`](STEP_7j.md), [`STEP_7i.md`](STEP_7i.md), [`STEP_7h.md`](STEP_7h.md), [`STEP_7g.md`](STEP_7g.md), [`STEP_7f.md`](STEP_7f.md), [`STEP_7e.md`](STEP_7e.md), [`STEP_7d.md`](STEP_7d.md), [`STEP_7c.md`](STEP_7c.md), [`STEP_7b.md`](STEP_7b.md), [`STEP_7a.md`](STEP_7a.md), [`STEP_6z.md`](STEP_6z.md), [`STEP_6y.md`](STEP_6y.md), [`STEP_6x.md`](STEP_6x.md), [`STEP_6w.md`](STEP_6w.md), [`STEP_6v.md`](STEP_6v.md), [`STEP_6u.md`](STEP_6u.md), [`STEP_6t.md`](STEP_6t.md), [`STEP_6s.md`](STEP_6s.md), [`STEP_6r.md`](STEP_6r.md), [`STEP_6q.md`](STEP_6q.md), [`STEP_6p.md`](STEP_6p.md), [`STEP_6o.md`](STEP_6o.md), [`STEP_6n.md`](STEP_6n.md), [`STEP_6m.md`](STEP_6m.md), [`STEP_6l.md`](STEP_6l.md), [`STEP_6k.md`](STEP_6k.md), [`STEP_6j.md`](STEP_6j.md), [`STEP_6i.md`](STEP_6i.md), [`STEP_6h.md`](STEP_6h.md), [`STEP_6g.md`](STEP_6g.md), [`STEP_6f.md`](STEP_6f.md), [`STEP_6e.md`](STEP_6e.md),
 [`STEP_6d.md`](STEP_6d.md),
 [`STEP_6c.md`](STEP_6c.md), [`STEP_6b.md`](STEP_6b.md), … [`STEP_0_probe.md`](STEP_0_probe.md).
 
@@ -397,7 +404,7 @@ which `wsl`'s lacks — the script fetches them).
 ## Kickoff prompt for the next session
 
 > Continue the CPV census-family work in this repo (branch cpv-integration = main = v0.11.0
-> + units 7c–7m). Read docs/cpv/HANDOFF.md first, then agree with me which next unit to
+> + units 7c–7n). Read docs/cpv/HANDOFF.md first, then agree with me which next unit to
 > take (candidates in HANDOFF §Next) before implementing it, following the session protocol
 > in docs/cpv/PLAN.md. Use .venv/bin/python, not uv run. Run wsl tasks without asking; ask
 > me before committing, pushing, installing packages or uploading.
@@ -422,11 +429,11 @@ the commit's diff:
 4. **7g, new derived `RELIGION_INEGI`** (Censo 2010 only; the name is the session's): the
    2010 classification beside `RELIGION_CAT` (2020's grouping, the user's 6f choice), for the
    2010 `PNCATOLICA`/`POTRAS_REL`.
-5. **7h–7m** changed only the maintainer check script (no decision with user-visible
+5. **7h–7n** changed only the maintainer check script (no decision with user-visible
    effect); their scope (the Censo 2010/2020 dwelling tabulados and the owners' sex; CGPV
    2000's dwelling tabulados; the EIC 2015's person tabulados; CGPV 2000's persons and
-   households; Censo 2010's persons and migrants) was the session's choice among the
-   candidates. Their documented tolerances
+   households; Censo 2010's and 2020's persons and migrants) was the session's choice among
+   the candidates. Their documented tolerances
    (Chiapas, and three national cells inheriting it) follow 7d's MI11 precedent. 7i's Chiapas
    tolerances (VI11 0.9, VI18 1.6/1.8 and the nation's VI18o 0.06 points) follow 7d's MI11
    precedent.
@@ -462,7 +469,7 @@ and **kept all seven** (merged as 0.9.0):
 
 ## Next: candidates (none decided)
 
-1. **Release 7c–7m** as 0.12.0: the `wsl` full suite ran on 7f overnight; rerun it on the
+1. **Release 7c–7n** as 0.12.0: the `wsl` full suite ran on 7f overnight; rerun it on the
    final commit (a `git bundle` as for 0.11.0), then merge into `main`, tag and push — the
    user's call, after the review above.
 2. Smaller:
@@ -480,8 +487,9 @@ and **kept all seven** (merged as 0.9.0):
 3. More tabulado checks (what 7d–7l left):
    - Censo 2010's tabulados 7m left (fertility rates 02_02A, infant mortality 03_01A, ethnic
      self-identification 05_*, fields of study 07_*, sector × division 08_06A, kinship lines
-     12_04A — «colaterales» needs `OTROPARE_C`'s groups) and Censo 2020's other ampliado
-     workbooks;
+     12_04A — «colaterales» needs `OTROPARE_C`'s groups) and Censo 2020's 02/03 (rates),
+     04-12/14/15 (return and emigration causes) and 06_discapacidad (disability, limitation
+     and mental condition with their causes; INEGI's rules in 6g/6y);
    - the EIC 2015's fertility rates and infant mortality (02-03/04, 03-02: the births of
      2014);
    - every edition's tabulados by locality size (they repeat the state ones on `TAMLOC`).

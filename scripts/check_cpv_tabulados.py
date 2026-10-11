@@ -102,7 +102,8 @@ SOURCES = {
               "08_caracteristicas_economicas.xls", "10_movilidad_cotidiana.xls",
               "11_situacion_conyugal.xls", "12_hogares.xls", "14_vivienda.xls")),
     "2020": ("ccpv/2020/tabulados/ampliado",
-             ("cpv2020_a_eum_07_educacion.xlsx",
+             ("cpv2020_a_eum_01_poblacion.xlsx", "cpv2020_a_eum_04_migracion.xlsx",   # 7n
+              "cpv2020_a_eum_05_etnicidad.xlsx", "cpv2020_a_eum_07_educacion.xlsx",
               "cpv2020_a_eum_08_caracteristicas_economicas.xlsx",
               "cpv2020_a_eum_09_servicios_de_salud.xlsx",
               "cpv2020_a_eum_10_movilidad_cotidiana.xlsx",
@@ -2014,6 +2015,140 @@ def _person_checks_2010() -> tuple[Check, ...]:
     )
 
 
+# Censo 2020 persons and international migrants (7n) --------------------------------------
+
+_QUIN_2020 = ("Total", *(f"{a:02d}-{a + 4:02d} años" for a in range(0, 75, 5)), "75 años y más")
+_REGISTRATION_AGES_2020 = ("Total", "00-04 años", "05-11 años", "12-17 años", "18-29 años",
+                           "30-44 años", "45-64 años", "65 años y más")
+_BIRTHPLACES_2020 = ("Total", "En los Estados Unidos de América", "En otro país")
+_SPEAKERS_2020 = (("Total", None), ("Habla lengua indígena", 1), ("No habla lengua indígena", 3),
+                  ("No especificado", 9))
+_MIGRANT_AGES_2020 = ((0, 17), (18, 29), (30, 44), (45, 64), (65, 130))
+
+
+def _registration_2020(p):
+    """01-04: by age group, registered (``REGIS_NAC`` 1–2; as % of them in Mexico 1, abroad
+    2), not registered (3), not specified (9)."""
+    reg = _code(p, "REGIS_NAC")
+    out = []
+    for label in _REGISTRATION_AGES_2020:
+        g = _age_group(p, label)
+        r = g & reg.isin([1, 2])
+        out += _counts_of(g, r, r & reg.eq(1), r & reg.eq(2), g & reg.eq(3), g & reg.eq(9))
+    return out
+
+
+def _nationality_2020(p):
+    """04-02: the born abroad (``ENT_PAIS_NAC_CAT`` «OtroPais») — all, in the United States
+    (``ENT_PAIS_NAC`` 221), elsewhere — by Mexican nationality (``NACIONALIDAD`` 1, 3, 9)."""
+    abroad = _cat(p, "ENT_PAIS_NAC_CAT").eq("OtroPais")
+    usa = _code(p, "ENT_PAIS_NAC").eq(221)
+    nat = _code(p, "NACIONALIDAD")
+    out = []
+    for g in (abroad, abroad & usa, abroad & ~usa):
+        out += _counts_of(g, *(g & nat.eq(c) for c in (1, 3, 9)))
+    return out
+
+
+def _by_place_2020(wb):
+    """04-02: (state, birthplace, sex) rows → per (state, sex) the birthplaces in order."""
+    rows = _estimates(_sheet(wb, "02"), "Valor")
+    out = {}
+    for (state, place, sex), v in rows.items():
+        out.setdefault((state, sex), {})[place] = _counts(v[0], v[1:])
+    return {k: [x for place in _BIRTHPLACES_2020 for x in v[place]] for k, v in out.items()}
+
+
+def _self_identification_2020(p):
+    """05-02: the 3+ by indigenous language (all, speakers, not, not specified) and self-
+    identification (``PERTE_INDIGENA`` 1, 3, 9)."""
+    three = _age(p).between(3, 130)
+    speaks, ident = _code(p, "HLENGUA"), _code(p, "PERTE_INDIGENA")
+    out = []
+    for _, code in _SPEAKERS_2020:
+        g = three if code is None else three & speaks.eq(code)
+        out += _counts_of(g, *(g & ident.eq(c) for c in (1, 3, 9)))
+    return out
+
+
+def _understands_2020(p):
+    """05-04: the 3+ who speak no indigenous language (``HLENGUA`` 3) by whether they
+    understand one (``ELENGUA`` 5, 7, 9)."""
+    g = _age(p).between(3, 130) & _code(p, "HLENGUA").eq(3)
+    under = _code(p, "ELENGUA")
+    return _counts_of(g, *(g & under.eq(c) for c in (5, 7, 9)))
+
+
+def _destination_2020(m) -> list[pd.Series]:
+    """04-10: every migrant, the United States (``MPAIDES_C`` 221), another country, not
+    specified (999 or blank)."""
+    dest = _code(m, "MPAIDES_C")
+    unknown = dest.isna() | dest.eq(999)
+    return [pd.Series(True, index=m.index), dest.eq(221), ~unknown & dest.ne(221), unknown]
+
+
+def _person_checks_2020() -> tuple[Check, ...]:
+    """Censo 2020's person and international-migrant tabulados by state read in 7n."""
+    pop, mig, eth = ("cpv2020_a_eum_01_poblacion.xlsx", "cpv2020_a_eum_04_migracion.xlsx",
+                     "cpv2020_a_eum_05_etnicidad.xlsx")
+    by_sex = lambda m: [pd.Series(True, index=m.index), m["MSEXO"].astype(str).eq("1"),  # noqa: E731
+                        m["MSEXO"].astype(str).eq("3")]
+    ages = lambda m: [pd.Series(True, index=m.index),  # noqa: E731
+                      *(_code(m, "MEDAD").between(a, b) for a, b in _MIGRANT_AGES_2020),
+                      _code(m, "MEDAD").eq(999)]
+    state = lambda k: (k[0], "T")  # noqa: E731
+    return (
+        Check("2020", "01-02", "Population by five-year age (`EDAD_QUIN`) and sex", pop,
+              "personas", tuple(f"{g}: {s}" for g in _QUIN_2020 for s in ("total", "men", "women")),
+              _by_dims("Valor", "02", _QUIN_2020, lambda v: v[:3]), _population(_QUIN_2020),
+              unit="persons", sheet="02", note="The sexes are columns: sex T only (7n)."),
+        Check("2020", "01-04", "Birth registration (`REGIS_NAC`) by age", pop, "personas",
+              tuple(f"{g}: {c}" for g in _REGISTRATION_AGES_2020 for c in (
+                  "population", "registered", "in Mexico", "abroad", "not registered", "NE")),
+              _by_dims("Valor", "04", _REGISTRATION_AGES_2020,
+                       lambda v: _counts(v[0], v[1:], [0, 1, 1, 0, 0]), sexed=True),
+              _registration_2020, unit="persons", sheet="04"),
+        Check("2020", "04-02", "The born abroad by Mexican nationality (`NACIONALIDAD`)", mig,
+              "personas", tuple(f"{b}: {c}" for b in ("all", "United States", "elsewhere")
+                                for c in ("born abroad", "Mexican", "not", "NE")),
+              _by_place_2020, _nationality_2020, unit="persons", sheet="02"),
+        Check("2020", "05-02", "Indigenous self-identification of the 3+ (`PERTE_INDIGENA`) "
+              "by language", eth, "personas",
+              tuple(f"{n}: {c}" for n, _ in _SPEAKERS_2020
+                    for c in ("population 3+", "indigenous", "not", "NE")),
+              _by_dims("Valor", "02", tuple(n for n, _ in _SPEAKERS_2020),
+                       lambda v: _counts(v[0], v[1:]), sexed=True),
+              _self_identification_2020, unit="persons", sheet="02"),
+        Check("2020", "05-04", "The 3+ speaking no indigenous language by understanding one "
+              "(`ELENGUA`)", eth, "personas", ("population", "understand", "do not", "NE"),
+              _wide("Valor", lambda v: _counts(v[0], v[1:]), sheet="04"), _understands_2020,
+              unit="persons", sheet="04"),
+        Check("2020", "04-04", "International migrants by movement, state left (`MPAIRES`, "
+              "`MCONRESACT`)", mig, "migrantes",
+              ("migrants", "emigrants", "return migrants", "back in the same dwelling",
+               "back elsewhere", "back, NE", "NE"),
+              _wide("Valor", lambda v: _counts(v[0], v[1:], [0, 0, 2, 2, 2, 0]), sheet="04"),
+              _migrants_by_origin(_movement_2010), unit="persons", sheet="04", by_origin=True,
+              note="Counted in the state they left (`MLUGORI_C`; 7n)."),
+        Check("2020", "04-06", "International migrants by sex, state left (`MSEXO`)", mig,
+              "migrantes", ("migrants", "men", "women"),
+              _wide("Valor", lambda v: _counts(v[0], v[1:]), sheet="06", dims=state),
+              _migrants_by_origin(by_sex), unit="persons", sheet="06", by_origin=True),
+        Check("2020", "04-08", "International migrants by age at emigrating, state left "
+              "(`MEDAD`)", mig, "migrantes",
+              ("migrants", "0-17", "18-29", "30-44", "45-64", "65+", "NE"),
+              _wide("Valor", lambda v: _counts(v[0], v[1:]), sheet="08", dims=state),
+              _migrants_by_origin(ages), unit="persons", sheet="08", by_origin=True),
+        Check("2020", "04-10", "International migrants by destination, state left "
+              "(`MPAIDES_C`)", mig, "migrantes",
+              ("migrants", "United States", "another country", "NE"),
+              _wide("Valor", lambda v: _counts(v[0], v[1:]), sheet="10", dims=state),
+              _migrants_by_origin(_destination_2020), unit="persons", sheet="10",
+              by_origin=True,
+              note="The United States = `MPAIDES_C` 221; not specified 999 or blank (7n)."),
+    )
+
+
 # CGPV 2000 persons: population, disability, fertility, language (7k) ---------------------
 
 _AGES_2000 = (*((a, a + 4) for a in range(0, 65, 5)), (65, 130), None)    # None = 999
@@ -3080,7 +3215,7 @@ CHECKS: tuple[Check, ...] = (
           _financing_2020, unit="persons", sheet="34"),
 ) + (_dwelling_checks_2010() + _dwelling_checks_2020() + _dwelling_checks_2000()  # 7h, 7i
      + _person_checks_2015() + _person_checks_2000() + _person_checks_2000_l()        # 7j–7l
-     + _person_checks_2010())                                                        # 7m
+     + _person_checks_2010() + _person_checks_2020())                                # 7m, 7n
 
 
 # --------------------------------------------------------------------------------------

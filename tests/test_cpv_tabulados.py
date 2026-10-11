@@ -379,7 +379,7 @@ def test_checks_are_consistent():
         assert c.table in ("personas", "viviendas", "hogares", "migrantes")       # 7d
         assert c.unit in ("points", "persons", "average")                   # 7i
         assert c.period == "2000" or c.unit == "persons" or c.tolerance      # 7j: exact
-        assert c.table != "migrantes" or c.period in ("2000", "2010")       # 7m: 2010's
+        assert c.table != "migrantes" or c.period in ("2000", "2010", "2020")  # 7m, 7n
         assert not c.by_origin or c.table == "migrantes" or c.period == "2000"  # 7d, 7m
         assert c.table != "hogares" or c.period == "2000"          # 6t: 2000's household rows
         assert c.unit != "persons" or c.period != "2000"          # 2000: shares, averages
@@ -399,7 +399,7 @@ def test_state_01_within_tolerance(monkeypatch):
         f"{p}/{n}": tab_dir / p / n for p in periods for n in ck.SOURCES[p][1]})
     rows = ck.run(sorted(ck.SOURCES), [1], _TABS, _MIRROR, log=lambda *a: None)
     assert len(rows) == (317 + 159 + 120 + 45 + 7 + 13 + 149 + 132 + 183 + 463 + 562  # 6p: 2020;
-                         + 317 + 894 + 144 + 247 + 329)
+                         + 317 + 894 + 144 + 247 + 329 + 291)
     #                                                 6q: 2015 affiliation, commute, marital status,
     #                                                 education (2010's are national); 6r: 2000
     #                                                 hours, education of the 12+/18+; 6t: 2000/2015
@@ -426,10 +426,11 @@ def test_state_01_within_tolerance(monkeypatch):
     #                                                 sex; LI02 not for state 01; FE «M.I.» out);
     #                                                 7l: its households (sex T) and education;
     #                                                 7m: Censo 2010's persons (its migrants need
-    #                                                 all 32 states)
+    #                                                 all 32 states); 7n: Censo 2020's
     by_origin = {c.key for c in ck.CHECKS if c.by_origin}               # 7d: all 32 only
     assert by_origin == {"MI02", "MI05", "MI10", "MI11", "MI12",
-                         "04_04A", "04_05A", "04_06A"}                     # 7m: 2010's migrants
+                         "04_04A", "04_05A", "04_06A",                     # 7m: 2010's migrants
+                         "04-04", "04-06", "04-08", "04-10"}               # 7n: 2020's
     assert not by_origin & {r["check"] for r in rows}
     income = [r for r in rows if r["check"] in ("EM08", "08_10A", "08-11", "08-18")]
     assert len(income) == 8 * 3 + 3 * 9 * 3

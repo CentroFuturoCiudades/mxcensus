@@ -313,6 +313,15 @@ Tolerance: 1.0 persons.
 | 16-22b Occupants by waste separation (`SEPARACION1`–4) | `cpv2020_a_eum_16_vivienda.xlsx` 22 | 528 | 0.00 | 0.03 | 0.58 (00 T «En desperdicios para alimentar animales: NE») | 0 |
 | 16-28 Owned dwellings by their owners' sex and number (`DUE1_NUM`/`DUE2_NUM` → the person's `SEXO`) | `cpv2020_a_eum_16_vivienda.xlsx` 28 | 231 | 0.00 | 0.01 | 0.11 (00 T «two women») | 0 |
 | 16-36 Owned dwellings bought or built with a credit by its payment (`DEUDA`) | `cpv2020_a_eum_16_vivienda.xlsx` 36 | 198 | 0.00 | 0.00 | 0.03 (00 T «payment suspended») | 0 |
+| 01-02 Population by five-year age (`EDAD_QUIN`) and sex | `cpv2020_a_eum_01_poblacion.xlsx` 02 | 1683 | 0.00 | 0.00 | 0.00 (01 T «Total: total») | 0 |
+| 01-04 Birth registration (`REGIS_NAC`) by age | `cpv2020_a_eum_01_poblacion.xlsx` 04 | 4752 | 0.00 | 0.01 | 0.61 (00 T «Total: not registered») | 0 |
+| 04-02 The born abroad by Mexican nationality (`NACIONALIDAD`) | `cpv2020_a_eum_04_migracion.xlsx` 02 | 1188 | 0.00 | 0.00 | 0.00 (00 T «all: not») | 0 |
+| 05-02 Indigenous self-identification of the 3+ (`PERTE_INDIGENA`) by language | `cpv2020_a_eum_05_etnicidad.xlsx` 02 | 1584 | 0.00 | 0.01 | 0.36 (00 T «No habla lengua indígena: indigenous») | 0 |
+| 05-04 The 3+ speaking no indigenous language by understanding one (`ELENGUA`) | `cpv2020_a_eum_05_etnicidad.xlsx` 04 | 396 | 0.00 | 0.02 | 0.54 (00 T «do not») | 0 |
+| 04-04 International migrants by movement, state left (`MPAIRES`, `MCONRESACT`) | `cpv2020_a_eum_04_migracion.xlsx` 04 | 693 | 0.00 | 0.00 | 0.00 (00 T «NE») | 0 |
+| 04-06 International migrants by sex, state left (`MSEXO`) | `cpv2020_a_eum_04_migracion.xlsx` 06 | 99 | 0.00 | 0.00 | 0.00 (00 T «men») | 0 |
+| 04-08 International migrants by age at emigrating, state left (`MEDAD`) | `cpv2020_a_eum_04_migracion.xlsx` 08 | 231 | 0.00 | 0.00 | 0.00 (00 T «65+») | 0 |
+| 04-10 International migrants by destination, state left (`MPAIDES_C`) | `cpv2020_a_eum_04_migracion.xlsx` 10 | 132 | 0.00 | 0.00 | 0.00 (00 T «another country») | 0 |
 
 - 07-04: Técnica after preparatoria, licenciatura, normal superior, especialidad, maestría, doctorado (6w).
 - 08-18: The Zona Libre de la Frontera Norte (5,566.80; San Quintín included) and the rest of the country (3,696.60), DOF 23/12/2019; 7c.
@@ -322,5 +331,8 @@ Tolerance: 1.0 persons.
 - 16-16b: None = no saving bulb, whatever the total (also when it is not specified); not specified = the saving bulbs' count (7h).
 - 16-28: The owner items point at the person rows (`NUMPER`), whose `SEXO` the person file gives; 99 = the owner not identified (7h).
 - 16-36: Bought or built (`FORMA_ADQUI` 1–3) with a credit: a `FINANCIAMIENTO` source 1–7, not only their own resources (7h).
+- 01-02: The sexes are columns: sex T only (7n).
+- 04-04: Counted in the state they left (`MLUGORI_C`; 7n).
+- 04-10: The United States = `MPAIDES_C` 221; not specified 999 or blank (7n).
 
 State 00 is the nation (the sum of the states); state 99 the origin not specified (the international migrants by the state they left); sex T = both, H = men, M = women.
