@@ -332,6 +332,44 @@ def test_c2k_rows_age_shares_and_disability():
     assert types["other"].tolist() == [False] * 4 + [True, False]
 
 
+def test_households_and_education_2000():
+    """7l: CGPV 2000's household rows by size, type and income in minimum wages (999999 not
+    specified, 999998 the top code), the averages from the attached members, the sexes in
+    columns of C2KED02/04/06, the age groups by an item's codes."""
+    h = pd.DataFrame({"TOTPERS": ["1", "9", "3"], "TIPOHOG": ["5", "2", "9"],
+                      "ENT": ["01", "01", "01"], "MUN": ["001", "001", "001"],
+                      "INGTRHOG": ["0", "999998", "999999"],
+                      "_HEAD_AGE": [40, 999, 60], "_UNDER12": [0, 4, 1], "_12TO64": [1, 5, 1],
+                      "_65PLUS": [0, 0, 1], "_PEA": [1, 3, 0], "_PEI": [0, 2, 2],
+                      "_EMPLOYED": [1, 3, 0], "FACTOR": ["1", "1", "2"]})
+    size = [num.tolist() for num, _ in ck._ho01(h)]
+    assert size[0] == [True, False, False] and size[8] == [False, True, False]
+    kind = [num.tolist() for num, _ in ck._ho02(h)]
+    assert kind[5] == [True, False, False] and kind[8] == [False, False, True]
+    income = [num.tolist() for num, _ in ck._household_income("INGTRHOG")(h)]
+    assert income[0] == [True, False, False] and income[6] == [False, True, False]
+    assert income[7] == [False, False, True]
+    w = pd.to_numeric(h["FACTOR"]).astype(float)
+    every = pd.Series(True, index=h.index)
+    sums = [(ck._part(n, w, every, 1)[1], ck._part(d, w, every, 1)[1]) for n, d in ck._ho08(h)]
+    assert sums[0] == (16.0, 4.0) and sums[1] == (160.0, 3.0)        # the head of age 999 out
+    assert ck._household_persons(h).tolist() == [1.0, 9.0, 6.0]
+    rows = [{"A": "01 AGUASCALIENTES", "B": "10", "E": "90", "F": "88", "G": "92", "H": "10",
+             "I": "12", "J": "8"},
+            {"A": "6 - 9   AÑOS", "B": "4", "E": "80", "F": "79", "G": "81", "H": "20",
+             "I": "21", "J": "19"}]
+    read = ck._c2k_rows_by_sex({"T": "EH", "H": "FI", "M": "GJ"})({"x": rows})
+    assert read == {(1, "T"): [90, 10, 80, 20], (1, "H"): [88, 12, 79, 21],
+                    (1, "M"): [92, 8, 81, 19]}
+    p = pd.DataFrame({"EDAD": ["007", "012", "040"], "ASISTEN": ["2", "1", "2"],
+                      "ABANESCO": ["0", None, "5"]})
+    cells = [num.tolist() for num, _ in ck._by_age_2000(
+        "ABANESCO", ((7, 29), (7, 9)), (0, tuple(range(1, 9)), 9),
+        universe=lambda q: ck._code(q, "ASISTEN").eq(2))(p)]
+    assert cells[0] == [True, False, False] and cells[1] == [False] * 3        # 40: not 7-29
+    assert cells[3] == [True, False, False]
+
+
 def test_checks_are_consistent():
     """Every check names a fetched source, unique keys per edition, and a tolerance."""
     keys = [(c.period, c.key) for c in ck.CHECKS]
@@ -361,7 +399,7 @@ def test_state_01_within_tolerance(monkeypatch):
         f"{p}/{n}": tab_dir / p / n for p in periods for n in ck.SOURCES[p][1]})
     rows = ck.run(sorted(ck.SOURCES), [1], _TABS, _MIRROR, log=lambda *a: None)
     assert len(rows) == (317 + 159 + 120 + 45 + 7 + 13 + 149 + 132 + 183 + 463 + 562  # 6p: 2020;
-                         + 317 + 894 + 144)
+                         + 317 + 894 + 144 + 247)
     #                                                 6q: 2015 affiliation, commute, marital status,
     #                                                 education (2010's are national); 6r: 2000
     #                                                 hours, education of the 12+/18+; 6t: 2000/2015
@@ -385,7 +423,8 @@ def test_state_01_within_tolerance(monkeypatch):
     #                                                 the EIC 2015 persons (01-02, 02-02, 03-01
     #                                                 sex T; 01-03, 09-02, 09-03 by sex); 7k:
     #                                                 CGPV 2000's persons (PO01, DI02, DI04 by
-    #                                                 sex; LI02 not for state 01; FE «M.I.» out)
+    #                                                 sex; LI02 not for state 01; FE «M.I.» out);
+    #                                                 7l: its households (sex T) and education
     by_origin = {c.key for c in ck.CHECKS if c.by_origin}               # 7d: all 32 only
     assert by_origin == {"MI02", "MI05", "MI10", "MI11", "MI12"}
     assert not by_origin & {r["check"] for r in rows}

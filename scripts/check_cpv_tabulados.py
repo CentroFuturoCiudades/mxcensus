@@ -79,7 +79,10 @@ SOURCES = {
                                               17, 18, 19)),
               # 7k: the persons
               "C2KPO01.xls", "C2KDI01.xls", "C2KDI02.xls", "C2KDI04.xls", "C2KFE03.xls",
-              "C2KFE04.xls", "C2KFE05.xls", "C2KLI02.xls")),
+              "C2KFE04.xls", "C2KFE05.xls", "C2KLI02.xls",
+              # 7l: the households and education
+              "C2KHO01.xls", "C2KHO02.xls", "C2KHO05.xls", "C2KHO07.xls", "C2KHO08.xls",
+              "C2KED02.xls", "C2KED04.xls", "C2KED06.xls", "C2KED12.xls")),
     "2010": ("ccpv/2010/tabulados/Ampliado",
              ("04_02A_ESTATAL.xls", "06_01A_ESTATAL.xls", "08_02A_ESTATAL.xls",
               "08_03A_ESTATAL.xls", "08_10A_ESTATAL.xls", "08_15A_ESTATAL.xls",
@@ -2008,6 +2011,158 @@ def _person_checks_2000() -> tuple[Check, ...]:
     )
 
 
+# CGPV 2000 households and education (7l) ------------------------------------------------
+# The households are the dwelling file's rows (table «hogares»); their population is
+# Σ FACTOR × TOTPERS (the household's members).
+
+def _household_persons(h: pd.DataFrame) -> pd.Series:
+    return pd.to_numeric(h["FACTOR"]) * pd.to_numeric(h["TOTPERS"])
+
+
+def _ho01(h):
+    """C2KHO01: the households by size (``TOTPERS`` 1 … 8, 9 and more), %."""
+    size, every = _code(h, "TOTPERS"), pd.Series(True, index=h.index)
+    return _of(every, *(size.eq(k) for k in range(1, 9)), size.ge(9))
+
+
+def _ho02(h):
+    """C2KHO02: familiar (``TIPOHOG`` 1–4; as % of them nuclear, ampliado, compuesto, not
+    specified), no familiar (5–6: unipersonal, corresidente), not specified (9), %."""
+    kind, every = _code(h, "TIPOHOG"), pd.Series(True, index=h.index)
+    fam, other = kind.isin([1, 2, 3, 4]), kind.isin([5, 6])
+    return [(fam, every), *_of(fam, *(kind.eq(k) for k in (1, 2, 3, 4))),
+            (other, every), *_of(other, kind.eq(5), kind.eq(6)), (kind.eq(9), every)]
+
+
+def _household_income(item: str):
+    """C2KHO05 (``INGTRHOG``, the household's income from work) and C2KHO07 (``INGTOHOG``,
+    its total income) in its municipality's monthly minimum wages (7c's table): none, below
+    1, 1 to 2, above 2 to 3 (exactly 3 wages fall here, though the header says «menos de 3»:
+    Coahuila's total incomes settle it), above 3 to 5, above 5 to 10, above 10, not specified
+    (999999; 999998 is the top code, above 10)."""
+    def ours(h):
+        from mxcensus.cpv_derived import _salario_minimo
+
+        income, every = _code(h, item), pd.Series(True, index=h.index)
+        wage = _salario_minimo("2000", _code(h, "ENT").astype("int64"),
+                               _code(h, "MUN").astype("int64")).astype(float)
+        ne = income.ge(999999) | income.isna()
+        cents = income * 100
+        known = ~ne
+        return _of(every, known & income.eq(0), known & income.gt(0) & cents.lt(wage),
+                   known & cents.ge(wage) & cents.le(2 * wage),
+                   known & cents.gt(2 * wage) & cents.le(3 * wage),
+                   known & cents.gt(3 * wage) & cents.le(5 * wage),
+                   known & cents.gt(5 * wage) & cents.le(10 * wage),
+                   known & cents.gt(10 * wage), ne)
+    return ours
+
+
+def _ho08(h):
+    """C2KHO08: per household, its members (``TOTPERS``), its head's age (of the heads of a
+    specified age), its members under 12, of 12 to 64, of 65 and more, economically active,
+    inactive, employed (``_with_members_2000``)."""
+    every = pd.Series(True, index=h.index)
+    head_age = pd.to_numeric(h["_HEAD_AGE"], errors="coerce")
+    known = head_age.lt(999)
+    return [(Weighted(every, h["TOTPERS"]), every), (Weighted(known, head_age), known),
+            *[(Weighted(every, h[col]), every)
+              for col in ("_UNDER12", "_12TO64", "_65PLUS", "_PEA", "_PEI", "_EMPLOYED")]]
+
+
+_LITERACY_AGES_2000 = ((6, 14), (6, 9), (10, 14))
+_LITERACY15_AGES_2000 = ((15, 130), (15, 19), (20, 29), (30, 39), (40, 49), (50, 59),
+                         (60, 130))
+_ATTENDANCE_AGES_2000 = ((6, 130), (6, 9), (10, 14), (15, 19), (20, 24), (25, 29), (30, 130))
+_NOT_ATTENDING_AGES_2000 = ((7, 29), (7, 9), (10, 14), (15, 19), (20, 24), (25, 29))
+
+
+def _by_age_2000(item: str, groups: tuple, codes: tuple, universe=None):
+    """Each age group (the first = all) by ``item``'s codes (or tuples), % of the group."""
+    def ours(p):
+        x, age = _code(p, item), _age(p)
+        u = pd.Series(True, index=p.index) if universe is None else universe(p)
+        return [cell for lo, hi in groups
+                for cell in _of(u & age.between(lo, hi), *(_is(x, c) for c in codes))]
+    return ours
+
+
+def _c2k_rows_by_sex(columns: dict[str, str]):
+    """CGPV 2000 tabulados with a state row and its age-group rows, the sexes in columns
+    (C2KED02/04/06: ``{"T": "EHK", "H": "FIL", "M": "GJM"}``; 7l)."""
+    def read(wb):
+        out = {}
+        for sex, cols in columns.items():
+            for (state, _), v in _c2k_rows(cols)(wb).items():
+                out[state, sex] = v
+        return out
+    return read
+
+
+def _person_checks_2000_l() -> tuple[Check, ...]:
+    """CGPV 2000's household and education tabulados by state read in 7l."""
+    out = []
+    specs = (("HO01", "Households by size (`TOTPERS`)", "CDEFGHIJK",
+              tuple(str(k) for k in range(1, 9)) + ("9+",), _ho01),
+             ("HO02", "Households by type and class (`TIPOHOG`)", "CDEFGHIJK",
+              ("familiar", "nuclear", "ampliado", "compuesto", "familiar, type NE",
+               "no familiar", "unipersonal", "corresidente", "NE"), _ho02),
+             ("HO05", "Households by income from work in minimum wages (`INGTRHOG`)",
+              "CDEFGHIJ", ("none", "below 1", "1-2", "2-3", "3-5", "5-10", "above 10", "NE"),
+              _household_income("INGTRHOG")),
+             ("HO07", "Households by total income in minimum wages (`INGTOHOG`)", "CDEFGHIJ",
+              ("none", "below 1", "1-2", "2-3", "3-5", "5-10", "above 10", "NE"),
+              _household_income("INGTOHOG")))
+    for key, title, cols, cells, ours in specs:
+        for suffix, label, weight in (("", "HOGARES", None), ("p", "POBLACIÓN", _household_persons)):
+            out.append(Check("2000", key + suffix,
+                             f"{title}, % of the {'households' if not suffix else 'population'}",
+                             f"C2K{key}.xls", "hogares", cells, _c2k_repeated(cols, label),
+                             ours, weight=weight))
+    out[0] = replace(out[0], note="The dwelling file's household rows; the population Σ "
+                                  "`FACTOR` × `TOTPERS`; the income against the "
+                                  "municipality's monthly minimum wage (7c; 7l).")
+    out.append(Check("2000", "HO08", "Averages per household (`TOTPERS`; the members' ages and "
+                     "activity, the head's age, from the person file)", "C2KHO08.xls",
+                     "hogares", ("members", "head's age", "under 12", "12-64", "65+",
+                                 "economically active", "inactive", "employed"),
+                     _c2k_states("CDEFGHIJ"), _ho08, unit="average",
+                     note="The members by age and activity (`CONACT_CAT`) and the head's age "
+                          "(`OTROPARE_C` 100) from the person file (`_with_members_2000`; 7l)."))
+    sexes = {"T": "EHK", "H": "FIL", "M": "GJM"}
+    groups = lambda gs: tuple(f"{a}-{b}" if b < 130 else f"{a}+" for a, b in gs)  # noqa: E731
+    out += [
+        Check("2000", "ED02", "Literacy of the 6-14 (`ALFABET`), %", "C2KED02.xls",
+              "personas", tuple(f"{g}: {c}" for g in groups(_LITERACY_AGES_2000)
+                                for c in ("can read and write", "cannot", "NE")),
+              _c2k_rows_by_sex(sexes), _by_age_2000("ALFABET", _LITERACY_AGES_2000, (1, 2, 9))),
+        Check("2000", "ED04", "Literacy of the 15+ (`ALFABET`) by ten-year age, %",
+              "C2KED04.xls", "personas",
+              tuple(f"{g}: {c}" for g in groups(_LITERACY15_AGES_2000)
+                    for c in ("literate", "illiterate", "NE")),
+              _c2k_rows_by_sex(sexes),
+              _by_age_2000("ALFABET", _LITERACY15_AGES_2000, (1, 2, 9))),
+        Check("2000", "ED06", "School attendance of the 6+ (`ASISTEN`) by age, %",
+              "C2KED06.xls", "personas",
+              tuple(f"{g}: {c}" for g in groups(_ATTENDANCE_AGES_2000)
+                    for c in ("attends", "does not", "NE")),
+              _c2k_rows_by_sex(sexes),
+              _by_age_2000("ASISTEN", _ATTENDANCE_AGES_2000, (1, 2, 9))),
+        Check("2000", "ED12", "The 7-29 not attending school by cause (`ABANESCO`), %",
+              "C2KED12.xls", "personas",
+              tuple(f"{g}: {c}" for g in groups(_NOT_ATTENDING_AGES_2000)
+                    for c in ("never attended", "stopped attending", "NE")),
+              _c2k_rows("CDE"),
+              _by_age_2000("ABANESCO", _NOT_ATTENDING_AGES_2000, (0, tuple(range(1, 9)), 9),
+                           universe=lambda p: _code(p, "ASISTEN").eq(2)),
+              tolerance={0: 0.07},
+              note="Never attended = `ABANESCO` 0, stopped = 1–8 (its causes), not specified "
+                   "9; sex T only (7l). The nation's 7–9 split is 0.06 off: Chiapas's 0.34 (its "
+                   "weights) on a small base."),
+    ]
+    return tuple(out)
+
+
 # EIC 2015 persons: population, birth registration, fertility, child mortality, unpaid
 # work (7j) ------------------------------------------------------------------------------
 
@@ -2757,7 +2912,7 @@ CHECKS: tuple[Check, ...] = (
                 dims=lambda k: (k[0], "T")),
           _financing_2020, unit="persons", sheet="34"),
 ) + (_dwelling_checks_2010() + _dwelling_checks_2020() + _dwelling_checks_2000()  # 7h, 7i
-     + _person_checks_2015() + _person_checks_2000())                                # 7j, 7k
+     + _person_checks_2015() + _person_checks_2000() + _person_checks_2000_l())       # 7j–7l
 
 
 # --------------------------------------------------------------------------------------
@@ -2774,7 +2929,37 @@ def _frame(period: str, table: str, state: int) -> pd.DataFrame:
         frame = frame[~frame.index.get_level_values(0).duplicated()]  # 2000: one per dwelling
     if table == "viviendas" and period in _OWNERS:
         frame = _with_owners(frame, period, state)
+    if table == "hogares" and period == "2000":
+        frame = _with_members_2000(frame, state)                           # 7l
     return frame
+
+
+def _with_members_2000(h: pd.DataFrame, state: int) -> pd.DataFrame:
+    """7l: each CGPV 2000 household's members from the person file — the head's age (999 =
+    not specified), the members under 12, of 12 to 64 and of 65 and more, the economically
+    active and inactive, the employed (``_HEAD_AGE``, ``_UNDER12`` …)."""
+    import mxcensus
+
+    p = mxcensus.load_cpv_personas("2000", state=state, derived=True, labels=False)
+    age = _age(p)
+    activity = _cat(p, "CONACT_CAT")
+    twelve = age.between(12, 130)
+    counts = pd.DataFrame({
+        "_UNDER12": age.between(0, 11), "_12TO64": age.between(12, 64),
+        "_65PLUS": age.between(65, 130),
+        "_PEA": twelve & activity.isin(["Trabaja", "Buscó trabajo"]),
+        "_PEI": twelve & activity.isin(["No trabaja"]),
+        "_EMPLOYED": twelve & activity.eq("Trabaja")}, index=p.index).astype(int)
+    keys = [p.index.get_level_values(0), p.index.get_level_values(1)]
+    sums = counts.groupby(keys).sum()
+    head = _code(p, "OTROPARE_C").eq(100)
+    head_age = age[head].groupby([k[head.to_numpy()] for k in keys]).first()
+    out = h.copy()
+    idx = pd.MultiIndex.from_arrays([h.index.get_level_values(0), h.index.get_level_values(1)])
+    for col in sums.columns:
+        out[col] = sums[col].reindex(idx).fillna(0).to_numpy()
+    out["_HEAD_AGE"] = head_age.reindex(idx).to_numpy()
+    return out
 
 
 def _with_owners(v: pd.DataFrame, period: str, state: int) -> pd.DataFrame:

@@ -84,6 +84,19 @@ Tolerance: 0.04 points (state 07: 0.6).
 | FE04 Surviving children per woman 12+ (`HIJSOB`), by age | `C2KFE04.xls` | 363 | 0.003 | 0.006 | 0.033 (06 T «55-59») | 0 |
 | FE05 Children who died (`HIJFAL`), % of those born alive, by the mother's age | `C2KFE05.xls` | 364 | 0.003 | 0.005 | 0.060 (07 T «50-54») | 0 |
 | LI02 Indigenous language and Spanish of the 5+ (`HLENGUA`, `HESPANOL`), selected states, % | `C2KLI02.xls` | 234 | 0.003 | 0.114 | 0.340 (07 M «not Spanish») | 0 |
+| HO01 Households by size (`TOTPERS`), % of the households | `C2KHO01.xls` | 297 | 0.003 | 0.008 | 0.027 (07 T «3») | 0 |
+| HO01p Households by size (`TOTPERS`), % of the population | `C2KHO01.xls` | 297 | 0.003 | 0.011 | 0.042 (07 T «9+») | 0 |
+| HO02 Households by type and class (`TIPOHOG`), % of the households | `C2KHO02.xls` | 297 | 0.003 | 0.007 | 0.086 (07 T «ampliado») | 0 |
+| HO02p Households by type and class (`TIPOHOG`), % of the population | `C2KHO02.xls` | 297 | 0.003 | 0.007 | 0.107 (07 T «nuclear») | 0 |
+| HO05 Households by income from work in minimum wages (`INGTRHOG`), % of the households | `C2KHO05.xls` | 264 | 0.003 | 0.009 | 0.116 (07 T «none») | 0 |
+| HO05p Households by income from work in minimum wages (`INGTRHOG`), % of the population | `C2KHO05.xls` | 264 | 0.003 | 0.008 | 0.107 (07 T «none») | 0 |
+| HO07 Households by total income in minimum wages (`INGTOHOG`), % of the households | `C2KHO07.xls` | 264 | 0.003 | 0.008 | 0.122 (07 T «none») | 0 |
+| HO07p Households by total income in minimum wages (`INGTOHOG`), % of the population | `C2KHO07.xls` | 264 | 0.002 | 0.007 | 0.128 (07 T «none») | 0 |
+| HO08 Averages per household (`TOTPERS`; the members' ages and activity, the head's age, from the person file) | `C2KHO08.xls` | 264 | 0.003 | 0.005 | 0.032 (07 T «head's age») | 0 |
+| ED02 Literacy of the 6-14 (`ALFABET`), % | `C2KED02.xls` | 891 | 0.003 | 0.007 | 0.104 (07 M «6-9: cannot») | 0 |
+| ED04 Literacy of the 15+ (`ALFABET`) by ten-year age, % | `C2KED04.xls` | 2079 | 0.003 | 0.007 | 0.214 (07 H «60+: literate») | 0 |
+| ED06 School attendance of the 6+ (`ASISTEN`) by age, % | `C2KED06.xls` | 2079 | 0.003 | 0.007 | 0.139 (07 H «15-19: does not») | 0 |
+| ED12 The 7-29 not attending school by cause (`ABANESCO`), % | `C2KED12.xls` | 594 | 0.003 | 0.008 | 0.342 (07 T «7-9: never attended») | 0 |
 
 - ED08: Técnica after primaria is its own column here, as `EDUC_INEGI`'s «Técnica_primaria» (6k).
 - ED11: Media superior = técnica after secundaria, preparatoria and normal básica (its columns D–F); superior holds the posgrado (6w).
@@ -117,6 +130,9 @@ Tolerance: 0.04 points (state 07: 0.6).
 - FE03: The women who said how many (`NUMHIJ` below 98); «M.I.» (muestra insuficiente) is not compared (7k).
 - FE04: 0 for the women without an answer (no child born alive; 7k).
 - LI02: INEGI publishes it for its selected states (7k). The nation's Spanish split is up to 0.081 points off: Chiapas's 0.34 (its weights) on its ~15% of the speakers.
+- HO01: The dwelling file's household rows; the population Σ `FACTOR` × `TOTPERS`; the income against the municipality's monthly minimum wage (7c; 7l).
+- HO08: The members by age and activity (`CONACT_CAT`) and the head's age (`OTROPARE_C` 100) from the person file (`_with_members_2000`; 7l).
+- ED12: Never attended = `ABANESCO` 0, stopped = 1–8 (its causes), not specified 9; sex T only (7l). The nation's 7–9 split is 0.06 off: Chiapas's 0.34 (its weights) on a small base.
 
 ## 2010
 
