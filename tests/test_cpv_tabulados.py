@@ -102,6 +102,80 @@ def test_long_matches_category_words():
         ck._long("Parámetro", ("Comercio",))({"s": rows})
 
 
+def test_c2k_sectors_total_and_sex_columns():
+    """7d: C2KEM03 keeps the state row (the 12+) before its age rows; C2KEM11 has one row
+    per state with the sexes in columns."""
+    rows = [{"A": "ESTADOS UNIDOS MEXICANOS", "B": "50.54", "C": "71.44", "D": "31.3"},
+            {"A": "12 - 14  AÑOS", "B": "8.89", "C": "12.3", "D": "5.43"},
+            {"A": "01 AGUASCALIENTES", "B": "51.64", "C": "71.43", "D": "34.09"}]
+    out = ck._c2k_sectors(rows, total=True)
+    assert out[0, "T"] == [50.54, 8.89] and out[0, "M"] == [31.3, 5.43]
+    assert out[1, "H"] == [71.43]
+    assert ck._c2k_sectors(rows) == {(0, "T"): [8.89], (0, "H"): [12.3], (0, "M"): [5.43]}
+    wide = [{"A": "B=TOTAL", "B": "TOTAL"},
+            {"A": "01  AGUASCALIENTES", "B": "1.12", "C": "1.28", "D": "0.84", "E": "19.06",
+             "F": "13.23", "G": "29.9"}]
+    read = ck._c2k_sex_columns({"T": "BE", "H": "CF", "M": "DG"})
+    assert read({"s": wide}) == {(1, "T"): [1.12, 19.06], (1, "H"): [1.28, 13.23],
+                                 (1, "M"): [0.84, 29.9]}
+
+
+def test_c2k_states_and_national_blocks():
+    """7d: C2KMI10–12 rows by the state left, its «NO ESPECIFICADO» = 99; C2KMI07/08 the
+    nation's, the men's and the women's blocks, row by row (C2KMI08's first row: counts)."""
+    rows = [{"A": "ESTADOS UNIDOS MEXICANOS", "B": "100", "C": "74.6", "D": "25.4"},
+            {"A": "01  AGUASCALIENTES", "B": "100", "C": "83.63", "D": "16.37"},
+            {"A": "NO ESPECIFICADO", "B": "100", "C": "77.04", "D": "22.96"}]
+    assert ck._c2k_states("CD")({"s": rows}) == {(0, "T"): [74.6, 25.4], (1, "T"): [83.63, 16.37],
+                                                 (99, "T"): [77.04, 22.96]}
+    blocks = [{"A": "SEXO Y GRUPOS", "B": "POBLACIÓN"},
+              {"A": "ESTADOS UNIDOS MEXICANOS", "B": "1633052", "C": "1235477"},
+              {"A": "0 - 4    AÑOS", "B": "1.67", "C": "1.47"},
+              {"A": "NO ESPECIFICADO", "B": "2.4", "C": "2.37"},
+              {"A": "HOMBRES", "B": "1218000", "C": "930000"},
+              {"A": "0 - 4    AÑOS", "B": "1.2", "C": "1.1"},
+              {"A": "MUJERES", "B": "415000", "C": "305000"},
+              {"A": "0 - 4    AÑOS", "B": "3", "C": "2.9"}]
+    assert ck._c2k_national("BC", first=False)({"s": blocks}) == {
+        (0, "T"): [1.67, 1.47, 2.4, 2.37], (0, "H"): [1.2, 1.1], (0, "M"): [3, 2.9]}
+    assert ck._c2k_national("C")({"s": blocks})[0, "M"] == [305000, 2.9]
+
+
+def test_tokens_keep_numbers():
+    """7d: «2 ocupantes» ≠ «3 ocupantes» (``_words`` drops digits); a footnote glued to a
+    word is dropped."""
+    assert ck._tokens("2 ocupantes") != ck._tokens("3 ocupantes")
+    assert ck._tokens("Otro tipo de vivienda1") == ck._tokens("otro tipo de vivienda")
+    assert ck._tokens("6 cuartos y más") == frozenset({"6", "cuartos", "y", "más"})
+
+
+def test_part_by_origin():
+    """7d: a plain mask counts in the frame's state; a :class:`ByOrigin` part in each
+    record's origin, outside 1–32 the unspecified 99."""
+    import pandas as pd
+    w = pd.Series([1.0, 2.0, 4.0, 8.0])
+    keep = pd.Series([True, True, True, False])
+    every = pd.Series(True, index=w.index)
+    assert ck._part(every, w, keep, 5) == {5: 7.0}
+    origin = pd.Series(["001", "999", "001", "002"])
+    assert ck._part(ck.ByOrigin(every, origin), w, keep, 5) == {1: 5.0, 99: 2.0}
+
+
+def test_sums_migrants_by_sex():
+    """7d: the emigrants' sex is ``MSEXO``; a check's ``weight`` replaces ``FACTOR``."""
+    import pandas as pd
+    m = pd.DataFrame({"FACTOR": ["10", "20", "30"], "MSEXO": ["1", "2", "2"],
+                      "NUMPERS": ["1", "2", "3"]})
+    every = lambda f: [(pd.Series(True, index=f.index), None)]   # noqa: E731
+    check = ck.Check("2000", "X", "x", "C2KMI07.xls", "migrantes", ("all",), dict, every,
+                     unit="persons")
+    assert ck._sums(check, m, 3) == {"T": [({3: 60.0}, None)], "H": [({3: 10.0}, None)],
+                                     "M": [({3: 50.0}, None)]}
+    weighted = ck.Check("2015", "Y", "y", "14_vivienda.xls", "viviendas", ("all",), dict, every,
+                        unit="persons", weight=ck._occupants)
+    assert ck._sums(weighted, m, 3) == {"T": [({3: 140.0}, None)]}
+
+
 def test_counts():
     assert ck._counts(200, [50, 10]) == [200, 100, 20]
     # PEA % of the 12+, employed and unemployed % of the PEA, inactive % of the 12+
@@ -114,7 +188,10 @@ def test_checks_are_consistent():
     assert len(keys) == len(set(keys))
     for c in ck.CHECKS:
         assert c.source in ck.SOURCES[c.period][1], c.key
-        assert c.table in ("personas", "viviendas", "hogares") and c.unit in ("points", "persons")
+        assert c.table in ("personas", "viviendas", "hogares", "migrantes")       # 7d
+        assert c.unit in ("points", "persons")
+        assert c.table != "migrantes" or c.period == "2000"
+        assert not c.by_origin or c.period == "2000"                    # 7d: MI02/05/10–12
         assert c.table != "hogares" or c.period == "2000"          # 6t: 2000's household rows
         assert (c.unit == "points") == (c.period == "2000")
         assert c.source.endswith(".xlsx" if c.period == "2020" else ".xls")        # 6p
@@ -131,8 +208,8 @@ def test_state_01_within_tolerance(monkeypatch):
     monkeypatch.setattr(ck, "fetch", lambda periods, tab_dir, retries=2: {
         f"{p}/{n}": tab_dir / p / n for p in periods for n in ck.SOURCES[p][1]})
     rows = ck.run(sorted(ck.SOURCES), [1], _TABS, _MIRROR, log=lambda *a: None)
-    assert len(rows) == 317 + 159 + 120 + 45 + 7 + 13 + 149 + 132   # 6p: 2020; 6q: 2015
-    #                                                 affiliation, commute, marital status,
+    assert len(rows) == 317 + 159 + 120 + 45 + 7 + 13 + 149 + 132 + 183 + 463  # 6p: 2020;
+    #                                                 6q: 2015 affiliation, commute, marital status,
     #                                                 education (2010's are national); 6r: 2000
     #                                                 hours, education of the 12+/18+; 6t: 2000/2015
     #                                                 by the head's sex (sex T only); 6w: media
@@ -144,7 +221,14 @@ def test_state_01_within_tolerance(monkeypatch):
     #                                                 household class, tenure, deeds (sex T);
     #                                                 7c: the income in minimum wages (2000
     #                                                 EM08 8 × 3; 2010/2015/2020 9 × 3), 2000's
-    #                                                 places (EM10 6, sex T; MI04 7 × 3)
+    #                                                 places (EM10 6, sex T; MI04 7 × 3); 7d:
+    #                                                 2000 EM02/03/04/06/09/11, MI06, MI09 (sex T;
+    #                                                 MI02/05/10–12 need all 32 states, MI07/08 are
+    #                                                 national), 2015 the dwellings (sex T; 14-12
+    #                                                 national)
+    by_origin = {c.key for c in ck.CHECKS if c.by_origin}               # 7d: all 32 only
+    assert by_origin == {"MI02", "MI05", "MI10", "MI11", "MI12"}
+    assert not by_origin & {r["check"] for r in rows}
     income = [r for r in rows if r["check"] in ("EM08", "08_10A", "08-11", "08-18")]
     assert len(income) == 8 * 3 + 3 * 9 * 3
     head = [r for r in rows if r["check"] in ("HO04a", "HO04b", "12-05")]

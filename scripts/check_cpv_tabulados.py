@@ -23,6 +23,14 @@ the derived columns, as (numerator, denominator) masks over a state's frame; the
 the sum of the states. Shares are compared in percentage points, counts in persons (2010
 and 2015 publish a total and its percentages: count = total × percentage / 100).
 
+7d added the samples' raw items: the EIC 2015's dwelling tabulados (materials, rooms,
+cooking, acquisition, water, drainage, electricity, sanitary service, waste, goods and
+equipment; the occupants' tables weighted by ``NUMPERS``, :attr:`Check.weight`) and CGPV
+2000's employment and migration tabulados — the international migrants of the
+``migrantes`` file among them. A cell may count its records in their state of origin
+instead of the frame's (:class:`ByOrigin`: the emigrants by their birth state, the
+international migrants by the state they left; such checks need all 32 states).
+
 The tabulados are fetched once into ``data/dict/tabulados/{period}/`` (git-ignored); the
 mirror is read from ``data/parquet`` (the full mirror: every state of each edition).
 
@@ -62,7 +70,10 @@ SOURCES = {
              ("C2KMI01.xls", "C2KMI03.xls", "C2KRE02.xls", "C2KSS04.xls", "C2KEC02.xls",
               "C2KEM01.xls", "C2KEM05.xls", "C2KEM07.xls", "C2KED08.xls", "C2KED10.xls",
               "C2KED11.xls", "C2KVI06.xls", "C2KVI10.xls", "C2KHO04.xls",
-              "C2KEM08.xls", "C2KEM10.xls", "C2KMI04.xls")),
+              "C2KEM08.xls", "C2KEM10.xls", "C2KMI04.xls",
+              "C2KEM02.xls", "C2KEM03.xls", "C2KEM04.xls", "C2KEM06.xls", "C2KEM09.xls",
+              "C2KEM11.xls", "C2KMI02.xls", "C2KMI05.xls", "C2KMI06.xls", "C2KMI07.xls",
+              "C2KMI08.xls", "C2KMI09.xls", "C2KMI10.xls", "C2KMI11.xls", "C2KMI12.xls")),
     "2010": ("ccpv/2010/tabulados/Ampliado",
              ("04_02A_ESTATAL.xls", "06_01A_ESTATAL.xls", "08_02A_ESTATAL.xls",
               "08_03A_ESTATAL.xls", "08_10A_ESTATAL.xls", "08_15A_ESTATAL.xls",
@@ -93,6 +104,7 @@ _TOLERANCE = {"2000": {None: 0.04, 7: 0.6}, "2010": {None: 1.0}, "2015": {None: 
               "2020": {None: 1.0}}
 
 _NATION = 0
+_UNSPECIFIED = 99          # 7d: the origin not specified (CGPV 2000's «NO ESPECIFICADO» rows)
 
 
 def fetch(periods: list[str], tab_dir: Path, retries: int = 2) -> dict[str, Path]:
@@ -159,19 +171,68 @@ def _c2k_blocks(rows: list[dict], cols: str, level: str = "persons"
     return out
 
 
-def _c2k_sectors(rows: list[dict]) -> dict[tuple[int, str], list[float]]:
-    """C2KEM05 (sector of the employed): under each state row, one row per sector (its name
-    may wrap onto the next row, the values on the last) with the total, men and women in
-    columns B, C, D."""
+def _c2k_sectors(rows: list[dict], total: bool = False) -> dict[tuple[int, str], list[float]]:
+    """C2KEM05 (sector of the employed), C2KEM04 (occupation): under each state row, one row
+    per category (its name may wrap onto the next row, the values on the last) with the
+    total, men and women in columns B, C, D. ``total``: the state row's own values first
+    (C2KEM03: the rate of the 12+, then one per age group; 7d)."""
     out, state = {}, None
     for r in rows:
         a = (r.get("A") or "").strip()
         if (s := _state_of(a)) is not None:
             state = s
-        elif state is not None and a and r.get("B"):
+            if not total:
+                continue
+        if state is not None and a and r.get("B"):
             for sex, col in (("T", "B"), ("H", "C"), ("M", "D")):
                 out.setdefault((state, sex), []).append(_num(r.get(col)))
     return out
+
+
+def _c2k_sex_columns(columns: dict[str, str]):
+    """CGPV 2000 tabulados with one row per state and the sexes in columns (C2KEM11:
+    ``{"T": "BEH", "H": "CFI", "M": "DGJ"}``; 7d)."""
+    def read(wb):
+        out = {}
+        for r in _sheet(wb, None):
+            if (state := _state_of(r.get("A") or "")) is not None and r.get("B"):
+                for sex, cols in columns.items():
+                    out[state, sex] = [_num(r.get(c)) for c in cols]
+        return out
+    return read
+
+
+def _c2k_states(cols: str):
+    """CGPV 2000 tabulados with one row per state — of residence or of origin, the
+    «NO ESPECIFICADO» origin as :data:`_UNSPECIFIED` — and no sex rows (C2KMI09–12; 7d)."""
+    def read(wb):
+        out = {}
+        for r in _sheet(wb, None):
+            a = (r.get("A") or "").strip()
+            state = _UNSPECIFIED if a == "NO ESPECIFICADO" else _state_of(a)
+            if state is not None and r.get("B"):
+                out[state, "T"] = [_num(r.get(c)) for c in cols]
+        return out
+    return read
+
+
+def _c2k_national(cols: str, first: bool = True):
+    """CGPV 2000's national tabulados by sex (C2KMI07/08; 7d): the nation's block, then
+    HOMBRES' and MUJERES', each one row per category (an age group) after its total row
+    (kept unless ``first`` is False: C2KMI08's holds counts); the cells row by row."""
+    def read(wb):
+        blocks, sex = {}, None
+        for r in _sheet(wb, None):
+            a = (r.get("A") or "").strip()
+            if a.upper() == _C2K_NATION:
+                sex = "T"
+            elif a in ("HOMBRES", "MUJERES"):
+                sex = a[0]
+            if sex and r.get("B"):
+                blocks.setdefault(sex, []).append([_num(r.get(c)) for c in cols])
+        return {(_NATION, sex): [v for row in rows[0 if first else 1:] for v in row]
+                for sex, rows in blocks.items()}
+    return read
 
 
 def _estimates(rows: list[dict], estimator: str) -> dict[tuple, list[float]]:
@@ -215,7 +276,8 @@ class Check:
     key: str
     title: str
     source: str                       # file name in SOURCES[period]
-    table: str                        # personas | viviendas | hogares (2000's household rows)
+    table: str                        # personas | viviendas | hogares (2000's household
+    #                                   rows) | migrantes (7d)
     cells: tuple[str, ...]            # the compared cells' names
     published: Callable[[dict], dict]  # workbook → {(state, sex): [values]}
     ours: Callable[[pd.DataFrame], list]  # frame → [(numerator, denominator | None)]
@@ -225,6 +287,20 @@ class Check:
     # state (0 = the nation) → its largest |Δ| for this check, over the edition's
     # :data:`_TOLERANCE` (7c: differences of INEGI's own, documented in the note)
     tolerance: dict[int, float] | None = None
+    # 7d: each record's weight (default ``FACTOR``; the occupants: × ``NUMPERS``)
+    weight: Callable[[pd.DataFrame], pd.Series] | None = None
+    # 7d: some cells are :class:`ByOrigin` — compared only when all 32 states are loaded
+    by_origin: bool = False
+
+
+@dataclass(frozen=True)
+class ByOrigin:
+    """A cell part whose records count in their state of origin, not the frame's (7d: the
+    emigrants by their birth state or their state in 1995, the international migrants by
+    the state they left). ``origin`` holds state codes; anything outside 1–32 is the
+    unspecified origin, :data:`_UNSPECIFIED`."""
+    mask: pd.Series
+    origin: pd.Series
 
 
 def _sheet(wb: dict, sheet: str | None) -> list[dict]:
@@ -397,6 +473,165 @@ def _head_sex(col: str):
         head = _cat(frame, col)
         return _shares(pd.Series(True, index=frame.index), head.eq("Hombre"), head.eq("Mujer"))
     return ours
+
+
+# 7d: employment ------------------------------------------------------------------------
+
+def _twelve(p) -> pd.Series:
+    return _age(p).between(12, 130)
+
+
+def _pea_2000(p) -> pd.Series:
+    return _twelve(p) & _cat(p, "CONACT_CAT").isin(["Trabaja", "Buscó trabajo"])
+
+
+def _em02(p):
+    """The inactive 12+ (``CONACT`` 40–80) by kind: students, home, retired, unable to work,
+    other."""
+    conact = pd.to_numeric(p["CONACT"])
+    inactive = _twelve(p) & conact.between(40, 80)
+    return _shares(inactive, *(conact.eq(c) for c in (40, 50, 60, 70, 80)))
+
+
+_AGES_EM03 = ((12, 14), (15, 19), (20, 24), (25, 29), (30, 34), (35, 39), (40, 44), (45, 49),
+              (50, 54), (55, 59), (60, 64), (65, 130))
+
+
+def _em03(p):
+    """Participation rates: the PEA as % of every 12+ (the unspecified activity included),
+    then by five-year age group."""
+    pea, age = _pea_2000(p), _age(p)
+    return [(pea, _twelve(p)), *((pea & age.between(a, b), age.between(a, b))
+                                 for a, b in _AGES_EM03)]
+
+
+# C2KEM04's 19 rows: the CMO's principal groups, the first two digits of OCUACTIV_C
+_CMO_GROUPS = (("profesionistas", "11"), ("técnicos", "12"), ("education workers", "13"),
+               ("art workers", "14"), ("officials and managers", "21"),
+               ("agricultural workers", "41"), ("industrial inspectors and supervisors", "51"),
+               ("artisans and labourers", "52"), ("fixed-machinery operators", "53"),
+               ("helpers and labourers", "54"), ("transport operators", "55"),
+               ("administrative heads and supervisors", "61"), ("office workers", "62"),
+               ("traders and shop assistants", "71"), ("street vendors", "72"),
+               ("personal services", "81"), ("domestic workers", "82"),
+               ("protection and security", "83"), ("not specified", "99"))
+
+
+def _em04(p):
+    group = p["OCUACTIV_C"].str[:2]
+    return _shares(_employed_2000(p), *(group.eq(g) for _, g in _CMO_GROUPS))
+
+
+def _em06(p):
+    """The employed by position at work (``SITTRA``: employee, day labourer, employer,
+    own account, unpaid family worker, not specified)."""
+    position = pd.to_numeric(p["SITTRA"])
+    return _shares(_employed_2000(p), *(position.eq(c) for c in (1, 2, 3, 4, 5, 9)))
+
+
+# C2KEM09's benefits: each item's «yes» code; «no benefits» = every item answered «no»
+_BENEFITS = (("VACACION", "1", "2"), ("AGUINALD", "3", "4"), ("REPUTIL", "5", "6"),
+             ("SERVMED", "7", "8"), ("SARAFORE", "1", "2"))
+
+
+def _em09(p):
+    """The wage earners (``SITTRA`` 1, 2: employees, day labourers) with each benefit, and
+    without any."""
+    earners = _employed_2000(p) & pd.to_numeric(p["SITTRA"]).isin([1, 2])
+    none = np.logical_and.reduce([p[item].eq(no) for item, _, no in _BENEFITS])
+    return _shares(earners, *(p[item].eq(yes) for item, yes, _ in _BENEFITS), none)
+
+
+def _em11(p):
+    """The open unemployment rate, the part-time and unemployment rate (the employed who
+    worked 1–34 hours in the reference week — not who had a job but did not work, ``CONACT``
+    20, whose usual hours the sample records —, plus the unemployed) and the rate of income
+    below the minimum wage and unemployment (``INGTRMEN_SM`` «Menos de 1 s.m.», those
+    without income left out), all % of the PEA."""
+    from mxcensus.cpv_derived import _SM_2000
+    pea, employed = _pea_2000(p), _employed_2000(p)
+    unemployed = _twelve(p) & _cat(p, "CONACT_CAT").eq("Buscó trabajo")
+    hours = pd.to_numeric(p["HORTRA"], errors="coerce")
+    part_time = hours.between(1, 34) & pd.to_numeric(p["CONACT"]).ne(20)
+    below = _cat(p, "INGTRMEN_SM").eq(_SM_2000.categories[1])
+    return [(unemployed, pea), (employed & part_time | unemployed, pea),
+            (employed & below | unemployed, pea)]
+
+
+# 7d: migration -------------------------------------------------------------------------
+
+def _flows(place: str, universe: Callable[[pd.DataFrame], pd.Series]):
+    """C2KMI02/05: the immigrants (living here, from another state) and the emigrants (born
+    here or living here in 1995, now in another state: :class:`ByOrigin`), both % of the
+    residents of ``universe`` whose ``place`` is a specified state (the footnote: born or
+    living abroad and not specified left out)."""
+    def ours(p):
+        where = pd.to_numeric(p[place], errors="coerce")
+        base = universe(p) & where.between(1, 32)
+        moved = base & where.ne(pd.to_numeric(p["ENT"]))
+        return [(moved, base), (ByOrigin(moved, where), base)]
+    return ours
+
+
+def _mi06(p):
+    """The migrants 5+ (in 1995 in another state or country) by cause (``CAUEMI``: work,
+    family, job transfer, study, marriage, health or violence, other, not specified)."""
+    cause = pd.to_numeric(p["CAUEMI"])
+    migrants = _five(p) & _cat(p, "ENT_PAIS_RES_CAT").isin(["OtraEnt", "OtroPais"])
+    return _shares(migrants, *(cause.isin(c) for c in ([1], [2], [3], [4], [5], [6, 7], [8],
+                                                       [9])))
+
+
+# The international migrants' movement (MPAIRES_C, the country of residence: 700 Mexico =
+# returned, 999 not specified, else abroad), age at emigrating (MEDAD; 999 not specified)
+_MOVEMENTS = ("emigrant", "return migrant", "not specified")
+_AGES_MI07 = ((0, 4), (5, 9), (10, 14), (15, 19), (20, 24), (25, 29), (30, 34), (35, 39),
+              (40, 44), (45, 49), (50, 130), (999, 999))
+_AGES_MI11 = ((0, 14), (15, 24), (25, 34), (35, 49), (50, 130), (999, 999))
+
+
+def _movement(m) -> list[pd.Series]:
+    country = pd.to_numeric(m["MPAIRES_C"])
+    return [~country.isin([700, 999]), country.eq(700), country.eq(999)]
+
+
+def _ages(m, groups) -> list[pd.Series]:
+    age = pd.to_numeric(m["MEDAD"])
+    return [age.between(a, b) for a, b in groups]
+
+
+def _mi07(m):
+    """The international migrants by movement: all, then each age group at emigrating."""
+    every = pd.Series(True, index=m.index)
+    return [(g & mv, g) for g in (every, *_ages(m, _AGES_MI07)) for mv in _movement(m)]
+
+
+def _mi08(m):
+    """Each age group at emigrating, % of all the international migrants and of each
+    movement."""
+    every = pd.Series(True, index=m.index)
+    return [(g & u, u) for g in _ages(m, _AGES_MI07) for u in (every, *_movement(m))]
+
+
+def _mi09(m):
+    """The international migrants by movement, by the dwelling's state."""
+    return _shares(pd.Series(True, index=m.index), *_movement(m))
+
+
+def _by_origin(cells: Callable[[pd.DataFrame], list]):
+    """C2KMI10–12: shares by the state the migrants left (``MLUGORI_C``; 999 = not
+    specified)."""
+    def ours(m):
+        origin = m["MLUGORI_C"]
+        every = ByOrigin(pd.Series(True, index=m.index), origin)
+        return [(ByOrigin(c, origin), every) for c in cells(m)]
+    return ours
+
+
+def _destination(m) -> list[pd.Series]:
+    """C2KMI12: the United States (221), the rest of the world, not specified (999)."""
+    country = pd.to_numeric(m["MPDESOTR_C"])
+    return [country.eq(221), ~country.isin([221, 999]), country.eq(999)]
 
 
 def _c2k(cols: str, combine: Callable[[list], list] = lambda v: v, level: str = "persons"):
@@ -753,6 +988,201 @@ def _deeds_2015(v):
     return _counts_of(own, *(own & deed.eq(c) for c in (1, 2, 3, 8, 9)))
 
 
+# EIC 2015 dwellings: the raw items (7d) ------------------------------------------------
+
+def _code(v: pd.DataFrame, col: str) -> pd.Series:
+    """A raw 2015 item as numbers (the 2015 CSVs drop leading zeros)."""
+    return pd.to_numeric(v[col], errors="coerce")
+
+
+def _is(x: pd.Series, codes) -> pd.Series:
+    return x.isin(codes if isinstance(codes, (tuple, list)) else [codes])
+
+
+def _occupants(v: pd.DataFrame) -> pd.Series:
+    """The occupants' weight: the dwelling's ``FACTOR`` × its ``NUMPERS``."""
+    return pd.to_numeric(v["FACTOR"]) * pd.to_numeric(v["NUMPERS"])
+
+
+def _item(col: str, codes: tuple, universe: Callable[[pd.DataFrame], pd.Series] | None = None):
+    """The dwellings of ``universe`` (default :func:`_dwellings_2015`), then each code (or
+    tuple of codes) of ``col``."""
+    def ours(v):
+        u = (universe or _dwellings_2015)(v)
+        x = _code(v, col)
+        return _counts_of(u, *(u & _is(x, c) for c in codes))
+    return ours
+
+
+def _stacked_cells(*parts: Callable[[pd.DataFrame], list]):
+    """One check over several categories (a row dimension of the tabulado): each part's
+    cells, in order."""
+    def ours(v):
+        return [cell for part in parts for cell in part(v)]
+    return ours
+
+
+def _tokens(name: str) -> frozenset[str]:
+    """A category name as a set of words and numbers («2 ocupantes»); a footnote's digits,
+    glued to a word («Otro tipo de vivienda1»), dropped."""
+    return frozenset(re.findall(r"(?<![^\W\d_])\d+|[^\W\d_]+", name.lower()))
+
+
+def _stacked(names: tuple[str, ...], pick: Callable[[list], list], sheet: str):
+    """EIC 2015 tabulados with one row per (state, category) — the class, the number of
+    occupants or rooms, the fuel, the item: per state, ``pick`` of each category's values in
+    the order of ``names`` (matched as :func:`_tokens`)."""
+    def read(wb):
+        out = {}
+        for (state, category), values in _estimates(_sheet(wb, sheet), "Valor").items():
+            out.setdefault(state, {})[_tokens(category)] = pick(values)
+        return {(state, "T"): [x for n in names for x in cells[_tokens(n)]]
+                for state, cells in out.items()}
+    return read
+
+
+def _all_dwellings(v: pd.DataFrame) -> pd.Series:
+    return pd.Series(True, index=v.index)
+
+
+# 14-02: the classes (every dwelling: 06–09 are «otro tipo»)
+_CLASSES_2015 = (("Total", tuple(range(1, 10)) + (99,)), ("Casa única en el terreno", 1),
+                 ("Casa que comparte terreno con otra(s)", 2),
+                 ("Casa dúplex, triple o cuádruple", 3), ("Departamento en edificio", 4),
+                 ("Vivienda en vecindad o cuartería", 5), ("Otro tipo de vivienda", (6, 7, 8, 9)),
+                 ("No especificado", 99))
+_OCCUPANTS_2015 = (("Total", None), ("1 ocupante", 1), ("2 ocupantes", 2), ("3 ocupantes", 3),
+                   ("4 ocupantes", 4), ("5 ocupantes", 5), ("6 y más ocupantes", "6+"))
+_ROOMS_2015 = (("Total", None), ("1 cuarto", 1), ("2 cuartos", 2), ("3 cuartos", 3),
+               ("4 cuartos", 4), ("5 cuartos", 5), ("6 cuartos y más", "6+"),
+               ("No especificado", 99))
+
+
+def _number(x: pd.Series, which) -> pd.Series:
+    """A count's category: ``None`` = any, ``"N+"`` = N or more (not the 99 «not
+    specified»), else the number."""
+    if which is None:
+        return pd.Series(True, index=x.index)
+    if isinstance(which, str):
+        return x.between(int(which[:-1]), 98)
+    return x.eq(which)
+
+
+def _class_2015(v):
+    cls = _code(v, "CLAVIVP")
+    return _counts_of(*(_is(cls, codes) for _, codes in _CLASSES_2015))
+
+
+def _by_count(item: str, groups: tuple, rows: str, row_groups: tuple):
+    """Dwellings by a count (``TOTCUART`` rooms, ``CUADORM`` bedrooms) within each row of
+    another (``NUMPERS`` occupants): per row, the dwellings, then each group (a number,
+    ``"N+"`` or 99)."""
+    def ours(v):
+        u, x, r = _dwellings_2015(v), _code(v, item), _code(v, rows)
+        return [cell for _, which in row_groups for cell in _counts_of(
+            u & _number(r, which), *(u & _number(r, which) & _number(x, g) for g in groups))]
+    return ours
+
+
+def _cooks_2015(v) -> pd.Series:
+    """INEGI's dwellings whose occupants cook: a place (``LUGAR_COCINA`` 1–3) or a fuel
+    (``COMBUSTIBLE`` 1–4) given — not «no cocinan» (4, 5), nor a fuel not specified without
+    a place (150,929 dwellings nationally)."""
+    return _dwellings_2015(v) & (_code(v, "LUGAR_COCINA").between(1, 3)
+                                 | _code(v, "COMBUSTIBLE").between(1, 4))
+
+
+_FUELS_2015 = (("Total", (1, 2, 3, 4, 9)), ("Leña o carbón", 1), ("Gas", 2),
+               ("Otro combustible", (3, 4)), ("No especificado", 9))
+
+
+def _cooking_2015(v):
+    """14-11: by fuel (electricity is «otro combustible»), where they cook: the kitchen
+    (``COCINA`` 1), elsewhere (3: ``LUGAR_COCINA`` 1, 2, 3, 9), not specified (9)."""
+    cooks, kitchen = _cooks_2015(v), _code(v, "COCINA")
+    place, fuel = _code(v, "LUGAR_COCINA"), _code(v, "COMBUSTIBLE")
+    out = []
+    for _, codes in _FUELS_2015:
+        u = cooks & _is(fuel, codes)
+        elsewhere = u & kitchen.eq(3)
+        out += _counts_of(u, u & kitchen.eq(1), elsewhere,
+                          *(elsewhere & place.eq(c) for c in (1, 2, 3, 9)), u & kitchen.eq(9))
+    return out
+
+
+def _acquisition_2015(v):
+    """14-17: the owned dwellings (``TENENCIA`` 1) by rooms, then by ``FORMA_ADQUI``."""
+    own = _dwellings_2015(v) & _code(v, "TENENCIA").eq(1)
+    rooms, how = _code(v, "TOTCUART"), _code(v, "FORMA_ADQUI")
+    return [cell for _, which in _ROOMS_2015 for cell in _counts_of(
+        own & _number(rooms, which),
+        *(own & _number(rooms, which) & how.eq(c) for c in (1, 2, 3, 4, 5, 6, 9)))]
+
+
+def _water_2015(v):
+    """14-20/34: piped water (``AGUA_ENTUBADA`` 1 inside, 2 in the yard), carried
+    (3: ``ABA_AGUA_NO_ENTU`` community tap 2, another dwelling 3, a pipa 5, a well 1, a
+    river 4, rain 6, not specified 9), not specified (9)."""
+    u, piped, carried = _dwellings_2015(v), _code(v, "AGUA_ENTUBADA"), _code(v, "ABA_AGUA_NO_ENTU")
+    by_hand = u & piped.eq(3)
+    return _counts_of(u, u & piped.isin([1, 2]), u & piped.eq(1), u & piped.eq(2), by_hand,
+                      *(by_hand & carried.eq(c) for c in (2, 3, 5, 1, 4, 6, 9)), u & piped.eq(9))
+
+
+_PIPED_2015 = (("Total", (1, 2)), ("Dentro de la vivienda", 1),
+               ("Fuera de la vivienda, pero dentro del terreno", 2))
+
+
+def _water_source_2015(v):
+    """14-22/36: the dwellings with piped water, by where (all, inside, in the yard), then
+    by its source (``ABA_AGUA_ENTU``: public service, community well, private well, pipa,
+    another dwelling, elsewhere, not specified)."""
+    u, piped, source = _dwellings_2015(v), _code(v, "AGUA_ENTUBADA"), _code(v, "ABA_AGUA_ENTU")
+    return [cell for _, codes in _PIPED_2015 for cell in _counts_of(
+        u & _is(piped, codes), *(u & _is(piped, codes) & source.eq(c)
+                                 for c in (1, 2, 3, 4, 5, 6, 9)))]
+
+
+def _sanitary_2015(v):
+    """14-28: a toilet (``SERSAN`` 1) or a latrine (2) by how it takes water (``CONAGUA``:
+    flush 1, a bucket 2, none 3, not specified 9), neither (3), not specified (9)."""
+    u, kind, water = _dwellings_2015(v), _code(v, "SERSAN"), _code(v, "CONAGUA")
+    toilet, latrine = u & kind.eq(1), u & kind.eq(2)
+    return _counts_of(u, u & kind.isin([1, 2]), toilet, *(toilet & water.eq(c) for c in (1, 2, 3, 9)),
+                      latrine, *(latrine & water.eq(c) for c in (2, 3, 9)), u & kind.eq(3),
+                      u & kind.eq(9))
+
+
+# 14-31/32/33: one row per item (its «yes» and «no» codes; 9 = not specified)
+_REUSE_2015 = (("Reutilizan residuos para alimentar animales", "SEPARA_ALI", 1, 2),
+               ("Reutilizan residuos para las plantas", "SEPARA_ABO", 3, 4),
+               ("Reutilizan residuos para vender o regalar", "SEPARA_VEN", 5, 6))
+_GOODS_2015 = (("Refrigerador", "REFRIGERADOR", 1, 2), ("Lavadora", "LAVADORA", 3, 4),
+               ("Horno de Microondas", "HORNO", 5, 6), ("Automóvil", "AUTOPROP", 7, 8),
+               ("Algún aparato para oír radio", "RADIO", 1, 2), ("Televisor", "TELEVISOR", 3, 4),
+               ("Televisor de pantalla plana", "TELEVISOR_PP", 5, 6),
+               ("Computadora", "COMPUTADORA", 7, 8), ("Teléfono fijo", "TELEFONO", 1, 2),
+               ("Teléfono celular", "CELULAR", 3, 4), ("Internet", "INTERNET", 5, 6),
+               ("Servicio de televisión de paga", "SERV_TV_PAGA", 7, 8))
+_EQUIPMENT_2015 = (("Tinaco", "TINACO", 1, 2), ("Cisterna o aljibe", "CISTERNA", 3, 4),
+                   ("Bomba de agua", "BOMBA_AGUA", 5, 6), ("Regadera", "REGADERA", 7, 8),
+                   ("Boiler o calentador de agua", "BOILER", 1, 2),
+                   ("Calentador solar de agua", "CALENTADOR_SOLAR", 3, 4),
+                   ("Aire acondicionado", "AIRE_ACON", 5, 6), ("Panel solar", "PANEL_SOLAR", 7, 8))
+
+
+def _items(items: tuple):
+    return _stacked_cells(*(_item(col, (yes, no, 9)) for _, col, yes, no in items))
+
+
+def _item_cells(items: tuple) -> tuple[str, ...]:
+    return tuple(f"{name}: {c}" for name, *_ in items for c in ("dwellings", "yes", "no", "NE"))
+
+
+def _row_cells(rows: tuple, cells: tuple[str, ...]) -> tuple[str, ...]:
+    return tuple(f"{row}: {c}" for row, _ in rows for c in cells)
+
+
 def _total_row(k: tuple) -> tuple | None:
     """A (state, sex, category) row → (state, sex) for the category «Total»."""
     return k[:2] if k[2] == "Total" else None
@@ -872,6 +1302,84 @@ CHECKS: tuple[Check, ...] = (
                "they are the residents of Trancoso (created after 1995) who answered "
                "Trancoso, the other three have no such rule (Campeche's and Sonora's "
                "1996–98 municipalities show none)."),
+    Check("2000", "EM02", "Inactive 12+ by kind (`CONACT` 40–80)", "C2KEM02.xls", "personas",
+          ("students", "home duties", "retired or pensioned", "unable to work", "other"),
+          _c2k("CDEFG"), _em02, note="Raw `CONACT` (7d)."),
+    Check("2000", "EM03", "Participation rates by age (`CONACT_CAT`)", "C2KEM03.xls",
+          "personas", ("12+", *(f"{a}-{b}" if b < 130 else f"{a}+" for a, b in _AGES_EM03)),
+          lambda wb: _c2k_sectors(_sheet(wb, None), total=True), _em03,
+          note="The PEA as % of every person of the age, the unspecified activity included "
+               "(7d)."),
+    Check("2000", "EM04", "Employed by occupation (`OCUACTIV_C`'s CMO group)", "C2KEM04.xls",
+          "personas", tuple(n for n, _ in _CMO_GROUPS),
+          lambda wb: _c2k_sectors(_sheet(wb, None)), _em04,
+          note="The CMO's 19 principal groups = the first two digits of the raw code (7d); "
+               "no SINCO bridge."),
+    Check("2000", "EM06", "Employed by position at work (`SITTRA`)", "C2KEM06.xls",
+          "personas", ("employee", "day labourer", "employer", "own account",
+                       "unpaid family worker", "not specified"),
+          _c2k("CDEFGH"), _em06),
+    Check("2000", "EM09", "Wage earners by benefit (`VACACION` … `SARAFORE`)", "C2KEM09.xls",
+          "personas", ("paid holidays", "Christmas bonus", "profit sharing", "health care",
+                       "retirement savings", "none"),
+          _c2k("CDEFGH"), _em09,
+          note="Wage earners = employees and day labourers (`SITTRA` 1, 2); «none» = every "
+               "benefit answered «no» (7d)."),
+    Check("2000", "EM11", "Complementary rates (TDA, TOPD2, TIID), % of the PEA", "C2KEM11.xls",
+          "personas", ("open unemployment", "part-time and unemployment",
+                       "income below the minimum wage and unemployment"),
+          _c2k_sex_columns({"T": "BEH", "H": "CFI", "M": "DGJ"}), _em11,
+          note="TOPD2: worked 1–34 hours in the reference week (`HORTRA`), not who had a job "
+               "but did not work (`CONACT` 20); TIID: `INGTRMEN_SM` below one minimum wage, "
+               "those without income left out (7d)."),
+    Check("2000", "MI02", "Lifetime immigrants and emigrants by state of birth (`LNACEDO_C`)",
+          "C2KMI02.xls", "personas", ("immigrants", "emigrants"), _c2k("BC"),
+          _flows("LNACEDO_C", lambda p: pd.Series(True, index=p.index)), by_origin=True,
+          note="Both % of the residents born in a specified state (born abroad or not "
+               "specified left out); the emigrants count in their birth state (7d)."),
+    Check("2000", "MI05", "Immigrants and emigrants since 1995 (`RES95EDO_C`), the 5+",
+          "C2KMI05.xls", "personas", ("immigrants", "emigrants"), _c2k("BC"),
+          _flows("RES95EDO_C", _five), by_origin=True,
+          note="Both % of the 5+ who lived in a specified state in 1995; the emigrants count "
+               "in their 1995 state (7d)."),
+    Check("2000", "MI06", "Migrants 5+ by cause (`CAUEMI`)", "C2KMI06.xls", "personas",
+          ("work search", "join the family", "job transfer", "study", "marriage or union",
+           "health, violence or insecurity", "other", "not specified"),
+          _c2k("CDEFGHIJ"), _mi06,
+          note="Migrants: in 1995 in another state or country (`ENT_PAIS_RES_CAT`; 7d)."),
+    Check("2000", "MI07", "International migrants by movement and age at emigrating "
+          "(`migrantes`), nation", "C2KMI07.xls", "migrantes",
+          tuple(f"{g}: {mv}" for g in ("all", *(f"{a}-{b}" if b < 130 else (
+              "50+" if a == 50 else "age not specified") for a, b in _AGES_MI07))
+              for mv in _MOVEMENTS),
+          _c2k_national("CDE"), _mi07,
+          note="Movement by `MPAIRES_C` (700 = Mexico: returned; 999 not specified; else "
+               "abroad), age at emigrating `MEDAD` (7d)."),
+    Check("2000", "MI08", "International migrants by age at emigrating (`migrantes`), % of "
+          "each movement, nation", "C2KMI08.xls", "migrantes",
+          tuple(f"{g}: % of {u}" for g in (*(f"{a}-{b}" if b < 130 else (
+              "50+" if a == 50 else "age not specified") for a, b in _AGES_MI07),)
+              for u in ("all", *_MOVEMENTS)),
+          _c2k_national("BCDE", first=False), _mi08, note="7d."),
+    Check("2000", "MI09", "International migrants by movement (`migrantes`), state of "
+          "residence", "C2KMI09.xls", "migrantes", _MOVEMENTS, _c2k_states("DEF"), _mi09,
+          note="Both sexes only; the share of the resident population (column C) needs the "
+               "person file and is not compared (7d)."),
+    Check("2000", "MI10", "International migrants by sex, state left (`MLUGORI_C`)",
+          "C2KMI10.xls", "migrantes", ("men", "women"), _c2k_states("CD"),
+          _by_origin(lambda m: [m["MSEXO"].eq("1"), m["MSEXO"].eq("2")]), by_origin=True,
+          note="By the state the migrants left; state 99 = not specified (7d)."),
+    Check("2000", "MI11", "International migrants by age at emigrating, state left",
+          "C2KMI11.xls", "migrantes",
+          ("0-14", "15-24", "25-34", "35-49", "50+", "age not specified"), _c2k_states("CDEFGH"),
+          _by_origin(lambda m: _ages(m, _AGES_MI11)), by_origin=True, tolerance={7: 0.7},
+          note="Chiapas' 15–24 share is 0.68 points under INEGI's: 1,139 emigrant records, its "
+               "sample's weights (unweighted 57.42, weighted 53.75, INEGI 54.43; 7d)."),
+    Check("2000", "MI12", "International migrants by destination (`MPDESOTR_C`), state left",
+          "C2KMI12.xls", "migrantes", ("United States", "rest of the world", "not specified"),
+          _c2k_states("CDE"), _by_origin(_destination), by_origin=True,
+          note="C2KMI13 (each state's share of each destination) is the same counts over the "
+               "national totals: not compared (7d)."),
     Check("2010", "04_02A", "Residence in 2005 by municipality (`LUGAR_RES_5A`), the 5+",
           "04_02A_ESTATAL.xls", "personas", ("population 5+", *_PLACE_CELLS),
           _wide("Parámetro", _place_published), _place("LUGAR_RES_5A", _five), unit="persons",
@@ -1030,6 +1538,156 @@ CHECKS: tuple[Check, ...] = (
           _wide("Valor", lambda v: _counts(v[0], v[1:]), sheet="18",
                 dims=lambda k: (k[0], "T")),
           _financing_2015, unit="persons", sheet="18"),
+    Check("2015", "14-02a", "Dwellings by class (`CLAVIVP`)", "14_vivienda.xls", "viviendas",
+          tuple(n for n, _ in _CLASSES_2015), _stacked(tuple(n for n, _ in _CLASSES_2015),
+                                                       lambda v: v[:1], "02"),
+          _class_2015, unit="persons", sheet="02",
+          note="Every dwelling class: «otro tipo» = cuarto de azotea, local no construido "
+               "para habitación, vivienda móvil, refugio (06–09; 7d)."),
+    Check("2015", "14-02b", "Occupants by their dwelling's class (`CLAVIVP`, `NUMPERS`)",
+          "14_vivienda.xls", "viviendas", tuple(n for n, _ in _CLASSES_2015),
+          _stacked(tuple(n for n, _ in _CLASSES_2015), lambda v: v[1:2], "02"),
+          _class_2015, unit="persons", sheet="02", weight=_occupants,
+          note="The occupants = Σ `FACTOR` × `NUMPERS` of the dwellings (7d)."),
+    Check("2015", "14-04", "Dwellings by floor (`PISOS`)", "14_vivienda.xls", "viviendas",
+          ("dwellings", "earth", "cement", "tiles, wood or other", "not specified"),
+          _wide("Valor", lambda v: _counts(v[0], v[1:]), sheet="04", dims=lambda k: (k[0], "T")),
+          _item("PISOS", (1, 2, 3, 9)), unit="persons", sheet="04",
+          note="Here and below, `CLAVIVP` 7–9 left out, as INEGI's dwelling tabulados (7b)."),
+    Check("2015", "14-06", "Dwellings by roof (`TECHOS`)", "14_vivienda.xls", "viviendas",
+          ("dwellings", "waste material", "cardboard sheet", "metal sheet", "asbestos sheet",
+           "fibre-cement sheet", "palm or straw", "wood or tejamanil", "terrado with beams",
+           "tile", "concrete slab", "not specified"),
+          _wide("Valor", lambda v: _counts(v[0], v[1:]), sheet="06", dims=lambda k: (k[0], "T")),
+          _item("TECHOS", (*range(1, 11), 99)), unit="persons", sheet="06"),
+    Check("2015", "14-08", "Dwellings by wall (`PAREDES`)", "14_vivienda.xls", "viviendas",
+          ("dwellings", "waste material", "cardboard sheet", "asbestos or metal sheet",
+           "reed, bamboo or palm", "embarro or bajareque", "wood", "adobe",
+           "brick, block, stone or concrete", "not specified"),
+          _wide("Valor", lambda v: _counts(v[0], v[1:]), sheet="08", dims=lambda k: (k[0], "T")),
+          _item("PAREDES", (*range(1, 9), 9)), unit="persons", sheet="08"),
+    Check("2015", "14-09", "Dwellings by occupants (`NUMPERS`) and rooms (`TOTCUART`)",
+          "14_vivienda.xls", "viviendas",
+          _row_cells(_OCCUPANTS_2015, ("dwellings", "1", "2", "3", "4", "5", "6+", "NE")),
+          _stacked(tuple(n for n, _ in _OCCUPANTS_2015), lambda v: _counts(v[0], v[1:]), "09"),
+          _by_count("TOTCUART", (1, 2, 3, 4, 5, "6+", 99), "NUMPERS", _OCCUPANTS_2015),
+          unit="persons", sheet="09"),
+    Check("2015", "14-10", "Dwellings by occupants (`NUMPERS`) and bedrooms (`CUADORM`)",
+          "14_vivienda.xls", "viviendas",
+          _row_cells(_OCCUPANTS_2015, ("dwellings", "1", "2", "3", "4+", "NE")),
+          _stacked(tuple(n for n, _ in _OCCUPANTS_2015), lambda v: _counts(v[0], v[1:]), "10"),
+          _by_count("CUADORM", (1, 2, 3, "4+", 99), "NUMPERS", _OCCUPANTS_2015),
+          unit="persons", sheet="10"),
+    Check("2015", "14-11", "Dwellings that cook by fuel and place (`COMBUSTIBLE`, `COCINA`, "
+          "`LUGAR_COCINA`)", "14_vivienda.xls", "viviendas",
+          _row_cells(_FUELS_2015, ("dwellings", "kitchen", "elsewhere", "corridor", "shed",
+                                   "outdoors", "elsewhere, NE", "NE")),
+          _stacked(tuple(n for n, _ in _FUELS_2015),
+                   lambda v: _counts(v[0], v[1:], [0, 0, 2, 2, 2, 2, 0]), "11"),
+          _cooking_2015, unit="persons", sheet="11",
+          note="INEGI's dwellings that cook name a place (`LUGAR_COCINA` 1–3) or a fuel "
+               "(`COMBUSTIBLE` 1–4): a fuel not specified without a place is left out "
+               "(150,929 dwellings); electricity is «otro combustible» (7d)."),
+    Check("2015", "14-12", "Dwellings cooking with wood or charcoal by stove (`ESTUFA`), "
+          "nation", "14_vivienda.xls", "viviendas",
+          ("dwellings", "with a chimney", "without", "not specified"),
+          _wide("Valor", lambda v: _counts(v[0], v[1:]), sheet="12", dims=lambda k: (k[0], "T")),
+          _item("ESTUFA", (1, 3, 9),
+                lambda v: _cooks_2015(v) & _code(v, "COMBUSTIBLE").eq(1)),
+          unit="persons", sheet="12", note="Published by locality size: the national row."),
+    Check("2015", "14-17", "Owned dwellings by rooms and acquisition (`FORMA_ADQUI`)",
+          "14_vivienda.xls", "viviendas",
+          _row_cells(_ROOMS_2015, ("owned", "bought", "had it built", "built it", "inherited",
+                                   "government", "other", "NE")),
+          _stacked(tuple(n for n, _ in _ROOMS_2015), lambda v: _counts(v[0], v[1:]), "17"),
+          _acquisition_2015, unit="persons", sheet="17"),
+    Check("2015", "14-20", "Dwellings by water (`AGUA_ENTUBADA`, `ABA_AGUA_NO_ENTU`)",
+          "14_vivienda.xls", "viviendas",
+          ("dwellings", "piped", "inside", "in the yard", "carried", "community tap",
+           "another dwelling", "pipa", "well", "river, stream or lake", "rain",
+           "carried, NE", "not specified"),
+          _wide("Valor", lambda v: _counts(v[0], v[1:], [0, 1, 1, 0, 4, 4, 4, 4, 4, 4, 4, 0]),
+                sheet="20", dims=lambda k: (k[0], "T")),
+          _water_2015, unit="persons", sheet="20"),
+    Check("2015", "14-34", "Occupants by water (`AGUA_ENTUBADA`, `ABA_AGUA_NO_ENTU`)",
+          "14_vivienda.xls", "viviendas",
+          ("occupants", "piped", "inside", "in the yard", "carried", "community tap",
+           "another dwelling", "pipa", "well", "river, stream or lake", "rain",
+           "carried, NE", "not specified"),
+          _wide("Valor", lambda v: _counts(v[0], v[1:], [0, 1, 1, 0, 4, 4, 4, 4, 4, 4, 4, 0]),
+                sheet="34", dims=lambda k: (k[0], "T")),
+          _water_2015, unit="persons", sheet="34", weight=_occupants),
+    Check("2015", "14-36", "Dwellings with piped water by source (`ABA_AGUA_ENTU`)",
+          "14_vivienda.xls", "viviendas",
+          _row_cells(_PIPED_2015, ("dwellings", "public service", "community well",
+                                   "private well", "pipa", "another dwelling", "elsewhere",
+                                   "NE")),
+          _stacked(tuple(n for n, _ in _PIPED_2015), lambda v: _counts(v[0], v[1:]), "36"),
+          _water_source_2015, unit="persons", sheet="36"),
+    Check("2015", "14-22", "Occupants with piped water by source (`ABA_AGUA_ENTU`)",
+          "14_vivienda.xls", "viviendas",
+          _row_cells(_PIPED_2015, ("occupants", "public service", "community well",
+                                   "private well", "pipa", "another dwelling", "elsewhere",
+                                   "NE")),
+          _stacked(tuple(n for n, _ in _PIPED_2015), lambda v: _counts(v[0], v[1:]), "22"),
+          _water_source_2015, unit="persons", sheet="22", weight=_occupants),
+    Check("2015", "14-38", "Dwellings by drainage (`DRENAJE`)", "14_vivienda.xls", "viviendas",
+          ("dwellings", "with drainage", "public network", "septic tank", "ravine or crack",
+           "river, lake or sea", "without", "not specified"),
+          _wide("Valor", lambda v: _counts(v[0], v[1:], [0, 1, 1, 1, 1, 0, 0]), sheet="38",
+                dims=lambda k: (k[0], "T")),
+          _item("DRENAJE", ((1, 2, 3, 4), 1, 2, 3, 4, 5, 9)), unit="persons", sheet="38"),
+    Check("2015", "14-24", "Occupants by drainage (`DRENAJE`)", "14_vivienda.xls", "viviendas",
+          ("occupants", "with drainage", "public network", "septic tank", "ravine or crack",
+           "river, lake or sea", "without", "not specified"),
+          _wide("Valor", lambda v: _counts(v[0], v[1:], [0, 1, 1, 1, 1, 0, 0]), sheet="24",
+                dims=lambda k: (k[0], "T")),
+          _item("DRENAJE", ((1, 2, 3, 4), 1, 2, 3, 4, 5, 9)), unit="persons", sheet="24",
+          weight=_occupants),
+    Check("2015", "14-26", "Dwellings by electricity (`ELECTRICIDAD`)", "14_vivienda.xls",
+          "viviendas", ("dwellings", "has it", "has none", "not specified"),
+          _wide("Valor", lambda v: _counts(v[0], v[1:]), sheet="26", dims=lambda k: (k[0], "T")),
+          _item("ELECTRICIDAD", (5, 7, 9)), unit="persons", sheet="26"),
+    Check("2015", "14-27", "Dwellings with electricity by light bulbs (`FOCOS`)",
+          "14_vivienda.xls", "viviendas",
+          ("dwellings", "1-5", "6-10", "11-15", "16-20", "21+", "not specified"),
+          _wide("Valor", lambda v: _counts(v[0], v[1:]), sheet="27", dims=lambda k: (k[0], "T")),
+          _item("FOCOS", (tuple(range(1, 6)), tuple(range(6, 11)), tuple(range(11, 16)),
+                          tuple(range(16, 21)), tuple(range(21, 999)), 999),
+                lambda v: _dwellings_2015(v) & _code(v, "ELECTRICIDAD").eq(5)),
+          unit="persons", sheet="27"),
+    Check("2015", "14-28", "Dwellings by sanitary service (`SERSAN`, `CONAGUA`)",
+          "14_vivienda.xls", "viviendas",
+          ("dwellings", "with a toilet or latrine", "toilet", "toilet: flush", "toilet: bucket",
+           "toilet: no water", "toilet: NE", "latrine", "latrine: bucket", "latrine: no water",
+           "latrine: NE", "neither", "not specified"),
+          _wide("Valor", lambda v: _counts(v[0], v[1:], [0, 1, 2, 2, 2, 2, 1, 7, 7, 7, 0, 0]),
+                sheet="28", dims=lambda k: (k[0], "T")),
+          _sanitary_2015, unit="persons", sheet="28"),
+    Check("2015", "14-29", "Dwellings by waste disposal (`DESTINO_BASURA`)", "14_vivienda.xls",
+          "viviendas", ("dwellings", "collection service", "container", "burn it", "bury it",
+                        "public dump", "elsewhere", "not specified"),
+          _wide("Valor", lambda v: _counts(v[0], v[1:]), sheet="29", dims=lambda k: (k[0], "T")),
+          _item("DESTINO_BASURA", (1, 2, 3, 4, 5, 6, 9)), unit="persons", sheet="29"),
+    Check("2015", "14-30", "Dwellings giving their waste to a service or container by "
+          "separation (`SEPARA_BASURA`)", "14_vivienda.xls", "viviendas",
+          ("dwellings", "separate it", "do not", "not specified"),
+          _wide("Valor", lambda v: _counts(v[0], v[1:]), sheet="30", dims=lambda k: (k[0], "T")),
+          _item("SEPARA_BASURA", (1, 3, 9),
+                lambda v: _dwellings_2015(v) & _code(v, "DESTINO_BASURA").isin([1, 2])),
+          unit="persons", sheet="30"),
+    Check("2015", "14-31", "Dwellings by waste reuse (`SEPARA_ALI`/`_ABO`/`_VEN`)",
+          "14_vivienda.xls", "viviendas", _item_cells(_REUSE_2015),
+          _stacked(tuple(n for n, *_ in _REUSE_2015), lambda v: _counts(v[0], v[1:]), "31"),
+          _items(_REUSE_2015), unit="persons", sheet="31"),
+    Check("2015", "14-32", "Dwellings by goods and ICT (`REFRIGERADOR` … `SERV_TV_PAGA`)",
+          "14_vivienda.xls", "viviendas", _item_cells(_GOODS_2015),
+          _stacked(tuple(n for n, *_ in _GOODS_2015), lambda v: _counts(v[0], v[1:]), "32"),
+          _items(_GOODS_2015), unit="persons", sheet="32"),
+    Check("2015", "14-33", "Dwellings by equipment (`TINACO` … `PANEL_SOLAR`)",
+          "14_vivienda.xls", "viviendas", _item_cells(_EQUIPMENT_2015),
+          _stacked(tuple(n for n, *_ in _EQUIPMENT_2015), lambda v: _counts(v[0], v[1:]), "33"),
+          _items(_EQUIPMENT_2015), unit="persons", sheet="33"),
     Check("2020", "07-04", "Population 18+ with educación superior (`EDUC_INEGI_DET`)",
           "cpv2020_a_eum_07_educacion.xlsx", "personas", ("18+, superior or posgrado",),
           _wide("Valor", lambda v: v[:1], sheet="04"), _superior, unit="persons", sheet="04",
@@ -1097,6 +1755,8 @@ CHECKS: tuple[Check, ...] = (
 
 def _frame(period: str, table: str, state: int) -> pd.DataFrame:
     import mxcensus
+    if table == "migrantes":                                            # 7d
+        return mxcensus.load_cpv_migrantes(period, state=state, labels=False)
     loader = mxcensus.load_cpv_personas if table == "personas" else mxcensus.load_cpv_viviendas
     frame = loader(period, state=state, derived=True, labels=False)
     if table == "viviendas" and isinstance(frame.index, pd.MultiIndex):
@@ -1104,16 +1764,34 @@ def _frame(period: str, table: str, state: int) -> pd.DataFrame:
     return frame
 
 
-def _sums(check: Check, frame: pd.DataFrame) -> dict[str, list[tuple[float, float]]]:
-    """Σ FACTOR of each cell's numerator and denominator, by sex (T, and H/M for persons)."""
-    w = pd.to_numeric(frame["FACTOR"])
+# The tables broken down by sex, and their sex item (7d: the emigrants' own)
+_SEX_ITEM = {"personas": "SEXO", "migrantes": "MSEXO"}
+
+
+def _part(part, w: pd.Series, keep: pd.Series, state: int) -> dict[int, float]:
+    """Σ weight of a cell part's records: in the frame's ``state``, or by their origin
+    (:class:`ByOrigin`)."""
+    if not isinstance(part, ByOrigin):
+        return {state: float(w[part & keep].sum())}
+    mask = part.mask & keep
+    origin = pd.to_numeric(part.origin, errors="coerce")
+    origin = origin.where(origin.between(1, 32), _UNSPECIFIED).astype(int)
+    return {int(k): float(v) for k, v in w[mask].groupby(origin[mask]).sum().items()}
+
+
+def _sums(check: Check, frame: pd.DataFrame, state: int
+          ) -> dict[str, list[tuple[dict, dict | None]]]:
+    """Σ weight (``FACTOR``) of each cell's numerator and denominator, by sex (T, and H/M
+    for persons and emigrants), each as ``{state: Σ}`` (the frame's state, or the records'
+    origins)."""
+    w = check.weight(frame) if check.weight else pd.to_numeric(frame["FACTOR"])
     sexes = {"T": pd.Series(True, index=frame.index)}
-    if check.table == "personas":
+    if check.table in _SEX_ITEM:
         for code, sex in _SEXES[check.period].items():
-            sexes[sex] = frame["SEXO"].eq(code)
+            sexes[sex] = frame[_SEX_ITEM[check.table]].eq(code)
     cells = check.ours(frame)
-    return {sex: [(float(w[num & keep].sum()),
-                   float(w[den & keep].sum()) if den is not None else np.nan)
+    return {sex: [(_part(num, w, keep, state),
+                   _part(den, w, keep, state) if den is not None else None)
                   for num, den in cells]
             for sex, keep in sexes.items()}
 
@@ -1138,29 +1816,44 @@ def run(periods: list[str], states: list[int], tab_dir: Path = _DEFAULT_TAB_DIR,
 
     _registry.POOCH.fetch = lambda name, **kw: str(mirror / name)
     paths = fetch(periods, tab_dir)
+    every_state = len(states) == 32
     rows = []
     for period in periods:
-        checks = [c for c in CHECKS if c.period == period]
-        published = {}
+        # 7d: a check counting records by origin needs every state
+        checks = [c for c in CHECKS if c.period == period and (every_state or not c.by_origin)]
+        workbooks, published = {}, {}
         for c in checks:
-            published[c.key] = c.published(fd.read_workbook(paths[f"{period}/{c.source}"]))
-        sums: dict[tuple[str, int, str], list] = {}
+            if c.source not in workbooks:
+                workbooks[c.source] = fd.read_workbook(paths[f"{period}/{c.source}"])
+            published[c.key] = c.published(workbooks[c.source])
+        del workbooks
+        # (check, sex) → per cell, its numerator's and denominator's {state: Σ weight}
+        acc: dict[tuple[str, str], list] = {}
         for state in states:
             frames = {}
             for c in checks:
                 if c.table not in frames:
                     frames[c.table] = _frame(period, c.table, state)
-                for sex, cells in _sums(c, frames[c.table]).items():
-                    sums[c.key, state, sex] = cells
+                for sex, cells in _sums(c, frames[c.table], state).items():
+                    slots = acc.setdefault((c.key, sex), [
+                        (defaultdict(float), None if den is None else defaultdict(float))
+                        for _, den in cells])
+                    for (num_acc, den_acc), (num, den) in zip(slots, cells):
+                        for s, v in num.items():
+                            num_acc[s] += v
+                        for s, v in (den or {}).items():
+                            den_acc[s] += v
             log(f"  {period} state {state:02d}: {sum(len(f) for f in frames.values()):,} rows")
-        if len(states) == 32:
-            for c in checks:
-                for sex in ("T", "H", "M"):
-                    parts = [sums.get((c.key, s, sex)) for s in states]
-                    if all(parts):
-                        sums[c.key, _NATION, sex] = [
-                            (sum(p[i][0] for p in parts), sum(p[i][1] for p in parts))
-                            for i in range(len(parts[0]))]
+        sums: dict[tuple[str, int, str], list] = {}
+        for (key, sex), slots in acc.items():
+            targets = set().union(*(set(n) | set(d or ()) for n, d in slots))
+            for s in targets:
+                sums[key, s, sex] = [(n.get(s, 0.0), d.get(s, 0.0) if d is not None else np.nan)
+                                     for n, d in slots]
+            if every_state:                       # the nation: every state (and origin)
+                sums[key, _NATION, sex] = [
+                    (sum(n.values()), sum(d.values()) if d is not None else np.nan)
+                    for n, d in slots]
         for c in checks:
             for (key, state, sex), cells in sums.items():
                 if key != c.key or (state, sex) not in published[c.key]:
@@ -1175,7 +1868,8 @@ def run(periods: list[str], states: list[int], tab_dir: Path = _DEFAULT_TAB_DIR,
                     ours = _value(num, den, c.unit)
                     rows.append({"period": period, "check": c.key, "state": state, "sex": sex,
                                  "cell": name, "published": p, "ours": ours,
-                                 "delta": ours - p,
+                                 # 7d: a share of nothing against a published one fails
+                                 "delta": ours - p if not np.isnan(ours) else np.inf,
                                  "tolerance": _tolerance(period, state, c)})
     return rows
 
@@ -1195,8 +1889,12 @@ def report(rows: list[dict], states: list[int]) -> str:
              "INEGI computed from the same sample, for "
              + ("every state, both sexes and the nation" if len(states) == 32
                 else f"states {', '.join(f'{s:02d}' for s in states)}")
-             + ". 2000: shares in percentage points (published with two decimals); 2010 and "
-             "2015: counts in persons (Σ `FACTOR`; published totals × percentages).", ""]
+             + " — the derived columns and, since 7d, the samples' raw items (the EIC 2015 "
+             "dwellings', CGPV 2000's employment and migration items and its `migrantes` "
+             "file). 2000: shares "
+             "in percentage points (published with two decimals); 2010, 2015 and 2020: counts "
+             "in persons (Σ `FACTOR`; published totals × percentages; the occupants Σ "
+             "`FACTOR` × `NUMPERS`).", ""]
     for period in sorted(df["period"].unique()):
         sub = df[df["period"] == period]
         tol = _TOLERANCE[period]
@@ -1233,8 +1931,9 @@ def report(rows: list[dict], states: list[int]) -> str:
                              f"{_fmt(r['published'], u)} | {_fmt(r['ours'], u)} | "
                              f"{_fmt(r['delta'], u)} |")
             lines.append("")
-    lines += ["State 00 is the nation (the sum of the states); sex T = both, H = men, "
-              "M = women.", ""]
+    lines += ["State 00 is the nation (the sum of the states); state 99 the origin not "
+              "specified (the international migrants by the state they left); sex T = both, "
+              "H = men, M = women.", ""]
     return "\n".join(lines)
 
 

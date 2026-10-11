@@ -342,7 +342,13 @@ marital status, education, migration, the places of residence, school and work b
 municipality, household class, tenure and deeds, financing, co-residence, limitation, income
 in minimum wages); CGPV 2000 within a few hundredths of a point (its public sample's weights;
 Chiapas a few tenths), but for the residence in 1995 by municipality in four states, where
-INEGI counts up to a point more municipal migrants than the answers give.
+INEGI counts up to a point more municipal migrants than the answers give. The samples' own
+items are checked too: every EIC 2015 dwelling tabulado by state (materials, rooms and
+occupants, cooking, acquisition, water, drainage, electricity, sanitary service, waste, goods
+and equipment) matches to the dwelling and the occupant, and CGPV 2000's employment
+(inactivity, participation rates, occupation, position, benefits, unemployment rates) and
+migration tabulados (lifetime and recent migrants by state, their causes, the international
+migrants of the `migrantes` file) sit in its band.
 
 The legacy health-coverage dummies `DHSERSAL_Popular_NGenración_SBienestar` and
 `DHSERSAL_IMSS_Prospera/Bienestar` are named `DHSERSAL_SALUD_PUBLICA` and

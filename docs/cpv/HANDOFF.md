@@ -1,8 +1,9 @@
 # CPV family — session handoff
 
-**Status (2026-10-10): units 0–6z and 7a–7c are done. `main` = v0.11.0 = 6u–7b, tagged
-and pushed; 7c (CGPV 2000's places, the income in minimum wages 2000–2020) is one commit
-on `cpv-integration` after it (merge, version and push wait for the user). Before 0.11.0:
+**Status (2026-10-10): units 0–6z and 7a–7d are done. `main` = v0.11.0 = 6u–7b, tagged
+and pushed; 7c (CGPV 2000's places, the income in minimum wages 2000–2020) and 7d (more
+tabulado checks: the EIC 2015's dwellings, CGPV 2000's employment and migration) are two
+commits on `cpv-integration` after it (merge, version and push wait for the user). Before 0.11.0:
 v0.10.0 = 6s–6t, 0.9.0 = 6k–6r (§Review). A session starts by checking `git log`/`git status`
 against this line.**
 - **Released** (registered, uploaded, verified): every edition 1990–2025 (897 `cpv_` files)
@@ -226,7 +227,23 @@ against this line.**
     persons, unexplained), 2000 within 0.02 points.
   - The 2000 ITER's `P_1SM` … `P10_SM` are 2000 person constraints (65 → 70).
 
-Design: [`PLAN.md`](PLAN.md). Recent units: [`STEP_7c.md`](STEP_7c.md), [`STEP_7b.md`](STEP_7b.md), [`STEP_7a.md`](STEP_7a.md), [`STEP_6z.md`](STEP_6z.md), [`STEP_6y.md`](STEP_6y.md), [`STEP_6x.md`](STEP_6x.md), [`STEP_6w.md`](STEP_6w.md), [`STEP_6v.md`](STEP_6v.md), [`STEP_6u.md`](STEP_6u.md), [`STEP_6t.md`](STEP_6t.md), [`STEP_6s.md`](STEP_6s.md), [`STEP_6r.md`](STEP_6r.md), [`STEP_6q.md`](STEP_6q.md), [`STEP_6p.md`](STEP_6p.md), [`STEP_6o.md`](STEP_6o.md), [`STEP_6n.md`](STEP_6n.md), [`STEP_6m.md`](STEP_6m.md), [`STEP_6l.md`](STEP_6l.md), [`STEP_6k.md`](STEP_6k.md), [`STEP_6j.md`](STEP_6j.md), [`STEP_6i.md`](STEP_6i.md), [`STEP_6h.md`](STEP_6h.md), [`STEP_6g.md`](STEP_6g.md), [`STEP_6f.md`](STEP_6f.md), [`STEP_6e.md`](STEP_6e.md),
+- **7d** (`STEP_7d.md`): HANDOFF candidate 2's «more EIC 2015 tabulados» and «more CGPV
+  2000 tabulados» (the user's choice), checks only — no loader, derivation or dictionary
+  changed.
+  - `check_cpv_tabulados.py` reads the samples' **raw items** too: every EIC 2015 dwelling
+    tabulado by state (14-02…14-38) is exact to the dwelling and the occupant in every state;
+    CGPV 2000's C2KEM02/03/04/06/09/11 (inactivity, participation, the CMO groups,
+    position, benefits, TDA/TOPD2/TIID) and C2KMI02/05–12 (lifetime and recent migrants by
+    state, causes, the `migrantes` file's international migrants) sit in the 2000 band.
+  - INEGI's rules found: the 2015 dwellings that cook name a place or a fuel (150,929 with
+    neither specified are out); 2000's TOPD2 leaves out who had a job but did not work
+    (`CONACT` 20), TIID those without income; the migration shares' base is the residents
+    of a specified state; `MPAIRES_C` 700 = returned.
+  - New machinery: `ByOrigin` cells (records counted in their state of origin; such checks
+    need all 32 states), `Check.weight` (the occupants: `FACTOR` × `NUMPERS`), `migrantes`
+    frames.
+
+Design: [`PLAN.md`](PLAN.md). Recent units: [`STEP_7d.md`](STEP_7d.md), [`STEP_7c.md`](STEP_7c.md), [`STEP_7b.md`](STEP_7b.md), [`STEP_7a.md`](STEP_7a.md), [`STEP_6z.md`](STEP_6z.md), [`STEP_6y.md`](STEP_6y.md), [`STEP_6x.md`](STEP_6x.md), [`STEP_6w.md`](STEP_6w.md), [`STEP_6v.md`](STEP_6v.md), [`STEP_6u.md`](STEP_6u.md), [`STEP_6t.md`](STEP_6t.md), [`STEP_6s.md`](STEP_6s.md), [`STEP_6r.md`](STEP_6r.md), [`STEP_6q.md`](STEP_6q.md), [`STEP_6p.md`](STEP_6p.md), [`STEP_6o.md`](STEP_6o.md), [`STEP_6n.md`](STEP_6n.md), [`STEP_6m.md`](STEP_6m.md), [`STEP_6l.md`](STEP_6l.md), [`STEP_6k.md`](STEP_6k.md), [`STEP_6j.md`](STEP_6j.md), [`STEP_6i.md`](STEP_6i.md), [`STEP_6h.md`](STEP_6h.md), [`STEP_6g.md`](STEP_6g.md), [`STEP_6f.md`](STEP_6f.md), [`STEP_6e.md`](STEP_6e.md),
 [`STEP_6d.md`](STEP_6d.md),
 [`STEP_6c.md`](STEP_6c.md), [`STEP_6b.md`](STEP_6b.md), … [`STEP_0_probe.md`](STEP_0_probe.md).
 
@@ -241,12 +258,14 @@ user opens the printed URL) ran the 0.11.0 full suite on 7a + 7b's patch (moved 
 bundle` and a `git diff` over `scp`, byte-identical to the commit; 1882 passed) and was then
 pulled to v0.11.0.
 On 2026-10-10 (7c) `wsl:~/mxcensus` ran the 32-state sweep with 7c's patch applied, then was reverted to v0.11.0 (clean; `~/sweep_7c.py`/`.json` beside it). Its tabulados cache lacks 7c's `2000/C2KEM08.xls`, `C2KEM10.xls`, `C2KMI04.xls` and `2010/08_10A_ESTATAL.xls` (the script fetches them).
+7d ran on the Mac only; `wsl`'s tabulados cache also lacks its 15 CGPV 2000 workbooks
+(`C2KEM02/03/04/06/09/11`, `C2KMI02/05–12`; the script fetches them).
 `wsl:~/mxcensus3c` (3c's code copy) can be deleted.
 
 ## Kickoff prompt for the next session
 
 > Continue the CPV census-family work in this repo (branch cpv-integration = main = v0.11.0
-> + unit 7c). Read docs/cpv/HANDOFF.md first, then agree with me which next unit to
+> + units 7c and 7d). Read docs/cpv/HANDOFF.md first, then agree with me which next unit to
 > take (candidates in HANDOFF §Next) before implementing it, following the session protocol
 > in docs/cpv/PLAN.md. Use .venv/bin/python, not uv run. Run wsl tasks without asking; ask
 > me before committing, pushing, installing packages or uploading.
@@ -287,17 +306,19 @@ and **kept all seven** (merged as 0.9.0):
    an unpublished base B is the linear constraint Σ w·(1{cell} − p/100·1{B}) = 0, which
    needs no count; `cpv_constraints` only speaks counts, so this is a design change (a
    second kind of constraint, and a consumer for it).
-2. Smaller: a 2000 occupation bridge (CMO → SINCO, no published table); a locality-level
+2. Smaller: a 2000 occupation bridge (CMO → SINCO, no published table; 7d checked the CMO
+   groups — the first two digits of `OCUACTIV_C` — against C2KEM04); a locality-level
    lineage (6a covered municipalities only); CGPV 1990's undocumented `TIP_HOGAR` 6 (96,370
    persons, all `N_F_GPOS` 99 and a 9xx relationship: a dwelling without its household
-   composition; identity-labelled, `STEP_6u.md` §Left out); more EIC 2015 tabulados in
-   `check_cpv_tabulados.py` (acquisition `FORMA_ADQUI` 14-17, the dwelling materials,
-   services and goods 14-04…14-33: raw items, a check of the labels and the `CLAVIVP` 7–9
-   universe); more CGPV 2000 tabulados (C2KMI02/05–13: migration by entity, international
-   migrants — the `migrantes` file —; C2KEM02/03/04/06/09/11: inactivity, participation
-   rates, occupation, position, benefits; all fetched in 7c's probe); the hand-curated wage
-   tables as a generated YAML (`build_cpv.py` from INEGI's catalogs) if a later edition needs
-   one.
+   composition; identity-labelled, `STEP_6u.md` §Left out); the hand-curated wage tables as
+   a generated YAML (`build_cpv.py` from INEGI's catalogs) if a later edition needs one.
+3. More tabulado checks (7d's leftovers): the EIC 2015 owners by sex and order (14-14, and
+   14-15/16 by the owner's sex: `NUM_DUE_VIV1`/`2` point at person rows, so the check joins
+   the person file to the dwelling); the EIC 2015 person tabulados not yet read (disability,
+   fertility, language, the 01_poblacion tables); Censo 2010's and 2020's dwelling
+   tabulados (raw items, as 7d did for 2015); CGPV 2000's dwelling, fertility, disability
+   and language tabulados (`C2KVI*`, `C2KFE*`, `C2KDI*`, `C2KLI*`: they exist on INEGI's
+   server; 6c left 2000's disability out of the constraints).
 
 ## Open questions for the user
 
@@ -673,3 +694,18 @@ None.
 - **Sweeps on `wsl`** (7c): its user cache is not filled, so a sweep through the loaders
   downloads every file from the bucket; patch `mxcensus.data._registry.POOCH.fetch` to read
   `data/parquet` (as `check_cpv_tabulados.run` does).
+- **Origin cells** (7d, `check_cpv_tabulados.ByOrigin`): a cell part counted in the records'
+  state of origin (outside 1–32 → 99) — `run` accumulates every part as `{state: Σ}`, the
+  nation is the sum over all of them; a `Check(by_origin=True)` is dropped from partial runs
+  (`--states` below 32), so `test_state_01_within_tolerance` never sees MI02/05/10–12.
+- **Category keys** (7d): `_words` drops digits («2 ocupantes» = «3 ocupantes»); readers of
+  numbered categories use `_tokens` (numbers kept, a footnote glued to a word dropped).
+- **The occupants** (7d): the EIC 2015's occupant tabulados = Σ `FACTOR` × `NUMPERS` of the
+  dwellings (`Check.weight`), exact; no person file needed.
+- **The 2015 dwellings that cook** (7d, `_cooks_2015`): a place (`LUGAR_COCINA` 1–3) or a fuel
+  (`COMBUSTIBLE` 1–4) given; a kitchen with the fuel not specified is not counted.
+- **CGPV 2000's migrants file** (7d): movement by `MPAIRES_C` (700 «México» = returned, 999
+  NE, else abroad), age at emigrating `MEDAD`, sex `MSEXO` (1/2), the state left
+  `MLUGORI_C` (999 NE); Σ `FACTOR` = 1,632,790 (INEGI 1,633,052).
+- **`run` reads each workbook once** (7d); the full report (every edition, 32 states) takes
+  24 min on the Mac (~8 GB).
