@@ -77,7 +77,11 @@ SOURCES = {
     "2010": ("ccpv/2010/tabulados/Ampliado",
              ("04_02A_ESTATAL.xls", "06_01A_ESTATAL.xls", "08_02A_ESTATAL.xls",
               "08_03A_ESTATAL.xls", "08_10A_ESTATAL.xls", "08_15A_ESTATAL.xls",
-              "12_01A_ESTATAL.xls")),
+              "12_01A_ESTATAL.xls",
+              # 7h: the dwellings by state
+              "14_02A_ESTATAL.xls", "14_03A_ESTATAL.xls", "14_05A_ESTATAL.xls",
+              "14_07A_ESTATAL.xls", "14_09A_ESTATAL.xls", "14_10A_ESTATAL.xls",
+              "14_12A_ESTATAL.xls", "14_14A_ESTATAL.xls")),
     "2015": ("intercensal/2015/tabulados",
              ("04_migracion.xls", "05_etnicidad.xls", "06_educacion.xls",
               "07_servicios_de_salud.xls",
@@ -1028,13 +1032,15 @@ def _tokens(name: str) -> frozenset[str]:
     return frozenset(re.findall(r"(?<![^\W\d_])\d+|[^\W\d_]+", name.lower()))
 
 
-def _stacked(names: tuple[str, ...], pick: Callable[[list], list], sheet: str):
+def _stacked(names: tuple[str, ...], pick: Callable[[list], list], sheet: str | None,
+             estimator: str = "Valor"):
     """EIC 2015 tabulados with one row per (state, category) — the class, the number of
     occupants or rooms, the fuel, the item: per state, ``pick`` of each category's values in
-    the order of ``names`` (matched as :func:`_tokens`)."""
+    the order of ``names`` (matched as :func:`_tokens`). 7h: Censo 2010's («Parámetro») and
+    2020's too."""
     def read(wb):
         out = {}
-        for (state, category), values in _estimates(_sheet(wb, sheet), "Valor").items():
+        for (state, category), values in _estimates(_sheet(wb, sheet), estimator).items():
             out.setdefault(state, {})[_tokens(category)] = pick(values)
         return {(state, "T"): [x for n in names for x in cells[_tokens(n)]]
                 for state, cells in out.items()}
@@ -1171,8 +1177,8 @@ _EQUIPMENT_2015 = (("Tinaco", "TINACO", 1, 2), ("Cisterna o aljibe", "CISTERNA",
                    ("Aire acondicionado", "AIRE_ACON", 5, 6), ("Panel solar", "PANEL_SOLAR", 7, 8))
 
 
-def _items(items: tuple):
-    return _stacked_cells(*(_item(col, (yes, no, 9)) for _, col, yes, no in items))
+def _items(items: tuple, universe: Callable[[pd.DataFrame], pd.Series] | None = None):
+    return _stacked_cells(*(_item(col, (yes, no, 9), universe) for _, col, yes, no in items))
 
 
 def _item_cells(items: tuple) -> tuple[str, ...]:
@@ -1211,6 +1217,343 @@ def _wide(estimator: str, pick: Callable[[list], list], sheet: str | None = None
                 out[k] = pick(values)
         return out
     return read
+
+
+# Censo 2010 and 2020 dwellings: the raw items (7h) -------------------------------------
+
+def _dwellings_2010(v) -> pd.Series:
+    """Censo 2010's «viviendas particulares habitadas» of its dwelling tabulados: every
+    class but the locales no construidos para habitación, móviles and refugios (5–7; their
+    items are blank), the class not specified (9) included."""
+    return ~_code(v, "CLAVIVP").isin([5, 6, 7])
+
+
+def _dwellings_2020(v) -> pd.Series:
+    """Censo 2020's: every class but the locales, móviles and refugios (07–09), as the EIC
+    2015 (7d) and the 2010 census."""
+    return ~_code(v, "CLAVIVP").isin([7, 8, 9])
+
+
+def _sel(x: pd.Series, which) -> pd.Series:
+    """A category of a coded item: ``None`` = any, ``"N+"`` = N or more (not 99, «not
+    specified»), a tuple = any of its codes, else the code."""
+    if which is None:
+        return pd.Series(True, index=x.index)
+    if isinstance(which, str):
+        return x.between(int(which[:-1]), 98)
+    return _is(x, which)
+
+
+def _crossed(universe: Callable[[pd.DataFrame], pd.Series], rows: str, row_codes: tuple,
+             cols: str, col_codes: tuple, bases: Callable | None = None):
+    """The dwellings of ``universe`` in each category of ``rows`` (its codes as
+    :func:`_sel`), then in each category of ``cols`` within it."""
+    def ours(v):
+        u, r, c = universe(v), _code(v, rows), _code(v, cols)
+        return [cell for rc in row_codes for cell in _counts_of(
+            u & _sel(r, rc), *(u & _sel(r, rc) & _sel(c, cc) for cc in col_codes))]
+    return ours
+
+
+def _rows_of(estimator: str, which: str, sheet: str | None = None,
+             bases: list[int] | None = None):
+    """A tabulado with «Viviendas» and «Ocupantes» rows: the ``which`` rows' total and its
+    percentages as counts (``bases`` as :func:`_counts`)."""
+    return _wide(estimator, lambda v: _counts(v[0], v[1:], bases), sheet=sheet,
+                 dims=lambda k: (k[0], "T") if k[1] == which else None)
+
+
+def _named(*names: str) -> tuple[str, ...]:
+    return names
+
+
+# 14_02A: walls (rows) × roofs (columns)
+_WALLS_2010 = ("Total", "Material de desecho", "Lámina de cartón", "Lámina de asbesto o metálica",
+               "Carrizo, bambú o palma", "Embarro o bajareque", "Madera", "Adobe",
+               "Tabique, ladrillo, block, piedra, cantera, cemento o concreto",
+               "No especificado")
+_ROOFS_2010 = ("waste material", "cardboard sheet", "metal sheet", "asbestos sheet",
+               "palm or straw", "wood or tejamanil", "terrado with beams", "tile",
+               "concrete slab", "NE")
+_ROOMS_2010 = ("Total", "1 cuarto", "2 cuartos", "3 cuartos", "4 cuartos", "5 cuartos o más",
+               "No especificado")
+_EQUIPMENT_2010 = (("Estufa de gas", "ESTUFAG", 1, 2),
+                   ("Estufa de leña o carbón con chimenea", "ESTUFAL", 3, 4),
+                   ("Tinaco", "TINACO", 1, 2), ("Calentador de agua", "BOILER", 3, 4),
+                   ("Cisterna o aljibe", "CISTERNA", 1, 2), ("Regadera", "REGADERA", 3, 4),
+                   ("Medidor de luz", "MEDLUZ", 1, 2))
+
+
+def _toilet_2010(v):
+    """14_07A: the dwellings with a toilet (``SERSAN`` 1) by its use (all, shared
+    ``USOEXC`` 1, exclusive 3, not specified 9), then by how it takes water (``CONAGU``: it
+    can — flush 5 or a bucket 6 —, it cannot 7, not specified 9)."""
+    u = _dwellings_2010(v) & _code(v, "SERSAN").eq(1)
+    use, water = _code(v, "USOEXC"), _code(v, "CONAGU")
+    out = []
+    for codes in (None, 1, 3, 9):
+        r = u & _sel(use, codes)
+        out += _counts_of(r, r & water.isin([5, 6]), r & water.eq(5), r & water.eq(6),
+                          r & water.eq(7), r & water.eq(9))
+    return out
+
+
+# 2020 (16_vivienda.xlsx): the equipment and the waste separation, one row per item (its
+# «yes» and «no» codes; 9 = not specified), dwellings (its first four values) and occupants
+_EQUIPMENT_2020 = (("Bomba de agua", "BOMBA_AGUA", 5, 6), ("Regadera", "REGADERA", 7, 8),
+                   ("Boiler o calentador de agua (gas, eléctrico, leña)", "BOILER", 1, 2),
+                   ("Calentador solar de agua", "CALENTADOR_SOLAR", 3, 4),
+                   ("Aire acondicionado", "AIRE_ACON", 5, 6),
+                   ("Panel solar para tener electricidad", "PANEL_SOLAR", 7, 8))
+_SEPARATION_2020 = (("En orgánicos e inorgánicos", "SEPARACION1", 1, 2),
+                    ("En desperdicios para alimentar animales", "SEPARACION2", 3, 4),
+                    ("En desperdicios para echarlos a las plantas", "SEPARACION3", 5, 6),
+                    ("En cartón, latas o plástico para vender, regalar, donar o reutilizar",
+                     "SEPARACION4", 7, 8))
+
+
+def _electricity_2020(v) -> pd.Series:
+    return _dwellings_2020(v) & _code(v, "ELECTRICIDAD").eq(1)
+
+
+def _saving_bulbs_2020(v):
+    """16-16: the dwellings with electricity by their share of energy-saving bulbs
+    (``FOCOS_AHORRA`` of ``FOCOS``): none (0 — whatever the total, also not specified), below
+    50%, 50–75%, 75–100%, all; not specified = ``FOCOS_AHORRA`` 999 (or, with some, ``FOCOS``
+    999)."""
+    u = _electricity_2020(v)
+    bulbs, saving = _code(v, "FOCOS"), _code(v, "FOCOS_AHORRA")
+    ne = saving.eq(999) | (bulbs.eq(999) & saving.gt(0))
+    share = (saving / bulbs).where(~ne & saving.gt(0))
+    return _counts_of(u, u & saving.eq(0), u & share.lt(0.5), u & share.ge(0.5) & share.lt(0.75),
+                      u & share.ge(0.75) & share.lt(1), u & share.ge(1), u & ne)
+
+
+def _owned_2020(v) -> pd.Series:
+    return _dwellings_2020(v) & _code(v, "TENENCIA").eq(1)
+
+
+def _credit_2020(v) -> pd.Series:
+    """16-36: the owned dwellings bought or built (``FORMA_ADQUI`` 1–3) with a credit (a
+    ``FINANCIAMIENTO`` answer 1–7, not only their own resources 8) — the dwellings asked
+    ``DEUDA``."""
+    credit = np.logical_or.reduce([_code(v, f"FINANCIAMIENTO{i}").between(1, 7)
+                                   for i in (1, 2, 3)])
+    return _owned_2020(v) & _code(v, "FORMA_ADQUI").isin([1, 2, 3]) & credit
+
+
+def _two_blocks(names: tuple[str, ...], block: int, sheet: str):
+    """2020's tabulados whose rows are items with a dwellings block and an occupants block
+    of four values each (total, yes, no, not specified): the ``block``-th, as counts."""
+    return _stacked(names, lambda v: _counts(v[4 * block], v[4 * block + 1:4 * block + 4]),
+                    sheet)
+
+
+_VIV_2020 = "cpv2020_a_eum_16_vivienda.xlsx"
+
+
+def _occupants_title(title: str) -> str:
+    """«Dwellings …» / «Owned dwellings …» → «Occupants of the (owned) dwellings …»."""
+    head, rest = title.split("wellings", 1)
+    return f"Occupants of the {head.lower()}wellings{rest}"
+
+
+# 7h: the owners (2015 NUM_DUE_VIV1/2, 2020 DUE1_NUM/DUE2_NUM: person rows, 99 = not
+# identified), whose sex the dwelling frame takes from the person file (_with_owners)
+_OWNERS = {"2015": ("NUM_DUE_VIV1", "NUM_DUE_VIV2"), "2020": ("DUE1_NUM", "DUE2_NUM")}
+_MAN, _WOMAN = "1", "3"
+
+
+def _owners_2020(v):
+    """16-28: the owned dwellings by their owners: one woman, one man; co-owners: two women,
+    two men, a woman and a man (either order); the owner not identified (``DUE1_NUM`` 99)."""
+    own, first, second = _owned_2020(v), v["DUE1_SEXO"], v["DUE2_SEXO"]
+    alone, both = second.isna() & first.notna(), first.notna() & second.notna()
+    unknown = _code(v, "DUE1_NUM").eq(99)
+    return _counts_of(own, own & alone & first.eq(_WOMAN), own & alone & first.eq(_MAN),
+                      own & both & first.eq(_WOMAN) & second.eq(_WOMAN),
+                      own & both & first.eq(_MAN) & second.eq(_MAN),
+                      own & both & first.ne(second), own & unknown)
+
+
+def _owners_2015(v):
+    """14-14: the owned dwellings by their owners, in their order: only a man, only a woman;
+    co-owners a man and a woman, a woman and a man, both of one sex; not identified (99)."""
+    own, first, second = _dwellings_2015(v) & _code(v, "TENENCIA").eq(1), v["DUE1_SEXO"], v["DUE2_SEXO"]
+    alone, both = second.isna() & first.notna(), first.notna() & second.notna()
+    return _counts_of(own, own & alone & first.eq(_MAN), own & alone & first.eq(_WOMAN),
+                      own & both & first.eq(_MAN) & second.eq(_WOMAN),
+                      own & both & first.eq(_WOMAN) & second.eq(_MAN),
+                      own & both & first.eq(second), own & _code(v, "NUM_DUE_VIV1").eq(99))
+
+
+def _deeds_by_owner_2015(v):
+    """14-16: the owned dwellings by the (first) owner's sex — a man, a woman, not identified
+    (99) — then by deed (``ESCRITURAS_VIV``)."""
+    own = _dwellings_2015(v) & _code(v, "TENENCIA").eq(1)
+    first, deed = v["DUE1_SEXO"], _code(v, "ESCRITURAS_VIV")
+    out = []
+    for who in (own & first.eq(_MAN), own & first.eq(_WOMAN),
+                own & _code(v, "NUM_DUE_VIV1").eq(99)):
+        out += _counts_of(who, *(who & deed.eq(c) for c in (1, 2, 3, 8, 9)))
+    return out
+
+
+def _dwelling_checks_2020() -> tuple[Check, ...]:
+    """Censo 2020's dwelling tabulados by state (16_vivienda.xlsx): each, its dwellings and
+    (``b``) its occupants (Σ ``FACTOR`` × ``NUMPERS``)."""
+    out = []
+    specs = (
+        ("02", "Dwellings by wall (`PAREDES`)", _dwellings_2020, "PAREDES",
+         (*range(1, 9), 9), ("waste material", "cardboard sheet", "asbestos or metal sheet",
+                             "reed, bamboo or palm", "embarro or bajareque", "wood", "adobe",
+                             "brick, block, stone or concrete", "NE")),
+        ("04", "Dwellings by roof (`TECHOS`)", _dwellings_2020, "TECHOS", (*range(1, 11), 99),
+         ("waste material", "cardboard sheet", "metal sheet", "asbestos sheet",
+          "fibre-cement sheet", "palm or straw", "wood or tejamanil", "terrado with beams",
+          "tile", "concrete slab", "NE")),
+        ("06", "Dwellings by a room to cook in (`COCINA`)", _dwellings_2020, "COCINA",
+         (1, 3, 9), ("yes", "no", "NE")),
+        ("08", "Dwellings by where they cook (`LUG_COC`)", _dwellings_2020, "LUG_COC",
+         (1, 2, 3, 4, 5, 6, 9), ("inside", "a separate room", "a corridor", "a shed",
+                                 "outdoors", "no space to cook", "NE")),
+        ("10", "Dwellings by cooking fuel (`COMBUSTIBLE`)", _dwellings_2020, "COMBUSTIBLE",
+         (1, 2, 3, 4, 5, 9), ("wood or charcoal", "gas", "electricity", "other",
+                              "do not cook", "NE")),
+        ("12", "Dwellings cooking with wood or charcoal by chimney (`ESTUFA`)",
+         lambda v: _dwellings_2020(v) & _code(v, "COMBUSTIBLE").eq(1), "ESTUFA", (1, 3, 9),
+         ("with a chimney", "without", "NE")),
+        ("14", "Dwellings with electricity by light bulbs (`FOCOS`)", _electricity_2020,
+         "FOCOS", (tuple(range(1, 6)), tuple(range(6, 11)), tuple(range(11, 16)),
+                   tuple(range(16, 21)), tuple(range(21, 999)), 999),
+         ("1-5", "6-10", "11-15", "16-20", "21+", "NE")),
+        ("18", "Dwellings with a toilet or latrine by its use (`USOEXC`)",
+         lambda v: _dwellings_2020(v) & _code(v, "SERSAN").isin([1, 2]), "USOEXC", (3, 1, 9),
+         ("exclusive", "shared", "NE")),
+        ("24", "Dwellings by waste disposal (`DESTINO_BAS`)", _dwellings_2020, "DESTINO_BAS",
+         (1, 2, 3, 4, 5, 6, 9), ("collection", "container", "burn", "bury", "public dump",
+                                 "elsewhere", "NE")),
+        ("26", "Dwellings by tenure (`TENENCIA`)", _dwellings_2020, "TENENCIA",
+         (1, 2, 3, 4, 9), ("own", "rented", "a relative's or lent", "other", "NE")),
+        ("30", "Owned dwellings by deed (`ESCRITURAS`)", _owned_2020, "ESCRITURAS",
+         (1, 2, 3, 8, 9), ("in the resident owner's name", "in a non-resident's name",
+                           "none", "not known", "NE")),
+        ("32", "Owned dwellings by acquisition (`FORMA_ADQUI`)", _owned_2020, "FORMA_ADQUI",
+         (1, 2, 3, 4, 5, 6, 9), ("bought", "had it built", "built it", "inherited",
+                                 "government", "other", "NE")),
+    )
+    for sheet, title, universe, col, codes, names in specs:
+        for suffix, which, weight in (("a", "Viviendas", None), ("b", "Ocupantes", _occupants)):
+            out.append(Check("2020", f"16-{sheet}{suffix}",
+                             title if suffix == "a" else _occupants_title(title),
+                             _VIV_2020, "viviendas", ("total", *names),
+                             _rows_of("Valor", which, sheet), _item(col, codes, universe),
+                             unit="persons", sheet=sheet, weight=weight))
+    bulbs = ("total", "none", "below 50%", "50-75%", "75-100%", "all", "NE")
+    title = ("Dwellings with electricity by their share of energy-saving bulbs "
+             "(`FOCOS_AHORRA`/`FOCOS`)")
+    for suffix, which, weight in (("a", "Viviendas", None), ("b", "Ocupantes", _occupants)):
+        out.append(Check("2020", f"16-16{suffix}",
+                         title if suffix == "a" else _occupants_title(title), _VIV_2020,
+                         "viviendas", bulbs, _rows_of("Valor", which, "16"), _saving_bulbs_2020,
+                         unit="persons", sheet="16", weight=weight,
+                         note="None = no saving bulb, whatever the total (also when it is not "
+                              "specified); not specified = the saving bulbs' count (7h)."))
+    for sheet, items, title in (("20", _EQUIPMENT_2020, "equipment (`BOMBA_AGUA` … "
+                                 "`PANEL_SOLAR`)"),
+                                ("22", _SEPARATION_2020, "waste separation (`SEPARACION1`–4)")):
+        names = tuple(n for n, *_ in items)
+        for block, (suffix, weight) in enumerate((("a", None), ("b", _occupants))):
+            out.append(Check("2020", f"16-{sheet}{suffix}",
+                             f"{'Dwellings' if block == 0 else 'Occupants'} by {title}",
+                             _VIV_2020, "viviendas", _item_cells(items),
+                             _two_blocks(names, block, sheet), _items(items, _dwellings_2020),
+                             unit="persons", sheet=sheet, weight=weight))
+    out.append(Check("2020", "16-28", "Owned dwellings by their owners' sex and number "
+                     "(`DUE1_NUM`/`DUE2_NUM` → the person's `SEXO`)", _VIV_2020, "viviendas",
+                     ("total", "one woman", "one man", "two women", "two men",
+                      "a woman and a man", "not identified"),
+                     _wide("Valor", lambda v: _counts(v[0], v[1:]), sheet="28",
+                           dims=lambda k: (k[0], "T")),
+                     _owners_2020, unit="persons", sheet="28",
+                     note="The owner items point at the person rows (`NUMPER`), whose `SEXO` "
+                          "the person file gives; 99 = the owner not identified (7h)."))
+    out.append(Check("2020", "16-36", "Owned dwellings bought or built with a credit by its "
+                     "payment (`DEUDA`)", _VIV_2020, "viviendas",
+                     ("total", "paid", "being paid", "payment suspended", "not known", "NE"),
+                     _wide("Valor", lambda v: _counts(v[0], v[1:]), sheet="36",
+                           dims=lambda k: (k[0], "T")),
+                     _item("DEUDA", (1, 2, 3, 8, 9), _credit_2020), unit="persons", sheet="36",
+                     note="Bought or built (`FORMA_ADQUI` 1–3) with a credit: a `FINANCIAMIENTO` "
+                          "source 1–7, not only their own resources (7h)."))
+    return tuple(out)
+
+
+def _dwelling_checks_2010() -> tuple[Check, ...]:
+    """Censo 2010's dwelling tabulados by state (``14_NNA_ESTATAL.xls``, «Parámetro»): its
+    dwellings without the locales, móviles and refugios, the occupants Σ ``FACTOR`` ×
+    ``NUMPERS``."""
+    est = "Parámetro"
+    out = [
+        Check("2010", "14_02A", "Dwellings by wall and roof (`PAREDES`, `TECHOS`)",
+              "14_02A_ESTATAL.xls", "viviendas", _row_cells(tuple((n, None) for n in _WALLS_2010),
+                                                           ("total", *_ROOFS_2010)),
+              _stacked(_WALLS_2010, lambda v: _counts(v[0], v[1:]), None, est),
+              _crossed(_dwellings_2010, "PAREDES", (None, *range(1, 9), 9), "TECHOS",
+                       (*range(1, 10), 99)), unit="persons",
+              note="Locales no construidos para habitación, móviles and refugios (`CLAVIVP` "
+                   "5–7) left out, as INEGI's 2010 dwelling tabulados (7h)."),
+        Check("2010", "14_05A", "Owned dwellings by rooms and acquisition (`TOTCUART`, "
+              "`FADQUI`)", "14_05A_ESTATAL.xls", "viviendas",
+              _row_cells(tuple((n, None) for n in _ROOMS_2010),
+                         ("owned", "bought", "had it built", "built it", "other", "NE")),
+              _stacked(_ROOMS_2010, lambda v: _counts(v[0], v[1:]), None, est),
+              _crossed(lambda v: _dwellings_2010(v) & _code(v, "TENVIV").eq(1), "TOTCUART",
+                       (None, 1, 2, 3, 4, "5+", 99), "FADQUI", (1, 2, 3, 4, 9)),
+              unit="persons"),
+        Check("2010", "14_07A", "Dwellings with a toilet by use and water (`USOEXC`, `CONAGU`)",
+              "14_07A_ESTATAL.xls", "viviendas",
+              _row_cells(tuple((n, None) for n in ("all", "shared", "exclusive", "use NE")),
+                         ("total", "takes water", "flush", "bucket", "no water", "NE")),
+              _stacked(("Total", "De uso compartido", "De uso exclusivo", "Uso no especificado"),
+                       lambda v: _counts(v[0], v[1:], [0, 1, 1, 0, 0]), None, est),
+              _toilet_2010, unit="persons"),
+        Check("2010", "14_09A", "Dwellings by equipment (`ESTUFAG` … `MEDLUZ`)",
+              "14_09A_ESTATAL.xls", "viviendas", _item_cells(_EQUIPMENT_2010),
+              _stacked(tuple(n for n, *_ in _EQUIPMENT_2010), lambda v: _counts(v[0], v[1:]),
+                       None, est), _items(_EQUIPMENT_2010, _dwellings_2010), unit="persons"),
+        Check("2010", "14_10A", "Dwellings with piped water by supply (`DOTAGUAD`)",
+              "14_10A_ESTATAL.xls", "viviendas",
+              ("total", "daily", "every third day", "once or twice a week", "now and then",
+               "NE"),
+              _wide(est, lambda v: _counts(v[0], v[1:]), dims=lambda k: (k[0], "T")),
+              _item("DOTAGUAD", (1, 2, (3, 4), 5, 9),
+                    lambda v: _dwellings_2010(v) & _code(v, "DISAGU").isin([1, 2])),
+              unit="persons", note="Piped water: inside the dwelling or the lot (`DISAGU` "
+                                   "1–2), the dwellings asked `DOTAGUAD` (7h)."),
+        Check("2010", "14_12A", "Dwellings by kitchen and cooking fuel (`COCINA`, `COMBUST`)",
+              "14_12A_ESTATAL.xls", "viviendas",
+              _row_cells(tuple((n, None) for n in ("all", "kitchen", "no kitchen", "NE")),
+                         ("total", "LP gas", "natural gas", "wood or charcoal", "other", "NE")),
+              _stacked(("Total", "Disponen de cocina", "No disponen de cocina",
+                        "No especificado"), lambda v: _counts(v[0], v[1:]), None, est),
+              _crossed(_dwellings_2010, "COCINA", (None, 1, 3, 9), "COMBUST",
+                       (1, 2, (3, 4), (5, 6), 9)), unit="persons",
+              note="Electricity is «otro combustible» (7h)."),
+    ]
+    for key, source, title, col, codes, names in (
+            ("14_03A", "14_03A_ESTATAL.xls", "by tenure (`TENVIV`)", "TENVIV", (1, 2, 3, 9),
+             ("own", "rented", "other", "NE")),
+            ("14_14A", "14_14A_ESTATAL.xls", "by waste disposal (`ELIBAS`)", "ELIBAS",
+             (1, 2, 3, 4, 5, 6, (7, 8), 9),
+             ("collection", "public dump", "container", "burn", "bury", "vacant lot or street",
+              "ravine, river, lake or sea", "NE"))):
+        for suffix, which, weight in (("a", "Viviendas", None), ("b", "Ocupantes", _occupants)):
+            out.append(Check("2010", key + suffix,
+                             f"{'Dwellings' if suffix == 'a' else 'Occupants'} {title}", source,
+                             "viviendas", ("total", *names), _rows_of(est, which),
+                             _item(col, codes, _dwellings_2010), unit="persons", weight=weight))
+    return tuple(out)
 
 
 _ECO_2020 = "cpv2020_a_eum_08_caracteristicas_economicas.xlsx"
@@ -1530,6 +1873,23 @@ CHECKS: tuple[Check, ...] = (
                 dims=lambda k: (k[0], "T") if k[1] == "Total" else None),
           _deeds_2015, unit="persons", sheet="16",
           note="The owner's sex is the breakdown: its «Total» rows (7b)."),
+    Check("2015", "14-14", "Owned dwellings by their owners' sex and order "
+          "(`NUM_DUE_VIV1`/`2` → the person's `SEXO`)", "14_vivienda.xls", "viviendas",
+          ("owned dwellings", "only a man", "only a woman", "a man and a woman",
+           "a woman and a man", "both of one sex", "not identified"),
+          _wide("Valor", lambda v: _counts(v[0], v[1:]), sheet="14", dims=lambda k: (k[0], "T")),
+          _owners_2015, unit="persons", sheet="14",
+          note="The owner items point at the person rows (`NUMPER`), whose `SEXO` the person "
+               "file gives; 99 = the owner not identified (7h)."),
+    Check("2015", "14-16s", "Owned dwellings by the owner's sex and deed (`ESCRITURAS_VIV`)",
+          "14_vivienda.xls", "viviendas",
+          _row_cells(tuple((n, None) for n in ("man", "woman", "not identified")),
+                     ("owned", "in a resident's name", "in a non-resident's name", "no deed",
+                      "not known", "NE")),
+          _stacked(("Hombres", "Mujeres", "Dueño(a) no identificado(a)"),
+                   lambda v: _counts(v[0], v[1:]), "16"),
+          _deeds_by_owner_2015, unit="persons", sheet="16",
+          note="The first owner's sex (7h)."),
     Check("2015", "14-18", "Financing of the owned dwellings bought or built "
           "(`FINANCIAMIENTO_*`)", "14_vivienda.xls", "viviendas",
           ("dwellings", "INFONAVIT, FOVISSSTE or PEMEX", "FONHAPO", "banks",
@@ -1746,7 +2106,7 @@ CHECKS: tuple[Check, ...] = (
           _wide("Valor", lambda v: _counts(v[0], v[1:]), sheet="34",
                 dims=lambda k: (k[0], "T")),
           _financing_2020, unit="persons", sheet="34"),
-)
+) + _dwelling_checks_2010() + _dwelling_checks_2020()                   # 7h: the raw items
 
 
 # --------------------------------------------------------------------------------------
@@ -1761,7 +2121,29 @@ def _frame(period: str, table: str, state: int) -> pd.DataFrame:
     frame = loader(period, state=state, derived=True, labels=False)
     if table == "viviendas" and isinstance(frame.index, pd.MultiIndex):
         frame = frame[~frame.index.get_level_values(0).duplicated()]  # 2000: one per dwelling
+    if table == "viviendas" and period in _OWNERS:
+        frame = _with_owners(frame, period, state)
     return frame
+
+
+def _with_owners(v: pd.DataFrame, period: str, state: int) -> pd.DataFrame:
+    """7h: the owners' raw ``SEXO`` (``DUE1_SEXO``/``DUE2_SEXO``) from the person file
+    (``ID_VIV``, ``NUMPER``, ``SEXO``): the owner items hold person rows; 99 (not identified)
+    or a blank gives none. The 2015 codes are unpadded, so both sides compare as numbers."""
+    import pyarrow.parquet as pq
+    from mxcensus.data._registry import POOCH
+
+    path = POOCH.fetch(f"cpv_personas_{period}_{state:02d}.parquet")
+    p = pq.read_table(path, columns=["ID_VIV", "NUMPER", "SEXO"]).to_pandas()
+    sex = pd.Series(p["SEXO"].astype(str).to_numpy(), index=pd.MultiIndex.from_arrays(
+        [pd.to_numeric(p["ID_VIV"]), pd.to_numeric(p["NUMPER"])]))
+    dwelling = pd.to_numeric(pd.Series(v.index.get_level_values("ID_VIV"), index=v.index))
+    out = v.copy()
+    for name, col in zip(("DUE1_SEXO", "DUE2_SEXO"), _OWNERS[period]):
+        row = pd.to_numeric(v[col], errors="coerce")
+        key = pd.MultiIndex.from_arrays([dwelling.to_numpy(), row.to_numpy()])
+        out[name] = sex.reindex(key).to_numpy()
+    return out
 
 
 # The tables broken down by sex, and their sex item (7d: the emigrants' own)
@@ -1891,6 +2273,7 @@ def report(rows: list[dict], states: list[int]) -> str:
                 else f"states {', '.join(f'{s:02d}' for s in states)}")
              + " — the derived columns and, since 7d, the samples' raw items (the EIC 2015 "
              "dwellings', CGPV 2000's employment and migration items and its `migrantes` "
+             "file; 7h: the Censo 2010 and 2020 dwellings', the owners' sex from the person "
              "file). 2000: shares "
              "in percentage points (published with two decimals); 2010, 2015 and 2020: counts "
              "in persons (Σ `FACTOR`; published totals × percentages; the occupants Σ "

@@ -1,13 +1,14 @@
 # CPV family — session handoff
 
-**Status (2026-10-10/11, overnight): units 0–6z and 7a–7g are done. `main` = v0.11.0 =
+**Status (2026-10-10/11, overnight): units 0–6z and 7a–7h are done. `main` = v0.11.0 =
 6u–7b, tagged and pushed; 7c (CGPV 2000's places, the income in minimum wages 2000–2020), 7d
 (more tabulado checks: the EIC 2015's dwellings, CGPV 2000's employment and migration), 7e
-(ratio constraints), 7f (CGPV 2000 per dwelling, the 1990/1995 averages) and 7g (constraint
-keys = the published columns; every constraint against the census) are commits on
-`cpv-integration` after it, not pushed. 7g ran unattended (the user asked for the night's
-units to run without them: a local commit per unit, no push, merge, version or upload) —
-its decisions wait for the user's review (§Review: night of 2026-10-10/11). Before 0.11.0:
+(ratio constraints), 7f (CGPV 2000 per dwelling, the 1990/1995 averages), 7g (constraint
+keys = the published columns; every constraint against the census) and 7h (the Censo
+2010/2020 dwelling tabulados, the owners' sex) are commits on `cpv-integration` after it,
+not pushed. 7g and 7h ran unattended (the user asked for the night's units to run without
+them: a local commit per unit, no push, merge, version or upload) — their decisions wait
+for the user's review (§Review: night of 2026-10-10/11). Before 0.11.0:
 v0.10.0 = 6s–6t, 0.9.0 = 6k–6r. A session starts by checking `git log`/`git status` against
 this line.**
 - **Released** (registered, uploaded, verified): every edition 1990–2025 (897 `cpv_` files)
@@ -312,7 +313,22 @@ this line.**
     religion (small swaps between categories).
   - Full suite on the Mac: 1912 passed, 1 skipped.
 
-Design: [`PLAN.md`](PLAN.md). Recent units: [`STEP_7g.md`](STEP_7g.md), [`STEP_7f.md`](STEP_7f.md), [`STEP_7e.md`](STEP_7e.md), [`STEP_7d.md`](STEP_7d.md), [`STEP_7c.md`](STEP_7c.md), [`STEP_7b.md`](STEP_7b.md), [`STEP_7a.md`](STEP_7a.md), [`STEP_6z.md`](STEP_6z.md), [`STEP_6y.md`](STEP_6y.md), [`STEP_6x.md`](STEP_6x.md), [`STEP_6w.md`](STEP_6w.md), [`STEP_6v.md`](STEP_6v.md), [`STEP_6u.md`](STEP_6u.md), [`STEP_6t.md`](STEP_6t.md), [`STEP_6s.md`](STEP_6s.md), [`STEP_6r.md`](STEP_6r.md), [`STEP_6q.md`](STEP_6q.md), [`STEP_6p.md`](STEP_6p.md), [`STEP_6o.md`](STEP_6o.md), [`STEP_6n.md`](STEP_6n.md), [`STEP_6m.md`](STEP_6m.md), [`STEP_6l.md`](STEP_6l.md), [`STEP_6k.md`](STEP_6k.md), [`STEP_6j.md`](STEP_6j.md), [`STEP_6i.md`](STEP_6i.md), [`STEP_6h.md`](STEP_6h.md), [`STEP_6g.md`](STEP_6g.md), [`STEP_6f.md`](STEP_6f.md), [`STEP_6e.md`](STEP_6e.md),
+- **7h** (`STEP_7h.md`): HANDOFF candidate 3's Censo 2010/2020 dwelling tabulados and 7d's
+  leftover owners by sex, unattended; checks only (no loader, derivation or dictionary
+  changed).
+  - `check_cpv_tabulados.py` on the raw items of Censo 2010's 8 dwelling tabulados by state
+    (`14_NNA_ESTATAL.xls`: walls × roofs, tenure, rooms × acquisition, toilets, equipment,
+    water supply, kitchen × fuel, waste) and Censo 2020's 16 (`16_vivienda.xlsx`: walls,
+    roofs, cooking, fuel, chimney, bulbs and energy-saving bulbs, toilet use, equipment,
+    waste separation and disposal, tenure, owners, deeds, acquisition, credit), dwellings
+    and occupants.
+  - The owners' sex (EIC 2015 14-14/14-16, Censo 2020 16-28): the owner items hold person
+    rows (`NUMPER`), joined from the person file (`_with_owners`; 99 = not identified).
+  - **18,546 cells, every one exact** in every state and the nation (the report: 72,015
+    cells). Universes: 2010 without `CLAVIVP` 5–7, 2020 without 07–09; 2020's «sin focos
+    ahorradores» = `FOCOS_AHORRA` 0 whatever the total.
+
+Design: [`PLAN.md`](PLAN.md). Recent units: [`STEP_7h.md`](STEP_7h.md), [`STEP_7g.md`](STEP_7g.md), [`STEP_7f.md`](STEP_7f.md), [`STEP_7e.md`](STEP_7e.md), [`STEP_7d.md`](STEP_7d.md), [`STEP_7c.md`](STEP_7c.md), [`STEP_7b.md`](STEP_7b.md), [`STEP_7a.md`](STEP_7a.md), [`STEP_6z.md`](STEP_6z.md), [`STEP_6y.md`](STEP_6y.md), [`STEP_6x.md`](STEP_6x.md), [`STEP_6w.md`](STEP_6w.md), [`STEP_6v.md`](STEP_6v.md), [`STEP_6u.md`](STEP_6u.md), [`STEP_6t.md`](STEP_6t.md), [`STEP_6s.md`](STEP_6s.md), [`STEP_6r.md`](STEP_6r.md), [`STEP_6q.md`](STEP_6q.md), [`STEP_6p.md`](STEP_6p.md), [`STEP_6o.md`](STEP_6o.md), [`STEP_6n.md`](STEP_6n.md), [`STEP_6m.md`](STEP_6m.md), [`STEP_6l.md`](STEP_6l.md), [`STEP_6k.md`](STEP_6k.md), [`STEP_6j.md`](STEP_6j.md), [`STEP_6i.md`](STEP_6i.md), [`STEP_6h.md`](STEP_6h.md), [`STEP_6g.md`](STEP_6g.md), [`STEP_6f.md`](STEP_6f.md), [`STEP_6e.md`](STEP_6e.md),
 [`STEP_6d.md`](STEP_6d.md),
 [`STEP_6c.md`](STEP_6c.md), [`STEP_6b.md`](STEP_6b.md), … [`STEP_0_probe.md`](STEP_0_probe.md).
 
@@ -333,13 +349,15 @@ On 2026-10-10 (7c) `wsl:~/mxcensus` ran the 32-state sweep with 7c's patch appli
 7f ran on the Mac only (`--variables`, `--crosswalk`, `--validate` there; a 32-state sweep,
 ~1 min). On the night of 2026-10-10 `wsl:~/mxcensus` was fast-forwarded to 7f (b6c8aff, a `git
 bundle` of 7c–7f over `scp`; not pushed) and ran the full suite there for the 0.12.0 release
-(`~/pytest_7f.log`). 7g ran on the Mac (32-state sweeps, 5 processes, ~15 min each).
+(`~/pytest_7f.log`). 7g ran on the Mac (32-state sweeps, 5 processes, ~15 min each); 7h too
+(the report, ~30 min; the Mac's tabulados cache now holds the eight 2010 `14_NNA` workbooks,
+which `wsl`'s lacks — the script fetches them).
 `wsl:~/mxcensus3c` (3c's code copy) can be deleted.
 
 ## Kickoff prompt for the next session
 
 > Continue the CPV census-family work in this repo (branch cpv-integration = main = v0.11.0
-> + units 7c–7g). Read docs/cpv/HANDOFF.md first, then agree with me which next unit to
+> + units 7c–7h). Read docs/cpv/HANDOFF.md first, then agree with me which next unit to
 > take (candidates in HANDOFF §Next) before implementing it, following the session protocol
 > in docs/cpv/PLAN.md. Use .venv/bin/python, not uv run. Run wsl tasks without asking; ask
 > me before committing, pushing, installing packages or uploading.
@@ -364,6 +382,9 @@ the commit's diff:
 4. **7g, new derived `RELIGION_INEGI`** (Censo 2010 only; the name is the session's): the
    2010 classification beside `RELIGION_CAT` (2020's grouping, the user's 6f choice), for the
    2010 `PNCATOLICA`/`POTRAS_REL`.
+5. **7h** changed only the maintainer check script (no decision with user-visible effect);
+   its scope (the Censo 2010/2020 dwelling tabulados and the owners' sex) was the session's
+   choice among the candidates.
 
 ## Review: decisions taken unattended (night of 2026-10-08/09) — kept
 
@@ -396,7 +417,7 @@ and **kept all seven** (merged as 0.9.0):
 
 ## Next: candidates (none decided)
 
-1. **Release 7c–7g** as 0.12.0: the `wsl` full suite ran on 7f overnight; rerun it on the
+1. **Release 7c–7h** as 0.12.0: the `wsl` full suite ran on 7f overnight; rerun it on the
    final commit (a `git bundle` as for 0.11.0), then merge into `main`, tag and push — the
    user's call, after the review above.
 2. Smaller:
@@ -411,16 +432,13 @@ and **kept all seven** (merged as 0.9.0):
    - CGPV 2000's other quantities typed as code ranges (`HORTRA`, `INGRESOS`, `INGTRHOG`…:
      `_QUANTITIES` could take them; the derivations read the raw codes, so only the
      labelled dtype changes).
-3. More tabulado checks (7d's leftovers):
-   - the EIC 2015 owners by sex and order (14-14, and 14-15/16 by the owner's sex:
-     `NUM_DUE_VIV1`/`2` point at person rows, so the check joins the person file to the
-     dwelling);
+3. More tabulado checks (7d's and 7h's leftovers):
+   - CGPV 2000's dwelling tabulados `C2KVI01`–`19` (shares in points; VI06/VI10 since 6i;
+     VIVIENDAS and OCUPANTES rows; `_frame` keeps one row per dwelling) — the next unit;
    - the EIC 2015 person tabulados not yet read (disability, fertility, language, the
      01_poblacion tables);
-   - Censo 2010's and 2020's dwelling tabulados (raw items, as 7d did for 2015);
-   - CGPV 2000's dwelling, fertility, disability and language tabulados (`C2KVI*`, `C2KFE*`,
-     `C2KDI*`, `C2KLI*`: they exist on INEGI's server; 6c left 2000's disability out of the
-     constraints). Its dwelling tabulados would count dwellings on `PRIMER_HOGAR` (7f).
+   - CGPV 2000's fertility, disability and language tabulados (`C2KFE*`, `C2KDI*`, `C2KLI*`:
+     they exist on INEGI's server; 6c left 2000's disability out of the constraints).
 
 ## Open questions for the user
 
@@ -871,3 +889,10 @@ and **kept all seven** (merged as 0.9.0):
 - **INEGI's unspecified entity in the constraints** (7g): the born and the residents five
   years earlier in another entity leave it out in 2010/2020/2025 (`_CELLS`); CGPV 2000's
   pairs include the abroad; the Conteo 2005 keeps the legacy cells (no unspecified entity).
+- **Dwelling tabulado universes** (7h): Censo 2010's leave out `CLAVIVP` 5–7, Censo 2020's
+  07–09, the EIC 2015's 7–9 (their items are blank); the class not specified counts.
+- **The owners** (7h, `check_cpv_tabulados._with_owners`): the 2015/2020 owner items
+  (`NUM_DUE_VIV1`/`2`, `DUE1_NUM`/`DUE2_NUM`) hold the owner's person row (`NUMPER`); 99 = not
+  identified. The script's 2015/2020 dwelling frames carry `DUE1_SEXO`/`DUE2_SEXO` (raw codes)
+  from a column-projected person read; 2015's codes are unpadded, so both sides compare as
+  numbers.

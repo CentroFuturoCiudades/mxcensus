@@ -13,6 +13,7 @@ import sys
 from pathlib import Path
 
 import numpy as np
+import pandas as pd
 import pytest
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "scripts"))
@@ -182,6 +183,62 @@ def test_counts():
     assert ck._counts(200, [50, 90, 10, 50], [0, 1, 1, 0]) == [200, 100, 90, 10, 100]
 
 
+def test_sel_and_crossed():
+    """7h: a category of a coded item (``None`` any, ``"N+"`` N to 98, a tuple, a code) and
+    the dwellings by two items (each row's total, then its columns)."""
+    x = pd.Series([1, 5, 7, 99, np.nan])
+    assert ck._sel(x, None).all() and ck._sel(x, "5+").tolist() == [False, True, True, False,
+                                                                     False]
+    assert ck._sel(x, (1, 7)).tolist() == [True, False, True, False, False]
+    v = pd.DataFrame({"CLAVIVP": ["1", "1", "5", "9"], "COCINA": ["1", "3", "1", "1"],
+                      "COMBUST": ["1", "3", "1", "9"]})
+    cells = ck._crossed(ck._dwellings_2010, "COCINA", (None, 1), "COMBUST", (1, (3, 4), 9))(v)
+    assert [num.tolist() for num, _ in cells] == [
+        [True, True, False, True], [True, False, False, False], [False, True, False, False],
+        [False, False, False, True],                       # every dwelling but the locale (5)
+        [True, False, False, True], [True, False, False, False], [False] * 4,
+        [False, False, False, True]]
+
+
+def test_with_owners_and_their_sex(monkeypatch, tmp_path):
+    """7h: the owners' sex from the person rows the owner items point at (2015's unpadded
+    codes compare as numbers; 99 = not identified), and 2020's owners by sex and number."""
+    import pyarrow as pa
+    import pyarrow.parquet as pq
+    from mxcensus.data import _registry
+
+    persons = pa.table({"ID_VIV": ["010010000001"] * 3 + ["010010000002"] * 2,
+                        "NUMPER": ["01", "02", "03", "01", "02"],
+                        "SEXO": ["1", "3", "3", "3", "3"]})
+    pq.write_table(persons, tmp_path / "cpv_personas_2020_01.parquet")
+    monkeypatch.setattr(_registry.POOCH, "fetch", lambda name, **kw: str(tmp_path / name))
+    v = pd.DataFrame({"CLAVIVP": ["01"] * 4, "TENENCIA": ["1", "1", "1", "2"],
+                      "DUE1_NUM": ["02", "01", "99", None], "DUE2_NUM": [None, "02", None, None]},
+                     index=pd.Index(["010010000001", "010010000002", "010010000001",
+                                     "010010000002"], name="ID_VIV"))
+    out = ck._with_owners(v, "2020", 1)
+    assert out["DUE1_SEXO"].tolist()[:2] == ["3", "3"] and out["DUE1_SEXO"].isna().tolist()[2:] == [
+        True, True]
+    assert out["DUE2_SEXO"].tolist()[1] == "3" and out["DUE2_SEXO"].isna().sum() == 3
+    cells = [num.tolist() for num, _ in ck._owners_2020(out)]
+    assert cells == [[True, True, True, False], [True, False, False, False], [False] * 4,
+                     [False, True, False, False], [False] * 4, [False] * 4,
+                     [False, False, True, False]]
+
+
+def test_saving_bulbs_and_titles():
+    """7h: 2020's energy-saving bulbs (none whatever the total; not specified = the saving
+    bulbs' 999, or a share of an unknown total) and the occupants' titles."""
+    v = pd.DataFrame({"CLAVIVP": ["01"] * 7 + ["07"], "ELECTRICIDAD": ["1"] * 8,
+                      "FOCOS": ["10", "999", "10", "8", "4", "10", "999", ""],
+                      "FOCOS_AHORRA": ["0", "0", "4", "6", "4", "999", "3", ""]})
+    cells = [num.tolist() for num, _ in ck._saving_bulbs_2020(v)]
+    assert [sum(c) for c in cells] == [7, 2, 1, 0, 1, 1, 2]               # 75% → 75–100%
+    assert cells[1][1] and cells[4][3] and cells[5][4] and cells[6][5] and cells[6][6]
+    assert ck._occupants_title("Owned dwellings by deed") == "Occupants of the owned dwellings by deed"
+    assert ck._occupants_title("Dwellings by wall") == "Occupants of the dwellings by wall"
+
+
 def test_checks_are_consistent():
     """Every check names a fetched source, unique keys per edition, and a tolerance."""
     keys = [(c.period, c.key) for c in ck.CHECKS]
@@ -208,7 +265,7 @@ def test_state_01_within_tolerance(monkeypatch):
     monkeypatch.setattr(ck, "fetch", lambda periods, tab_dir, retries=2: {
         f"{p}/{n}": tab_dir / p / n for p in periods for n in ck.SOURCES[p][1]})
     rows = ck.run(sorted(ck.SOURCES), [1], _TABS, _MIRROR, log=lambda *a: None)
-    assert len(rows) == 317 + 159 + 120 + 45 + 7 + 13 + 149 + 132 + 183 + 463  # 6p: 2020;
+    assert len(rows) == 317 + 159 + 120 + 45 + 7 + 13 + 149 + 132 + 183 + 463 + 562  # 6p: 2020;
     #                                                 6q: 2015 affiliation, commute, marital status,
     #                                                 education (2010's are national); 6r: 2000
     #                                                 hours, education of the 12+/18+; 6t: 2000/2015
@@ -225,7 +282,9 @@ def test_state_01_within_tolerance(monkeypatch):
     #                                                 2000 EM02/03/04/06/09/11, MI06, MI09 (sex T;
     #                                                 MI02/05/10–12 need all 32 states, MI07/08 are
     #                                                 national), 2015 the dwellings (sex T; 14-12
-    #                                                 national)
+    #                                                 national); 7h: the Censo 2010/2020
+    #                                                 dwellings and the 2015/2020 owners' sex
+    #                                                 (2010 262, 2015 25, 2020 275; sex T)
     by_origin = {c.key for c in ck.CHECKS if c.by_origin}               # 7d: all 32 only
     assert by_origin == {"MI02", "MI05", "MI10", "MI11", "MI12"}
     assert not by_origin & {r["check"] for r in rows}
@@ -238,6 +297,9 @@ def test_state_01_within_tolerance(monkeypatch):
     assert len(places) == 7 * 7 * 3                                       # 7b
     dwellings = [r for r in rows if r["check"] in ("12-05a", "12-05b", "14-13", "14-16")]
     assert len(dwellings) == 10 + 4 + 6 + 6 and {r["sex"] for r in dwellings} == {"T"}
+    raw = [r for r in rows if r["check"].startswith(("14_", "16-")) or r["check"] in (
+        "14-14", "14-16s")]                                                # 7h
+    assert len(raw) == 262 + 25 + 275 + 10 and {r["sex"] for r in raw} == {"T"}  # + 16-34
     bad = [r for r in rows if abs(r["delta"]) > r["tolerance"]]
     assert not bad, bad[:5]
     exact = [r for r in rows if r["period"] != "2000"]
