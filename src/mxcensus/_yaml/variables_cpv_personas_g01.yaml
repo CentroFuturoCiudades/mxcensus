@@ -240,9 +240,12 @@ TENENCIA:
   Nota: '0 = no aplica (sin etiqueta en el FD): «Blanco por pase»'
 NUM_PERS:
   Descripción: No. DE PERSONAS EN LA VIVIENDA
-  Tipo: string
+  Tipo: numeric
   Longitud: '4'
-  Nota: 0001..9999 = códigos (no enumerados)
+  Rango:
+  - 1
+  - 9999
+  Nota: 'cantidad: el FD escribe su rango con ceros a la izquierda (0001..9999), como el de una clave'
 F_G_COC:
   Descripción: FAM. O GPOS.QUE COCINAN APARTE
   Tipo: categorical

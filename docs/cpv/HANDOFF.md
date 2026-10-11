@@ -1,11 +1,12 @@
 # CPV family — session handoff
 
-**Status (2026-10-10): units 0–6z and 7a–7e are done. `main` = v0.11.0 = 6u–7b, tagged
+**Status (2026-10-10): units 0–6z and 7a–7f are done. `main` = v0.11.0 = 6u–7b, tagged
 and pushed; 7c (CGPV 2000's places, the income in minimum wages 2000–2020), 7d (more
-tabulado checks: the EIC 2015's dwellings, CGPV 2000's employment and migration) and 7e
-(ratio constraints) are three commits on `cpv-integration` after it (merge, version and
-push wait for the user). Before 0.11.0: v0.10.0 = 6s–6t, 0.9.0 = 6k–6r (§Review). A session
-starts by checking `git log`/`git status` against this line.**
+tabulado checks: the EIC 2015's dwellings, CGPV 2000's employment and migration), 7e
+(ratio constraints) and 7f (CGPV 2000 per dwelling, the 1990/1995 averages) are commits on
+`cpv-integration` after it (7f's only with the user's go-ahead; merge, version and push wait
+for the user). Before 0.11.0: v0.10.0 = 6s–6t, 0.9.0 = 6k–6r (§Review). A session starts by
+checking `git log`/`git status` against this line.**
 - **Released** (registered, uploaded, verified): every edition 1990–2025 (897 `cpv_` files)
   and the Marco Geoestadístico 1995–2025 frames, incl. the EIC 2015's (6h); registry
   **4148** entries (`STEP_6b.md` §Release batch, `STEP_6h.md`).
@@ -266,7 +267,28 @@ starts by checking `git log`/`git status` against this line.**
     sleeps in).
   - Full suite on the Mac: 1900 passed, 1 skipped.
 
-Design: [`PLAN.md`](PLAN.md). Recent units: [`STEP_7e.md`](STEP_7e.md), [`STEP_7d.md`](STEP_7d.md), [`STEP_7c.md`](STEP_7c.md), [`STEP_7b.md`](STEP_7b.md), [`STEP_7a.md`](STEP_7a.md), [`STEP_6z.md`](STEP_6z.md), [`STEP_6y.md`](STEP_6y.md), [`STEP_6x.md`](STEP_6x.md), [`STEP_6w.md`](STEP_6w.md), [`STEP_6v.md`](STEP_6v.md), [`STEP_6u.md`](STEP_6u.md), [`STEP_6t.md`](STEP_6t.md), [`STEP_6s.md`](STEP_6s.md), [`STEP_6r.md`](STEP_6r.md), [`STEP_6q.md`](STEP_6q.md), [`STEP_6p.md`](STEP_6p.md), [`STEP_6o.md`](STEP_6o.md), [`STEP_6n.md`](STEP_6n.md), [`STEP_6m.md`](STEP_6m.md), [`STEP_6l.md`](STEP_6l.md), [`STEP_6k.md`](STEP_6k.md), [`STEP_6j.md`](STEP_6j.md), [`STEP_6i.md`](STEP_6i.md), [`STEP_6h.md`](STEP_6h.md), [`STEP_6g.md`](STEP_6g.md), [`STEP_6f.md`](STEP_6f.md), [`STEP_6e.md`](STEP_6e.md),
+- **7f** (`STEP_7f.md`): HANDOFF candidate 1, CGPV 2000 per dwelling, widened by the user to
+  the 1990/1995 ITER averages.
+  - **CGPV 2000** (one row per household; exactly one `NUMHOG` 01 per dwelling): new derived
+    **`PRIMER_HOGAR`** and **`TOTCUART_INEGI`** (its rooms less an exclusive kitchen nobody
+    sleeps in — `COCINA` 1, `COCDOR` 4; the first numeric derived column, `Int64`).
+  - The 2000 dwelling constraints move onto the first household and every private dwelling
+    class, and `VIVPAR_HAB` is added (user's choices). Its «Otro» dwellings carry the items
+    and its ITER counts them. All 36 equal the ITER in the 186 municipalities its sample
+    enumerated completely; before, 39–186 per indicator.
+  - **Ratio constraints**: 2000 `PROM_OCUP`/`PRO_OCUP_C`, exact there. 1990 `PROM_OCUP`/
+    `PRO_OCUP_C` and 1995 `PROM_OCUP` are `OCUPVIVPAR / VIVPAR_HAB` truncated (1990's rooms
+    by Censo 2010's rule); their samples sit within 0.07 (1990) and 0.21 (1995, whose
+    dwelling and person weights are calibrated apart).
+  - The 1995 dwellings count their persons (`NUMPERS`); 1990's cells widen to every class
+    too (user's choice); `VIVPAR_HAB` 1990/1995 and **`OCUPVIVPAR`** as the 1990/1995 person
+    total (user's choice: the Conteo's `FAC_POB` adds up to it but in Chiapas).
+  - 1990 `NUM_PERS`/2000 `NUMPERS` become numeric (`build_cpv._QUANTITIES`). Crosswalk (on
+    the data; for the user's review): 1995 `PRO_O_VP` → `PROM_OCUP`, 2000 `VP_AGUENT` →
+    `VPH_AGUADV`.
+  - Full suite on the Mac: 1907 passed, 1 skipped (`--validate` 0/897).
+
+Design: [`PLAN.md`](PLAN.md). Recent units: [`STEP_7f.md`](STEP_7f.md), [`STEP_7e.md`](STEP_7e.md), [`STEP_7d.md`](STEP_7d.md), [`STEP_7c.md`](STEP_7c.md), [`STEP_7b.md`](STEP_7b.md), [`STEP_7a.md`](STEP_7a.md), [`STEP_6z.md`](STEP_6z.md), [`STEP_6y.md`](STEP_6y.md), [`STEP_6x.md`](STEP_6x.md), [`STEP_6w.md`](STEP_6w.md), [`STEP_6v.md`](STEP_6v.md), [`STEP_6u.md`](STEP_6u.md), [`STEP_6t.md`](STEP_6t.md), [`STEP_6s.md`](STEP_6s.md), [`STEP_6r.md`](STEP_6r.md), [`STEP_6q.md`](STEP_6q.md), [`STEP_6p.md`](STEP_6p.md), [`STEP_6o.md`](STEP_6o.md), [`STEP_6n.md`](STEP_6n.md), [`STEP_6m.md`](STEP_6m.md), [`STEP_6l.md`](STEP_6l.md), [`STEP_6k.md`](STEP_6k.md), [`STEP_6j.md`](STEP_6j.md), [`STEP_6i.md`](STEP_6i.md), [`STEP_6h.md`](STEP_6h.md), [`STEP_6g.md`](STEP_6g.md), [`STEP_6f.md`](STEP_6f.md), [`STEP_6e.md`](STEP_6e.md),
 [`STEP_6d.md`](STEP_6d.md),
 [`STEP_6c.md`](STEP_6c.md), [`STEP_6b.md`](STEP_6b.md), … [`STEP_0_probe.md`](STEP_0_probe.md).
 
@@ -284,12 +306,14 @@ On 2026-10-10 (7c) `wsl:~/mxcensus` ran the 32-state sweep with 7c's patch appli
 7d ran on the Mac only; `wsl`'s tabulados cache also lacks its 15 CGPV 2000 workbooks
 (`C2KEM02/03/04/06/09/11`, `C2KMI02/05–12`; the script fetches them).
 7e ran on the Mac only (a 32-state sweep, 6 processes, ~15 min).
+7f ran on the Mac only (`--variables`, `--crosswalk`, `--validate` there; a 32-state sweep,
+~1 min); `wsl` has neither 7c–7f's code nor their YAMLs.
 `wsl:~/mxcensus3c` (3c's code copy) can be deleted.
 
 ## Kickoff prompt for the next session
 
 > Continue the CPV census-family work in this repo (branch cpv-integration = main = v0.11.0
-> + units 7c, 7d and 7e). Read docs/cpv/HANDOFF.md first, then agree with me which next unit to
+> + units 7c, 7d, 7e and 7f). Read docs/cpv/HANDOFF.md first, then agree with me which next unit to
 > take (candidates in HANDOFF §Next) before implementing it, following the session protocol
 > in docs/cpv/PLAN.md. Use .venv/bin/python, not uv run. Run wsl tasks without asking; ask
 > me before committing, pushing, installing packages or uploading.
@@ -325,32 +349,44 @@ and **kept all seven** (merged as 0.9.0):
 
 ## Next: candidates (none decided)
 
-1. **CGPV 2000 per dwelling** (7e's leftover): its dwelling frame has one row per household
-   (3.1% of the rows share a dwelling), so its dwelling counts (`VIVPARH_CV`, `VPH_*`…)
-   count households, and its ITER's averages `PRO_OVP`/`PRO_OCVP` reproduce only once per
-   dwelling. A derived «first household» flag (from `NUMHOG`) as a cell, plus 2000's rooms
-   (`TOTCUART` − an exclusive kitchen nobody sleeps in: `COCINA` 1 and `COCDOR` 4) as a
-   value, would make both exact (`STEP_7e.md` §Left out). Decide with the user whether the
-   2000 dwelling counts move onto it (a change of existing constraints).
-2. Smaller: a 2000 occupation bridge (CMO → SINCO, no published table; 7d checked the CMO
-   groups — the first two digits of `OCUACTIV_C` — against C2KEM04); a locality-level
-   lineage (6a covered municipalities only); CGPV 1990's undocumented `TIP_HOGAR` 6 (96,370
-   persons, all `N_F_GPOS` 99 and a 9xx relationship: a dwelling without its household
-   composition; identity-labelled, `STEP_6u.md` §Left out); the hand-curated wage tables as
-   a generated YAML (`build_cpv.py` from INEGI's catalogs) if a later edition needs one; the
-   1990/1995 ITER averages (`PROM_CUA`, `PROM_VIV`, `PRO_O_VP`; not probed) and the Conteo
-   2005's (its sample lacks the items).
-3. More tabulado checks (7d's leftovers): the EIC 2015 owners by sex and order (14-14, and
-   14-15/16 by the owner's sex: `NUM_DUE_VIV1`/`2` point at person rows, so the check joins
-   the person file to the dwelling); the EIC 2015 person tabulados not yet read (disability,
-   fertility, language, the 01_poblacion tables); Censo 2010's and 2020's dwelling
-   tabulados (raw items, as 7d did for 2015); CGPV 2000's dwelling, fertility, disability
-   and language tabulados (`C2KVI*`, `C2KFE*`, `C2KDI*`, `C2KLI*`: they exist on INEGI's
-   server; 6c left 2000's disability out of the constraints).
+1. **Release 7c–7f** as 0.12.0: a `wsl` full-suite run first (pull, or a `git bundle` as
+   for 0.11.0), then merge into `main`, tag and push — the user's call.
+2. **Constraint keys vs ITER names** (found in 7f): some older editions' constraint keys are
+   the canonical names of pairs the crosswalk keeps apart (another date or definition):
+   2000 `PNACOE`, `PRES2015`, `PRESOE15`, `PCATOLICA`, `VPH_EXCSA` (`VP_SERSAN`); 2005
+   `PRES2015`/`PRESOE15*`, `PDER_SEGP`, `VPH_AGUADV`/`VPH_AGUAFV`; 2010 `PRES2015*`/
+   `PRESOE15*`. `load_cpv_iter` keeps the edition's column name, so a fit must map each one
+   through `cpv_iter_crosswalk()`. Options: key them by the edition's column, or a helper
+   that gives a constraint's published column. Check each cell's definition against its
+   pair's note while at it (2000's `PNACOENT` includes the born abroad).
+3. Smaller:
+   - a 2000 occupation bridge (CMO → SINCO; no published table; 7d checked the CMO groups,
+     the first two digits of `OCUACTIV_C`, against C2KEM04);
+   - a locality-level lineage (6a covered municipalities only);
+   - CGPV 1990's undocumented `TIP_HOGAR` 6 (96,370 persons, all `N_F_GPOS` 99 and a 9xx
+     relationship: a dwelling without its household composition; identity-labelled,
+     `STEP_6u.md` §Left out);
+   - the hand-curated wage tables as a generated YAML (`build_cpv.py` from INEGI's catalogs)
+     if a later edition needs one;
+   - CGPV 2000's other quantities typed as code ranges (`HORTRA`, `INGRESOS`, `INGTRHOG`…:
+     `_QUANTITIES` could take them; the derivations read the raw codes, so only the
+     labelled dtype changes).
+4. More tabulado checks (7d's leftovers):
+   - the EIC 2015 owners by sex and order (14-14, and 14-15/16 by the owner's sex:
+     `NUM_DUE_VIV1`/`2` point at person rows, so the check joins the person file to the
+     dwelling);
+   - the EIC 2015 person tabulados not yet read (disability, fertility, language, the
+     01_poblacion tables);
+   - Censo 2010's and 2020's dwelling tabulados (raw items, as 7d did for 2015);
+   - CGPV 2000's dwelling, fertility, disability and language tabulados (`C2KVI*`, `C2KFE*`,
+     `C2KDI*`, `C2KLI*`: they exist on INEGI's server; 6c left 2000's disability out of the
+     constraints). Its dwelling tabulados would count dwellings on `PRIMER_HOGAR` (7f).
 
 ## Open questions for the user
 
-None.
+- 7f's two crosswalk renames, decided on the data (`STEP_7f.md` §Crosswalk): 1995
+  `PRO_O_VP` → `PROM_OCUP` and 2000 `VP_AGUENT` → `VPH_AGUADV` change `load_cpv_iter`'s
+  column names for those editions. Keep (the session's recommendation) or revert.
 
 ## Gotchas (carry forward)
 
@@ -753,4 +789,29 @@ None.
 - **The «Otro» dwelling classes** (locales, móviles, refugios; 2010 5–7, 2020/2025 07–09)
   have no rooms recorded (`TOTCUART` blank), so «every dwelling with rooms» = «"Vivienda"
   with rooms».
-
+- **CGPV 2000's dwelling indicators count the first household** (7f, `cpv_derived._PER_DWELLING`,
+  `_dwelling_cells`): any dwelling count on its frame must filter `PRIMER_HOGAR` «Sí» (its
+  rows are households); the household indicators (`_HOUSEHOLD_INDICATORS`) count every row.
+  A test comparing shares of `VIVPAR_HAB` must take the first households as the base
+  (`test_6n_cells_equal_iter`).
+- **Every class in 1990/2000** (7f, `_EVERY_CLASS`): their «Otro» dwellings carry the items,
+  so their cells have no «Vivienda» condition; 2010–2025 keep it (their «Otro» items are
+  blank). A new edition's cells: check whether its «Otro» rows are blank first.
+- **Numeric derived columns** (7f): `derived_dtypes` may return `Int64` (`TOTCUART_INEGI`),
+  which may be missing (`derived_schema`); code that iterates the derived dtypes must not
+  assume `.categories` (`_categories` skips them, `_numeric_columns` takes them).
+- **2000's rooms**: `TOTCUART` counts the kitchen; its ITER's rooms (`PRO_OCVP`, `VP2_5CUAR`)
+  leave out an exclusive kitchen nobody sleeps in (`COCINA` 1 and `COCDOR` 4 — «No
+  especificado» also starts with «No»: match the full label). 2010–2025's `PRO_OCUP_C`
+  counts the kitchen.
+- **The ITER rounds or truncates**: 1990/1995 truncate their averages and percentages (two
+  decimals; 1995's localities round to one), 2000–2020 round (19-035 2000: 1.165 → 1.17).
+  Compare within 0.005 + ε, or truncate.
+- **The Conteo 1995's weights** (7f): `FAC_VIV` adds up to `VIVPAR_HAB` and `FAC_POB` to
+  `OCUPVIVPAR` exactly in 31 states (state level only), calibrated apart, so dwelling-weighted
+  occupants run short (PROM_OCUP 0.06 off at the median). Chiapas's weights carry its
+  official total (+15–17% over its ITER, which lacks 15 municipalities). Its dwelling frame
+  counts its persons into `NUMPERS` (`cpv._OCCUPANTS_FROM_PERSONS`): a column the person
+  dictionary does not declare.
+- **FD quantities written as code ranges** (7f, `build_cpv._QUANTITIES`): a zero-padded FD
+  range (`0001..9999`) parses as codes; a count must be listed there to be numeric.

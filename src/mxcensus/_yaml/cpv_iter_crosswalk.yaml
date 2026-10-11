@@ -1955,9 +1955,11 @@ PROM_OCUP:
   Renombrar:
   - '2005'
   - '2000'
+  - '1995'
   - '1990'
-  Nota: 1995 (PRO_O_VP, no se renombra) lo define como la población total entre el total de viviendas;
-    1990 (PROM_VIV) y después, ocupantes de viviendas particulares entre esas viviendas
+  Nota: ocupantes de viviendas particulares entre esas viviendas (OCUPVIVPAR / VIVPAR_HAB) en todos los
+    censos; 1990 (PROM_VIV) y 1995 (PRO_O_VP) truncan a dos decimales. El descriptor de 1995 dice «población
+    total entre el total de viviendas», pero sus valores estatales y municipales son ese cociente
 PRO_OCUP_C:
   Descripción: Promedio de ocupantes por cuarto en viviendas particulares habitadas
   Tablas:
@@ -2079,11 +2081,12 @@ VPH_AGUADV:
   '1995': VIVP_AGUA
   '1990': C_AGUA_ENT
   Renombrar:
+  - '2000'
   - '1995'
   - '1990'
-  Nota: '1990 y 1995: dentro de la vivienda o del terreno, como en 2010 y 2020 (en el ámbito de la vivienda;
-    renombradas); 2000 (VP_AGUENT): agua entubada (dentro o fuera de la vivienda); 2005 (VPH_AGDV): agua
-    entubada de la red pública — estas dos no se renombran'
+  Nota: '1990, 1995 y 2000 (VP_AGUENT): dentro de la vivienda o del terreno, como en 2010 y 2020 (en el
+    ámbito de la vivienda; renombradas; 2000: exacto en los municipios que su muestra levantó completos);
+    2005 (VPH_AGDV): agua entubada de la red pública — no se renombra'
 VPH_AEASP:
   Descripción: Viviendas particulares habitadas que disponen de agua entubada y se abastecen del servicio
     público de agua

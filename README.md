@@ -275,7 +275,18 @@ The person sets carry two totals over every sampled person: the legacy `POBTOT` 
 `POBHOG`, the population in households, which is the samples' own universe. Censo 2020's
 weights add up to `POBHOG` exactly, and in the EIC 2025 the two totals are equal. The CGPV
 2000 and Censo 2010 weights add up to neither: they sit above `POBHOG` and within about
-1% of `POBTOT`.
+1% of `POBTOT`. CGPV 1990 and the Conteo 1995 publish no `POBHOG`; their samples' universe
+is `OCUPVIVPAR`, the occupants of private dwellings, and the Conteo's person weights add up
+to it in every state but Chiapas (whose weights carry its official total, 17% above its
+ITER).
+CGPV 2000's dwelling file has one row per household (3.1% of the rows share a dwelling),
+so its dwelling constraints count the first household's row (`PRIMER_HOGAR`, from
+`derived=True`) and its household constraints (`TOTHOG`, `HOGJEF_*`) every row. Its
+«Otro» dwellings (locales no construidos para habitación, viviendas móviles) and CGPV
+1990's móviles have their dwelling items recorded, and their ITERs count them, so the 1990 and 2000
+dwelling constraints count every private dwelling, not only the «Vivienda» class the 2010–2025
+cells keep. With the dwellings themselves (`VIVPAR_HAB`, 1990–2000), every CGPV 2000 dwelling
+constraint equals its ITER in the 186 municipalities its sample enumerated completely.
 `cpv_constraints(table, period)` filters the census constraint sets (ITER indicator →
 microdata cells) to the indicators an edition publishes and can reproduce, for
 `get_tables_dict`; its education cells read `EDUC_INEGI`, so `P15PRI_CO` leaves out the
@@ -329,7 +340,12 @@ has 17: the eleven percentages above, the children born alive per woman (`PROM_H
 years of schooling (`GRAPROES`, by sex too), the occupants per room and per dwelling
 (`PRO_OCUP_C`, `PROM_OCUP`), each equal to the estimates at every published geography.
 Censo 2010 and 2020 have their ITER's six averages, exact in the municipalities their
-samples enumerated completely:
+samples enumerated completely. CGPV 2000's occupants per dwelling and per room are counted
+once per dwelling, its rooms less an exclusive kitchen nobody sleeps in (`TOTCUART_INEGI`,
+a number), and are exact in those municipalities too. CGPV 1990's and the Conteo 1995's
+occupants per dwelling (and 1990's per room) are their published counts' ratio truncated;
+1990's extract sits within 0.07, the Conteo's dwelling weights up to 0.21 off (they are
+calibrated apart from its person weights):
 
 ```python
 ratios = mxcensus.cpv_ratio_constraints("personas", 2025)

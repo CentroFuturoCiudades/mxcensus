@@ -572,8 +572,13 @@ def test_crosswalk_1990_1995_pairs():
     assert {p: xw["POBTOT"][p] for p in ("1995", "1990")} == {"1995": "POBTOTAL", "1990": "P_TOTAL"}
     assert xw["POBMAS"]["1990"] == "HOMBRES" and xw["POBFEM"]["1995"] == "POBTFEM"
     assert xw["REL_H_M"]["1995"] == "IM" and "1995" in xw["REL_H_M"]["Renombrar"]
-    assert xw["PROM_OCUP"]["1995"] == "PRO_O_VP" and "1995" not in xw["PROM_OCUP"]["Renombrar"]
+    # 7f: 1995's PRO_O_VP is OCUPVIVPAR / VIVPAR_HAB truncated, as 1990's PROM_VIV (its
+    # descriptor's «población total entre el total de viviendas» is not what it publishes);
+    # 2000's VP_AGUENT is the water within the dwelling or the lot (exact on its sample)
+    assert xw["PROM_OCUP"]["1995"] == "PRO_O_VP" and "1995" in xw["PROM_OCUP"]["Renombrar"]
     assert xw["PROM_OCUP"]["1990"] == "PROM_VIV" and "1990" in xw["PROM_OCUP"]["Renombrar"]
+    assert xw["VPH_AGUADV"]["2000"] == "VP_AGUENT" and "2000" in xw["VPH_AGUADV"]["Renombrar"]
+    assert "2005" not in xw["VPH_AGUADV"]["Renombrar"]                     # the public network
     assert xw["VP_2CUAR"] == {**xw["VP_2CUAR"], "2000": "VP_2CUAR", "1990": "VIV_2_C"}
     assert xw["P_PP5HLIYE"]["1995"] == "P_PP5HLIYE" and xw["P_PP5HLIYE"]["Descripción"]
     # every reviewed pair is in the crosswalk under its canonical name (a duplicate key in

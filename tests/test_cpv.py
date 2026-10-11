@@ -3506,6 +3506,28 @@ def test_dictionary_fixes_6u():
     assert not any(c == lab for c, lab in labels.items())
 
 
+def test_dictionary_quantities_7f():
+    """CGPV 1990's and 2000's number of persons in the dwelling: their FDs write the range
+    with leading zeros (``0001..9999``, a locality code's shape), so the parser reads a code
+    list; ``_label_quantities`` makes them numeric with the FD's range. An entry that is no
+    longer a code range raises (the FD changed)."""
+    for table, period, col in (("personas", "1990", "NUM_PERS"), ("viviendas", "2000", "NUMPERS")):
+        entry = variables_cpv(table, _gid(table, period))[col]
+        assert entry["Tipo"] == "numeric" and entry["Rango"] == [1, 9999], col
+        assert "0001..9999" in entry["Nota"]
+    assert variables_cpv("personas", _gid("personas", "1990"))["NUM_PER"]["Tipo"] == "string"
+    entries = {"NUMPERS": {"Descripción": "Personas", "Tipo": "string", "Longitud": "4",
+                           "Nota": "0001..9999 = códigos (no enumerados)"},
+               "LOC": {"Tipo": "string", "Nota": "0001..9999 = códigos (no enumerados)"}}
+    _bcpv._label_quantities(entries, ["2000"], set())
+    assert list(entries["NUMPERS"]) == ["Descripción", "Tipo", "Longitud", "Rango", "Nota"]
+    assert entries["NUMPERS"]["Rango"] == [1, 9999] and entries["LOC"]["Tipo"] == "string"
+    _bcpv._label_quantities(entries, ["2010"], set())                   # another edition
+    with pytest.raises(ValueError, match="not a code range"):
+        _bcpv._label_quantities({"NUMPERS": {"Tipo": "numeric", "Rango": [1, 9]}}, ["2000"],
+                                set())
+
+
 def test_folio_occurrence_and_1990_keys():
     """CGPV 1990 reuses a few folios: a dwelling is a run of one folio split where a person
     number repeats (persons are not listed in NUM_PER order); a folio's dwellings are
@@ -3564,8 +3586,10 @@ def test_load_cpv_1990_1995_real(local_mirror):
     v95, p95, m95 = mxcensus.load_cpv_survey(1995, state=1)
     ctx.__exit__(None, None, None)
     assert m90 is None
-    # 6j: the dwellings, built from the person files (one row per ID_VIV)
-    assert v90.shape == (13_062, 22) and v95.shape == (2_232, 25)
+    # 6j: the dwellings, built from the person files (one row per ID_VIV); 7f: 1995's
+    # also counts its persons (NUMPERS)
+    assert v90.shape == (13_062, 22) and v95.shape == (2_232, 26)
+    assert int(v95["NUMPERS"].sum()) == len(p95)
     assert list(v90.index.names) == list(v95.index.names) == ["ID_VIV"]
     assert set(v90.index) == set(p90.index.get_level_values("ID_VIV"))
     assert set(v95.index) == set(p95.index.get_level_values("ID_VIV"))
@@ -3614,7 +3638,9 @@ def test_dwellings_from_persons_offline(monkeypatch):
     raw = mxcensus.load_cpv_viviendas(1995, state=1, labels=False, derived=True)
     assert list(raw.index) == ["010010101001", "010010101002"]
     columns = list(_cpv._DWELLINGS_FROM_PERSONS["1995"])
-    assert list(raw.columns) == [*columns, "CUADORM_CAT", "TOTCUART_CAT", "DRENAJE_CAT"]
+    assert list(raw.columns) == [*columns, "NUMPERS",                  # 7f: its persons
+                                 "CUADORM_CAT", "TOTCUART_CAT", "DRENAJE_CAT"]
+    assert raw["NUMPERS"].tolist() == [2, 1] and raw["NUMPERS"].dtype == pd.Int64Dtype()
     assert raw["FAC_VIV"].tolist() == [10, 20] and raw["P1_6"].tolist() == ["02", "99"]
     assert raw["CUADORM_CAT"].tolist() == ["2+", "No especificado"]     # the first person's
     harmonized = mxcensus.load_cpv_viviendas(1995, state=1, labels=False, harmonize=True)

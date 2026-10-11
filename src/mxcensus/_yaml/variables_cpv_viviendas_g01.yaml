@@ -425,9 +425,12 @@ ELIBASPE:
     '9': No especificado
 NUMPERS:
   Descripción: Número de personas en la vivienda
-  Tipo: string
+  Tipo: numeric
   Longitud: '4'
-  Nota: 0001..9999 = códigos (no enumerados)
+  Rango:
+  - 1
+  - 9999
+  Nota: 'cantidad: el FD escribe su rango con ceros a la izquierda (0001..9999), como el de una clave'
 GASCOM:
   Descripción: Gasto común
   Tipo: categorical

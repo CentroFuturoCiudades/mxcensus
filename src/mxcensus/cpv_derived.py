@@ -143,6 +143,12 @@ area at the edition's date (:data:`_SALARIOS_MINIMOS`; INEGI's own catalogs for 
 2015, its FD's annex for 2000, the DOF's northern border zone for 2020), with each edition's
 groups (2000's bounds differ: below 1, from 1 to 2…; 2010–2020 up to 1, above 1 to 2…).
 
+7f gives CGPV 2000's dwelling frame (one row per household) ``PRIMER_HOGAR``, «Sí» on the
+first household's row (``NUMHOG`` 1: one per dwelling), which its dwelling indicators
+count, and ``TOTCUART_INEGI``, the first numeric derived column (``Int64``, missing where
+the rooms are not specified): its rooms as its ITER counts them, ``TOTCUART`` less an
+exclusive kitchen nobody sleeps in, the value of its occupants per room.
+
 :func:`cpv_derivations` lists the columns per edition. The check that the source codes
 match after the recode is a test (``tests/test_cpv_derived.py``).
 
@@ -164,13 +170,17 @@ federal or state, toilet or latrine; 7a: the persons' five-year ages, residence 
 commute, health use…). The Conteo
 2005's household indicators are counted on its household frame
 (``cpv_constraints("hogares", 2005)``; its dwelling rows are dwellings), whose
-``derived=True`` adds the dwelling's class and the household's own head's sex.
+``derived=True`` adds the dwelling's class and the household's own head's sex. CGPV 1990's
+and 2000's dwelling indicators count every private dwelling, the «Otro» classes too (7f:
+theirs carry the items; :data:`_EVERY_CLASS`), CGPV 2000's on the first household's row
+(:data:`_PER_DWELLING`), with the dwellings themselves (``VIVPAR_HAB``; 1990 and 1995 too).
 
 **Ratio constraints** (7e). A published share of a base the edition does not publish (the
 EIC 2025's employed's commute modes, ``PCN_P3NHLI_CLI``, ``PCN_HF``) or an average (the
 children born alive per woman, the years of schooling, the occupants per room and per
-dwelling: the EIC 2025 estimates, the Censo 2010/2020 ITER) is no count: Σ w·N = r / scale
-· Σ w·D over a geography's records. :func:`cpv_ratio_constraints` gives each one's
+dwelling: the EIC 2025 estimates, the Censo 2010/2020 ITER; 7f: the occupants per dwelling
+and per room of CGPV 1990 and 2000, per dwelling of the Conteo 1995) is no count: Σ w·N = r
+/ scale · Σ w·D over a geography's records. :func:`cpv_ratio_constraints` gives each one's
 numerator and denominator cells (and value columns), :func:`cpv_ratio_terms` each record's
 N and D.
 """
@@ -451,7 +461,7 @@ _DTYPES = {"DISCAPACIDAD": _YES_NO, "LIMITACION": _YES_NO, "SIN_DISC_LIM": _YES_
            "HOG_IND": _SI_NO, "OCUP_CUARTO_CAT": _OCUP_CUARTO, "CLASE_HOG": _CLASE_HOG,
            "INGR_OTROS": _YES_NO, "EDAD_QUIN": _EDAD_QUIN, "LUGAR_RES_5A": _LUGAR_RES,
            "LUGAR_ASI": _LUGAR_RES, "LUGAR_TRAB": _LUGAR_RES, "HOG_AFRO": _SI_NO,
-           "INGTRMEN_SM": _SM}
+           "INGTRMEN_SM": _SM, "PRIMER_HOGAR": _SI_NO, "TOTCUART_INEGI": pd.Int64Dtype()}
 # Derived columns with another column's legacy dtype: the household head's sex on the
 # person (6t) has the dwelling item's; INEGI's birthplace (6y) the legacy one's; the place
 # of school and work by INEGI's rule (7a) the residence's (with «Blanco por pase»).
@@ -1202,6 +1212,27 @@ _CLASES = {**dict.fromkeys((1, 2, 3, 4), "Familiar"), 5: "No familiar", 6: "No f
            9: "No especificado"}
 
 
+def _primer_hogar(src):
+    """CGPV 2000's dwelling rows are households (``NUMHOG``): the first household's row
+    stands for the dwelling (every dwelling has exactly one), so the dwelling indicators
+    count it (7f: ``_PER_DWELLING``)."""
+    numhog = src["NUMHOG"]
+    first = pd.Series(np.where(numhog.eq(1), "Sí", "No"), index=numhog.index)
+    return {"PRIMER_HOGAR": first.where(numhog.notna()).astype(_SI_NO)}
+
+
+def _totcuart_inegi(src):
+    """CGPV 2000's rooms as its ITER counts them («no incluye cocina exclusiva»: its
+    ``PRO_OCVP``, ``VP2_5CUAR``): ``TOTCUART``, which counts the kitchen, less an exclusive
+    kitchen nobody sleeps in (``COCINA`` 1 «sí cuenta con un cuarto» and ``COCDOR`` 4 «no
+    duermen en la cocina»; an unspecified ``COCDOR`` keeps it); missing where ``TOTCUART``
+    is not specified (99). A number, not a category: the value of its occupants per room
+    (7f, :func:`cpv_ratio_constraints`)."""
+    rooms = src["TOTCUART"].where(src["TOTCUART"].ne(99))
+    kitchen = (src["COCINA"].eq(1) & src["COCDOR"].eq(4)).astype(int)
+    return {"TOTCUART_INEGI": (rooms - kitchen).astype("Int64")}
+
+
 def _clase_hog(src):
     """The household's class (6z): familiar or not, from INEGI's household type ``TIPOHOG``
     (on the dwelling; the persons take their household's from the dwelling file:
@@ -1482,6 +1513,11 @@ def _registry() -> tuple[_Derivation, ...]:
         D(viv, ("DRENAJE_CAT",), ("DRENAJE",), (*_OLDEST, *_EVERY),
           _cat(viv, "DRENAJE", "DRENAJE_CAT")),
         D(viv, ("INGTRHOG_CAT",), ("INGTRHOG",), _SINCE_2000, _ingtrhog_cat),
+        # 7f: CGPV 2000's first household (its dwelling rows are households) and its rooms
+        # without an exclusive kitchen nobody sleeps in (its ITER's), a number
+        D(viv, ("PRIMER_HOGAR",), ("NUMHOG",), ("2000",), _primer_hogar),
+        D(viv, ("TOTCUART_INEGI",), ("TOTCUART", "COCINA", "COCDOR"), ("2000",),
+          _totcuart_inegi),
         # 6z: the occupants per room (one household per dwelling from 2010 on), the
         # household's class (the persons read their household's TIPOHOG, which the person
         # loader attaches from the dwelling file: cpv._attach_dwellings) and its income
@@ -1521,8 +1557,9 @@ def cpv_derivations(table: str | None = None, period: str | int | None = None) -
 
 
 @functools.cache
-def derived_dtypes(table: str, period: str | int) -> dict[str, pd.CategoricalDtype]:
-    """The dtype of each derived column of ``table`` in ``period`` (all categorical)."""
+def derived_dtypes(table: str, period: str | int) -> dict[str, pd.api.extensions.ExtensionDtype]:
+    """The dtype of each derived column of ``table`` in ``period``: categorical, but for
+    the numbers (7f: CGPV 2000's ``TOTCUART_INEGI``, ``Int64``)."""
     out = {}
     own = _period_dtypes(table, str(period))
     for d in _derivations(table, str(period)):
@@ -1535,10 +1572,11 @@ def derived_dtypes(table: str, period: str | int) -> dict[str, pd.CategoricalDty
 
 
 def derived_schema(table: str, period: str | int) -> pa.DataFrameSchema:
-    """Pandera schema of the derived columns: their categorical dtype, no missing value."""
-    return pa.DataFrameSchema({col: pa.Column(dtype, nullable=False)
-                               for col, dtype in derived_dtypes(table, period).items()},
-                              strict=False)
+    """Pandera schema of the derived columns: their dtype; no missing category (a number
+    is missing where its source is not specified)."""
+    return pa.DataFrameSchema(
+        {col: pa.Column(dtype, nullable=not isinstance(dtype, pd.CategoricalDtype))
+         for col, dtype in derived_dtypes(table, period).items()}, strict=False)
 
 
 def _source(df: pd.DataFrame, name: str) -> str:
@@ -1609,8 +1647,9 @@ def derive(df: pd.DataFrame, table: str, period: str | int,
     """``df`` (a raw CPV ``table`` frame of edition ``period``) plus its derived columns.
 
     Reads the source items' raw codes (zero-padded or not), so call it before labelling;
-    the derived columns are ``Categorical`` (0/1 for the dummies). A source code with no
-    derived category raises ``ValueError`` (a code the recode table does not know).
+    the derived columns are ``Categorical`` (0/1 for the dummies), or ``Int64`` numbers
+    (:func:`derived_dtypes`). A source code with no derived category raises ``ValueError``
+    (a code the recode table does not know); a number may be missing.
 
     A household's column on a dwelling or household frame (6x: ``HOG_IND``) is computed
     over ``members``, the raw person rows of the frame's households (the person items it
@@ -1625,6 +1664,7 @@ def derive(df: pd.DataFrame, table: str, period: str | int,
         warnings.warn(f"CPV {table} {period}: no derived columns are verified for this "
                       f"edition (see cpv_derivations()).", stacklevel=2)
     recode = _RECODE.get(period, {})
+    dtypes = derived_dtypes(table, period)
     clash = [c for d in derivations for c in d.columns if c in df.columns]
     if clash:
         raise ValueError(f"CPV {table} {period}: derived columns already present: {clash}")
@@ -1654,7 +1694,7 @@ def derive(df: pd.DataFrame, table: str, period: str | int,
         for name, values in d.func(src).items():
             values = pd.Series(values, index=frame.index) if not isinstance(values, pd.Series) \
                 else values.set_axis(frame.index)
-            if values.isna().any():
+            if values.isna().any() and isinstance(dtypes[name], pd.CategoricalDtype):
                 bad = src.loc[values.isna().to_numpy()].drop_duplicates().head(12)
                 problems[name] = bad.to_dict("records")
             if d.members:
@@ -1972,6 +2012,9 @@ _PERSONS_2025 = {
 }
 _EDITION_CELLS = {
     ("personas", "1990"): {
+        # 7f: the population in private dwellings, the sample's universe (its POBHOG; the
+        # ITER's POBTOT adds the collective dwellings')
+        "OCUPVIVPAR": {},
         "P15YM_AN": {"EDAD_CAT": _AGES_15PLUS,
                      "ALFABETA": ["NO SABE LEER NI ESCRIBIR ALGUN RECADO"]},
         # 6o: its own indicators (literacy, attendance, posprimaria, sector)
@@ -1989,6 +2032,7 @@ _EDITION_CELLS = {
         "P5_HLI_NHE": {"EDAD_CAT": _AGES_5PLUS, "HAB_IND": ["SI"], "HAB_ESP": ["NO"]},
     },
     ("viviendas", "1990"): {
+        "VIVPAR_HAB": {},                     # 7f: every dwelling (the extract holds 10%)
         "VPH_PISODT": {**_VIVIENDA, "PISOS": ["CEMENTO O FIRME",
                                               "MADERA, MOSAICO U OTROS RECUBRIMIENTOS"]},
         "VPH_C_ELEC": {**_VIVIENDA, "ELECTRI": ["DISPONE"]},
@@ -2002,6 +2046,7 @@ _EDITION_CELLS = {
         "VP_PROPIA": {**_VIVIENDA, "TENENCIA": ["PROPIA"]},
     },
     ("personas", "1995"): {
+        "OCUPVIVPAR": {},       # 7f: FAC_POB adds up to it in every state but Chiapas
         "POBFEM": {"P3_5": ["Mujer"]},
         "POBMAS": {"P3_5": ["Hombre"]},
         "P15YM_AN": {"EDAD_CAT": _AGES_15PLUS, "P5_1": ["No"]},
@@ -2011,6 +2056,7 @@ _EDITION_CELLS = {
         "P15_ALFAB": {"EDAD_CAT": _AGES_15PLUS, "P5_1": ["Sí"]},
     },
     ("viviendas", "1995"): {
+        "VIVPAR_HAB": {},                                                         # 7f
         "VPH_C_ELEC": {"P1_16": ["Sí"]},
         "VPH_AGUADV": {"P1_8": ["Dentro de la vivienda",
                                 "Fuera de la vivienda, pero dentro del terreno"]},
@@ -2061,6 +2107,7 @@ _EDITION_CELLS = {
         "P48_HTR": {**_EMPLOYED_CELLS, "HORTRA_CAT": ["49-56", "57-60", "61-80", "81YMAS"]},
     },
     ("viviendas", "2000"): {
+        "VIVPAR_HAB": {},                     # 7f: the first households (_PER_DWELLING)
         "VPH_PISODT": {**_VIVIENDA, "PISOS": ["Cemento o firme",
                                               "Madera, mosaico u otros recubrimientos"]},
         "VPH_C_ELEC": {**_VIVIENDA, "ELECTRI": ["Sí tiene"]},
@@ -2232,6 +2279,26 @@ _EDITION_CELLS = {
 # +1.3% in Aguascalientes), so in an edition with a household table they are counted on it
 # (6v; the 2005 ITER publishes no HOG_IND).
 _HOUSEHOLD_INDICATORS = ("TOTHOG", "HOGJEF_F", "HOGJEF_M", "HOG_IND")
+# 7f: the editions whose «Otro» dwelling classes carry the dwelling items, which their ITER
+# counts: CGPV 2000's locales no construidos para habitación and viviendas móviles, CGPV
+# 1990's móviles (its refugios are blank, as every «Otro» class from 2010 on — the legacy
+# cells' «Vivienda» condition). Their dwelling indicators count every private dwelling: CGPV
+# 2000's, so, equal its ITER in all 186 municipalities its sample enumerated completely.
+_EVERY_CLASS = frozenset({"1990", "2000"})
+# 7f: CGPV 2000's dwelling rows are households: its dwelling indicators (not the household
+# ones, _HOUSEHOLD_INDICATORS) count the first household's row, one per dwelling.
+_PER_DWELLING = {"2000": {"PRIMER_HOGAR": ["Sí"]}}
+
+
+def _dwelling_cells(ind: str, cells: dict, period: str) -> dict:
+    """A dwelling indicator's cells in ``period``: without the «Vivienda» condition where
+    the «Otro» classes have the items (:data:`_EVERY_CLASS`), on one row per dwelling
+    (:data:`_PER_DWELLING`); the household indicators as they are."""
+    if ind in _HOUSEHOLD_INDICATORS:
+        return cells
+    if period in _EVERY_CLASS and cells.get("CLAVIVP_CAT") == _VIVIENDA["CLAVIVP_CAT"]:
+        cells = {var: cats for var, cats in cells.items() if var != "CLAVIVP_CAT"}
+    return {**cells, **_PER_DWELLING.get(period, {})}
 
 
 @functools.cache
@@ -2306,7 +2373,8 @@ def _categories(table: str, period: str) -> dict[str, tuple]:
     for col, meta in variables_cpv_labels(source, gid).items():
         if col.upper() in columns and _sg.norm_tipo(meta) == "categorical":
             out[col] = tuple(_sg._categorical_dtype(meta).categories)
-    out.update({col: tuple(dt.categories) for col, dt in derived_dtypes(table, period).items()})
+    out.update({col: tuple(dt.categories) for col, dt in derived_dtypes(table, period).items()
+                if isinstance(dt, pd.CategoricalDtype)})
     return out
 
 
@@ -2365,12 +2433,22 @@ def cpv_constraints(table: str, period: str | int) -> dict:
     ``table`` is ``personas``, ``viviendas`` or, for the Conteo 2005, ``hogares``: its
     dwelling file has one row per dwelling, so the household indicators (``TOTHOG``,
     ``HOGJEF_F``/``HOGJEF_M``; ``HOG_IND``, which the 2005 ITER does not publish) are
-    counted on ``load_cpv_hogares(2005, derived=True)`` instead of the dwellings.
+    counted on ``load_cpv_hogares(2005, derived=True)`` instead of the dwellings. CGPV
+    2000's dwelling file has one row per household: its dwelling indicators count the
+    first household's row (``PRIMER_HOGAR`` «Sí»), its household indicators every row
+    (7f). CGPV 1990's and 2000's dwelling indicators count every private dwelling, the
+    «Otro» classes too, which their ITERs count (their items are recorded: 2000's locales
+    and móviles, 1990's móviles; 2010–2025 leave them blank, hence the legacy cells'
+    «Vivienda» condition); with the dwellings themselves (``VIVPAR_HAB``, 1990–2000), CGPV
+    2000's equal its ITER in the 186 municipalities its sample enumerated completely.
 
     The person sets hold two totals, both every person of the sample: ``POBTOT`` (the
     ITER's, which adds the population of collective dwellings and without a dwelling) and
-    ``POBHOG`` (the population in households, the samples' universe). The weights add up to
-    ``POBHOG`` in Censo 2020 in every state (the EIC 2025 publishes ``POBHOG`` = ``POBTOT``,
+    ``POBHOG`` (the population in households, the samples' universe; CGPV 1990 and the
+    Conteo 1995, which do not publish it, have ``OCUPVIVPAR``, the occupants of private
+    dwellings, instead — 7f: the Conteo's person weights add up to it in every state but
+    Chiapas, whose weights carry its official total, 17% above its ITER). The weights add
+    up to ``POBHOG`` in Censo 2020 in every state (the EIC 2025 publishes ``POBHOG`` = ``POBTOT``,
     and its weights equal both in every municipality). CGPV 2000's and Censo 2010's add up
     to neither: they are above ``POBHOG`` in every state (2000 by 0.07–8.9%, most where the
     census counted a population without characteristics, which its ``POBTOT`` includes and
@@ -2390,7 +2468,9 @@ def cpv_constraints(table: str, period: str | int) -> dict:
     if table == "viviendas" and households:           # counted on the households (6v)
         published -= set(_HOUSEHOLD_INDICATORS)
     cats = _categories(table, period)
-    return {ind: cells for ind, cells in {**_cpv_constraints(table), **own}.items()
+    cells_of = {ind: _dwelling_cells(ind, cells, period) if table == "viviendas" else cells
+                for ind, cells in {**_cpv_constraints(table), **own}.items()}
+    return {ind: cells for ind, cells in cells_of.items()
             if ind in published
             and all(var in cats and set(c) <= set(cats[var]) for var, c in cells.items())}
 
@@ -2406,12 +2486,15 @@ def cpv_constraints(table: str, period: str | int) -> dict:
 # percentages' bases (6y): the EIC 2025's, Σ FACTOR × term at all 2,769 published
 # geographies within the rounding (0.005); Censo 2010's and 2020's ITER averages, exact in
 # the municipalities their samples enumerated completely (FACTOR 1 for every person) where
-# the population in households and of the age group equals the ITER's (STEP_7e.md).
+# the population in households and of the age group equals the ITER's (STEP_7e.md); 7f:
+# CGPV 2000's occupants per dwelling and per room, the same way, on its first households;
+# CGPV 1990's and the Conteo 1995's, ratios of their published counts truncated, within
+# their samples' band (STEP_7f.md).
 # Left out: the medians and the total fertility rate (not linear in the weights), the
-# ratios of published counts (REL_H_M, INDICE_ENV*, RAZON_DEP_*: implied by the count
-# constraints), CGPV 2000's averages (its ITER's GRADOESCO differs from the sample's
-# schooling even where the sample is the census; its PRO_OCVP/PRO_OVP count dwellings,
-# and its dwelling rows are households) and the Conteo 2005's (no schooling or rooms item).
+# ratios of published counts (REL_H_M, INDICE_ENV*, RAZON_DEP_*, the Conteo 1995's
+# percentages: implied by the count constraints), CGPV 2000's GRADOESCO (it differs from
+# the sample's schooling even where the sample is the census) and the Conteo 2005's
+# averages (no schooling or rooms item).
 def _ratio(numerator: dict, denominator: dict | None = None, *, value: str | None = None,
            base_value: str | None = None, known: tuple[str, ...] = (),
            scale: int = 1) -> dict:
@@ -2479,17 +2562,43 @@ _RATIOS = {
         "PRO_OCUP_C": _ratio({}, value="NUMPERS", base_value="TOTCUART"),
         "PROM_OCUP": _ratio({}, value="NUMPERS"),
     },
+    # 7f: CGPV 2000's, once per dwelling (its first household's row, with the dwelling's
+    # NUMPERS) and with its rooms less an exclusive kitchen nobody sleeps in, of the
+    # dwellings that gave them; exact (rounded) in the 186 municipalities its sample
+    # enumerated completely
+    ("viviendas", "2000"): {
+        "PRO_OCUP_C": _ratio(_PER_DWELLING["2000"], value="NUMPERS",
+                             base_value="TOTCUART_INEGI", known=("TOTCUART_INEGI",)),
+        "PROM_OCUP": _ratio(_PER_DWELLING["2000"], value="NUMPERS"),
+    },
+    # 7f: CGPV 1990's and the Conteo 1995's: OCUPVIVPAR over VIVPAR_HAB, truncated (both
+    # published, every geography), and 1990's occupants over the rooms of the dwellings that
+    # gave them (T_CUARTOS, the kitchen counted; Censo 2010's rule): their samples within
+    # 0.07 (1990, a 10% extract) and 0.21 (1995: its dwelling and person weights are
+    # calibrated apart)
+    ("viviendas", "1990"): {
+        "PRO_OCUP_C": _ratio({}, value="NUM_PERS", base_value="T_CUARTOS"),
+        "PROM_OCUP": _ratio({}, value="NUM_PERS"),
+    },
+    ("viviendas", "1995"): {"PROM_OCUP": _ratio({}, value="NUMPERS")},
 }
 
 
 def _numeric_columns(table: str, period: str) -> frozenset[str]:
-    """The numeric columns of the labelled frame (``Int64``/``Float64``, sentinels missing)."""
+    """The numeric columns of the labelled frame with ``derived=True`` (``Int64``/
+    ``Float64``, sentinels missing): the dictionary's, the derived numbers and the Conteo
+    1995 dwellings' person count (7f, ``cpv._OCCUPANTS_FROM_PERSONS``)."""
     from mxcensus import _schema_groups as _sg
-    from mxcensus.cpv import variables_cpv_labels
+    from mxcensus.cpv import _OCCUPANTS_FROM_PERSONS, variables_cpv_labels
 
     source, gid, columns = _frame_group(table, period)
-    return frozenset(col for col, meta in variables_cpv_labels(source, gid).items()
-                     if col.upper() in columns and _sg.norm_tipo(meta) == "numeric")
+    own = {col for col, meta in variables_cpv_labels(source, gid).items()
+           if col.upper() in columns and _sg.norm_tipo(meta) == "numeric"}
+    derived = {col for col, dt in derived_dtypes(table, period).items()
+               if not isinstance(dt, pd.CategoricalDtype)}
+    counted = {_OCCUPANTS_FROM_PERSONS[period]} if (
+        table == "viviendas" and period in _OCCUPANTS_FROM_PERSONS) else set()
+    return frozenset(own | derived | counted)
 
 
 def cpv_ratio_constraints(table: str, period: str | int) -> dict:
@@ -2520,10 +2629,19 @@ def cpv_ratio_constraints(table: str, period: str | int) -> dict:
       ``PROM_HNV``, ``GRAPROES`` (``_F``, ``_M``), ``PRO_OCUP_C``, ``PROM_OCUP``, exact in
       the municipalities their samples enumerated completely; elsewhere the samples'
       ratios sit within their sample band (the ITER is the full census).
+    - **CGPV 2000** (2 dwelling, 7f): ``PROM_OCUP`` and ``PRO_OCUP_C`` once per dwelling
+      (the first household's row, ``PRIMER_HOGAR``), the rooms less an exclusive kitchen
+      nobody sleeps in (``TOTCUART_INEGI``), exact in the 186 municipalities its sample
+      enumerated completely. Its ``GRADOESCO`` does not reproduce on the sample.
+    - **CGPV 1990** (2 dwelling) and the **Conteo 1995** (1 dwelling; 7f): ``PROM_OCUP``
+      (``OCUPVIVPAR`` / ``VIVPAR_HAB``, truncated) and 1990's ``PRO_OCUP_C`` (the occupants
+      over the rooms of the dwellings that gave them, the kitchen counted): their samples
+      within 0.07 (1990, a 10% extract) and 0.21 (1995, whose dwelling weights are
+      calibrated apart from its person weights). The 1995 dwellings count their persons
+      (``NUMPERS``, ``cpv._OCCUPANTS_FROM_PERSONS``).
 
-    Every other edition has none: CGPV 2000's ITER averages do not reproduce on its sample
-    (its schooling) or count dwellings on household rows; the Conteo 2005's sample has
-    neither schooling nor rooms. ``cpv_constraints`` holds the counts.
+    The Conteo 2005's sample has neither schooling nor rooms, so it has none.
+    ``cpv_constraints`` holds the counts.
     """
     from mxcensus.data._cpv_catalog import get_edition
 

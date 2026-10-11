@@ -711,6 +711,7 @@ def _write_variables_yaml(out_dir: Path, map_path: Path, yaml_dir: Path,
             _label_code_groups(entries, paths, doc, g["periods"], set(core_t))
             if set(g["periods"]) & _BLANK_ZERO:
                 _label_blank_zero(entries, set(core_t))
+            _label_quantities(entries, g["periods"], set(core_t))
             counts = Counter(sources.values())
             print(f"  {table}/{gid}: {len(paths)}/{g['files']} file(s) read; {prov}; "
                   + ", ".join(f"{k}={v}" for k, v in sorted(counts.items())), flush=True)
@@ -855,6 +856,34 @@ def _label_blank_zero(entries: dict, skip: set[str]) -> None:
         meta["Nota"] = "; ".join(n for n in notes if n)
 
 
+# FD items whose zero-padded range is a quantity, not a list of codes (7f): CGPV 1990's and
+# 2000's number of persons in the dwelling, «0001..9999» in the FD as a locality's code is,
+# so the parser reads it as codes (_dict_fd: a zero-padded range is a code list). It is
+# the value of the occupants' averages (cpv_derived.cpv_ratio_constraints) and equals the
+# dwelling's person rows.
+_QUANTITIES = frozenset({("1990", "NUM_PERS"), ("2000", "NUMPERS")})
+_CODE_RANGE_RE = re.compile(r"(\d+)\.\.(\d+) = códigos \(no enumerados\)")
+
+
+def _label_quantities(entries: dict, periods: list[str], skip: set[str]) -> None:
+    """Make each :data:`_QUANTITIES` item of a schema group's editions numeric, its
+    ``Rango`` the FD's range, and say so in ``Nota``. The core entries (``skip``) are left
+    alone; an entry the FD no longer documents as a code range raises."""
+    for period, col in sorted(_QUANTITIES):
+        if period not in periods or col not in entries or col in skip:
+            continue
+        entry = entries[col]
+        m = _CODE_RANGE_RE.fullmatch(entry.get("Nota") or "")
+        if entry.get("Tipo") != "string" or not m:
+            raise ValueError(f"{period} {col}: not a code range in the FD ({entry})")
+        entry["Tipo"] = "numeric"
+        entry["Rango"] = [int(m.group(1)), int(m.group(2))]
+        entry["Nota"] = (f"cantidad: el FD escribe su rango con ceros a la izquierda "
+                         f"({m.group(1)}..{m.group(2)}), como el de una clave")
+        entries[col] = {k: entry[k] for k in fd._ORDER if k in entry} | {
+            k: v for k, v in entry.items() if k not in fd._ORDER}
+
+
 # --- ITER/AGEB indicator crosswalk across censuses (cpv_iter_crosswalk.yaml) --------------
 
 _DEFAULT_CROSSWALK = _DEFAULT_YAML_DIR / "cpv_iter_crosswalk.yaml"
@@ -889,7 +918,7 @@ _XW_PAIRS_RENAMED: dict[str, dict[str, str]] = {
     "PHOGJEF_M": {"2005": "P_HOG_JM", "2000": "PHOGJEFM"},
     "PHOGJEF_F": {"2005": "P_HOG_JF", "2000": "PHOGJEFF"},
     "OCUPVIVPAR": {"2000": "OCUVIVPAR"},
-    "PROM_OCUP": {"2000": "PRO_OVP", "1990": "PROM_VIV"},
+    "PROM_OCUP": {"2000": "PRO_OVP", "1995": "PRO_O_VP", "1990": "PROM_VIV"},
     "PRO_OCUP_C": {"2000": "PRO_OCVP"},
     "VPH_C_SERV": {"2005": "VPH_DREE", "2000": "VP_AGDREL"},
     "VPH_NDEAED": {"2005": "VPH_NADE", "2000": "VP_NOADE"},
@@ -903,7 +932,7 @@ _XW_PAIRS_RENAMED: dict[str, dict[str, str]] = {
     "REL_H_M": {"1995": "IM"},                       # «Índice de masculinidad», ×100
     "VPH_C_ELEC": {"1995": "VIVP_ELEC", "1990": "C_E_ELECT"},
     "VPH_DRENAJ": {"1995": "VIVP_DREN", "1990": "C_DRENAJE"},
-    "VPH_AGUADV": {"1995": "VIVP_AGUA", "1990": "C_AGUA_ENT"},
+    "VPH_AGUADV": {"2000": "VP_AGUENT", "1995": "VIVP_AGUA", "1990": "C_AGUA_ENT"},
     "VPH_PISODT": {"1990": "PISO_TIE"},
     "VPH_1CUART": {"1990": "VIV_1_C"},
     # indicators of 2000 and older only (the 2000 or 2005 name is canonical)
@@ -931,10 +960,9 @@ for _canon, _src in {"PRES2015": {"2005": "P_RE2000", "2000": "P5_RES95"},
                      "PDER_SEGP": {"2005": "P_SEGPOP"},
                      "PNACOE": {"2000": "PNACOENT"},
                      "PCATOLICA": {"2000": "P5_CATOLIC"},
-                     "VPH_AGUADV": {"2005": "VPH_AGDV", "2000": "VP_AGUENT"},
+                     "VPH_AGUADV": {"2005": "VPH_AGDV"},
                      "VPH_AGUAFV": {"2005": "VPH_NOAG"},
-                     "VPH_EXCSA": {"2000": "VP_SERSAN"},
-                     "PROM_OCUP": {"1995": "PRO_O_VP"}}.items():
+                     "VPH_EXCSA": {"2000": "VP_SERSAN"}}.items():
     _XW_PAIRS_KEPT.setdefault(_canon, {}).update(_src)
 _XW_PAIRS: dict[str, dict[str, str]] = {
     c: {**_XW_PAIRS_RENAMED.get(c, {}), **_XW_PAIRS_KEPT.get(c, {})}
@@ -975,13 +1003,14 @@ _XW_NOTES: dict[str, str] = {
                  "empareja con PCON_DISC de 2020, que usa la escala de dificultad"),
     "PNACOE": "2000 (PNACOENT) incluye a la población nacida en otro país",
     "PCATOLICA": "2000 (P5_CATOLIC) cuenta sólo a la población de 5 años y más",
-    "VPH_AGUADV": ("1990 y 1995: dentro de la vivienda o del terreno, como en 2010 y 2020 (en "
-                   "el ámbito de la vivienda; renombradas); 2000 (VP_AGUENT): agua entubada "
-                   "(dentro o fuera de la vivienda); 2005 (VPH_AGDV): agua entubada de la red "
-                   "pública — estas dos no se renombran"),
-    "PROM_OCUP": ("1995 (PRO_O_VP, no se renombra) lo define como la población total entre el "
-                  "total de viviendas; 1990 (PROM_VIV) y después, ocupantes de viviendas "
-                  "particulares entre esas viviendas"),
+    "VPH_AGUADV": ("1990, 1995 y 2000 (VP_AGUENT): dentro de la vivienda o del terreno, como "
+                   "en 2010 y 2020 (en el ámbito de la vivienda; renombradas; 2000: exacto en los "
+                   "municipios que su muestra levantó completos); 2005 (VPH_AGDV): agua "
+                   "entubada de la red pública — no se renombra"),
+    "PROM_OCUP": ("ocupantes de viviendas particulares entre esas viviendas (OCUPVIVPAR / "
+                  "VIVPAR_HAB) en todos los censos; 1990 (PROM_VIV) y 1995 (PRO_O_VP) truncan a "
+                  "dos decimales. El descriptor de 1995 dice «población total entre el total de "
+                  "viviendas», pero sus valores estatales y municipales son ese cociente"),
     "REL_H_M": "1995 lo llama índice de masculinidad (IM): hombres por cada cien mujeres",
     "VPH_AGUAFV": "2005 (VPH_NOAG): sin agua entubada de la red pública",
     "VPH_EXCSA": "2000 (VP_SERSAN): servicio sanitario exclusivo de la vivienda",

@@ -107,6 +107,11 @@ _DWELLINGS_FROM_PERSONS: dict[str, tuple[str, ...]] = {
              "P1_2", "P1_3", "P1_4", "P1_5", "P1_6", "P1_7", "P1_8", "P1_9", "P1_10", "P1_11",
              "P1_13", "P1_16", "P1_17", "P1_18", "P2_2", "P2_3"),
 }
+# 7f: the Conteo 1995's person file has no occupant item, so its dwelling frame counts each
+# dwelling's persons into NUMPERS (Int64; the later editions' item name — CGPV 1990's
+# NUM_PERS equals its person rows in every dwelling): the value of its occupants per
+# dwelling (cpv_derived.cpv_ratio_constraints).
+_OCCUPANTS_FROM_PERSONS: dict[str, str] = {"1995": "NUMPERS"}
 
 # The household head's sex (2020/2025: the dwelling item JEFE_SEXO) for the editions whose
 # dwelling file has none: derived=True takes it from the person file (6s) — the person whose
@@ -825,13 +830,17 @@ def _dwellings_from_persons(period: str, state, harmonize: bool
                             ) -> tuple[pd.DataFrame, list[str], str]:
     """CGPV 1990's or the Conteo 1995's dwelling frame: the raw person file(s) with their
     composite keys, one row per ``ID_VIV`` (its first person's
-    :data:`_DWELLINGS_FROM_PERSONS` columns); ``harmonize=True`` then harmonizes it as a
+    :data:`_DWELLINGS_FROM_PERSONS` columns; the Conteo 1995's also its number of persons,
+    :data:`_OCCUPANTS_FROM_PERSONS`); ``harmonize=True`` then harmonizes it as a
     ``viviendas`` frame (``FACTOR`` = ``FAC_VIV``). Returns ``(frame, the person file's
     gids, label)``."""
     persons, gids, label = _load_cpv_raw(table="personas", period=period, state=state)
     persons = _composite_keys(persons, "personas")
     first = ~persons["ID_VIV"].duplicated()
     df = persons.loc[first, ["ID_VIV", *_DWELLINGS_FROM_PERSONS[period]]].reset_index(drop=True)
+    if period in _OCCUPANTS_FROM_PERSONS:
+        sizes = persons.groupby("ID_VIV", sort=False).size()
+        df[_OCCUPANTS_FROM_PERSONS[period]] = df["ID_VIV"].map(sizes).astype("Int64")
     label = f"viviendas from {label}"
     if harmonize:
         periods = tuple(dict.fromkeys(p for g in gids for p in _group_periods("personas", g)))
@@ -1016,12 +1025,14 @@ def load_cpv_viviendas(
 
     Older editions differ. CGPV 2000's dwelling file has **one row per household**
     (the dwelling's items repeat in each), indexed ``(ID_VIV, ID_HOG)``: count dwellings
-    on ``ID_HOG``'s first household (``NUMHOG == "1"``). The Conteo 2005 sample has no
-    ``FACTOR``. Both have no key column; the keys are derived from the composite parts
-    (:func:`_composite_keys`). CGPV 1990 and the Conteo 1995 publish no dwelling file: their
-    frame is built from the person file, one row per dwelling with its first person's
-    dwelling items (:data:`_DWELLINGS_FROM_PERSONS`); 1990's is unweighted (a 10% extract),
-    1995's carries ``FAC_VIV`` (``harmonize=True``: ``FACTOR`` = ``FAC_VIV``).
+    on ``ID_HOG``'s first household (``NUMHOG == "1"``; ``derived=True``: ``PRIMER_HOGAR``
+    «Sí»). The Conteo 2005 sample has no ``FACTOR``. Both have no key column; the keys are
+    derived from the composite parts (:func:`_composite_keys`). CGPV 1990 and the Conteo
+    1995 publish no dwelling file: their frame is built from the person file, one row per
+    dwelling with its first person's dwelling items (:data:`_DWELLINGS_FROM_PERSONS`) and,
+    for 1995, whose file has no occupant item, its number of persons (``NUMPERS``,
+    :data:`_OCCUPANTS_FROM_PERSONS`); 1990's is unweighted (a 10% extract), 1995's carries
+    ``FAC_VIV`` (``harmonize=True``: ``FACTOR`` = ``FAC_VIV``).
 
     ``derived=True`` adds the legacy ``load_extended_viviendas`` columns the edition
     supports (``CLAVIVP_CAT``, ``CUADORM_CAT``, ``INGTRHOG_CAT``, the ``FINANCIAMIENTO_*``
@@ -1035,7 +1046,9 @@ def load_cpv_viviendas(
     persons' ``HOG_IND``, by the edition's own definition), computed over the household's
     members from the person file (the key, relationship and language columns only); the
     EIC 2025's ``HOG_IND`` estimates count these dwellings. With one name on both frames,
-    a person ↔ dwelling join needs a suffix for it.
+    a person ↔ dwelling join needs a suffix for it. CGPV 2000's also get ``PRIMER_HOGAR``
+    (the first household's row stands for the dwelling) and ``TOTCUART_INEGI`` (``Int64``:
+    its rooms less an exclusive kitchen nobody sleeps in, as its ITER counts them).
     """
     return _load_level("viviendas", period, state, harmonize, labels, derived)
 
