@@ -90,7 +90,11 @@ SOURCES = {
               # 7h: the dwellings by state
               "14_02A_ESTATAL.xls", "14_03A_ESTATAL.xls", "14_05A_ESTATAL.xls",
               "14_07A_ESTATAL.xls", "14_09A_ESTATAL.xls", "14_10A_ESTATAL.xls",
-              "14_12A_ESTATAL.xls", "14_14A_ESTATAL.xls")),
+              "14_12A_ESTATAL.xls", "14_14A_ESTATAL.xls",
+              # 7m: the persons and the international migrants by state
+              "01_02A_ESTATAL.xls", "02_04A_ESTATAL.xls", "04_04A_ESTATAL.xls",
+              "04_05A_ESTATAL.xls", "04_06A_ESTATAL.xls", "06_02A_ESTATAL.xls",
+              "09_04A_ESTATAL.xls", "10_02A_ESTATAL.xls")),
     "2015": ("intercensal/2015/tabulados",
              ("01_poblacion.xls", "02_fecundidad.xls", "03_mortalidad.xls",           # 7j
               "09_trabajo_no_remunerado.xls", "04_migracion.xls", "05_etnicidad.xls", "06_educacion.xls",
@@ -1862,6 +1866,154 @@ def _dwelling_checks_2000() -> tuple[Check, ...]:
     return tuple(out)
 
 
+# Censo 2010 persons and international migrants (7m) --------------------------------------
+
+_QUIN_2010 = ("Total", *(f"{a:02d}-{a + 4:02d} años" for a in range(0, 65, 5)), "65 años y más",
+              "No especificado")
+_WOMEN_AGES_2010 = ("Total", "12-14 años", *(f"{a}-{a + 4} años" for a in range(15, 65, 5)),
+                    "65 años y más")
+
+
+def _children_2010(p):
+    """02_04A: the women of 12 and more by children born alive (``NUMHIJ`` 0 … 7, 8 and
+    more, not specified 98/99), by age group."""
+    women = p["SEXO"].astype(str).eq("3") & _age(p).between(12, 130)
+    born = _code(p, "NUMHIJ")
+    out = []
+    for label in _WOMEN_AGES_2010:
+        g = women & _age_group(p, label)
+        out += _counts_of(g, *(g & born.eq(k) for k in range(8)), g & born.between(8, 97),
+                          g & born.isin([98, 99]))
+    return out
+
+
+def _limitation_causes_2010(p):
+    """06_02A: limited in an activity (``LIM_ACTIVIDAD``), then as % of them each cause any of
+    their limitations has (``CAUSADIS1``–``7``: birth, illness, accident, old age, other, not
+    specified); not limited, not specified."""
+    every, lim = pd.Series(True, index=p.index), _cat(p, "LIM_ACTIVIDAD")
+    limited = lim.eq("Sí")
+    causes = pd.DataFrame({i: _code(p, f"CAUSADIS{i}") for i in range(1, 8)})
+    return _counts_of(every, limited, *(limited & causes.eq(c).any(axis=1) for c in (1, 2, 3, 4, 5, 9)),
+                      lim.eq("No"), lim.eq("No especificado"))
+
+
+def _service_use_2010(p):
+    """09_04A: who use a health service (``SERSALUD`` 01–08), then as % of them each
+    institution; who use none (09), not specified (99)."""
+    every, use = pd.Series(True, index=p.index), _code(p, "SERSALUD")
+    return _counts_of(every, use.between(1, 8), *(use.eq(k) for k in range(1, 9)), use.eq(9),
+                      use.eq(99))
+
+
+_UNIONS_2010 = (("Total", "Total", (1, 5, 6, 7)), ("Casado(a)", "Total", (5, 6, 7)),
+                ("Casado(a)", "Civil", (5,)), ("Casado(a)", "Religiosamente", (6,)),
+                ("Casado(a)", "Civil y religiosamente", (7,)), ("Unión libre", "Total", (1,)))
+
+
+def _spouse_2010(p):
+    """10_02A: the 12+ in a union (``ESTCON`` 1, 5, 6, 7) by its kind, then by whether the
+    spouse lives in the dwelling (``IDENT_PAREJA_CAT``: yes, no, not specified)."""
+    twelve, union, spouse = _age(p).between(12, 130), _code(p, "ESTCON"), _cat(p, "IDENT_PAREJA_CAT")
+    out = []
+    for _, _, codes in _UNIONS_2010:
+        u = twelve & union.isin(codes)
+        out += _counts_of(u, *(u & spouse.eq(c) for c in ("Sí", "No", "No especificado")))
+    return out
+
+
+def _unions_2010(wb):
+    """10_02A: the rows (state, sex, civil status, kind of union) in :data:`_UNIONS_2010`'s
+    order, as counts."""
+    rows = _estimates(_sheet(wb, None), "Parámetro")
+    out = {}
+    for (state, sex, civil, kind), v in rows.items():
+        out.setdefault((state, sex), {})[civil, kind] = _counts(v[0], v[1:])
+    return {k: [x for civil, kind, _ in _UNIONS_2010 for x in v[civil, kind]] for k, v in out.items()}
+
+
+def _migrants_by_origin(cells: Callable[[pd.DataFrame], list]):
+    """The 2010 international migrants counted in the state they left (``MLUGORI_C``; 999 =
+    not specified), as counts."""
+    def ours(m):
+        origin = m["MLUGORI_C"]
+        return [(ByOrigin(c, origin), None) for c in cells(m)]
+    return ours
+
+
+def _movement_2010(m) -> list[pd.Series]:
+    """04_04A: every migrant, the emigrants (``MPAIRES`` 1–2: the United States, another
+    country), the return migrants (3; of them: in the same dwelling, ``MCONRESACT`` 1, in
+    another place 3, not specified 9), not specified (9)."""
+    res, cur = _code(m, "MPAIRES"), _code(m, "MCONRESACT")
+    back = res.eq(3)
+    return [pd.Series(True, index=m.index), res.isin([1, 2]), back, back & cur.eq(1),
+            back & cur.eq(3), back & cur.eq(9), res.eq(9)]
+
+
+_MIGRANT_AGES_2010 = ((0, 14), (15, 24), (25, 34), (35, 49), (50, 59), (60, 130))
+
+
+def _person_checks_2010() -> tuple[Check, ...]:
+    """Censo 2010's person and international-migrant tabulados by state read in 7m."""
+    est = "Parámetro"
+    return (
+        Check("2010", "01_02A", "Population by five-year age (`EDAD_QUIN`) and sex",
+              "01_02A_ESTATAL.xls", "personas",
+              tuple(f"{g}: {s}" for g in _QUIN_2010 for s in ("total", "men", "women")),
+              _by_dims(est, None, _QUIN_2010, lambda v: v[:3]), _population(_QUIN_2010),
+              unit="persons", note="The sexes are columns: sex T only (7m)."),
+        Check("2010", "02_04A", "Women 12+ by children born alive (`NUMHIJ`) and age",
+              "02_04A_ESTATAL.xls", "personas",
+              tuple(f"{g}: {c}" for g in _WOMEN_AGES_2010 for c in (
+                  "women", *(str(k) for k in range(8)), "8+", "NE")),
+              _by_dims(est, None, _WOMEN_AGES_2010, lambda v: _counts(v[0], v[1:])),
+              _children_2010, unit="persons", note="Not specified = `NUMHIJ` 98 and 99 (7m)."),
+        Check("2010", "06_02A", "Limitation in an activity and its causes (`LIM_ACTIVIDAD`, "
+              "`CAUSADIS1`–7)", "06_02A_ESTATAL.xls", "personas",
+              ("population", "limited", "birth", "illness", "accident", "old age", "other",
+               "cause NE", "not limited", "NE"),
+              _wide(est, lambda v: _counts(v[0], v[1:], [0, 1, 1, 1, 1, 1, 1, 0, 0])),
+              _limitation_causes_2010, unit="persons",
+              note="A cause counts the limited with any limitation of that cause (7m)."),
+        Check("2010", "09_04A", "Use of health services by institution (`SERSALUD`)",
+              "09_04A_ESTATAL.xls", "personas",
+              ("population", "users", "IMSS", "ISSSTE", "ISSSTE estatal", "Pemex, Defensa, Marina",
+               "SSA", "IMSS Oportunidades", "private", "elsewhere", "no user", "NE"),
+              _wide(est, lambda v: _counts(v[0], v[1:], [0, *[1] * 8, 0, 0])),
+              _service_use_2010, unit="persons",
+              note="The institutions are % of the users (7m)."),
+        Check("2010", "10_02A", "The 12+ in a union by its kind and the spouse's residence "
+              "(`ESTCON`, `IDENT_PAREJA_CAT`)", "10_02A_ESTATAL.xls", "personas",
+              tuple(f"{c} {k}: {x}" for c, k, _ in _UNIONS_2010
+                    for x in ("in a union", "spouse here", "spouse elsewhere", "NE")),
+              _unions_2010, _spouse_2010, unit="persons"),
+        Check("2010", "04_04A", "International migrants by movement, state left (`MPAIRES`, "
+              "`MCONRESACT`)", "04_04A_ESTATAL.xls", "migrantes",
+              ("migrants", "emigrants", "return migrants", "back in the same dwelling",
+               "back elsewhere", "back, NE", "NE"),
+              _wide(est, lambda v: _counts(v[0], v[1:], [0, 0, 2, 2, 2, 0])),
+              _migrants_by_origin(_movement_2010), unit="persons", by_origin=True,
+              note="Counted in the state they left (`MLUGORI_C`; 7m)."),
+        Check("2010", "04_05A", "International migrants by sex, state left (`MSEXO`)",
+              "04_05A_ESTATAL.xls", "migrantes", ("migrants", "men", "women"),
+              _wide(est, lambda v: _counts(v[0], v[1:]), dims=lambda k: (k[0], "T")),
+              _migrants_by_origin(lambda m: [pd.Series(True, index=m.index),
+                                             m["MSEXO"].astype(str).eq("1"),
+                                             m["MSEXO"].astype(str).eq("3")]),
+              unit="persons", by_origin=True),
+        Check("2010", "04_06A", "International migrants by age at emigrating, state left "
+              "(`MEDAD`)", "04_06A_ESTATAL.xls", "migrantes",
+              ("migrants", "0-14", "15-24", "25-34", "35-49", "50-59", "60+", "NE"),
+              _wide(est, lambda v: _counts(v[0], v[1:]), dims=lambda k: (k[0], "T")),
+              _migrants_by_origin(lambda m: [pd.Series(True, index=m.index),
+                                             *(_code(m, "MEDAD").between(a, b)
+                                               for a, b in _MIGRANT_AGES_2010),
+                                             _code(m, "MEDAD").eq(999)]),
+              unit="persons", by_origin=True),
+    )
+
+
 # CGPV 2000 persons: population, disability, fertility, language (7k) ---------------------
 
 _AGES_2000 = (*((a, a + 4) for a in range(0, 65, 5)), (65, 130), None)    # None = 999
@@ -2213,18 +2365,33 @@ def _by_dims(estimator: str, sheet: str, groups: tuple[str, ...], pick: Callable
     return read
 
 
-def _population_2015(p):
-    """01-02: every age group (``EDAD_QUIN``) by sex in columns: total, men, women."""
-    quin, sex = _cat(p, "EDAD_QUIN"), p["SEXO"].astype(str)
-    every = pd.Series(True, index=p.index)
-    out = []
-    for label in _QUIN_2015:
-        g = every if label == "Total" else quin.eq(
-            "No especificado" if label == "No especificado" else
-            "75-130" if label == "75 años y más" else
-            "-".join(str(int(x)) for x in label.split()[0].split("-")))
-        out += [(g, None), (g & sex.eq("1"), None), (g & sex.eq("3"), None)]
-    return out
+def _quin_group(p: pd.DataFrame, label: str) -> pd.Series:
+    """An age group of the tabulados as ``EDAD_QUIN`` categories (7a): «NN-MM años» its own,
+    «NN años y más» every category from NN on, «No especificado», «Total»."""
+    quin = _cat(p, "EDAD_QUIN")
+    if label == "Total":
+        return pd.Series(True, index=p.index)
+    if label == "No especificado":
+        return quin.eq("No especificado")
+    if m := re.fullmatch(r"(\d+)-(\d+) años", label):
+        return quin.eq(f"{int(m.group(1))}-{int(m.group(2))}")
+    if m := re.fullmatch(r"(\d+) años y más", label):
+        lows = quin.astype(str).str.extract(r"^(\d+)-")[0].astype(float)
+        return lows.ge(int(m.group(1)))
+    raise ValueError(f"age group {label!r}")
+
+
+def _population(groups: tuple[str, ...]):
+    """EIC 2015 01-02, Censo 2010 01_02A: every age group (``EDAD_QUIN``) by sex in columns:
+    total, men, women."""
+    def ours(p):
+        sex = p["SEXO"].astype(str)
+        out = []
+        for label in groups:
+            g = _quin_group(p, label)
+            out += [(g, None), (g & sex.eq("1"), None), (g & sex.eq("3"), None)]
+        return out
+    return ours
 
 
 def _registration_2015(p):
@@ -2314,7 +2481,7 @@ def _person_checks_2015() -> tuple[Check, ...]:
         Check("2015", "01-02", "Population by five-year age (`EDAD_QUIN`) and sex",
               "01_poblacion.xls", "personas",
               tuple(f"{g}: {s}" for g in _QUIN_2015 for s in ("total", "men", "women")),
-              _by_dims("Valor", "02", _QUIN_2015, lambda v: v[:3]), _population_2015,
+              _by_dims("Valor", "02", _QUIN_2015, lambda v: v[:3]), _population(_QUIN_2015),
               unit="persons", sheet="02", note="The sexes are columns: sex T only (7j)."),
         Check("2015", "01-03", "Birth registration (`ACTA_NAC`) by age", "01_poblacion.xls",
               "personas",
@@ -2912,7 +3079,8 @@ CHECKS: tuple[Check, ...] = (
                 dims=lambda k: (k[0], "T")),
           _financing_2020, unit="persons", sheet="34"),
 ) + (_dwelling_checks_2010() + _dwelling_checks_2020() + _dwelling_checks_2000()  # 7h, 7i
-     + _person_checks_2015() + _person_checks_2000() + _person_checks_2000_l())       # 7j–7l
+     + _person_checks_2015() + _person_checks_2000() + _person_checks_2000_l()        # 7j–7l
+     + _person_checks_2010())                                                        # 7m
 
 
 # --------------------------------------------------------------------------------------

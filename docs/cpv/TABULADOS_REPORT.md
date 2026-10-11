@@ -157,6 +157,14 @@ Tolerance: 1.0 persons.
 | 14_03Ab Occupants by tenure (`TENVIV`) | `14_03A_ESTATAL.xls` | 165 | 0.00 | 0.00 | 0.00 (00 T «rented») | 0 |
 | 14_14Aa Dwellings by waste disposal (`ELIBAS`) | `14_14A_ESTATAL.xls` | 297 | 0.00 | 0.00 | 0.00 (00 T «burn») | 0 |
 | 14_14Ab Occupants by waste disposal (`ELIBAS`) | `14_14A_ESTATAL.xls` | 297 | 0.00 | 0.00 | 0.00 (00 T «collection») | 0 |
+| 01_02A Population by five-year age (`EDAD_QUIN`) and sex | `01_02A_ESTATAL.xls` | 1584 | 0.00 | 0.00 | 0.00 (01 T «Total: total») | 0 |
+| 02_04A Women 12+ by children born alive (`NUMHIJ`) and age | `02_04A_ESTATAL.xls` | 4719 | 0.00 | 0.00 | 0.21 (00 T «Total: 3») | 0 |
+| 06_02A Limitation in an activity and its causes (`LIM_ACTIVIDAD`, `CAUSADIS1`–7) | `06_02A_ESTATAL.xls` | 990 | 0.00 | 0.00 | 0.00 (00 T «not limited») | 0 |
+| 09_04A Use of health services by institution (`SERSALUD`) | `09_04A_ESTATAL.xls` | 1188 | 0.00 | 0.03 | 0.63 (00 T «IMSS») | 0 |
+| 10_02A The 12+ in a union by its kind and the spouse's residence (`ESTCON`, `IDENT_PAREJA_CAT`) | `10_02A_ESTATAL.xls` | 2376 | 0.00 | 0.00 | 0.00 (00 T «Total Total: spouse here») | 0 |
+| 04_04A International migrants by movement, state left (`MPAIRES`, `MCONRESACT`) | `04_04A_ESTATAL.xls` | 693 | 0.00 | 0.00 | 0.00 (00 T «back in the same dwelling») | 0 |
+| 04_05A International migrants by sex, state left (`MSEXO`) | `04_05A_ESTATAL.xls` | 99 | 0.00 | 0.00 | 0.00 (00 T «women») | 0 |
+| 04_06A International migrants by age at emigrating, state left (`MEDAD`) | `04_06A_ESTATAL.xls` | 264 | 0.00 | 0.00 | 0.00 (00 T «15-24») | 0 |
 
 - 04_02A: The entity not specified (`RES05EDO_C` 999) is «No especificado», as INEGI's (the legacy `ENT_PAIS_RES_CAT`: `OtraEnt`); 7b.
 - 08_15A: `LTRABPAI_C` holds the entity and country catalogs; its 999 (the entity's «no especificada») and 900 (topic omitted) are «No especificado» (7b).
@@ -166,6 +174,11 @@ Tolerance: 1.0 persons.
 - 14_02A: Locales no construidos para habitación, móviles and refugios (`CLAVIVP` 5–7) left out, as INEGI's 2010 dwelling tabulados (7h).
 - 14_10A: Piped water: inside the dwelling or the lot (`DISAGU` 1–2), the dwellings asked `DOTAGUAD` (7h).
 - 14_12A: Electricity is «otro combustible» (7h).
+- 01_02A: The sexes are columns: sex T only (7m).
+- 02_04A: Not specified = `NUMHIJ` 98 and 99 (7m).
+- 06_02A: A cause counts the limited with any limitation of that cause (7m).
+- 09_04A: The institutions are % of the users (7m).
+- 04_04A: Counted in the state they left (`MLUGORI_C`; 7m).
 
 ## 2015
 

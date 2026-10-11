@@ -66,6 +66,7 @@ unit.
 | **7j** | More tabulado checks: the EIC 2015's persons | 7i | ✅ done 2026-10-11, unattended (`STEP_7j.md`): `check_cpv_tabulados.py` on the EIC 2015 tabulados of population by five-year age (`EDAD_QUIN`) and sex, birth registration, the women 12+ by marital status and their children born alive per woman, the children who died, unpaid work and its hours (raw items, averages and shares on `Weighted` parts): every cell exact in every state, sex and the nation; no loader or derivation changed |
 | **7k** | More tabulado checks: CGPV 2000's population, disability, fertility, language | 7j | ✅ done 2026-10-11, unattended (`STEP_7k.md`): `check_cpv_tabulados.py` on CGPV 2000's PO01 (age shares per sex), DI01/02/04 (disability by age, type, cause: `DISOTRA_C` 299 motor, 399 mental, 960 type not specified, the rest other), FE03–05 (children born alive and surviving per woman, the share who died) and LI02 (language): every cell within the 2000 band; no loader or derivation changed |
 | **7l** | More tabulado checks: CGPV 2000's households and education | 7k | ✅ done 2026-10-11, unattended (`STEP_7l.md`): `check_cpv_tabulados.py` on CGPV 2000's HO01/02/05/07 (households and their population by size, type, income in minimum wages — exactly 3 wages in «2 to 3») and HO08 (averages, members from the person file), ED02/04/06 (literacy, attendance by age and sex) and ED12 (causes of non-attendance): 8,151 cells within the 2000 band; no loader or derivation changed |
+| **7m** | More tabulado checks: Censo 2010's persons and international migrants | 7l | ✅ done 2026-10-11, unattended (`STEP_7m.md`): `check_cpv_tabulados.py` on Censo 2010's 01_02A (`EDAD_QUIN` × sex), 02_04A (children born alive), 06_02A (limitation causes), 09_04A (health service use), 10_02A (spouse's residence by union) and 04_04A–06A (international migrants by the state left): 11,913 cells, every one exact; no loader or derivation changed |
 
 The user asked (2026-10-08, afternoon) for all four post-6e candidates in one session, one
 unit each (6f–6i), with a local commit per unit; push, merge, version and upload wait for
@@ -106,6 +107,7 @@ day; 6u–7b were merged into `main` as 0.11.0 (2026-10-10, after a `wsl` full-s
 7j (HANDOFF candidate 3, the EIC 2015 person tabulados) followed the same night, unattended.
 7k (HANDOFF candidate 3, CGPV 2000's population, disability, fertility and language tabulados) followed the same night, unattended.
 7l (HANDOFF candidate 3, CGPV 2000's household and education tabulados) followed the same night, unattended.
+7m (HANDOFF candidate 3, Censo 2010's person and migrant tabulados) followed the same night, unattended.
 
 ### Session protocol
 
