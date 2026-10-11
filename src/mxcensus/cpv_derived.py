@@ -468,7 +468,8 @@ _DTYPES = {"DISCAPACIDAD": _YES_NO, "LIMITACION": _YES_NO, "SIN_DISC_LIM": _YES_
 _DTYPE_LIKE = {"HOGJEF_SEXO": ("viviendas", "JEFE_SEXO"),
                "ENT_PAIS_NAC_INEGI": ("personas", "ENT_PAIS_NAC_CAT"),
                "ENT_PAIS_ASI_INEGI": ("personas", "ENT_PAIS_RES_CAT"),
-               "ENT_PAIS_TRAB_INEGI": ("personas", "ENT_PAIS_RES_CAT")}
+               "ENT_PAIS_TRAB_INEGI": ("personas", "ENT_PAIS_RES_CAT"),
+               "RELIGION_INEGI": ("personas", "RELIGION_CAT")}
 _DIS_ITEMS = ("DIS_VER", "DIS_OIR", "DIS_CAMINAR", "DIS_RECORDAR", "DIS_BANARSE", "DIS_HABLAR")
 # Censo 2010: one item per activity (DISCAP1–7, its code or blank), DISCAP8 = none (17) or
 # not specified (99).
@@ -1132,13 +1133,23 @@ _RELIGION_2010 = {11: 1101, 12: 1201, 13: 1307, 14: 1326, 15: 1331, 21: 2303, 22
 _RELIGION_2010_CODES = {220100: 1325, 310100: 3104}
 
 
-def _religion_2010(src):
+def _religion_2010(src, column: str = "RELIGION_CAT", codes: dict = _RELIGION_2010_CODES):
     """Censo 2010's religion → ``RELIGION_CAT`` (:data:`_RELIGION_2010`); a code of another
     group is left missing (:func:`derive` reports it)."""
     code = src["OTRAREL_C"]
     group = code.where(code.between(100000, 999999)) // 10000
-    code2020 = code.map(_RELIGION_2010_CODES).fillna(group.map(_RELIGION_2010))
-    return {"RELIGION_CAT": _mapped(code2020, "personas", "RELIGION_CAT", "RELIGION_CAT")}
+    code2020 = code.map(codes).fillna(group.map(_RELIGION_2010))
+    return {column: _mapped(code2020, "personas", "RELIGION_CAT", "RELIGION_CAT")}
+
+
+def _religion_inegi_2010(src):
+    """7g: Censo 2010's religion by its own classification (``RELIGION_INEGI``,
+    ``RELIGION_CAT``'s labels): the neo-Israelite movements (220100) are a judaic credo,
+    «Otros credos» — its ITER's ``POTRAS_REL``, not ``PNCATOLICA`` —, exact in the 233
+    municipalities its sample enumerated completely where every age and sex count is the
+    ITER's (``RELIGION_CAT`` keeps 2020's grouping, an evangelical church: 6f)."""
+    return _religion_2010(src, "RELIGION_INEGI",
+                          {c: v for c, v in _RELIGION_2010_CODES.items() if c != 220100})
 
 
 # CGPV 2000 religion (OTRAREL_C, 4 digits, asked of persons aged 5+): its FD makes 0001
@@ -1479,6 +1490,7 @@ def _registry() -> tuple[_Derivation, ...]:
         D(per, ("RELIGION_CAT",), ("RELIGION",), ("2020",),
           _cat(per, "RELIGION", "RELIGION_CAT")),
         D(per, ("RELIGION_CAT",), ("OTRAREL_C",), ("2010",), _religion_2010),
+        D(per, ("RELIGION_INEGI",), ("OTRAREL_C",), ("2010",), _religion_inegi_2010),
         D(per, ("RELIGION_CAT",), ("OTRAREL_C",), ("2000",), _religion_2000),
         D(per, ("RELIGION_CAT",), ("RELIGION",), ("1990",), _religion_1990),
         *(D(per, ("HOGJEF_SEXO",), ("PARENTESCO", "SEXO"), periods, _hogjef_sexo(heads),
@@ -1818,10 +1830,24 @@ def _by_sex(cells: dict, names: tuple[str, str, str], sex: str = "SEXO") -> dict
     total, men, women = names
     return {total: cells, men: {**cells, sex: ["Hombre"]}, women: {**cells, sex: ["Mujer"]}}
 
+
+# 7g: the born and the residents five years earlier in another entity leave out the
+# unspecified entity (INEGI's rule: ENT_PAIS_NAC_INEGI, LUGAR_RES_5A; the legacy cells count
+# it in OtraEnt), as the EIC 2025 estimates (6y, 7a) and the Censo 2010 and 2020 ITER: exact
+# in the 233/130 municipalities their samples enumerated completely where every age and sex
+# count is the ITER's (the legacy cells: 231/123 and 231/120). The Conteo 2005, without
+# LUGAR_RES_5A, keeps the legacy cells (its residence item has no unspecified entity).
+_CELLS["personas"].update({
+    **_by_sex({"ENT_PAIS_NAC_INEGI": ["OtraEnt"]}, ("PNACOE", "PNACOE_M", "PNACOE_F")),
+    **_by_sex({"EDAD_CAT": _AGES_5PLUS, "LUGAR_RES_5A": ["Otra entidad"]},
+              ("PRESOE15", "PRESOE15_M", "PRESOE15_F")),
+})
+
 # Indicators an edition publishes under its own definition, on its own items: Censo 2010's
 # limitation in activity (its PCLIM_VIS/PCLIM_MOT2 share 2020's names, not their concept)
-# and its protestant, evangelical and other biblical religions (2020's protestant/evangelical
-# group, which also holds the neo-Israelite movements its ITER counts in POTRAS_REL). CGPV
+# and its protestant, evangelical and other biblical religions (7g: by its own
+# classification, RELIGION_INEGI — 2020's protestant/evangelical group also holds the
+# neo-Israelite movements its ITER counts in POTRAS_REL). CGPV
 # 1990 and the Conteo 1995: the legacy cells on their own items (literacy, indigenous
 # language, sex, floor, electricity, water), with their dictionaries' labels; the Conteo
 # 1995 has no dwelling class, so its dwelling cells take every (private) dwelling. CGPV
@@ -2084,8 +2110,20 @@ _EDITION_CELLS = {
         "P6_14NLEE": {"EDAD_CAT": _AGES_6_14, "ALFABET": ["No sabe leer y escribir"]},
         "P15_ALFAB": {"EDAD_CAT": _AGES_15PLUS, "ALFABET": ["Sí sabe leer y escribir"]},
         "PSOLTER12_": {"EDAD_CAT": _AGES_12PLUS, "SITUA_CONYUGAL_CAT": ["soltero"]},
-        "P5_NCATOLI": {"RELIGION_CAT": ["Protestante/cristiano evangélico", "Otros credos"]},
-        "P5_SINRELI": {"RELIGION_CAT": ["Protestante/cristiano evangélico", "Otros credos",
+        # 7g: its own definitions of the pairs the crosswalk keeps apart (published as
+        # PNACOENT, P5_RESO95, P5_CATOLIC): born or living in 1995 outside the entity *or
+        # the country*, and the religions of the 5 and more (the persons of unspecified age
+        # answer the item; INEGI leaves them out) — exact in the 51 municipalities its
+        # sample enumerated completely where every age and sex count is the ITER's (the
+        # legacy cells: 0, 0, 20; P5_NCATOLI/P5_SINRELI without the age: 42, 40)
+        "PNACOE": {"ENT_PAIS_NAC_INEGI": ["OtraEnt", "OtroPais"]},
+        "PRESOE15": {"EDAD_CAT": _AGES_5PLUS,
+                     "LUGAR_RES_5A": ["Otra entidad", "Estados Unidos", "Otro país"]},
+        "PCATOLICA": {"EDAD_CAT": _AGES_5PLUS, "RELIGION_CAT": ["Católica"]},
+        "P5_NCATOLI": {"EDAD_CAT": _AGES_5PLUS,
+                       "RELIGION_CAT": ["Protestante/cristiano evangélico", "Otros credos"]},
+        "P5_SINRELI": {"EDAD_CAT": _AGES_5PLUS,
+                       "RELIGION_CAT": ["Protestante/cristiano evangélico", "Otros credos",
                                         "Sin religión / Sin adscripción religiosa"]},
         "P15_POSPRI": {"EDAD_CAT": _AGES_15PLUS, "EDUC_INEGI": _POSPRIMARIA},
         "P15_SINSEC": {"EDAD_CAT": _AGES_15PLUS, "EDUC_INEGI": _SIN_POSPRIMARIA},
@@ -2142,6 +2180,10 @@ _EDITION_CELLS = {
                                       for item in _SIN_BIENES_2000}},
     },
     ("personas", "2005"): {
+        # 7g: the residents in another entity in 2000 on the legacy cells (no LUGAR_RES_5A;
+        # its residence item has no unspecified entity, so OtraEnt is INEGI's)
+        **_by_sex({"EDAD_CAT": _AGES_5PLUS, "ENT_PAIS_RES_CAT": ["OtraEnt"]},
+                  ("PRESOE15", "PRESOE15_M", "PRESOE15_F")),
         "P5_HLI": {"EDAD_CAT": _AGES_5PLUS, "HABLENIN": ["Si"]},
         "P5_HLI_NHE": {"EDAD_CAT": _AGES_5PLUS, "HABLENIN": ["Si"],
                        "HATAMESP": ["No habla español"]},
@@ -2225,7 +2267,10 @@ _EDITION_CELLS = {
     ("personas", "2010"): {
         "PDER_SEGP": {"DHSERSAL_SALUD_PUBLICA": [1]},                     # 6o: Seguro Popular
         "PHOG_IND": _PHOG_IND,                                  # 6w: head or partner only
-        "PNCATOLICA": {"RELIGION_CAT": ["Protestante/cristiano evangélico"]},
+        # 7g: its religion groups by its own classification (the neo-Israelites among the
+        # other credos; RELIGION_CAT keeps 2020's grouping)
+        "PNCATOLICA": {"RELIGION_INEGI": ["Protestante/cristiano evangélico"]},
+        "POTRAS_REL": {"RELIGION_INEGI": ["Otros credos"]},
         "PCON_LIM": {"LIM_ACTIVIDAD": ["Sí"]},
         "PSIN_LIM": {"LIM_ACTIVIDAD": ["No"]},
         "PCLIM_MOT": {"DISCAP1": ["Caminar, moverse, subir o bajar"]},
@@ -2346,6 +2391,24 @@ def _aggregate_indicators(period: str, comparable: bool = True) -> frozenset[str
     return frozenset()
 
 
+@functools.cache
+def _published_name(ind: str, period: str) -> str:
+    """The column under which ``period``'s aggregate publishes indicator ``ind`` (7g): the
+    canonical name, unless the crosswalk pairs it with an older edition's column that
+    ``harmonize=True`` does not rename — another date or definition, kept apart
+    (``cpv_iter_crosswalk``: CGPV 2000 ``PNACOENT``, the residence five years earlier
+    ``P5_RES95``/``P_RE2000``/``PRES2005``…, CGPV 2000 ``P5_CATOLIC`` and ``VP_SERSAN``, the
+    Conteo 2005 ``P_SEGPOP``/``VPH_AGDV``/``VPH_NOAG``) — the name ``load_cpv_iter`` keeps.
+    """
+    from mxcensus._resources import cpv_iter_crosswalk
+    from mxcensus.cpv import _crosswalk_renames
+
+    source = (cpv_iter_crosswalk().get(ind) or {}).get(period)
+    if not source or source == ind or source in _crosswalk_renames("iter", (period,)):
+        return ind
+    return source
+
+
 def _frame_group(table: str, period: str) -> tuple[str, str, frozenset[str]]:
     """The schema group whose dictionary labels ``table``'s frame of ``period`` (table,
     gid) and the raw columns of the frame (upper case). CGPV 1990's and the Conteo 1995's
@@ -2422,7 +2485,17 @@ def cpv_constraints(table: str, period: str | int) -> dict:
     place (``ENT_PAIS_ASI_INEGI``/``ENT_PAIS_TRAB_INEGI``) and time of commute, the
     students' modes (metro or metrobús, bus, taxi: ``MED_TRASLADO_ESC_METRO_T`` …), marital
     status by sex, the Afro-descendant households and their population on ``HOG_AFRO``)
-    are added when it publishes the indicator. Its ``HOG_MEN_ALIM`` («hogares con menores de edad»,
+    are added when it publishes the indicator. Each key is the column the edition publishes
+    the indicator under (7g): a column of ``load_cpv_iter(period)``, of
+    ``load_cpv_estimaciones(counts=True)`` for the EIC 2025. That is the canonical (newest)
+    name, except where the crosswalk keeps an older edition's indicator apart — another date
+    or definition, which ``harmonize=True`` does not rename (CGPV 2000 ``PNACOENT``, born
+    outside the entity or the country; the residence five years earlier, ``P5_RES95``/
+    ``P5_RESO95`` 2000, ``P_RE2000``/``P_OE2000`` 2005, ``PRES2005``/``PRESOE05`` 2010;
+    CGPV 2000 ``P5_CATOLIC``, the Catholics of 5 and more, and ``VP_SERSAN``; the Conteo
+    2005 ``P_SEGPOP``, ``VPH_AGDV``, ``VPH_NOAG``): the cells then count the edition's
+    definition, and ``cpv_iter_crosswalk()`` gives the canonical name.
+    Its ``HOG_MEN_ALIM`` («hogares con menores de edad»,
     the base of the minors' food items) has no cell: the questionnaire's filter of minors
     is not in the microdata (the households with someone under 18 run 0.05% over). Feed
     the result and the frame's dtypes to :func:`mxcensus.get_tables_dict`. For the EIC
@@ -2470,7 +2543,7 @@ def cpv_constraints(table: str, period: str | int) -> dict:
     cats = _categories(table, period)
     cells_of = {ind: _dwelling_cells(ind, cells, period) if table == "viviendas" else cells
                 for ind, cells in {**_cpv_constraints(table), **own}.items()}
-    return {ind: cells for ind, cells in cells_of.items()
+    return {_published_name(ind, period): cells for ind, cells in cells_of.items()
             if ind in published
             and all(var in cats and set(c) <= set(cats[var]) for var, c in cells.items())}
 
@@ -2641,7 +2714,8 @@ def cpv_ratio_constraints(table: str, period: str | int) -> dict:
       (``NUMPERS``, ``cpv._OCCUPANTS_FROM_PERSONS``).
 
     The Conteo 2005's sample has neither schooling nor rooms, so it has none.
-    ``cpv_constraints`` holds the counts.
+    ``cpv_constraints`` holds the counts. As there, each key is the column the edition
+    publishes the indicator under (7g).
     """
     from mxcensus.data._cpv_catalog import get_edition
 
@@ -2663,7 +2737,8 @@ def cpv_ratio_constraints(table: str, period: str | int) -> dict:
                                          for side in ("numerator", "denominator")
                                          for var, c in spec[side].items())
 
-    return {ind: spec for ind, spec in ratios.items() if ind in published and available(spec)}
+    return {_published_name(ind, period): spec for ind, spec in ratios.items()
+            if ind in published and available(spec)}
 
 
 def cpv_ratio_terms(df: pd.DataFrame, constraints: Mapping[str, dict]

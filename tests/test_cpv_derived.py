@@ -298,6 +298,7 @@ def test_catalog_codes_derive(period, zip_name, stem, item):
     derivations = [dv for dv in d._derivations("personas", period)
                    if any(item in d._ALIASES.get(s, (s,)) for s in dv.sources)]
     sector = [dv for dv in derivations if dv.columns == ("SECTOR",)]       # 6o: activity
+    derivations = [dv for dv in derivations if dv.columns != ("RELIGION_INEGI",)]   # 7g
     assert len(derivations) - len(sector) == 1 and len(sector) <= 1
     for dv in sector:                    # every activity code has a sector (none blank)
         (source,) = dv.sources
@@ -325,6 +326,11 @@ def test_catalog_codes_derive(period, zip_name, stem, item):
         neo = codes[values.astype(str).eq("Protestante/cristiano evangélico").to_numpy()
                     & codes.str.startswith("22").to_numpy()]
         assert neo.tolist() == ["220100"]                  # neo-Israelites: 2020's grouping
+        # 7g: RELIGION_INEGI, Censo 2010's own classification (the neo-Israelites a
+        # judaic credo, as its ITER's POTRAS_REL), differs there only
+        inegi = d._religion_inegi_2010(src)["RELIGION_INEGI"].astype(str)
+        moved = codes[inegi.ne(values.astype(str)).to_numpy()]
+        assert moved.tolist() == ["220100"] and set(inegi[moved.index]) == {"Otros credos"}
 
 
 def test_cpv_derivations_listing():
@@ -375,7 +381,7 @@ def test_cpv_derivations_listing():
     assert set(mxcensus.cpv_derivations("personas", 2010)["COLUMN"]) == {
         "EDAD_CAT", "EDAD_QUIN", "INGTRMEN_CAT", *sm, "HORTRA_CAT", *educ, "CONACT_CAT",
         "SITUA_CONYUGAL_CAT", "LIM_ACTIVIDAD", "RELIGION_CAT", *migration, *coresidence,
-        *dhsersal, *coarse, *head, *ind, *clase, *work}
+        *dhsersal, *coarse, *head, *ind, *clase, *work, "RELIGION_INEGI"}           # 7g
     rooms = {"OCUP_CUARTO_CAT"}                                    # 6z: 2010–2025
     assert set(mxcensus.cpv_derivations("viviendas", 2010)["COLUMN"]) == {   # 6n, 6s, 6x
         "CLAVIVP_CAT", "CUADORM_CAT", "TOTCUART_CAT", "DRENAJE_CAT", "INGTRHOG_CAT", "JEFE_SEXO",
@@ -1057,6 +1063,9 @@ def test_derive_persons_2010_recodes():
     # religion by 2010 group; the neo-Israelite movements (220100) as in 2020 (evangelical)
     assert list(out["RELIGION_CAT"]) == ["Católica", "Protestante/cristiano evangélico",
                                          "Sin religión / Sin adscripción religiosa"]
+    # 7g: by Censo 2010's own classification (its ITER's), a judaic credo
+    assert list(out["RELIGION_INEGI"]) == ["Católica", "Otros credos",
+                                           "Sin religión / Sin adscripción religiosa"]
     for col, dtype in d.derived_dtypes("personas", "2010").items():
         assert out[col].dtype == dtype, col
 
@@ -1771,10 +1780,17 @@ def test_cpv_constraints_per_edition():
     own = d._EDITION_CELLS["personas", "2010"]                         # 2010's own limitation
     assert {ind: p10[ind] for ind in own} == own
     assert p10["PCLIM_VIS"] == {"DISCAP2": ["Ver, aun usando lentes"]}
-    assert p10["PNACOE"] == {"ENT_PAIS_NAC_CAT": ["OtraEnt"]}          # 6e: migration
-    assert {"PNACENT_F", "PRES2015", "PRESOE15_M"} <= set(p10)        # 2010: PRES2005 …
+    # 7g: INEGI's rule (the unspecified entity apart), as the 2010 ITER
+    assert p10["PNACOE"] == {"ENT_PAIS_NAC_INEGI": ["OtraEnt"]}
+    assert {"PNACENT_F", "PRES2005", "PRESOE05_M"} <= set(p10)        # 7g: its own names
+    assert p10["PRESOE05_M"] == {"EDAD_CAT": d._AGES_5PLUS, "LUGAR_RES_5A": ["Otra entidad"],
+                                 "SEXO": ["Hombre"]}
+    assert not {"PRES2015", "PRESOE15_M"} & set(p10)
     assert {"PCATOLICA", "POTRAS_REL", "PSIN_RELIG"} <= set(p10)       # 6f: 2010 religion
-    assert p10["PNCATOLICA"] == {"RELIGION_CAT": ["Protestante/cristiano evangélico"]}
+    # 7g: its own classification (the neo-Israelites among the other credos)
+    assert p10["PNCATOLICA"] == {"RELIGION_INEGI": ["Protestante/cristiano evangélico"]}
+    assert p10["POTRAS_REL"] == {"RELIGION_INEGI": ["Otros credos"]}
+    assert p10["PCATOLICA"] == {"RELIGION_CAT": ["Católica"]}
     assert "PRO_CRIEVA" not in p10 and "PNCATOLICA" not in mxcensus.cpv_constraints("personas", 2020)
     assert "PCON_LIM" not in mxcensus.cpv_constraints("personas", 2020)
     v10 = mxcensus.cpv_constraints("viviendas", 2010)                 # 6n: 2010 CLAVIVP_CAT
@@ -1875,11 +1891,25 @@ def test_cpv_constraints_per_edition():
         assert c20[ind][item][-1] == "Se desconoce el grado de la discapacidad"
         assert p25[ind][item][-1] == "Se desconoce el grado de la dificultad"
         assert len(per[ind][item]) == 2                                  # legacy: 3, 4
-    assert c20["PNACOE"] == {"ENT_PAIS_NAC_CAT": ["OtraEnt"]}          # 2020: the legacy cells
+    assert per["PNACOE"] == {"ENT_PAIS_NAC_CAT": ["OtraEnt"]}          # the legacy cells
+    # 7g: the 2020 ITER leaves the unspecified entity out (INEGI's rule, as 2025)
+    assert c20["PNACOE"] == p25["PNACOE"] == {"ENT_PAIS_NAC_INEGI": ["OtraEnt"]}
+    assert c20["PRESOE15_F"] == {"EDAD_CAT": d._AGES_5PLUS, "LUGAR_RES_5A": ["Otra entidad"],
+                                 "SEXO": ["Mujer"]}
     assert c20["PDER_ISTE"] == {"DHSERSAL_ISSSTE": [1]}
     p00, p05 = (mxcensus.cpv_constraints("personas", p) for p in (2000, 2005))   # 6i
-    assert {"PCATOLICA", "PDER_SS", "PSINDER", "P12YM_CASA", "PEA", "PNACOE"} <= set(p00)
-    assert {"PDER_ISTE", "PSINDER", "PRESOE15", "P15YM_SE"} <= set(p05)
+    # 7g: keyed by the column each edition publishes (the crosswalk's kept pairs)
+    assert {"P5_CATOLIC", "PDER_SS", "PSINDER", "P12YM_CASA", "PEA", "PNACOENT"} <= set(p00)
+    assert {"PDER_ISTE", "PSINDER", "P_OE2000", "P15YM_SE", "P_SEGPOP"} <= set(p05)
+    assert not {"PCATOLICA", "PNACOE", "PRES2015", "PRESOE15"} & (set(p00) | set(p05))
+    # 7g: 2000's own definitions — born or living in 1995 abroad too, the 5 and more
+    assert p00["PNACOENT"] == {"ENT_PAIS_NAC_INEGI": ["OtraEnt", "OtroPais"]}
+    assert p00["P5_RESO95"]["LUGAR_RES_5A"] == ["Otra entidad", "Estados Unidos", "Otro país"]
+    for ind in ("P5_CATOLIC", "P5_NCATOLI", "P5_SINRELI", "P5_RESO95", "P5_RES95"):
+        assert p00[ind]["EDAD_CAT"] == d._AGES_5PLUS, ind
+    # the Conteo 2005 keeps the legacy residence cells (no LUGAR_RES_5A)
+    assert p05["P_F_OE2000"] == {"EDAD_CAT": d._AGES_5PLUS, "ENT_PAIS_RES_CAT": ["OtraEnt"],
+                                 "SEXO": ["Mujer"]}
     # 6n: the legacy cells on 2000's and 2005's own items; 2000's VP_CCUART is not one
     # bedroom (one room without the exclusive kitchen), so 2000 has no VPH_1DOR
     assert {"P5_HLI", "P5_HLI_NHE", "P5_HLI_HE", "P15A17A", "P15YM_AN"} <= set(p00)
@@ -1902,7 +1932,7 @@ def test_cpv_constraints_per_edition():
     assert len(mxcensus.cpv_constraints("viviendas", 2000)) == 36       # 6s: + HOGJEF_F/M
     v00 = mxcensus.cpv_constraints("viviendas", 2000)                  # 7f: + VIVPAR_HAB
     assert {"TOTHOG", "VPH_1CUART", "VPH_DRENAJ", "VPH_PISODT", "VPH_C_ELEC",
-            "VPH_AGUADV", "VPH_EXCSA", "VPH_C_SERV", "VPH_NDEAED", "VPH_SNBIEN",
+            "VPH_AGUADV", "VP_SERSAN", "VPH_C_SERV", "VPH_NDEAED", "VPH_SNBIEN",
             "VPH_REFRI", "VPH_LAVAD", "VPH_AUTOM", "VPH_RADIO", "VPH_TV", "VPH_TELEF"} <= set(v00)
     assert "VPH_1DOR" not in v00
     # 7f: every class (its locales carry the items), once per dwelling; the households'
@@ -1912,9 +1942,9 @@ def test_cpv_constraints_per_edition():
     assert v00["TOTHOG"] == {"CLAVIVP_CAT": ["Vivienda", "Otro"]}
     assert all(("PRIMER_HOGAR" in cells) == (ind not in d._HOUSEHOLD_INDICATORS)
                and cells.get("CLAVIVP_CAT") != ["Vivienda"] for ind, cells in v00.items())
-    assert v00["VPH_EXCSA"]["USOEXC"] == ["Sí es exclusivo"]          # 2000: exclusive service
+    assert v00["VP_SERSAN"]["USOEXC"] == ["Sí es exclusivo"]          # 2000: exclusive service
     v05 = mxcensus.cpv_constraints("viviendas", 2005)                 # 6v: households apart
-    assert len(v05) == 20 and {"VPH_PISOTI", "VPH_AGUAFV", "VPH_PC", "VPH_1DOR"} <= set(v05)
+    assert len(v05) == 20 and {"VPH_PISOTI", "VPH_NOAG", "VPH_PC", "VPH_1DOR"} <= set(v05)
     assert not {"TOTHOG", "HOGJEF_F", "HOGJEF_M"} & set(v05)
     assert v05["VPH_SNBIEN"] == {"CLAVIVP_CAT": ["Vivienda"],
                                  "NODISBIE": ["No dispone de ninguno de los bienes captados."]}
@@ -2046,6 +2076,45 @@ def test_cpv_ratio_terms():
         mxcensus.cpv_ratio_terms(df, {"X": d._ratio({"SEXO": ["Otro"]})})
     with pytest.raises(ValueError, match="not numeric"):
         mxcensus.cpv_ratio_terms(df.assign(HNV=df["HNV"].astype(str)), ratios)
+
+
+def test_published_name():
+    """7g: a constraint's key is the column its edition publishes the indicator under: the
+    canonical name, or the older edition's column of a pair the crosswalk keeps apart."""
+    pub = d._published_name
+    assert pub("PNACOE", "2000") == "PNACOENT" and pub("PNACOE", "2010") == "PNACOE"
+    assert pub("PRES2015", "2000") == "P5_RES95" and pub("PRESOE15_F", "2005") == "P_F_OE2000"
+    assert pub("PRES2015_M", "2010") == "PRES2005_M" and pub("PRES2015", "2020") == "PRES2015"
+    assert pub("PCATOLICA", "2000") == "P5_CATOLIC" and pub("VPH_EXCSA", "2000") == "VP_SERSAN"
+    assert pub("VPH_AGUADV", "2000") == "VPH_AGUADV"           # renamed (7f): the same
+    assert pub("VPH_AGUADV", "2005") == "VPH_AGDV" and pub("PDER_SEGP", "2005") == "P_SEGPOP"
+    assert pub("POBTOT", "1990") == "POBTOT"                    # P_TOTAL, renamed
+    assert pub("PNACOE", "2025") == "PNACOE" and pub("NO_SUCH", "2000") == "NO_SUCH"
+
+
+def test_constraint_keys_are_published_columns():
+    """7g: every count and ratio constraint is a column of the edition's published
+    aggregate — ``load_cpv_iter(period)`` (its harmonized columns: upper case, the
+    crosswalk's renames) or the EIC 2025's ``load_cpv_estimaciones(counts=True)``."""
+    from mxcensus._resources import cpv_schema_map
+    from mxcensus.cpv import _renames
+
+    groups = cpv_schema_map()["iter"]["groups"]
+    for period in ("1990", "1995", "2000", "2005", "2010", "2015", "2020", "2025"):
+        if period == "2025":
+            columns = d._aggregate_indicators(period)
+        else:
+            renames = _renames("iter", (period,))
+            columns = {renames.get(c.upper(), c.upper()) for g in groups.values()
+                       if period in [str(x) for x in g["periods"]] for c in g["columns"]}
+        for table in ("personas", "viviendas", "hogares"):
+            if table == "hogares" and period != "2005":
+                continue
+            keys = [*mxcensus.cpv_constraints(table, period),
+                    *mxcensus.cpv_ratio_constraints(table, period)]
+            assert set(keys) <= columns, (table, period, set(keys) - columns)
+            assert len(keys) == len(set(keys))
+    assert not mxcensus.cpv_constraints("personas", 2015)                # neither publishes
 
 
 # --- real data ------------------------------------------------------------------------------
@@ -2418,6 +2487,48 @@ def test_census_ratio_constraints_equal_iter(local_mirror, period):
         assert diff.max().max() <= 0.005 + 1e-9, diff.max()
 
 
+# 7g: the cells 7g changed, in Oaxaca's municipalities each sample enumerated completely
+# (FACTOR 1 for everyone, the population in households = the ITER's) where every age and
+# sex count is the ITER's too: exact. All 32 states (2000: 51 municipalities, 2010: 233,
+# 2020: 130; the legacy cells miss in 2–31 of them): STEP_7g.md.
+_STRICT_7G = {"2000": 50, "2010": 174, "2020": 107}
+_CELLS_7G = {
+    "2000": ("PNACOENT", "P5_RES95", "P5_RESO95", "P5_CATOLIC", "P5_NCATOLI", "P5_SINRELI"),
+    "2010": ("PNACOE", "PNACOE_F", "PNACOE_M", "PRES2005", "PRESOE05", "PRESOE05_F",
+             "PRESOE05_M", "PNCATOLICA", "POTRAS_REL"),
+    "2020": ("PNACOE", "PNACOE_F", "PNACOE_M", "PRESOE15", "PRESOE15_F", "PRESOE15_M")}
+
+
+@_REAL_SKIP
+@pytest.mark.parametrize("period", sorted(_CELLS_7G))
+def test_7g_cells_equal_iter(local_mirror, period):
+    per = mxcensus.load_cpv_personas(period, state=20, derived=True)
+    mun = per["MUN"].astype(str).str.zfill(3).to_numpy()
+    w = per["FACTOR"].astype(float)
+    it = mxcensus.load_cpv_iter(period, state=20, nivel="municipal").reset_index()
+    it = it.set_index(it["CVE_MUN"].astype(str))
+    cons = mxcensus.cpv_constraints("personas", period)
+
+    def by_mun(cells: dict) -> pd.Series:
+        hit = pd.Series(True, index=per.index)
+        for var, cats in cells.items():
+            hit &= per[var].isin(cats)
+        return w.where(hit, 0).groupby(mun).sum()
+
+    g = w.groupby(mun)
+    strict = g.min().eq(1) & g.max().eq(1) & g.sum().eq(it["POBHOG"].astype(float))
+    for ind, cells in cons.items():
+        if cells and set(cells) <= {"EDAD_CAT", "SEXO"}:
+            strict &= by_mun(cells).eq(it[ind].astype(float).reindex(strict.index))
+    same = strict.index[strict]
+    assert len(same) == _STRICT_7G[period]
+    for ind in _CELLS_7G[period]:
+        assert by_mun(cons[ind]).loc[same].eq(it.loc[same, ind].astype(float)).all(), ind
+    if period == "2010":                  # RELIGION_CAT (2020's grouping) misses there
+        evangelical = {"RELIGION_CAT": ["Protestante/cristiano evangélico"]}
+        assert not by_mun(evangelical).loc[same].eq(it.loc[same, "PNCATOLICA"].astype(float)).all()
+
+
 def test_derive_primer_hogar_totcuart_inegi():
     """7f: CGPV 2000's first household (``NUMHOG`` 1) and its rooms as its ITER counts them:
     ``TOTCUART`` less an exclusive kitchen nobody sleeps in (``COCINA`` 1 and ``COCDOR``
@@ -2450,9 +2561,6 @@ def test_derive_primer_hogar_totcuart_inegi():
 # dwelling, the averages to their rounding. All 32 states (186 municipalities): STEP_7f.md.
 @_REAL_SKIP
 def test_2000_dwellings_equal_iter(local_mirror):
-    from mxcensus._resources import cpv_iter_crosswalk
-
-    xw = cpv_iter_crosswalk()
     per = mxcensus.load_cpv_personas(2000, state=26)
     w = per["FACTOR"].groupby(per["MUN"].astype(str).to_numpy())
     it = mxcensus.load_cpv_iter(2000, state=26, nivel="municipal").reset_index()
@@ -2470,8 +2578,7 @@ def test_2000_dwellings_equal_iter(local_mirror):
         for var, cats in cells.items():
             hit &= viv[var].isin(cats)
         got = viv["FACTOR"].where(hit, 0).groupby(mun.to_numpy()).sum().reindex(same)
-        name = ind if ind in it.columns else xw[ind]["2000"].upper()     # VP_SERSAN
-        assert got.eq(it.loc[same, name].astype(float)).all(), ind
+        assert got.eq(it.loc[same, ind].astype(float)).all(), ind         # 7g: VP_SERSAN
     ratios = mxcensus.cpv_ratio_constraints("viviendas", 2000)
     got = _ratios_by(viv, ratios, mun).loc[same]
     diff = (got - it.loc[same, list(ratios)].astype(float)).abs()
@@ -2601,17 +2708,15 @@ def test_2000_equals_tabulados(local_mirror):
 # (period, table) → (cells, largest |Δ| in points)
 # 6w: + 2000's P18_CMEDSU/P18_CSUPER (0.26/0.34 points under) and the 2005/2010 PHOG_IND.
 # 7c: + 2000's income in minimum wages (P_1SM … P10_SM; P10_SM 0.28 points under).
-_CELLS_6N = {("2000", "personas"): (38, 1.25), ("2000", "viviendas"): (31, 2.0),
-             ("2005", "personas"): (46, 1.25), ("2005", "viviendas"): (13, 2.5),
-             ("2010", "personas"): (12, 3.0), ("2010", "viviendas"): (28, 2.5)}
+# 7g: + 2000's PNACOENT/P5_RESO95/P5_CATOLIC, 2005's P_OE2000 (+ _F/_M), 2010's POTRAS_REL.
+_CELLS_6N = {("2000", "personas"): (41, 1.25), ("2000", "viviendas"): (31, 2.0),
+             ("2005", "personas"): (49, 1.25), ("2005", "viviendas"): (13, 2.5),
+             ("2010", "personas"): (13, 3.0), ("2010", "viviendas"): (28, 2.5)}
 
 
 @_REAL_SKIP
 @pytest.mark.parametrize("period,table", sorted(_CELLS_6N))
 def test_6n_cells_equal_iter(local_mirror, period, table):
-    from mxcensus._resources import cpv_iter_crosswalk
-
-    xw = cpv_iter_crosswalk()
     it = mxcensus.load_cpv_iter(period, state=1, nivel="estatal").iloc[0]
     loader = mxcensus.load_cpv_personas if table == "personas" else mxcensus.load_cpv_viviendas
     frame = loader(period, state=1, derived=True)
@@ -2624,10 +2729,10 @@ def test_6n_cells_equal_iter(local_mirror, period, table):
     own = cons if (period, table) == ("2010", "viviendas") else d._EDITION_CELLS[table, period]
     gap = {}
     for ind in own:
+        name = d._published_name(ind, period)                    # 7g: the edition's column
         hit = pd.Series(True, index=frame.index)
-        for var, cats in cons[ind].items():
+        for var, cats in cons[name].items():
             hit &= frame[var].isin(cats)
-        name = ind if ind in it.index else xw[ind][period]
         gap[ind] = 100 * (w[hit].sum() / w[dwellings].sum() - float(it[name]) / float(base))
     cells, tolerance = _CELLS_6N[period, table]
     assert len(gap) == cells

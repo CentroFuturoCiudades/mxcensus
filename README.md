@@ -289,11 +289,16 @@ cells keep. With the dwellings themselves (`VIVPAR_HAB`, 1990–2000), every CGP
 constraint equals its ITER in the 186 municipalities its sample enumerated completely.
 `cpv_constraints(table, period)` filters the census constraint sets (ITER indicator →
 microdata cells) to the indicators an edition publishes and can reproduce, for
-`get_tables_dict`; its education cells read `EDUC_INEGI`, so `P15PRI_CO` leaves out the
+`get_tables_dict`. Each key is the column the edition publishes the indicator under (a
+column of `load_cpv_iter(period)`, or of the EIC 2025's `load_cpv_estimaciones(counts=True)`):
+an older edition's own name where the crosswalk keeps it apart, e.g. CGPV 2000's `PNACOENT`
+(born outside the entity or the country) or Censo 2010's `PRES2005`. Its education cells
+read `EDUC_INEGI`, so `P15PRI_CO` leaves out the
 technical studies after primaria as the ITER does in 1990, 2000, 2010 and 2020 (the legacy
 `constraints_personas` cell counts them: 352,797 persons, 2.9% of `P15PRI_CO` in 2020).
 For Censo 2010 it adds the ITER's own limitation indicators (`PCON_LIM`,
-`PSIN_LIM`, `PCLIM_*`) and religion groups (`PNCATOLICA`); for the older samples, the same
+`PSIN_LIM`, `PCLIM_*`) and religion groups (`PNCATOLICA`, `POTRAS_REL` on `RELIGION_INEGI`,
+its own classification: the neo-Israelites among the other credos); for the older samples, the same
 indicators on each edition's own items and labels (literacy, indigenous language, school
 attendance, floor, electricity, water, sanitary service, goods) and the indicators each
 ITER publishes under its own name (1990/2000 employed by sector, 2000/2005 age groups and
@@ -317,7 +322,8 @@ age, attendance, education levels, position at work, health affiliation, access
 a share of children (`PCN_HF`) and three bases the estimates do not give (the employed's
 nine commute modes, `PCN_P3NHLI_CLI`); they are ratio constraints instead (below). Some
 follow the survey's own definitions: born in another state leaves out the unspecified state
-(`ENT_PAIS_NAC_INEGI`), the ISSSTE is federal or state (`DHSERSAL_ISSSTE_T`), the sanitary
+(`ENT_PAIS_NAC_INEGI`; the 2010 and 2020 ITER too, and their residents in another state five
+years earlier, on `LUGAR_RES_5A`), the ISSSTE is federal or state (`DHSERSAL_ISSSTE_T`), the sanitary
 service includes a latrine. In 2020 and 2025 the limitation by activity (`PCLIM_*`) counts
 only the persons with a limitation and no disability (`LIMITACION`), and the disability by
 activity (`PCDISC_*`) includes an unknown degree, as INEGI's 2020 ITER and 2025 estimates do

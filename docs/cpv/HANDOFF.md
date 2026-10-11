@@ -1,12 +1,15 @@
 # CPV family — session handoff
 
-**Status (2026-10-10): units 0–6z and 7a–7f are done. `main` = v0.11.0 = 6u–7b, tagged
-and pushed; 7c (CGPV 2000's places, the income in minimum wages 2000–2020), 7d (more
-tabulado checks: the EIC 2015's dwellings, CGPV 2000's employment and migration), 7e
-(ratio constraints) and 7f (CGPV 2000 per dwelling, the 1990/1995 averages) are commits on
-`cpv-integration` after it (7f's only with the user's go-ahead; merge, version and push wait
-for the user). Before 0.11.0: v0.10.0 = 6s–6t, 0.9.0 = 6k–6r (§Review). A session starts by
-checking `git log`/`git status` against this line.**
+**Status (2026-10-10/11, overnight): units 0–6z and 7a–7g are done. `main` = v0.11.0 =
+6u–7b, tagged and pushed; 7c (CGPV 2000's places, the income in minimum wages 2000–2020), 7d
+(more tabulado checks: the EIC 2015's dwellings, CGPV 2000's employment and migration), 7e
+(ratio constraints), 7f (CGPV 2000 per dwelling, the 1990/1995 averages) and 7g (constraint
+keys = the published columns; every constraint against the census) are commits on
+`cpv-integration` after it, not pushed. 7g ran unattended (the user asked for the night's
+units to run without them: a local commit per unit, no push, merge, version or upload) —
+its decisions wait for the user's review (§Review: night of 2026-10-10/11). Before 0.11.0:
+v0.10.0 = 6s–6t, 0.9.0 = 6k–6r. A session starts by checking `git log`/`git status` against
+this line.**
 - **Released** (registered, uploaded, verified): every edition 1990–2025 (897 `cpv_` files)
   and the Marco Geoestadístico 1995–2025 frames, incl. the EIC 2015's (6h); registry
   **4148** entries (`STEP_6b.md` §Release batch, `STEP_6h.md`).
@@ -288,7 +291,28 @@ checking `git log`/`git status` against this line.**
     `VPH_AGUADV`.
   - Full suite on the Mac: 1907 passed, 1 skipped (`--validate` 0/897).
 
-Design: [`PLAN.md`](PLAN.md). Recent units: [`STEP_7f.md`](STEP_7f.md), [`STEP_7e.md`](STEP_7e.md), [`STEP_7d.md`](STEP_7d.md), [`STEP_7c.md`](STEP_7c.md), [`STEP_7b.md`](STEP_7b.md), [`STEP_7a.md`](STEP_7a.md), [`STEP_6z.md`](STEP_6z.md), [`STEP_6y.md`](STEP_6y.md), [`STEP_6x.md`](STEP_6x.md), [`STEP_6w.md`](STEP_6w.md), [`STEP_6v.md`](STEP_6v.md), [`STEP_6u.md`](STEP_6u.md), [`STEP_6t.md`](STEP_6t.md), [`STEP_6s.md`](STEP_6s.md), [`STEP_6r.md`](STEP_6r.md), [`STEP_6q.md`](STEP_6q.md), [`STEP_6p.md`](STEP_6p.md), [`STEP_6o.md`](STEP_6o.md), [`STEP_6n.md`](STEP_6n.md), [`STEP_6m.md`](STEP_6m.md), [`STEP_6l.md`](STEP_6l.md), [`STEP_6k.md`](STEP_6k.md), [`STEP_6j.md`](STEP_6j.md), [`STEP_6i.md`](STEP_6i.md), [`STEP_6h.md`](STEP_6h.md), [`STEP_6g.md`](STEP_6g.md), [`STEP_6f.md`](STEP_6f.md), [`STEP_6e.md`](STEP_6e.md),
+- **7g** (`STEP_7g.md`): HANDOFF candidate 2, unattended, widened on the probe to every
+  2000/2010/2020 constraint against its ITER.
+  - **Keys = the published columns**: `cpv_constraints`/`cpv_ratio_constraints` key each
+    indicator by the column the edition publishes it under (`_published_name`): 18 kept-pair
+    keys change (2000 `PNACOENT`, `P5_RES95`, `P5_RESO95`, `P5_CATOLIC`, `VP_SERSAN`; 2005
+    `P_RE2000`, `P_OE2000` …, `P_SEGPOP`, `VPH_AGDV`, `VPH_NOAG`; 2010 `PRES2005` …,
+    `PRESOE05` …). Every key of every edition is now a column of `load_cpv_iter(period)` (or
+    of the EIC 2025's estimates); a test checks it.
+  - **Where the sample is the census, strictly**: `FACTOR` 1 for everyone, `POBHOG` and
+    every age/sex count equal to the ITER's (2000: 51 municipalities, 2010: 233, 2020: 130).
+    Fixes, each now exact there: CGPV 2000's `PNACOENT`/`P5_RESO95` count the born/living
+    abroad and its religions the 5+; Censo 2010/2020's `PNACOE` and `PRESOE*` (`_F`, `_M`)
+    leave the unspecified entity out (INEGI's rule, as the EIC 2025: `ENT_PAIS_NAC_INEGI`,
+    `LUGAR_RES_5A`); new 2010 **`RELIGION_INEGI`** (its own classification: the
+    neo-Israelites among the other credos) for `PNCATOLICA`/`POTRAS_REL`. **Every 2010
+    constraint is now exact in all 233 municipalities.**
+  - Left (INEGI's census processing, no rule): CGPV 2000's no schooling (its census imputed
+    the unspecified level) and income in minimum wages; Censo 2020's health affiliation and
+    religion (small swaps between categories).
+  - Full suite on the Mac: 1912 passed, 1 skipped.
+
+Design: [`PLAN.md`](PLAN.md). Recent units: [`STEP_7g.md`](STEP_7g.md), [`STEP_7f.md`](STEP_7f.md), [`STEP_7e.md`](STEP_7e.md), [`STEP_7d.md`](STEP_7d.md), [`STEP_7c.md`](STEP_7c.md), [`STEP_7b.md`](STEP_7b.md), [`STEP_7a.md`](STEP_7a.md), [`STEP_6z.md`](STEP_6z.md), [`STEP_6y.md`](STEP_6y.md), [`STEP_6x.md`](STEP_6x.md), [`STEP_6w.md`](STEP_6w.md), [`STEP_6v.md`](STEP_6v.md), [`STEP_6u.md`](STEP_6u.md), [`STEP_6t.md`](STEP_6t.md), [`STEP_6s.md`](STEP_6s.md), [`STEP_6r.md`](STEP_6r.md), [`STEP_6q.md`](STEP_6q.md), [`STEP_6p.md`](STEP_6p.md), [`STEP_6o.md`](STEP_6o.md), [`STEP_6n.md`](STEP_6n.md), [`STEP_6m.md`](STEP_6m.md), [`STEP_6l.md`](STEP_6l.md), [`STEP_6k.md`](STEP_6k.md), [`STEP_6j.md`](STEP_6j.md), [`STEP_6i.md`](STEP_6i.md), [`STEP_6h.md`](STEP_6h.md), [`STEP_6g.md`](STEP_6g.md), [`STEP_6f.md`](STEP_6f.md), [`STEP_6e.md`](STEP_6e.md),
 [`STEP_6d.md`](STEP_6d.md),
 [`STEP_6c.md`](STEP_6c.md), [`STEP_6b.md`](STEP_6b.md), … [`STEP_0_probe.md`](STEP_0_probe.md).
 
@@ -307,16 +331,39 @@ On 2026-10-10 (7c) `wsl:~/mxcensus` ran the 32-state sweep with 7c's patch appli
 (`C2KEM02/03/04/06/09/11`, `C2KMI02/05–12`; the script fetches them).
 7e ran on the Mac only (a 32-state sweep, 6 processes, ~15 min).
 7f ran on the Mac only (`--variables`, `--crosswalk`, `--validate` there; a 32-state sweep,
-~1 min); `wsl` has neither 7c–7f's code nor their YAMLs.
+~1 min). On the night of 2026-10-10 `wsl:~/mxcensus` was fast-forwarded to 7f (b6c8aff, a `git
+bundle` of 7c–7f over `scp`; not pushed) and ran the full suite there for the 0.12.0 release
+(`~/pytest_7f.log`). 7g ran on the Mac (32-state sweeps, 5 processes, ~15 min each).
 `wsl:~/mxcensus3c` (3c's code copy) can be deleted.
 
 ## Kickoff prompt for the next session
 
 > Continue the CPV census-family work in this repo (branch cpv-integration = main = v0.11.0
-> + units 7c, 7d, 7e and 7f). Read docs/cpv/HANDOFF.md first, then agree with me which next unit to
+> + units 7c–7g). Read docs/cpv/HANDOFF.md first, then agree with me which next unit to
 > take (candidates in HANDOFF §Next) before implementing it, following the session protocol
 > in docs/cpv/PLAN.md. Use .venv/bin/python, not uv run. Run wsl tasks without asking; ask
 > me before committing, pushing, installing packages or uploading.
+
+## Review: decisions taken unattended (night of 2026-10-10/11) — pending
+
+The user asked for the night's units to run without them (commit each locally; no push,
+merge, version or upload) and will review them in the morning. Revert any of these with
+the commit's diff:
+
+1. **7g, constraint keys** (`cpv_constraints`, `cpv_ratio_constraints`): an older edition's
+   kept pair is keyed by its own ITER column (2000 `PNACOENT`, 2005 `P_OE2000`, 2010
+   `PRES2005`…; 18 keys), not the canonical name — so every key is a `load_cpv_iter` column.
+   The alternative was a helper mapping canonical keys to columns.
+2. **7g, CGPV 2000's own definitions**: `PNACOENT`/`P5_RESO95` count the born/living abroad
+   (its dictionary: «fuera de la entidad o país», «en otra entidad o país»); `P5_CATOLIC`,
+   `P5_NCATOLI`, `P5_SINRELI` count the 5+ only (the unspecified ages answer the item).
+3. **7g, INEGI's unspecified entity in 2010 and 2020**: `PNACOE`/`_F`/`_M` on
+   `ENT_PAIS_NAC_INEGI`, `PRESOE05`/`PRESOE15` (`_F`, `_M`) on `LUGAR_RES_5A` — for 2020 a
+   departure from the frozen legacy cells (as 6y's `PCLIM_*`/`PCDISC_*`), exact in the
+   strict municipalities where the legacy cells miss in 1–10.
+4. **7g, new derived `RELIGION_INEGI`** (Censo 2010 only; the name is the session's): the
+   2010 classification beside `RELIGION_CAT` (2020's grouping, the user's 6f choice), for the
+   2010 `PNCATOLICA`/`POTRAS_REL`.
 
 ## Review: decisions taken unattended (night of 2026-10-08/09) — kept
 
@@ -349,17 +396,10 @@ and **kept all seven** (merged as 0.9.0):
 
 ## Next: candidates (none decided)
 
-1. **Release 7c–7f** as 0.12.0: a `wsl` full-suite run first (pull, or a `git bundle` as
-   for 0.11.0), then merge into `main`, tag and push — the user's call.
-2. **Constraint keys vs ITER names** (found in 7f): some older editions' constraint keys are
-   the canonical names of pairs the crosswalk keeps apart (another date or definition):
-   2000 `PNACOE`, `PRES2015`, `PRESOE15`, `PCATOLICA`, `VPH_EXCSA` (`VP_SERSAN`); 2005
-   `PRES2015`/`PRESOE15*`, `PDER_SEGP`, `VPH_AGUADV`/`VPH_AGUAFV`; 2010 `PRES2015*`/
-   `PRESOE15*`. `load_cpv_iter` keeps the edition's column name, so a fit must map each one
-   through `cpv_iter_crosswalk()`. Options: key them by the edition's column, or a helper
-   that gives a constraint's published column. Check each cell's definition against its
-   pair's note while at it (2000's `PNACOENT` includes the born abroad).
-3. Smaller:
+1. **Release 7c–7g** as 0.12.0: the `wsl` full suite ran on 7f overnight; rerun it on the
+   final commit (a `git bundle` as for 0.11.0), then merge into `main`, tag and push — the
+   user's call, after the review above.
+2. Smaller:
    - a 2000 occupation bridge (CMO → SINCO; no published table; 7d checked the CMO groups,
      the first two digits of `OCUACTIV_C`, against C2KEM04);
    - a locality-level lineage (6a covered municipalities only);
@@ -371,7 +411,7 @@ and **kept all seven** (merged as 0.9.0):
    - CGPV 2000's other quantities typed as code ranges (`HORTRA`, `INGRESOS`, `INGTRHOG`…:
      `_QUANTITIES` could take them; the derivations read the raw codes, so only the
      labelled dtype changes).
-4. More tabulado checks (7d's leftovers):
+3. More tabulado checks (7d's leftovers):
    - the EIC 2015 owners by sex and order (14-14, and 14-15/16 by the owner's sex:
      `NUM_DUE_VIV1`/`2` point at person rows, so the check joins the person file to the
      dwelling);
@@ -815,3 +855,19 @@ and **kept all seven** (merged as 0.9.0):
   dictionary does not declare.
 - **FD quantities written as code ranges** (7f, `build_cpv._QUANTITIES`): a zero-padded FD
   range (`0001..9999`) parses as codes; a count must be listed there to be numeric.
+- **Constraint keys = the published columns** (7g, `cpv_derived._published_name`): every key
+  of `cpv_constraints`/`cpv_ratio_constraints` is a column of the edition's aggregate. The
+  cells and `_aggregate_indicators` stay on the canonical names inside (`_EDITION_CELLS` keys
+  are canonical); only the output is renamed. A test that iterates `_EDITION_CELLS` must map
+  each key through `_published_name` (`test_6n_cells_equal_iter`).
+- **Strict «sample = census» municipalities** (7g): `FACTOR` 1, `POBHOG` and every age/sex-only
+  constraint equal to the ITER's (2000: 51, 2010: 233, 2020: 130; Oaxaca 50/174/107). Use
+  them to settle a definition: there every 2010 constraint is exact. What still misses there
+  is INEGI's census processing: CGPV 2000 imputed the unspecified answers in its census (no
+  schooling: the illiterate non-attenders mostly → «sin instrucción»), Censo 2020 swaps a few
+  persons between affiliation and religion categories.
+- **`RELIGION_INEGI`** (7g) exists for Censo 2010 only (its classification: neo-Israelites
+  220100 «Otros credos»); `RELIGION_CAT` keeps 2020's grouping in every edition.
+- **INEGI's unspecified entity in the constraints** (7g): the born and the residents five
+  years earlier in another entity leave it out in 2010/2020/2025 (`_CELLS`); CGPV 2000's
+  pairs include the abroad; the Conteo 2005 keeps the legacy cells (no unspecified entity).
