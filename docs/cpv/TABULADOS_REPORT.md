@@ -189,6 +189,13 @@ Tolerance: 1.0 persons.
 | 14-31 Dwellings by waste reuse (`SEPARA_ALI`/`_ABO`/`_VEN`) | `14_vivienda.xls` 31 | 396 | 0.00 | 0.00 | 0.00 (00 T «Reutilizan residuos para las plantas: yes») | 0 |
 | 14-32 Dwellings by goods and ICT (`REFRIGERADOR` … `SERV_TV_PAGA`) | `14_vivienda.xls` 32 | 1584 | 0.00 | 0.00 | 0.00 (00 T «Televisor: yes») | 0 |
 | 14-33 Dwellings by equipment (`TINACO` … `PANEL_SOLAR`) | `14_vivienda.xls` 33 | 1056 | 0.00 | 0.00 | 0.00 (00 T «Aire acondicionado: yes») | 0 |
+| 01-02 Population by five-year age (`EDAD_QUIN`) and sex | `01_poblacion.xls` 02 | 1782 | 0.00 | 0.00 | 0.00 (01 T «Total: total») | 0 |
+| 01-03 Birth registration (`ACTA_NAC`) by age | `01_poblacion.xls` 03 | 3564 | 0.00 | 0.00 | 0.00 (00 T «Total: registered») | 0 |
+| 02-02a Women 12+ who gave their children born alive, by marital status (`SITUA_CONYUGAL_CAT`) and age | `02_fecundidad.xls` 02 | 2475 | 0.00 | 0.00 | 0.00 (01 T «Total: Total») | 0 |
+| 02-02b Children born alive per woman (`HIJOS_NAC_VIVOS`), by marital status and age | `02_fecundidad.xls` 02 | 2475 | 0.000 | 0.000 | 0.000 (13 T «Soltera: 65-69 años») | 0 |
+| 03-01 Children who died (`HIJOS_FALLECIDOS`), % of those born alive, by the mother's age | `03_mortalidad.xls` 01 | 495 | 0.000 | 0.000 | 0.000 (00 T «65-69 años») | 0 |
+| 09-02 Unpaid work of the 12+ (`ACTI_SIN_PAGO1`–8) by age | `09_trabajo_no_remunerado.xls` 02 | 10692 | 0.00 | 0.00 | 0.00 (00 T «Total: do none») | 0 |
+| 09-03 Weekly hours of unpaid work by activity and age | `09_trabajo_no_remunerado.xls` 03 | 8019 | 0.000 | 0.000 | 0.000 (01 T «12-14 años: healthy children under 6») | 0 |
 
 - 04-02: On `ENT_PAIS_NAC_INEGI`: the entity not specified (997) is «No especificado», as INEGI's (the legacy `ENT_PAIS_NAC_CAT`: `OtraEnt`).
 - 04-05: The entity not specified (997) is «No especificado» (the legacy `ENT_PAIS_RES_CAT`: `OtraEnt`); 7b.
@@ -207,6 +214,11 @@ Tolerance: 1.0 persons.
 - 14-04: Here and below, `CLAVIVP` 7–9 left out, as INEGI's dwelling tabulados (7b).
 - 14-11: INEGI's dwellings that cook name a place (`LUGAR_COCINA` 1–3) or a fuel (`COMBUSTIBLE` 1–4): a fuel not specified without a place is left out (150,929 dwellings); electricity is «otro combustible» (7d).
 - 14-12: Published by locality size: the national row.
+- 01-02: The sexes are columns: sex T only (7j).
+- 02-02a: The women of a specified age whose `HIJOS_NAC_VIVOS` is given (not 98, topic omitted, nor 99); the published rows are women (7j).
+- 03-01: Of the women of a specified age who gave both counts (7j).
+- 09-02: Unpaid work = an activity with hours (1–998); none = no hours given and not every activity unspecified; not specified = all eight 999 (7j).
+- 09-03: All activities: each one's given hours summed, of who do any (7j).
 
 ## 2020
 

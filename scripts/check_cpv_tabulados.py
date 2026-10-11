@@ -86,7 +86,8 @@ SOURCES = {
               "14_07A_ESTATAL.xls", "14_09A_ESTATAL.xls", "14_10A_ESTATAL.xls",
               "14_12A_ESTATAL.xls", "14_14A_ESTATAL.xls")),
     "2015": ("intercensal/2015/tabulados",
-             ("04_migracion.xls", "05_etnicidad.xls", "06_educacion.xls",
+             ("01_poblacion.xls", "02_fecundidad.xls", "03_mortalidad.xls",           # 7j
+              "09_trabajo_no_remunerado.xls", "04_migracion.xls", "05_etnicidad.xls", "06_educacion.xls",
               "07_servicios_de_salud.xls",
               "08_caracteristicas_economicas.xls", "10_movilidad_cotidiana.xls",
               "11_situacion_conyugal.xls", "12_hogares.xls", "14_vivienda.xls")),
@@ -323,8 +324,8 @@ class Check:
     unit: str = "points"              # points (shares), persons (counts) or average (7i)
     sheet: str | None = None          # the workbook's sheet (default: its first)
     note: str = ""
-    # state (0 = the nation) → its largest |Δ| for this check, over the edition's
-    # :data:`_TOLERANCE` (7c: differences of INEGI's own, documented in the note)
+    # state (0 = the nation; 7j: None = every state) → its largest |Δ| for this check, over
+    # the edition's :data:`_TOLERANCE` (7c: differences of INEGI's own, in the note)
     tolerance: dict[int, float] | None = None
     # 7d: each record's weight (default ``FACTOR``; the occupants: × ``NUMPERS``)
     weight: Callable[[pd.DataFrame], pd.Series] | None = None
@@ -1828,6 +1829,204 @@ def _dwelling_checks_2000() -> tuple[Check, ...]:
     return tuple(out)
 
 
+# EIC 2015 persons: population, birth registration, fertility, child mortality, unpaid
+# work (7j) ------------------------------------------------------------------------------
+
+def _age_group(p: pd.DataFrame, label: str) -> pd.Series:
+    """An age group of INEGI's tabulados: «Total», «NN-MM años», «NN años y más», «No
+    especificado» (``EDAD`` 999)."""
+    age = _age(p)
+    if label == "Total":
+        return pd.Series(True, index=p.index)
+    if label == "No especificado":
+        return age.eq(999)
+    if m := re.fullmatch(r"(\d+)-(\d+) años", label):
+        return age.between(int(m.group(1)), int(m.group(2)))
+    if m := re.fullmatch(r"(\d+) años y más", label):
+        return age.between(int(m.group(1)), 130)
+    raise ValueError(f"age group {label!r}")
+
+
+_QUIN_2015 = ("Total", *(f"{a:02d}-{a + 4:02d} años" for a in range(0, 75, 5)), "75 años y más",
+              "No especificado")
+_REGISTRATION_AGES = ("Total", "00-05 años", "06-14 años", "15-64 años", "65 años y más",
+                      "No especificado")
+_WOMEN_AGES = ("Total", "12-14 años", *(f"{a}-{a + 4} años" for a in range(15, 75, 5)),
+               "75 años y más")
+_UNPAID_AGES = ("Total", "12-14 años", "15-17 años", "18-24 años", "25-34 años", "35-44 años",
+                "45-54 años", "55-64 años", "65 años y más")
+_MARITAL_2015 = (("Total", None), ("Soltera", "soltero"), ("Unida o casada", "casado"),
+                 ("Separada, divorciada o viuda", "separado"),
+                 ("No especificado", "No especificado"))
+_UNPAID = ("disabled persons", "sick persons", "healthy children under 6",
+           "healthy children 6-14", "persons 60+", "cooking", "cleaning, laundry",
+           "shopping, errands")
+
+
+def _by_dims(estimator: str, sheet: str, groups: tuple[str, ...], pick: Callable[[list], list],
+             sexed: bool = False, rows: tuple[str, ...] | None = None):
+    """EIC 2015 tabulados with rows (state[, sex][, a category], an age group): per (state,
+    sex), ``pick`` of each (category,) age group's values, the categories ``rows`` (their
+    names as published) outer, the age ``groups`` inner (7j)."""
+    def read(wb):
+        out = {}
+        for key, values in _estimates(_sheet(wb, sheet), estimator).items():
+            state, rest = key[0], list(key[1:])
+            sex = rest.pop(0) if sexed else "T"
+            out.setdefault((state, sex), {})[tuple(rest)] = values
+        return {k: [x for r in (rows or (None,)) for g in groups
+                    for x in pick(v[(g,) if r is None else (r, g)])] for k, v in out.items()}
+    return read
+
+
+def _population_2015(p):
+    """01-02: every age group (``EDAD_QUIN``) by sex in columns: total, men, women."""
+    quin, sex = _cat(p, "EDAD_QUIN"), p["SEXO"].astype(str)
+    every = pd.Series(True, index=p.index)
+    out = []
+    for label in _QUIN_2015:
+        g = every if label == "Total" else quin.eq(
+            "No especificado" if label == "No especificado" else
+            "75-130" if label == "75 años y más" else
+            "-".join(str(int(x)) for x in label.split()[0].split("-")))
+        out += [(g, None), (g & sex.eq("1"), None), (g & sex.eq("3"), None)]
+    return out
+
+
+def _registration_2015(p):
+    """01-03: by age group, the registration (``ACTA_NAC``): registered or not (1–2), then
+    registered (1) and not (2) of those, registered abroad (3), not specified (9)."""
+    acta = _code(p, "ACTA_NAC")
+    out = []
+    for label in _REGISTRATION_AGES:
+        g = _age_group(p, label)
+        out += _counts_of(g, g & acta.isin([1, 2]), g & acta.eq(1), g & acta.eq(2),
+                          g & acta.eq(3), g & acta.eq(9))
+    return out
+
+
+def _women_2015(p) -> tuple[pd.Series, pd.Series]:
+    """The women of 12 and more (a specified age) who gave their children born alive
+    (``HIJOS_NAC_VIVOS`` below 98: not the topic omitted, not specified), and the number."""
+    born = _code(p, "HIJOS_NAC_VIVOS")
+    return p["SEXO"].astype(str).eq("3") & _age(p).between(12, 130) & born.lt(98), born
+
+
+def _fertility_2015(average: bool):
+    """02-02: those women by marital status (``SITUA_CONYUGAL_CAT``) and age group: their
+    number, or (``average``) their children born alive per woman."""
+    def ours(p):
+        women, born = _women_2015(p)
+        marital = _cat(p, "SITUA_CONYUGAL_CAT")
+        out = []
+        for _, cat in _MARITAL_2015:
+            m = women if cat is None else women & marital.eq(cat)
+            for label in _WOMEN_AGES:
+                g = m & _age_group(p, label)
+                out.append((Weighted(g, born), g) if average else (g, None))
+        return out
+    return ours
+
+
+def _child_deaths_2015(p):
+    """03-01: the children who died (``HIJOS_FALLECIDOS``) as % of those born alive, of the
+    women who gave both, by the mother's age group."""
+    women, born = _women_2015(p)
+    died = _code(p, "HIJOS_FALLECIDOS")
+    women &= died.lt(99)
+    return [(Weighted(women & _age_group(p, label), died),
+             Weighted(women & _age_group(p, label), born)) for label in _WOMEN_AGES]
+
+
+def _unpaid_hours(p) -> pd.DataFrame:
+    """The weekly hours of each unpaid activity (``ACTI_SIN_PAGO1``–``8``; 0 = none, 999 =
+    not specified)."""
+    return pd.DataFrame({i: _code(p, f"ACTI_SIN_PAGO{i}") for i in range(1, 9)})
+
+
+def _unpaid_2015(p):
+    """09-02: the 12+ (a specified age) by age group: who do unpaid work (some activity with
+    hours), then each activity of those; who do none (no hours given, not every activity
+    unspecified), not specified (all eight 999)."""
+    hours = _unpaid_hours(p)
+    given = hours.gt(0) & hours.lt(999)
+    does, unknown = given.any(axis=1), hours.eq(999).all(axis=1)
+    out = []
+    for label in _UNPAID_AGES:
+        g = _age(p).between(12, 130) & _age_group(p, label)
+        out += _counts_of(g, g & does, *(g & does & given[i] for i in range(1, 9)),
+                          g & ~does & ~unknown, g & unknown)
+    return out
+
+
+def _unpaid_hours_2015(p):
+    """09-03: the weekly hours of who do unpaid work — all their activities' given hours —,
+    then each activity's of who do it, by age group."""
+    hours = _unpaid_hours(p)
+    known = hours.where(hours.lt(999))
+    does = (known.gt(0)).any(axis=1)
+    out = []
+    for label in _UNPAID_AGES:
+        g = _age(p).between(12, 130) & _age_group(p, label)
+        out.append((Weighted(g & does, known.sum(axis=1)), g & does))
+        out += [(Weighted(g & known[i].gt(0), known[i]), g & known[i].gt(0)) for i in range(1, 9)]
+    return out
+
+
+def _person_checks_2015() -> tuple[Check, ...]:
+    """The EIC 2015 person tabulados by state not read before 7j."""
+    exact = {None: 1e-4}                 # averages and shares: INEGI's 13 decimals
+    return (
+        Check("2015", "01-02", "Population by five-year age (`EDAD_QUIN`) and sex",
+              "01_poblacion.xls", "personas",
+              tuple(f"{g}: {s}" for g in _QUIN_2015 for s in ("total", "men", "women")),
+              _by_dims("Valor", "02", _QUIN_2015, lambda v: v[:3]), _population_2015,
+              unit="persons", sheet="02", note="The sexes are columns: sex T only (7j)."),
+        Check("2015", "01-03", "Birth registration (`ACTA_NAC`) by age", "01_poblacion.xls",
+              "personas",
+              tuple(f"{g}: {c}" for g in _REGISTRATION_AGES for c in (
+                  "population", "registered or not", "registered", "not registered",
+                  "registered abroad", "NE")),
+              _by_dims("Valor", "03", _REGISTRATION_AGES,
+                       lambda v: _counts(v[0], v[1:], [0, 1, 1, 0, 0]), sexed=True),
+              _registration_2015, unit="persons", sheet="03"),
+        Check("2015", "02-02a", "Women 12+ who gave their children born alive, by marital "
+              "status (`SITUA_CONYUGAL_CAT`) and age", "02_fecundidad.xls", "personas",
+              tuple(f"{m}: {g}" for m, _ in _MARITAL_2015 for g in _WOMEN_AGES),
+              _by_dims("Valor", "02", _WOMEN_AGES, lambda v: v[:1],
+                       rows=tuple(m for m, _ in _MARITAL_2015)),
+              _fertility_2015(False), unit="persons", sheet="02",
+              note="The women of a specified age whose `HIJOS_NAC_VIVOS` is given (not 98, "
+                   "topic omitted, nor 99); the published rows are women (7j)."),
+        Check("2015", "02-02b", "Children born alive per woman (`HIJOS_NAC_VIVOS`), by "
+              "marital status and age", "02_fecundidad.xls", "personas",
+              tuple(f"{m}: {g}" for m, _ in _MARITAL_2015 for g in _WOMEN_AGES),
+              _by_dims("Valor", "02", _WOMEN_AGES, lambda v: v[1:2],
+                       rows=tuple(m for m, _ in _MARITAL_2015)),
+              _fertility_2015(True), unit="average", sheet="02", tolerance=exact),
+        Check("2015", "03-01", "Children who died (`HIJOS_FALLECIDOS`), % of those born "
+              "alive, by the mother's age", "03_mortalidad.xls", "personas", _WOMEN_AGES,
+              _by_dims("Valor", "01", _WOMEN_AGES, lambda v: v[:1]), _child_deaths_2015,
+              sheet="01", tolerance=exact,
+              note="Of the women of a specified age who gave both counts (7j)."),
+        Check("2015", "09-02", "Unpaid work of the 12+ (`ACTI_SIN_PAGO1`–8) by age",
+              "09_trabajo_no_remunerado.xls", "personas",
+              tuple(f"{g}: {c}" for g in _UNPAID_AGES for c in (
+                  "population 12+", "do unpaid work", *_UNPAID, "do none", "NE")),
+              _by_dims("Valor", "02", _UNPAID_AGES,
+                       lambda v: _counts(v[0], v[1:], [0, *[1] * 8, 0, 0]), sexed=True),
+              _unpaid_2015, unit="persons", sheet="02",
+              note="Unpaid work = an activity with hours (1–998); none = no hours given and "
+                   "not every activity unspecified; not specified = all eight 999 (7j)."),
+        Check("2015", "09-03", "Weekly hours of unpaid work by activity and age",
+              "09_trabajo_no_remunerado.xls", "personas",
+              tuple(f"{g}: {c}" for g in _UNPAID_AGES for c in ("all activities", *_UNPAID)),
+              _by_dims("Valor", "03", _UNPAID_AGES, lambda v: v[:9], sexed=True),
+              _unpaid_hours_2015, unit="average", sheet="03", tolerance=exact,
+              note="All activities: each one's given hours summed, of who do any (7j)."),
+    )
+
+
 _ECO_2020 = "cpv2020_a_eum_08_caracteristicas_economicas.xlsx"
 _MOV_2020 = "cpv2020_a_eum_10_movilidad_cotidiana.xlsx"
 
@@ -2378,7 +2577,8 @@ CHECKS: tuple[Check, ...] = (
           _wide("Valor", lambda v: _counts(v[0], v[1:]), sheet="34",
                 dims=lambda k: (k[0], "T")),
           _financing_2020, unit="persons", sheet="34"),
-) + _dwelling_checks_2010() + _dwelling_checks_2020() + _dwelling_checks_2000()  # 7h, 7i
+) + (_dwelling_checks_2010() + _dwelling_checks_2020() + _dwelling_checks_2000()  # 7h, 7i
+     + _person_checks_2015())                                                        # 7j
 
 
 # --------------------------------------------------------------------------------------
@@ -2454,14 +2654,17 @@ def _sums(check: Check, frame: pd.DataFrame, state: int
 
 
 def _value(num: float, den: float, unit: str) -> float:
-    if unit == "average":                                                    # 7i
-        return num / den if den else np.nan
+    if unit == "average":              # 7i; 7j: INEGI writes 0 for an average of nobody
+        return num / den if den else 0.0
     return num if unit == "persons" else (100 * num / den if den else np.nan)
 
 
 def _tolerance(period: str, state: int, check: Check | None = None) -> float:
-    if check is not None and check.tolerance and state in check.tolerance:
-        return check.tolerance[state]
+    if check is not None and check.tolerance:
+        if state in check.tolerance:
+            return check.tolerance[state]
+        if None in check.tolerance:                  # 7j: the check's own, every state
+            return check.tolerance[None]
     tol = _TOLERANCE[period]
     return tol.get(state, tol[None])
 

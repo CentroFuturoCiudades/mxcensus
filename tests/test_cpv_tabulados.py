@@ -266,7 +266,7 @@ def test_weighted_parts_and_averages():
     keep = pd.Series([True, True, False])
     part = ck.Weighted(pd.Series([True, False, True]), pd.Series(["4", "3", "5"]))
     assert ck._part(part, w, keep, 1) == {1: 8.0}
-    assert ck._value(9.0, 2.0, "average") == 4.5 and np.isnan(ck._value(1.0, 0.0, "average"))
+    assert ck._value(9.0, 2.0, "average") == 4.5 and ck._value(0.0, 0.0, "average") == 0.0  # 7j
     v = pd.DataFrame({"NUMPERS": ["4", "2"], "NUMHOGS": [None, "2"], "TOTCUART_INEGI": [2, None],
                       "CUADORM": ["01", "99"]})
     cells = ck._vi19(v)
@@ -274,6 +274,31 @@ def test_weighted_parts_and_averages():
     sums = [(ck._part(n, w, w.astype(bool), 1)[1],
              ck._part(d, w, w.astype(bool), 1)[1]) for n, d in cells]
     assert sums == [(6.0, 2.0), (6.0, 3.0), (4.0, 2.0), (4.0, 1.0), (3.0, 2.0)]
+
+
+def test_age_groups_and_dimensions():
+    """7j: INEGI's age-group labels as ``EDAD`` ranges (999 = not specified), and the EIC 2015
+    tabulados' rows (state[, sex][, category], age group) as one list per (state, sex)."""
+    p = pd.DataFrame({"EDAD": ["004", "012", "075", "110", "999"]})
+    assert ck._age_group(p, "00-04 años").tolist() == [True, False, False, False, False]
+    assert ck._age_group(p, "75 años y más").tolist() == [False, False, True, True, False]
+    assert ck._age_group(p, "No especificado").tolist() == [False] * 4 + [True]
+    assert ck._age_group(p, "Total").all()
+    with pytest.raises(ValueError):
+        ck._age_group(p, "Menores")
+    rows = [{"A": "Entidad federativa", "B": "Sexo", "C": "Situación", "D": "Grupos",
+             "E": "Estimador", "F": "Mujeres"},
+            {"A": "01 Aguascalientes", "B": "Total", "C": "Total", "D": "Total", "E": "Valor",
+             "F": "10", "G": "2.5"},
+            {"A": "01 Aguascalientes", "B": "Total", "C": "Total", "D": "12-14 años",
+             "E": "Valor", "F": "4", "G": "0.1"},
+            {"A": "01 Aguascalientes", "B": "Total", "C": "Soltera", "D": "Total",
+             "E": "Valor", "F": "3", "G": "0.5"},
+            {"A": "01 Aguascalientes", "B": "Total", "C": "Soltera", "D": "12-14 años",
+             "E": "Valor", "F": "2", "G": "0.0"}]
+    read = ck._by_dims("Valor", None, ("Total", "12-14 años"), lambda v: v[1:2], sexed=True,
+                       rows=("Total", "Soltera"))
+    assert read({"x": rows}) == {(1, "T"): [2.5, 0.1, 0.5, 0.0]}
 
 
 def test_checks_are_consistent():
@@ -284,10 +309,12 @@ def test_checks_are_consistent():
         assert c.source in ck.SOURCES[c.period][1], c.key
         assert c.table in ("personas", "viviendas", "hogares", "migrantes")       # 7d
         assert c.unit in ("points", "persons", "average")                   # 7i
+        assert c.period == "2000" or c.unit == "persons" or c.tolerance      # 7j: exact
         assert c.table != "migrantes" or c.period == "2000"
         assert not c.by_origin or c.period == "2000"                    # 7d: MI02/05/10–12
         assert c.table != "hogares" or c.period == "2000"          # 6t: 2000's household rows
-        assert (c.unit in ("points", "average")) == (c.period == "2000")
+        assert c.unit != "persons" or c.period != "2000"          # 2000: shares, averages
+        assert c.unit == "persons" or c.period in ("2000", "2015")    # 7j: 2015's averages
         assert c.source.endswith(".xlsx" if c.period == "2020" else ".xls")        # 6p
         assert None in ck._TOLERANCE[c.period]
     assert {c.period for c in ck.CHECKS} == set(ck.SOURCES)
@@ -303,7 +330,7 @@ def test_state_01_within_tolerance(monkeypatch):
         f"{p}/{n}": tab_dir / p / n for p in periods for n in ck.SOURCES[p][1]})
     rows = ck.run(sorted(ck.SOURCES), [1], _TABS, _MIRROR, log=lambda *a: None)
     assert len(rows) == (317 + 159 + 120 + 45 + 7 + 13 + 149 + 132 + 183 + 463 + 562  # 6p: 2020;
-                         + 317)
+                         + 317 + 894)
     #                                                 6q: 2015 affiliation, commute, marital status,
     #                                                 education (2010's are national); 6r: 2000
     #                                                 hours, education of the 12+/18+; 6t: 2000/2015
@@ -323,7 +350,9 @@ def test_state_01_within_tolerance(monkeypatch):
     #                                                 national); 7h: the Censo 2010/2020
     #                                                 dwellings and the 2015/2020 owners' sex
     #                                                 (2010 262, 2015 25, 2020 275; sex T);
-    #                                                 7i: CGPV 2000's dwellings (sex T)
+    #                                                 7i: CGPV 2000's dwellings (sex T); 7j:
+    #                                                 the EIC 2015 persons (01-02, 02-02, 03-01
+    #                                                 sex T; 01-03, 09-02, 09-03 by sex)
     by_origin = {c.key for c in ck.CHECKS if c.by_origin}               # 7d: all 32 only
     assert by_origin == {"MI02", "MI05", "MI10", "MI11", "MI12"}
     assert not by_origin & {r["check"] for r in rows}

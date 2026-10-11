@@ -1,12 +1,13 @@
 # CPV family — session handoff
 
-**Status (2026-10-10/11, overnight): units 0–6z and 7a–7i are done. `main` = v0.11.0 =
+**Status (2026-10-10/11, overnight): units 0–6z and 7a–7j are done. `main` = v0.11.0 =
 6u–7b, tagged and pushed; 7c (CGPV 2000's places, the income in minimum wages 2000–2020), 7d
 (more tabulado checks: the EIC 2015's dwellings, CGPV 2000's employment and migration), 7e
 (ratio constraints), 7f (CGPV 2000 per dwelling, the 1990/1995 averages), 7g (constraint
 keys = the published columns; every constraint against the census), 7h (the Censo
-2010/2020 dwelling tabulados, the owners' sex) and 7i (CGPV 2000's dwelling tabulados) are
-commits on `cpv-integration` after it, not pushed. 7g–7i ran unattended (the user asked for
+2010/2020 dwelling tabulados, the owners' sex), 7i (CGPV 2000's dwelling tabulados) and 7j
+(the EIC 2015's person tabulados) are commits on `cpv-integration` after it, not pushed.
+7g–7j ran unattended (the user asked for
 the night's units to run without them: a local commit per unit, no push, merge, version or
 upload) — their decisions wait for the user's review (§Review: night of 2026-10-10/11). Before 0.11.0:
 v0.10.0 = 6s–6t, 0.9.0 = 6k–6r. A session starts by checking `git log`/`git status` against
@@ -338,7 +339,14 @@ this line.**
     the report 82,476 cells.
   - New `Weighted(mask, values)` cell parts and the «average» unit (VI19).
 
-Design: [`PLAN.md`](PLAN.md). Recent units: [`STEP_7i.md`](STEP_7i.md), [`STEP_7h.md`](STEP_7h.md), [`STEP_7g.md`](STEP_7g.md), [`STEP_7f.md`](STEP_7f.md), [`STEP_7e.md`](STEP_7e.md), [`STEP_7d.md`](STEP_7d.md), [`STEP_7c.md`](STEP_7c.md), [`STEP_7b.md`](STEP_7b.md), [`STEP_7a.md`](STEP_7a.md), [`STEP_6z.md`](STEP_6z.md), [`STEP_6y.md`](STEP_6y.md), [`STEP_6x.md`](STEP_6x.md), [`STEP_6w.md`](STEP_6w.md), [`STEP_6v.md`](STEP_6v.md), [`STEP_6u.md`](STEP_6u.md), [`STEP_6t.md`](STEP_6t.md), [`STEP_6s.md`](STEP_6s.md), [`STEP_6r.md`](STEP_6r.md), [`STEP_6q.md`](STEP_6q.md), [`STEP_6p.md`](STEP_6p.md), [`STEP_6o.md`](STEP_6o.md), [`STEP_6n.md`](STEP_6n.md), [`STEP_6m.md`](STEP_6m.md), [`STEP_6l.md`](STEP_6l.md), [`STEP_6k.md`](STEP_6k.md), [`STEP_6j.md`](STEP_6j.md), [`STEP_6i.md`](STEP_6i.md), [`STEP_6h.md`](STEP_6h.md), [`STEP_6g.md`](STEP_6g.md), [`STEP_6f.md`](STEP_6f.md), [`STEP_6e.md`](STEP_6e.md),
+- **7j** (`STEP_7j.md`): HANDOFF candidate 3's EIC 2015 person tabulados, unattended; checks
+  only. Population by `EDAD_QUIN` × sex (01-02), birth registration (01-03), the women 12+
+  by marital status and their children born alive per woman (02-02), the children who died
+  (03-01), unpaid work and its hours (09-02/03): **29,502 cells, every one exact** (the report:
+  111,978 cells). The women of 02-02 gave their number of children (`HIJOS_NAC_VIVOS` < 98);
+  unpaid work = an activity with hours, a mix of 0 and 999 = none.
+
+Design: [`PLAN.md`](PLAN.md). Recent units: [`STEP_7j.md`](STEP_7j.md), [`STEP_7i.md`](STEP_7i.md), [`STEP_7h.md`](STEP_7h.md), [`STEP_7g.md`](STEP_7g.md), [`STEP_7f.md`](STEP_7f.md), [`STEP_7e.md`](STEP_7e.md), [`STEP_7d.md`](STEP_7d.md), [`STEP_7c.md`](STEP_7c.md), [`STEP_7b.md`](STEP_7b.md), [`STEP_7a.md`](STEP_7a.md), [`STEP_6z.md`](STEP_6z.md), [`STEP_6y.md`](STEP_6y.md), [`STEP_6x.md`](STEP_6x.md), [`STEP_6w.md`](STEP_6w.md), [`STEP_6v.md`](STEP_6v.md), [`STEP_6u.md`](STEP_6u.md), [`STEP_6t.md`](STEP_6t.md), [`STEP_6s.md`](STEP_6s.md), [`STEP_6r.md`](STEP_6r.md), [`STEP_6q.md`](STEP_6q.md), [`STEP_6p.md`](STEP_6p.md), [`STEP_6o.md`](STEP_6o.md), [`STEP_6n.md`](STEP_6n.md), [`STEP_6m.md`](STEP_6m.md), [`STEP_6l.md`](STEP_6l.md), [`STEP_6k.md`](STEP_6k.md), [`STEP_6j.md`](STEP_6j.md), [`STEP_6i.md`](STEP_6i.md), [`STEP_6h.md`](STEP_6h.md), [`STEP_6g.md`](STEP_6g.md), [`STEP_6f.md`](STEP_6f.md), [`STEP_6e.md`](STEP_6e.md),
 [`STEP_6d.md`](STEP_6d.md),
 [`STEP_6c.md`](STEP_6c.md), [`STEP_6b.md`](STEP_6b.md), … [`STEP_0_probe.md`](STEP_0_probe.md).
 
@@ -367,7 +375,7 @@ which `wsl`'s lacks — the script fetches them).
 ## Kickoff prompt for the next session
 
 > Continue the CPV census-family work in this repo (branch cpv-integration = main = v0.11.0
-> + units 7c–7i). Read docs/cpv/HANDOFF.md first, then agree with me which next unit to
+> + units 7c–7j). Read docs/cpv/HANDOFF.md first, then agree with me which next unit to
 > take (candidates in HANDOFF §Next) before implementing it, following the session protocol
 > in docs/cpv/PLAN.md. Use .venv/bin/python, not uv run. Run wsl tasks without asking; ask
 > me before committing, pushing, installing packages or uploading.
@@ -392,9 +400,10 @@ the commit's diff:
 4. **7g, new derived `RELIGION_INEGI`** (Censo 2010 only; the name is the session's): the
    2010 classification beside `RELIGION_CAT` (2020's grouping, the user's 6f choice), for the
    2010 `PNCATOLICA`/`POTRAS_REL`.
-5. **7h, 7i** changed only the maintainer check script (no decision with user-visible
+5. **7h, 7i, 7j** changed only the maintainer check script (no decision with user-visible
    effect); their scope (the Censo 2010/2020 dwelling tabulados and the owners' sex; CGPV
-   2000's dwelling tabulados) was the session's choice among the candidates. 7i's Chiapas
+   2000's dwelling tabulados; the EIC 2015's person tabulados) was the session's choice among
+   the candidates. 7i's Chiapas
    tolerances (VI11 0.9, VI18 1.6/1.8 and the nation's VI18o 0.06 points) follow 7d's MI11
    precedent.
 
@@ -429,7 +438,7 @@ and **kept all seven** (merged as 0.9.0):
 
 ## Next: candidates (none decided)
 
-1. **Release 7c–7i** as 0.12.0: the `wsl` full suite ran on 7f overnight; rerun it on the
+1. **Release 7c–7j** as 0.12.0: the `wsl` full suite ran on 7f overnight; rerun it on the
    final commit (a `git bundle` as for 0.11.0), then merge into `main`, tag and push — the
    user's call, after the review above.
 2. Smaller:
@@ -445,10 +454,11 @@ and **kept all seven** (merged as 0.9.0):
      `_QUANTITIES` could take them; the derivations read the raw codes, so only the
      labelled dtype changes).
 3. More tabulado checks (7d's and 7h's leftovers):
-   - the EIC 2015 person tabulados not yet read (disability, fertility, language, the
-     01_poblacion tables);
-   - CGPV 2000's fertility, disability and language tabulados (`C2KFE*`, `C2KDI*`, `C2KLI*`:
-     they exist on INEGI's server; 6c left 2000's disability out of the constraints).
+   - the EIC 2015's fertility rates and infant mortality (02-03/04, 03-02: the births of
+     2014), its tabulados by locality size;
+   - CGPV 2000's person tabulados not yet read: population `C2KPO01`, disability
+     `C2KDI01/02/04`, fertility `C2KFE03`–`05`, language `C2KLI02`, households `C2KHO01/02/05/
+     07/08`, education `C2KED02/04/06/12` (6c left 2000's disability out of the constraints).
 
 ## Open questions for the user
 
@@ -911,3 +921,7 @@ and **kept all seven** (merged as 0.9.0):
   one household (fill 1). Chiapas's small bases miss by up to 1.8 points (its weights).
 - **Averages in the tabulado checks** (7i): `Weighted(mask, values)` cell parts and
   `unit="average"` (num ÷ den); 2000's are compared within its band.
+- **EIC 2015 person tabulados** (7j): 02-02's women are those who gave `HIJOS_NAC_VIVOS`
+  (< 98); unpaid work (`ACTI_SIN_PAGO1`–8) = weekly hours per activity, 0 = none, 999 = not
+  specified (a mix of 0 and 999 is «none», all 999 «not specified»); their 12+ leave out the
+  unspecified ages. INEGI writes 0 for an average of nobody.
