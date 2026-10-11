@@ -31,6 +31,12 @@ equipment; the occupants' tables weighted by ``NUMPERS``, :attr:`Check.weight`) 
 instead of the frame's (:class:`ByOrigin`: the emigrants by their birth state, the
 international migrants by the state they left; such checks need all 32 states).
 
+7o added rates of the last child born alive: the fertility rates by five-year age and the
+Tasa Global de Fecundidad (Censo 2010, EIC 2015, Censo 2020; by state and, nationally, by
+locality size) and the infant mortality by locality size and the mother's age (national;
+:func:`_rate_checks`), per 1,000 (unit «rate»; a check's ``combine`` derives the TGF from its
+seven rates).
+
 The tabulados are fetched once into ``data/dict/tabulados/{period}/`` (git-ignored); the
 mirror is read from ``data/parquet`` (the full mirror: every state of each edition).
 
@@ -94,7 +100,9 @@ SOURCES = {
               # 7m: the persons and the international migrants by state
               "01_02A_ESTATAL.xls", "02_04A_ESTATAL.xls", "04_04A_ESTATAL.xls",
               "04_05A_ESTATAL.xls", "04_06A_ESTATAL.xls", "06_02A_ESTATAL.xls",
-              "09_04A_ESTATAL.xls", "10_02A_ESTATAL.xls")),
+              "09_04A_ESTATAL.xls", "10_02A_ESTATAL.xls",
+              # 7o: fertility rates and infant mortality
+              "02_01A_ESTATAL.xls", "02_02A_ESTATAL.xls", "03_01A_ESTATAL.xls")),
     "2015": ("intercensal/2015/tabulados",
              ("01_poblacion.xls", "02_fecundidad.xls", "03_mortalidad.xls",           # 7j
               "09_trabajo_no_remunerado.xls", "04_migracion.xls", "05_etnicidad.xls", "06_educacion.xls",
@@ -107,7 +115,8 @@ SOURCES = {
               "cpv2020_a_eum_08_caracteristicas_economicas.xlsx",
               "cpv2020_a_eum_09_servicios_de_salud.xlsx",
               "cpv2020_a_eum_10_movilidad_cotidiana.xlsx",
-              "cpv2020_a_eum_11_situacion_conyugal.xlsx", "cpv2020_a_eum_16_vivienda.xlsx")),
+              "cpv2020_a_eum_11_situacion_conyugal.xlsx", "cpv2020_a_eum_16_vivienda.xlsx",
+              "cpv2020_a_eum_02_fecundidad.xlsx", "cpv2020_a_eum_03_mortalidad.xlsx")),  # 7o
 }
 
 # Raw SEXO codes → the tabulados' sexes (T = both).
@@ -313,26 +322,47 @@ def _c2k_repeated(cols: str, label: str):
     return read
 
 
-def _estimates(rows: list[dict], estimator: str) -> dict[tuple, list[float]]:
-    """A 2010/2015 tabulado: the header row names the ``Estimador`` column; the columns
-    before it are the row's dimensions (state first), those after it its values. Returns
-    ``{(state, *other dimensions): [values]}`` for the rows of ``estimator``."""
+def _estimator_rows(rows: list[dict], estimator: str
+                    ) -> tuple[dict, list[str], list[tuple[dict, list[float]]]]:
+    """A tabulado with an ``Estimador`` column: its header row, the dimension columns (those
+    before it, in sheet order) and each row of ``estimator`` with its values (the columns
+    after it)."""
     order = lambda c: (len(c), c)  # noqa: E731 — column letters in sheet order
     header = next(r for r in rows if "Estimador" in r.values())
     est = next(c for c in header if header[c] == "Estimador")
     dims = sorted((c for c in header if order(c) < order(est)), key=order)
     data = [r for r in rows if r.get(est) == estimator]
     values = sorted({c for r in data for c in r if order(c) > order(est)}, key=order)
+    return header, dims, [(r, [_num(r.get(c)) for c in values]) for r in data]
+
+
+def _estimates(rows: list[dict], estimator: str) -> dict[tuple, list[float]]:
+    """A 2010/2015 tabulado: the header row names the ``Estimador`` column; the columns
+    before it are the row's dimensions (state first), those after it its values. Returns
+    ``{(state, *other dimensions): [values]}`` for the rows of ``estimator``."""
+    header, dims, data = _estimator_rows(rows, estimator)
     out = {}
-    for r in data:
+    for r, values in data:
         if (state := _state_of(r.get(dims[0], ""))) is None:
             continue
         key = [state]
         for c in dims[1:]:
             text = r.get(c, "").strip()
             key.append(_SEX_LABEL.get(text, text) if header[c] == "Sexo" else text)
-        out[tuple(key)] = [_num(r.get(c)) for c in values]
+        out[tuple(key)] = values
     return out
+
+
+def _national(estimator: str, names: tuple[tuple[str, ...], ...], sheet: str | None = None):
+    """7o: a national tabulado by locality size (and the mother's age): the values of each
+    row named in ``names`` (its dimension cells as published: the size, «Estados Unidos
+    Mexicanos» for the nation, then the age group), in that order, as the nation's; a missing
+    row raises."""
+    def read(wb):
+        _, dims, data = _estimator_rows(_sheet(wb, sheet), estimator)
+        found = {tuple(r.get(c, "").strip() for c in dims): v for r, v in data}
+        return {(_NATION, "T"): [x for n in names for x in found[n]]}
+    return read
 
 
 def _counts(total: float, shares: list[float], bases: list[int] | None = None) -> list[float]:
@@ -369,6 +399,8 @@ class Check:
     weight: Callable[[pd.DataFrame], pd.Series] | None = None
     # 7d: some cells are :class:`ByOrigin` — compared only when all 32 states are loaded
     by_origin: bool = False
+    # 7o: the computed values → the published cells' (the TGF after each block's rates)
+    combine: Callable[[list[float]], list[float]] | None = None
 
 
 @dataclass(frozen=True)
@@ -2663,6 +2695,144 @@ def _person_checks_2015() -> tuple[Check, ...]:
     )
 
 
+# Fertility and infant mortality: the last child born alive (7o) -------------------------
+
+# Each edition's items: children born alive, the last child's birth year, survival, age at
+# death in years (blank below one year: days, months, «less than a month/year», unspecified)
+_LAST_CHILD = {"2010": ("NUMHIJ", "FECNACA", "SOBREVI", "EDAMORA"),
+               "2015": ("HIJOS_NAC_VIVOS", "FECHA_NAC_A", "SOBREVIVENCIA", "EDAD_MORIR_A"),
+               "2020": ("HIJOS_NAC_VIVOS", "FECHA_NAC_A", "SOBREVIVENCIA", "EDAD_MORIR_A")}
+_FERTILE_AGES = tuple((f"{a}-{a + 4} años", a, a + 4) for a in range(15, 50, 5))
+_MOTHER_AGES = (("Total", 12, 49), ("12-19 años", 12, 19), ("20-34 años", 20, 34),
+                ("35-49 años", 35, 49))
+_NATION_NAME = "Estados Unidos Mexicanos"
+_SIZES = {"2010": ("Menos de 2 500 habitantes", "2 500-14 999 habitantes",
+                   "15 000-99 999 habitantes", "100 000 y más habitantes"),
+          "2015": ("Menos de 2 500 habitantes", "2 500-14 999 habitantes",
+                   "15 000-49 999 habitantes", "50 000-99 999 habitantes",
+                   "100 000 y más habitantes"),
+          "2020": ("1-2 499 habitantes", "2 500-14 999 habitantes", "15 000-49 999 habitantes",
+                   "50 000-99 999 habitantes", "100 000 y más habitantes")}
+_RATE_CELLS = (*(g.removesuffix(" años") for g, *_ in _FERTILE_AGES), "TGF")
+
+
+def _size(p: pd.DataFrame) -> pd.Series:
+    """The locality size code (2015/2020 ``TAMLOC`` 1–5; 2010 ``TAM_LOC`` 01–04, state 15's
+    ``tam_loc``) as numbers."""
+    return _code(p, next(c for c in ("TAMLOC", "TAM_LOC", "tam_loc") if c in p))
+
+
+def _sizes(p: pd.DataFrame, period: str) -> list[pd.Series]:
+    """The nation, then each locality size in the order of :data:`_SIZES`."""
+    size = _size(p)
+    return [pd.Series(True, index=p.index), *(size.eq(i) for i in range(1, len(_SIZES[period]) + 1))]
+
+
+def _fertility_rates(period: str, by_size: bool = False):
+    """02_02A / 02-04 / 02-02 (by state) and 02_01A / 02-03 / 02-01 (``by_size``, the
+    nation): births of the year before the census per 1,000 women of each five-year age (at
+    the census) — the women whose last child born alive was born that year, over the women
+    whose fertility is known: not the topic omitted (children born alive 98) nor the last
+    child's year unspecified (9999); an unspecified number of children (99) counts."""
+    born, year = _LAST_CHILD[period][:2]
+
+    def ours(p):
+        women = p["SEXO"].astype(str).eq("3")
+        last, age = _code(p, year), _age(p)
+        mothers = women & last.eq(int(period) - 1)
+        known = women & ~_code(p, born).eq(98) & ~last.eq(9999)
+        groups = [age.between(lo, hi) for _, lo, hi in _FERTILE_AGES]
+        out = []
+        for s in (_sizes(p, period) if by_size else [pd.Series(True, index=p.index)]):
+            out += [(mothers & s & g, known & s & g) for g in groups]
+        return out
+    return ours
+
+
+def _with_tgf(values: list[float]) -> list[float]:
+    """Each block of seven fertility rates followed by its Tasa Global de Fecundidad, five
+    times their sum per woman."""
+    n = len(_FERTILE_AGES)
+    return [x for i in range(0, len(values), n)
+            for x in (*values[i:i + n], 5 * sum(values[i:i + n]) / 1000)]
+
+
+def _infant_mortality(period: str):
+    """03_01A / 03-02 / 03-01: the last children born alive in the year before the census
+    who died under one year, per 1,000 of them, by locality size and the mother's age at the
+    census («Total» = 12–49). Censo 2020: the age at death in days given (``EDAD_MORIR_TD``
+    0–364) — INEGI's own count, exact; 2010/2015: every death not aged in years (the unknown
+    ages included) — INEGI's estimate is no ratio of the sample's records (STEP_7o.md)."""
+    _, year, alive, years = _LAST_CHILD[period]
+
+    def ours(p):
+        born = p["SEXO"].astype(str).eq("3") & _code(p, year).eq(int(period) - 1)
+        dead = born & _code(p, alive).eq(3)
+        died = (dead & _code(p, "EDAD_MORIR_TD").between(0, 364) if period == "2020"
+                else dead & _code(p, years).isna())
+        age = _age(p)
+        groups = [age.between(lo, hi) for _, lo, hi in _MOTHER_AGES]
+        out = []
+        for s in _sizes(p, period):
+            out += [(died & s & g, born & s & g) for g in groups]
+        return out
+    return ours
+
+
+def _rate_checks() -> tuple[Check, ...]:
+    """The fertility rates and the infant mortality of Censo 2010, the EIC 2015 and Censo
+    2020 (7o)."""
+    exact = {None: 1e-4}               # per 1,000; INEGI publishes 6 decimals (2020) or more
+    files = {"2010": ("02_02A_ESTATAL.xls", None, "02_01A_ESTATAL.xls", None,
+                      "03_01A_ESTATAL.xls", None, "Parámetro"),
+             "2015": ("02_fecundidad.xls", "04", "02_fecundidad.xls", "03",
+                      "03_mortalidad.xls", "02", "Valor"),
+             "2020": ("cpv2020_a_eum_02_fecundidad.xlsx", "02",
+                      "cpv2020_a_eum_02_fecundidad.xlsx", "01",
+                      "cpv2020_a_eum_03_mortalidad.xlsx", "01", "Valor")}
+    keys = {"2010": ("02_02A", "02_01A", "03_01A"), "2015": ("02-04", "02-03", "03-02"),
+            "2020": ("02-02", "02-01", "03-01")}
+    # 2010/2015's infant mortality: the largest |Δ| over its cells (the nation's is 0.09/0.17)
+    loose = {"2010": {None: 1.0}, "2015": {None: 1.8}, "2020": exact}
+    out = []
+    for period, (state_src, state_sheet, size_src, size_sheet, tmi_src, tmi_sheet,
+                 est) in files.items():
+        state_key, size_key, tmi_key = keys[period]
+        rows = (_NATION_NAME, *_SIZES[period])
+        out += [
+            Check(period, state_key, "Fertility rates by five-year age and TGF (the last "
+                  "child born alive)", state_src, "personas", _RATE_CELLS,
+                  _wide(est, lambda v: v[:8], sheet=state_sheet, dims=lambda k: (k[0], "T")),
+                  _fertility_rates(period), unit="rate", sheet=state_sheet, tolerance=exact,
+                  combine=_with_tgf,
+                  note="Women whose last child born alive was born the year before, per 1,000 "
+                       "women of the age (at the census) whose fertility is known (not 98, "
+                       "topic omitted; the last child's year not 9999); TGF = 5 × Σ rates "
+                       "/ 1,000 (7o)."),
+            Check(period, size_key, "Fertility rates and TGF by locality size", size_src,
+                  "personas", tuple(f"{r}: {c}" for r in rows for c in _RATE_CELLS),
+                  _national(est, tuple((r,) for r in rows), sheet=size_sheet),
+                  _fertility_rates(period, by_size=True), unit="rate", sheet=size_sheet,
+                  tolerance=exact, combine=_with_tgf, note="National (7o)."),
+            Check(period, tmi_key, "Infant mortality by locality size and the mother's age",
+                  tmi_src, "personas",
+                  tuple(f"{r}: {g}" for r in rows for g, *_ in _MOTHER_AGES),
+                  _national(est, tuple((r, g) for r in rows for g, *_ in _MOTHER_AGES),
+                            sheet=tmi_sheet),
+                  _infant_mortality(period), unit="rate", sheet=tmi_sheet,
+                  tolerance=loose[period],
+                  note=("Deaths aged 0–364 days (`EDAD_MORIR_TD`) of the last children born in "
+                        "2019, per 1,000 of them; the mother's age at the census, «Total» = "
+                        "12–49 (7o)." if period == "2020" else
+                        "Not reproducible from the sample (STEP_7o.md): INEGI's cells are no "
+                        "ratio of its records' weights (a «Total» is not the sum of its age "
+                        "groups). Ours: every death not aged in years (unknown ages included) "
+                        "of the last children born the year before, per 1,000 of them; "
+                        "tolerance = the largest gap (7o).")),
+        ]
+    return tuple(out)
+
+
 _ECO_2020 = "cpv2020_a_eum_08_caracteristicas_economicas.xlsx"
 _MOV_2020 = "cpv2020_a_eum_10_movilidad_cotidiana.xlsx"
 
@@ -3215,7 +3385,8 @@ CHECKS: tuple[Check, ...] = (
           _financing_2020, unit="persons", sheet="34"),
 ) + (_dwelling_checks_2010() + _dwelling_checks_2020() + _dwelling_checks_2000()  # 7h, 7i
      + _person_checks_2015() + _person_checks_2000() + _person_checks_2000_l()        # 7j–7l
-     + _person_checks_2010() + _person_checks_2020())                                # 7m, 7n
+     + _person_checks_2010() + _person_checks_2020()                                 # 7m, 7n
+     + _rate_checks())                                                               # 7o
 
 
 # --------------------------------------------------------------------------------------
@@ -3323,6 +3494,8 @@ def _sums(check: Check, frame: pd.DataFrame, state: int
 def _value(num: float, den: float, unit: str) -> float:
     if unit == "average":              # 7i; 7j: INEGI writes 0 for an average of nobody
         return num / den if den else 0.0
+    if unit == "rate":                 # 7o: per 1,000
+        return 1000 * num / den if den else np.nan
     return num if unit == "persons" else (100 * num / den if den else np.nan)
 
 
@@ -3388,13 +3561,15 @@ def run(periods: list[str], states: list[int], tab_dir: Path = _DEFAULT_TAB_DIR,
                 if key != c.key or (state, sex) not in published[c.key]:
                     continue
                 pub = published[c.key][state, sex]
-                if len(pub) != len(cells) or len(pub) != len(c.cells):
+                values = [_value(num, den, c.unit) for num, den in cells]
+                if c.combine:                                                   # 7o
+                    values = c.combine(values)
+                if len(pub) != len(values) or len(pub) != len(c.cells):
                     raise RuntimeError(f"{period} {c.key}: {len(pub)} published cells, "
-                                       f"{len(cells)} computed, {len(c.cells)} named")
-                for name, p, (num, den) in zip(c.cells, pub, cells):
+                                       f"{len(values)} computed, {len(c.cells)} named")
+                for name, p, ours in zip(c.cells, pub, values):
                     if np.isnan(p):
                         continue
-                    ours = _value(num, den, c.unit)
                     rows.append({"period": period, "check": c.key, "state": state, "sex": sex,
                                  "cell": name, "published": p, "ours": ours,
                                  # 7d: a share of nothing against a published one fails
@@ -3404,6 +3579,8 @@ def run(periods: list[str], states: list[int], tab_dir: Path = _DEFAULT_TAB_DIR,
 
 
 def _fmt(x: float, unit: str) -> str:
+    if unit == "rate":                                                      # 7o
+        return f"{x:.4f}"
     return f"{x:.3f}" if unit in ("points", "average") else f"{x:,.2f}"
 
 
@@ -3425,7 +3602,8 @@ def report(rows: list[dict], states: list[int]) -> str:
              "in percentage points (published with two decimals; 7i: its dwelling averages as "
              "they are); 2010, 2015 and 2020: counts "
              "in persons (Σ `FACTOR`; published totals × percentages; the occupants Σ "
-             "`FACTOR` × `NUMPERS`).", ""]
+             "`FACTOR` × `NUMPERS`; 7o: the fertility rates and infant mortality per 1,000, to "
+             "0.0001 unless a note says otherwise).", ""]
     for period in sorted(df["period"].unique()):
         sub = df[df["period"] == period]
         tol = _TOLERANCE[period]

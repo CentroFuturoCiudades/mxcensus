@@ -370,6 +370,62 @@ def test_households_and_education_2000():
     assert cells[3] == [True, False, False]
 
 
+def test_rates_tgf_and_national_rows():
+    """7o: unit «rate» = per 1,000; ``_with_tgf`` appends each block's Tasa Global de
+    Fecundidad (5 × Σ rates / 1,000); ``_national`` reads the rows of a national tabulado by
+    locality size (and the mother's age) in the given order, a missing row raises."""
+    assert ck._value(3.0, 1500.0, "rate") == 2.0 and np.isnan(ck._value(1.0, 0.0, "rate"))
+    assert ck._with_tgf([10.0] * 7 + [20.0] * 7) == [10.0] * 7 + [0.35] + [20.0] * 7 + [0.7]
+    rows = [{"A": "Tamaño de localidad", "B": "Grupos de edad de la madre", "C": "Estimador",
+             "D": "Tasa"},
+            {"A": "Estados Unidos Mexicanos", "B": "Total", "C": "Valor", "D": "6.5"},
+            {"A": "Estados Unidos Mexicanos", "B": "Total", "C": "Error estándar", "D": "0.1"},
+            {"A": "1-2 499 habitantes ", "B": "12-19 años", "C": "Valor", "D": "7.25"}]
+    read = ck._national("Valor", (("1-2 499 habitantes", "12-19 años"),
+                                  ("Estados Unidos Mexicanos", "Total")))
+    assert read({"x": rows}) == {(0, "T"): [7.25, 6.5]}
+    with pytest.raises(KeyError):
+        ck._national("Valor", (("100 000 y más habitantes", "Total"),))({"x": rows})
+
+
+def test_fertility_rates_and_infant_mortality():
+    """7o: the women whose last child was born the year before over the women of the age
+    whose fertility is known (not 98, the topic omitted, nor the year 9999; 99 counts); the
+    infant deaths of those last children — 2020 by ``EDAD_MORIR_TD`` 0–364, 2010/2015 every
+    death not aged in years — by locality size and the mother's age («Total» = 12–49)."""
+    p = pd.DataFrame({
+        "SEXO": ["3", "3", "3", "3", "3", "1", "3", "3"],
+        "EDAD": ["017", "016", "018", "019", "015", "017", "050", "025"],
+        "HIJOS_NAC_VIVOS": ["01", "98", "99", "02", None, "01", "01", "01"],
+        "FECHA_NAC_A": ["2019", None, None, "9999", None, "2019", "2019", "2019"],
+        "SOBREVIVENCIA": ["3", None, None, None, None, "3", "3", "1"],
+        "EDAD_MORIR_TD": ["010", None, None, None, None, "010", "999", None],
+        "EDAD_MORIR_A": [None] * 8, "TAMLOC": ["1", "1", "2", "1", "5", "1", "1", "5"]})
+    fifteen = ck._fertility_rates("2020")(p)[0]
+    assert fifteen[0].tolist() == [True] + [False] * 7
+    assert fifteen[1].tolist() == [True, False, True, False, True, False, False, False]
+    by_size = ck._fertility_rates("2020", by_size=True)(p)
+    assert len(by_size) == 6 * 7 and by_size[7][1].tolist() == [True] + [False] * 7  # size 1
+    cells = ck._infant_mortality("2020")(p)
+    assert len(cells) == 6 * 4
+    assert cells[0][0].tolist() == [True] + [False] * 7               # nation, mothers 12-49
+    assert cells[0][1].tolist() == [True] + [False] * 6 + [True]      # the 50-year-old out
+    assert cells[2][1].tolist() == [False] * 7 + [True]                # 20-34
+    q = p.assign(EDAD_MORIR_TD=None, EDAD_MORIR_A=[None, None, None, None, None, None, "1",
+                                                   None], FECHA_NAC_A=p["FECHA_NAC_A"].replace(
+        "2019", "2014"), TAMLOC=["1", "1", "2", "1", "5", "1", "1", "5"])
+    q.loc[6, "EDAD"] = "030"
+    cells = ck._infant_mortality("2015")(q)
+    assert cells[0][0].tolist() == [True] + [False] * 7               # aged in years: out
+    assert cells[0][1].tolist() == [True] + [False] * 5 + [True, True]
+    r = pd.DataFrame({"SEXO": ["3", "3"], "EDAD": ["020", "020"], "tam_loc": ["04", "01"],
+                      "FECNACA": ["2009", "2009"], "SOBREVI": ["3", "3"],
+                      "EDAMORA": [None, None]})
+    last = ck._infant_mortality("2010")(r)[-4:]                    # 100 000 y más (04)
+    assert [n.tolist() for n, _ in last] == [[True, False], [False, False], [True, False],
+                                             [False, False]]
+
+
 def test_checks_are_consistent():
     """Every check names a fetched source, unique keys per edition, and a tolerance."""
     keys = [(c.period, c.key) for c in ck.CHECKS]
@@ -377,13 +433,13 @@ def test_checks_are_consistent():
     for c in ck.CHECKS:
         assert c.source in ck.SOURCES[c.period][1], c.key
         assert c.table in ("personas", "viviendas", "hogares", "migrantes")       # 7d
-        assert c.unit in ("points", "persons", "average")                   # 7i
+        assert c.unit in ("points", "persons", "average", "rate")           # 7i, 7o
         assert c.period == "2000" or c.unit == "persons" or c.tolerance      # 7j: exact
         assert c.table != "migrantes" or c.period in ("2000", "2010", "2020")  # 7m, 7n
         assert not c.by_origin or c.table == "migrantes" or c.period == "2000"  # 7d, 7m
         assert c.table != "hogares" or c.period == "2000"          # 6t: 2000's household rows
         assert c.unit != "persons" or c.period != "2000"          # 2000: shares, averages
-        assert c.unit == "persons" or c.period in ("2000", "2015")    # 7j: 2015's averages
+        assert c.unit in ("persons", "rate") or c.period in ("2000", "2015")  # 7j, 7o
         assert c.source.endswith(".xlsx" if c.period == "2020" else ".xls")        # 6p
         assert None in ck._TOLERANCE[c.period]
     assert {c.period for c in ck.CHECKS} == set(ck.SOURCES)
@@ -399,7 +455,7 @@ def test_state_01_within_tolerance(monkeypatch):
         f"{p}/{n}": tab_dir / p / n for p in periods for n in ck.SOURCES[p][1]})
     rows = ck.run(sorted(ck.SOURCES), [1], _TABS, _MIRROR, log=lambda *a: None)
     assert len(rows) == (317 + 159 + 120 + 45 + 7 + 13 + 149 + 132 + 183 + 463 + 562  # 6p: 2020;
-                         + 317 + 894 + 144 + 247 + 329 + 291)
+                         + 317 + 894 + 144 + 247 + 329 + 291 + 3 * 8)
     #                                                 6q: 2015 affiliation, commute, marital status,
     #                                                 education (2010's are national); 6r: 2000
     #                                                 hours, education of the 12+/18+; 6t: 2000/2015
@@ -426,7 +482,10 @@ def test_state_01_within_tolerance(monkeypatch):
     #                                                 sex; LI02 not for state 01; FE «M.I.» out);
     #                                                 7l: its households (sex T) and education;
     #                                                 7m: Censo 2010's persons (its migrants need
-    #                                                 all 32 states); 7n: Censo 2020's
+    #                                                 all 32 states); 7n: Censo 2020's;
+    #                                                 7o: the fertility rates by state (8 cells,
+    #                                                 sex T; by size and the infant mortality are
+    #                                                 national)
     by_origin = {c.key for c in ck.CHECKS if c.by_origin}               # 7d: all 32 only
     assert by_origin == {"MI02", "MI05", "MI10", "MI11", "MI12",
                          "04_04A", "04_05A", "04_06A",                     # 7m: 2010's migrants

@@ -1,17 +1,15 @@
 # CPV family — session handoff
 
-**Status (2026-10-11, after an unattended night): units 0–6z and 7a–7n are done. `main` =
-v0.11.0 = 6u–7b, tagged and pushed. After it, on `cpv-integration` (not pushed): 7c (CGPV
-2000's places, the income in minimum wages 2000–2020), 7d (tabulado checks: the EIC 2015's
-dwellings, CGPV 2000's employment and migration), 7e (ratio constraints), 7f (CGPV 2000 per
-dwelling, the 1990/1995 averages) — and, unattended overnight, 7g (constraint keys = the
-published columns; every constraint against the census: fixes to 2000/2010/2020 cells, new
-2010 `RELIGION_INEGI`) and 7h–7n (tabulado checks only: the Censo 2010/2020 dwellings and
-owners, CGPV 2000's dwellings, persons and households, the EIC 2015's persons, the Censo
-2010/2020 persons and migrants). The user asked for the night's units to run without them (a
-local commit per unit; no push, merge, version or upload): their decisions wait for review
-(§Review: night of 2026-10-10/11). Before 0.11.0: v0.10.0 = 6s–6t, 0.9.0 = 6k–6r. A session
-starts by checking `git log`/`git status` against this line.**
+**Status (2026-10-11): units 0–6z and 7a–7o are done. `main` = v0.11.0 = 6u–7b, tagged and
+pushed. After it, on `cpv-integration` (not pushed): 7c (CGPV 2000's places, the income in
+minimum wages 2000–2020), 7d (tabulado checks: the EIC 2015's dwellings, CGPV 2000's
+employment and migration), 7e (ratio constraints), 7f (CGPV 2000 per dwelling, the 1990/1995
+averages), the unattended night's 7g (constraint keys = the published columns; every
+constraint against the census: fixes to 2000/2010/2020 cells, new 2010 `RELIGION_INEGI`) and
+7h–7n (tabulado checks only) — all reviewed and **kept** by the user on 2026-10-11 (§Review)
+— and 7o (tabulado checks: the fertility rates and the infant mortality of 2010/2015/2020).
+Before 0.11.0: v0.10.0 = 6s–6t, 0.9.0 = 6k–6r. A session starts by checking `git log`/`git
+status` against this line.**
 - **Released** (registered, uploaded, verified): every edition 1990–2025 (897 `cpv_` files)
   and the Marco Geoestadístico 1995–2025 frames, incl. the EIC 2015's (6h); registry
   **4148** entries (`STEP_6b.md` §Release batch, `STEP_6h.md`).
@@ -373,7 +371,29 @@ starts by checking `git log`/`git status` against this line.**
   exact**; the report 147,787 cells. Full suite on the Mac on 7l's head: 1920 passed, 1 skipped
   (7m and 7n touched only the check script and its tests).
 
-Design: [`PLAN.md`](PLAN.md). Recent units: [`STEP_7n.md`](STEP_7n.md), [`STEP_7m.md`](STEP_7m.md), [`STEP_7l.md`](STEP_7l.md), [`STEP_7k.md`](STEP_7k.md), [`STEP_7j.md`](STEP_7j.md), [`STEP_7i.md`](STEP_7i.md), [`STEP_7h.md`](STEP_7h.md), [`STEP_7g.md`](STEP_7g.md), [`STEP_7f.md`](STEP_7f.md), [`STEP_7e.md`](STEP_7e.md), [`STEP_7d.md`](STEP_7d.md), [`STEP_7c.md`](STEP_7c.md), [`STEP_7b.md`](STEP_7b.md), [`STEP_7a.md`](STEP_7a.md), [`STEP_6z.md`](STEP_6z.md), [`STEP_6y.md`](STEP_6y.md), [`STEP_6x.md`](STEP_6x.md), [`STEP_6w.md`](STEP_6w.md), [`STEP_6v.md`](STEP_6v.md), [`STEP_6u.md`](STEP_6u.md), [`STEP_6t.md`](STEP_6t.md), [`STEP_6s.md`](STEP_6s.md), [`STEP_6r.md`](STEP_6r.md), [`STEP_6q.md`](STEP_6q.md), [`STEP_6p.md`](STEP_6p.md), [`STEP_6o.md`](STEP_6o.md), [`STEP_6n.md`](STEP_6n.md), [`STEP_6m.md`](STEP_6m.md), [`STEP_6l.md`](STEP_6l.md), [`STEP_6k.md`](STEP_6k.md), [`STEP_6j.md`](STEP_6j.md), [`STEP_6i.md`](STEP_6i.md), [`STEP_6h.md`](STEP_6h.md), [`STEP_6g.md`](STEP_6g.md), [`STEP_6f.md`](STEP_6f.md), [`STEP_6e.md`](STEP_6e.md),
+- **7o** (`STEP_7o.md`): HANDOFF candidate 3's rates, with the user («rates across
+  editions»); checks only — no loader, derivation or dictionary changed.
+  - `check_cpv_tabulados.py`: unit «rate» (per 1,000), `Check.combine` (the TGF = 5 × Σ
+    rates / 1,000 after each block's seven rates), `_national` (national tabulados by
+    locality size and the mother's age); nine checks (`_rate_checks`).
+  - **Fertility rates** (Censo 2010 `02_01A`/`02_02A`, EIC 2015 02-03/04, Censo 2020 02-01/02;
+    by state and nationally by locality size): **exact** in every state, the nation and every
+    size. INEGI's rule, found on the data: the women of the age (at the census) whose last
+    child born alive was born the year before, per 1,000 women of the age without children
+    born alive 98 (topic omitted) or the last child's year 9999 — 99 (unspecified number)
+    counts.
+  - **Infant mortality, Censo 2020** (03-01, by size × the mother's age): **exact**, the last
+    children born in 2019 dead with `EDAD_MORIR_TD` 0–364 per 1,000 of them, mothers 12–49.
+  - **Infant mortality, Censo 2010/EIC 2015** (`03_01A`, 03-02): **not reproducible** from
+    the sample (the user had it dug further first): INEGI's «Total» is not the sum of its
+    age groups as counts under any denominator or grouping tried, so its estimate is no ratio
+    of the records' weights. Checked anyway (user's choice) on the cohort rule with the
+    largest gap as tolerance: 1.0 (2010), 1.8 per 1,000 (2015); the nation within 0.09/0.17.
+  - The report (a fresh full run, every edition, 32 states, 1 h 05 min): 996 new cells, every
+    one within its tolerance; **148,783 cells, 0 beyond tolerance**. `tests/test_cpv_tabulados.py`
+    23 passed (7o touched only the check script, its tests and the docs).
+
+Design: [`PLAN.md`](PLAN.md). Recent units: [`STEP_7o.md`](STEP_7o.md), [`STEP_7n.md`](STEP_7n.md), [`STEP_7m.md`](STEP_7m.md), [`STEP_7l.md`](STEP_7l.md), [`STEP_7k.md`](STEP_7k.md), [`STEP_7j.md`](STEP_7j.md), [`STEP_7i.md`](STEP_7i.md), [`STEP_7h.md`](STEP_7h.md), [`STEP_7g.md`](STEP_7g.md), [`STEP_7f.md`](STEP_7f.md), [`STEP_7e.md`](STEP_7e.md), [`STEP_7d.md`](STEP_7d.md), [`STEP_7c.md`](STEP_7c.md), [`STEP_7b.md`](STEP_7b.md), [`STEP_7a.md`](STEP_7a.md), [`STEP_6z.md`](STEP_6z.md), [`STEP_6y.md`](STEP_6y.md), [`STEP_6x.md`](STEP_6x.md), [`STEP_6w.md`](STEP_6w.md), [`STEP_6v.md`](STEP_6v.md), [`STEP_6u.md`](STEP_6u.md), [`STEP_6t.md`](STEP_6t.md), [`STEP_6s.md`](STEP_6s.md), [`STEP_6r.md`](STEP_6r.md), [`STEP_6q.md`](STEP_6q.md), [`STEP_6p.md`](STEP_6p.md), [`STEP_6o.md`](STEP_6o.md), [`STEP_6n.md`](STEP_6n.md), [`STEP_6m.md`](STEP_6m.md), [`STEP_6l.md`](STEP_6l.md), [`STEP_6k.md`](STEP_6k.md), [`STEP_6j.md`](STEP_6j.md), [`STEP_6i.md`](STEP_6i.md), [`STEP_6h.md`](STEP_6h.md), [`STEP_6g.md`](STEP_6g.md), [`STEP_6f.md`](STEP_6f.md), [`STEP_6e.md`](STEP_6e.md),
 [`STEP_6d.md`](STEP_6d.md),
 [`STEP_6c.md`](STEP_6c.md), [`STEP_6b.md`](STEP_6b.md), … [`STEP_0_probe.md`](STEP_0_probe.md).
 
@@ -405,16 +425,16 @@ for 7f) and its full suite wait for a Tailscale re-login.
 ## Kickoff prompt for the next session
 
 > Continue the CPV census-family work in this repo (branch cpv-integration = main = v0.11.0
-> + units 7c–7n). Read docs/cpv/HANDOFF.md first, then agree with me which next unit to
+> + units 7c–7o). Read docs/cpv/HANDOFF.md first, then agree with me which next unit to
 > take (candidates in HANDOFF §Next) before implementing it, following the session protocol
 > in docs/cpv/PLAN.md. Use .venv/bin/python, not uv run. Run wsl tasks without asking; ask
 > me before committing, pushing, installing packages or uploading.
 
-## Review: decisions taken unattended (night of 2026-10-10/11) — pending
+## Review: decisions taken unattended (night of 2026-10-10/11) — kept
 
 The user asked for the night's units to run without them (commit each locally; no push,
-merge, version or upload) and will review them in the morning. Revert any of these with
-the commit's diff:
+merge, version or upload), and on 2026-10-11 (7o's session) reviewed and **kept all of
+them**, with 7f's two crosswalk renames:
 
 1. **7g, constraint keys** (`cpv_constraints`, `cpv_ratio_constraints`): an older edition's
    kept pair is keyed by its own ITER column (2000 `PNACOENT`, 2005 `P_OE2000`, 2010
@@ -441,9 +461,9 @@ the commit's diff:
    spliced into `TABULADOS_REPORT.md` (7k–7n), to save the 50-minute full run per unit; a
    fresh full run at the end (every edition, 32 states, ~60 min) is **byte-identical** to the
    committed report (147,787 cells, none beyond tolerance).
-7. **Not done**: the `wsl` full-suite run on 7g–7n (Tailscale SSH asked for a re-login at
-   ~01:10; it needs the user). The Mac's full suite passed on 7l's head (1920 passed, 1
-   skipped); 7m–7n changed only the check script and its tests.
+7. **The `wsl` full-suite run on 7g–7n**, blocked that night by a Tailscale re-login, ran in
+   7o's session (`wsl` reachable again; a `git bundle` b6c8aff..87cebf6): **1920 passed, 1 skipped** at 87cebf6 in 1 h 59 min — the Mac's 7l-head
+   count, as 7m/7n touched only the check script and its tests.
 
 ## Review: decisions taken unattended (night of 2026-10-08/09) — kept
 
@@ -476,9 +496,9 @@ and **kept all seven** (merged as 0.9.0):
 
 ## Next: candidates (none decided)
 
-1. **Release 7c–7n** as 0.12.0: the `wsl` full suite ran on 7f overnight; rerun it on the
-   final commit (a `git bundle` as for 0.11.0), then merge into `main`, tag and push — the
-   user's call, after the review above.
+1. **Release 7c–7o** as 0.12.0: the night's decisions are kept and the `wsl` full suite ran
+   on 7n (§Review 7); move 7o there (`git bundle 87cebf6..cpv-integration`; it touches only
+   the check script and its tests), then merge into `main`, tag and push — the user's call.
 2. Smaller:
    - a 2000 occupation bridge (CMO → SINCO; no published table; 7d checked the CMO groups,
      the first two digits of `OCUACTIV_C`, against C2KEM04);
@@ -491,21 +511,21 @@ and **kept all seven** (merged as 0.9.0):
    - CGPV 2000's other quantities typed as code ranges (`HORTRA`, `INGRESOS`, `INGTRHOG`…:
      `_QUANTITIES` could take them; the derivations read the raw codes, so only the
      labelled dtype changes).
-3. More tabulado checks (what 7d–7l left):
-   - Censo 2010's tabulados 7m left (fertility rates 02_02A, infant mortality 03_01A, ethnic
-     self-identification 05_*, fields of study 07_*, sector × division 08_06A, kinship lines
-     12_04A — «colaterales» needs `OTROPARE_C`'s groups) and Censo 2020's 02/03 (rates),
-     04-12/14/15 (return and emigration causes) and 06_discapacidad (disability, limitation
-     and mental condition with their causes; INEGI's rules in 6g/6y);
-   - the EIC 2015's fertility rates and infant mortality (02-03/04, 03-02: the births of
-     2014);
-   - every edition's tabulados by locality size (they repeat the state ones on `TAMLOC`).
+3. More tabulado checks (what 7d–7o left):
+   - Censo 2010's tabulados 7m left (ethnic self-identification 05_*, fields of study 07_*,
+     sector × division 08_06A, kinship lines 12_04A — «colaterales» needs `OTROPARE_C`'s
+     groups) and Censo 2020's 04-12/14/15 (return duration and causes, emigration causes;
+     cached) and 06_discapacidad (disability, limitation and mental condition with their
+     causes by sex, age and activity; INEGI's rules in 6g/6y; downloaded in 7o's probe, not
+     in `SOURCES`);
+   - every edition's tabulados by locality size (they repeat the state ones on `TAMLOC`;
+     7o's `_national` reads that layout);
+   - a reproduction of the 2010/2015 infant mortality would need INEGI's procedure
+     (`STEP_7o.md`): its rule is not in the sample.
 
 ## Open questions for the user
 
-- 7f's two crosswalk renames, decided on the data (`STEP_7f.md` §Crosswalk): 1995
-  `PRO_O_VP` → `PROM_OCUP` and 2000 `VP_AGUENT` → `VPH_AGUADV` change `load_cpv_iter`'s
-  column names for those editions. Keep (the session's recommendation) or revert.
+- None pending (7f's crosswalk renames were kept on 2026-10-11).
 
 ## Gotchas (carry forward)
 
@@ -974,3 +994,12 @@ and **kept all seven** (merged as 0.9.0):
   rows (the script's `_frame` keeps them all and, for 2000, attaches the members' counts and
   the head's age from the person file); income 999999 = not specified, 999998 top-coded;
   exactly 3 wages fall in «más de 2 hasta menos de 3».
+- **Fertility rates** (7o): the women's age at the census; the denominator leaves out the
+  topic omitted (children born alive 98) and the last child's year unspecified (9999), not
+  the unspecified number (99). The by-size sheets (`_national`) hold the nation's cells only,
+  so a partial run (`--states` below 32) compares only the fertility by state.
+- **Infant mortality** (7o): «menos de un año» (`EDAD_MORIR_M`/`EDAMORM` 98) is INEGI's
+  processing code for a death of unknown age among the children born less than a year before
+  the census (it never occurs earlier); `EDAD_MORIR_D` 99 is the age unknown. Censo 2020
+  counts `EDAD_MORIR_TD` 0–364 (both out); 2010/2015 are not reproducible (the additivity
+  test: a ratio of weighted sums makes every «Total» the sum of its age groups as counts).

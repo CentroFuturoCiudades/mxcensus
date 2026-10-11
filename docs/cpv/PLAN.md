@@ -68,6 +68,7 @@ unit.
 | **7l** | More tabulado checks: CGPV 2000's households and education | 7k | ✅ done 2026-10-11, unattended (`STEP_7l.md`): `check_cpv_tabulados.py` on CGPV 2000's HO01/02/05/07 (households and their population by size, type, income in minimum wages — exactly 3 wages in «2 to 3») and HO08 (averages, members from the person file), ED02/04/06 (literacy, attendance by age and sex) and ED12 (causes of non-attendance): 8,151 cells within the 2000 band; no loader or derivation changed |
 | **7m** | More tabulado checks: Censo 2010's persons and international migrants | 7l | ✅ done 2026-10-11, unattended (`STEP_7m.md`): `check_cpv_tabulados.py` on Censo 2010's 01_02A (`EDAD_QUIN` × sex), 02_04A (children born alive), 06_02A (limitation causes), 09_04A (health service use), 10_02A (spouse's residence by union) and 04_04A–06A (international migrants by the state left): 11,913 cells, every one exact; no loader or derivation changed |
 | **7n** | More tabulado checks: Censo 2020's persons and international migrants | 7m | ✅ done 2026-10-11, unattended (`STEP_7n.md`): `check_cpv_tabulados.py` on Censo 2020's 01-02 (`EDAD_QUIN` × sex), 01-04 (birth registration), 04-02 (the born abroad by nationality), 05-02/04 (self-identification, understanding an indigenous language) and 04-04–10 (international migrants by the state left): 10,758 cells, every one exact; no loader or derivation changed |
+| **7o** | More tabulado checks: fertility rates and infant mortality | 7n | ✅ done 2026-10-11, with the user (`STEP_7o.md`): `check_cpv_tabulados.py` on the fertility rates and TGF of Censo 2010, the EIC 2015 and Censo 2020 (by state and by locality size; exact — INEGI's rule found: the topic omitted and the last child's year unspecified out of the denominator, 99 in) and the infant mortality by size and the mother's age (Censo 2020 exact on `EDAD_MORIR_TD`; 2010/2015 not a ratio of the sample's records — checked within 1.0/1.8 per 1,000, the user's choice); unit «rate», `Check.combine`, `_national`; no loader or derivation changed |
 
 The user asked (2026-10-08, afternoon) for all four post-6e candidates in one session, one
 unit each (6f–6i), with a local commit per unit; push, merge, version and upload wait for
@@ -110,6 +111,7 @@ day; 6u–7b were merged into `main` as 0.11.0 (2026-10-10, after a `wsl` full-s
 7l (HANDOFF candidate 3, CGPV 2000's household and education tabulados) followed the same night, unattended.
 7m (HANDOFF candidate 3, Censo 2010's person and migrant tabulados) followed the same night, unattended.
 7n (HANDOFF candidate 3, Censo 2020's person and migrant tabulados) followed the same night, unattended.
+7o (HANDOFF candidate 3's rates, the user's choice over finishing Censo 2020, Censo 2010's leftovers and the tabulados by locality size) followed in a new session on 2026-10-11, after the user kept every decision of the night.
 
 ### Session protocol
 
