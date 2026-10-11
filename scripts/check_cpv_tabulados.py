@@ -37,6 +37,12 @@ locality size) and the infant mortality by locality size and the mother's age (n
 :func:`_rate_checks`), per 1,000 (unit «rate»; a check's ``combine`` derives the TGF from its
 seven rates).
 
+7p added Censo 2020's disability tabulados (disability, limitation and mental condition with
+their causes, by sex, age and activity), its return migrants' duration and causes and the
+emigrants' causes, and Censo 2010's by-state tabulados 7m left: self-identification (14
+states one by one, the others together as :data:`_REST`), fields of study, sector and hours
+by division, parents and kinship lines by age.
+
 The tabulados are fetched once into ``data/dict/tabulados/{period}/`` (git-ignored); the
 mirror is read from ``data/parquet`` (the full mirror: every state of each edition).
 
@@ -102,7 +108,11 @@ SOURCES = {
               "04_05A_ESTATAL.xls", "04_06A_ESTATAL.xls", "06_02A_ESTATAL.xls",
               "09_04A_ESTATAL.xls", "10_02A_ESTATAL.xls",
               # 7o: fertility rates and infant mortality
-              "02_01A_ESTATAL.xls", "02_02A_ESTATAL.xls", "03_01A_ESTATAL.xls")),
+              "02_01A_ESTATAL.xls", "02_02A_ESTATAL.xls", "03_01A_ESTATAL.xls",
+              # 7p: self-identification, fields of study, divisions, parents, kinship lines
+              "05_01A_ESTATAL.xls", "05_02A_ESTATAL.xls", "07_02A_ESTATAL.xls",
+              "07_05A_ESTATAL.xls", "08_06A_ESTATAL.xls", "08_07A_ESTATAL.xls",
+              "12_02A_ESTATAL.xls", "12_04A_ESTATAL.xls")),
     "2015": ("intercensal/2015/tabulados",
              ("01_poblacion.xls", "02_fecundidad.xls", "03_mortalidad.xls",           # 7j
               "09_trabajo_no_remunerado.xls", "04_migracion.xls", "05_etnicidad.xls", "06_educacion.xls",
@@ -116,7 +126,8 @@ SOURCES = {
               "cpv2020_a_eum_09_servicios_de_salud.xlsx",
               "cpv2020_a_eum_10_movilidad_cotidiana.xlsx",
               "cpv2020_a_eum_11_situacion_conyugal.xlsx", "cpv2020_a_eum_16_vivienda.xlsx",
-              "cpv2020_a_eum_02_fecundidad.xlsx", "cpv2020_a_eum_03_mortalidad.xlsx")),  # 7o
+              "cpv2020_a_eum_02_fecundidad.xlsx", "cpv2020_a_eum_03_mortalidad.xlsx",   # 7o
+              "cpv2020_a_eum_06_discapacidad.xlsx")),                                  # 7p
 }
 
 # Raw SEXO codes → the tabulados' sexes (T = both).
@@ -133,6 +144,7 @@ _TOLERANCE = {"2000": {None: 0.04, 7: 0.6}, "2010": {None: 1.0}, "2015": {None: 
 
 _NATION = 0
 _UNSPECIFIED = 99          # 7d: the origin not specified (CGPV 2000's «NO ESPECIFICADO» rows)
+_REST = 98                 # 7p: the states a tabulado does not publish one by one, together
 
 
 def fetch(periods: list[str], tab_dir: Path, retries: int = 2) -> dict[str, Path]:
@@ -160,6 +172,16 @@ def fetch(periods: list[str], tab_dir: Path, retries: int = 2) -> dict[str, Path
 
 _C2K_STATE = re.compile(r"^(\d\d)\s+[^\W\d_]")  # «01 AGUASCALIENTES», not «12 - 14 AÑOS»
 _C2K_NATION = "ESTADOS UNIDOS MEXICANOS"
+# 7p: a Censo 2010 tabulado names the states without their code (07_02A), in code order;
+# 05_01A/02A publish a few states and «the rest of the states» together
+_STATE_NAMES_2010 = (
+    "Aguascalientes", "Baja California", "Baja California Sur", "Campeche",
+    "Coahuila de Zaragoza", "Colima", "Chiapas", "Chihuahua", "Distrito Federal", "Durango",
+    "Guanajuato", "Guerrero", "Hidalgo", "Jalisco", "México", "Michoacán de Ocampo", "Morelos",
+    "Nayarit", "Nuevo León", "Oaxaca", "Puebla", "Querétaro", "Quintana Roo", "San Luis Potosí",
+    "Sinaloa", "Sonora", "Tabasco", "Tamaulipas", "Tlaxcala", "Veracruz de Ignacio de la Llave",
+    "Yucatán", "Zacatecas")
+_REST_NAME = "Resto de las entidades"
 
 
 def _num(text: str | None) -> float:
@@ -168,14 +190,19 @@ def _num(text: str | None) -> float:
 
 
 def _state_of(name: str) -> int | None:
-    """0 for the nation, the state code for «NN Name», else ``None`` (an age-group row such
-    as «50 Y MÁS AÑOS» is not a state)."""
+    """0 for the nation, the state code for «NN Name» (7p: or Censo 2010's plain name),
+    :data:`_REST` for «Resto de las entidades», else ``None`` (an age-group row such as «50 Y
+    MÁS AÑOS» is not a state)."""
     name = name.strip()
     if name.upper() == _C2K_NATION:
         return _NATION
     m = _C2K_STATE.match(name)
     if m and 1 <= int(m.group(1)) <= 32 and "AÑOS" not in name.upper():
         return int(m.group(1))
+    if name in _STATE_NAMES_2010:                                           # 7p
+        return _STATE_NAMES_2010.index(name) + 1
+    if name == _REST_NAME:
+        return _REST
     return None
 
 
@@ -408,7 +435,8 @@ class ByOrigin:
     """A cell part whose records count in their state of origin, not the frame's (7d: the
     emigrants by their birth state or their state in 1995, the international migrants by
     the state they left). ``origin`` holds state codes; anything outside 1–32 is the
-    unspecified origin, :data:`_UNSPECIFIED`."""
+    unspecified origin, :data:`_UNSPECIFIED`, but :data:`_REST` (7p: the states a tabulado
+    publishes together)."""
     mask: pd.Series
     origin: pd.Series
 
@@ -2091,24 +2119,29 @@ def _by_place_2020(wb):
     return {k: [x for place in _BIRTHPLACES_2020 for x in v[place]] for k, v in out.items()}
 
 
-def _self_identification_2020(p):
-    """05-02: the 3+ by indigenous language (all, speakers, not, not specified) and self-
-    identification (``PERTE_INDIGENA`` 1, 3, 9)."""
-    three = _age(p).between(3, 130)
-    speaks, ident = _code(p, "HLENGUA"), _code(p, "PERTE_INDIGENA")
-    out = []
-    for _, code in _SPEAKERS_2020:
-        g = three if code is None else three & speaks.eq(code)
-        out += _counts_of(g, *(g & ident.eq(c) for c in (1, 3, 9)))
-    return out
+def _self_identification(item: str):
+    """05-02 (2020, ``PERTE_INDIGENA``), 05_01A (2010, ``PERETN``; 7p): the 3+ by
+    indigenous language (all, speakers, not, not specified) and self-identification
+    (``item`` 1, 3, 9)."""
+    def ours(p):
+        three = _age(p).between(3, 130)
+        speaks, ident = _code(p, "HLENGUA"), _code(p, item)
+        out = []
+        for _, code in _SPEAKERS_2020:
+            g = three if code is None else three & speaks.eq(code)
+            out += _counts_of(g, *(g & ident.eq(c) for c in (1, 3, 9)))
+        return out
+    return ours
 
 
-def _understands_2020(p):
-    """05-04: the 3+ who speak no indigenous language (``HLENGUA`` 3) by whether they
-    understand one (``ELENGUA`` 5, 7, 9)."""
-    g = _age(p).between(3, 130) & _code(p, "HLENGUA").eq(3)
-    under = _code(p, "ELENGUA")
-    return _counts_of(g, *(g & under.eq(c) for c in (5, 7, 9)))
+def _understands(item: str, codes: tuple[int, int, int]):
+    """05-04 (2020: ``ELENGUA`` 5, 7, 9), 05_02A (2010: ``CLENGUA`` 1, 3, 9; 7p): the 3+
+    who speak no indigenous language (``HLENGUA`` 3) by whether they understand one."""
+    def ours(p):
+        g = _age(p).between(3, 130) & _code(p, "HLENGUA").eq(3)
+        under = _code(p, item)
+        return _counts_of(g, *(g & under.eq(c) for c in codes))
+    return ours
 
 
 def _destination_2020(m) -> list[pd.Series]:
@@ -2150,11 +2183,11 @@ def _person_checks_2020() -> tuple[Check, ...]:
                     for c in ("population 3+", "indigenous", "not", "NE")),
               _by_dims("Valor", "02", tuple(n for n, _ in _SPEAKERS_2020),
                        lambda v: _counts(v[0], v[1:]), sexed=True),
-              _self_identification_2020, unit="persons", sheet="02"),
+              _self_identification("PERTE_INDIGENA"), unit="persons", sheet="02"),
         Check("2020", "05-04", "The 3+ speaking no indigenous language by understanding one "
               "(`ELENGUA`)", eth, "personas", ("population", "understand", "do not", "NE"),
-              _wide("Valor", lambda v: _counts(v[0], v[1:]), sheet="04"), _understands_2020,
-              unit="persons", sheet="04"),
+              _wide("Valor", lambda v: _counts(v[0], v[1:]), sheet="04"),
+              _understands("ELENGUA", (5, 7, 9)), unit="persons", sheet="04"),
         Check("2020", "04-04", "International migrants by movement, state left (`MPAIRES`, "
               "`MCONRESACT`)", mig, "migrantes",
               ("migrants", "emigrants", "return migrants", "back in the same dwelling",
@@ -2178,6 +2211,372 @@ def _person_checks_2020() -> tuple[Check, ...]:
               _migrants_by_origin(_destination_2020), unit="persons", sheet="10",
               by_origin=True,
               note="The United States = `MPAIDES_C` 221; not specified 999 or blank (7n)."),
+    )
+
+
+# Censo 2020's disability and migration causes; Censo 2010's self-identification, fields of
+# study, divisions, parents and kinship lines (7p) ----------------------------------------
+
+_DIS_ITEMS_2020 = ("DIS_VER", "DIS_OIR", "DIS_CAMINAR", "DIS_RECORDAR", "DIS_BANARSE",
+                   "DIS_HABLAR")
+_DIS_CAUSES = (("birth", (1,)), ("illness", (2,)), ("accident", (3,)), ("old age", (4,)),
+               ("other", (5,)), ("NE", (9,)))
+# a mental condition's causes: the accident and the old age among the other causes
+_MENTAL_CAUSES = (("birth", (1,)), ("illness", (2,)), ("other", (3, 4, 5)), ("NE", (9,)))
+_DIS_AGES_2020 = ("Total", "00-14 años", "15-29 años", "30-59 años", "60-84 años",
+                  "85 años y más", "No especificado")
+_ACTIVITIES_2020 = ("Total", "Ver aun usando lentes", "Oír aun usando aparato auditivo",
+                    "Caminar, subir o bajar", "Recordar o concentrarse",
+                    "Bañarse, vestirse o comer", "Hablar o comunicarse")
+_DIS_KINDS_2020 = ("Total", "Con discapacidad", "Con limitación")
+# 06-02/04: the population; of it, who have a disability, limitation or mental condition;
+# of them, the disabled (and of these each cause), the limited (each cause), those with a
+# mental condition (each cause); of the population, who have none and not specified
+_DIS_CELLS = ("population", "any", "disability",
+              *(f"disability: {c}" for c, _ in _DIS_CAUSES), "limitation",
+              *(f"limitation: {c}" for c, _ in _DIS_CAUSES), "mental condition",
+              *(f"mental: {c}" for c, _ in _MENTAL_CAUSES), "none", "NE")
+_DIS_BASES = [0, 1, *[2] * 6, 1, *[9] * 6, 1, *[16] * 4, 0, 0]
+
+
+def _difficulties_2020(p) -> tuple[dict[str, pd.Series], dict[str, pd.Series]]:
+    """Per activity, INEGI's disability (much difficulty, cannot, or the degree unknown: 3,
+    4, 8) and limitation (some difficulty, 2, counted only for the persons without a
+    disability in another activity: ``LIMITACION``) — 6c's and 6y's rules."""
+    limited = _cat(p, "LIMITACION").eq("Sí")
+    degree = {i: _code(p, i) for i in _DIS_ITEMS_2020}
+    return ({i: d.isin([3, 4, 8]) for i, d in degree.items()},
+            {i: limited & d.eq(2) for i, d in degree.items()})
+
+
+def _any_cause(p, flags: dict[str, pd.Series], codes: tuple) -> pd.Series:
+    """The persons with a difficulty in ``flags`` whose cause (``CAU_*``) is one of
+    ``codes`` (a person with several difficulties counts once per cause they name)."""
+    return pd.concat([m & _code(p, i.replace("DIS_", "CAU_")).isin(codes)
+                      for i, m in flags.items()], axis=1).any(axis=1)
+
+
+def _disability_cells_2020(p) -> list[pd.Series]:
+    """06-02/04's cells over every person (:data:`_DIS_CELLS`): ``SIN_DISC_LIM``'s «No»
+    has one (6g), the disabled ``DISCAPACIDAD``, the limited ``LIMITACION``, a mental
+    condition ``DIS_MENTAL`` 5 (its cause ``CAU_MENTAL``)."""
+    dis, lim = _difficulties_2020(p)
+    disabled, limited = _cat(p, "DISCAPACIDAD").eq("Sí"), _cat(p, "LIMITACION").eq("Sí")
+    mental, mental_cause = _code(p, "DIS_MENTAL").eq(5), _code(p, "CAU_MENTAL")
+    none = _cat(p, "SIN_DISC_LIM")
+    return [pd.Series(True, index=p.index), none.eq("No"), disabled,
+            *(_any_cause(p, dis, c) for _, c in _DIS_CAUSES), limited,
+            *(_any_cause(p, lim, c) for _, c in _DIS_CAUSES), mental,
+            *(mental & mental_cause.isin(c) for _, c in _MENTAL_CAUSES), none.eq("Sí"),
+            none.eq("No especificado")]
+
+
+def _disability_by_age_2020(p):
+    """06-04: :func:`_disability_cells_2020` in each age group."""
+    cells = _disability_cells_2020(p)
+    return [(g & m, None) for label in _DIS_AGES_2020 for g in [_age_group(p, label)]
+            for m in cells]
+
+
+def _disability_by_activity_2020(p):
+    """06-06: for every activity and each of them, the disabled or limited in it (either,
+    disabled, limited), then each cause of their difficulty in it."""
+    dis, lim = _difficulties_2020(p)
+    either = {i: dis[i] | lim[i] for i in _DIS_ITEMS_2020}
+    out = []
+    for a in range(len(_ACTIVITIES_2020)):
+        items = _DIS_ITEMS_2020 if a == 0 else _DIS_ITEMS_2020[a - 1:a]
+        for flags in (either, dis, lim):
+            flags = {i: flags[i] for i in items}
+            out += _counts_of(pd.concat(flags.values(), axis=1).any(axis=1),
+                              *(_any_cause(p, flags, c) for _, c in _DIS_CAUSES))
+    return out
+
+
+_DURATIONS_2020 = (("under a year", 0, 11), ("6 months or less", 0, 6),
+                   ("7 to 11 months", 7, 11), ("1 to under 3 years", 12, 35),
+                   ("3 to 5 years", 36, 1000))
+
+
+def _duration_2020(m) -> pd.Series:
+    """The return migrants' months abroad: the return's year and month less the
+    emigration's; missing where a date is not specified (9999, 99)."""
+    ea, em, ra, rm = (_code(m, c) for c in ("MFECEMIA", "MFECEMIM", "MFECRETA", "MFECRETM"))
+    known = ea.lt(9999) & em.lt(99) & ra.lt(9999) & rm.lt(99)
+    return ((ra * 12 + rm) - (ea * 12 + em)).where(known)
+
+
+def _return_duration_2020(m):
+    """04-12: the return migrants (``MPAIRES`` 3), in the state they live in (the frame's),
+    by the duration of their migration (:func:`_duration_2020`); not specified."""
+    back, months = _code(m, "MPAIRES").eq(3), _duration_2020(m)
+    return _counts_of(back, *(back & months.between(lo, hi) for _, lo, hi in _DURATIONS_2020),
+                      back & months.isna())
+
+
+def _return_months_2020(m):
+    """04-12: the return migrants' average months abroad (a date not specified: left out)."""
+    back, months = _code(m, "MPAIRES").eq(3), _duration_2020(m)
+    known = back & months.notna()
+    return [(Weighted(known, months.fillna(0)), known)]
+
+
+# The causes: the questionnaire's precoded answers (work: looking for a job, a job change or
+# offer; family: joining the family, marriage; study; deportation — return only) by their
+# four-digit code (`MCAUSAEMIG_V`, `MCAUSARETO_V`); every other code is «otra causa», 9999
+# not specified (INEGI's footnotes)
+_CAUSES_2020 = (("work", ("0101", "0102")), ("family", ("0301", "0401")), ("study", ("0501",)))
+_DEPORTED_2020 = ("deported", ("0801",))
+
+
+def _migration_causes_2020(item: str, universe: Callable[[pd.DataFrame], pd.Series],
+                           groups: tuple):
+    """04-14/15: the migrants of ``universe`` by the cause ``item`` gives (:data:`_CAUSES_2020`
+    and ``groups``), another cause, not specified."""
+    def cells(m) -> list[pd.Series]:
+        g, code = universe(m), m[item].astype(str)
+        named = [g & code.isin(codes) for _, codes in groups]
+        unspecified = g & code.eq("9999")
+        other = g & m[item].notna() & ~pd.concat([*named, unspecified], axis=1).any(axis=1)
+        return [g, *named, other, unspecified]
+    return cells
+
+
+_SELECTED_2010 = (4, 7, 8, 9, 12, 13, 15, 16, 20, 21, 23, 24, 30, 31)
+
+
+def _selected_states_2010(cells: Callable[[pd.DataFrame], list]):
+    """05_01A/02A publish 14 states one by one and «the rest of the states» together: the
+    records of the others count in :data:`_REST` (:class:`ByOrigin`; all 32 states needed)."""
+    def ours(p):
+        state = _code(p, "ENT")
+        origin = state.where(state.isin(_SELECTED_2010), _REST)
+        return [(ByOrigin(m, origin), None) for m, _ in cells(p)]
+    return ours
+
+
+_FIELDS_2010 = ("education", "arts and humanities", "social sciences, administration, law",
+                "natural and exact sciences, computing", "engineering, manufacturing, "
+                "construction", "agronomy and veterinary", "health", "services", "NE")
+
+
+def _fields_2010(universe: Callable[[pd.DataFrame], pd.Series]):
+    """07_02A/05A: the persons of ``universe`` by the field of their career, the first digit
+    of ``NOMCAR_C`` (`TC_CARRERA_2010`: 1–8, 9 not specified). 800 («carreras técnicas
+    básicas», técnica after primaria's code) names no field: not specified (one maestría in
+    Veracruz, as INEGI's)."""
+    def ours(p):
+        code = p["NOMCAR_C"].astype(str)
+        g, field = universe(p), code.str[:1].where(code.ne("800"), "9")
+        return _counts_of(g, *(g & field.eq(str(d)) for d in range(1, 10)))
+    return ours
+
+
+def _superior_2010(p) -> pd.Series:
+    """07_02A: the 18+ with a grade of técnica after preparatoria, normal de licenciatura,
+    licenciatura, maestría or doctorado (``NIVACAD`` 08–12)."""
+    return _age(p).between(18, 130) & _code(p, "NIVACAD").between(8, 12)
+
+
+def _technical_2010(p) -> pd.Series:
+    """07_05A: the 15+ with a grade of técnica after secundaria (``NIVACAD`` 07)."""
+    return _age(p).between(15, 130) & _code(p, "NIVACAD").eq(7)
+
+
+# 08_06A/07A: the divisions as Censo 2010 spells them (_DIVISIONS: 2015's word order)
+_DIVISIONS_2010 = ("Total", "Funcionarios, directores y jefes", "Profesionistas y técnicos",
+                   "Trabajadores auxiliares en actividades administrativas",
+                   "Comerciantes, empleados en ventas y agentes de ventas",
+                   "Trabajadores en servicios personales y vigilancia",
+                   "Trabajadores en actividades agrícolas, ganaderas, forestales, caza y pesca",
+                   "Trabajadores artesanales",
+                   "Operadores de maquinaria industrial, ensambladores, choferes y conductores "
+                   "de transporte",
+                   "Trabajadores en actividades elementales y de apoyo", "No especificado")
+_HOURS_2010 = (("up to 16", 1, 16), ("17-24", 17, 24), ("25-32", 25, 32), ("33-40", 33, 40),
+               ("41-48", 41, 48), ("49-56", 49, 56), ("more than 56", 57, 168),
+               ("did not work", 0, 0), ("NE", 999, 999))
+
+
+def _by_division_2010(cells: Callable[[pd.DataFrame, pd.Series], list[pd.Series]]):
+    """08_06A/07A: the employed, then those of each division (as 08_02A), each with
+    ``cells(frame, group)``."""
+    def ours(p):
+        e, occ = _employed(p), _code_of(p, "OCUPACION_C_COARSE")
+        division = (occ // 10).where(occ.ne(99), 10)
+        groups = [e, *(e & division.eq(i) for i in range(1, 11))]
+        return [(m, None) for g in groups for m in [g, *cells(p, g)]]
+    return ours
+
+
+def _sectors_of(p, g) -> list[pd.Series]:
+    code = _code_of(p, "ACTIVIDADES_C_COARSE")
+    return [g & code.isin(s) for _, s in _SECTOR_GROUPS]
+
+
+def _hours_of(p, g) -> list[pd.Series]:
+    """«Hasta 16 horas» starts at 1: who did not work last week (0) apart (``HORTRA``)."""
+    hours = _code(p, "HORTRA")
+    return [g & hours.between(lo, hi) for _, lo, hi in _HOURS_2010]
+
+
+_PARENT_AGES_2010 = ("Total", "00-04 años", "05-14 años", "15-29 años", "30-44 años",
+                     "45-59 años", "60 años y más", "No especificado")
+_KIN_AGES_2010 = ("Total", "00-14 años", "15-29 años", "30-59 años", "60 años y más",
+                  "No especificado")
+_KINSHIP = ("head", "spouse or partner", "ascendants", "descendants", "collaterals",
+            "not related", "NE")
+# 12_04A's lines for «otro parentesco» (`PARENT` 08), by its detail (`OTROPARE_C`), found on
+# the tabulado in every state: ascendants — step-parents, grand-, great- and
+# great-great-grandparents, uncles and aunts, godparents; descendants — great- and
+# great-great-grandchildren, nephews and nieces, godchildren; «Familiar» (623) not
+# specified; every other code (siblings, cousins, in-laws, co-parents…) or none collateral
+_ASCENDANTS_2010 = (602, 606, 607, 608, 612, 620)
+_DESCENDANTS_2010 = (610, 611, 613, 621)
+
+
+def _kinship_2010(p) -> list[pd.Series]:
+    """12_04A: head (``PARENT`` 01), spouse (02), ascendants (06 parents, 07 parents-in-law
+    and :data:`_ASCENDANTS_2010`), descendants (03 children, 04 grandchildren, 05 children-in-
+    law and :data:`_DESCENDANTS_2010`), collaterals (the rest of 08), not related (09), not
+    specified (99 and «Familiar»)."""
+    rel, other = _code(p, "PARENT"), _code(p, "OTROPARE_C")
+    unspecified = rel.eq(99) | (rel.eq(8) & other.eq(623))
+    up = rel.isin([6, 7]) | (rel.eq(8) & other.isin(_ASCENDANTS_2010))
+    down = rel.isin([3, 4, 5]) | (rel.eq(8) & other.isin(_DESCENDANTS_2010))
+    return [rel.eq(1), rel.eq(2), up, down, rel.eq(8) & ~up & ~down & ~unspecified, rel.eq(9),
+            unspecified]
+
+
+def _by_age_2010(groups: tuple[str, ...], cells: Callable[[pd.DataFrame], list[pd.Series]]):
+    """12_02A/04A: every age group (``EDAD``), its population and ``cells``."""
+    def ours(p):
+        masks = [pd.Series(True, index=p.index), *cells(p)]
+        return [(g & m, None) for label in groups for g in [_age_group(p, label)]
+                for m in masks]
+    return ours
+
+
+def _person_checks_2010_p() -> tuple[Check, ...]:
+    """Censo 2010's by-state tabulados 7m left: self-identification (selected states),
+    fields of study, sector and hours by division, parents and kinship lines by age (7p)."""
+    total = lambda v: _counts(v[0], v[1:])  # noqa: E731
+    speakers = tuple(n for n, _ in _SPEAKERS_2020)
+    return (
+        Check("2010", "05_01A", "Ethnic self-identification of the 3+ (`PERETN`) by language, "
+              "selected states", "05_01A_ESTATAL.xls", "personas",
+              tuple(f"{n}: {c}" for n in speakers
+                    for c in ("population 3+", "indigenous", "not", "NE")),
+              _by_dims("Parámetro", None, speakers, total, sexed=True),
+              _selected_states_2010(_self_identification("PERETN")), unit="persons",
+              by_origin=True,
+              note="Published for 14 states; state 98 = «the rest of the states» together "
+                   "(7p)."),
+        Check("2010", "05_02A", "The 3+ speaking no indigenous language by understanding one "
+              "(`CLENGUA`), selected states", "05_02A_ESTATAL.xls", "personas",
+              ("population", "understand", "do not", "NE"), _wide("Parámetro", total),
+              _selected_states_2010(_understands("CLENGUA", (1, 3, 9))), unit="persons",
+              by_origin=True),
+        Check("2010", "07_02A", "The 18+ with higher education by field (`NOMCAR_C`)",
+              "07_02A_ESTATAL.xls", "personas", ("population", *_FIELDS_2010),
+              _wide("Parámetro", total), _fields_2010(_superior_2010), unit="persons",
+              note="Higher education = `NIVACAD` 08–12 (técnica after preparatoria, normal de "
+                   "licenciatura, licenciatura, posgrado); the field = `NOMCAR_C`'s first "
+                   "digit, 800 («carreras técnicas básicas»: one maestría) not specified. "
+                   "07_03A (the same counts by field and sex) is not compared (7p)."),
+        Check("2010", "07_05A", "The 15+ with técnica after secundaria by field (`NOMCAR_C`)",
+              "07_05A_ESTATAL.xls", "personas", ("population", *_FIELDS_2010),
+              _wide("Parámetro", total, dims=lambda k: (k[0], "T")),
+              _fields_2010(_technical_2010), unit="persons"),
+        Check("2010", "08_06A", "Employed by division and sector (`OCUPACION_C_COARSE`, "
+              "`ACTIVIDADES_C_COARSE`)", "08_06A_ESTATAL.xls", "personas",
+              tuple(f"{d}: {c}" for d in _DIVISIONS_2010
+                    for c in ("employed", *(n for n, _ in _SECTOR_GROUPS))),
+              _by_dims("Parámetro", None, _DIVISIONS_2010, total, sexed=True),
+              _by_division_2010(_sectors_of), unit="persons"),
+        Check("2010", "08_07A", "Employed by division and hours worked (`HORTRA`)",
+              "08_07A_ESTATAL.xls", "personas",
+              tuple(f"{d}: {c}" for d in _DIVISIONS_2010
+                    for c in ("employed", *(n for n, *_ in _HOURS_2010))),
+              _by_dims("Parámetro", None, _DIVISIONS_2010, total, sexed=True),
+              _by_division_2010(_hours_of), unit="persons",
+              note="«Hasta 16 horas» from 1: 0 hours is «no trabajó la semana pasada» (7p)."),
+        Check("2010", "12_02A", "Parents in the dwelling by age (`MADRE_EN_VIVIENDA`, "
+              "`PADRE_EN_VIVIENDA`)", "12_02A_ESTATAL.xls", "personas",
+              tuple(f"{a}: {c}" for a in _PARENT_AGES_2010
+                    for c in ("population", "both", "only the father", "only the mother",
+                              "neither", "not specified")),
+              _by_dims("Parámetro", None, _PARENT_AGES_2010, total, sexed=True),
+              _by_age_2010(_PARENT_AGES_2010, lambda p: [m for m, _ in _parents(p)[1:]]),
+              unit="persons"),
+        Check("2010", "12_04A", "Kinship lines by age (`PARENT`, `OTROPARE_C`)",
+              "12_04A_ESTATAL.xls", "personas",
+              tuple(f"{a}: {c}" for a in _KIN_AGES_2010 for c in ("population", *_KINSHIP)),
+              _by_dims("Parámetro", None, _KIN_AGES_2010, total, sexed=True),
+              _by_age_2010(_KIN_AGES_2010, _kinship_2010), unit="persons",
+              note="INEGI's lines for «otro parentesco» (08), found on the tabulado in every "
+                   "state: uncles and godparents ascendants, nephews and godchildren "
+                   "descendants, «Familiar» (623) not specified (7p)."),
+    )
+
+
+def _person_checks_2020_p() -> tuple[Check, ...]:
+    """Censo 2020's disability tabulados by state and the international migrants' duration
+    and causes (7p)."""
+    dis, mig = "cpv2020_a_eum_06_discapacidad.xlsx", "cpv2020_a_eum_04_migracion.xlsx"
+    state = lambda k: (k[0], "T")  # noqa: E731
+    pick = lambda v: _counts(v[0], v[1:], _DIS_BASES)  # noqa: E731
+    back = lambda m: _code(m, "MPAIRES").eq(3)  # noqa: E731
+    every = lambda m: pd.Series(True, index=m.index)  # noqa: E731
+    return (
+        Check("2020", "06-02", "Disability, limitation, mental condition and their causes "
+              "(`DIS_*`, `CAU_*`)", dis, "personas", _DIS_CELLS, _wide("Valor", pick, sheet="02"),
+              lambda p: _counts_of(*_disability_cells_2020(p)), unit="persons", sheet="02",
+              note="INEGI's flags (`DISCAPACIDAD`, `LIMITACION`, `SIN_DISC_LIM`: 6c, 6g); a "
+                   "cause counts every disabled (limited) person who names it for one of "
+                   "their difficulties; a mental condition's «other» holds the accident and "
+                   "old age (7p)."),
+        Check("2020", "06-04", "Disability, limitation, mental condition and their causes by "
+              "age", dis, "personas",
+              tuple(f"{a}: {c}" for a in _DIS_AGES_2020 for c in _DIS_CELLS),
+              _by_dims("Valor", "04", _DIS_AGES_2020, pick), _disability_by_age_2020,
+              unit="persons", sheet="04"),
+        Check("2020", "06-06", "Disability or limitation by activity and cause", dis,
+              "personas",
+              tuple(f"{a}: {k}: {c}" for a in _ACTIVITIES_2020 for k in _DIS_KINDS_2020
+                    for c in ("persons", *(n for n, _ in _DIS_CAUSES))),
+              _by_dims("Valor", "06", _DIS_KINDS_2020, lambda v: _counts(v[0], v[1:]),
+                       rows=_ACTIVITIES_2020),
+              _disability_by_activity_2020, unit="persons", sheet="06",
+              note="A limitation in an activity counts only without a disability in another "
+                   "(6y's rule)."),
+        Check("2020", "04-12", "Return migrants by the duration of their migration "
+              "(`MFECEMIA`/`M`, `MFECRETA`/`M`)", mig, "migrantes",
+              ("return migrants", *(n for n, *_ in _DURATIONS_2020), "NE"),
+              _wide("Valor", lambda v: _counts(v[0], v[1:7], [0, 1, 1, 0, 0, 0]), sheet="12",
+                    dims=state),
+              _return_duration_2020, unit="persons", sheet="12",
+              note="In the state they live in (the dwelling's); the months between the "
+                   "emigration and the return (7p)."),
+        Check("2020", "04-12m", "Return migrants' average months abroad", mig, "migrantes",
+              ("months",), _wide("Valor", lambda v: [v[7]], sheet="12", dims=state),
+              _return_months_2020, unit="average", sheet="12", tolerance={None: 1e-4}),
+        Check("2020", "04-14", "Return migrants by the cause of their return (`MCAUSARETO_V`)",
+              mig, "migrantes",
+              ("return migrants", *(n for n, _ in _CAUSES_2020), _DEPORTED_2020[0], "other",
+               "NE"),
+              _wide("Valor", lambda v: _counts(v[0], v[1:]), sheet="14", dims=state),
+              lambda m: _counts_of(*_migration_causes_2020(
+                  "MCAUSARETO_V", back, (*_CAUSES_2020, _DEPORTED_2020))(m)),
+              unit="persons", sheet="14"),
+        Check("2020", "04-15", "International migrants by the cause of their emigration "
+              "(`MCAUSAEMIG_V`), state left", mig, "migrantes",
+              ("migrants", *(n for n, _ in _CAUSES_2020), "other", "NE"),
+              _wide("Valor", lambda v: _counts(v[0], v[1:]), sheet="15", dims=state),
+              _migrants_by_origin(_migration_causes_2020("MCAUSAEMIG_V", every, _CAUSES_2020)),
+              unit="persons", sheet="15", by_origin=True,
+              note="Every migrant, counted in the state they left (`MLUGORI_C`); a deportation "
+                   "is «otra causa» here (7p)."),
     )
 
 
@@ -2520,15 +2919,18 @@ def _by_dims(estimator: str, sheet: str, groups: tuple[str, ...], pick: Callable
              sexed: bool = False, rows: tuple[str, ...] | None = None):
     """EIC 2015 tabulados with rows (state[, sex][, a category], an age group): per (state,
     sex), ``pick`` of each (category,) age group's values, the categories ``rows`` (their
-    names as published) outer, the age ``groups`` inner (7j)."""
+    names as published) outer, the age ``groups`` inner (7j). A row INEGI leaves out is
+    nobody: zeros (7p: Censo 2020's 06-04 has no unspecified age in five states)."""
     def read(wb):
-        out = {}
+        out, width = {}, 0
         for key, values in _estimates(_sheet(wb, sheet), estimator).items():
             state, rest = key[0], list(key[1:])
             sex = rest.pop(0) if sexed else "T"
             out.setdefault((state, sex), {})[tuple(rest)] = values
+            width = len(values)
         return {k: [x for r in (rows or (None,)) for g in groups
-                    for x in pick(v[(g,) if r is None else (r, g)])] for k, v in out.items()}
+                    for x in pick(v.get((g,) if r is None else (r, g), [0.0] * width))]
+                for k, v in out.items()}
     return read
 
 
@@ -3386,7 +3788,8 @@ CHECKS: tuple[Check, ...] = (
 ) + (_dwelling_checks_2010() + _dwelling_checks_2020() + _dwelling_checks_2000()  # 7h, 7i
      + _person_checks_2015() + _person_checks_2000() + _person_checks_2000_l()        # 7j–7l
      + _person_checks_2010() + _person_checks_2020()                                 # 7m, 7n
-     + _rate_checks())                                                               # 7o
+     + _rate_checks()                                                                # 7o
+     + _person_checks_2010_p() + _person_checks_2020_p())                            # 7p
 
 
 # --------------------------------------------------------------------------------------
@@ -3470,7 +3873,7 @@ def _part(part, w: pd.Series, keep: pd.Series, state: int) -> dict[int, float]:
         return {state: float(w[part & keep].sum())}
     mask = part.mask & keep
     origin = pd.to_numeric(part.origin, errors="coerce")
-    origin = origin.where(origin.between(1, 32), _UNSPECIFIED).astype(int)
+    origin = origin.where(origin.between(1, 32) | origin.eq(_REST), _UNSPECIFIED).astype(int)
     return {int(k): float(v) for k, v in w[mask].groupby(origin[mask]).sum().items()}
 
 
@@ -3641,7 +4044,8 @@ def report(rows: list[dict], states: list[int]) -> str:
                              f"{_fmt(r['delta'], u)} |")
             lines.append("")
     lines += ["State 00 is the nation (the sum of the states); state 99 the origin not "
-              "specified (the international migrants by the state they left); sex T = both, "
+              "specified (the international migrants by the state they left); state 98 the "
+              "states a tabulado publishes together («Resto de las entidades»); sex T = both, "
               "H = men, M = women.", ""]
     return "\n".join(lines)
 

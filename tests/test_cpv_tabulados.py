@@ -32,8 +32,12 @@ def test_state_of():
     assert ck._state_of("ESTADOS UNIDOS MEXICANOS") == ck._state_of("Estados Unidos Mexicanos") == 0
     assert ck._state_of("01 AGUASCALIENTES") == 1
     assert ck._state_of("32 Zacatecas") == 32
+    # 7p: Censo 2010's plain names (code order), «the rest of the states» together
+    assert ck._state_of("Aguascalientes") == 1 and ck._state_of("Zacatecas ") == 32
+    assert ck._state_of("México") == 15 and ck._state_of("Distrito Federal") == 9
+    assert ck._state_of("Resto de las entidades") == ck._REST == 98
     for not_a_state in ("12 - 14  AÑOS", "50 Y MÁS  AÑOS", "15 Y MÁS AÑOS", "HOMBRES", "",
-                        "40 Otra cosa"):
+                        "40 Otra cosa", "MÉXICO", "Estados Unidos de América"):
         assert ck._state_of(not_a_state) is None, not_a_state
 
 
@@ -160,6 +164,8 @@ def test_part_by_origin():
     assert ck._part(every, w, keep, 5) == {5: 7.0}
     origin = pd.Series(["001", "999", "001", "002"])
     assert ck._part(ck.ByOrigin(every, origin), w, keep, 5) == {1: 5.0, 99: 2.0}
+    rest = pd.Series([98, 0, 4, 4])                                  # 7p: kept apart
+    assert ck._part(ck.ByOrigin(every, rest), w, keep, 5) == {98: 1.0, 99: 2.0, 4: 4.0}
 
 
 def test_sums_migrants_by_sex():
@@ -299,6 +305,10 @@ def test_age_groups_and_dimensions():
     read = ck._by_dims("Valor", None, ("Total", "12-14 años"), lambda v: v[1:2], sexed=True,
                        rows=("Total", "Soltera"))
     assert read({"x": rows}) == {(1, "T"): [2.5, 0.1, 0.5, 0.0]}
+    # 7p: a row INEGI leaves out is nobody
+    read = ck._by_dims("Valor", None, ("Total", "No especificado"), lambda v: v, sexed=True,
+                       rows=("Total",))
+    assert read({"x": rows}) == {(1, "T"): [10.0, 2.5, 0.0, 0.0]}
 
 
 def test_c2k_rows_age_shares_and_disability():
@@ -426,6 +436,86 @@ def test_fertility_rates_and_infant_mortality():
                                              [False, False]]
 
 
+def test_disability_causes_2020():
+    """7p: a disability is 3, 4 or 8 in an activity; a limitation 2, only without a
+    disability elsewhere; a cause counts each person once, for any difficulty of the kind;
+    a mental condition's «other» holds the accident and the old age."""
+    items = {i: ["1"] * 4 for i in ck._DIS_ITEMS_2020}
+    causes = {i.replace("DIS_", "CAU_"): [None] * 4 for i in ck._DIS_ITEMS_2020}
+    p = pd.DataFrame({**items, **causes, "DIS_MENTAL": ["6", "5", "6", "9"],
+                      "CAU_MENTAL": [None, "4", None, None],
+                      "DISCAPACIDAD": ["Sí", "No", "No", "No especificado"],
+                      "LIMITACION": ["No", "Sí", "No", "No especificado"],
+                      "SIN_DISC_LIM": ["No", "No", "Sí", "No especificado"]})
+    # person 0: cannot see (birth) and some difficulty hearing (illness): disabled only;
+    # person 1: some difficulty walking and talking, both from an accident: limited once
+    p.loc[0, ["DIS_VER", "CAU_VER", "DIS_OIR", "CAU_OIR"]] = ["4", "1", "2", "2"]
+    p.loc[1, ["DIS_CAMINAR", "CAU_CAMINAR", "DIS_HABLAR", "CAU_HABLAR"]] = ["2", "3", "2", "3"]
+    cells = dict(zip(ck._DIS_CELLS, (m.tolist() for m in ck._disability_cells_2020(p))))
+    assert cells["any"] == [True, True, False, False] and cells["NE"] == [False] * 3 + [True]
+    assert cells["disability: birth"] == [True, False, False, False]
+    assert cells["disability: illness"] == [False] * 4             # its hearing: a limitation
+    assert cells["limitation: accident"] == [False, True, False, False]
+    assert cells["mental: other"] == [False, True, False, False]
+    by_activity = ck._disability_by_activity_2020(p)
+    assert len(by_activity) == 7 * 3 * 7
+    hearing = by_activity[2 * 21:3 * 21]                              # «Oír»: either, dis, lim
+    assert [m.tolist() for m, _ in hearing[::7]] == [[False] * 4] * 3
+
+
+def test_migration_duration_and_causes_2020():
+    """7p: the months between the emigration and the return (a date not specified: none);
+    the causes' precoded answers, 9999 not specified, every other code «other»."""
+    m = pd.DataFrame({"MPAIRES": ["3", "3", "3", "1"],
+                      "MFECEMIA": ["2018", "2016", "9999", "2019"],
+                      "MFECEMIM": ["11", "03", "01", "02"],
+                      "MFECRETA": ["2019", "2019", "2019", None],
+                      "MFECRETM": ["05", "02", "01", None],
+                      "MCAUSARETO_V": ["0102", "0801", "9999", None],
+                      "MCAUSAEMIG_V": ["0301", "0103", "0801", "0501"]})
+    assert ck._duration_2020(m).tolist()[:2] == [6.0, 35.0]
+    assert ck._duration_2020(m).isna().tolist() == [False, False, True, True]
+    cells = [x.tolist() for x, _ in ck._return_duration_2020(m)]
+    assert cells == [[True, True, True, False], [True, False, False, False],
+                     [True, False, False, False], [False] * 4, [False, True, False, False],
+                     [False] * 4, [False, False, True, False]]
+    back = lambda f: ck._code(f, "MPAIRES").eq(3)  # noqa: E731
+    ret = ck._migration_causes_2020("MCAUSARETO_V", back, (*ck._CAUSES_2020, ck._DEPORTED_2020))
+    assert [x.tolist() for x in ret(m)][1:] == [
+        [True, False, False, False], [False] * 4, [False] * 4, [False, True, False, False],
+        [False] * 4, [False, False, True, False]]
+    every = lambda f: pd.Series(True, index=f.index)  # noqa: E731
+    emi = ck._migration_causes_2020("MCAUSAEMIG_V", every, ck._CAUSES_2020)(m)
+    assert [x.tolist() for x in emi][1:] == [[False] * 4, [True, False, False, False],
+                                             [False, False, False, True],
+                                             [False, True, True, False], [False] * 4]
+
+
+def test_kinship_fields_and_selected_states_2010():
+    """7p: 12_04A's lines on ``PARENT`` and «otro parentesco»'s detail; 07_02A's fields =
+    ``NOMCAR_C``'s first digit; 05_01A's unpublished states count together in 98."""
+    p = pd.DataFrame({"PARENT": ["01", "08", "08", "08", "08", "08", "06", "04", "99", "09"],
+                      "OTROPARE_C": [None, "612", "613", "603", None, "623", None, "609",
+                                     "999", "501"]})
+    lines = [m.tolist() for m in ck._kinship_2010(p)]
+    assert [ck._KINSHIP[[ln[i] for ln in lines].index(True)] for i in range(10)] == [
+        "head", "ascendants", "descendants", "collaterals", "collaterals", "NE", "ascendants",
+        "descendants", "NE", "not related"]
+    assert all(sum(ln[i] for ln in lines) == 1 for i in range(10))
+    q = pd.DataFrame({"EDAD": ["030", "017", "040", "050", "040"],
+                      "NIVACAD": ["10", "10", "07", "08", "11"],
+                      "NOMCAR_C": ["311", "311", "511", "999", "800"]})
+    fields = [m.tolist() for m, _ in ck._fields_2010(ck._superior_2010)(q)]
+    assert fields[0] == [True, False, False, True, True]
+    assert fields[3] == [True, False, False, False, False]
+    assert fields[9] == [False, False, False, True, True]          # 800: no field
+    assert not fields[8][4]
+    r = pd.DataFrame({"ENT": ["20", "01", "15"], "EDAD": ["030"] * 3, "HLENGUA": ["1", "3", "1"],
+                      "PERETN": ["1", "3", "9"]})
+    parts = ck._selected_states_2010(ck._self_identification("PERETN"))(r)
+    assert parts[0][0].origin.tolist() == [20, 98, 15]
+
+
 def test_checks_are_consistent():
     """Every check names a fetched source, unique keys per edition, and a tolerance."""
     keys = [(c.period, c.key) for c in ck.CHECKS]
@@ -436,10 +526,12 @@ def test_checks_are_consistent():
         assert c.unit in ("points", "persons", "average", "rate")           # 7i, 7o
         assert c.period == "2000" or c.unit == "persons" or c.tolerance      # 7j: exact
         assert c.table != "migrantes" or c.period in ("2000", "2010", "2020")  # 7m, 7n
-        assert not c.by_origin or c.table == "migrantes" or c.period == "2000"  # 7d, 7m
+        assert not c.by_origin or c.table == "migrantes" or c.period == "2000" or c.key in (
+            "05_01A", "05_02A")                                # 7d, 7m; 7p: the rest, 98
         assert c.table != "hogares" or c.period == "2000"          # 6t: 2000's household rows
         assert c.unit != "persons" or c.period != "2000"          # 2000: shares, averages
-        assert c.unit in ("persons", "rate") or c.period in ("2000", "2015")  # 7j, 7o
+        assert c.unit in ("persons", "rate") or c.period in ("2000", "2015") or (
+            c.key == "04-12m")                                  # 7j, 7o; 7p: months abroad
         assert c.source.endswith(".xlsx" if c.period == "2020" else ".xls")        # 6p
         assert None in ck._TOLERANCE[c.period]
     assert {c.period for c in ck.CHECKS} == set(ck.SOURCES)
@@ -455,7 +547,7 @@ def test_state_01_within_tolerance(monkeypatch):
         f"{p}/{n}": tab_dir / p / n for p in periods for n in ck.SOURCES[p][1]})
     rows = ck.run(sorted(ck.SOURCES), [1], _TABS, _MIRROR, log=lambda *a: None)
     assert len(rows) == (317 + 159 + 120 + 45 + 7 + 13 + 149 + 132 + 183 + 463 + 562  # 6p: 2020;
-                         + 317 + 894 + 144 + 247 + 329 + 291 + 3 * 8)
+                         + 317 + 894 + 144 + 247 + 329 + 291 + 3 * 8 + 889 + 392)
     #                                                 6q: 2015 affiliation, commute, marital status,
     #                                                 education (2010's are national); 6r: 2000
     #                                                 hours, education of the 12+/18+; 6t: 2000/2015
@@ -485,11 +577,14 @@ def test_state_01_within_tolerance(monkeypatch):
     #                                                 all 32 states); 7n: Censo 2020's;
     #                                                 7o: the fertility rates by state (8 cells,
     #                                                 sex T; by size and the infant mortality are
-    #                                                 national)
+    #                                                 national); 7p: Censo 2010's fields, divisions,
+    #                                                 parents, kinship (05_01A/02A need all 32),
+    #                                                 Censo 2020's disability, return migrants
     by_origin = {c.key for c in ck.CHECKS if c.by_origin}               # 7d: all 32 only
     assert by_origin == {"MI02", "MI05", "MI10", "MI11", "MI12",
                          "04_04A", "04_05A", "04_06A",                     # 7m: 2010's migrants
-                         "04-04", "04-06", "04-08", "04-10"}               # 7n: 2020's
+                         "04-04", "04-06", "04-08", "04-10",               # 7n: 2020's
+                         "05_01A", "05_02A", "04-15"}                      # 7p
     assert not by_origin & {r["check"] for r in rows}
     income = [r for r in rows if r["check"] in ("EM08", "08_10A", "08-11", "08-18")]
     assert len(income) == 8 * 3 + 3 * 9 * 3

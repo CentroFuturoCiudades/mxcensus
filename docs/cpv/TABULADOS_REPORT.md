@@ -168,6 +168,14 @@ Tolerance: 1.0 persons.
 | 02_02A Fertility rates by five-year age and TGF (the last child born alive) | `02_02A_ESTATAL.xls` | 264 | 0.0000 | 0.0000 | 0.0000 (02 T «25-29») | 0 |
 | 02_01A Fertility rates and TGF by locality size | `02_01A_ESTATAL.xls` | 40 | 0.0000 | 0.0000 | 0.0000 (00 T «15 000-99 999 habitantes: 20-24») | 0 |
 | 03_01A Infant mortality by locality size and the mother's age | `03_01A_ESTATAL.xls` | 20 | 0.2428 | 0.5826 | 0.9917 (00 T «15 000-99 999 habitantes: 12-19 años») | 0 |
+| 05_01A Ethnic self-identification of the 3+ (`PERETN`) by language, selected states | `05_01A_ESTATAL.xls` | 768 | 0.00 | 0.00 | 0.00 (00 T «Total: not») | 0 |
+| 05_02A The 3+ speaking no indigenous language by understanding one (`CLENGUA`), selected states | `05_02A_ESTATAL.xls` | 192 | 0.00 | 0.00 | 0.00 (00 T «do not») | 0 |
+| 07_02A The 18+ with higher education by field (`NOMCAR_C`) | `07_02A_ESTATAL.xls` | 990 | 0.00 | 0.00 | 0.04 (00 T «education») | 0 |
+| 07_05A The 15+ with técnica after secundaria by field (`NOMCAR_C`) | `07_05A_ESTATAL.xls` | 330 | 0.00 | 0.00 | 0.00 (00 T «engineering, manufacturing, construction») | 0 |
+| 08_06A Employed by division and sector (`OCUPACION_C_COARSE`, `ACTIVIDADES_C_COARSE`) | `08_06A_ESTATAL.xls` | 7623 | 0.00 | 0.00 | 0.00 (00 T «Total: Comercio») | 0 |
+| 08_07A Employed by division and hours worked (`HORTRA`) | `08_07A_ESTATAL.xls` | 10890 | 0.00 | 0.00 | 0.00 (00 T «Total: 41-48») | 0 |
+| 12_02A Parents in the dwelling by age (`MADRE_EN_VIVIENDA`, `PADRE_EN_VIVIENDA`) | `12_02A_ESTATAL.xls` | 4752 | 0.00 | 0.00 | 0.00 (00 T «Total: both») | 0 |
+| 12_04A Kinship lines by age (`PARENT`, `OTROPARE_C`) | `12_04A_ESTATAL.xls` | 4752 | 0.00 | 0.00 | 0.00 (00 T «Total: spouse or partner») | 0 |
 
 - 04_02A: The entity not specified (`RES05EDO_C` 999) is «No especificado», as INEGI's (the legacy `ENT_PAIS_RES_CAT`: `OtraEnt`); 7b.
 - 08_15A: `LTRABPAI_C` holds the entity and country catalogs; its 999 (the entity's «no especificada») and 900 (topic omitted) are «No especificado» (7b).
@@ -185,6 +193,10 @@ Tolerance: 1.0 persons.
 - 02_02A: Women whose last child born alive was born the year before, per 1,000 women of the age (at the census) whose fertility is known (not 98, topic omitted; the last child's year not 9999); TGF = 5 × Σ rates / 1,000 (7o).
 - 02_01A: National (7o).
 - 03_01A: Not reproducible from the sample (STEP_7o.md): INEGI's cells are no ratio of its records' weights (a «Total» is not the sum of its age groups). Ours: every death not aged in years (unknown ages included) of the last children born the year before, per 1,000 of them; tolerance = the largest gap (7o).
+- 05_01A: Published for 14 states; state 98 = «the rest of the states» together (7p).
+- 07_02A: Higher education = `NIVACAD` 08–12 (técnica after preparatoria, normal de licenciatura, licenciatura, posgrado); the field = `NOMCAR_C`'s first digit, 800 («carreras técnicas básicas»: one maestría) not specified. 07_03A (the same counts by field and sex) is not compared (7p).
+- 08_07A: «Hasta 16 horas» from 1: 0 hours is «no trabajó la semana pasada» (7p).
+- 12_04A: INEGI's lines for «otro parentesco» (08), found on the tabulado in every state: uncles and godparents ascendants, nephews and godchildren descendants, «Familiar» (623) not specified (7p).
 
 ## 2015
 
@@ -337,6 +349,13 @@ Tolerance: 1.0 persons.
 | 02-02 Fertility rates by five-year age and TGF (the last child born alive) | `cpv2020_a_eum_02_fecundidad.xlsx` 02 | 264 | 0.0000 | 0.0000 | 0.0000 (24 T «20-24») | 0 |
 | 02-01 Fertility rates and TGF by locality size | `cpv2020_a_eum_02_fecundidad.xlsx` 01 | 48 | 0.0000 | 0.0000 | 0.0000 (00 T «50 000-99 999 habitantes: 30-34») | 0 |
 | 03-01 Infant mortality by locality size and the mother's age | `cpv2020_a_eum_03_mortalidad.xlsx` 01 | 24 | 0.0000 | 0.0000 | 0.0000 (00 T «100 000 y más habitantes: 35-49 años») | 0 |
+| 06-02 Disability, limitation, mental condition and their causes (`DIS_*`, `CAU_*`) | `cpv2020_a_eum_06_discapacidad.xlsx` 02 | 2277 | 0.00 | 0.01 | 0.47 (00 T «NE») | 0 |
+| 06-04 Disability, limitation, mental condition and their causes by age | `cpv2020_a_eum_06_discapacidad.xlsx` 04 | 5313 | 0.00 | 0.00 | 0.47 (00 T «Total: NE») | 0 |
+| 06-06 Disability or limitation by activity and cause | `cpv2020_a_eum_06_discapacidad.xlsx` 06 | 4851 | 0.00 | 0.00 | 0.08 (00 T «Total: Total: illness») | 0 |
+| 04-12 Return migrants by the duration of their migration (`MFECEMIA`/`M`, `MFECRETA`/`M`) | `cpv2020_a_eum_04_migracion.xlsx` 12 | 231 | 0.00 | 0.00 | 0.00 (00 T «1 to under 3 years») | 0 |
+| 04-12m Return migrants' average months abroad | `cpv2020_a_eum_04_migracion.xlsx` 12 | 33 | 0.000 | 0.000 | 0.000 (28 T «months») | 0 |
+| 04-14 Return migrants by the cause of their return (`MCAUSARETO_V`) | `cpv2020_a_eum_04_migracion.xlsx` 14 | 231 | 0.00 | 0.00 | 0.00 (00 T «deported») | 0 |
+| 04-15 International migrants by the cause of their emigration (`MCAUSAEMIG_V`), state left | `cpv2020_a_eum_04_migracion.xlsx` 15 | 198 | 0.00 | 0.00 | 0.00 (00 T «other») | 0 |
 
 - 07-04: Técnica after preparatoria, licenciatura, normal superior, especialidad, maestría, doctorado (6w).
 - 08-18: The Zona Libre de la Frontera Norte (5,566.80; San Quintín included) and the rest of the country (3,696.60), DOF 23/12/2019; 7c.
@@ -352,5 +371,9 @@ Tolerance: 1.0 persons.
 - 02-02: Women whose last child born alive was born the year before, per 1,000 women of the age (at the census) whose fertility is known (not 98, topic omitted; the last child's year not 9999); TGF = 5 × Σ rates / 1,000 (7o).
 - 02-01: National (7o).
 - 03-01: Deaths aged 0–364 days (`EDAD_MORIR_TD`) of the last children born in 2019, per 1,000 of them; the mother's age at the census, «Total» = 12–49 (7o).
+- 06-02: INEGI's flags (`DISCAPACIDAD`, `LIMITACION`, `SIN_DISC_LIM`: 6c, 6g); a cause counts every disabled (limited) person who names it for one of their difficulties; a mental condition's «other» holds the accident and old age (7p).
+- 06-06: A limitation in an activity counts only without a disability in another (6y's rule).
+- 04-12: In the state they live in (the dwelling's); the months between the emigration and the return (7p).
+- 04-15: Every migrant, counted in the state they left (`MLUGORI_C`); a deportation is «otra causa» here (7p).
 
-State 00 is the nation (the sum of the states); state 99 the origin not specified (the international migrants by the state they left); sex T = both, H = men, M = women.
+State 00 is the nation (the sum of the states); state 99 the origin not specified (the international migrants by the state they left); state 98 the states a tabulado publishes together («Resto de las entidades»); sex T = both, H = men, M = women.

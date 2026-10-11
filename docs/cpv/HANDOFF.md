@@ -1,13 +1,15 @@
 # CPV family — session handoff
 
-**Status (2026-10-11): units 0–6z and 7a–7o are done. `main` = v0.11.0 = 6u–7b, tagged and
+**Status (2026-10-11): units 0–6z and 7a–7p are done. `main` = v0.11.0 = 6u–7b, tagged and
 pushed. After it, on `cpv-integration` (not pushed): 7c (CGPV 2000's places, the income in
 minimum wages 2000–2020), 7d (tabulado checks: the EIC 2015's dwellings, CGPV 2000's
 employment and migration), 7e (ratio constraints), 7f (CGPV 2000 per dwelling, the 1990/1995
 averages), the unattended night's 7g (constraint keys = the published columns; every
 constraint against the census: fixes to 2000/2010/2020 cells, new 2010 `RELIGION_INEGI`) and
 7h–7n (tabulado checks only) — all reviewed and **kept** by the user on 2026-10-11 (§Review)
-— and 7o (tabulado checks: the fertility rates and the infant mortality of 2010/2015/2020).
+— and 7o (tabulado checks: the fertility rates and the infant mortality of 2010/2015/2020)
+and 7p (tabulado checks: Censo 2020's disability and migration causes, Censo 2010's by-state
+leftovers).
 Before 0.11.0: v0.10.0 = 6s–6t, 0.9.0 = 6k–6r. A session starts by checking `git log`/`git
 status` against this line.**
 - **Released** (registered, uploaded, verified): every edition 1990–2025 (897 `cpv_` files)
@@ -393,7 +395,26 @@ status` against this line.**
     one within its tolerance; **148,783 cells, 0 beyond tolerance**. `tests/test_cpv_tabulados.py`
     23 passed (7o touched only the check script, its tests and the docs).
 
-Design: [`PLAN.md`](PLAN.md). Recent units: [`STEP_7o.md`](STEP_7o.md), [`STEP_7n.md`](STEP_7n.md), [`STEP_7m.md`](STEP_7m.md), [`STEP_7l.md`](STEP_7l.md), [`STEP_7k.md`](STEP_7k.md), [`STEP_7j.md`](STEP_7j.md), [`STEP_7i.md`](STEP_7i.md), [`STEP_7h.md`](STEP_7h.md), [`STEP_7g.md`](STEP_7g.md), [`STEP_7f.md`](STEP_7f.md), [`STEP_7e.md`](STEP_7e.md), [`STEP_7d.md`](STEP_7d.md), [`STEP_7c.md`](STEP_7c.md), [`STEP_7b.md`](STEP_7b.md), [`STEP_7a.md`](STEP_7a.md), [`STEP_6z.md`](STEP_6z.md), [`STEP_6y.md`](STEP_6y.md), [`STEP_6x.md`](STEP_6x.md), [`STEP_6w.md`](STEP_6w.md), [`STEP_6v.md`](STEP_6v.md), [`STEP_6u.md`](STEP_6u.md), [`STEP_6t.md`](STEP_6t.md), [`STEP_6s.md`](STEP_6s.md), [`STEP_6r.md`](STEP_6r.md), [`STEP_6q.md`](STEP_6q.md), [`STEP_6p.md`](STEP_6p.md), [`STEP_6o.md`](STEP_6o.md), [`STEP_6n.md`](STEP_6n.md), [`STEP_6m.md`](STEP_6m.md), [`STEP_6l.md`](STEP_6l.md), [`STEP_6k.md`](STEP_6k.md), [`STEP_6j.md`](STEP_6j.md), [`STEP_6i.md`](STEP_6i.md), [`STEP_6h.md`](STEP_6h.md), [`STEP_6g.md`](STEP_6g.md), [`STEP_6f.md`](STEP_6f.md), [`STEP_6e.md`](STEP_6e.md),
+- **7p** (`STEP_7p.md`): HANDOFF candidate 3's first item, with the user (Censo 2020's
+  disability and migration causes, Censo 2010's by-state leftovers); checks only — no loader,
+  derivation or dictionary changed.
+  - Censo 2020 `06_discapacidad` 06-02/04/06 (disability, limitation, mental condition and
+    their causes by sex, age, activity: 6c/6g/6y's flags, exact on the first try), 04-12
+    (return migrants by duration, 04-12m its average), 04-14/15 (return and emigration causes
+    by the precoded four-digit codes; 04-15 by the state left).
+  - Censo 2010 05_01A/02A (self-identification, understanding; 14 states and «Resto de las
+    entidades» = pseudo-state 98, `_REST`, via `ByOrigin`), 07_02A/05A (fields of study =
+    `NOMCAR_C`'s first digit; 800 «carreras técnicas básicas» not specified — one record),
+    08_06A/07A (division × sector, × hours), 12_02A (parents by age), 12_04A (kinship lines:
+    INEGI's lines for «otro parentesco» found on the tabulado — uncles and godparents
+    ascendants, nephews and godchildren descendants, «Familiar» not specified).
+  - Readers: Censo 2010's plain state names (07_02A), a row INEGI leaves out reads as zeros
+    (`_by_dims`); 7n's ethnicity helpers generalized.
+  - **43,431 new cells, every one exact** (1 person; the nation's six-decimal shares ≤ 0.47);
+    the report 192,214 cells, 0 beyond tolerance (the 2010/2020 sections spliced from one
+    2010 + 2020 run, every earlier row unchanged). `tests/test_cpv_tabulados.py` 26 passed.
+
+Design: [`PLAN.md`](PLAN.md). Recent units: [`STEP_7p.md`](STEP_7p.md), [`STEP_7o.md`](STEP_7o.md), [`STEP_7n.md`](STEP_7n.md), [`STEP_7m.md`](STEP_7m.md), [`STEP_7l.md`](STEP_7l.md), [`STEP_7k.md`](STEP_7k.md), [`STEP_7j.md`](STEP_7j.md), [`STEP_7i.md`](STEP_7i.md), [`STEP_7h.md`](STEP_7h.md), [`STEP_7g.md`](STEP_7g.md), [`STEP_7f.md`](STEP_7f.md), [`STEP_7e.md`](STEP_7e.md), [`STEP_7d.md`](STEP_7d.md), [`STEP_7c.md`](STEP_7c.md), [`STEP_7b.md`](STEP_7b.md), [`STEP_7a.md`](STEP_7a.md), [`STEP_6z.md`](STEP_6z.md), [`STEP_6y.md`](STEP_6y.md), [`STEP_6x.md`](STEP_6x.md), [`STEP_6w.md`](STEP_6w.md), [`STEP_6v.md`](STEP_6v.md), [`STEP_6u.md`](STEP_6u.md), [`STEP_6t.md`](STEP_6t.md), [`STEP_6s.md`](STEP_6s.md), [`STEP_6r.md`](STEP_6r.md), [`STEP_6q.md`](STEP_6q.md), [`STEP_6p.md`](STEP_6p.md), [`STEP_6o.md`](STEP_6o.md), [`STEP_6n.md`](STEP_6n.md), [`STEP_6m.md`](STEP_6m.md), [`STEP_6l.md`](STEP_6l.md), [`STEP_6k.md`](STEP_6k.md), [`STEP_6j.md`](STEP_6j.md), [`STEP_6i.md`](STEP_6i.md), [`STEP_6h.md`](STEP_6h.md), [`STEP_6g.md`](STEP_6g.md), [`STEP_6f.md`](STEP_6f.md), [`STEP_6e.md`](STEP_6e.md),
 [`STEP_6d.md`](STEP_6d.md),
 [`STEP_6c.md`](STEP_6c.md), [`STEP_6b.md`](STEP_6b.md), … [`STEP_0_probe.md`](STEP_0_probe.md).
 
@@ -420,12 +441,14 @@ which `wsl`'s lacks — the script fetches them). 7i–7n ran on the Mac too; th
 cache now holds every workbook in `SOURCES` (the full report takes ~60 min). `wsl` is at 7f
 (its 7f suite: 1907 passed); moving 7g–7n there (`git bundle b6c8aff..cpv-integration`, as
 for 7f) and its full suite wait for a Tailscale re-login.
+7p ran on the Mac only (its tabulados cache now also holds 7p's eight 2010 workbooks; `wsl`'s
+lacks them and 2020's `06_discapacidad` — the script fetches them).
 `wsl:~/mxcensus3c` (3c's code copy) can be deleted.
 
 ## Kickoff prompt for the next session
 
 > Continue the CPV census-family work in this repo (branch cpv-integration = main = v0.11.0
-> + units 7c–7o). Read docs/cpv/HANDOFF.md first, then agree with me which next unit to
+> + units 7c–7p). Read docs/cpv/HANDOFF.md first, then agree with me which next unit to
 > take (candidates in HANDOFF §Next) before implementing it, following the session protocol
 > in docs/cpv/PLAN.md. Use .venv/bin/python, not uv run. Run wsl tasks without asking; ask
 > me before committing, pushing, installing packages or uploading.
@@ -496,9 +519,10 @@ and **kept all seven** (merged as 0.9.0):
 
 ## Next: candidates (none decided)
 
-1. **Release 7c–7o** as 0.12.0: the night's decisions are kept and the `wsl` full suite ran
-   on 7n (§Review 7); move 7o there (`git bundle 87cebf6..cpv-integration`; it touches only
-   the check script and its tests), then merge into `main`, tag and push — the user's call.
+1. **Release 7c–7p** as 0.12.0: the night's decisions are kept and the `wsl` full suite ran
+   on 7n (§Review 7); move 7o–7p there (`git bundle 87cebf6..cpv-integration`; they touch
+   only the check script and its tests), run `tests/test_cpv_tabulados.py` there, then merge
+   into `main`, tag and push — the user's call.
 2. Smaller:
    - a 2000 occupation bridge (CMO → SINCO; no published table; 7d checked the CMO groups,
      the first two digits of `OCUACTIV_C`, against C2KEM04);
@@ -510,16 +534,14 @@ and **kept all seven** (merged as 0.9.0):
      if a later edition needs one;
    - CGPV 2000's other quantities typed as code ranges (`HORTRA`, `INGRESOS`, `INGTRHOG`…:
      `_QUANTITIES` could take them; the derivations read the raw codes, so only the
-     labelled dtype changes).
-3. More tabulado checks (what 7d–7o left):
-   - Censo 2010's tabulados 7m left (ethnic self-identification 05_*, fields of study 07_*,
-     sector × division 08_06A, kinship lines 12_04A — «colaterales» needs `OTROPARE_C`'s
-     groups) and Censo 2020's 04-12/14/15 (return duration and causes, emigration causes;
-     cached) and 06_discapacidad (disability, limitation and mental condition with their
-     causes by sex, age and activity; INEGI's rules in 6g/6y; downloaded in 7o's probe, not
-     in `SOURCES`);
+     labelled dtype changes);
+   - 7p's kinship lines as a derived column (INEGI's 2010 lines for «otro parentesco» are
+     now known: `STEP_7p.md`), if a constraint or a user needs them.
+3. More tabulado checks (what 7d–7p left):
    - every edition's tabulados by locality size (they repeat the state ones on `TAMLOC`;
-     7o's `_national` reads that layout);
+     7o's `_national` reads that layout): Censo 2010's 07_01A/04A, 08_04A/05A, 12_03A/05A
+     (dated 2013, in the same `ESTATAL` file names), Censo 2020's 06-01/03/05 and 04-11/13,
+     and the earlier units' by-size sheets;
    - a reproduction of the 2010/2015 infant mortality would need INEGI's procedure
      (`STEP_7o.md`): its rule is not in the sample.
 
@@ -738,6 +760,11 @@ and **kept all seven** (merged as 0.9.0):
   (2000 `C2K*.xls` BIFF5, 2010/2015 `.xls`, 2020 `.xlsx`). INEGI's tabulados leave out
   unspecified ages (999) from age-defined universes (the commute tables: students 3+,
   employed 12+); the 2015 percentages have six decimals (≤ ~0.9 of a person nationally).
+  7p: a Censo 2010 workbook may name its states without codes (07_02A: `_STATE_NAMES_2010`)
+  or publish some states and «Resto de las entidades» (05_01A/02A: pseudo-state `_REST` = 98
+  through `ByOrigin`, so all 32 states are needed); INEGI leaves out empty rows (Censo
+  2020's 06-04 has no unspecified age in five states: `_by_dims` reads them as zeros). Every
+  workbook dated 2013 in Censo 2010's `ESTATAL` names is by locality size, not by state.
 - **A crosswalk pair by description can be wrong** (6n): 2000's `VP_CCUART` «con un
   dormitorio» is one room without the exclusive kitchen. Check a paired indicator's level
   against the sample before trusting it (`_XW_UNPAIR`).
