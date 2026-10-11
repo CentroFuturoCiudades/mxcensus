@@ -76,7 +76,10 @@ SOURCES = {
               "C2KMI08.xls", "C2KMI09.xls", "C2KMI10.xls", "C2KMI11.xls", "C2KMI12.xls",
               # 7i: the dwellings
               *(f"C2KVI{n:02d}.xls" for n in (1, 2, 3, 4, 5, 7, 8, 9, 11, 12, 13, 14, 15, 16,
-                                              17, 18, 19)))),
+                                              17, 18, 19)),
+              # 7k: the persons
+              "C2KPO01.xls", "C2KDI01.xls", "C2KDI02.xls", "C2KDI04.xls", "C2KFE03.xls",
+              "C2KFE04.xls", "C2KFE05.xls", "C2KLI02.xls")),
     "2010": ("ccpv/2010/tabulados/Ampliado",
              ("04_02A_ESTATAL.xls", "06_01A_ESTATAL.xls", "08_02A_ESTATAL.xls",
               "08_03A_ESTATAL.xls", "08_10A_ESTATAL.xls", "08_15A_ESTATAL.xls",
@@ -143,7 +146,8 @@ _C2K_NATION = "ESTADOS UNIDOS MEXICANOS"
 
 
 def _num(text: str | None) -> float:
-    return float(text) if text not in (None, "") else np.nan
+    """A published cell; blank or «M.I.» (CGPV 2000: muestra insuficiente; 7k) is missing."""
+    return float(text) if text not in (None, "", "M.I.") else np.nan
 
 
 def _state_of(name: str) -> int | None:
@@ -257,6 +261,32 @@ def _c2k_items(cols: str):
                 out.setdefault((state, "T"), []).extend(_num(r.get(c)) for c in cols)
         return out
     return read
+
+
+def _c2k_rows(cols: str):
+    """CGPV 2000 tabulados with the state's own row and then one row per category (an age
+    group: C2KPO01, C2KDI01; 7k): every row's cells under its state, in order."""
+    def read(wb):
+        out, state = {}, None
+        for r in _sheet(wb, None):
+            a = (r.get("A") or "").strip()
+            if (s := _state_of(a)) is not None:
+                state = s
+            if state is not None and a and r.get("B"):
+                out.setdefault((state, "T"), []).extend(_num(r.get(c)) for c in cols)
+        return out
+    return read
+
+
+def _c2k_age_shares(wb) -> dict[tuple[int, str], list[float]]:
+    """C2KPO01: the population by age group with the sexes in columns (total, men, women)
+    → each age group's share of the state's population, per sex (7k)."""
+    out = {}
+    for (state, _), v in _c2k_rows("BCD")(wb).items():
+        rows = [v[i:i + 3] for i in range(0, len(v), 3)]
+        for j, sex in enumerate(("T", "H", "M")):
+            out[state, sex] = [100 * r[j] / rows[0][j] for r in rows[1:]]
+    return out
 
 
 def _c2k_repeated(cols: str, label: str):
@@ -1829,6 +1859,155 @@ def _dwelling_checks_2000() -> tuple[Check, ...]:
     return tuple(out)
 
 
+# CGPV 2000 persons: population, disability, fertility, language (7k) ---------------------
+
+_AGES_2000 = (*((a, a + 4) for a in range(0, 65, 5)), (65, 130), None)    # None = 999
+_DISABILITY_AGES_2000 = ((0, 14), (15, 29), (30, 59), (60, 130), None)
+_MOTHER_AGES_2000 = ((12, 130), (12, 14), *((a, a + 4) for a in range(15, 60, 5)), (60, 130))
+
+
+def _ages_2000(p: pd.DataFrame, groups: tuple) -> list[pd.Series]:
+    age = _age(p)
+    return [age.eq(999) if g is None else age.between(*g) for g in groups]
+
+
+def _po01(p):
+    """C2KPO01: the population by five-year age group (999 = not specified), % per sex."""
+    every = pd.Series(True, index=p.index)
+    return _of(every, *_ages_2000(p, _AGES_2000))
+
+
+# CGPV 2000's disability types: the items' own codes and its classified «other» limitation
+# (DISOTRA_C): the insufficiently specified motor (299) and mental (399) ones join their
+# type, «sin especificar el tipo» (960) is the type not specified, the rest «otra» — and so
+# is the second limitation that could not be classified (DISOTRA_V 7)
+_DISABILITY_TYPES_2000 = (("motor", (("DISMOV", 1), ("DISBRA", 2), ("DISOTRA_C", 299))),
+                          ("hearing", (("DISOIR", 3),)), ("speech", (("DISMUDO", 4),)),
+                          ("visual", (("DISVER", 5),)),
+                          ("mental", (("DISMENT", 6), ("DISOTRA_C", 399))),
+                          ("other", (*(("DISOTRA_C", c) for c in (131, 199, 421, 422, 430, 499)),
+                                     ("DISOTRA_V", 7))),
+                          ("type NE", (("DISOTRA_C", 960),)))
+
+
+def _disability_2000(p) -> tuple[pd.Series, pd.Series, pd.Series, dict[str, pd.Series]]:
+    """Without a disability (``DISNOTIE`` 8), with one (any type), not specified (``DISMOV``
+    9), and each type."""
+    types = {name: np.logical_or.reduce([_code(p, col).eq(code) for col, code in items])
+             for name, items in _DISABILITY_TYPES_2000}
+    with_ = np.logical_or.reduce([*types.values(), _code(p, "DISOTRA_C").notna()])
+    return (_code(p, "DISNOTIE").eq(8), pd.Series(with_, index=p.index),
+            _code(p, "DISMOV").eq(9), {k: pd.Series(v, index=p.index) for k, v in types.items()})
+
+
+def _di01(p):
+    """C2KDI01: the population and each age group by disability (without, with, NE), %."""
+    without, with_, unknown, _ = _disability_2000(p)
+    every = pd.Series(True, index=p.index)
+    return [cell for g in (every, *_ages_2000(p, _DISABILITY_AGES_2000))
+            for cell in _of(g, without, with_, unknown)]
+
+
+def _di02(p):
+    """C2KDI02: without, with (then each type as % of them: a person may have several), not
+    specified."""
+    without, with_, unknown, types = _disability_2000(p)
+    every = pd.Series(True, index=p.index)
+    return [(without, every), (with_, every), *_of(with_, *types.values()), (unknown, every)]
+
+
+def _di04(p):
+    """C2KDI04: the disabled by cause (``CAUSADIS``: birth, illness, accident, old age, other,
+    not specified), %."""
+    _, with_, _, _ = _disability_2000(p)
+    cause = _code(p, "CAUSADIS")
+    return _of(with_, *(cause.eq(c) for c in (1, 2, 3, 4, 5, 9)))
+
+
+def _mothers_2000(p) -> tuple[pd.Series, pd.Series]:
+    """The women of 12 and more who said how many children they had born alive (``NUMHIJ``
+    below 98), and the number."""
+    born = _code(p, "NUMHIJ")
+    return p["SEXO"].astype(str).eq("2") & _age(p).between(12, 130) & born.lt(98), born
+
+
+def _fe_average(item: str | None):
+    """C2KFE03 (``item`` None: the children born alive) and C2KFE04 (``HIJSOB``, the
+    surviving: 0 where the woman gave none) per woman, all and by her age group."""
+    def ours(p):
+        women, born = _mothers_2000(p)
+        value = born if item is None else _code(p, item).where(lambda x: x.lt(99), 0).fillna(0)
+        return [(Weighted(women & g, value), women & g) for g in _ages_2000(p, _MOTHER_AGES_2000)]
+    return ours
+
+
+def _fe05(p):
+    """C2KFE05: the children who died (``HIJFAL``) as % of those born alive, of the women who
+    gave both, all and by her age group."""
+    women, born = _mothers_2000(p)
+    died = _code(p, "HIJFAL")
+    women &= died.lt(99)
+    return [(Weighted(women & g, died), Weighted(women & g, born))
+            for g in _ages_2000(p, _MOTHER_AGES_2000)]
+
+
+def _li02(p):
+    """C2KLI02: the 5+ speaking an indigenous language (``HLENGUA`` 1; as % of them, Spanish
+    too, not, not specified — ``HESPANOL``), not speaking one (2), not specified (9)."""
+    five = _age(p).between(5, 130)
+    speaks, spanish = _code(p, "HLENGUA"), _code(p, "HESPANOL")
+    s = five & speaks.eq(1)
+    return [(s, five), *_of(s, spanish.eq(3), spanish.eq(4), spanish.eq(9)),
+            *_of(five, speaks.eq(2), speaks.eq(9))]
+
+
+def _person_checks_2000() -> tuple[Check, ...]:
+    """CGPV 2000's person tabulados by state read in 7k."""
+    ages = tuple(f"{g[0]}-{g[1]}" if g and g[1] < 130 else (f"{g[0]}+" if g else "NE")
+                 for g in _AGES_2000)
+    mothers = ("12+", *(f"{a}-{b}" if b < 130 else f"{a}+" for a, b in _MOTHER_AGES_2000[1:]))
+    return (
+        Check("2000", "PO01", "Population by five-year age, % per sex", "C2KPO01.xls",
+              "personas", ages, _c2k_age_shares, _po01,
+              note="Published as counts with the sexes in columns: compared as each age "
+                   "group's share of the state's population of the sex (7k)."),
+        Check("2000", "DI01", "Disability by age group (`DISNOTIE`, `DISMOV` …), %",
+              "C2KDI01.xls", "personas",
+              tuple(f"{a}: {c}" for a in ("all", "0-14", "15-29", "30-59", "60+", "age NE")
+                    for c in ("without", "with", "NE")),
+              _c2k_rows("CDE"), _di01, note="Sex T only (the age groups are rows; 7k)."),
+        Check("2000", "DI02", "Disability and its types, %", "C2KDI02.xls", "personas",
+              ("without", "with", *(n for n, _ in _DISABILITY_TYPES_2000), "NE"),
+              _c2k("CDEFGHIJKL"), _di02,
+              note="Types as % of the disabled (several per person): motor = `DISMOV` 1, "
+                   "`DISBRA` 2 or `DISOTRA_C` 299; mental = `DISMENT` 6 or 399; the type not "
+                   "specified = 960; other = 131, 199, 421, 422, 430, 499 or `DISOTRA_V` 7 "
+                   "(a second limitation not classified; 7k)."),
+        Check("2000", "DI04", "The disabled by cause (`CAUSADIS`), %", "C2KDI04.xls",
+              "personas", ("birth", "illness", "accident", "old age", "other", "NE"),
+              _c2k("CDEFGH"), _di04),
+        Check("2000", "FE03", "Children born alive per woman 12+ (`NUMHIJ`), by age",
+              "C2KFE03.xls", "personas", mothers, _c2k_states("BCDEFGHIJKLM"),
+              _fe_average(None), unit="average",
+              note="The women who said how many (`NUMHIJ` below 98); «M.I.» (muestra "
+                   "insuficiente) is not compared (7k)."),
+        Check("2000", "FE04", "Surviving children per woman 12+ (`HIJSOB`), by age",
+              "C2KFE04.xls", "personas", mothers, _c2k_states("BCDEFGHIJKLM"),
+              _fe_average("HIJSOB"), unit="average",
+              note="0 for the women without an answer (no child born alive; 7k)."),
+        Check("2000", "FE05", "Children who died (`HIJFAL`), % of those born alive, by the "
+              "mother's age", "C2KFE05.xls", "personas", mothers,
+              _c2k_states("BCDEFGHIJKLM"), _fe05),
+        Check("2000", "LI02", "Indigenous language and Spanish of the 5+ (`HLENGUA`, "
+              "`HESPANOL`), selected states, %", "C2KLI02.xls", "personas",
+              ("speaks one", "and Spanish", "not Spanish", "Spanish NE", "speaks none", "NE"),
+              _c2k("CDEFGH"), _li02, tolerance={0: 0.1},
+              note="INEGI publishes it for its selected states (7k). The nation's Spanish "
+                   "split is up to 0.081 points off: Chiapas's 0.34 (its weights) on its "
+                   "~15% of the speakers."),
+    )
+
+
 # EIC 2015 persons: population, birth registration, fertility, child mortality, unpaid
 # work (7j) ------------------------------------------------------------------------------
 
@@ -2578,7 +2757,7 @@ CHECKS: tuple[Check, ...] = (
                 dims=lambda k: (k[0], "T")),
           _financing_2020, unit="persons", sheet="34"),
 ) + (_dwelling_checks_2010() + _dwelling_checks_2020() + _dwelling_checks_2000()  # 7h, 7i
-     + _person_checks_2015())                                                        # 7j
+     + _person_checks_2015() + _person_checks_2000())                                # 7j, 7k
 
 
 # --------------------------------------------------------------------------------------

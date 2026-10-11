@@ -301,6 +301,37 @@ def test_age_groups_and_dimensions():
     assert read({"x": rows}) == {(1, "T"): [2.5, 0.1, 0.5, 0.0]}
 
 
+def test_c2k_rows_age_shares_and_disability():
+    """7k: the state's row and its category rows (C2KDI01), the age shares per sex of
+    C2KPO01's counts, «M.I.» as missing, and CGPV 2000's disability types (``DISOTRA_C`` 299
+    motor, 399 mental, 960 type not specified)."""
+    rows = [{"A": "ESTADOS UNIDOS MEXICANOS", "B": "100", "C": "50", "D": "50"},
+            {"A": "0 - 4   AÑOS", "B": "10", "C": "6", "D": "4"},
+            {"A": "65 Y MÁS AÑOS", "B": "90", "C": "44", "D": "46"},
+            {"A": "01 AGUASCALIENTES", "B": "20", "C": "10", "D": "10"},
+            {"A": "0 - 4   AÑOS", "B": "5", "C": "2", "D": "3"}]
+    assert ck._c2k_rows("BC")({"x": rows}) == {(0, "T"): [100, 50, 10, 6, 90, 44],
+                                               (1, "T"): [20, 10, 5, 2]}
+    shares = ck._c2k_age_shares({"x": rows})
+    assert shares[0, "T"] == [10.0, 90.0] and shares[0, "H"] == [12.0, 88.0]
+    assert shares[1, "M"] == [30.0]
+    assert np.isnan(ck._num("M.I.")) and ck._num("2.5") == 2.5
+    p = pd.DataFrame({"DISMOV": [None, "9", None, None, None, "1"],
+                      "DISBRA": [None] * 6, "DISOIR": [None, None, None, "3", None, None],
+                      "DISMUDO": [None] * 6, "DISVER": [None] * 6,
+                      "DISMENT": [None] * 6,
+                      "DISOTRA_C": [None, None, "299", "960", "430", None],
+                      "DISOTRA_V": [None] * 6,
+                      "DISNOTIE": ["8", None, None, None, None, None]})
+    without, with_, unknown, types = ck._disability_2000(p)
+    assert without.tolist() == [True] + [False] * 5
+    assert unknown.tolist() == [False, True, False, False, False, False]
+    assert with_.tolist() == [False, False, True, True, True, True]
+    assert types["motor"].tolist() == [False, False, True, False, False, True]
+    assert types["type NE"].tolist() == [False, False, False, True, False, False]  # with 3
+    assert types["other"].tolist() == [False] * 4 + [True, False]
+
+
 def test_checks_are_consistent():
     """Every check names a fetched source, unique keys per edition, and a tolerance."""
     keys = [(c.period, c.key) for c in ck.CHECKS]
@@ -330,7 +361,7 @@ def test_state_01_within_tolerance(monkeypatch):
         f"{p}/{n}": tab_dir / p / n for p in periods for n in ck.SOURCES[p][1]})
     rows = ck.run(sorted(ck.SOURCES), [1], _TABS, _MIRROR, log=lambda *a: None)
     assert len(rows) == (317 + 159 + 120 + 45 + 7 + 13 + 149 + 132 + 183 + 463 + 562  # 6p: 2020;
-                         + 317 + 894)
+                         + 317 + 894 + 144)
     #                                                 6q: 2015 affiliation, commute, marital status,
     #                                                 education (2010's are national); 6r: 2000
     #                                                 hours, education of the 12+/18+; 6t: 2000/2015
@@ -352,7 +383,9 @@ def test_state_01_within_tolerance(monkeypatch):
     #                                                 (2010 262, 2015 25, 2020 275; sex T);
     #                                                 7i: CGPV 2000's dwellings (sex T); 7j:
     #                                                 the EIC 2015 persons (01-02, 02-02, 03-01
-    #                                                 sex T; 01-03, 09-02, 09-03 by sex)
+    #                                                 sex T; 01-03, 09-02, 09-03 by sex); 7k:
+    #                                                 CGPV 2000's persons (PO01, DI02, DI04 by
+    #                                                 sex; LI02 not for state 01; FE «M.I.» out)
     by_origin = {c.key for c in ck.CHECKS if c.by_origin}               # 7d: all 32 only
     assert by_origin == {"MI02", "MI05", "MI10", "MI11", "MI12"}
     assert not by_origin & {r["check"] for r in rows}

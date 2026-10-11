@@ -76,6 +76,14 @@ Tolerance: 0.04 points (state 07: 0.6).
 | VI19 Averages per dwelling (`NUMPERS`, `NUMHOGS`, `TOTCUART_INEGI`, `CUADORM`) | `C2KVI19.xls` | 165 | 0.003 | 0.005 | 0.005 (11 T «households per dwelling») | 0 |
 | VI18 Waste collection frequency by way of disposal (`ELIBAS`, `ELIBASPE`), % of the dwellings | `C2KVI18.xls` | 924 | 0.003 | 0.010 | 1.568 (07 T «container: never») | 0 |
 | VI18o Waste collection frequency by way of disposal (`ELIBAS`, `ELIBASPE`), % of the occupants | `C2KVI18.xls` | 924 | 0.003 | 0.009 | 1.789 (07 T «container: never») | 0 |
+| PO01 Population by five-year age, % per sex | `C2KPO01.xls` | 1485 | 0.000 | 0.000 | 0.012 (07 M «65+») | 0 |
+| DI01 Disability by age group (`DISNOTIE`, `DISMOV` …), % | `C2KDI01.xls` | 594 | 0.003 | 0.007 | 0.055 (07 T «age NE: NE») | 0 |
+| DI02 Disability and its types, % | `C2KDI02.xls` | 990 | 0.003 | 0.005 | 0.090 (07 M «visual») | 0 |
+| DI04 The disabled by cause (`CAUSADIS`), % | `C2KDI04.xls` | 594 | 0.003 | 0.008 | 0.115 (07 H «illness») | 0 |
+| FE03 Children born alive per woman 12+ (`NUMHIJ`), by age | `C2KFE03.xls` | 363 | 0.002 | 0.005 | 0.005 (21 T «30-34») | 0 |
+| FE04 Surviving children per woman 12+ (`HIJSOB`), by age | `C2KFE04.xls` | 363 | 0.003 | 0.006 | 0.033 (06 T «55-59») | 0 |
+| FE05 Children who died (`HIJFAL`), % of those born alive, by the mother's age | `C2KFE05.xls` | 364 | 0.003 | 0.005 | 0.060 (07 T «50-54») | 0 |
+| LI02 Indigenous language and Spanish of the 5+ (`HLENGUA`, `HESPANOL`), selected states, % | `C2KLI02.xls` | 234 | 0.003 | 0.114 | 0.340 (07 M «not Spanish») | 0 |
 
 - ED08: Técnica after primaria is its own column here, as `EDUC_INEGI`'s «Técnica_primaria» (6k).
 - ED11: Media superior = técnica after secundaria, preparatoria and normal básica (its columns D–F); superior holds the posgrado (6w).
@@ -103,6 +111,12 @@ Tolerance: 0.04 points (state 07: 0.6).
 - VI11o: Chiapas: shares of the small «carried» base, up to 0.84 points off (its weights; 7i).
 - VI19: Rooms as 2000's ITER (`TOTCUART_INEGI`, 7f) and bedrooms of the dwellings that gave them; households = `NUMHOGS` (blank = one household; 7i).
 - VI18: The dwellings that hand their waste to a service, a container, the street or a ravine (`ELIBAS` 1–4), asked `ELIBASPE` (7i). Chiapas: «container: never», a share of a small base, 1.57 points off (1.79 for the occupants, whose national cell inherits 0.057) — its weights.
+- PO01: Published as counts with the sexes in columns: compared as each age group's share of the state's population of the sex (7k).
+- DI01: Sex T only (the age groups are rows; 7k).
+- DI02: Types as % of the disabled (several per person): motor = `DISMOV` 1, `DISBRA` 2 or `DISOTRA_C` 299; mental = `DISMENT` 6 or 399; the type not specified = 960; other = 131, 199, 421, 422, 430, 499 or `DISOTRA_V` 7 (a second limitation not classified; 7k).
+- FE03: The women who said how many (`NUMHIJ` below 98); «M.I.» (muestra insuficiente) is not compared (7k).
+- FE04: 0 for the women without an answer (no child born alive; 7k).
+- LI02: INEGI publishes it for its selected states (7k). The nation's Spanish split is up to 0.081 points off: Chiapas's 0.34 (its weights) on its ~15% of the speakers.
 
 ## 2010
 
