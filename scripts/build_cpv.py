@@ -53,6 +53,7 @@ import zipfile
 from collections import Counter, defaultdict
 from concurrent.futures import ProcessPoolExecutor
 from pathlib import Path
+from typing import NamedTuple
 
 import pyarrow as pa
 import pyarrow.compute as pc
@@ -711,7 +712,7 @@ def _write_variables_yaml(out_dir: Path, map_path: Path, yaml_dir: Path,
             _label_code_groups(entries, paths, doc, g["periods"], set(core_t))
             if set(g["periods"]) & _BLANK_ZERO:
                 _label_blank_zero(entries, set(core_t))
-            _label_quantities(entries, g["periods"], set(core_t))
+            _label_quantities(entries, g["periods"], set(core_t), doc)
             counts = Counter(sources.values())
             print(f"  {table}/{gid}: {len(paths)}/{g['files']} file(s) read; {prov}; "
                   + ", ".join(f"{k}={v}" for k, v in sorted(counts.items())), flush=True)
@@ -856,30 +857,98 @@ def _label_blank_zero(entries: dict, skip: set[str]) -> None:
         meta["Nota"] = "; ".join(n for n in notes if n)
 
 
-# FD items whose zero-padded range is a quantity, not a list of codes (7f): CGPV 1990's and
-# 2000's number of persons in the dwelling, «0001..9999» in the FD as a locality's code is,
-# so the parser reads it as codes (_dict_fd: a zero-padded range is a code list). It is
-# the value of the occupants' averages (cpv_derived.cpv_ratio_constraints) and equals the
-# dwelling's person rows.
-_QUANTITIES = frozenset({("1990", "NUM_PERS"), ("2000", "NUMPERS")})
+# FD items that are quantities, not lists of codes (7f, 7q), which the parser reads as codes:
+# a zero-padded range (_dict_fd: «0001..9999» is a locality's code) or a range whose only
+# rows are its special values (the top code, «no especificado»: a catalog of 1–2 codes).
+# (period, column) → the quantity's range (None: the FD's zero-padded range), its sentinels
+# (``Especiales``; the FD's label where its layout gives one, else this one) and what the
+# FD's text says of its values (``Nota``):
+# - 7f: CGPV 1990's and 2000's number of persons in the dwelling, the value of the
+#   occupants' averages (cpv_derived.cpv_ratio_constraints), equal to the dwelling's person
+#   rows;
+# - 7q: CGPV 2000's hours worked (FD {000..999,b}: it says nothing of 999, which 116,755
+#   persons have beside 0–168 — Censo 2010's «No especificado», as its FD) and its monthly
+#   incomes, of the persons and of the household (fd_muestra_censal_2000.pdf, «Ingresos por
+#   trabajo», «Otros ingresos por persona», «Ingresos por hogar»: 000000 = no such income;
+#   «si el valor rebasa a 999 999 se asigna el valor 999 998 para distinguirlo de los
+#   ingresos no especificados (999 999)»), as Censo 2010/2020 type theirs;
+# - 7q: CGPV 1990's monthly income (fd_cgpv1990.pdf, «53 INGRESOS»: 00000000..99999996 the
+#   monthly wage; «los siguientes tres rubros se consideran como ingreso no especificado»:
+#   99999997 eventual, 99999998 no sabe, 99999999 no especificado), in pesos of before the
+#   1993 redenomination; 1990 writes 0 for everyone not employed too (not asked);
+# - 7q: the Conteo 1995's income from work and first other income per their period
+#   (fd_encuesta_cpv1995.pdf: P7_9A {00000..98000,99999,b}, P7_11A {00001..98000,99999,b}).
+
+
+class _Quantity(NamedTuple):
+    rango: tuple[int, int] | None = None
+    especiales: dict[str, str] = {}
+    nota: str = ""
+
+
+_INCOME_2000 = _Quantity((0, 999998), {"999999": "No especificado"},
+                         "pesos mensuales; 000000 = no recibe ingresos de este tipo; "
+                         "999998 = 999,998 o más; 999999 = no especificado (el texto del FD)")
+_QUANTITIES: dict[tuple[str, str], _Quantity] = {
+    ("1990", "NUM_PERS"): _Quantity(), ("2000", "NUMPERS"): _Quantity(),
+    ("2000", "HORTRA"): _Quantity(
+        (0, 168), {"999": "No especificado"},
+        "horas trabajadas en la semana; 999 = no especificado (el FD no lo dice: los datos "
+        "van de 0 a 168 y 999, como en el FD de 2010)"),
+    **{("2000", col): _INCOME_2000
+       for col in ("INGRESOS", "JUBPENC", "AYUFAOPC", "AYUFADPC", "PROCAMPC", "OTROTIPC",
+                   "OTINGPER", "INGTOPER", "INGTRHOG", "OTINGHOG", "INGTOHOG")},
+    ("1990", "INGRESO"): _Quantity(
+        (0, 99999996), {"99999997": "Eventual", "99999998": "No sabe",
+                        "99999999": "No especificado"},
+        "pesos mensuales de antes de la redenominación de 1993; 0 también para quien no "
+        "está ocupado (no se le preguntó); el FD: «los siguientes tres rubros se consideran "
+        "como ingreso no especificado»"),
+    ("1995", "P7_9A"): _Quantity((0, 98000), {"99999": "No especificado"},
+                                 "pesos por el periodo de P7_9B"),
+    ("1995", "P7_11A"): _Quantity((1, 98000), {"99999": "No especificado"},
+                                  "pesos por el periodo de P7_11B"),
+}
 _CODE_RANGE_RE = re.compile(r"(\d+)\.\.(\d+) = códigos \(no enumerados\)")
+_CATALOG_NOTE_RE = re.compile(r"catálogo de \d+ códigos \(no enumerado\)")
 
 
-def _label_quantities(entries: dict, periods: list[str], skip: set[str]) -> None:
-    """Make each :data:`_QUANTITIES` item of a schema group's editions numeric, its
-    ``Rango`` the FD's range, and say so in ``Nota``. The core entries (``skip``) are left
-    alone; an entry the FD no longer documents as a code range raises."""
-    for period, col in sorted(_QUANTITIES):
+def _label_quantities(entries: dict, periods: list[str], skip: set[str],
+                      doc: dict | None = None) -> None:
+    """Make each :data:`_QUANTITIES` item of a schema group's editions numeric: its
+    ``Rango`` (the FD's zero-padded range unless given), its sentinels (``Especiales``) and
+    a ``Nota`` with the codes the FD labels within the range. The core entries (``skip``)
+    are left alone. An entry the FD no longer documents as codes, or whose FD (``doc``)
+    documents a code out of the range that is no sentinel, or no sentinel given, raises."""
+    for (period, col), q in sorted(_QUANTITIES.items()):
         if period not in periods or col not in entries or col in skip:
             continue
         entry = entries[col]
-        m = _CODE_RANGE_RE.fullmatch(entry.get("Nota") or "")
-        if entry.get("Tipo") != "string" or not m:
+        note = entry.get("Nota") or ""
+        m = _CODE_RANGE_RE.fullmatch(note)
+        if (entry.get("Tipo") != "string" or not (m or _CATALOG_NOTE_RE.fullmatch(note))
+                or not (m or q.rango)):
             raise ValueError(f"{period} {col}: not a code range in the FD ({entry})")
+        lo, hi = q.rango or (int(m.group(1)), int(m.group(2)))
+        meta = (doc or {}).get(col) or {}
+        documented = {c: lab for c, lab in {**(meta.get("Categorías") or {}),
+                                            **(meta.get("Especiales") or {})}.items()
+                      if c.isdigit()}
+        inside = {c: lab for c, lab in documented.items()
+                  if lo <= int(c) <= hi and c not in q.especiales}
+        if set(documented) - set(inside) != (set(q.especiales) if documented else set()):
+            raise ValueError(f"{period} {col}: the FD's codes {sorted(documented)} are not "
+                             f"the range {lo}..{hi} and the sentinels {sorted(q.especiales)}")
+        notes = [f"cantidad: el FD escribe su rango con ceros a la izquierda "
+                 f"({m.group(1)}..{m.group(2)}), como el de una clave" if m else
+                 "cantidad: el FD lista sus valores especiales como los códigos de un catálogo",
+                 *(f"{c} = {lab}" for c, lab in sorted(inside.items())),
+                 *([q.nota] if q.nota else [])]
         entry["Tipo"] = "numeric"
-        entry["Rango"] = [int(m.group(1)), int(m.group(2))]
-        entry["Nota"] = (f"cantidad: el FD escribe su rango con ceros a la izquierda "
-                         f"({m.group(1)}..{m.group(2)}), como el de una clave")
+        entry["Rango"] = [lo, hi]
+        if q.especiales:
+            entry["Especiales"] = {c: documented.get(c, lab) for c, lab in q.especiales.items()}
+        entry["Nota"] = "; ".join(notes)
         entries[col] = {k: entry[k] for k in fd._ORDER if k in entry} | {
             k: v for k, v in entry.items() if k not in fd._ORDER}
 

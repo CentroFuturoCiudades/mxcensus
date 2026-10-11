@@ -602,14 +602,28 @@ SARAFORE:
     '9': No especificado
 HORTRA:
   Descripción: Horas trabajadas
-  Tipo: string
+  Tipo: numeric
   Longitud: '3'
-  Nota: 000..999 = códigos (no enumerados)
+  Rango:
+  - 0
+  - 168
+  Especiales:
+    '999': No especificado
+  Nota: 'cantidad: el FD escribe su rango con ceros a la izquierda (000..999), como el de una clave; horas
+    trabajadas en la semana; 999 = no especificado (el FD no lo dice: los datos van de 0 a 168 y 999,
+    como en el FD de 2010)'
 INGRESOS:
   Descripción: Ingresos por trabajo mensualizado
-  Tipo: string
+  Tipo: numeric
   Longitud: '6'
-  Nota: 000000..999999 = códigos (no enumerados)
+  Rango:
+  - 0
+  - 999998
+  Especiales:
+    '999999': No especificado
+  Nota: 'cantidad: el FD escribe su rango con ceros a la izquierda (000000..999999), como el de una clave;
+    pesos mensuales; 000000 = no recibe ingresos de este tipo; 999998 = 999,998 o más; 999999 = no especificado
+    (el texto del FD)'
 ACTTRAB_C:
   Descripción: Actividad económica (dónde trabajó)
   Tipo: numeric
@@ -649,9 +663,16 @@ JUBPENR:
     '9': No especificado
 JUBPENC:
   Descripción: Ingresos_jubilación o pensión (mensualizado)
-  Tipo: string
+  Tipo: numeric
   Longitud: '6'
-  Nota: 000000..999999 = códigos (no enumerados)
+  Rango:
+  - 0
+  - 999998
+  Especiales:
+    '999999': No especificado
+  Nota: 'cantidad: el FD escribe su rango con ceros a la izquierda (000000..999999), como el de una clave;
+    pesos mensuales; 000000 = no recibe ingresos de este tipo; 999998 = 999,998 o más; 999999 = no especificado
+    (el texto del FD)'
 AYUFAOPR:
   Descripción: Otros ingresos_ayuda familiar otro país
   Tipo: categorical
@@ -663,9 +684,16 @@ AYUFAOPR:
     '9': No especificado
 AYUFAOPC:
   Descripción: Ingresos_ayuda familiar otro país
-  Tipo: string
+  Tipo: numeric
   Longitud: '6'
-  Nota: 000000..999999 = códigos (no enumerados)
+  Rango:
+  - 0
+  - 999998
+  Especiales:
+    '999999': No especificado
+  Nota: 'cantidad: el FD escribe su rango con ceros a la izquierda (000000..999999), como el de una clave;
+    pesos mensuales; 000000 = no recibe ingresos de este tipo; 999998 = 999,998 o más; 999999 = no especificado
+    (el texto del FD)'
 AYUFADPR:
   Descripción: Otros ingresos_ayuda familiar dentro del país
   Tipo: categorical
@@ -677,9 +705,16 @@ AYUFADPR:
     '9': No especificado
 AYUFADPC:
   Descripción: Ingreso_ayuda familiar dentro del país (mensualizado)
-  Tipo: string
+  Tipo: numeric
   Longitud: '6'
-  Nota: 000000..999999 = códigos (no enumerados)
+  Rango:
+  - 0
+  - 999998
+  Especiales:
+    '999999': No especificado
+  Nota: 'cantidad: el FD escribe su rango con ceros a la izquierda (000000..999999), como el de una clave;
+    pesos mensuales; 000000 = no recibe ingresos de este tipo; 999998 = 999,998 o más; 999999 = no especificado
+    (el texto del FD)'
 PROCAMPR:
   Descripción: Otros ingresos_Procampo o Progresa
   Tipo: categorical
@@ -691,9 +726,16 @@ PROCAMPR:
     '9': No especificado
 PROCAMPC:
   Descripción: Ingreso_Procampo o Progresa (mensualizado)
-  Tipo: string
+  Tipo: numeric
   Longitud: '6'
-  Nota: 000000..999999 = códigos (no enumerados)
+  Rango:
+  - 0
+  - 999998
+  Especiales:
+    '999999': No especificado
+  Nota: 'cantidad: el FD escribe su rango con ceros a la izquierda (000000..999999), como el de una clave;
+    pesos mensuales; 000000 = no recibe ingresos de este tipo; 999998 = 999,998 o más; 999999 = no especificado
+    (el texto del FD)'
 OTROTIPR:
   Descripción: Otro tipo como becas, renta, intereses bancarios
   Tipo: categorical
@@ -705,19 +747,40 @@ OTROTIPR:
     '9': No especificado
 OTROTIPC:
   Descripción: Otro tipo como becas, renta, intereses bancarios (ingreso mensualizado)
-  Tipo: string
+  Tipo: numeric
   Longitud: '6'
-  Nota: 000000..999999 = códigos (no enumerados)
+  Rango:
+  - 0
+  - 999998
+  Especiales:
+    '999999': No especificado
+  Nota: 'cantidad: el FD escribe su rango con ceros a la izquierda (000000..999999), como el de una clave;
+    pesos mensuales; 000000 = no recibe ingresos de este tipo; 999998 = 999,998 o más; 999999 = no especificado
+    (el texto del FD)'
 OTINGPER:
   Descripción: Otros ingresos por persona
-  Tipo: string
+  Tipo: numeric
   Longitud: '6'
-  Nota: 000000..999999 = códigos (no enumerados)
+  Rango:
+  - 0
+  - 999998
+  Especiales:
+    '999999': No especificado
+  Nota: 'cantidad: el FD escribe su rango con ceros a la izquierda (000000..999999), como el de una clave;
+    pesos mensuales; 000000 = no recibe ingresos de este tipo; 999998 = 999,998 o más; 999999 = no especificado
+    (el texto del FD)'
 INGTOPER:
   Descripción: Ingresos totales por persona
-  Tipo: string
+  Tipo: numeric
   Longitud: '6'
-  Nota: 000000..999999 = códigos (no enumerados)
+  Rango:
+  - 0
+  - 999998
+  Especiales:
+    '999999': No especificado
+  Nota: 'cantidad: el FD escribe su rango con ceros a la izquierda (000000..999999), como el de una clave;
+    pesos mensuales; 000000 = no recibe ingresos de este tipo; 999998 = 999,998 o más; 999999 = no especificado
+    (el texto del FD)'
 NUMHIJ:
   Descripción: Total de hijos nacidos vivos
   Tipo: numeric

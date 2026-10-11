@@ -106,15 +106,14 @@ _OWN_CODES = {
     ("2010", "OCUACTIV_C"): set(), ("2010", "OTRAREL_C"): set(),
     # CGPV 2000 (6i): the SCIAN subsector (110–939) and 999; normal/técnica antecedent; level
     # and antecedent; one item per institution; religion (0001, 1101–9001, 9100, 9999: the
-    # FD declares the last two); the income, hours, birthplace and 1995 residence items are
-    # text in its FD (entity 001–032, country 100–535 as 2020, 600 country unknown, 999)
+    # FD declares the last two); the birthplace and 1995 residence items are text in its FD
+    # (entity 001–032, country 100–535 as 2020, 600 country unknown, 999); 7q: its income,
+    # hours and household income are numeric (build_cpv._QUANTITIES), as 2020's
     ("2000", "ACTTRAB_C"): {999}, ("2000", "ANTESC"): {1, 2, 3, 9},
     ("2000", "NIVELACAD"): {0, 10, 20, 30, 40, 51, 52, 61, 62, 63, 73, 80, 90},
     ("2000", "IMSS"): {1, 9}, ("2000", "ISSSTE"): {2}, ("2000", "PEMEX"): {3},
     ("2000", "OTRINS_V"): {4}, ("2000", "NOTIEDER"): {5}, ("2000", "OTRAREL_C"): {9100, 9999},
-    ("2000", "INGTRMEN"): set(), ("2000", "HORTRA"): set(),
     ("2000", "ENT_PAIS_NAC"): {600, 999}, ("2000", "ENT_PAIS_RES_5A"): {600, 999},
-    ("viviendas", "2000", "INGTRHOG"): set(),
     # 7f: its household number (1–9) and kitchen items (a room for cooking 1/2, slept in 3/4)
     ("2000", "NUMHOG"): set(), ("2000", "COCINA"): {1, 2, 9}, ("2000", "COCDOR"): {3, 4, 9},
     # 7c: its place of work (the birthplace's codes) and the municipalities of work and of
@@ -128,12 +127,13 @@ _OWN_CODES = {
     ("2005", "SEGU_POP"): {1}, ("2005", "INST_PRI"): {1}, ("2005", "OTRA_INS"): {1, 2, 3, 9},
     ("2005", "SIN_DERE"): {6, 9}, ("2005", "ENT_PAIS_RES_5A"): {*range(1, 34), 201, 600, 999},
     # CGPV 1990 (6j): approved a grade (0 = under 5), level, its grades (99), preschool,
-    # technical and normal years; the income (8 digits, 99999997–9 not specified: the FD's
-    # note); birthplace and 1985 residence (catalog CATPAISE: 001–032, 033–099, 100–998,
+    # technical and normal years; the income (8 digits, numeric since 7q: 99999997–9 not
+    # specified, the FD's note); birthplace and 1985 residence (catalog CATPAISE: 001–032, 033–099, 100–998,
     # 999); religion (0 = under 5)
     ("1990", "APROBO"): {0, 1, 2, 9}, ("1990", "NIV_EST"): set(range(6)),
     ("1990", "ANO_APRO"): {99}, ("1990", "PRESCO"): set(), ("1990", "TEC_PRIM"): set(),
-    ("1990", "TEC_SEC"): set(), ("1990", "NOR_BAS"): set(), ("1990", "INGTRMEN"): set(),
+    ("1990", "TEC_SEC"): set(), ("1990", "NOR_BAS"): set(),
+    ("1990", "INGTRMEN"): {99999997, 99999998, 99999999},
     ("1990", "ENT_PAIS_NAC"): set(), ("1990", "ENT_PAIS_RES_5A"): set(),
     ("1990", "RELIGION"): {0, 1, 2, 3, 4, 5, 9},
     ("1990", "C_A_ECO"): set(),                # 6o: CMAP (catalog CATACTEC), 00000 not asked
@@ -147,8 +147,7 @@ _OWN_CODES = {
 }
 # Own-code text items without a catalog in their edition's FD (the code layout is stated in
 # its notes, quoted above).
-_NO_CATALOG = {("2000", "INGTRMEN"), ("2000", "HORTRA"), ("2000", "ENT_PAIS_NAC"),
-               ("2000", "ENT_PAIS_RES_5A"), ("2000", "INGTRHOG"), ("1990", "INGTRMEN"),
+_NO_CATALOG = {("2000", "ENT_PAIS_NAC"), ("2000", "ENT_PAIS_RES_5A"),
                ("2000", "LTRABPAI_C")}                                          # 7c
 _LATER_OPTIONS = {*d._ESC[1:], *d._TRAB[1:]}      # list fewer codes (options are ordered)
 # 2020 catalog items whose FD row names no catalog (7b: the municipality of work; its

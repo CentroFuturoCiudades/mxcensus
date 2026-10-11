@@ -3528,6 +3528,48 @@ def test_dictionary_quantities_7f():
                                 set())
 
 
+# 7q: the quantities their FDs write as codes → (range, sentinels).
+_QUANTITIES_7Q = {
+    **{(table, "2000", col): ([0, 999998], {"999999"})
+       for table, cols in (("personas", ("INGRESOS", "JUBPENC", "AYUFAOPC", "AYUFADPC",
+                                         "PROCAMPC", "OTROTIPC", "OTINGPER", "INGTOPER")),
+                           ("viviendas", ("INGTRHOG", "OTINGHOG", "INGTOHOG")))
+       for col in cols},
+    ("personas", "2000", "HORTRA"): ([0, 168], {"999"}),
+    ("personas", "1990", "INGRESO"): ([0, 99999996], {"99999997", "99999998", "99999999"}),
+    ("personas", "1995", "P7_9A"): ([0, 98000], {"99999"}),
+    ("personas", "1995", "P7_11A"): ([1, 98000], {"99999"}),
+}
+
+
+def test_dictionary_quantities_7q():
+    """CGPV 2000's hours and incomes, CGPV 1990's income and the Conteo 1995's incomes by
+    period: numeric with their FD's range and sentinels (2000: as Censo 2010/2020 type
+    theirs; the top code 999998 inside the range), the codes the FD labels within the range
+    in ``Nota``. A spec whose sentinels are not the FD's out-of-range codes raises."""
+    for (table, period, col), (rango, sentinels) in _QUANTITIES_7Q.items():
+        entry = variables_cpv(table, _gid(table, period))[col]
+        assert entry["Tipo"] == "numeric" and entry["Rango"] == rango, col
+        assert set(entry["Especiales"]) == sentinels and entry["Nota"].startswith("cantidad"), col
+        assert all(lab != code for code, lab in entry["Especiales"].items()), col
+    p95 = variables_cpv("personas", _gid("personas", "1995"))
+    assert "00000 = No recibe ingresos; 98000 = $98,000 o más" in p95["P7_9A"]["Nota"]
+    assert variables_cpv("personas", _gid("personas", "1990"))["INGRESO"]["Especiales"] == {
+        "99999997": "EVENTUAL", "99999998": "NO SABE", "99999999": "NO ESPECIFICADO"}
+    entry = {"Tipo": "string", "Longitud": "5", "Nota": "catálogo de 2 códigos (no enumerado)"}
+    doc = {"P7_9A": {"Categorías": {"00000": "No recibe", "98000": "98,000 o más"},
+                     "Especiales": {"99999": "No especificado"}}}
+    out = {"P7_9A": dict(entry)}
+    _bcpv._label_quantities(out, ["1995"], set(), doc)
+    assert out["P7_9A"]["Rango"] == [0, 98000] and "00000 = No recibe" in out["P7_9A"]["Nota"]
+    doc["P7_9A"]["Especiales"]["99998"] = "No sabe"                    # an FD sentinel more
+    with pytest.raises(ValueError, match="sentinels"):
+        _bcpv._label_quantities({"P7_9A": dict(entry)}, ["1995"], set(), doc)
+    with pytest.raises(ValueError, match="sentinels"):                  # the FD lost one
+        _bcpv._label_quantities({"P7_9A": dict(entry)}, ["1995"], set(),
+                                {"P7_9A": {"Categorías": {"98000": "98,000 o más"}}})
+
+
 def test_folio_occurrence_and_1990_keys():
     """CGPV 1990 reuses a few folios: a dwelling is a run of one folio split where a person
     number repeats (persons are not listed in NUM_PER order); a folio's dwellings are
@@ -3602,6 +3644,24 @@ def test_load_cpv_1990_1995_real(local_mirror):
     assert str(p90["ANO_CUMP"].dtype) == "Int64" and p90["ANO_CUMP"].max() <= 120
     assert str(p95["FAC_POB"].dtype) == "float64" and int(p95["FAC_POB"].sum()) == 858_971
     assert str(p95["P3_6"].dtype) == "Int64" and p95["P3_6"].max() <= 98
+
+
+@pytest.mark.skipif(not (_REAL_1990 and _REAL_1995 and _REAL_2000),
+                    reason="no local 1990/1995/2000 mirror")
+def test_quantities_7q_real(local_mirror):
+    """7q's quantities in labelled frames (state 1): ``Int64``, the raw numbers where the
+    raw code is no sentinel, missing where it is one or blank, within the range."""
+    for (table, period, col), (rango, sentinels) in _QUANTITIES_7Q.items():
+        loader = mxcensus.load_cpv_personas if table == "personas" else mxcensus.load_cpv_viviendas
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore")
+            raw = loader(period, state=1, labels=False)[col]
+            out = loader(period, state=1)[col]
+        assert out.dtype == pd.Int64Dtype() and out.index.equals(raw.index), col
+        missing = raw.isna() | raw.isin(sentinels)
+        assert out.isna().equals(missing) and out.max() <= rango[1], col
+        assert (out[~missing] == pd.to_numeric(raw[~missing])).all(), col
+        assert out.notna().any() and raw.isin(sentinels).any(), col
 
 
 @pytest.mark.filterwarnings("ignore:.*lacks core column")   # keyless synthetic frames

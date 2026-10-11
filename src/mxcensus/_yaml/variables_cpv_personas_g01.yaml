@@ -676,7 +676,16 @@ PERIODO:
   Longitud: '1'
 INGRESO:
   Descripción: INGRESO
-  Tipo: string
+  Tipo: numeric
   Longitud: '8'
+  Rango:
+  - 0
+  - 99999996
   Categorías: {}
-  Nota: catálogo de 1 códigos (no enumerado)
+  Especiales:
+    '99999997': EVENTUAL
+    '99999998': NO SABE
+    '99999999': NO ESPECIFICADO
+  Nota: 'cantidad: el FD lista sus valores especiales como los códigos de un catálogo; pesos mensuales
+    de antes de la redenominación de 1993; 0 también para quien no está ocupado (no se le preguntó); el
+    FD: «los siguientes tres rubros se consideran como ingreso no especificado»'

@@ -1,6 +1,6 @@
 # CPV family — session handoff
 
-**Status (2026-10-11): units 0–6z and 7a–7p are done. `main` = v0.11.0 = 6u–7b, tagged and
+**Status (2026-10-11): units 0–6z and 7a–7q are done. `main` = v0.11.0 = 6u–7b, tagged and
 pushed. After it, on `cpv-integration` (not pushed): 7c (CGPV 2000's places, the income in
 minimum wages 2000–2020), 7d (tabulado checks: the EIC 2015's dwellings, CGPV 2000's
 employment and migration), 7e (ratio constraints), 7f (CGPV 2000 per dwelling, the 1990/1995
@@ -8,8 +8,9 @@ averages), the unattended night's 7g (constraint keys = the published columns; e
 constraint against the census: fixes to 2000/2010/2020 cells, new 2010 `RELIGION_INEGI`) and
 7h–7n (tabulado checks only) — all reviewed and **kept** by the user on 2026-10-11 (§Review)
 — and 7o (tabulado checks: the fertility rates and the infant mortality of 2010/2015/2020)
-and 7p (tabulado checks: Censo 2020's disability and migration causes, Censo 2010's by-state
-leftovers).
+7p (tabulado checks: Censo 2020's disability and migration causes, Censo 2010's by-state
+leftovers) and 7q (quantities the FDs write as codes: CGPV 2000's hours and incomes, the
+1990/1995 incomes).
 Before 0.11.0: v0.10.0 = 6s–6t, 0.9.0 = 6k–6r. A session starts by checking `git log`/`git
 status` against this line.**
 - **Released** (registered, uploaded, verified): every edition 1990–2025 (897 `cpv_` files)
@@ -414,7 +415,30 @@ status` against this line.**
     the report 192,214 cells, 0 beyond tolerance (the 2010/2020 sections spliced from one
     2010 + 2020 run, every earlier row unchanged). `tests/test_cpv_tabulados.py` 26 passed.
 
-Design: [`PLAN.md`](PLAN.md). Recent units: [`STEP_7p.md`](STEP_7p.md), [`STEP_7o.md`](STEP_7o.md), [`STEP_7n.md`](STEP_7n.md), [`STEP_7m.md`](STEP_7m.md), [`STEP_7l.md`](STEP_7l.md), [`STEP_7k.md`](STEP_7k.md), [`STEP_7j.md`](STEP_7j.md), [`STEP_7i.md`](STEP_7i.md), [`STEP_7h.md`](STEP_7h.md), [`STEP_7g.md`](STEP_7g.md), [`STEP_7f.md`](STEP_7f.md), [`STEP_7e.md`](STEP_7e.md), [`STEP_7d.md`](STEP_7d.md), [`STEP_7c.md`](STEP_7c.md), [`STEP_7b.md`](STEP_7b.md), [`STEP_7a.md`](STEP_7a.md), [`STEP_6z.md`](STEP_6z.md), [`STEP_6y.md`](STEP_6y.md), [`STEP_6x.md`](STEP_6x.md), [`STEP_6w.md`](STEP_6w.md), [`STEP_6v.md`](STEP_6v.md), [`STEP_6u.md`](STEP_6u.md), [`STEP_6t.md`](STEP_6t.md), [`STEP_6s.md`](STEP_6s.md), [`STEP_6r.md`](STEP_6r.md), [`STEP_6q.md`](STEP_6q.md), [`STEP_6p.md`](STEP_6p.md), [`STEP_6o.md`](STEP_6o.md), [`STEP_6n.md`](STEP_6n.md), [`STEP_6m.md`](STEP_6m.md), [`STEP_6l.md`](STEP_6l.md), [`STEP_6k.md`](STEP_6k.md), [`STEP_6j.md`](STEP_6j.md), [`STEP_6i.md`](STEP_6i.md), [`STEP_6h.md`](STEP_6h.md), [`STEP_6g.md`](STEP_6g.md), [`STEP_6f.md`](STEP_6f.md), [`STEP_6e.md`](STEP_6e.md),
+- **7q** (`STEP_7q.md`): HANDOFF candidate 2's «CGPV 2000's other quantities typed as code
+  ranges» (the user's choice), widened by the user to the other editions' incomes typed as
+  text (a survey of every dictionary found no other).
+  - `build_cpv._QUANTITIES` is a dict (period, column) → `_Quantity(rango, especiales, nota)`,
+    transcribed from the FDs; `_label_quantities(…, doc)` raises when the FD's out-of-range
+    codes are not the sentinels given.
+  - Numeric now: CGPV 2000's **`HORTRA`** (`[0, 168]`, 999 «No especificado»: the FD says
+    nothing of it, the data and Censo 2010 do) and its 11 monthly incomes (`INGRESOS`,
+    `JUBPENC`, `AYUFAOPC`, `AYUFADPC`, `PROCAMPC`, `OTROTIPC`, `OTINGPER`, `INGTOPER`; the
+    households' `INGTRHOG`, `OTINGHOG`, `INGTOHOG`: `[0, 999998]`, 999999; 999998 the top code
+    inside the range, as Censo 2010/2020 — the FD's methodology text); CGPV 1990's
+    **`INGRESO`** (`[0, 99999996]`, 99999997–9 «se consideran como ingreso no especificado»;
+    0 also = not asked); the Conteo 1995's **`P7_9A`**/**`P7_11A`** (per their period, 98000
+    «o más», 99999).
+  - Only those 14 entries changed (4 YAMLs); `--validate` 0/897 (report unchanged);
+    labelled frames carry them as `Int64` with the blanks and sentinels missing in all 32
+    states; the derivations and the tabulado checks read raw codes (unchanged). The code-list
+    test now compares 2000's income and hours with 2020's lists. Full suite on the Mac:
+    **1927 passed, 1 skipped**.
+  - Left for review (`STEP_7q.md` §Left out): numeric sentinels labelled with their own code
+    (cosmetic) and codes typed as numbers (2000 `OTRAREL_C`, `MLUGORI_C`, `MPDESOTR_C`, 1995
+    `P7_11D`/`F`).
+
+Design: [`PLAN.md`](PLAN.md). Recent units: [`STEP_7q.md`](STEP_7q.md), [`STEP_7p.md`](STEP_7p.md), [`STEP_7o.md`](STEP_7o.md), [`STEP_7n.md`](STEP_7n.md), [`STEP_7m.md`](STEP_7m.md), [`STEP_7l.md`](STEP_7l.md), [`STEP_7k.md`](STEP_7k.md), [`STEP_7j.md`](STEP_7j.md), [`STEP_7i.md`](STEP_7i.md), [`STEP_7h.md`](STEP_7h.md), [`STEP_7g.md`](STEP_7g.md), [`STEP_7f.md`](STEP_7f.md), [`STEP_7e.md`](STEP_7e.md), [`STEP_7d.md`](STEP_7d.md), [`STEP_7c.md`](STEP_7c.md), [`STEP_7b.md`](STEP_7b.md), [`STEP_7a.md`](STEP_7a.md), [`STEP_6z.md`](STEP_6z.md), [`STEP_6y.md`](STEP_6y.md), [`STEP_6x.md`](STEP_6x.md), [`STEP_6w.md`](STEP_6w.md), [`STEP_6v.md`](STEP_6v.md), [`STEP_6u.md`](STEP_6u.md), [`STEP_6t.md`](STEP_6t.md), [`STEP_6s.md`](STEP_6s.md), [`STEP_6r.md`](STEP_6r.md), [`STEP_6q.md`](STEP_6q.md), [`STEP_6p.md`](STEP_6p.md), [`STEP_6o.md`](STEP_6o.md), [`STEP_6n.md`](STEP_6n.md), [`STEP_6m.md`](STEP_6m.md), [`STEP_6l.md`](STEP_6l.md), [`STEP_6k.md`](STEP_6k.md), [`STEP_6j.md`](STEP_6j.md), [`STEP_6i.md`](STEP_6i.md), [`STEP_6h.md`](STEP_6h.md), [`STEP_6g.md`](STEP_6g.md), [`STEP_6f.md`](STEP_6f.md), [`STEP_6e.md`](STEP_6e.md),
 [`STEP_6d.md`](STEP_6d.md),
 [`STEP_6c.md`](STEP_6c.md), [`STEP_6b.md`](STEP_6b.md), … [`STEP_0_probe.md`](STEP_0_probe.md).
 
@@ -443,12 +467,14 @@ cache now holds every workbook in `SOURCES` (the full report takes ~60 min). `ws
 for 7f) and its full suite wait for a Tailscale re-login.
 7p ran on the Mac only (its tabulados cache now also holds 7p's eight 2010 workbooks; `wsl`'s
 lacks them and 2020's `06_discapacidad` — the script fetches them).
+7q ran on the Mac only (`--variables`, `--validate`, a 32-state sweep, the full suite); `wsl`
+is still at 87cebf6 (7n).
 `wsl:~/mxcensus3c` (3c's code copy) can be deleted.
 
 ## Kickoff prompt for the next session
 
 > Continue the CPV census-family work in this repo (branch cpv-integration = main = v0.11.0
-> + units 7c–7p). Read docs/cpv/HANDOFF.md first, then agree with me which next unit to
+> + units 7c–7q). Read docs/cpv/HANDOFF.md first, then agree with me which next unit to
 > take (candidates in HANDOFF §Next) before implementing it, following the session protocol
 > in docs/cpv/PLAN.md. Use .venv/bin/python, not uv run. Run wsl tasks without asking; ask
 > me before committing, pushing, installing packages or uploading.
@@ -519,10 +545,11 @@ and **kept all seven** (merged as 0.9.0):
 
 ## Next: candidates (none decided)
 
-1. **Release 7c–7p** as 0.12.0: the night's decisions are kept and the `wsl` full suite ran
-   on 7n (§Review 7); move 7o–7p there (`git bundle 87cebf6..cpv-integration`; they touch
-   only the check script and its tests), run `tests/test_cpv_tabulados.py` there, then merge
-   into `main`, tag and push — the user's call.
+1. **Release 7c–7q** as 0.12.0: the night's decisions are kept and the `wsl` full suite ran
+   on 7n (§Review 7); move 7o–7q there (`git bundle 87cebf6..cpv-integration`; 7o/7p touch
+   only the check script and its tests, 7q four YAMLs, `build_cpv.py` and the tests), run the
+   full suite there (or `tests/test_cpv.py`, `test_cpv_derived.py`, `test_cpv_tabulados.py`),
+   then merge into `main`, tag and push — the user's call.
 2. Smaller:
    - a 2000 occupation bridge (CMO → SINCO; no published table; 7d checked the CMO groups,
      the first two digits of `OCUACTIV_C`, against C2KEM04);
@@ -532,9 +559,10 @@ and **kept all seven** (merged as 0.9.0):
      `STEP_6u.md` §Left out);
    - the hand-curated wage tables as a generated YAML (`build_cpv.py` from INEGI's catalogs)
      if a later edition needs one;
-   - CGPV 2000's other quantities typed as code ranges (`HORTRA`, `INGRESOS`, `INGTRHOG`…:
-     `_QUANTITIES` could take them; the derivations read the raw codes, so only the
-     labelled dtype changes);
+   - 7q's leftovers (`STEP_7q.md` §Left out): the numeric sentinels labelled with their own
+     code, labelled from the FD's words (2000's rooms, children, dates, the emigrants' age and
+     dates; 1995's monthly incomes; cosmetic), and the codes typed as numbers (2000
+     `OTRAREL_C`, `MLUGORI_C`, `MPDESOTR_C`; 1995 `P7_11D`/`F`) as categorical or string;
    - 7p's kinship lines as a derived column (INEGI's 2010 lines for «otro parentesco» are
      now known: `STEP_7p.md`), if a constraint or a user needs them.
 3. More tabulado checks (what 7d–7p left):
@@ -980,7 +1008,11 @@ and **kept all seven** (merged as 0.9.0):
   counts its persons into `NUMPERS` (`cpv._OCCUPANTS_FROM_PERSONS`): a column the person
   dictionary does not declare.
 - **FD quantities written as code ranges** (7f, `build_cpv._QUANTITIES`): a zero-padded FD
-  range (`0001..9999`) parses as codes; a count must be listed there to be numeric.
+  range (`0001..9999`) parses as codes; a count must be listed there to be numeric. 7q: an
+  amount whose FD lists only its special values (1990 `INGRESO`, 1995 `P7_9A`) parses as a
+  catalog of 1–2 codes, too many values to enumerate, and loses its sentinels; each entry is a
+  `_Quantity(rango, especiales, nota)` checked against the FD's codes. CGPV 2000's FD gives its
+  income sentinels only in the methodology text (999999 NE, 999998 top code).
 - **Constraint keys = the published columns** (7g, `cpv_derived._published_name`): every key
   of `cpv_constraints`/`cpv_ratio_constraints` is a column of the edition's aggregate. The
   cells and `_aggregate_indicators` stay on the canonical names inside (`_EDITION_CELLS` keys

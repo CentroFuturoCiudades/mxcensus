@@ -511,16 +511,37 @@ TIPOHOG:
     '4': Hogar no especificado (Familiar)
 INGTRHOG:
   Descripción: Ingresos por trabajo por hogar
-  Tipo: string
+  Tipo: numeric
   Longitud: '6'
-  Nota: 000000..999999 = códigos (no enumerados)
+  Rango:
+  - 0
+  - 999998
+  Especiales:
+    '999999': No especificado
+  Nota: 'cantidad: el FD escribe su rango con ceros a la izquierda (000000..999999), como el de una clave;
+    pesos mensuales; 000000 = no recibe ingresos de este tipo; 999998 = 999,998 o más; 999999 = no especificado
+    (el texto del FD)'
 OTINGHOG:
   Descripción: Otros ingresos por hogar
-  Tipo: string
+  Tipo: numeric
   Longitud: '6'
-  Nota: 000000..999999 = códigos (no enumerados)
+  Rango:
+  - 0
+  - 999998
+  Especiales:
+    '999999': No especificado
+  Nota: 'cantidad: el FD escribe su rango con ceros a la izquierda (000000..999999), como el de una clave;
+    pesos mensuales; 000000 = no recibe ingresos de este tipo; 999998 = 999,998 o más; 999999 = no especificado
+    (el texto del FD)'
 INGTOHOG:
   Descripción: Ingresos totales por hogar
-  Tipo: string
+  Tipo: numeric
   Longitud: '6'
-  Nota: 000000..999999 = códigos (no enumerados)
+  Rango:
+  - 0
+  - 999998
+  Especiales:
+    '999999': No especificado
+  Nota: 'cantidad: el FD escribe su rango con ceros a la izquierda (000000..999999), como el de una clave;
+    pesos mensuales; 000000 = no recibe ingresos de este tipo; 999998 = 999,998 o más; 999999 = no especificado
+    (el texto del FD)'

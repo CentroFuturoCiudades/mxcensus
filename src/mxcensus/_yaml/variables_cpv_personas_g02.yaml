@@ -1002,10 +1002,16 @@ P7_8:
   Catálogo: ACTIVIDAD_ECONOMICA
 P7_9A:
   Descripción: INGRESOS POR TRABAJO
-  Tipo: string
+  Tipo: numeric
   Longitud: '5'
+  Rango:
+  - 0
+  - 98000
   Categorías: {}
-  Nota: catálogo de 2 códigos (no enumerado)
+  Especiales:
+    '99999': No especificado
+  Nota: 'cantidad: el FD lista sus valores especiales como los códigos de un catálogo; 00000 = No recibe
+    ingresos; 98000 = $98,000 o más; pesos por el periodo de P7_9B'
 P7_9B:
   Descripción: PERIODO
   Tipo: categorical
@@ -1070,10 +1076,16 @@ P7_10C:
   Categorías: {}
 P7_11A:
   Descripción: INGRESO (1)
-  Tipo: string
+  Tipo: numeric
   Longitud: '5'
+  Rango:
+  - 1
+  - 98000
   Categorías: {}
-  Nota: catálogo de 1 códigos (no enumerado)
+  Especiales:
+    '99999': No especificado
+  Nota: 'cantidad: el FD lista sus valores especiales como los códigos de un catálogo; 98000 = $98,000
+    o más; pesos por el periodo de P7_11B'
 P7_11B:
   Descripción: PERIODO (1)
   Tipo: categorical
