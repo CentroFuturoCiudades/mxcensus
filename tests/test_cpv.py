@@ -1218,11 +1218,15 @@ def test_percent_bases_contract():
                                         "AUTO", "OMED")}
     assert set(unmapped) == {"PCN_PNACOP", "PCN_POCUPADA", "PCN_PDER_SS", "PCN_HF",
                              "PCN_P3NHLI_CLI", *modes}
+    # 7e: the 11 without a count are ratio constraints (their bases need no count)
+    assert {"PCN_HF", "PCN_P3NHLI_CLI", *modes} <= set(
+        mxcensus.cpv_ratio_constraints("personas", 2025))
 
 def test_cpv_exports():
     for name in ("load_cpv", "load_cpv_viviendas", "load_cpv_personas", "load_cpv_migrantes",
                  "load_cpv_survey", "load_cpv_estimaciones", "variables_cpv_labels",
-                 "variables_cpv", "variables_cpv_core", "cpv_schema_map"):
+                 "variables_cpv", "variables_cpv_core", "cpv_schema_map",
+                 "cpv_ratio_constraints", "cpv_ratio_terms"):
         assert name in mxcensus.__all__ and callable(getattr(mxcensus, name))
 
 

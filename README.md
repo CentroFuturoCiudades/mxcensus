@@ -304,7 +304,7 @@ age, attendance, education levels, position at work, health affiliation, access
 (`ENT_PAIS_ASI_INEGI`, `ENT_PAIS_TRAB_INEGI`) and time of commute, the students' modes
 (`MED_TRASLADO_ESC_METRO_T`…) and marital status by sex. Eleven percentages have no count:
 a share of children (`PCN_HF`) and three bases the estimates do not give (the employed's
-nine commute modes, `PCN_P3NHLI_CLI`). Some
+nine commute modes, `PCN_P3NHLI_CLI`); they are ratio constraints instead (below). Some
 follow the survey's own definitions: born in another state leaves out the unspecified state
 (`ENT_PAIS_NAC_INEGI`), the ISSSTE is federal or state (`DHSERSAL_ISSSTE_T`), the sanitary
 service includes a latrine. In 2020 and 2025 the limitation by activity (`PCLIM_*`) counts
@@ -316,6 +316,27 @@ activity (`PCDISC_*`) includes an unknown degree, as INEGI's 2020 ITER and 2025 
 per = mxcensus.load_cpv_personas(2025, state=1, derived=True)
 per.groupby(["EDAD_CAT", "CONACT_CAT"], observed=True)["FACTOR"].sum()
 tables = mxcensus.get_tables_dict(mxcensus.cpv_constraints("personas", 2025), per.dtypes)
+```
+
+A published share of a base that is not published, or an average, constrains the weights
+without any count: r = scale × Σ w·N / Σ w·D over a geography's records, i.e.
+Σ w·(N − r / scale · D) = 0. `cpv_ratio_constraints(table, period)` gives each one's
+numerator and denominator cells (as `cpv_constraints`), the value a record counts on each
+side instead of 1 (children, years of schooling, occupants, rooms), the columns that must
+be known (who did not say is left out of both sides) and the scale (100 for a
+percentage); `cpv_ratio_terms(frame, ratios)` gives each record's N and D. The EIC 2025
+has 17: the eleven percentages above, the children born alive per woman (`PROM_HNV`), the
+years of schooling (`GRAPROES`, by sex too), the occupants per room and per dwelling
+(`PRO_OCUP_C`, `PROM_OCUP`), each equal to the estimates at every published geography.
+Censo 2010 and 2020 have their ITER's six averages, exact in the municipalities their
+samples enumerated completely:
+
+```python
+ratios = mxcensus.cpv_ratio_constraints("personas", 2025)
+num, den = mxcensus.cpv_ratio_terms(per, ratios)          # per: labelled, derived=True
+w, mun = per["FACTOR"], per["CVE_MUN"]
+scale = pd.Series({ind: r["scale"] for ind, r in ratios.items()})
+scale * num.mul(w, axis=0).groupby(mun).sum() / den.mul(w, axis=0).groupby(mun).sum()
 ```
 
 The places come by municipality, as INEGI's tabulados give them: `LUGAR_RES_5A` (the

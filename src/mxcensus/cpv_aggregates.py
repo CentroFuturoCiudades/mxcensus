@@ -254,7 +254,9 @@ def load_cpv_estimaciones(
         is, except 0 where the base is 0. Every indicator of ``cpv_constraints(table,
         2025)`` is then a column; 11 percentages have no count (a share of children,
         ``PCN_HF``; bases the estimates do not give: ``PCN_P3NHLI_CLI``, the employed's
-        commute modes ``PCN_POCUP_CAM`` …).
+        commute modes ``PCN_POCUP_CAM`` …): they and the averages (``PROM_HNV``,
+        ``GRAPROES``, ``PRO_OCUP_C``, ``PROM_OCUP``) are ratio constraints
+        (``cpv_ratio_constraints``), read as published.
 
     Columns: ``NIVEL`` (ordered categorical), ``CVEGEO`` and the names ``NOM_ENT``/
     ``NOM_MUN``/``NOM_LOC``, then the indicators — counts ``Int64`` (``Float64`` when the

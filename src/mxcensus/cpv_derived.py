@@ -165,6 +165,14 @@ commute, health use…). The Conteo
 2005's household indicators are counted on its household frame
 (``cpv_constraints("hogares", 2005)``; its dwelling rows are dwellings), whose
 ``derived=True`` adds the dwelling's class and the household's own head's sex.
+
+**Ratio constraints** (7e). A published share of a base the edition does not publish (the
+EIC 2025's employed's commute modes, ``PCN_P3NHLI_CLI``, ``PCN_HF``) or an average (the
+children born alive per woman, the years of schooling, the occupants per room and per
+dwelling: the EIC 2025 estimates, the Censo 2010/2020 ITER) is no count: Σ w·N = r / scale
+· Σ w·D over a geography's records. :func:`cpv_ratio_constraints` gives each one's
+numerator and denominator cells (and value columns), :func:`cpv_ratio_terms` each record's
+N and D.
 """
 from __future__ import annotations
 
@@ -2350,7 +2358,9 @@ def cpv_constraints(table: str, period: str | int) -> dict:
     the base of the minors' food items) has no cell: the questionnaire's filter of minors
     is not in the microdata (the households with someone under 18 run 0.05% over). Feed
     the result and the frame's dtypes to :func:`mxcensus.get_tables_dict`. For the EIC
-    2025, each indicator is a column of ``load_cpv_estimaciones(counts=True)``.
+    2025, each indicator is a column of ``load_cpv_estimaciones(counts=True)``. The
+    published shares of a base the edition does not give and the averages are
+    :func:`cpv_ratio_constraints` (7e).
 
     ``table`` is ``personas``, ``viviendas`` or, for the Conteo 2005, ``hogares``: its
     dwelling file has one row per dwelling, so the household indicators (``TOTHOG``,
@@ -2383,3 +2393,204 @@ def cpv_constraints(table: str, period: str | int) -> dict:
     return {ind: cells for ind, cells in {**_cpv_constraints(table), **own}.items()
             if ind in published
             and all(var in cats and set(c) <= set(cats[var]) for var, c in cells.items())}
+
+
+# ---------------------------------------------------------------------------------------
+# Ratio constraints (7e): the published shares and averages whose base is not a count
+# ---------------------------------------------------------------------------------------
+# A published ratio r (a percentage of a base the estimates do not give, or an average)
+# is the linear constraint Σ w·N = r / scale · Σ w·D: N and D are each record's numerator
+# and denominator terms — 1, or a value (children, years of schooling, occupants, rooms),
+# where the record is in the side's cells, else 0 — and a record with a ``known`` value
+# missing counts on neither side (cpv_ratio_terms). Each was found on the microdata, as the
+# percentages' bases (6y): the EIC 2025's, Σ FACTOR × term at all 2,769 published
+# geographies within the rounding (0.005); Censo 2010's and 2020's ITER averages, exact in
+# the municipalities their samples enumerated completely (FACTOR 1 for every person) where
+# the population in households and of the age group equals the ITER's (STEP_7e.md).
+# Left out: the medians and the total fertility rate (not linear in the weights), the
+# ratios of published counts (REL_H_M, INDICE_ENV*, RAZON_DEP_*: implied by the count
+# constraints), CGPV 2000's averages (its ITER's GRADOESCO differs from the sample's
+# schooling even where the sample is the census; its PRO_OCVP/PRO_OVP count dwellings,
+# and its dwelling rows are households) and the Conteo 2005's (no schooling or rooms item).
+def _ratio(numerator: dict, denominator: dict | None = None, *, value: str | None = None,
+           base_value: str | None = None, known: tuple[str, ...] = (),
+           scale: int = 1) -> dict:
+    return {"numerator": numerator, "numerator_value": value,
+            "denominator": numerator if denominator is None else denominator,
+            "denominator_value": base_value, "known": known, "scale": scale}
+
+
+_WOMEN_12PLUS = {"SEXO": ["Mujer"], "EDAD_CAT": _AGES_12PLUS}
+# The employed who commute: a time, or «no es posible determinarlo» (5.9% of them in the
+# EIC 2025), i.e. every employed person who names a mode — the base of the modes' shares.
+_COMMUTERS = {**_EMPLOYED_CELLS, "TIE_TRASLADO_TRAB": [
+    "Hasta 15 minutos", "16 a 30 minutos", "31 minutos a 1 hora",
+    "Más de 1 hora y hasta 2 horas", "Más de 2 horas", "No es posible determinarlo"]}
+# The employed's modes: the students' (_MODES_ESC) with the staff transport for the school's.
+_MODES_TRAB = {("TPER" if k == "TESC" else k): ("Transporte de personal" if k == "TESC" else v)
+               for k, v in _MODES_ESC.items()}
+
+
+def _prom_hnv(item: str) -> dict:
+    """The children born alive per woman of 12 and more who said how many."""
+    return {"PROM_HNV": _ratio(_WOMEN_12PLUS, value=item, known=(item,))}
+
+
+def _graproes(item: str = "ESCOACUM") -> dict:
+    """The years of schooling (INEGI's accumulated ``ESCOACUM``) per person of 15 and more
+    who gave them, and per woman and man."""
+    return {ind: _ratio(cells, value=item, known=(item,)) for ind, cells in
+            _by_sex({"EDAD_CAT": _AGES_15PLUS}, ("GRAPROES", "GRAPROES_M", "GRAPROES_F")).items()}
+
+
+_RATIOS = {
+    # The EIC 2025 estimates: the children born alive per woman and the share who died, the
+    # 3+ who understand an indigenous language they do not speak (of those who do not speak
+    # one: the unspecified speakers are out), the years of schooling, the employed's modes
+    # (of the employed who commute; a person may name three).
+    ("personas", "2025"): {
+        **_prom_hnv("HIJOS_NAC_VIVOS"),
+        "PCN_HF": _ratio(_WOMEN_12PLUS, value="HIJOS_FALLECIDOS", base_value="HIJOS_NAC_VIVOS",
+                         known=("HIJOS_NAC_VIVOS", "HIJOS_FALLECIDOS"), scale=100),
+        "PCN_P3NHLI_CLI": _ratio({"EDAD_CAT": _AGES_3PLUS, "HLENGUA": ["No"], "ELENGUA": ["Sí"]},
+                                 {"EDAD_CAT": _AGES_3PLUS, "HLENGUA": ["No"]}, scale=100),
+        **_graproes(),
+        **{f"PCN_POCUP_{ind}": _ratio({**_EMPLOYED_CELLS, f"MED_TRASLADO_TRAB_{mode}": [1]},
+                                      _COMMUTERS, scale=100)
+           for ind, mode in _MODES_TRAB.items()},
+    },
+    # the occupants per room and per dwelling, of its dwelling universe (VIVPARHAB_C)
+    ("viviendas", "2025"): {
+        "PRO_OCUP_C": _ratio(_VIVIENDA, value="NUMPERS", base_value="TOTCUART",
+                             known=("TOTCUART",)),
+        "PROM_OCUP": _ratio(_VIVIENDA, value="NUMPERS"),
+    },
+    # Censo 2010/2020 ITER: every inhabited private dwelling (the «Otro» classes — locales,
+    # móviles, refugios — have no rooms recorded); Censo 2010 divides the occupants of every
+    # dwelling by the rooms of those that gave them (its PRO_OCUP_C counts the occupants of
+    # the dwellings without rooms too).
+    ("personas", "2020"): {**_prom_hnv("HIJOS_NAC_VIVOS"), **_graproes()},
+    ("viviendas", "2020"): {
+        "PRO_OCUP_C": _ratio({}, value="NUMPERS", base_value="TOTCUART", known=("TOTCUART",)),
+        "PROM_OCUP": _ratio({}, value="NUMPERS"),
+    },
+    ("personas", "2010"): {**_prom_hnv("NUMHIJ"), **_graproes()},
+    ("viviendas", "2010"): {
+        "PRO_OCUP_C": _ratio({}, value="NUMPERS", base_value="TOTCUART"),
+        "PROM_OCUP": _ratio({}, value="NUMPERS"),
+    },
+}
+
+
+def _numeric_columns(table: str, period: str) -> frozenset[str]:
+    """The numeric columns of the labelled frame (``Int64``/``Float64``, sentinels missing)."""
+    from mxcensus import _schema_groups as _sg
+    from mxcensus.cpv import variables_cpv_labels
+
+    source, gid, columns = _frame_group(table, period)
+    return frozenset(col for col, meta in variables_cpv_labels(source, gid).items()
+                     if col.upper() in columns and _sg.norm_tipo(meta) == "numeric")
+
+
+def cpv_ratio_constraints(table: str, period: str | int) -> dict:
+    """The published ratios an edition's microdata reproduce: shares of a base the edition
+    does not publish, and averages.
+
+    Each indicator → ``{"numerator": cells, "numerator_value": column | None,
+    "denominator": cells, "denominator_value": column | None, "known": (columns…),
+    "scale": 100 | 1}``. The cells are those of :func:`cpv_constraints` (variable → the
+    categories counted, every variable at once; ``{}`` = every record), on the labelled
+    frame with ``derived=True``; a value column makes each record count its value (number
+    of children, years, occupants, rooms) instead of 1. The published value ``r`` of a
+    geography then satisfies Σ w·N = r / scale · Σ w·D over its records, i.e. the linear
+    constraint Σ w·(N − r / scale · D) = 0, which needs no count of the base:
+    :func:`cpv_ratio_terms` gives each record's N and D. A record whose ``known`` columns
+    are not all given counts on neither side (INEGI's averages leave out who did not say
+    how many); any other missing value counts 0.
+
+    - **EIC 2025** (the national estimates, ``load_cpv_estimaciones``; 15 person, 2
+      dwelling): the employed's nine commute modes (``PCN_POCUP_CAM`` …, a share of the
+      employed who commute, «no es posible determinarlo» included), the 3+ who understand an
+      indigenous language they do not speak (``PCN_P3NHLI_CLI``, of those who answered
+      «no»), the children who died (``PCN_HF``, of those born alive), the children born
+      alive per woman (``PROM_HNV``), the years of schooling (``GRAPROES``, ``_F``,
+      ``_M``), the occupants per room and per dwelling (``PRO_OCUP_C``, ``PROM_OCUP``):
+      each equal to the estimates at every published geography within their rounding.
+    - **Censo 2010 and 2020** (the ITER, ``load_cpv_iter``; 4 person, 2 dwelling):
+      ``PROM_HNV``, ``GRAPROES`` (``_F``, ``_M``), ``PRO_OCUP_C``, ``PROM_OCUP``, exact in
+      the municipalities their samples enumerated completely; elsewhere the samples'
+      ratios sit within their sample band (the ITER is the full census).
+
+    Every other edition has none: CGPV 2000's ITER averages do not reproduce on its sample
+    (its schooling) or count dwellings on household rows; the Conteo 2005's sample has
+    neither schooling nor rooms. ``cpv_constraints`` holds the counts.
+    """
+    from mxcensus.data._cpv_catalog import get_edition
+
+    period = str(period)
+    if table not in TABLES:
+        raise ValueError(f"CPV ratio constraints exist for {list(TABLES)}, not {table!r}")
+    if table == "hogares" and not get_edition(period).has("hogares"):
+        raise ValueError(f"CPV hogares: only the Conteo 2005 has a household table, not "
+                         f"{period}")
+    ratios = _RATIOS.get((table, period), {})
+    if not ratios:
+        return {}
+    published = _aggregate_indicators(period)
+    cats, numeric = _categories(table, period), _numeric_columns(table, period)
+
+    def available(spec: dict) -> bool:
+        values = {spec["numerator_value"], spec["denominator_value"], *spec["known"]} - {None}
+        return values <= numeric and all(var in cats and set(c) <= set(cats[var])
+                                         for side in ("numerator", "denominator")
+                                         for var, c in spec[side].items())
+
+    return {ind: spec for ind, spec in ratios.items() if ind in published and available(spec)}
+
+
+def cpv_ratio_terms(df: pd.DataFrame, constraints: Mapping[str, dict]
+                    ) -> tuple[pd.DataFrame, pd.DataFrame]:
+    """Each record's numerator and denominator term of each ratio constraint
+    (:func:`cpv_ratio_constraints`): two ``float64`` frames on ``df``'s index, one column
+    per indicator. ``df`` is the labelled frame with ``derived=True`` (categories as cells
+    name them, numeric values with the sentinels missing); a cell variable that is not
+    categorical, or lacks a category the cell names, raises.
+
+    The published ratio ``r`` of a geography is ``scale`` × Σ w·N / Σ w·D over its records
+    (``w`` = ``FACTOR``): ``N.mul(w, axis=0).groupby(geo).sum()`` and the same for ``D``
+    give both sums, and Σ w·(N − r / scale · D) = 0 is the constraint a fit imposes.
+    """
+    columns: dict[str, np.ndarray] = {}
+
+    def cells(spec: dict, ind: str) -> np.ndarray:
+        mask = np.ones(len(df), dtype=bool)
+        for var, cats in spec.items():
+            col = df[var]
+            if not isinstance(col.dtype, pd.CategoricalDtype) or not (
+                    set(cats) <= set(col.cat.categories)):
+                raise ValueError(f"cpv_ratio_terms: {ind} counts {var} {cats}, which the "
+                                 f"frame does not label (load it with labels=True, "
+                                 f"derived=True)")
+            mask &= col.isin(cats).to_numpy()
+        return mask
+
+    def value(name: str | None, ind: str) -> np.ndarray:
+        if name is None:
+            return np.ones(len(df))
+        col = df[name]
+        if not pd.api.types.is_numeric_dtype(col):
+            raise ValueError(f"cpv_ratio_terms: {ind}'s value {name} is not numeric (load "
+                             f"the frame with labels=True: sentinel codes become missing)")
+        return col.astype("Float64").fillna(0).to_numpy(dtype=float)
+
+    numerators, denominators = {}, {}
+    for ind, spec in constraints.items():
+        known = np.ones(len(df), dtype=bool)
+        for name in spec["known"]:
+            known &= df[name].notna().to_numpy()
+        numerators[ind] = np.where(known & cells(spec["numerator"], ind),
+                                   value(spec["numerator_value"], ind), 0.0)
+        denominators[ind] = np.where(known & cells(spec["denominator"], ind),
+                                     value(spec["denominator_value"], ind), 0.0)
+    return (pd.DataFrame(numerators, index=df.index, columns=list(constraints)),
+            pd.DataFrame(denominators, index=df.index, columns=list(constraints)))

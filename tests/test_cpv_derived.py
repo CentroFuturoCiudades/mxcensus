@@ -1815,7 +1815,7 @@ def test_cpv_constraints_per_edition():
                                   "SITUA_CONYUGAL_CAT": ["casado"], "SEXO": ["Hombre"]}
     assert p25["P12YM_SOLT"] == per["P12YM_SOLT"]                      # the legacy total
     assert p25["PHOG_AFRO"] == v25["HOG_AFRO"] == {"HOG_AFRO": ["Sí"]}
-    assert not {"POCUP_CAM", "P3NHLI_CLI", "HF"} & set(p25)        # bases not published
+    assert not {"POCUP_CAM", "P3NHLI_CLI", "HF"} & set(p25)        # 7e: ratio constraints
     for period in (2000, 2010, 2020):                                 # the EIC 2025's only
         assert not {"P_0A4_F", "PRESM20", "PASIS_MET", "PUSU_IMSS", "PHOG_AFRO"} & set(
             mxcensus.cpv_constraints("personas", period))
@@ -1931,6 +1931,91 @@ def test_cpv_constraints_per_edition():
         for cells in mxcensus.cpv_constraints(table, period).values():
             assert all(set(c) <= set(cats[v]) for v, c in cells.items())
             assert "EDUC" not in cells                             # 6k: EDUC_INEGI instead
+
+
+# 7e: the published shares of an unpublished base and the averages, as ratio constraints
+_RATIO_SIZES = {("personas", "2025"): 15, ("viviendas", "2025"): 2, ("personas", "2020"): 4,
+                ("viviendas", "2020"): 2, ("personas", "2010"): 4, ("viviendas", "2010"): 2}
+_MODES_TRAB = {f"PCN_POCUP_{m}" for m in ("CAM", "BICI", "MET", "TROL", "TPER", "TAXI", "MOTO",
+                                          "AUTO", "OMED")}
+
+
+def test_cpv_ratio_constraints_per_edition():
+    from mxcensus.cpv_aggregates import _PERCENT_BASES
+
+    keys = {"numerator", "numerator_value", "denominator", "denominator_value", "known", "scale"}
+    for table in ("personas", "viviendas"):
+        for period in ("1990", "1995", "2000", "2005", "2010", "2015", "2020", "2025"):
+            ratios = mxcensus.cpv_ratio_constraints(table, period)
+            assert len(ratios) == _RATIO_SIZES.get((table, period), 0), (table, period)
+            assert not set(ratios) & set(mxcensus.cpv_constraints(table, period))
+            published = d._aggregate_indicators(period)
+            for ind, spec in ratios.items():
+                assert set(spec) == keys and ind in published, ind
+                assert spec["scale"] == (100 if ind.startswith("PCN_") else 1), ind
+    assert mxcensus.cpv_ratio_constraints("hogares", 2005) == {}
+    with pytest.raises(ValueError, match="only the Conteo 2005"):
+        mxcensus.cpv_ratio_constraints("hogares", 2020)
+    with pytest.raises(ValueError, match="ratio constraints exist"):
+        mxcensus.cpv_ratio_constraints("migrantes", 2020)
+    # the EIC 2025: the 11 percentages without a count (7a) and the averages
+    p25 = mxcensus.cpv_ratio_constraints("personas", 2025)
+    assert set(p25) == {"PCN_HF", "PCN_P3NHLI_CLI", *_MODES_TRAB, "PROM_HNV", "GRAPROES",
+                        "GRAPROES_F", "GRAPROES_M"}
+    assert not set(p25) & set(_PERCENT_BASES)
+    assert p25["PCN_POCUP_TPER"] == {
+        "numerator": {**d._EMPLOYED_CELLS, "MED_TRASLADO_TRAB_Transporte de personal": [1]},
+        "numerator_value": None, "denominator": d._COMMUTERS, "denominator_value": None,
+        "known": (), "scale": 100}
+    assert p25["PCN_POCUP_MET"]["numerator"]["MED_TRASLADO_TRAB_METRO_T"] == [1]
+    assert len(d._COMMUTERS["TIE_TRASLADO_TRAB"]) == 6          # «no es posible determinarlo»
+    assert p25["PCN_P3NHLI_CLI"]["denominator"] == {"EDAD_CAT": d._AGES_3PLUS, "HLENGUA": ["No"]}
+    assert p25["PCN_HF"] == d._ratio(d._WOMEN_12PLUS, value="HIJOS_FALLECIDOS",
+                                     base_value="HIJOS_NAC_VIVOS",
+                                     known=("HIJOS_NAC_VIVOS", "HIJOS_FALLECIDOS"), scale=100)
+    assert p25["GRAPROES_F"] == d._ratio({"EDAD_CAT": d._AGES_15PLUS, "SEXO": ["Mujer"]},
+                                         value="ESCOACUM", known=("ESCOACUM",))
+    v25 = mxcensus.cpv_ratio_constraints("viviendas", 2025)
+    assert v25["PROM_OCUP"] == d._ratio(d._VIVIENDA, value="NUMPERS")        # VIVPARHAB_C
+    # the ITER: every dwelling; Censo 2010 counts the occupants of those without rooms too
+    for period, known in (("2010", ()), ("2020", ("TOTCUART",))):
+        rooms = mxcensus.cpv_ratio_constraints("viviendas", period)["PRO_OCUP_C"]
+        assert rooms == d._ratio({}, value="NUMPERS", base_value="TOTCUART", known=known)
+    assert mxcensus.cpv_ratio_constraints("personas", 2010)["PROM_HNV"]["known"] == ("NUMHIJ",)
+    for table, period in _RATIO_SIZES:                       # categories and values exist
+        cats, numeric = d._categories(table, period), d._numeric_columns(table, period)
+        for spec in d._RATIOS[table, period].values():
+            for side in ("numerator", "denominator"):
+                assert all(set(c) <= set(cats[v]) for v, c in spec[side].items())
+            assert {spec["numerator_value"], spec["denominator_value"], *spec["known"]} - {
+                None} <= numeric
+
+
+def test_cpv_ratio_terms():
+    """N and D per record: 1 or the value inside the side's cells, 0 outside; a record
+    with a ``known`` column missing counts on neither side, another missing value as 0."""
+    women = pd.Categorical(["Mujer", "Mujer", "Mujer", "Hombre"], categories=["Hombre", "Mujer"])
+    df = pd.DataFrame({"SEXO": women, "HNV": pd.array([2, None, 0, 3], dtype="Int64"),
+                       "HF": pd.array([1, None, None, None], dtype="Int64")},
+                      index=pd.Index(list("abcd"), name="ID"))
+    cells = {"SEXO": ["Mujer"]}
+    ratios = {"PROM": d._ratio(cells, value="HNV", known=("HNV",)),
+              "PCN": d._ratio(cells, value="HF", base_value="HNV", known=("HNV", "HF"), scale=100),
+              "RAW": d._ratio(cells, value="HNV", base_value="HF"),
+              "ALL": d._ratio({})}
+    num, den = mxcensus.cpv_ratio_terms(df, ratios)
+    assert list(num.columns) == list(den.columns) == list(ratios)
+    assert num.index.equals(df.index) and (num.dtypes == "float64").all()
+    assert num.to_dict("list") == {"PROM": [2, 0, 0, 0], "PCN": [1, 0, 0, 0],
+                                   "RAW": [2, 0, 0, 0], "ALL": [1, 1, 1, 1]}
+    assert den.to_dict("list") == {"PROM": [1, 0, 1, 0], "PCN": [2, 0, 0, 0],
+                                   "RAW": [1, 0, 0, 0], "ALL": [1, 1, 1, 1]}
+    with pytest.raises(ValueError, match="labels=True"):                 # raw codes
+        mxcensus.cpv_ratio_terms(df.assign(SEXO=df["SEXO"].astype(str)), ratios)
+    with pytest.raises(ValueError, match="labels=True"):                 # a category missing
+        mxcensus.cpv_ratio_terms(df, {"X": d._ratio({"SEXO": ["Otro"]})})
+    with pytest.raises(ValueError, match="not numeric"):
+        mxcensus.cpv_ratio_terms(df.assign(HNV=df["HNV"].astype(str)), ratios)
 
 
 # --- real data ------------------------------------------------------------------------------
@@ -2239,6 +2324,67 @@ def test_eic2025_constraints_equal_estimates(local_mirror, table):
     assert len(cons) == {"personas": 214, "viviendas": 93}[table]   # 6t: PHOGJEF_F/M; 6v:
     #  POBHOG; 6w: PHOG_IND; 6x: HOG_IND; 6y: the percentages (29/4 before); 6z: 2 + 61 more;
     #  7a: 116 percentages + PUSU_SS, PHOG_AFRO (persons), HOG_AFRO (dwellings)
+
+
+def _ratios_by(frame: pd.DataFrame, ratios: dict, geo: pd.Series) -> pd.DataFrame:
+    """scale × Σ w·N / Σ w·D of each ratio constraint per ``geo`` value (and ``"000"``, the
+    frame's total)."""
+    num, den = mxcensus.cpv_ratio_terms(frame, ratios)
+    w = frame["FACTOR"].astype(float)
+
+    def by(terms):
+        s = terms.mul(w, axis=0).groupby(geo.to_numpy()).sum()
+        return pd.concat([s, s.sum().to_frame("000").T])
+
+    return by(num) / by(den) * pd.Series({ind: r["scale"] for ind, r in ratios.items()})
+
+
+@_REAL_SKIP
+@pytest.mark.parametrize("table", ["personas", "viviendas"])
+def test_eic2025_ratio_constraints_equal_estimates(local_mirror, table):
+    """7e: EIC 2025, state 01 and its municipalities: each ratio constraint's scale ×
+    Σ w·N / Σ w·D is the published share or average within its rounding (two decimals).
+    All 32 states, 2,478 municipalities, the localities of 50,000+ and the state
+    remainders (2,769 geographies; PROM_OCUP 2,776): STEP_7e.md."""
+    loader = mxcensus.load_cpv_personas if table == "personas" else mxcensus.load_cpv_viviendas
+    frame = loader(2025, state=1, derived=True)
+    est = mxcensus.load_cpv_estimaciones(survey_path=_MIRROR / "cpv_estimaciones_2025.parquet",
+                                         nivel=["estatal", "municipal"], state=1).droplevel([0, 2])
+    ratios = mxcensus.cpv_ratio_constraints(table, 2025)
+    got = _ratios_by(frame, ratios, frame["CVE_MUN"].astype(str)).reindex(est.index)
+    pub = est[list(ratios)].astype(float)
+    assert len(ratios) == {"personas": 15, "viviendas": 2}[table] and pub.notna().all().all()
+    assert (got - pub).abs().max().max() <= 0.005 + 1e-9, (got - pub).abs().max()
+
+
+@_REAL_SKIP
+@pytest.mark.parametrize("period", ["2010", "2020"])
+def test_census_ratio_constraints_equal_iter(local_mirror, period):
+    """7e: Censo 2010/2020's ITER averages on their samples, in Sonora's municipalities the
+    sample enumerated completely (``FACTOR`` 1 for everyone) where the population in
+    households and the averages' age groups equal the ITER's: exact to the rounding. All 32
+    states (2020: 135–184 municipalities, 2010: 343–364; elsewhere the sample's band):
+    STEP_7e.md."""
+    per = mxcensus.load_cpv_personas(period, state=26, derived=True)
+    mun = per["MUN"].astype(str).str.zfill(3).to_numpy()
+    age, sex = per["EDAD_CAT"], per["SEXO"]
+    a15 = age.isin(d._AGES_15PLUS)
+    counts = pd.DataFrame({"POBHOG": True, "P_15YMAS": a15, "P_15YMAS_F": a15 & sex.eq("Mujer"),
+                           "P_15YMAS_M": a15 & sex.eq("Hombre"),
+                           "P_12YMAS_F": age.isin(d._AGES_12PLUS) & sex.eq("Mujer")},
+                          index=per.index).astype(int).groupby(mun).sum()
+    w = per["FACTOR"].groupby(mun)
+    full = w.min().eq(1) & w.max().eq(1)
+    it = mxcensus.load_cpv_iter(period, state=26, nivel="municipal").reset_index()
+    it = it.set_index(it["CVE_MUN"].astype(str)).astype({c: float for c in counts})
+    same = counts.index[full & counts.eq(it[counts.columns].reindex(counts.index)).all(axis=1)]
+    assert len(same) == {"2010": 31, "2020": 5}[period]
+    viv = mxcensus.load_cpv_viviendas(period, state=26, derived=True)
+    for table, frame in (("personas", per), ("viviendas", viv)):
+        ratios = mxcensus.cpv_ratio_constraints(table, period)
+        got = _ratios_by(frame, ratios, frame["MUN"].astype(str).str.zfill(3)).loc[same]
+        diff = (got - it.loc[same, list(ratios)].astype(float)).abs()
+        assert diff.max().max() <= 0.005 + 1e-9, diff.max()
 
 
 # 6y: INEGI's limitation and disability by activity (a limitation only for the persons with

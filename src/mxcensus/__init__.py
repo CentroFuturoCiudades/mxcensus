@@ -50,7 +50,12 @@ from mxcensus.cpv import (
     variables_cpv_labels,
 )
 from mxcensus.cpv_geo import cpv_mun_lineage, cpv_municipal_units
-from mxcensus.cpv_derived import cpv_constraints, cpv_derivations
+from mxcensus.cpv_derived import (
+    cpv_constraints,
+    cpv_derivations,
+    cpv_ratio_constraints,
+    cpv_ratio_terms,
+)
 from mxcensus.cpv_aggregates import (
     load_cpv_estimaciones,
     load_cpv_iter,
@@ -131,6 +136,8 @@ __all__ = [
     "cpv_municipal_units",
     "cpv_derivations",
     "cpv_constraints",
+    "cpv_ratio_constraints",
+    "cpv_ratio_terms",
     "variables_cpv_labels",
     # Marco Geoestadístico (geometry, per state; 2020 and EIC 2025 frames)
     "load_mg",
