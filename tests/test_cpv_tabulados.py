@@ -239,6 +239,43 @@ def test_saving_bulbs_and_titles():
     assert ck._occupants_title("Dwellings by wall") == "Occupants of the dwellings by wall"
 
 
+def test_c2k_items_and_repeated_blocks():
+    """7i: C2KVI16's one row per good under each state's name row, and C2KVI18's several
+    VIVIENDAS/OCUPANTES blocks per state (all, then each way of disposal)."""
+    goods = [{"A": "ESTADOS UNIDOS MEXICANOS"}, {"A": "RADIO", "B": "10", "C": "80", "D": "20",
+                                                 "F": "40", "G": "75", "H": "25"},
+             {"A": "TELEVISIÓN", "B": "10", "C": "90", "D": "10", "F": "40", "G": "95", "H": "5"},
+             {"A": "01 AGUASCALIENTES"}, {"A": "RADIO", "B": "2", "C": "70", "D": "30"}]
+    assert ck._c2k_items("CD")({"x": goods}) == {(0, "T"): [80, 20, 90, 10], (1, "T"): [70, 30]}
+    assert ck._c2k_items("GH")({"x": goods})[0, "T"] == [75, 25, 95, 5]
+    blocks = [{"A": "01 AGUASCALIENTES"}, {"A": "VIVIENDAS", "B": "100", "C": "60", "D": "40"},
+              {"A": "OCUPANTES", "B": "100", "C": "55", "D": "45"},
+              {"A": "SERVICIO DE RECOLECCIÓN DOMICILIARIO"},
+              {"A": "VIVIENDAS", "B": "100", "C": "70", "D": "30"}]
+    assert ck._c2k_repeated("CD", "VIVIENDAS")({"x": blocks}) == {(1, "T"): [60, 40, 70, 30]}
+    assert ck._c2k_repeated("CD", "OCUPANTES")({"x": blocks}) == {(1, "T"): [55, 45]}
+    occupants = [{"A": "01 AGUASCALIENTES"}, {"A": "VIVIENDAS", "B": "9", "C": "1"},
+                 {"A": "OCUPANTES", "B": "40", "C": "2"}]
+    assert ck._c2k_blocks(occupants, "C", level="occupants") == {(1, "T"): [2]}
+
+
+def test_weighted_parts_and_averages():
+    """7i: a ``Weighted`` part counts each record's value × its weight (an average's
+    numerator or denominator); unit «average» = numerator / denominator."""
+    w = pd.Series([2.0, 1.0, 1.0])
+    keep = pd.Series([True, True, False])
+    part = ck.Weighted(pd.Series([True, False, True]), pd.Series(["4", "3", "5"]))
+    assert ck._part(part, w, keep, 1) == {1: 8.0}
+    assert ck._value(9.0, 2.0, "average") == 4.5 and np.isnan(ck._value(1.0, 0.0, "average"))
+    v = pd.DataFrame({"NUMPERS": ["4", "2"], "NUMHOGS": [None, "2"], "TOTCUART_INEGI": [2, None],
+                      "CUADORM": ["01", "99"]})
+    cells = ck._vi19(v)
+    w = pd.Series([1.0, 1.0])
+    sums = [(ck._part(n, w, w.astype(bool), 1)[1],
+             ck._part(d, w, w.astype(bool), 1)[1]) for n, d in cells]
+    assert sums == [(6.0, 2.0), (6.0, 3.0), (4.0, 2.0), (4.0, 1.0), (3.0, 2.0)]
+
+
 def test_checks_are_consistent():
     """Every check names a fetched source, unique keys per edition, and a tolerance."""
     keys = [(c.period, c.key) for c in ck.CHECKS]
@@ -246,11 +283,11 @@ def test_checks_are_consistent():
     for c in ck.CHECKS:
         assert c.source in ck.SOURCES[c.period][1], c.key
         assert c.table in ("personas", "viviendas", "hogares", "migrantes")       # 7d
-        assert c.unit in ("points", "persons")
+        assert c.unit in ("points", "persons", "average")                   # 7i
         assert c.table != "migrantes" or c.period == "2000"
         assert not c.by_origin or c.period == "2000"                    # 7d: MI02/05/10–12
         assert c.table != "hogares" or c.period == "2000"          # 6t: 2000's household rows
-        assert (c.unit == "points") == (c.period == "2000")
+        assert (c.unit in ("points", "average")) == (c.period == "2000")
         assert c.source.endswith(".xlsx" if c.period == "2020" else ".xls")        # 6p
         assert None in ck._TOLERANCE[c.period]
     assert {c.period for c in ck.CHECKS} == set(ck.SOURCES)
@@ -265,7 +302,8 @@ def test_state_01_within_tolerance(monkeypatch):
     monkeypatch.setattr(ck, "fetch", lambda periods, tab_dir, retries=2: {
         f"{p}/{n}": tab_dir / p / n for p in periods for n in ck.SOURCES[p][1]})
     rows = ck.run(sorted(ck.SOURCES), [1], _TABS, _MIRROR, log=lambda *a: None)
-    assert len(rows) == 317 + 159 + 120 + 45 + 7 + 13 + 149 + 132 + 183 + 463 + 562  # 6p: 2020;
+    assert len(rows) == (317 + 159 + 120 + 45 + 7 + 13 + 149 + 132 + 183 + 463 + 562  # 6p: 2020;
+                         + 317)
     #                                                 6q: 2015 affiliation, commute, marital status,
     #                                                 education (2010's are national); 6r: 2000
     #                                                 hours, education of the 12+/18+; 6t: 2000/2015
@@ -284,7 +322,8 @@ def test_state_01_within_tolerance(monkeypatch):
     #                                                 national), 2015 the dwellings (sex T; 14-12
     #                                                 national); 7h: the Censo 2010/2020
     #                                                 dwellings and the 2015/2020 owners' sex
-    #                                                 (2010 262, 2015 25, 2020 275; sex T)
+    #                                                 (2010 262, 2015 25, 2020 275; sex T);
+    #                                                 7i: CGPV 2000's dwellings (sex T)
     by_origin = {c.key for c in ck.CHECKS if c.by_origin}               # 7d: all 32 only
     assert by_origin == {"MI02", "MI05", "MI10", "MI11", "MI12"}
     assert not by_origin & {r["check"] for r in rows}
@@ -300,6 +339,8 @@ def test_state_01_within_tolerance(monkeypatch):
     raw = [r for r in rows if r["check"].startswith(("14_", "16-")) or r["check"] in (
         "14-14", "14-16s")]                                                # 7h
     assert len(raw) == 262 + 25 + 275 + 10 and {r["sex"] for r in raw} == {"T"}  # + 16-34
+    vi = [r for r in rows if r["check"].startswith("VI") and r["check"] not in ("VI06", "VI10")]
+    assert len(vi) == 317 and {r["sex"] for r in vi} == {"T"}                # 7i
     bad = [r for r in rows if abs(r["delta"]) > r["tolerance"]]
     assert not bad, bad[:5]
     exact = [r for r in rows if r["period"] != "2000"]

@@ -1,14 +1,14 @@
 # CPV family — session handoff
 
-**Status (2026-10-10/11, overnight): units 0–6z and 7a–7h are done. `main` = v0.11.0 =
+**Status (2026-10-10/11, overnight): units 0–6z and 7a–7i are done. `main` = v0.11.0 =
 6u–7b, tagged and pushed; 7c (CGPV 2000's places, the income in minimum wages 2000–2020), 7d
 (more tabulado checks: the EIC 2015's dwellings, CGPV 2000's employment and migration), 7e
 (ratio constraints), 7f (CGPV 2000 per dwelling, the 1990/1995 averages), 7g (constraint
-keys = the published columns; every constraint against the census) and 7h (the Censo
-2010/2020 dwelling tabulados, the owners' sex) are commits on `cpv-integration` after it,
-not pushed. 7g and 7h ran unattended (the user asked for the night's units to run without
-them: a local commit per unit, no push, merge, version or upload) — their decisions wait
-for the user's review (§Review: night of 2026-10-10/11). Before 0.11.0:
+keys = the published columns; every constraint against the census), 7h (the Censo
+2010/2020 dwelling tabulados, the owners' sex) and 7i (CGPV 2000's dwelling tabulados) are
+commits on `cpv-integration` after it, not pushed. 7g–7i ran unattended (the user asked for
+the night's units to run without them: a local commit per unit, no push, merge, version or
+upload) — their decisions wait for the user's review (§Review: night of 2026-10-10/11). Before 0.11.0:
 v0.10.0 = 6s–6t, 0.9.0 = 6k–6r. A session starts by checking `git log`/`git status` against
 this line.**
 - **Released** (registered, uploaded, verified): every edition 1990–2025 (897 `cpv_` files)
@@ -328,7 +328,17 @@ this line.**
     cells). Universes: 2010 without `CLAVIVP` 5–7, 2020 without 07–09; 2020's «sin focos
     ahorradores» = `FOCOS_AHORRA` 0 whatever the total.
 
-Design: [`PLAN.md`](PLAN.md). Recent units: [`STEP_7h.md`](STEP_7h.md), [`STEP_7g.md`](STEP_7g.md), [`STEP_7f.md`](STEP_7f.md), [`STEP_7e.md`](STEP_7e.md), [`STEP_7d.md`](STEP_7d.md), [`STEP_7c.md`](STEP_7c.md), [`STEP_7b.md`](STEP_7b.md), [`STEP_7a.md`](STEP_7a.md), [`STEP_6z.md`](STEP_6z.md), [`STEP_6y.md`](STEP_6y.md), [`STEP_6x.md`](STEP_6x.md), [`STEP_6w.md`](STEP_6w.md), [`STEP_6v.md`](STEP_6v.md), [`STEP_6u.md`](STEP_6u.md), [`STEP_6t.md`](STEP_6t.md), [`STEP_6s.md`](STEP_6s.md), [`STEP_6r.md`](STEP_6r.md), [`STEP_6q.md`](STEP_6q.md), [`STEP_6p.md`](STEP_6p.md), [`STEP_6o.md`](STEP_6o.md), [`STEP_6n.md`](STEP_6n.md), [`STEP_6m.md`](STEP_6m.md), [`STEP_6l.md`](STEP_6l.md), [`STEP_6k.md`](STEP_6k.md), [`STEP_6j.md`](STEP_6j.md), [`STEP_6i.md`](STEP_6i.md), [`STEP_6h.md`](STEP_6h.md), [`STEP_6g.md`](STEP_6g.md), [`STEP_6f.md`](STEP_6f.md), [`STEP_6e.md`](STEP_6e.md),
+- **7i** (`STEP_7i.md`): HANDOFF candidate 3's CGPV 2000 dwelling tabulados, unattended;
+  checks only.
+  - `check_cpv_tabulados.py` on the raw items of `C2KVI01`–`19` (floors, walls, roofs,
+    occupants, rooms on `TOTCUART_INEGI`, bedrooms, kitchen, fuel, the exclusive sanitary
+    service, drainage, water and its supply, electricity, tenure, age, goods, waste and its
+    collection, the averages), dwellings and occupants: **10,461 cells**, every state but
+    Chiapas within 0.021 points; Chiapas's small bases up to 1.79 (documented tolerances);
+    the report 82,476 cells.
+  - New `Weighted(mask, values)` cell parts and the «average» unit (VI19).
+
+Design: [`PLAN.md`](PLAN.md). Recent units: [`STEP_7i.md`](STEP_7i.md), [`STEP_7h.md`](STEP_7h.md), [`STEP_7g.md`](STEP_7g.md), [`STEP_7f.md`](STEP_7f.md), [`STEP_7e.md`](STEP_7e.md), [`STEP_7d.md`](STEP_7d.md), [`STEP_7c.md`](STEP_7c.md), [`STEP_7b.md`](STEP_7b.md), [`STEP_7a.md`](STEP_7a.md), [`STEP_6z.md`](STEP_6z.md), [`STEP_6y.md`](STEP_6y.md), [`STEP_6x.md`](STEP_6x.md), [`STEP_6w.md`](STEP_6w.md), [`STEP_6v.md`](STEP_6v.md), [`STEP_6u.md`](STEP_6u.md), [`STEP_6t.md`](STEP_6t.md), [`STEP_6s.md`](STEP_6s.md), [`STEP_6r.md`](STEP_6r.md), [`STEP_6q.md`](STEP_6q.md), [`STEP_6p.md`](STEP_6p.md), [`STEP_6o.md`](STEP_6o.md), [`STEP_6n.md`](STEP_6n.md), [`STEP_6m.md`](STEP_6m.md), [`STEP_6l.md`](STEP_6l.md), [`STEP_6k.md`](STEP_6k.md), [`STEP_6j.md`](STEP_6j.md), [`STEP_6i.md`](STEP_6i.md), [`STEP_6h.md`](STEP_6h.md), [`STEP_6g.md`](STEP_6g.md), [`STEP_6f.md`](STEP_6f.md), [`STEP_6e.md`](STEP_6e.md),
 [`STEP_6d.md`](STEP_6d.md),
 [`STEP_6c.md`](STEP_6c.md), [`STEP_6b.md`](STEP_6b.md), … [`STEP_0_probe.md`](STEP_0_probe.md).
 
@@ -349,7 +359,7 @@ On 2026-10-10 (7c) `wsl:~/mxcensus` ran the 32-state sweep with 7c's patch appli
 7f ran on the Mac only (`--variables`, `--crosswalk`, `--validate` there; a 32-state sweep,
 ~1 min). On the night of 2026-10-10 `wsl:~/mxcensus` was fast-forwarded to 7f (b6c8aff, a `git
 bundle` of 7c–7f over `scp`; not pushed) and ran the full suite there for the 0.12.0 release
-(`~/pytest_7f.log`). 7g ran on the Mac (32-state sweeps, 5 processes, ~15 min each); 7h too
+(`~/pytest_7f.log`: **1907 passed, 1 skipped**, 1 h 56 min — the Mac's 7f count). 7g ran on the Mac (32-state sweeps, 5 processes, ~15 min each); 7h too
 (the report, ~30 min; the Mac's tabulados cache now holds the eight 2010 `14_NNA` workbooks,
 which `wsl`'s lacks — the script fetches them).
 `wsl:~/mxcensus3c` (3c's code copy) can be deleted.
@@ -357,7 +367,7 @@ which `wsl`'s lacks — the script fetches them).
 ## Kickoff prompt for the next session
 
 > Continue the CPV census-family work in this repo (branch cpv-integration = main = v0.11.0
-> + units 7c–7h). Read docs/cpv/HANDOFF.md first, then agree with me which next unit to
+> + units 7c–7i). Read docs/cpv/HANDOFF.md first, then agree with me which next unit to
 > take (candidates in HANDOFF §Next) before implementing it, following the session protocol
 > in docs/cpv/PLAN.md. Use .venv/bin/python, not uv run. Run wsl tasks without asking; ask
 > me before committing, pushing, installing packages or uploading.
@@ -382,9 +392,11 @@ the commit's diff:
 4. **7g, new derived `RELIGION_INEGI`** (Censo 2010 only; the name is the session's): the
    2010 classification beside `RELIGION_CAT` (2020's grouping, the user's 6f choice), for the
    2010 `PNCATOLICA`/`POTRAS_REL`.
-5. **7h** changed only the maintainer check script (no decision with user-visible effect);
-   its scope (the Censo 2010/2020 dwelling tabulados and the owners' sex) was the session's
-   choice among the candidates.
+5. **7h, 7i** changed only the maintainer check script (no decision with user-visible
+   effect); their scope (the Censo 2010/2020 dwelling tabulados and the owners' sex; CGPV
+   2000's dwelling tabulados) was the session's choice among the candidates. 7i's Chiapas
+   tolerances (VI11 0.9, VI18 1.6/1.8 and the nation's VI18o 0.06 points) follow 7d's MI11
+   precedent.
 
 ## Review: decisions taken unattended (night of 2026-10-08/09) — kept
 
@@ -417,7 +429,7 @@ and **kept all seven** (merged as 0.9.0):
 
 ## Next: candidates (none decided)
 
-1. **Release 7c–7h** as 0.12.0: the `wsl` full suite ran on 7f overnight; rerun it on the
+1. **Release 7c–7i** as 0.12.0: the `wsl` full suite ran on 7f overnight; rerun it on the
    final commit (a `git bundle` as for 0.11.0), then merge into `main`, tag and push — the
    user's call, after the review above.
 2. Smaller:
@@ -433,8 +445,6 @@ and **kept all seven** (merged as 0.9.0):
      `_QUANTITIES` could take them; the derivations read the raw codes, so only the
      labelled dtype changes).
 3. More tabulado checks (7d's and 7h's leftovers):
-   - CGPV 2000's dwelling tabulados `C2KVI01`–`19` (shares in points; VI06/VI10 since 6i;
-     VIVIENDAS and OCUPANTES rows; `_frame` keeps one row per dwelling) — the next unit;
    - the EIC 2015 person tabulados not yet read (disability, fertility, language, the
      01_poblacion tables);
    - CGPV 2000's fertility, disability and language tabulados (`C2KFE*`, `C2KDI*`, `C2KLI*`:
@@ -896,3 +906,8 @@ and **kept all seven** (merged as 0.9.0):
   identified. The script's 2015/2020 dwelling frames carry `DUE1_SEXO`/`DUE2_SEXO` (raw codes)
   from a column-projected person read; 2015's codes are unpadded, so both sides compare as
   numbers.
+- **CGPV 2000's dwelling tabulados** (7i) count every private dwelling once (the script's
+  frame keeps the first household's row), the occupants with `NUMPERS`; `NUMHOGS` is blank for
+  one household (fill 1). Chiapas's small bases miss by up to 1.8 points (its weights).
+- **Averages in the tabulado checks** (7i): `Weighted(mask, values)` cell parts and
+  `unit="average"` (num ÷ den); 2000's are compared within its band.

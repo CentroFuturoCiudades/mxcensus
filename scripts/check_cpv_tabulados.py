@@ -49,7 +49,7 @@ import re
 import sys
 from collections import defaultdict
 from collections.abc import Callable
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from pathlib import Path
 
 import numpy as np
@@ -73,7 +73,10 @@ SOURCES = {
               "C2KEM08.xls", "C2KEM10.xls", "C2KMI04.xls",
               "C2KEM02.xls", "C2KEM03.xls", "C2KEM04.xls", "C2KEM06.xls", "C2KEM09.xls",
               "C2KEM11.xls", "C2KMI02.xls", "C2KMI05.xls", "C2KMI06.xls", "C2KMI07.xls",
-              "C2KMI08.xls", "C2KMI09.xls", "C2KMI10.xls", "C2KMI11.xls", "C2KMI12.xls")),
+              "C2KMI08.xls", "C2KMI09.xls", "C2KMI10.xls", "C2KMI11.xls", "C2KMI12.xls",
+              # 7i: the dwellings
+              *(f"C2KVI{n:02d}.xls" for n in (1, 2, 3, 4, 5, 7, 8, 9, 11, 12, 13, 14, 15, 16,
+                                              17, 18, 19)))),
     "2010": ("ccpv/2010/tabulados/Ampliado",
              ("04_02A_ESTATAL.xls", "06_01A_ESTATAL.xls", "08_02A_ESTATAL.xls",
               "08_03A_ESTATAL.xls", "08_10A_ESTATAL.xls", "08_15A_ESTATAL.xls",
@@ -158,7 +161,8 @@ def _c2k_blocks(rows: list[dict], cols: str, level: str = "persons"
                 ) -> dict[tuple[int, str], list[float]]:
     """A CGPV 2000 tabulado by state: ``{(state, sex): [cells of cols]}``. Person
     tabulados: the state's row (both sexes) and its first HOMBRES/MUJERES rows (age-group
-    rows in between are skipped); dwelling tabulados: the state's VIVIENDAS row."""
+    rows in between are skipped); dwelling tabulados: the state's VIVIENDAS row (7i:
+    ``level="occupants"``, its OCUPANTES row)."""
     out, state = {}, None
     for r in rows:
         a = (r.get("A") or "").strip()
@@ -170,8 +174,8 @@ def _c2k_blocks(rows: list[dict], cols: str, level: str = "persons"
             continue
         elif level == "persons" and a in ("HOMBRES", "MUJERES"):
             out.setdefault((state, a[0]), [_num(r.get(c)) for c in cols])
-        elif level == "dwellings" and a == "VIVIENDAS":
-            out[state, "T"] = [_num(r.get(c)) for c in cols]
+        elif (level, a) in (("dwellings", "VIVIENDAS"), ("occupants", "OCUPANTES")):
+            out[state, "T"] = [_num(r.get(c)) for c in cols]          # 7i: the occupants' rows
     return out
 
 
@@ -239,6 +243,37 @@ def _c2k_national(cols: str, first: bool = True):
     return read
 
 
+def _c2k_items(cols: str):
+    """CGPV 2000 tabulados with one row per item under each state's name row (C2KVI16, the
+    goods; 7i): the items' cells in order."""
+    def read(wb):
+        out, state = {}, None
+        for r in _sheet(wb, None):
+            a = (r.get("A") or "").strip()
+            if (s := _state_of(a)) is not None and not r.get("B"):
+                state = s
+            elif state is not None and a and r.get("B"):
+                out.setdefault((state, "T"), []).extend(_num(r.get(c)) for c in cols)
+        return out
+    return read
+
+
+def _c2k_repeated(cols: str, label: str):
+    """CGPV 2000 tabulados with several blocks per state (C2KVI18: all, then each way of
+    disposing of the waste; 7i): every ``label`` row (VIVIENDAS or OCUPANTES) of a state,
+    in order."""
+    def read(wb):
+        out, state = {}, None
+        for r in _sheet(wb, None):
+            a = (r.get("A") or "").strip()
+            if (s := _state_of(a)) is not None:
+                state = s
+            elif state is not None and a == label:
+                out.setdefault((state, "T"), []).extend(_num(r.get(c)) for c in cols)
+        return out
+    return read
+
+
 def _estimates(rows: list[dict], estimator: str) -> dict[tuple, list[float]]:
     """A 2010/2015 tabulado: the header row names the ``Estimador`` column; the columns
     before it are the row's dimensions (state first), those after it its values. Returns
@@ -285,7 +320,7 @@ class Check:
     cells: tuple[str, ...]            # the compared cells' names
     published: Callable[[dict], dict]  # workbook → {(state, sex): [values]}
     ours: Callable[[pd.DataFrame], list]  # frame → [(numerator, denominator | None)]
-    unit: str = "points"              # points (shares) or persons (counts)
+    unit: str = "points"              # points (shares), persons (counts) or average (7i)
     sheet: str | None = None          # the workbook's sheet (default: its first)
     note: str = ""
     # state (0 = the nation) → its largest |Δ| for this check, over the edition's
@@ -305,6 +340,14 @@ class ByOrigin:
     unspecified origin, :data:`_UNSPECIFIED`."""
     mask: pd.Series
     origin: pd.Series
+
+
+@dataclass(frozen=True)
+class Weighted:
+    """A cell part whose records count their ``values`` (× the weight) instead of 1 (7i: the
+    numerators and denominators of an average — occupants, households, rooms)."""
+    mask: pd.Series
+    values: pd.Series
 
 
 def _sheet(wb: dict, sheet: str | None) -> list[dict]:
@@ -1556,6 +1599,235 @@ def _dwelling_checks_2010() -> tuple[Check, ...]:
     return tuple(out)
 
 
+# CGPV 2000 dwellings: the raw items (7i) -------------------------------------------------
+# Its dwelling tabulados count every private dwelling (each class: their items are recorded)
+# once — the script's dwelling frame keeps the first household's row (_frame) — and the
+# occupants Σ FACTOR × NUMPERS (the dwelling's persons); shares in points.
+
+def _of(den: pd.Series, *nums: pd.Series) -> list:
+    """Shares of ``den``: each numerator within it."""
+    return [(den & n, den) for n in nums]
+
+
+def _vi_items(v):
+    """C2KVI16: per good (its «yes» and «no» codes; 9 = not specified), % of the dwellings."""
+    every = pd.Series(True, index=v.index)
+    return [cell for _, col, yes, no in _GOODS_2000
+            for cell in _of(every, *(_code(v, col).eq(c) for c in (yes, no, 9)))]
+
+
+_GOODS_2000 = (("RADIO O RADIOGRABADORA", "RADIO", 1, 2), ("TELEVISIÓN", "TELEVI", 3, 4),
+               ("VIDEOCASETERA", "VIDEO", 5, 6), ("LICUADORA", "LICUAD", 7, 8),
+               ("REFRIGERADOR", "REFRIG", 1, 2), ("LAVADORA", "LAVADORA", 3, 4),
+               ("TELÉFONO", "TELEFONO", 5, 6), ("CALENTADOR DE AGUA", "BOILER", 7, 8),
+               ("AUTOMÓVIL O CAMIONETA PROPIOS", "AUTOPROP", 1, 2), ("COMPUTADORA", "COMPU", 3, 4))
+_GOODS_CELLS_2000 = tuple(f"{n}: {c}" for n, *_ in _GOODS_2000 for c in ("yes", "no", "NE"))
+
+
+def _vi_coded(col: str, codes: tuple):
+    """Each code (or tuple of codes; ``"N+"`` = N to 98) of ``col``, % of the dwellings."""
+    def ours(v):
+        x = _code(v, col)
+        return _of(pd.Series(True, index=v.index), *(_sel(x, c) for c in codes))
+    return ours
+
+
+def _vi05(v):
+    """C2KVI05: the rooms as INEGI counts them (``TOTCUART_INEGI``: less an exclusive kitchen
+    nobody sleeps in; 7f), 1 … 5, 6 and more, not specified."""
+    x = pd.to_numeric(v["TOTCUART_INEGI"], errors="coerce")
+    return _of(pd.Series(True, index=v.index), *(x.eq(k) for k in range(1, 6)), x.ge(6), x.isna())
+
+
+def _vi07(v):
+    """C2KVI07: a kitchen (``COCINA`` 1), then as % of those: exclusive (``COCDOR`` 4: nobody
+    sleeps there), a bedroom too (3), not specified (9); no kitchen (2), not specified (9)."""
+    every, kitchen, sleep = pd.Series(True, index=v.index), _code(v, "COCINA"), _code(v, "COCDOR")
+    has = kitchen.eq(1)
+    return [(has, every), *_of(has, sleep.eq(4), sleep.eq(3), sleep.eq(9)),
+            *_of(every, kitchen.eq(2), kitchen.eq(9))]
+
+
+def _vi09(v):
+    """C2KVI09: an exclusive sanitary service (``SERSAN`` 1 and ``USOEXC`` 1), then as % of
+    those its water (``CONAGU``: connected, a bucket, none, not specified); none exclusive
+    (``SERSAN`` 2, or 1 and shared), not specified (``SERSAN`` 9, or 1 and ``USOEXC`` 9)."""
+    every, kind, use, water = (pd.Series(True, index=v.index), _code(v, "SERSAN"),
+                               _code(v, "USOEXC"), _code(v, "CONAGU"))
+    own = kind.eq(1) & use.eq(1)
+    return [(own, every), *_of(own, *(water.eq(c) for c in (1, 2, 3, 9))),
+            (kind.eq(2) | (kind.eq(1) & use.eq(2)), every),
+            (kind.eq(9) | (kind.eq(1) & use.eq(9)), every)]
+
+
+def _vi10d(v):
+    """C2KVI10 in detail: drainage (``DRENAJE`` 1–4), then as % of those its outlet (the
+    public network, a septic tank, a ravine, a river or the sea); none (5), not specified."""
+    every, d = pd.Series(True, index=v.index), _code(v, "DRENAJE")
+    has = d.between(1, 4)
+    return [(has, every), *_of(has, *(d.eq(c) for c in (1, 2, 3, 4))),
+            *_of(every, d.eq(5), d.eq(9))]
+
+
+def _vi11(v):
+    """C2KVI11: piped water in the dwelling's grounds (``DISAGU`` 1–2: inside, outside but
+    in the lot), carried (3–4: a public tap, another dwelling), none (5–6: a pipa; a well,
+    river or other), each with its parts as % of it; not specified (9)."""
+    every, w = pd.Series(True, index=v.index), _code(v, "DISAGU")
+    out = []
+    for group in ((1, 2), (3, 4), (5, 6)):
+        has = w.isin(group)
+        out += [(has, every), *_of(has, *(w.eq(c) for c in group))]
+    return out + [(w.eq(9), every)]
+
+
+def _vi12(v):
+    """C2KVI12: the dwellings with piped water inside the dwelling or the lot (``DISAGU``
+    1–2, asked ``DOTAGUAD``) by its supply: daily (then as % of those: all day, part of the
+    day, not specified — ``DOTAGUAR``), every third day, twice a week, once, now and then,
+    not specified."""
+    piped = _code(v, "DISAGU").isin([1, 2])
+    days, hours = _code(v, "DOTAGUAD"), _code(v, "DOTAGUAR")
+    daily = piped & days.eq(1)
+    return [(daily, piped), *_of(daily, *(hours.eq(c) for c in (1, 2, 9))),
+            *_of(piped, *(days.eq(c) for c in (2, 3, 4, 5, 9)))]
+
+
+def _vi14(v):
+    """C2KVI14: owned (``TENVIV`` 1; as % of those ``TENPROP`` being paid 3, paid 4, other 5,
+    not specified 9), not owned (2: rented 6, lent or other 7, not specified 9), not
+    specified (``TENVIV`` 9)."""
+    every, owned, how = pd.Series(True, index=v.index), _code(v, "TENVIV"), _code(v, "TENPROP")
+    own, other = owned.eq(1), owned.eq(2)
+    return [(own, every), *_of(own, *(how.eq(c) for c in (3, 4, 5, 9))),
+            (other, every), *_of(other, *(how.eq(c) for c in (6, 7, 9))), (owned.eq(9), every)]
+
+
+def _vi18(v):
+    """C2KVI18: the dwellings that hand their waste to a service, a container, the street or
+    a ravine (``ELIBAS`` 1–4: those asked ``ELIBASPE``) by how often it is collected (daily,
+    every third day, twice a week, once, now and then, never, not specified), then each way:
+    the collection service (1), a container (2), the street, a vacant lot or a ravine (3, 4)."""
+    how, often = _code(v, "ELIBAS"), _code(v, "ELIBASPE")
+    return [cell for codes in ((1, 2, 3, 4), 1, 2, (3, 4)) for cell in _of(
+        _is(how, codes), *(often.eq(c) for c in (1, 2, 3, 4, 5, 6, 9)))]
+
+
+def _vi19(v):
+    """C2KVI19: the occupants (``NUMPERS``) per dwelling, per household (``NUMHOGS``: their
+    number where there are several, blank for one), per room (``TOTCUART_INEGI``) and per
+    bedroom (``CUADORM``) of the dwellings that gave them, and the households per dwelling."""
+    every = pd.Series(True, index=v.index)
+    persons, households = v["NUMPERS"], _code(v, "NUMHOGS").fillna(1)
+    rooms = pd.to_numeric(v["TOTCUART_INEGI"], errors="coerce")
+    bedrooms = _code(v, "CUADORM").where(lambda x: x.lt(99))
+    with_rooms, with_bedrooms = rooms.notna(), bedrooms.notna()
+    return [(Weighted(every, persons), every),
+            (Weighted(every, persons), Weighted(every, households)),
+            (Weighted(with_rooms, persons), Weighted(with_rooms, rooms)),
+            (Weighted(with_bedrooms, persons), Weighted(with_bedrooms, bedrooms)),
+            (Weighted(every, households), every)]
+
+
+def _dwelling_checks_2000() -> tuple[Check, ...]:
+    """CGPV 2000's dwelling tabulados (C2KVI01–18; VI06 and VI10 since 6i on the derived
+    columns, here in detail): every one for the dwellings and, but VI04 and VI12, the
+    occupants (``…o``)."""
+    specs = (
+        ("01", "Floors (`PISOS`)", "CDEF", ("earth", "cement", "tiles, wood or other", "NE"),
+         _vi_coded("PISOS", (1, 2, 3, 9))),
+        ("02", "Walls (`PAREDES`)", "CDE", ("light, natural or precarious", "solid", "NE"),
+         _vi_coded("PAREDES", (tuple(range(1, 8)), 8, 9))),
+        ("03", "Roofs (`TECHOS`)", "CDEFGHI",
+         ("waste material", "cardboard sheet", "asbestos or metal sheet", "palm, tejamanil or "
+          "wood", "tile", "slab, brick or terrado", "NE"), _vi_coded("TECHOS", (1, 2, 3, 4, 5, 6, 9))),
+        ("05", "Rooms (`TOTCUART_INEGI`)", "CDEFGHI", ("1", "2", "3", "4", "5", "6+", "NE"), _vi05),
+        ("06d", "Bedrooms in detail (`CUADORM`)", "CDEFGHI", ("1", "2", "3", "4", "5", "6+", "NE"),
+         _vi_coded("CUADORM", (1, 2, 3, 4, 5, "6+", 99))),
+        ("07", "Kitchen (`COCINA`, `COCDOR`)", "CDEFGH",
+         ("a kitchen", "exclusive", "a bedroom too", "use NE", "no kitchen", "NE"), _vi07),
+        ("08", "Cooking fuel (`COMBUST`)", "CDEF", ("gas", "wood or charcoal", "other", "NE"),
+         _vi_coded("COMBUST", (1, (2, 3), (4, 5), 9))),
+        ("09", "Exclusive sanitary service and its water (`SERSAN`, `USOEXC`, `CONAGU`)",
+         "CDEFGHI", ("exclusive", "connected", "a bucket", "no water", "water NE",
+                     "none exclusive", "NE"), _vi09),
+        ("10d", "Drainage in detail (`DRENAJE`)", "CDEFGHI",
+         ("drainage", "public network", "septic tank", "ravine", "river, lake or sea", "none",
+          "NE"), _vi10d),
+        ("11", "Water (`DISAGU`)", "CDEFGHIJKL",
+         ("piped in the grounds", "inside", "in the lot", "carried", "a public tap",
+          "another dwelling", "none", "a pipa", "a well, river or other", "NE"), _vi11),
+        ("13", "Electricity (`ELECTRI`)", "CDE", ("has it", "has none", "NE"),
+         _vi_coded("ELECTRI", (1, 2, 9))),
+        ("14", "Tenure (`TENVIV`, `TENPROP`)", "CDEFGHIJKL",
+         ("owned", "being paid", "paid", "other", "owned, NE", "not owned", "rented",
+          "lent or other", "not owned, NE", "NE"), _vi14),
+        ("15", "Age of the building (`ANTIGUE`)", "CDEFGHIJ",
+         ("under 1", "1-5", "6-10", "11-20", "21-30", "31-50", "50+", "NE"),
+         _vi_coded("ANTIGUE", (1, 2, 3, 4, 5, 6, 7, 9))),
+        ("17", "Waste disposal (`ELIBAS`)", "CDEFGHI",
+         ("collection service", "public container", "street or vacant lot", "ravine",
+          "river, lake or sea", "burn or bury", "NE"), _vi_coded("ELIBAS", (1, 2, 3, 4, 5, 6, 9))),
+    )
+    out = []
+    for key, title, cols, cells, ours in specs:
+        source = f"C2KVI{key[:2]}.xls"
+        out.append(Check("2000", f"VI{key}", f"{title}, % of the dwellings", source, "viviendas",
+                         cells, _c2k(cols, level="dwellings"), ours))
+        out.append(Check("2000", f"VI{key}o", f"{title}, % of the occupants", source,
+                         "viviendas", cells, _c2k(cols, level="occupants"), ours,
+                         weight=_occupants))
+    # Chiapas: shares of a small base (the carried water's tap or dwelling, the container's
+    # never collected) sit up to 0.84 / 1.79 points off — its sample's weights, as its other
+    # 2000 cells (MI11 0.68, EM04 0.56); the nation's VI18o cell (0.057) inherits it
+    loose = {"VI11": {7: 0.9}, "VI11o": {7: 0.9}}
+    out = [replace(c, tolerance=loose[c.key],
+                   note=c.note or "Chiapas: shares of the small «carried» base, up to 0.84 "
+                                  "points off (its weights; 7i).") if c.key in loose else c
+           for c in out]
+    out[0] = replace(out[0], note="Every private dwelling (its «Otro» classes carry the "
+                                  "items, 7f), once (the first household's row); the occupants "
+                                  "Σ `FACTOR` × `NUMPERS` (7i).")
+    out += [
+        Check("2000", "VI04", "Occupants per dwelling (`NUMPERS`), % of the dwellings",
+              "C2KVI04.xls", "viviendas", ("1", "2", "3", "4", "5", "6", "7+"),
+              _c2k_states("CDEFGHI"), _vi_coded("NUMPERS", (1, 2, 3, 4, 5, 6, "7+"))),
+        Check("2000", "VI12", "Water supply of the dwellings with piped water inside the "
+              "dwelling or the lot (`DOTAGUAD`, `DOTAGUAR`), %", "C2KVI12.xls", "viviendas",
+              ("daily", "all day", "part of the day", "hours NE", "every third day",
+               "twice a week", "once a week", "now and then", "NE"),
+              _c2k_states("CDEFGHIJK"), _vi12),
+        Check("2000", "VI16", "Goods (`RADIO` … `COMPU`), % of the dwellings", "C2KVI16.xls",
+              "viviendas", _GOODS_CELLS_2000, _c2k_items("CDE"), _vi_items),
+        Check("2000", "VI16o", "Goods (`RADIO` … `COMPU`), % of the occupants", "C2KVI16.xls",
+              "viviendas", _GOODS_CELLS_2000, _c2k_items("GHI"), _vi_items, weight=_occupants),
+        Check("2000", "VI19", "Averages per dwelling (`NUMPERS`, `NUMHOGS`, `TOTCUART_INEGI`, "
+              "`CUADORM`)", "C2KVI19.xls", "viviendas",
+              ("occupants per dwelling", "occupants per household", "occupants per room",
+               "occupants per bedroom", "households per dwelling"),
+              _c2k_states("CDEFG"), _vi19, unit="average",
+              note="Rooms as 2000's ITER (`TOTCUART_INEGI`, 7f) and bedrooms of the dwellings "
+                   "that gave them; households = `NUMHOGS` (blank = one household; 7i)."),
+    ]
+    frequency = ("daily", "every third day", "twice a week", "once a week", "now and then",
+                 "never", "NE")
+    names = tuple(f"{way}: {f}" for way in ("all", "collection service", "container",
+                                            "street, vacant lot or ravine") for f in frequency)
+    for key, label, weight in (("VI18", "VIVIENDAS", None), ("VI18o", "OCUPANTES", _occupants)):
+        out.append(Check("2000", key, "Waste collection frequency by way of disposal "
+                         f"(`ELIBAS`, `ELIBASPE`), % of the {'dwellings' if weight is None else 'occupants'}",
+                         "C2KVI18.xls", "viviendas", names, _c2k_repeated("CDEFGHI", label),
+                         _vi18, weight=weight,
+                         tolerance={7: 1.6} if weight is None else {7: 1.8, 0: 0.06},
+                         note="The dwellings that hand their waste to a service, a container, "
+                              "the street or a ravine (`ELIBAS` 1–4), asked `ELIBASPE` (7i). "
+                              "Chiapas: «container: never», a share of a small base, 1.57 "
+                              "points off (1.79 for the occupants, whose national cell "
+                              "inherits 0.057) — its weights."
+                         if weight is None else ""))
+    return tuple(out)
+
+
 _ECO_2020 = "cpv2020_a_eum_08_caracteristicas_economicas.xlsx"
 _MOV_2020 = "cpv2020_a_eum_10_movilidad_cotidiana.xlsx"
 
@@ -2106,7 +2378,7 @@ CHECKS: tuple[Check, ...] = (
           _wide("Valor", lambda v: _counts(v[0], v[1:]), sheet="34",
                 dims=lambda k: (k[0], "T")),
           _financing_2020, unit="persons", sheet="34"),
-) + _dwelling_checks_2010() + _dwelling_checks_2020()                   # 7h: the raw items
+) + _dwelling_checks_2010() + _dwelling_checks_2020() + _dwelling_checks_2000()  # 7h, 7i
 
 
 # --------------------------------------------------------------------------------------
@@ -2153,6 +2425,9 @@ _SEX_ITEM = {"personas": "SEXO", "migrantes": "MSEXO"}
 def _part(part, w: pd.Series, keep: pd.Series, state: int) -> dict[int, float]:
     """Σ weight of a cell part's records: in the frame's ``state``, or by their origin
     (:class:`ByOrigin`)."""
+    if isinstance(part, Weighted):                                          # 7i
+        mask = part.mask & keep
+        return {state: float((w * pd.to_numeric(part.values, errors="coerce"))[mask].sum())}
     if not isinstance(part, ByOrigin):
         return {state: float(w[part & keep].sum())}
     mask = part.mask & keep
@@ -2179,6 +2454,8 @@ def _sums(check: Check, frame: pd.DataFrame, state: int
 
 
 def _value(num: float, den: float, unit: str) -> float:
+    if unit == "average":                                                    # 7i
+        return num / den if den else np.nan
     return num if unit == "persons" else (100 * num / den if den else np.nan)
 
 
@@ -2257,7 +2534,7 @@ def run(periods: list[str], states: list[int], tab_dir: Path = _DEFAULT_TAB_DIR,
 
 
 def _fmt(x: float, unit: str) -> str:
-    return f"{x:.3f}" if unit == "points" else f"{x:,.2f}"
+    return f"{x:.3f}" if unit in ("points", "average") else f"{x:,.2f}"
 
 
 def report(rows: list[dict], states: list[int]) -> str:
@@ -2275,7 +2552,8 @@ def report(rows: list[dict], states: list[int]) -> str:
              "dwellings', CGPV 2000's employment and migration items and its `migrantes` "
              "file; 7h: the Censo 2010 and 2020 dwellings', the owners' sex from the person "
              "file). 2000: shares "
-             "in percentage points (published with two decimals); 2010, 2015 and 2020: counts "
+             "in percentage points (published with two decimals; 7i: its dwelling averages as "
+             "they are); 2010, 2015 and 2020: counts "
              "in persons (Σ `FACTOR`; published totals × percentages; the occupants Σ "
              "`FACTOR` × `NUMPERS`).", ""]
     for period in sorted(df["period"].unique()):
