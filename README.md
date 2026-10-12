@@ -401,8 +401,22 @@ Municipalities were created between editions (2,428 in 1995, 2,457 in 2015, 2,47
 none retired):
 `cpv_mun_lineage()` lists each new code with its parents, and
 `cpv_municipal_units(start, end)` maps every municipality to a unit stable between two
-frames, for comparing editions on one geography. Schema groups, reports and the
-implementation history live in [docs/cpv/](docs/cpv/).
+frames, for comparing editions on one geography. Localities change far more (tens of
+thousands dropped, created, renumbered, moved or absorbed between two censuses):
+`cpv_loc_lineage()` lists every link between two locality codes that INEGI's Archivo
+Histórico de Localidades documents from 1990 on, and `cpv_locality_units(start, end)`
+joins the codes two editions (the ITERs 1990–2020, the MG 2025 frame) must be summed
+over to compare them:
+
+```python
+units = mxcensus.cpv_locality_units(2000, 2020).set_index("CVEGEO")["UNIT"]
+pob = {p: mxcensus.load_cpv_iter(p, state=7, nivel="localidad")
+           .assign(UNIT=lambda d: d.CVEGEO.map(units).fillna(d.CVEGEO))
+           .groupby("UNIT")["POBTOT"].sum()
+       for p in (2000, 2020)}
+```
+
+Schema groups, reports and the implementation history live in [docs/cpv/](docs/cpv/).
 
 ### DENUE (multi-temporal)
 

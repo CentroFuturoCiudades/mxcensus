@@ -49,7 +49,12 @@ from mxcensus.cpv import (
     load_cpv_survey,
     variables_cpv_labels,
 )
-from mxcensus.cpv_geo import cpv_mun_lineage, cpv_municipal_units
+from mxcensus.cpv_geo import (
+    cpv_loc_lineage,
+    cpv_locality_units,
+    cpv_mun_lineage,
+    cpv_municipal_units,
+)
 from mxcensus.cpv_derived import (
     cpv_constraints,
     cpv_derivations,
@@ -134,6 +139,8 @@ __all__ = [
     "load_cpv_census",
     "cpv_mun_lineage",
     "cpv_municipal_units",
+    "cpv_loc_lineage",
+    "cpv_locality_units",
     "cpv_derivations",
     "cpv_constraints",
     "cpv_ratio_constraints",

@@ -1,14 +1,15 @@
 # CPV family — session handoff
 
-**Status (2026-10-11): units 0–6z and 7a–7s are done. `main` = v0.12.0 = 7c–7s, tagged and
-pushed (the `wsl` full suite at 7r: **1931 passed, 1 skipped**; 7s touches only the check
-script, its tests and docs): 7c (CGPV 2000's places, the income in minimum wages 2000–2020),
-7d (tabulado checks: the EIC 2015's dwellings, CGPV 2000's employment and migration), 7e
-(ratio constraints), 7f (CGPV 2000 per dwelling, the 1990/1995 averages), the unattended
-night's 7g (constraint keys = the published columns; every constraint against the census:
-fixes to 2000/2010/2020 cells, new 2010 `RELIGION_INEGI`) and 7h–7n (tabulado checks only) —
-all reviewed and **kept** by the user on 2026-10-11 (§Review) —, 7o (tabulado checks: the
-fertility rates and the infant mortality of 2010/2015/2020), 7p (tabulado checks: Censo
+**Status (2026-10-11): units 0–6z and 7a–7t are done. `main` = v0.12.0 = 7c–7s, tagged and
+pushed (the `wsl` full suite at 7r: **1931 passed, 1 skipped**); `cpv-integration` = v0.12.0 +
+**7t** (the locality lineage: INEGI's Archivo Histórico de Localidades → `cpv_loc_lineage()`,
+`cpv_locality_units()`), not merged. 7c–7s: 7c (CGPV 2000's places, the income in minimum
+wages 2000–2020), 7d (tabulado checks: the EIC 2015's dwellings, CGPV 2000's employment and
+migration), 7e (ratio constraints), 7f (CGPV 2000 per dwelling, the 1990/1995 averages), the
+unattended night's 7g (constraint keys = the published columns; every constraint against the
+census: fixes to 2000/2010/2020 cells, new 2010 `RELIGION_INEGI`) and 7h–7n (tabulado checks
+only) — all reviewed and **kept** by the user on 2026-10-11 (§Review) —, 7o (tabulado checks:
+the fertility rates and the infant mortality of 2010/2015/2020), 7p (tabulado checks: Censo
 2020's disability and migration causes, Censo 2010's by-state leftovers), 7q (quantities the
 FDs write as codes: CGPV 2000's hours and incomes, the 1990/1995 incomes), 7r (codes the FDs
 make numbers, sentinels labelled with their own code, 2000's `MFECRETA` parse) and 7s
@@ -484,7 +485,37 @@ Before 0.12.0: v0.11.0 = 6u–7b, v0.10.0 = 6s–6t, 0.9.0 = 6k–6r. A session 
     and the by-state tabulados the probe found unread (2010 15 workbooks, 2015 ~25 sheets,
     2020 ~30): HANDOFF candidate 3.
 
-Design: [`PLAN.md`](PLAN.md). Recent units: [`STEP_7s.md`](STEP_7s.md), [`STEP_7r.md`](STEP_7r.md), [`STEP_7q.md`](STEP_7q.md), [`STEP_7p.md`](STEP_7p.md), [`STEP_7o.md`](STEP_7o.md), [`STEP_7n.md`](STEP_7n.md), [`STEP_7m.md`](STEP_7m.md), [`STEP_7l.md`](STEP_7l.md), [`STEP_7k.md`](STEP_7k.md), [`STEP_7j.md`](STEP_7j.md), [`STEP_7i.md`](STEP_7i.md), [`STEP_7h.md`](STEP_7h.md), [`STEP_7g.md`](STEP_7g.md), [`STEP_7f.md`](STEP_7f.md), [`STEP_7e.md`](STEP_7e.md), [`STEP_7d.md`](STEP_7d.md), [`STEP_7c.md`](STEP_7c.md), [`STEP_7b.md`](STEP_7b.md), [`STEP_7a.md`](STEP_7a.md), [`STEP_6z.md`](STEP_6z.md), [`STEP_6y.md`](STEP_6y.md), [`STEP_6x.md`](STEP_6x.md), [`STEP_6w.md`](STEP_6w.md), [`STEP_6v.md`](STEP_6v.md), [`STEP_6u.md`](STEP_6u.md), [`STEP_6t.md`](STEP_6t.md), [`STEP_6s.md`](STEP_6s.md), [`STEP_6r.md`](STEP_6r.md), [`STEP_6q.md`](STEP_6q.md), [`STEP_6p.md`](STEP_6p.md), [`STEP_6o.md`](STEP_6o.md), [`STEP_6n.md`](STEP_6n.md), [`STEP_6m.md`](STEP_6m.md), [`STEP_6l.md`](STEP_6l.md), [`STEP_6k.md`](STEP_6k.md), [`STEP_6j.md`](STEP_6j.md), [`STEP_6i.md`](STEP_6i.md), [`STEP_6h.md`](STEP_6h.md), [`STEP_6g.md`](STEP_6g.md), [`STEP_6f.md`](STEP_6f.md), [`STEP_6e.md`](STEP_6e.md),
+- **7t** (`STEP_7t.md`): HANDOFF candidate 1's locality-level lineage (the user's choice);
+  a bundled gzipped CSV and the 2025 frame as an edition (the user's choices).
+  - **Source**: INEGI's Archivo Histórico de Localidades has a bulk download (its «Catálogos»
+    tab: a POST to `…/geo2/ahl/descarga`, `clave=00&tipo=N`, 56 MB → `data/dict/ahl/AHL.zip`,
+    export of 2026-09-18): per state `Maestro` (413,339 localities under their last code),
+    `Habitantes` (population 1900–2020: every ITER 2000–2020 locality, same population),
+    `Movimientos` (2.5M history rows, what changed in free text), `Res_hist`.
+  - **`scripts/build_loc_lineage.py`** (~20 s): regexes read the history's statements from
+    both records (moves to another municipality or state, renumbering, duplicates,
+    absorptions, counted-with, separations); a 4-digit locality number is placed by its stated
+    name (`Resolver`: the Rosarito remnant went to Playas de Rosarito, not to Tijuana); moves
+    stated without a code paired by name; rival claims resolved (confirmed > name-verified >
+    the locality's own record). Each link takes effect at the first edition whose **cut** is on
+    or after its date — cuts found on the data: 1990/1995/2000 the census day, 2005 INEGI's
+    update of 30 October 2005, 2010 that of 15 October 2010, 2020 and MG 2025 the end of the
+    year (the ITER 2020 = its December frame).
+  - **33,161 links** (codes 12,361, absorptions 18,407, counted-with 535, separations 1,858;
+    77% stated on both records) in `_yaml/cpv_loc_lineage.csv.gz` (205 KB, byte-identical
+    built on the Mac and `wsl`); `cpv_loc_lineage()`, `cpv_locality_units(start, end, *,
+    absorptions=True, confirmed=False)` (the codes to join; every other code its own unit).
+  - **Check** (`--check`, on `wsl`: every ITER and the MG 2020/2025 frames →
+    `LOC_LINEAGE_REPORT.md`): ≤ 2.7% of a span's links contradicted by the codes (confirmed
+    0.3%, one-sided 2–5%: INEGI's own inconsistencies, kept — a wrong link only coarsens a
+    unit); ≤ 1.3% of the codes that leave or enter between editions unexplained (the rest:
+    links, «baja», «deshabitada», new records, the Conteo 1995's gaps in Chiapas…); moves
+    into new municipalities agree with the municipal lineage (6a).
+  - Tests: `tests/test_cpv_geo.py` +4 (document, units, the parser offline, a `_REAL`
+    rebuild = the bundled bytes + the ITER check). Full suite on the Mac: **1936 passed, 1
+    skipped** (34 min).
+
+Design: [`PLAN.md`](PLAN.md). Recent units: [`STEP_7t.md`](STEP_7t.md), [`STEP_7s.md`](STEP_7s.md), [`STEP_7r.md`](STEP_7r.md), [`STEP_7q.md`](STEP_7q.md), [`STEP_7p.md`](STEP_7p.md), [`STEP_7o.md`](STEP_7o.md), [`STEP_7n.md`](STEP_7n.md), [`STEP_7m.md`](STEP_7m.md), [`STEP_7l.md`](STEP_7l.md), [`STEP_7k.md`](STEP_7k.md), [`STEP_7j.md`](STEP_7j.md), [`STEP_7i.md`](STEP_7i.md), [`STEP_7h.md`](STEP_7h.md), [`STEP_7g.md`](STEP_7g.md), [`STEP_7f.md`](STEP_7f.md), [`STEP_7e.md`](STEP_7e.md), [`STEP_7d.md`](STEP_7d.md), [`STEP_7c.md`](STEP_7c.md), [`STEP_7b.md`](STEP_7b.md), [`STEP_7a.md`](STEP_7a.md), [`STEP_6z.md`](STEP_6z.md), [`STEP_6y.md`](STEP_6y.md), [`STEP_6x.md`](STEP_6x.md), [`STEP_6w.md`](STEP_6w.md), [`STEP_6v.md`](STEP_6v.md), [`STEP_6u.md`](STEP_6u.md), [`STEP_6t.md`](STEP_6t.md), [`STEP_6s.md`](STEP_6s.md), [`STEP_6r.md`](STEP_6r.md), [`STEP_6q.md`](STEP_6q.md), [`STEP_6p.md`](STEP_6p.md), [`STEP_6o.md`](STEP_6o.md), [`STEP_6n.md`](STEP_6n.md), [`STEP_6m.md`](STEP_6m.md), [`STEP_6l.md`](STEP_6l.md), [`STEP_6k.md`](STEP_6k.md), [`STEP_6j.md`](STEP_6j.md), [`STEP_6i.md`](STEP_6i.md), [`STEP_6h.md`](STEP_6h.md), [`STEP_6g.md`](STEP_6g.md), [`STEP_6f.md`](STEP_6f.md), [`STEP_6e.md`](STEP_6e.md),
 [`STEP_6d.md`](STEP_6d.md),
 [`STEP_6c.md`](STEP_6c.md), [`STEP_6b.md`](STEP_6b.md), … [`STEP_0_probe.md`](STEP_0_probe.md).
 
@@ -521,12 +552,17 @@ tabulados cache now holds its 17 Censo 2010 workbooks, which `wsl`'s lacks (the 
 fetches them). For the 0.12.0 release `wsl:~/mxcensus` was fast-forwarded to 7r (09febd4, a
 `git bundle` 87cebf6..09febd4 over `scp`) and ran the full suite there (`~/pytest_7r.log`:
 1931 passed, 1 skipped, 1 h 58 min); after the push it was pulled to v0.12.0.
+7t ran on the Mac (the build, tests, the full suite); its `--check` ran on `wsl` (the full
+mirror: every ITER and the MG 2020/2025 locality layers; the Mac has MG 2025 for state 01
+only) from a copy in `/tmp/loc7t` (script + `src/`), `wsl:~/mxcensus/data/dict/ahl/AHL.zip`
+copied from the Mac. `wsl` asked for a Tailscale re-login in the middle of 7t (the user opens
+the printed URL).
 `wsl:~/mxcensus3c` (3c's code copy) can be deleted.
 
 ## Kickoff prompt for the next session
 
-> Continue the CPV census-family work in this repo (branch cpv-integration = main =
-> v0.12.0). Read docs/cpv/HANDOFF.md first, then agree with me which next unit to
+> Continue the CPV census-family work in this repo (branch cpv-integration = v0.12.0 + 7t;
+> main = v0.12.0). Read docs/cpv/HANDOFF.md first, then agree with me which next unit to
 > take (candidates in HANDOFF §Next) before implementing it, following the session protocol
 > in docs/cpv/PLAN.md. Use .venv/bin/python, not uv run. Run wsl tasks without asking; ask
 > me before committing, pushing, installing packages or uploading.
@@ -598,9 +634,9 @@ and **kept all seven** (merged as 0.9.0):
 ## Next: candidates (none decided)
 
 1. Smaller:
+   - merge 7t into `main` (a version bump: a new public function and bundled file);
    - a 2000 occupation bridge (CMO → SINCO; no published table; 7d checked the CMO groups,
      the first two digits of `OCUACTIV_C`, against C2KEM04);
-   - a locality-level lineage (6a covered municipalities only);
    - CGPV 1990's undocumented `TIP_HOGAR` 6 (96,370 persons, all `N_F_GPOS` 99 and a 9xx
      relationship: a dwelling without its household composition; identity-labelled,
      `STEP_6u.md` §Left out);
@@ -608,7 +644,14 @@ and **kept all seven** (merged as 0.9.0):
      if a later edition needs one;
    - 7p's kinship lines as a derived column (INEGI's 2010 lines for «otro parentesco» are
      now known: `STEP_7p.md`), if a constraint or a user needs them.
-2. More tabulado checks — the tabulados no check reads yet (`STEP_7s.md` §Left out; each
+2. From 7t (`STEP_7t.md` §Left out):
+   - the AHL's `Habitantes` as a data product: every locality's population (total, men,
+     women) at every census and count 1900–2020 — a «historical ITER» (needs the mirror: a
+     new parquet, registry and upload);
+   - a 2015 locality edition (the EIC 2015's `LOC50K`; its cut on the MG 2015 frame);
+   - the leftovers: 337 moves stated without a code left unpaired, 233 unverified locality
+     numbers, 14 rival claims.
+3. More tabulado checks — the tabulados no check reads yet (`STEP_7s.md` §Left out; each
    new by-state check gets its by-size twin for free through `_by_size`/`_SIZE_TWINS`):
    - Censo 2010: international migrants by destination, return migrants' duration (04_07A–
      10A), limitation by age and by type (06_03A–06A), health services by age and by
@@ -630,6 +673,12 @@ and **kept all seven** (merged as 0.9.0):
 - None pending (7f's crosswalk renames were kept on 2026-10-11).
 
 ## Gotchas (carry forward)
+
+- **The locality lineage** (`cpv_loc_lineage.csv.gz`) is generated by
+  `scripts/build_loc_lineage.py`, never hand-edited; its `EDITIONS` cuts were found on the
+  data (`STEP_7t.md` §Dating) — a new edition needs its cut found the same way (`--check`)
+  before the links are re-dated. An AHL record is filed under the locality's **last** code;
+  a census row's change already shows in that census's ITER.
 
 - **CPV gids are chronological** and shift whenever an older edition joins. Since 4a, for
   `viviendas`/`personas`: 2000 = `g01`, 2005 = `g02`, 2010 = `g03` + `g04` (state 15's
