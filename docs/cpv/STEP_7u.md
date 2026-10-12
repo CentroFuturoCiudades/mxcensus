@@ -146,9 +146,12 @@ Conteo 1995, 2000, the Conteo 2005, 2010, 2020.
 
 ## Release
 
-The 128 files are built and registered (`registry.txt`, 4276 entries) but **not uploaded**:
-the upload (`scripts/upload_hf.py upload`, from the Mac or `wsl`) waits for the user's
-go-ahead; until then `load_ahl*` from the bucket 404s (the mirror's local files work).
+With the user's go-ahead: the 128 files uploaded from `wsl` (`hf` is logged in there only;
+its checkout fast-forwarded to 7u by a `git bundle`, its `data/parquet/` given the 128 files
+of its own rebuild — the registry's hashes): `upload_hf.py upload --dry-run` = 128 new,
+4,148 identical; `upload` (and the bucket README: 4276 files, the AHL row and citation);
+`verify` = every registered file served at its size. A fresh cache on the Mac downloads
+and hash-checks them anonymously. Merged into `main` as **0.14.0**, tagged and pushed.
 
 ## Left out
 

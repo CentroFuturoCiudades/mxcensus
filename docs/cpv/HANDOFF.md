@@ -1,11 +1,10 @@
 # CPV family — session handoff
 
-**Status (2026-10-12): units 0–6z and 7a–7u are done. `cpv-integration` = **7u** (the
-historical localities: INEGI's Archivo Histórico de Localidades in the mirror — 128
-`ahl_{table}_20260918_{NN}` files, registered (4276 entries) but **not uploaded** — and
-`load_ahl`, `load_ahl_poblacion`, `load_ahl_localidades`), one commit ahead of `main` =
-v0.13.0 (7t: the locality lineage; the Mac's full suite at 7t: 1936 passed, 1 skipped),
-tagged and pushed. v0.12.0 = 7c–7s: 7c (CGPV 2000's places, the income in minimum
+**Status (2026-10-12): units 0–6z and 7a–7u are done. `cpv-integration` = `main` = v0.14.0
+= **7u** (the historical localities: INEGI's Archivo Histórico de Localidades in the mirror —
+128 `ahl_{table}_20260918_{NN}` files, registered (4276 entries), uploaded and verified — and
+`load_ahl`, `load_ahl_poblacion`, `load_ahl_localidades`; the Mac's full suite: **1950
+passed, 1 skipped**), tagged and pushed. v0.13.0 = 7t (the locality lineage). v0.12.0 = 7c–7s: 7c (CGPV 2000's places, the income in minimum
 wages 2000–2020), 7d (tabulado checks: the EIC 2015's dwellings, CGPV 2000's employment and
 migration), 7e (ratio constraints), 7f (CGPV 2000 per dwelling, the 1990/1995 averages), the
 unattended night's 7g (constraint keys = the published columns; every constraint against the
@@ -21,8 +20,9 @@ Before 0.12.0: v0.11.0 = 6u–7b, v0.10.0 = 6s–6t, 0.9.0 = 6k–6r. A session 
 `git log`/`git status` against this line.**
 - **Released** (registered, uploaded, verified): every edition 1990–2025 (897 `cpv_` files)
   and the Marco Geoestadístico 1995–2025 frames, incl. the EIC 2015's (6h); registry
-  **4148** entries (`STEP_6b.md` §Release batch, `STEP_6h.md`). 7u's 128 `ahl_` files are
-  registered (**4276**) and built on the Mac and `wsl` (same hashes), **not uploaded yet**.
+  **4148** entries (`STEP_6b.md` §Release batch, `STEP_6h.md`). 7u's 128 `ahl_` files too
+  (**4276** entries; built on the Mac and `wsl` with the same hashes, uploaded from `wsl`
+  and verified on 2026-10-12).
 - **Derived columns** (6b, 6d, 6e, 6f, 6i): `derived=True` on `load_cpv_personas/viviendas/survey`
   for every edition 2000–2025;
   `cpv_constraints(table, period)` gives the constraints per edition (`STEP_6b.md`).
@@ -552,8 +552,8 @@ Design: [`PLAN.md`](PLAN.md). Recent units: [`STEP_7u.md`](STEP_7u.md), [`STEP_7
 [`STEP_6d.md`](STEP_6d.md),
 [`STEP_6c.md`](STEP_6c.md), [`STEP_6b.md`](STEP_6b.md), … [`STEP_0_probe.md`](STEP_0_probe.md).
 
-**Host state.** The Mac and `wsl:~/mxcensus` both hold the full mirror (4148 registered
-files; the MG 2015 files were built on the Mac and copied to `wsl` for the upload);
+**Host state.** The Mac and `wsl:~/mxcensus` both hold the full mirror (4276 registered
+files since 7u; the MG 2015 files were built on the Mac and copied to `wsl` for the upload);
 `wsl:~/mxcensus` was pulled to 6r on 2026-10-09 (the full suite ran there before the
 merge: 1773 passed, 1 h 50 min) and holds a copy of the Mac's tabulados cache
 (`data/dict/tabulados/`, without 6t's `2000/C2KHO04.xls` and `2015/12_hogares.xls` and 6w's
@@ -593,14 +593,16 @@ the printed URL). After the 0.13.0 push `wsl:~/mxcensus` was pulled to v0.13.0.
 `wsl:~/mxcensus3c` (3c's code copy) can be deleted.
 7u ran on the Mac (the build, `--check`, tests, the full suite; the Mac's `data/parquet/`
 holds the 128 `ahl_` files); a copy of its code in `wsl:/tmp/ahl7u` rebuilt the 128 files
-from `wsl`'s `AHL.zip` (the same bytes) with the registry's hashes — `wsl:~/mxcensus/data/
-parquet/` does not hold them yet (rebuild there, or copy from the Mac, before an upload
-from `wsl`; `/tmp/ahl7u/out` has them until a reboot).
+from `wsl`'s `AHL.zip` (the same bytes) with the registry's hashes; `wsl:~/mxcensus` was
+fast-forwarded to 7u (a `git bundle` ed012ee..0a4ac8f), its `data/parquet/` got those 128
+files (4276 = the registry) and the upload ran there (`hf` is installed and logged in on
+`wsl` only): 128 new files + the bucket README, then `upload_hf.py verify`. After the
+0.14.0 push `wsl:~/mxcensus` was pulled to v0.14.0. `/tmp/ahl7u` can be deleted.
 
 ## Kickoff prompt for the next session
 
 > Continue the CPV census-family work in this repo (branch cpv-integration = main =
-> v0.13.0). Read docs/cpv/HANDOFF.md first, then agree with me which next unit to
+> v0.14.0). Read docs/cpv/HANDOFF.md first, then agree with me which next unit to
 > take (candidates in HANDOFF §Next) before implementing it, following the session protocol
 > in docs/cpv/PLAN.md. Use .venv/bin/python, not uv run. Run wsl tasks without asking; ask
 > me before committing, pushing, installing packages or uploading.
@@ -670,11 +672,6 @@ and **kept all seven** (merged as 0.9.0):
    **0.10.0** the same day.
 
 ## Next: candidates (none decided)
-
-0. **The 7u release** (if not done in 7u's session): upload the 128 `ahl_` files
-   (`scripts/upload_hf.py upload` syncs `data/parquet/*.parquet`; then `verify`), merge
-   `cpv-integration` into `main` as 0.14.0, tag and push; the bucket README already lists
-   them (4276 files).
 
 1. Smaller:
    - a 2000 occupation bridge (CMO → SINCO; no published table; 7d checked the CMO groups,
@@ -856,7 +853,7 @@ and **kept all seven** (merged as 0.9.0):
 - **INEGI throttles `wsl`** at times (~50 kB/s on 2026-10-08). The Mac's `data/cache`
   ZIPs can be copied over (`scp` into `wsl:mxcensus/data/cache/`); the builds read them
   as cached, and the outputs are byte-identical.
-- **Both hosts hold the full mirror** (4148 registered files) since 6h;
+- **Both hosts hold the full mirror** (4276 registered files: 7u's `ahl_` too) since 6h;
   metadata modes and 32-state tests run on either. The CLI still offers only registered
   files.
 - **Tailscale SSH can demand a re-login at any time.** A hanging `ssh wsl` that prints a
