@@ -1,4 +1,4 @@
-# INEGI censuses / Marco Geoestadístico / DENUE / ENOE / ENIGH — parquet mirror (mxcensus)
+# INEGI censuses / Marco Geoestadístico / localities / DENUE / ENOE / ENIGH — parquet mirror (mxcensus)
 
 A pre-converted **parquet/geoparquet mirror of public [INEGI](https://www.inegi.org.mx)
 open data**, hosted as the data backend for the
@@ -18,12 +18,13 @@ maintained by INEGI.**
 | Marco Geoestadístico of the Encuesta Intercensal 2015 (`mg_{layer}_2015_{NN}`, 12 layers × 32 states + `ti` for 13 island states) | 397 | Cartografía geoestadística urbana y rural amanzanada. Cierre de la Encuesta Intercensal 2015 (one product per state, UPC 702825209025–702825209339) |
 | Marco Geoestadístico 2010 (`mg_{ent,mun,a,l,lpr}_2010_{NN}`) | 160 | Marco Geoestadístico 2010 v5.0 (UPC 702825292812) |
 | Municipal Marcos Geoestadísticos 1995–2005 (`mg_{ent,mun}_{1995,2000,2005}_{NN}`, `mg_a_{2000,2005}_{NN}`) | 256 | Marco Geoestadístico municipal 1995, 2000 and 2005 v1.0 (UPC 702825292836, 702825292843, 702825292850) |
+| Archivo Histórico de Localidades (`ahl_{table}_{snapshot}_*`: `habitantes`, `maestro`, `movimientos`, `res_hist` per state; snapshot 20260918 = INEGI's export of 2026-09-18) | 128 | Archivo Histórico de Localidades (every locality's population at every census 1900–2020, its coordinates and its history) |
 | DENUE economic units (`denue_{YYYYMM}_*`, 25 releases 2010–2026) | 800 | Directorio Estadístico Nacional de Unidades Económicas (DENUE) |
 | ENOE labor-force survey (`enoe_{table}_{period}`, 85 quarters 2005–2026 × 5 tables) | 425 | Encuesta Nacional de Ocupación y Empleo (ENOE) |
 | ENIGH income/expenditure survey (`enigh_{table}_{year}`, 9 editions 2008–2024 × 10–12 tables) | 99 | Encuesta Nacional de Ingresos y Gastos de los Hogares (ENIGH) |
 
 Files are stored flat at the bucket root as `<name>.parquet`; the full naming scheme and
-schema are documented in the package repository. **Total: 4148 files.**
+schema are documented in the package repository. **Total: 4276 files.**
 
 ## Source & attribution
 
@@ -36,7 +37,7 @@ endorsement. Please cite the original source:
 > Población y Vivienda 1995 and 2005; Censos de Población y Vivienda 2010 and 2020;
 > Encuestas Intercensales 2015 and 2025; Marcos Geoestadísticos 1995, 2000, 2005, 2010,
 > 2015 (Cartografía Geoestadística Urbana y Rural Amanzanada, Cierre de la Encuesta
-> Intercensal 2015), 2020 and 2025; Directorio
+> Intercensal 2015), 2020 and 2025; Archivo Histórico de Localidades; Directorio
 > Estadístico Nacional de Unidades Económicas (DENUE); Encuesta Nacional de Ocupación y
 > Empleo (ENOE); Encuesta Nacional de Ingresos y Gastos de los Hogares (ENIGH).
 > https://www.inegi.org.mx
@@ -52,8 +53,8 @@ INEGI's terms when using the data.
 
 ## Personal data & privacy
 
-The census aggregates (ITER, RESAGEBURB, the `cpv_iter`/`cpv_ageb` files, the EIC 2025 estimaciones) and the Marco
-Geoestadístico are **aggregate or geometric** and contain no personal data.
+The census aggregates (ITER, RESAGEBURB, the `cpv_iter`/`cpv_ageb` files, the EIC 2025 estimaciones), the Archivo
+Histórico de Localidades and the Marco Geoestadístico are **aggregate or geometric** and contain no personal data.
 
 **DENUE** is a directory of economic units and may contain **personal data of natural
 persons** — e.g. establishment names that are individuals' names (sole proprietors) and,

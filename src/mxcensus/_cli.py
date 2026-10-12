@@ -9,6 +9,7 @@ SELECTOR_FLAGS: dict[str, frozenset[str]] = {
     "release": frozenset({"denue"}),
     "period": frozenset({"enoe"}),
     "edition": frozenset({"enigh", "cpv", "mg"}),
+    "snapshot": frozenset({"ahl"}),
 }
 
 # Datasets mirrored as one national file set: the STATE positional does not apply.
@@ -34,7 +35,7 @@ def main(argv: list[str] | None = None) -> None:
     fetch_p.add_argument(
         "--dataset",
         choices=["iter", "resargebub", "personas", "viviendas", "denue", "enoe", "enigh",
-                 "cpv", "mg", "all"],
+                 "cpv", "mg", "ahl", "all"],
         default="all",
         help="Which dataset(s) to fetch (default: all census tabular datasets)",
     )
@@ -52,6 +53,11 @@ def main(argv: list[str] | None = None) -> None:
              "2010, 2015, 2020 or 2025): defaults to the latest; --dataset mg (Marco "
              "Geoestadístico 1995, 2000, 2005, 2010, 2020 or 2025): defaults to 2020, as "
              "mxcensus.load_mg",
+    )
+    fetch_p.add_argument(
+        "--snapshot", metavar="YYYYMMDD",
+        help="Archivo Histórico de Localidades export (e.g. 20260918); defaults to the "
+             "latest mirrored. Only for --dataset ahl",
     )
 
     sub.add_parser("info", help="Show cache directory and mirror info")
@@ -111,6 +117,12 @@ def main(argv: list[str] | None = None) -> None:
                       if (f := mg_filename(sfx, args.state, period)) in POOCH.registry]
             if not fnames:
                 parser.error(f"Marco Geoestadístico {period} is not in the mirror yet")
+        elif args.dataset == "ahl":
+            # Archivo Histórico de Localidades: the state's four tables of one snapshot.
+            from mxcensus.data._ahl_catalog import SNAPSHOTS, TABLES, ahl_filename
+            if args.snapshot and args.snapshot not in SNAPSHOTS:
+                parser.error(f"unknown AHL snapshot {args.snapshot!r}; mirrored: {list(SNAPSHOTS)}")
+            fnames = [ahl_filename(t, args.state, args.snapshot) for t in TABLES]
         elif args.dataset == "denue":
             from mxcensus.data._denue_catalog import latest_release
             rel = args.release or latest_release().yyyymm

@@ -86,6 +86,16 @@ def test_mg_national_editions(edition, layers, fetched):
     assert sorted(fetched) == sorted(f"mg_{sfx}_{edition}_09.parquet" for sfx in layers)
 
 
+def test_ahl_tables_of_a_snapshot(fetched):
+    """The Archivo Histórico de Localidades (7u): the state's four tables."""
+    _cli.main(["fetch", "9", "--dataset", "ahl"])
+    assert fetched == [f"ahl_{t}_20260918_09.parquet"
+                       for t in ("habitantes", "maestro", "movimientos", "res_hist")]
+    fetched.clear()
+    _cli.main(["fetch", "1", "--dataset", "ahl", "--snapshot", "20260918"])
+    assert len(fetched) == 4 and all(f.endswith("_20260918_01.parquet") for f in fetched)
+
+
 @pytest.mark.parametrize("argv", [
     ["fetch", "9", "--dataset", "cpv", "--edition", "2015"],
     ["fetch", "9", "--dataset", "mg", "--edition", "2010"],
@@ -111,6 +121,9 @@ def test_unmirrored_edition_is_refused(argv, fetched, monkeypatch):
     ["fetch", "9", "--dataset", "cpv", "--edition", "2016"],      # unknown edition
     ["fetch", "9", "--dataset", "mg", "--edition", "2016"],       # unknown MG edition
     ["fetch", "9", "--dataset", "mg", "--period", "2025"],        # wrong selector
+    ["fetch", "--dataset", "ahl"],                                # missing STATE
+    ["fetch", "9", "--dataset", "ahl", "--snapshot", "20250101"],  # unknown snapshot
+    ["fetch", "9", "--dataset", "cpv", "--snapshot", "20260918"],  # wrong selector
 ])
 def test_argument_errors(argv, fetched):
     with pytest.raises(SystemExit) as exc:

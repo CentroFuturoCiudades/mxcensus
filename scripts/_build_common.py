@@ -23,6 +23,7 @@ PRESERVE_PREFIXES = (
     "enoe_",     # ENOE (multi-temporal employment survey)
     "enigh_",    # ENIGH (biennial household income/expenditure survey)
     "cpv_",      # CPV family (censos/conteos/encuestas intercensales 1990–2025)
+    "ahl_",      # Archivo Histórico de Localidades (snapshots)
 )
 
 

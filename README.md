@@ -86,6 +86,7 @@ mxcensus fetch 9 --dataset enoe --period 2023t1   # the five ENOE tables (nation
 mxcensus fetch 9 --dataset cpv                    # EIC 2025 microdata for state 9 + the estimates
 mxcensus fetch 9 --dataset cpv --edition 2020     # CPV 2020: microdata + ITER/AGEB for state 9
 mxcensus fetch 9 --dataset mg --edition 2025      # every MG 2025 layer for state 9
+mxcensus fetch 9 --dataset ahl                    # the Archivo Histórico de Localidades of state 9
 mxcensus info           # cache directory and mirror URL
 ```
 
@@ -98,6 +99,7 @@ mxcensus info           # cache directory and mirror URL
 | **Cuestionario Ampliado** | Microdata | Individual person and household records |
 | **Censuses & intercensal surveys** (`cpv`) | Microdata + aggregates | Multi-year family, 1990–2025: the census, conteo and intercensal samples (dwellings, households, persons, emigrants per state), the ITER locality counts (1990–2020) and AGEB/block counts (2010, 2020), the EIC 2025 national estimates |
 | **Marco Geoestadístico** | Geometries | INEGI's geostatistical frames as GeoParquet: 2020 and 2025 (15 layers/state + island polygons), the EIC 2015 frame (12 layers + islands), 2010 (5 layers) and the municipal frames 1995–2005 |
+| **Archivo Histórico de Localidades** | Locality, 1900–2020 | INEGI's history of every locality: its population at every census and count 1900–2020, its names, categories and coordinates (a snapshot of INEGI's export, per state) |
 | **DENUE** | Establishments | Economic-units directory, 25 releases 2010–2026, as point GeoParquet |
 | **ENOE** | Labor force | Quarterly employment-survey microdata, 85 quarters 2005–2026, national (5 tables/quarter) |
 | **ENIGH** | Income & expenditure | Biennial household income/expenditure microdata, 9 editions 2008–2024 (nueva serie 2016+ and the conciliated NCV 2008–2014), national (10–12 tables/edition) |
@@ -418,6 +420,28 @@ pob = {p: mxcensus.load_cpv_iter(p, state=7, nivel="localidad")
 
 Schema groups, reports and the implementation history live in [docs/cpv/](docs/cpv/).
 
+### Localities 1900–2020 (Archivo Histórico de Localidades)
+
+INEGI's Archivo Histórico de Localidades files the history of every locality of its
+catalog — those dropped since too — under the locality's **last** code, so its population
+at every census and count since 1900 forms one panel without a code bridge. The mirror
+keeps its four tables per state as published (`load_ahl`, a snapshot of INEGI's export:
+`ahl_{table}_{YYYYMMDD}_{NN}`); `load_ahl_poblacion` is the historical ITER and
+`load_ahl_localidades` one row per locality:
+
+```python
+pob = mxcensus.load_ahl_poblacion(state=1)   # (CVE_ENT, CVE_MUN, CVE_LOC, EVE_CENSAL)
+pob["POBTOT"].unstack("EVE_CENSAL")          # one column per census, 1900 … 2020
+pob.loc[("01", "001", "0001"), ["NOM_LOC", "CAT_POLI", "POBTOT"]]  # its name then
+loc = mxcensus.load_ahl_localidades(state=1, geometry=True)        # EPSG:4326 points
+```
+
+Against the ITERs the populations differ in 2–11 localities per census 1995–2020; INEGI's
+rows copied to a locality's new code (since 2010) are dropped (`copies=True` keeps them,
+flagged), so the 2010 and 2020 totals equal the ITERs'. Before 1990 the archive holds the
+present catalog's localities, not the old censuses' full listings: 83–89% of the national
+population 1900–1960, 95% in 1970 ([docs/cpv/AHL_REPORT.md](docs/cpv/AHL_REPORT.md)).
+
 ### DENUE (multi-temporal)
 
 DENUE (Directorio Estadístico Nacional de Unidades Económicas) is mirrored for all 25
@@ -650,6 +674,8 @@ All data originates from INEGI's open-data ("datos abiertos") releases:
   <https://www.inegi.org.mx/programas/eic/2025/>
 - Geometries — Marco Geoestadístico (1995–2025 frames):
   <https://www.inegi.org.mx/temas/mg/>
+- Localities 1900–2020 — Archivo Histórico de Localidades:
+  <https://www.inegi.org.mx/app/geo2/ahl/>
 - Economic units — Directorio Estadístico Nacional de Unidades Económicas (DENUE):
   <https://www.inegi.org.mx/app/mapa/denue/>
 - Labor-force survey — Encuesta Nacional de Ocupación y Empleo (ENOE):

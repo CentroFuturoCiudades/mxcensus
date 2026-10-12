@@ -1,5 +1,5 @@
 """mxcensus — loaders for INEGI open data: censuses and intercensal surveys, Marco
-Geoestadístico, DENUE, ENOE and ENIGH."""
+Geoestadístico, the Archivo Histórico de Localidades, DENUE, ENOE and ENIGH."""
 from importlib.metadata import PackageNotFoundError, version
 
 try:
@@ -68,6 +68,7 @@ from mxcensus.cpv_aggregates import (
     load_cpv_census,
 )
 from mxcensus.mg import load_mg
+from mxcensus.ahl import load_ahl, load_ahl_localidades, load_ahl_poblacion
 from mxcensus.crosstabs import create_cont_table, get_tables_dict
 from mxcensus.utils import expand_cat_map, get_cats_from_excel, get_vars_from_indicator_csv
 from mxcensus._resources import (
@@ -148,6 +149,10 @@ __all__ = [
     "variables_cpv_labels",
     # Marco Geoestadístico (geometry, per state; 2020 and EIC 2025 frames)
     "load_mg",
+    # Archivo Histórico de Localidades (localities 1900–2020)
+    "load_ahl",
+    "load_ahl_poblacion",
+    "load_ahl_localidades",
     # Crosstabs / constraints
     "create_cont_table",
     "get_tables_dict",

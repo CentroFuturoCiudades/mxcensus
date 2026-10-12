@@ -1,9 +1,11 @@
 # CPV family — session handoff
 
-**Status (2026-10-12): units 0–6z and 7a–7t are done. `cpv-integration` = `main` = v0.13.0
-= **7t** (the locality lineage: INEGI's Archivo Histórico de Localidades →
-`cpv_loc_lineage()`, `cpv_locality_units()`; the Mac's full suite: **1936 passed, 1
-skipped**), tagged and pushed. v0.12.0 = 7c–7s: 7c (CGPV 2000's places, the income in minimum
+**Status (2026-10-12): units 0–6z and 7a–7u are done. `cpv-integration` = **7u** (the
+historical localities: INEGI's Archivo Histórico de Localidades in the mirror — 128
+`ahl_{table}_20260918_{NN}` files, registered (4276 entries) but **not uploaded** — and
+`load_ahl`, `load_ahl_poblacion`, `load_ahl_localidades`), one commit ahead of `main` =
+v0.13.0 (7t: the locality lineage; the Mac's full suite at 7t: 1936 passed, 1 skipped),
+tagged and pushed. v0.12.0 = 7c–7s: 7c (CGPV 2000's places, the income in minimum
 wages 2000–2020), 7d (tabulado checks: the EIC 2015's dwellings, CGPV 2000's employment and
 migration), 7e (ratio constraints), 7f (CGPV 2000 per dwelling, the 1990/1995 averages), the
 unattended night's 7g (constraint keys = the published columns; every constraint against the
@@ -19,7 +21,8 @@ Before 0.12.0: v0.11.0 = 6u–7b, v0.10.0 = 6s–6t, 0.9.0 = 6k–6r. A session 
 `git log`/`git status` against this line.**
 - **Released** (registered, uploaded, verified): every edition 1990–2025 (897 `cpv_` files)
   and the Marco Geoestadístico 1995–2025 frames, incl. the EIC 2015's (6h); registry
-  **4148** entries (`STEP_6b.md` §Release batch, `STEP_6h.md`).
+  **4148** entries (`STEP_6b.md` §Release batch, `STEP_6h.md`). 7u's 128 `ahl_` files are
+  registered (**4276**) and built on the Mac and `wsl` (same hashes), **not uploaded yet**.
 - **Derived columns** (6b, 6d, 6e, 6f, 6i): `derived=True` on `load_cpv_personas/viviendas/survey`
   for every edition 2000–2025;
   `cpv_constraints(table, period)` gives the constraints per edition (`STEP_6b.md`).
@@ -516,7 +519,36 @@ Before 0.12.0: v0.11.0 = 6u–7b, v0.10.0 = 6s–6t, 0.9.0 = 6k–6r. A session 
     rebuild = the bundled bytes + the ITER check). Full suite on the Mac: **1936 passed, 1
     skipped** (34 min).
 
-Design: [`PLAN.md`](PLAN.md). Recent units: [`STEP_7t.md`](STEP_7t.md), [`STEP_7s.md`](STEP_7s.md), [`STEP_7r.md`](STEP_7r.md), [`STEP_7q.md`](STEP_7q.md), [`STEP_7p.md`](STEP_7p.md), [`STEP_7o.md`](STEP_7o.md), [`STEP_7n.md`](STEP_7n.md), [`STEP_7m.md`](STEP_7m.md), [`STEP_7l.md`](STEP_7l.md), [`STEP_7k.md`](STEP_7k.md), [`STEP_7j.md`](STEP_7j.md), [`STEP_7i.md`](STEP_7i.md), [`STEP_7h.md`](STEP_7h.md), [`STEP_7g.md`](STEP_7g.md), [`STEP_7f.md`](STEP_7f.md), [`STEP_7e.md`](STEP_7e.md), [`STEP_7d.md`](STEP_7d.md), [`STEP_7c.md`](STEP_7c.md), [`STEP_7b.md`](STEP_7b.md), [`STEP_7a.md`](STEP_7a.md), [`STEP_6z.md`](STEP_6z.md), [`STEP_6y.md`](STEP_6y.md), [`STEP_6x.md`](STEP_6x.md), [`STEP_6w.md`](STEP_6w.md), [`STEP_6v.md`](STEP_6v.md), [`STEP_6u.md`](STEP_6u.md), [`STEP_6t.md`](STEP_6t.md), [`STEP_6s.md`](STEP_6s.md), [`STEP_6r.md`](STEP_6r.md), [`STEP_6q.md`](STEP_6q.md), [`STEP_6p.md`](STEP_6p.md), [`STEP_6o.md`](STEP_6o.md), [`STEP_6n.md`](STEP_6n.md), [`STEP_6m.md`](STEP_6m.md), [`STEP_6l.md`](STEP_6l.md), [`STEP_6k.md`](STEP_6k.md), [`STEP_6j.md`](STEP_6j.md), [`STEP_6i.md`](STEP_6i.md), [`STEP_6h.md`](STEP_6h.md), [`STEP_6g.md`](STEP_6g.md), [`STEP_6f.md`](STEP_6f.md), [`STEP_6e.md`](STEP_6e.md),
+- **7u** (`STEP_7u.md`): HANDOFF candidate 2's historical ITER (the user's choice over a 2015
+  locality edition, the small cleanups and more tabulado checks).
+  - **The mirror** (the user's choices: all four tables, per state, the export's date in the
+    name): `scripts/build_ahl.py` (~8 s) writes the AHL ZIP of 7t (`data/dict/ahl/AHL.zip`,
+    export 2026-09-18) as `ahl_{habitantes,maestro,movimientos,res_hist}_20260918_{NN}`
+    (faithful strings, Latin-1, 128 files, 42 MB); `--update-registry` → 4276 entries; the
+    `wsl` build has the same 128 hashes. `_ahl_catalog.py` (`SNAPSHOTS`, `ahl_filename`),
+    `PRESERVE_PREFIXES` += `ahl_`, CLI `--dataset ahl [--snapshot]`.
+  - **`mxcensus.ahl`**: `load_ahl(table, *, state)` (raw); `load_ahl_poblacion(*, state,
+    copies=False)` — every locality's population at every census and count 1900–2020 (and
+    the 1939 buildings census) under its last code, indexed `(CVE_ENT, CVE_MUN, CVE_LOC,
+    EVE_CENSAL)`, `FUENTE` by the year, `POBTOT`/`POBMAS`/`POBFEM` `Int64`, the name,
+    municipality and categories at that census from its history; `load_ahl_localidades(*,
+    state, geometry=False)` — one row per record, decimal coordinates (49 malformed missing),
+    `AMBITO`, altitude, sheet; `geometry=True` → EPSG:4326 points (the user's choice).
+  - **INEGI's defects repaired**: the rows copied to a new code since 2010 (2010: 444, 2020:
+    689 — `COPIA`, dropped by default: the user's choice; found with the lineage, from 2010
+    on only — before, equal rows on two codes are double registrations both in the ITER),
+    «1920» = 1921, 9 rows on stray years, 31 duplicate pairs, 11 rows read one column off
+    from the 1990–2000 ITERs (`_SHIFTED`, guarded), `FUENTE` by the year.
+  - **Check** (`--check` → `AHL_REPORT.md`, ~70 s on the Mac): 2–11 localities differ per
+    census 1995–2020, 26 in 1990; the 2010/2020 totals = the ITER's within 115/155 persons
+    (with the copies: +49,027/+162,741); the AHL has the population of 1,589 localities the
+    Conteo 1995's ITER reserves; it lacks 1990 rows for 1,381 ITER localities (102,276
+    persons: Escárcega, created after the census, and Sonora's 26026); 83–89% of the national
+    population 1900–1960, 95% 1970, 99.8% 1980.
+  - Tests: new `tests/test_ahl.py` (10), `tests/test_cli.py` +4. Full suite on the Mac:
+    **1950 passed, 1 skipped** (34 min). The project README has an AHL section.
+
+Design: [`PLAN.md`](PLAN.md). Recent units: [`STEP_7u.md`](STEP_7u.md), [`STEP_7t.md`](STEP_7t.md), [`STEP_7s.md`](STEP_7s.md), [`STEP_7r.md`](STEP_7r.md), [`STEP_7q.md`](STEP_7q.md), [`STEP_7p.md`](STEP_7p.md), [`STEP_7o.md`](STEP_7o.md), [`STEP_7n.md`](STEP_7n.md), [`STEP_7m.md`](STEP_7m.md), [`STEP_7l.md`](STEP_7l.md), [`STEP_7k.md`](STEP_7k.md), [`STEP_7j.md`](STEP_7j.md), [`STEP_7i.md`](STEP_7i.md), [`STEP_7h.md`](STEP_7h.md), [`STEP_7g.md`](STEP_7g.md), [`STEP_7f.md`](STEP_7f.md), [`STEP_7e.md`](STEP_7e.md), [`STEP_7d.md`](STEP_7d.md), [`STEP_7c.md`](STEP_7c.md), [`STEP_7b.md`](STEP_7b.md), [`STEP_7a.md`](STEP_7a.md), [`STEP_6z.md`](STEP_6z.md), [`STEP_6y.md`](STEP_6y.md), [`STEP_6x.md`](STEP_6x.md), [`STEP_6w.md`](STEP_6w.md), [`STEP_6v.md`](STEP_6v.md), [`STEP_6u.md`](STEP_6u.md), [`STEP_6t.md`](STEP_6t.md), [`STEP_6s.md`](STEP_6s.md), [`STEP_6r.md`](STEP_6r.md), [`STEP_6q.md`](STEP_6q.md), [`STEP_6p.md`](STEP_6p.md), [`STEP_6o.md`](STEP_6o.md), [`STEP_6n.md`](STEP_6n.md), [`STEP_6m.md`](STEP_6m.md), [`STEP_6l.md`](STEP_6l.md), [`STEP_6k.md`](STEP_6k.md), [`STEP_6j.md`](STEP_6j.md), [`STEP_6i.md`](STEP_6i.md), [`STEP_6h.md`](STEP_6h.md), [`STEP_6g.md`](STEP_6g.md), [`STEP_6f.md`](STEP_6f.md), [`STEP_6e.md`](STEP_6e.md),
 [`STEP_6d.md`](STEP_6d.md),
 [`STEP_6c.md`](STEP_6c.md), [`STEP_6b.md`](STEP_6b.md), … [`STEP_0_probe.md`](STEP_0_probe.md).
 
@@ -559,6 +591,11 @@ only) from a copy in `/tmp/loc7t` (script + `src/`), `wsl:~/mxcensus/data/dict/a
 copied from the Mac. `wsl` asked for a Tailscale re-login in the middle of 7t (the user opens
 the printed URL). After the 0.13.0 push `wsl:~/mxcensus` was pulled to v0.13.0.
 `wsl:~/mxcensus3c` (3c's code copy) can be deleted.
+7u ran on the Mac (the build, `--check`, tests, the full suite; the Mac's `data/parquet/`
+holds the 128 `ahl_` files); a copy of its code in `wsl:/tmp/ahl7u` rebuilt the 128 files
+from `wsl`'s `AHL.zip` (the same bytes) with the registry's hashes — `wsl:~/mxcensus/data/
+parquet/` does not hold them yet (rebuild there, or copy from the Mac, before an upload
+from `wsl`; `/tmp/ahl7u/out` has them until a reboot).
 
 ## Kickoff prompt for the next session
 
@@ -634,6 +671,11 @@ and **kept all seven** (merged as 0.9.0):
 
 ## Next: candidates (none decided)
 
+0. **The 7u release** (if not done in 7u's session): upload the 128 `ahl_` files
+   (`scripts/upload_hf.py upload` syncs `data/parquet/*.parquet`; then `verify`), merge
+   `cpv-integration` into `main` as 0.14.0, tag and push; the bucket README already lists
+   them (4276 files).
+
 1. Smaller:
    - a 2000 occupation bridge (CMO → SINCO; no published table; 7d checked the CMO groups,
      the first two digits of `OCUACTIV_C`, against C2KEM04);
@@ -644,10 +686,7 @@ and **kept all seven** (merged as 0.9.0):
      if a later edition needs one;
    - 7p's kinship lines as a derived column (INEGI's 2010 lines for «otro parentesco» are
      now known: `STEP_7p.md`), if a constraint or a user needs them.
-2. From 7t (`STEP_7t.md` §Left out):
-   - the AHL's `Habitantes` as a data product: every locality's population (total, men,
-     women) at every census and count 1900–2020 — a «historical ITER» (needs the mirror: a
-     new parquet, registry and upload);
+2. From 7t/7u (`STEP_7t.md`, `STEP_7u.md` §Left out):
    - a 2015 locality edition (the EIC 2015's `LOC50K`; its cut on the MG 2015 frame);
    - the leftovers: 337 moves stated without a code left unpaired, 233 unverified locality
      numbers, 14 rival claims.
@@ -673,6 +712,12 @@ and **kept all seven** (merged as 0.9.0):
 - None pending (7f's crosswalk renames were kept on 2026-10-11).
 
 ## Gotchas (carry forward)
+
+- **The AHL mirror is a snapshot** (`ahl_{table}_{YYYYMMDD}_{NN}`, `_ahl_catalog.SNAPSHOTS`):
+  a new INEGI export is added as a new snapshot (`build_ahl.py` refuses an export not
+  listed), and the bundled lineage (7t) should be rebuilt from it in the same unit — the
+  copy rule (`ahl._copies`) reads the bundled lineage whatever the snapshot. `_SHIFTED`
+  (11 rows) is snapshot-specific but guarded (applied only while the row is inconsistent).
 
 - **The locality lineage** (`cpv_loc_lineage.csv.gz`) is generated by
   `scripts/build_loc_lineage.py`, never hand-edited; its `EDITIONS` cuts were found on the
