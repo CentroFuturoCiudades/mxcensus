@@ -276,6 +276,33 @@ Tolerance: 1.0 persons.
 | 02-04 Fertility rates by five-year age and TGF (the last child born alive) | `02_fecundidad.xls` 04 | 264 | 0.0000 | 0.0000 | 0.0000 (18 T «25-29») | 0 |
 | 02-03 Fertility rates and TGF by locality size | `02_fecundidad.xls` 03 | 48 | 0.0000 | 0.0000 | 0.0000 (00 T «100 000 y más habitantes: 25-29») | 0 |
 | 03-02 Infant mortality by locality size and the mother's age | `03_mortalidad.xls` 02 | 24 | 0.1759 | 1.0464 | 1.7902 (00 T «15 000-49 999 habitantes: 12-19 años») | 0 |
+| 06-02 Literacy of the 6–14 (`ALFABET`) | `06_educacion.xls` 02 | 330 | 0.00 | 0.00 | 0.00 (00 T «can read and write: women») | 0 |
+| 06-04 Literacy of the 15+ (`ALFABET`) by age | `06_educacion.xls` 04 | 2640 | 0.00 | 0.00 | 0.00 (00 T «Total: can read and write: men») | 0 |
+| 06-06 School attendance of the 3+ (`ASISTEN`) by age | `06_educacion.xls` 06 | 6930 | 0.00 | 0.00 | 0.00 (00 T «Total: attends») | 0 |
+| 06-08 Level of the 3+ (`NIVACAD`) and grades in primaria (`ESCOLARI`) by age | `06_educacion.xls` 08 | 25245 | 0.00 | 0.00 | 0.00 (00 T «Total: posbásica») | 0 |
+| 06-10 Level of the 12+ (`NIVACAD`) and grades in secundaria (`ESCOLARI`) by age | `06_educacion.xls` 10 | 17820 | 0.00 | 0.00 | 0.00 (00 T «Total: secundaria: 3 grades») | 0 |
+| 07-05 Use of health services (`SERSALUD`) | `07_servicios_de_salud.xls` 05 | 1089 | 0.00 | 0.00 | 0.00 (00 T «private») | 0 |
+| 07-06 Use of health services by affiliation and institution (`SERSALUD`, `DHSERSAL_*`) | `07_servicios_de_salud.xls` 06 | 3630 | 0.00 | 0.00 | 0.00 (00 T «Afiliada, Total: SSA») | 0 |
+| 08-03 The not economically active by kind (`CONACT` 31–35) and age | `08_caracteristicas_economicas.xls` 03 | 8910 | 0.00 | 0.00 | 0.00 (00 T «Total: household chores») | 0 |
+| 08-10 Employed by sector (`ACTIVIDADES_C_COARSE`) and occupational division (`OCUPACION_C_COARSE`) | `08_caracteristicas_economicas.xls` 10 | 7623 | 0.00 | 0.00 | 0.00 (00 T «all: Servicios de transporte, comunicación, profesionales, financieros, sociales, gobierno y otros») | 0 |
+| 08-12 Benefits of the salaried (`SERVICIO_MEDICO` … `CREDITO_VIVIENDA`) by sector | `08_caracteristicas_economicas.xls` 12 | 7623 | 0.00 | 0.00 | 0.00 (00 T «Total: paid holidays») | 0 |
+| 10-02 Students 3+ by commute time (`TIE_TRASLADO_ESCU`) and age | `10_movilidad_cotidiana.xls` 02 | 7128 | 0.00 | 0.00 | 0.00 (00 T «Total: up to 15 minutes») | 0 |
+| 10-05 Employed by commute time (`TIE_TRASLADO_TRAB`) and position (`SITUACION_TRAB`) | `10_movilidad_cotidiana.xls` 05 | 5940 | 0.00 | 0.00 | 0.00 (00 T «all: up to 15 minutes») | 0 |
+| 12-01 Population in households by relationship (`PARENT`) and age | `12_hogares.xls` 01 | 18810 | 0.00 | 0.00 | 0.60 (00 T «Total: parent or parent-in-law») | 0 |
+| 12-03 Households by size (`NUMPERS`) and the head's sex and age (`JEFE_SEXO`, `JEFE_EDAD`) | `12_hogares.xls` 03 | 10395 | 0.00 | 0.00 | 0.16 (00 T «Total head, Total: 6+ members») | 0 |
+| 12-06 Households by type and class (`TIPOHOG`) and the head's sex and age | `12_hogares.xls` 06 | 14850 | 0.00 | 0.00 | 0.16 (00 T «Total head, Total: NE») | 0 |
+| 04-03 The born abroad by Mexican nationality (`NACIONALIDAD`) and birthplace | `04_migracion.xls` 03 | 1188 | 0.00 | 0.00 | 0.00 (00 T «abroad: NE») | 0 |
+| 04-06 Internal migration by the residence in 2010 (`LUGAR_RES_5A`, `ENT_PAIS_RES10`) | `04_migracion.xls` 06 | 396 | 0.00 | 0.00 | 0.00 (01 T «5+ who lived in Mexico in 2010») | 0 |
+| 05-01 Indigenous language (`HLENGUA`) and Spanish (`HESPANOL`) of the 3+ by age | `05_etnicidad.xls` 01 | 2772 | 0.00 | 0.01 | 0.36 (00 T «18-64 años: speak») | 0 |
+| 05-05 Non-speakers 3+ who understand an indigenous language (`ELENGUA`) | `05_etnicidad.xls` 05 | 132 | 0.00 | 0.03 | 0.20 (00 T «understand») | 0 |
+| 05-06 Indigenous self-identification (`PERTE_INDIGENA`) by age | `05_etnicidad.xls` 06 | 2970 | 0.00 | 0.01 | 0.59 (00 T «Total: does not») | 0 |
+| 05-07 Afrodescendant self-identification (`AFRODES`) by age | `05_etnicidad.xls` 07 | 2970 | 0.00 | 0.01 | 0.35 (00 T «Total: does not») | 0 |
+| 05-03 Speakers 3+ by language (`QDIALECT_INALI`) | `05_etnicidad.xls` 03 | 2442 | 0.00 | 0.00 | 0.04 (00 T «Totonaco») | 0 |
+| 05-02 Speakers 3+ by language and age, nation | `05_etnicidad.xls` 02 | 888 | 0.00 | 0.00 | 0.03 (00 T «all: 18-64 años») | 0 |
+| 04-04 Residence in 2010 by municipality (`LUGAR_RES_5A`) by age, nation | `04_migracion.xls` 04 | 63 | 0.02 | 0.27 | 0.51 (00 T «all: another municipality») | 0 |
+| 13-02 Households by other incomes (`INGR_OTROS`) and source (`INGR_*`) | `13_ingresos_monetarios_diferentes_al_trabajo.xls` 02 | 264 | 0.00 | 0.01 | 0.06 (00 T «someone abroad») | 0 |
+| 15-01 Households by the adults' food access (`ALIM_ADU1`–3, `ING_ALIM_ADU1`–3) | `15_suficiencia_alimentaria.xls` 01 | 792 | 0.00 | 0.00 | 0.00 (00 T «Algún adulto dejó de desayunar, comer o cenar: no») | 0 |
+| 15-02 Households with minors by their food access (`ALIM_MEN1`–3, `ING_ALIM_MEN1`–3) | `15_suficiencia_alimentaria.xls` 02 | 792 | 0.00 | 0.00 | 0.00 (00 T «Algún menor comió menos de lo que debería comer: yes») | 0 |
 | 01-01 Population by five-year age (`EDAD_QUIN`) and sex, by locality size (as 01-02) | `01_poblacion.xls` 01 | 324 | 0.00 | 0.00 | 0.00 (size 1 T «Total: total») | 0 |
 | 02-01a Women 12+ who gave their children born alive, by marital status (`SITUA_CONYUGAL_CAT`) and age, by locality size (as 02-02a) | `02_fecundidad.xls` 01 | 450 | 0.00 | 0.00 | 0.00 (size 1 T «Total: Total») | 0 |
 | 02-01b Children born alive per woman (`HIJOS_NAC_VIVOS`), by marital status and age, by locality size (as 02-02b) | `02_fecundidad.xls` 01 | 450 | 0.000 | 0.000 | 0.000 (size 1 T «No especificado: 45-49 años») | 0 |
@@ -300,8 +327,19 @@ Tolerance: 1.0 persons.
 | 14-25 Dwellings by electricity (`ELECTRICIDAD`), by locality size (as 14-26) | `14_vivienda.xls` 25 | 24 | 0.00 | 0.00 | 0.00 (00 T «has it») | 0 |
 | 14-35 Dwellings with piped water by source (`ABA_AGUA_ENTU`), by locality size (as 14-36) | `14_vivienda.xls` 35 | 144 | 0.00 | 0.00 | 0.00 (00 T «Dentro de la vivienda: public service») | 0 |
 | 14-37 Dwellings by drainage (`DRENAJE`), by locality size (as 14-38) | `14_vivienda.xls` 37 | 48 | 0.00 | 0.00 | 0.00 (00 T «septic tank») | 0 |
+| 06-01 Literacy of the 6–14 (`ALFABET`), by locality size (as 06-02) | `06_educacion.xls` 01 | 60 | 0.00 | 0.00 | 0.00 (00 T «can read and write: women») | 0 |
+| 06-03 Literacy of the 15+ (`ALFABET`) by age, by locality size (as 06-04) | `06_educacion.xls` 03 | 480 | 0.00 | 0.00 | 0.00 (size 5 T «Total: can read and write») | 0 |
+| 06-05 School attendance of the 3+ (`ASISTEN`) by age, by locality size (as 06-06) | `06_educacion.xls` 05 | 1260 | 0.00 | 0.00 | 0.00 (00 T «Total: attends») | 0 |
+| 06-09 Level of the 12+ (`NIVACAD`) and grades in secundaria (`ESCOLARI`) by age, by locality size (as 06-10) | `06_educacion.xls` 09 | 3240 | 0.00 | 0.00 | 0.00 (00 T «Total: secundaria: 3 grades») | 0 |
+| 07-04 Use of health services (`SERSALUD`), by locality size (as 07-05) | `07_servicios_de_salud.xls` 04 | 198 | 0.00 | 0.00 | 0.00 (00 T «private») | 0 |
+| 12-02 Households by size (`NUMPERS`) and the head's sex and age (`JEFE_SEXO`, `JEFE_EDAD`), by locality size (as 12-03) | `12_hogares.xls` 02 | 1890 | 0.00 | 0.01 | 0.16 (00 T «Total head, Total: 6+ members») | 0 |
 | 08-08 Employed by occupational division (`OCUPACION_C_COARSE`), by locality size (as 08-06) | `08_caracteristicas_economicas.xls` 08 | 180 | 0.00 | 0.00 | 0.00 (00 T «Trabajadores en actividades elementales y de apoyo») | 0 |
 | 08-09 Employed by sector (`ACTIVIDADES_C_COARSE`), by locality size (as 08-07) | `08_caracteristicas_economicas.xls` 09 | 108 | 0.00 | 0.00 | 0.00 (00 T «Servicios de transporte, comunicación, profesionales, financieros, sociales, gobierno y otros») | 0 |
+| 06-07 Level of the 3+ (`NIVACAD`) and grades in primaria (`ESCOLARI`) by one-year age, by locality size | `06_educacion.xls` 07 | 3780 | 0.00 | 0.00 | 0.00 (00 T «Total: posbásica») | 0 |
+| 07-03 Use of health services (`SERSALUD`) by age, by locality size | `07_servicios_de_salud.xls` 03 | 1188 | 0.00 | 0.00 | 0.00 (00 T «Total: private») | 0 |
+| 08-04 Participation rates (`CONACT`) by age and sex, by locality size | `08_caracteristicas_economicas.xls` 04 | 270 | 0.000 | 0.000 | 0.000 (size 2 T «75 años y más: total») | 0 |
+| 08-05 Employed by position (`SITUACION_TRAB`), by locality size | `08_caracteristicas_economicas.xls` 05 | 108 | 0.00 | 0.00 | 0.00 (00 T «own account») | 0 |
+| 13-01 Households by other incomes (`INGR_OTROS`) and source, by household size (`NUMPERS`), by locality size | `13_ingresos_monetarios_diferentes_al_trabajo.xls` 01 | 192 | 0.00 | 0.03 | 0.07 (00 T «3 a 4 integrantes: none») | 0 |
 
 - 04-02: On `ENT_PAIS_NAC_INEGI`: the entity not specified (997) is «No especificado», as INEGI's (the legacy `ENT_PAIS_NAC_CAT`: `OtraEnt`).
 - 04-05: The entity not specified (997) is «No especificado» (the legacy `ENT_PAIS_RES_CAT`: `OtraEnt`); 7b.
@@ -328,6 +366,20 @@ Tolerance: 1.0 persons.
 - 02-04: Women whose last child born alive was born the year before, per 1,000 women of the age (at the census) whose fertility is known (not 98, topic omitted; the last child's year not 9999); TGF = 5 × Σ rates / 1,000 (7o).
 - 02-03: National (7o).
 - 03-02: Not reproducible from the sample (STEP_7o.md): INEGI's cells are no ratio of its records' weights (a «Total» is not the sum of its age groups). Ours: every death not aged in years (unknown ages included) of the last children born the year before, per 1,000 of them; tolerance = the largest gap (7o).
+- 06-02: The sexes are columns: sex T only (7v).
+- 06-08: Técnica after primaria is primaria with six grades (the tabulado's note), after secundaria posbásica (7v).
+- 07-06: An affiliated person counts under each of its institutions; the affiliation is both sexes only (7v).
+- 08-12: Salaried = `SITUACION_TRAB` 1–3; with benefits = some item «yes», without = all seven «no», not specified = no «yes» and some item 9 (7v).
+- 12-03: One household per dwelling, every class (7v).
+- 04-03: Born abroad = `ENT_PAIS_NAC_INEGI` «OtroPais» (the country insufficiently specified included); the United States = `ENT_PAIS_NAC` 221 (7v).
+- 04-06: The base: the 5+ who live here and lived in an entity of Mexico in March 2010 (INEGI's «residente en la entidad en marzo de 2010» = stayers + immigrants); the emigrants counted in their 2010 entity (7v).
+- 05-05: Both sexes only (7v).
+- 05-03: INEGI's catalog `TC_LENGUA_INDIGENA_INALI_2015`; both sexes only (7v).
+- 13-02: On the derived `INGR_OTROS` (6z); one household per dwelling (7v).
+- 15-01: Every household, those without adults included (7v).
+- 15-02: The households that answered the minors' items (7v).
+- 07-03: By age, both sexes (7v).
+- 08-04: The PEA (`CONACT` 10–16, 20) over the 12+, % ; the sexes in columns (7v).
 
 ## 2020
 

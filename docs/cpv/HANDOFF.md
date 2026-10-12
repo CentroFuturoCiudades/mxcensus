@@ -1,6 +1,9 @@
 # CPV family — session handoff
 
-**Status (2026-10-12): units 0–6z and 7a–7u are done. `cpv-integration` = `main` = v0.14.0
+**Status (2026-10-12): units 0–6z and 7a–7v are done. `cpv-integration` = **7v** (tabulado
+checks only: every EIC 2015 tabulado now read — 38 checks, 167,298 cells, every one exact; the
+report 376,570 cells; `tests/test_cpv_tabulados.py` 29 passed), committed on the branch;
+`main` = v0.14.0
 = **7u** (the historical localities: INEGI's Archivo Histórico de Localidades in the mirror —
 128 `ahl_{table}_20260918_{NN}` files, registered (4276 entries), uploaded and verified — and
 `load_ahl`, `load_ahl_poblacion`, `load_ahl_localidades`; the Mac's full suite: **1950
@@ -548,7 +551,31 @@ Before 0.12.0: v0.11.0 = 6u–7b, v0.10.0 = 6s–6t, 0.9.0 = 6k–6r. A session 
   - Tests: new `tests/test_ahl.py` (10), `tests/test_cli.py` +4. Full suite on the Mac:
     **1950 passed, 1 skipped** (34 min). The project README has an AHL section.
 
-Design: [`PLAN.md`](PLAN.md). Recent units: [`STEP_7u.md`](STEP_7u.md), [`STEP_7t.md`](STEP_7t.md), [`STEP_7s.md`](STEP_7s.md), [`STEP_7r.md`](STEP_7r.md), [`STEP_7q.md`](STEP_7q.md), [`STEP_7p.md`](STEP_7p.md), [`STEP_7o.md`](STEP_7o.md), [`STEP_7n.md`](STEP_7n.md), [`STEP_7m.md`](STEP_7m.md), [`STEP_7l.md`](STEP_7l.md), [`STEP_7k.md`](STEP_7k.md), [`STEP_7j.md`](STEP_7j.md), [`STEP_7i.md`](STEP_7i.md), [`STEP_7h.md`](STEP_7h.md), [`STEP_7g.md`](STEP_7g.md), [`STEP_7f.md`](STEP_7f.md), [`STEP_7e.md`](STEP_7e.md), [`STEP_7d.md`](STEP_7d.md), [`STEP_7c.md`](STEP_7c.md), [`STEP_7b.md`](STEP_7b.md), [`STEP_7a.md`](STEP_7a.md), [`STEP_6z.md`](STEP_6z.md), [`STEP_6y.md`](STEP_6y.md), [`STEP_6x.md`](STEP_6x.md), [`STEP_6w.md`](STEP_6w.md), [`STEP_6v.md`](STEP_6v.md), [`STEP_6u.md`](STEP_6u.md), [`STEP_6t.md`](STEP_6t.md), [`STEP_6s.md`](STEP_6s.md), [`STEP_6r.md`](STEP_6r.md), [`STEP_6q.md`](STEP_6q.md), [`STEP_6p.md`](STEP_6p.md), [`STEP_6o.md`](STEP_6o.md), [`STEP_6n.md`](STEP_6n.md), [`STEP_6m.md`](STEP_6m.md), [`STEP_6l.md`](STEP_6l.md), [`STEP_6k.md`](STEP_6k.md), [`STEP_6j.md`](STEP_6j.md), [`STEP_6i.md`](STEP_6i.md), [`STEP_6h.md`](STEP_6h.md), [`STEP_6g.md`](STEP_6g.md), [`STEP_6f.md`](STEP_6f.md), [`STEP_6e.md`](STEP_6e.md),
+- **7v** (`STEP_7v.md`): HANDOFF candidate 3's «EIC 2015» item (the user's choice over Censo
+  2010/2020's leftovers, a 2015 locality edition and the small cleanups); checks only — no
+  loader, derivation or dictionary changed.
+  - **Every EIC 2015 tabulado is read**: the 34 unread sheets of the cached workbooks, and two
+    workbooks `SOURCES` never had, found in INEGI's file-listing API (`idBiinegi` 1714,
+    `tipodocto` 5): `13_ingresos_monetarios_diferentes_al_trabajo.xls`,
+    `15_suficiencia_alimentaria.xls`. 27 checks by state (`_person_checks_2015_v`: education,
+    health-service use, the inactive, sector × division, benefits, commute times, relationship,
+    households by the head's sex and age, nationality, internal migration, language,
+    self-identification, speakers by language, other incomes, food access; 05-02 and 04-04
+    national) and 11 by locality size (six through `_SIZE_TWINS`, five through twins built for
+    them, `_size_twins_2015_v`).
+  - **167,298 cells, every one exact** (≤ 0.6 of a person); the report **376,570 cells, 0
+    beyond tolerance**. INEGI's rules found: benefits «not specified» = no «yes» and some item 9;
+    04-06's «residente en la entidad en marzo de 2010» = who lives here now and lived in Mexico
+    in 2010 (stayers + immigrants); técnica after primaria = primaria with six grades; the
+    minors' food universe = who answered the minors' items.
+  - **Speed**: `_numeric`/`_cat` convert a column once per frame (`_CONVERTED`, cleared per
+    state), `_part` sums on arrays — the same sums to the bit (a missing mask value False, as
+    pandas); the full report (every edition, 32 states) now takes 50 min on the Mac with 167,298
+    more cells, byte-identical to the 2015 section spliced from a harness run.
+  - `_LANGUAGES_2015` = INEGI's `TC_LENGUA_INDIGENA_INALI_2015`, transcribed (a test compares
+    it with the catalog when cached).
+
+Design: [`PLAN.md`](PLAN.md). Recent units: [`STEP_7v.md`](STEP_7v.md), [`STEP_7u.md`](STEP_7u.md), [`STEP_7t.md`](STEP_7t.md), [`STEP_7s.md`](STEP_7s.md), [`STEP_7r.md`](STEP_7r.md), [`STEP_7q.md`](STEP_7q.md), [`STEP_7p.md`](STEP_7p.md), [`STEP_7o.md`](STEP_7o.md), [`STEP_7n.md`](STEP_7n.md), [`STEP_7m.md`](STEP_7m.md), [`STEP_7l.md`](STEP_7l.md), [`STEP_7k.md`](STEP_7k.md), [`STEP_7j.md`](STEP_7j.md), [`STEP_7i.md`](STEP_7i.md), [`STEP_7h.md`](STEP_7h.md), [`STEP_7g.md`](STEP_7g.md), [`STEP_7f.md`](STEP_7f.md), [`STEP_7e.md`](STEP_7e.md), [`STEP_7d.md`](STEP_7d.md), [`STEP_7c.md`](STEP_7c.md), [`STEP_7b.md`](STEP_7b.md), [`STEP_7a.md`](STEP_7a.md), [`STEP_6z.md`](STEP_6z.md), [`STEP_6y.md`](STEP_6y.md), [`STEP_6x.md`](STEP_6x.md), [`STEP_6w.md`](STEP_6w.md), [`STEP_6v.md`](STEP_6v.md), [`STEP_6u.md`](STEP_6u.md), [`STEP_6t.md`](STEP_6t.md), [`STEP_6s.md`](STEP_6s.md), [`STEP_6r.md`](STEP_6r.md), [`STEP_6q.md`](STEP_6q.md), [`STEP_6p.md`](STEP_6p.md), [`STEP_6o.md`](STEP_6o.md), [`STEP_6n.md`](STEP_6n.md), [`STEP_6m.md`](STEP_6m.md), [`STEP_6l.md`](STEP_6l.md), [`STEP_6k.md`](STEP_6k.md), [`STEP_6j.md`](STEP_6j.md), [`STEP_6i.md`](STEP_6i.md), [`STEP_6h.md`](STEP_6h.md), [`STEP_6g.md`](STEP_6g.md), [`STEP_6f.md`](STEP_6f.md), [`STEP_6e.md`](STEP_6e.md),
 [`STEP_6d.md`](STEP_6d.md),
 [`STEP_6c.md`](STEP_6c.md), [`STEP_6b.md`](STEP_6b.md), … [`STEP_0_probe.md`](STEP_0_probe.md).
 
@@ -598,10 +625,13 @@ fast-forwarded to 7u (a `git bundle` ed012ee..0a4ac8f), its `data/parquet/` got 
 files (4276 = the registry) and the upload ran there (`hf` is installed and logged in on
 `wsl` only): 128 new files + the bucket README, then `upload_hf.py verify`. After the
 0.14.0 push `wsl:~/mxcensus` was pulled to v0.14.0. `/tmp/ahl7u` can be deleted.
+7v ran on the Mac only (the EIC 2015 checks through a scratch harness on cached frames, then
+the full report); the Mac's tabulados cache now holds 2015's `13_…` and `15_…` workbooks,
+which `wsl`'s lacks (the script fetches them).
 
 ## Kickoff prompt for the next session
 
-> Continue the CPV census-family work in this repo (branch cpv-integration = main =
+> Continue the CPV census-family work in this repo (branch cpv-integration = 7v; main =
 > v0.14.0). Read docs/cpv/HANDOFF.md first, then agree with me which next unit to
 > take (candidates in HANDOFF §Next) before implementing it, following the session protocol
 > in docs/cpv/PLAN.md. Use .venv/bin/python, not uv run. Run wsl tasks without asking; ask
@@ -688,16 +718,14 @@ and **kept all seven** (merged as 0.9.0):
    - the leftovers: 337 moves stated without a code left unpaired, 233 unverified locality
      numbers, 14 rival claims.
 3. More tabulado checks — the tabulados no check reads yet (`STEP_7s.md` §Left out; each
-   new by-state check gets its by-size twin for free through `_by_size`/`_SIZE_TWINS`):
+   new by-state check gets its by-size twin for free through `_by_size`/`_SIZE_TWINS`; the EIC
+   2015 is complete since 7v; INEGI's file-listing API lists every workbook of an edition —
+   `tipodocto` 5, `STEP_0_probe.md` — check it for workbooks `SOURCES` lacks):
    - Censo 2010: international migrants by destination, return migrants' duration (04_07A–
      10A), limitation by age and by type (06_03A–06A), health services by age and by
      affiliation (09_01A/03A/05A), other incomes by household size (12_05A/06A), food access
      (12_07A), and the economic cross-tables 08_08A/09A/11A/12A/14A/16A (hours, income, place
      of work by sector, position or division; 08_01A position by size);
-   - EIC 2015: education (06_educacion 01–10), use of services (07 03–06), the inactive,
-     participation rates, position, benefits (08 03–05/10/12), relationship and household
-     size (12_hogares 01–03/06), nationality, residence by age, net migration (04 03/04/06),
-     ethnicity (05 01–03/05–07);
    - Censo 2020: técnica fields (07-01/02), position, hours and income by division, sector
      or position, benefits, activity (08-01–04, 08-09/10, 08-13–16, 08-19–28), services by
      age (09-01/02), commute times (10-03/04, 10-09/10), other incomes (14-01/02);
@@ -709,6 +737,16 @@ and **kept all seven** (merged as 0.9.0):
 - None pending (7f's crosswalk renames were kept on 2026-10-11).
 
 ## Gotchas (carry forward)
+
+- **The check script's conversion cache** (7v, `check_cpv_tabulados._CONVERTED`): `_numeric`,
+  `_code`, `_age` and `_cat` return one converted column per frame (held with the frame, cleared
+  per state). A check must never modify a frame or a converted column in place; a frame changed
+  by `assign`/`copy` is another frame. `_part` sums on arrays: a missing mask value is False,
+  as pandas indexing does (CGPV 2000's masks carry `pd.NA`).
+- **Check keys repeat across editions** (7v: 2015's 10-02 is commute times, 2020's the place of
+  school): a test filtering rows must key on (period, check).
+- **Waiting on a background job**: `until ! pgrep -f 'pattern'` matches its own shell's command
+  line and never ends (as `pkill -f` over ssh); wait with `while kill -0 PID`.
 
 - **The AHL mirror is a snapshot** (`ahl_{table}_{YYYYMMDD}_{NN}`, `_ahl_catalog.SNAPSHOTS`):
   a new INEGI export is added as a new snapshot (`build_ahl.py` refuses an export not
