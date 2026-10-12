@@ -390,14 +390,14 @@ Tolerance: 1.0 persons.
 | 07-04 Population 18+ with educación superior (`EDUC_INEGI_DET`) | `cpv2020_a_eum_07_educacion.xlsx` 04 | 99 | 0.00 | 0.00 | 0.00 (01 T «18+, superior or posgrado») | 0 |
 | 08-06 Employed by occupational division (`OCUPACION_C_COARSE`) | `cpv2020_a_eum_08_caracteristicas_economicas.xlsx` 06 | 990 | 0.00 | 0.01 | 0.17 (00 T «Operadores de maquinaria industrial, ensambladores, choferes y conductores de transporte») | 0 |
 | 08-08 Employed by sector (`ACTIVIDADES_C_COARSE`) | `cpv2020_a_eum_08_caracteristicas_economicas.xlsx` 08 | 594 | 0.00 | 0.01 | 0.21 (00 T «Comercio») | 0 |
-| 08-18 Income of the employed in minimum wages (`INGTRMEN_SM`) | `cpv2020_a_eum_08_caracteristicas_economicas.xlsx` 18 | 891 | 0.00 | 0.01 | 0.24 (00 T «up to 1») | 0 |
-| 08-12 Hours worked (`HORTRA_CAT`) | `cpv2020_a_eum_08_caracteristicas_economicas.xlsx` 12 | 594 | 0.00 | 0.01 | 0.26 (00 T «up to 40 (none included)») | 0 |
+| 08-18 Income of the employed in minimum wages (`INGTRMEN_SM`) by occupational division | `cpv2020_a_eum_08_caracteristicas_economicas.xlsx` 18 | 9801 | 0.00 | 0.00 | 0.24 (00 T «all: up to 1») | 0 |
+| 08-12 Hours worked (`HORTRA`) by occupational division | `cpv2020_a_eum_08_caracteristicas_economicas.xlsx` 12 | 8712 | 0.00 | 0.00 | 0.25 (00 T «all: 49-56») | 0 |
 | 09-04 Health affiliation by institution (`DHSERSAL_*`) | `cpv2020_a_eum_09_servicios_de_salud.xlsx` 04 | 363 | 0.00 | 0.00 | 0.00 (01 T «population») | 0 |
-| 10-02 Place of school by municipality (`LUGAR_ASI`) | `cpv2020_a_eum_10_movilidad_cotidiana.xlsx` 02 | 693 | 0.00 | 0.01 | 0.15 (00 T «not specified») | 0 |
-| 10-08 Place of work by municipality (`LUGAR_TRAB`) | `cpv2020_a_eum_10_movilidad_cotidiana.xlsx` 08 | 693 | 0.00 | 0.01 | 0.21 (00 T «not specified») | 0 |
-| 10-06 Commute to school (`MED_TRASLADO_ESC_*`) | `cpv2020_a_eum_10_movilidad_cotidiana.xlsx` 06 | 990 | 0.00 | 0.01 | 0.15 (00 T «metro, trolleybus, metrobús») | 0 |
-| 10-12 Commute to work (`MED_TRASLADO_TRAB_*`) | `cpv2020_a_eum_10_movilidad_cotidiana.xlsx` 12 | 990 | 0.00 | 0.01 | 0.22 (00 T «other») | 0 |
-| 11-02 Partner in the dwelling (`IDENT_PAREJA_CAT`) | `cpv2020_a_eum_11_situacion_conyugal.xlsx` 02 | 396 | 0.00 | 0.01 | 0.19 (00 T «not specified») | 0 |
+| 10-02 Place of school by municipality (`LUGAR_ASI`) by age | `cpv2020_a_eum_10_movilidad_cotidiana.xlsx` 02 | 5544 | 0.00 | 0.00 | 2.00 (27 M «06-11 años: same entity») | 0 |
+| 10-08 Place of work by municipality (`LUGAR_TRAB`) by sector | `cpv2020_a_eum_10_movilidad_cotidiana.xlsx` 08 | 4851 | 0.00 | 0.00 | 0.21 (00 T «Total: not specified») | 0 |
+| 10-06 Commute to school (`MED_TRASLADO_ESC_*`) by age | `cpv2020_a_eum_10_movilidad_cotidiana.xlsx` 06 | 7920 | 0.00 | 0.00 | 0.15 (00 T «Total: metro, trolleybus, metrobús») | 0 |
+| 10-12 Commute to work (`MED_TRASLADO_TRAB_*`) by position (`SITTRA`) | `cpv2020_a_eum_10_movilidad_cotidiana.xlsx` 12 | 5940 | 0.00 | 0.00 | 0.22 (00 T «Total: other») | 0 |
+| 11-02 Partner in the dwelling (`IDENT_PAREJA_CAT`) by union (`SITUA_CONYUGAL`) | `cpv2020_a_eum_11_situacion_conyugal.xlsx` 02 | 1188 | 0.00 | 0.01 | 0.19 (00 T «all: not specified») | 0 |
 | 16-34 Financing of the owned dwellings bought or built (`FINANCIAMIENTO_*`, several sources) | `cpv2020_a_eum_16_vivienda.xlsx` 34 | 330 | 0.00 | 0.01 | 0.11 (00 T «No especificado») | 0 |
 | 16-02a Dwellings by wall (`PAREDES`) | `cpv2020_a_eum_16_vivienda.xlsx` 02 | 330 | 0.00 | 0.01 | 0.16 (00 T «wood») | 0 |
 | 16-02b Occupants of the dwellings by wall (`PAREDES`) | `cpv2020_a_eum_16_vivienda.xlsx` 02 | 330 | 0.01 | 0.04 | 0.57 (00 T «asbestos or metal sheet») | 0 |
@@ -450,6 +450,26 @@ Tolerance: 1.0 persons.
 | 04-12m Return migrants' average months abroad | `cpv2020_a_eum_04_migracion.xlsx` 12 | 33 | 0.000 | 0.000 | 0.000 (28 T «months») | 0 |
 | 04-14 Return migrants by the cause of their return (`MCAUSARETO_V`) | `cpv2020_a_eum_04_migracion.xlsx` 14 | 231 | 0.00 | 0.00 | 0.00 (00 T «deported») | 0 |
 | 04-15 International migrants by the cause of their emigration (`MCAUSAEMIG_V`), state left | `cpv2020_a_eum_04_migracion.xlsx` 15 | 198 | 0.00 | 0.00 | 0.00 (00 T «other») | 0 |
+| 07-02 Population 15+ with técnica media superior by field (`NIVACAD`, `NOMCAR_C`) | `cpv2020_a_eum_07_educacion.xlsx` 02 | 1188 | 0.00 | 0.00 | 0.01 (00 T «Educación») | 0 |
+| 08-02 Employed by position (`SITTRA`) and occupational division | `cpv2020_a_eum_08_caracteristicas_economicas.xlsx` 02 | 6534 | 0.00 | 0.00 | 0.25 (00 T «all: own account») | 0 |
+| 08-04 Employed by position (`SITTRA`) and sector | `cpv2020_a_eum_08_caracteristicas_economicas.xlsx` 04 | 4158 | 0.00 | 0.00 | 0.25 (00 T «Total: own account») | 0 |
+| 08-10 Employed by sector and occupational division | `cpv2020_a_eum_08_caracteristicas_economicas.xlsx` 10 | 7623 | 0.00 | 0.00 | 0.21 (00 T «all: Comercio») | 0 |
+| 08-14 Hours worked (`HORTRA`) by sector | `cpv2020_a_eum_08_caracteristicas_economicas.xlsx` 14 | 5544 | 0.00 | 0.00 | 0.25 (00 T «Total: 49-56») | 0 |
+| 08-16 Hours worked (`HORTRA`) by position (`SITTRA`) | `cpv2020_a_eum_08_caracteristicas_economicas.xlsx` 16 | 4752 | 0.00 | 0.00 | 0.25 (00 T «Total: 49-56») | 0 |
+| 08-20 Income of the employed in minimum wages (`INGTRMEN_SM`) by sector | `cpv2020_a_eum_08_caracteristicas_economicas.xlsx` 20 | 6237 | 0.00 | 0.00 | 0.24 (00 T «Total: up to 1») | 0 |
+| 08-22 Income of the employed in minimum wages (`INGTRMEN_SM`) by position (`SITTRA`) | `cpv2020_a_eum_08_caracteristicas_economicas.xlsx` 22 | 5346 | 0.00 | 0.00 | 0.24 (00 T «Total: up to 1») | 0 |
+| 08-24 Benefits of the salaried (`SERVICIO_MEDICO` … `CREDITO_VIVIENDA`) by occupational division | `cpv2020_a_eum_08_caracteristicas_economicas.xlsx` 24 | 11979 | 0.00 | 0.00 | 0.20 (00 T «all: aguinaldo») | 0 |
+| 08-26 Benefits of the salaried by sector | `cpv2020_a_eum_08_caracteristicas_economicas.xlsx` 26 | 7623 | 0.00 | 0.00 | 0.20 (00 T «Total: aguinaldo») | 0 |
+| 08-28 Population 12+ by activity (`CONACT`) and age | `cpv2020_a_eum_08_caracteristicas_economicas.xlsx` 28 | 4158 | 0.00 | 0.01 | 0.23 (00 M «Total: NE») | 0 |
+| 09-02 Use of health services (`SERSALUD`) by age | `cpv2020_a_eum_09_servicios_de_salud.xlsx` 02 | 8316 | 0.00 | 0.01 | 0.62 (00 T «Total: non-users») | 0 |
+| 10-04 Students 3+ by commute time (`TIE_TRASLADO_ESCU`) and age | `cpv2020_a_eum_10_movilidad_cotidiana.xlsx` 04 | 7128 | 0.00 | 0.00 | 0.15 (00 T «Total: up to 15 minutes») | 0 |
+| 10-10 Employed by commute time (`TIE_TRASLADO_TRAB`) and position (`SITTRA`) | `cpv2020_a_eum_10_movilidad_cotidiana.xlsx` 10 | 5940 | 0.00 | 0.00 | 0.23 (00 T «Total: up to 15 minutes») | 0 |
+| 13-02 Population in households by kinship line (`PARENTESCO`) | `cpv2020_a_eum_13_hogares_censales.xlsx` 02 | 990 | 0.00 | 0.03 | 0.56 (00 T «collaterals») | 0 |
+| 13-04 The 0–17 by their parents' residence (`IDENT_MADRE`, `IDENT_PADRE`) | `cpv2020_a_eum_13_hogares_censales.xlsx` 04 | 693 | 0.00 | 0.01 | 0.17 (00 T «neither») | 0 |
+| 13-06 The 0–17 by their parents' survival (`IDENT_MADRE`, `IDENT_PADRE`) | `cpv2020_a_eum_13_hogares_censales.xlsx` 06 | 693 | 0.00 | 0.01 | 0.13 (00 T «both alive») | 0 |
+| 14-02 Households by other incomes (`INGR_OTROS`) and source, by household size (`NUMPERS`) | `cpv2020_a_eum_14_ingresos_mon_dif_trabajo.xlsx` 02 | 1056 | 0.00 | 0.01 | 0.13 (00 T «Total: government programs») | 0 |
+| 15-02 Households by a lack of food (`ALIMENTACION`) and the head's sex (`JEFE_SEXO`) | `cpv2020_a_eum_15_alimentacion.xlsx` 02 | 396 | 0.00 | 0.01 | 0.10 (00 T «Hombres head: yes») | 0 |
+| 15-04 Households by the adults' food access (`ALIM_ADL1`/2, `ING_ALIM_ADL1`–3) | `cpv2020_a_eum_15_alimentacion.xlsx` 04 | 660 | 0.00 | 0.01 | 0.16 (00 T «Algún adulto sólo comió una vez al día o dejó de comer todo un día: no») | 0 |
 | 01-01 Population by five-year age (`EDAD_QUIN`) and sex, by locality size (as 01-02) | `cpv2020_a_eum_01_poblacion.xlsx` 01 | 306 | 0.00 | 0.00 | 0.00 (size 1 T «Total: total») | 0 |
 | 01-03 Birth registration (`REGIS_NAC`) by age, by locality size (as 01-04) | `cpv2020_a_eum_01_poblacion.xlsx` 03 | 864 | 0.00 | 0.07 | 0.61 (00 T «Total: not registered») | 0 |
 | 04-01 The born abroad by Mexican nationality (`NACIONALIDAD`), by locality size (as 04-02) | `cpv2020_a_eum_04_migracion.xlsx` 01 | 216 | 0.00 | 0.00 | 0.00 (00 T «all: not») | 0 |
@@ -468,14 +488,14 @@ Tolerance: 1.0 persons.
 | 07-03 Population 18+ with educación superior (`EDUC_INEGI_DET`), by locality size (as 07-04) | `cpv2020_a_eum_07_educacion.xlsx` 03 | 18 | 0.00 | 0.00 | 0.00 (size 1 T «18+, superior or posgrado») | 0 |
 | 08-05 Employed by occupational division (`OCUPACION_C_COARSE`), by locality size (as 08-06) | `cpv2020_a_eum_08_caracteristicas_economicas.xlsx` 05 | 180 | 0.01 | 0.12 | 0.17 (00 T «Operadores de maquinaria industrial, ensambladores, choferes y conductores de transporte») | 0 |
 | 08-07 Employed by sector (`ACTIVIDADES_C_COARSE`), by locality size (as 08-08) | `cpv2020_a_eum_08_caracteristicas_economicas.xlsx` 07 | 108 | 0.01 | 0.08 | 0.21 (00 T «Comercio») | 0 |
-| 08-11 Hours worked (`HORTRA_CAT`), by locality size (as 08-12) | `cpv2020_a_eum_08_caracteristicas_economicas.xlsx` 11 | 108 | 0.01 | 0.11 | 0.26 (00 T «up to 40 (none included)») | 0 |
-| 08-17 Income of the employed in minimum wages (`INGTRMEN_SM`), by locality size (as 08-18) | `cpv2020_a_eum_08_caracteristicas_economicas.xlsx` 17 | 162 | 0.01 | 0.11 | 0.24 (00 T «up to 1») | 0 |
+| 08-11 Hours worked (`HORTRA`) by occupational division, by locality size (as 08-12) | `cpv2020_a_eum_08_caracteristicas_economicas.xlsx` 11 | 1584 | 0.00 | 0.02 | 0.25 (00 T «all: 49-56») | 0 |
+| 08-17 Income of the employed in minimum wages (`INGTRMEN_SM`) by occupational division, by locality size (as 08-18) | `cpv2020_a_eum_08_caracteristicas_economicas.xlsx` 17 | 1782 | 0.00 | 0.02 | 0.24 (00 T «all: up to 1») | 0 |
 | 09-03 Health affiliation by institution (`DHSERSAL_*`), by locality size (as 09-04) | `cpv2020_a_eum_09_servicios_de_salud.xlsx` 03 | 66 | 0.00 | 0.00 | 0.00 (size 1 T «population») | 0 |
-| 10-01 Place of school by municipality (`LUGAR_ASI`), by locality size (as 10-02) | `cpv2020_a_eum_10_movilidad_cotidiana.xlsx` 01 | 126 | 0.01 | 0.07 | 0.15 (00 T «not specified») | 0 |
-| 10-05 Commute to school (`MED_TRASLADO_ESC_*`), by locality size (as 10-06) | `cpv2020_a_eum_10_movilidad_cotidiana.xlsx` 05 | 180 | 0.01 | 0.06 | 0.15 (00 T «metro, trolleybus, metrobús») | 0 |
-| 10-07 Place of work by municipality (`LUGAR_TRAB`), by locality size (as 10-08) | `cpv2020_a_eum_10_movilidad_cotidiana.xlsx` 07 | 126 | 0.01 | 0.11 | 0.21 (00 T «not specified») | 0 |
-| 10-11 Commute to work (`MED_TRASLADO_TRAB_*`), by locality size (as 10-12) | `cpv2020_a_eum_10_movilidad_cotidiana.xlsx` 11 | 180 | 0.01 | 0.10 | 0.22 (00 T «other») | 0 |
-| 11-01 Partner in the dwelling (`IDENT_PAREJA_CAT`), by locality size (as 11-02) | `cpv2020_a_eum_11_situacion_conyugal.xlsx` 01 | 72 | 0.01 | 0.08 | 0.19 (00 T «not specified») | 0 |
+| 10-01 Place of school by municipality (`LUGAR_ASI`) by age, by locality size (as 10-02) | `cpv2020_a_eum_10_movilidad_cotidiana.xlsx` 01 | 1008 | 0.00 | 0.02 | 0.15 (00 T «Total: not specified») | 0 |
+| 10-05 Commute to school (`MED_TRASLADO_ESC_*`) by age, by locality size (as 10-06) | `cpv2020_a_eum_10_movilidad_cotidiana.xlsx` 05 | 1440 | 0.00 | 0.02 | 0.15 (00 T «Total: metro, trolleybus, metrobús») | 0 |
+| 10-07 Place of work by municipality (`LUGAR_TRAB`) by sector, by locality size (as 10-08) | `cpv2020_a_eum_10_movilidad_cotidiana.xlsx` 07 | 882 | 0.00 | 0.03 | 0.21 (00 T «Total: not specified») | 0 |
+| 10-11 Commute to work (`MED_TRASLADO_TRAB_*`) by position (`SITTRA`), by locality size (as 10-12) | `cpv2020_a_eum_10_movilidad_cotidiana.xlsx` 11 | 1080 | 0.00 | 0.04 | 0.22 (00 T «Total: other») | 0 |
+| 11-01 Partner in the dwelling (`IDENT_PAREJA_CAT`) by union (`SITUA_CONYUGAL`), by locality size (as 11-02) | `cpv2020_a_eum_11_situacion_conyugal.xlsx` 01 | 216 | 0.00 | 0.06 | 0.19 (00 T «all: not specified») | 0 |
 | 16-01a Dwellings by wall (`PAREDES`), by locality size (as 16-02a) | `cpv2020_a_eum_16_vivienda.xlsx` 01 | 60 | 0.01 | 0.11 | 0.16 (00 T «wood») | 0 |
 | 16-01b Occupants of the dwellings by wall (`PAREDES`), by locality size (as 16-02b) | `cpv2020_a_eum_16_vivienda.xlsx` 01 | 60 | 0.06 | 0.39 | 0.57 (00 T «asbestos or metal sheet») | 0 |
 | 16-03a Dwellings by roof (`TECHOS`), by locality size (as 16-04a) | `cpv2020_a_eum_16_vivienda.xlsx` 03 | 72 | 0.01 | 0.08 | 0.15 (00 T «palm or straw») | 0 |
@@ -509,11 +529,32 @@ Tolerance: 1.0 persons.
 | 16-27 Owned dwellings by their owners' sex and number (`DUE1_NUM`/`DUE2_NUM` → the person's `SEXO`), by locality size (as 16-28) | `cpv2020_a_eum_16_vivienda.xlsx` 27 | 42 | 0.01 | 0.11 | 0.11 (00 T «two women») | 0 |
 | 16-33 Financing of the owned dwellings bought or built (`FINANCIAMIENTO_*`, several sources), by locality size (as 16-34) | `cpv2020_a_eum_16_vivienda.xlsx` 33 | 60 | 0.01 | 0.09 | 0.11 (00 T «No especificado») | 0 |
 | 16-35 Owned dwellings bought or built with a credit by its payment (`DEUDA`), by locality size (as 16-36) | `cpv2020_a_eum_16_vivienda.xlsx` 35 | 36 | 0.00 | 0.03 | 0.03 (00 T «payment suspended») | 0 |
+| 07-01 Population 15+ with técnica media superior by field (`NIVACAD`, `NOMCAR_C`), by locality size (as 07-02) | `cpv2020_a_eum_07_educacion.xlsx` 01 | 216 | 0.00 | 0.01 | 0.01 (00 T «Educación») | 0 |
+| 08-01 Employed by position (`SITTRA`) and occupational division, by locality size (as 08-02) | `cpv2020_a_eum_08_caracteristicas_economicas.xlsx` 01 | 1188 | 0.00 | 0.02 | 0.25 (00 T «all: own account») | 0 |
+| 08-03 Employed by position (`SITTRA`) and sector, by locality size (as 08-04) | `cpv2020_a_eum_08_caracteristicas_economicas.xlsx` 03 | 756 | 0.00 | 0.03 | 0.25 (00 T «Total: own account») | 0 |
+| 08-09 Employed by sector and occupational division, by locality size (as 08-10) | `cpv2020_a_eum_08_caracteristicas_economicas.xlsx` 09 | 1386 | 0.00 | 0.02 | 0.21 (00 T «all: Comercio») | 0 |
+| 08-13 Hours worked (`HORTRA`) by sector, by locality size (as 08-14) | `cpv2020_a_eum_08_caracteristicas_economicas.xlsx` 13 | 1008 | 0.00 | 0.03 | 0.25 (00 T «Total: 49-56») | 0 |
+| 08-15 Hours worked (`HORTRA`) by position (`SITTRA`), by locality size (as 08-16) | `cpv2020_a_eum_08_caracteristicas_economicas.xlsx` 15 | 864 | 0.00 | 0.04 | 0.25 (00 T «Total: 49-56») | 0 |
+| 08-19 Income of the employed in minimum wages (`INGTRMEN_SM`) by sector, by locality size (as 08-20) | `cpv2020_a_eum_08_caracteristicas_economicas.xlsx` 19 | 1134 | 0.00 | 0.03 | 0.24 (00 T «Total: up to 1») | 0 |
+| 08-21 Income of the employed in minimum wages (`INGTRMEN_SM`) by position (`SITTRA`), by locality size (as 08-22) | `cpv2020_a_eum_08_caracteristicas_economicas.xlsx` 21 | 972 | 0.00 | 0.05 | 0.24 (00 T «Total: up to 1») | 0 |
+| 08-23 Benefits of the salaried (`SERVICIO_MEDICO` … `CREDITO_VIVIENDA`) by occupational division, by locality size (as 08-24) | `cpv2020_a_eum_08_caracteristicas_economicas.xlsx` 23 | 2178 | 0.00 | 0.01 | 0.20 (00 T «all: aguinaldo») | 0 |
+| 08-25 Benefits of the salaried by sector, by locality size (as 08-26) | `cpv2020_a_eum_08_caracteristicas_economicas.xlsx` 25 | 1386 | 0.00 | 0.02 | 0.20 (00 T «Total: aguinaldo») | 0 |
+| 08-27 Population 12+ by activity (`CONACT`) and age, by locality size (as 08-28) | `cpv2020_a_eum_08_caracteristicas_economicas.xlsx` 27 | 756 | 0.00 | 0.06 | 0.23 (00 M «Total: NE») | 0 |
+| 09-01 Use of health services (`SERSALUD`) by age, by locality size (as 09-02) | `cpv2020_a_eum_09_servicios_de_salud.xlsx` 01 | 1512 | 0.00 | 0.08 | 0.62 (00 T «Total: non-users») | 0 |
+| 10-03 Students 3+ by commute time (`TIE_TRASLADO_ESCU`) and age, by locality size (as 10-04) | `cpv2020_a_eum_10_movilidad_cotidiana.xlsx` 03 | 1296 | 0.00 | 0.02 | 0.15 (00 T «Total: up to 15 minutes») | 0 |
+| 10-09 Employed by commute time (`TIE_TRASLADO_TRAB`) and position (`SITTRA`), by locality size (as 10-10) | `cpv2020_a_eum_10_movilidad_cotidiana.xlsx` 09 | 1080 | 0.00 | 0.04 | 0.23 (00 T «Total: up to 15 minutes») | 0 |
+| 13-01 Population in households by kinship line (`PARENTESCO`), by locality size (as 13-02) | `cpv2020_a_eum_13_hogares_censales.xlsx` 01 | 180 | 0.03 | 0.28 | 0.56 (00 T «collaterals») | 0 |
+| 13-03 The 0–17 by their parents' residence (`IDENT_MADRE`, `IDENT_PADRE`), by locality size (as 13-04) | `cpv2020_a_eum_13_hogares_censales.xlsx` 03 | 126 | 0.01 | 0.08 | 0.17 (00 T «neither») | 0 |
+| 13-05 The 0–17 by their parents' survival (`IDENT_MADRE`, `IDENT_PADRE`), by locality size (as 13-06) | `cpv2020_a_eum_13_hogares_censales.xlsx` 05 | 126 | 0.01 | 0.07 | 0.13 (00 T «both alive») | 0 |
+| 14-01 Households by other incomes (`INGR_OTROS`) and source, by household size (`NUMPERS`), by locality size (as 14-02) | `cpv2020_a_eum_14_ingresos_mon_dif_trabajo.xlsx` 01 | 192 | 0.00 | 0.05 | 0.13 (00 T «Total: government programs») | 0 |
+| 15-01 Households by a lack of food (`ALIMENTACION`) and the head's sex (`JEFE_SEXO`), by locality size (as 15-02) | `cpv2020_a_eum_15_alimentacion.xlsx` 01 | 72 | 0.00 | 0.06 | 0.10 (00 T «Hombres head: yes») | 0 |
+| 15-03 Households by the adults' food access (`ALIM_ADL1`/2, `ING_ALIM_ADL1`–3), by locality size (as 15-04) | `cpv2020_a_eum_15_alimentacion.xlsx` 03 | 120 | 0.01 | 0.08 | 0.16 (00 T «Algún adulto sólo comió una vez al día o dejó de comer todo un día: no») | 0 |
 
 - 07-04: Técnica after preparatoria, licenciatura, normal superior, especialidad, maestría, doctorado (6w).
 - 08-18: The Zona Libre de la Frontera Norte (5,566.80; San Quintín included) and the rest of the country (3,696.60), DOF 23/12/2019; 7c.
-- 10-02: 7b.
-- 10-08: 7b.
+- 08-12: The raw hours (7w: `HORTRA_CAT` cannot split 32 hours; 0 = had a job but did not work).
+- 10-02: 7b; by age 7w. Tabasco's women 6–11: INEGI publishes «same entity» as 100.0% beside 2 not specified (0.001573%; its row sums to 100.0016%, the men's and both sexes' agree), so that cell and «same municipality» (a share of it) are 2 persons above ours (7w).
+- 10-08: 7b; by sector 7w.
 - 16-16a: None = no saving bulb, whatever the total (also when it is not specified); not specified = the saving bulbs' count (7h).
 - 16-16b: None = no saving bulb, whatever the total (also when it is not specified); not specified = the saving bulbs' count (7h).
 - 16-28: The owner items point at the person rows (`NUMPER`), whose `SEXO` the person file gives; 99 = the owner not identified (7h).
@@ -528,5 +569,12 @@ Tolerance: 1.0 persons.
 - 06-06: A limitation in an activity counts only without a disability in another (6y's rule).
 - 04-12: In the state they live in (the dwelling's); the months between the emigration and the return (7p).
 - 04-15: Every migrant, counted in the state they left (`MLUGORI_C`); a deportation is «otra causa» here (7p).
+- 07-02: Bachillerato tecnológico, técnica after secundaria, normal básica (`NIVACAD` 05, 07, 09); the field = `NOMCAR_C`'s first two digits (7w).
+- 08-24: Salaried = `SITTRA` 1–3; with benefits = some item «yes», without = all seven «no», not specified = no «yes» and some item 9 (the EIC 2015's rule; 7w).
+- 08-26: Salaried = `SITTRA` 1–3; with benefits = some item «yes», without = all seven «no», not specified = no «yes» and some item 9 (the EIC 2015's rule; 7w).
+- 13-02: INEGI's lines found on the tabulado in every state and sex (7w).
+- 13-04: Not specified when either pointer is 99, does not know when either is 98 (7w).
+- 14-02: On the derived `INGR_OTROS` (6z); every dwelling row, classes 07–09 included (7w).
+- 15-04: Every household (the items are asked of all); 7w.
 
 State 00 is the nation (the sum of the states); state 99 the origin not specified (the international migrants by the state they left); state 98 the states a tabulado publishes together («Resto de las entidades»); in the checks by locality size (7s), «size N» the tabulado's N-th size (`TAMLOC` N); sex T = both, H = men, M = women.

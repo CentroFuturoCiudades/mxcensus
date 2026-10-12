@@ -55,6 +55,13 @@ times, relationship and the households by the head's sex and age, nationality an
 migration, language and self-identification, and the workbooks 13 (other incomes) and 15
 (food access); many publish the sexes in columns (:func:`_sex_columns`).
 
+7w read every Censo 2020 tabulado left (:func:`_person_checks_2020_w`): técnica fields, the
+employed's position, sector, hours, income and benefits by division, sector or position, the
+activity by age, the use of health services by age, commute times, and the workbooks 13
+(kinship lines, the parents of the 0–17), 14 (other incomes) and 15 (food access) that
+``SOURCES`` lacked; the checks that read only a breakdown's «Total» row (hours and income by
+division, place and mode by age, sector or position, the partner by union) read every row.
+
 The tabulados are fetched once into ``data/dict/tabulados/{period}/`` (git-ignored); the
 mirror is read from ``data/parquet`` (the full mirror: every state of each edition).
 
@@ -146,7 +153,10 @@ SOURCES = {
               "cpv2020_a_eum_10_movilidad_cotidiana.xlsx",
               "cpv2020_a_eum_11_situacion_conyugal.xlsx", "cpv2020_a_eum_16_vivienda.xlsx",
               "cpv2020_a_eum_02_fecundidad.xlsx", "cpv2020_a_eum_03_mortalidad.xlsx",   # 7o
-              "cpv2020_a_eum_06_discapacidad.xlsx")),                                  # 7p
+              "cpv2020_a_eum_06_discapacidad.xlsx",                                    # 7p
+              "cpv2020_a_eum_13_hogares_censales.xlsx",                                # 7w
+              "cpv2020_a_eum_14_ingresos_mon_dif_trabajo.xlsx",
+              "cpv2020_a_eum_15_alimentacion.xlsx")),
 }
 
 # Raw SEXO codes → the tabulados' sexes (T = both).
@@ -852,11 +862,15 @@ _PLACE_CELLS = ("same entity", "same municipality", "another municipality",
                 "municipality not specified", "another entity or country", "not specified")
 
 
-def _place(col: str, universe: Callable[[pd.DataFrame], pd.Series]):
+def _place(col: str, universe: Callable[[pd.DataFrame], pd.Series],
+           rows: Callable[[pd.DataFrame, pd.Series], list[pd.Series]] | None = None):
+    """The persons of ``universe`` by ``col``'s place (the same entity — municipality, another,
+    not specified —, elsewhere, not specified); 7w: per ``rows`` group (the universe first)."""
     def ours(p):
         u, place = universe(p), _cat(p, col)
-        return _counts_of(u, u & place.isin(_OWN_ENTITY), *(u & place.eq(c) for c in _OWN_ENTITY),
-                          u & place.isin(_ELSEWHERE), u & place.eq("No especificado"))
+        return _counts_of(*(m for g in (rows(p, u) if rows else [u]) for m in (
+            g, g & place.isin(_OWN_ENTITY), *(g & place.eq(c) for c in _OWN_ENTITY),
+            g & place.isin(_ELSEWHERE), g & place.eq("No especificado"))))
     return ours
 
 
@@ -907,11 +921,16 @@ _SM_CELLS = ("up to 1", "above 1 to 2", "above 2 to 3", "above 3 to 5", "above 5
              "above 10", "no income", "not specified")
 
 
-def _income_sm(p):
+def _incomes(p: pd.DataFrame, u: pd.Series) -> list[pd.Series]:
+    """The employed of ``u`` by ``INGTRMEN_SM``, in the tabulados' order."""
     from mxcensus.cpv_derived import _SM
     groups = [*_SM.categories[1:7], _SM.categories[0], _SM.categories[7]]
-    e, sm = _employed(p), _cat(p, "INGTRMEN_SM")
-    return _counts_of(e, *(e & sm.eq(c) for c in groups))
+    sm = _cat(p, "INGTRMEN_SM")
+    return [u, *(u & sm.eq(c) for c in groups)]
+
+
+def _income_sm(p):
+    return _counts_of(*_incomes(p, _employed(p)))
 
 
 def _income_sm_published(estimator: str, sheet: str | None = None):
@@ -919,9 +938,15 @@ def _income_sm_published(estimator: str, sheet: str | None = None):
 
 
 def _occupation(p):
+    return _counts_of(*_division_rows(p, _employed(p))[1:])
+
+
+def _division_rows(p: pd.DataFrame, u: pd.Series) -> list[pd.Series]:
+    """7w: the employed of ``u``, then each occupational division (``OCUPACION_C_COARSE``'s
+    first digit; 99 not specified, the tenth)."""
     occ = _code_of(p, "OCUPACION_C_COARSE")
     division = (occ // 10).where(occ.ne(99), 10)
-    return _counts_of(*(_employed(p) & division.eq(i) for i in range(1, 11)))
+    return [u, *(u & division.eq(i) for i in range(1, 11))]
 
 
 def _sector(p):
@@ -944,15 +969,6 @@ def _words(name: str) -> frozenset[str]:
 
 def _any(frame: pd.DataFrame, *cols: str) -> pd.Series:
     return np.logical_or.reduce([_dummy(frame, c) for c in cols])
-
-
-def _hours(p):
-    """The employed by hours worked: the tabulado's «hasta 32», «33 a 40» and «no trabajó»
-    (0 hours) together are ``HORTRA_CAT`` up to 40."""
-    h, e = _cat(p, "HORTRA_CAT"), _employed(p)
-    return _counts_of(e, e & h.isin(["0-5", "6-10", "11-20", "21-40"]), e & h.eq("41-48"),
-                      e & h.eq("49-56"), e & h.isin(["57-60", "61-80", "81YMAS"]),
-                      e & h.eq("No especificado"))
 
 
 def _affiliation(p):
@@ -994,21 +1010,26 @@ _MODES_ESC = (*_MODES, ("school bus", ["Transporte escolar"]), *_MODES_END)
 _MODES_TRAB = (*_MODES, ("staff transport", ["Transporte de personal"]), *_MODES_END)
 
 
-def _commute(prefix: str, modes: tuple, youngest: int):
+def _commute(prefix: str, modes: tuple, youngest: int,
+             rows: Callable[[pd.DataFrame, pd.Series], list[pd.Series]] | None = None):
     """Who travels (a first mode given; the tabulados leave out unspecified ages: students
-    3+, the employed 12+) and each mode."""
+    3+, the employed 12+) and each mode; 7w: per ``rows`` group (who travels first)."""
     def ours(p):
         travels = p[f"{prefix}1"].notna() & _age(p).between(youngest, 130)
-        return _counts_of(travels, *(travels & _any(p, *(f"{prefix}_{m}" for m in labels))
-                                     for _, labels in modes))
+        mode = [_any(p, *(f"{prefix}_{m}" for m in labels)) for _, labels in modes]
+        return _counts_of(*(m for g in (rows(p, travels) if rows else [travels])
+                            for m in (g, *(g & x for x in mode))))
     return ours
 
 
 def _partner(p):
-    """The married or in union aged 12+, by whether the partner lives in the dwelling."""
+    """The married or in union aged 12+, by whether the partner lives in the dwelling; 7w: all,
+    the married (``SITUA_CONYUGAL`` 5–7), in free union (1)."""
     union = _age(p).between(12, 130) & _cat(p, "SITUA_CONYUGAL_CAT").eq("casado")
-    partner = _cat(p, "IDENT_PAREJA_CAT")
-    return _counts_of(union, *(union & partner.eq(c) for c in ("Sí", "No", "No especificado")))
+    partner, sc = _cat(p, "IDENT_PAREJA_CAT"), _code(p, "SITUA_CONYUGAL")
+    answers = ("Sí", "No", "No especificado")
+    return _counts_of(*(m for u in (union, union & sc.between(5, 7), union & sc.eq(1))
+                        for m in (u, *(u & partner.eq(c) for c in answers))))
 
 
 _FINANCING_2020 = ("INFONAVIT", "FOVISSSTE", "PEMEX", "FONHAPO", "Banco", "Otra institución",
@@ -3335,11 +3356,17 @@ _POSITIONS_2015 = (("salaried", (1, 2, 3)), ("employers", 4), ("own account", 5)
                    ("unpaid", 6), ("NE", 9))
 
 
-def _positions(p: pd.DataFrame) -> tuple[pd.Series, ...]:
-    """The employed, then by ``SITUACION_TRAB``: salaried (employees, day laborers, paid
-    helpers), employers, own account, unpaid, not specified."""
-    e, pos = _employed(p), _code(p, "SITUACION_TRAB")
-    return (e, *(e & _is(pos, c) for _, c in _POSITIONS_2015))
+def _positions(p: pd.DataFrame, item: str = "SITUACION_TRAB") -> tuple[pd.Series, ...]:
+    """The employed, then by ``SITUACION_TRAB`` (7w: Censo 2020's ``SITTRA``, the same codes):
+    salaried (employees, day laborers, paid helpers), employers, own account, unpaid, not
+    specified."""
+    return tuple(_position_rows(p, _employed(p), item))
+
+
+def _position_rows(p: pd.DataFrame, u: pd.Series, item: str = "SITTRA") -> list[pd.Series]:
+    """7w: the employed of ``u``, then each position (:func:`_positions`)."""
+    pos = _code(p, item)
+    return [u, *(u & _is(pos, c) for _, c in _POSITIONS_2015)]
 
 
 def _position_2015(p):
@@ -3369,19 +3396,27 @@ _BENEFITS_2015 = (("medical service", "SERVICIO_MEDICO", 5), ("aguinaldo", "AGUI
 _SECTOR_ROWS = ("Total", *(n for n, _ in _SECTOR_GROUPS))
 
 
-def _benefits_2015(p):
-    """08-12: the salaried by benefits, per sector: some benefit (an item «yes») and each
-    one; none (all seven «no»); not specified (no «yes» and some item 9)."""
-    items = pd.DataFrame({col: _code(p, col) for _, col, _ in _BENEFITS_2015})
-    yes = pd.DataFrame({col: items[col].eq(c) for _, col, c in _BENEFITS_2015})
-    some = yes.any(axis=1)
-    unknown = ~some & items.eq(9).any(axis=1)
-    salaried = _positions(p)[1]
-    out = []
-    for u in _sectors(p, salaried):
-        out += _counts_of(u, u & some, *(u & some & yes[col] for _, col, _ in _BENEFITS_2015),
-                          u & ~some & ~unknown, u & unknown)
-    return out
+def _benefits(rows: Callable[[pd.DataFrame, pd.Series], list[pd.Series]],
+              item: str = "SITUACION_TRAB"):
+    """08-12 (2015), 08-24/26 (2020; 7w): the salaried by benefits, per ``rows`` group (the
+    sectors, the divisions): some benefit (an item «yes») and each one; none (all seven
+    «no»); not specified (no «yes» and some item 9). Censo 2020's items have the EIC 2015's
+    codes; its position is ``item`` ``SITTRA``."""
+    def ours(p):
+        items = pd.DataFrame({col: _code(p, col) for _, col, _ in _BENEFITS_2015})
+        yes = pd.DataFrame({col: items[col].eq(c) for _, col, c in _BENEFITS_2015})
+        some = yes.any(axis=1)
+        unknown = ~some & items.eq(9).any(axis=1)
+        out = []
+        for u in rows(p, _positions(p, item)[1]):
+            out += _counts_of(u, u & some,
+                              *(u & some & yes[col] for _, col, _ in _BENEFITS_2015),
+                              u & ~some & ~unknown, u & unknown)
+        return out
+    return ours
+
+
+_benefits_2015 = _benefits(_sectors)
 
 
 # 10-02/05: the commute times (1–5 or 6 «not possible to determine» when they travel; then
@@ -3393,26 +3428,32 @@ _POSITION_ROWS = ("Total", "Trabajadores asalariados3", "Empleadores",
                   "Trabajadores por cuenta propia", "Trabajadores sin pago", "No especificado")
 
 
+def _school_times(p: pd.DataFrame, u: pd.Series) -> list[pd.Series]:
+    """The students of ``u`` by ``TIE_TRASLADO_ESCU`` (the EIC 2015's and Censo 2020's codes):
+    those who travel and their times, those who do not, not specified."""
+    t = _code(p, "TIE_TRASLADO_ESCU")
+    go = u & t.between(1, 5)
+    return [u, go, *(go & t.eq(c) for c in range(1, 6)), u & t.eq(6), u & t.eq(9)]
+
+
+def _work_times(p: pd.DataFrame, u: pd.Series) -> list[pd.Series]:
+    """The employed of ``u`` by ``TIE_TRASLADO_TRAB``: those who travel and their times (6 not
+    possible to determine), those who do not, not specified."""
+    t = _code(p, "TIE_TRASLADO_TRAB")
+    go = u & t.between(1, 6)
+    return [u, go, *(go & t.eq(c) for c in range(1, 7)), u & t.eq(7), u & t.eq(9)]
+
+
 def _school_time_2015(p):
     """10-02: the students 3+ (``ASISTEN`` 5) by ``TIE_TRASLADO_ESCU``, per age group."""
-    t = _code(p, "TIE_TRASLADO_ESCU")
     attends = _age(p).between(3, 130) & _code(p, "ASISTEN").eq(5)
-    out = []
-    for label in _STUDENT_AGES:
-        u = attends & _age_group(p, label)
-        go = u & t.between(1, 5)
-        out += _counts_of(u, go, *(go & t.eq(c) for c in range(1, 6)), u & t.eq(6), u & t.eq(9))
-    return out
+    return _counts_of(*(m for label in _STUDENT_AGES
+                        for m in _school_times(p, attends & _age_group(p, label))))
 
 
 def _work_time_2015(p):
     """10-05: the employed by ``TIE_TRASLADO_TRAB``, per position (all, then each)."""
-    t = _code(p, "TIE_TRASLADO_TRAB")
-    out = []
-    for u in _positions(p):
-        go = u & t.between(1, 6)
-        out += _counts_of(u, go, *(go & t.eq(c) for c in range(1, 7)), u & t.eq(7), u & t.eq(9))
-    return out
+    return _counts_of(*(m for u in _positions(p) for m in _work_times(p, u)))
 
 
 # 12: the population in households by relationship; the households by size, type and
@@ -3883,6 +3924,300 @@ def _size_twins_2015_v() -> tuple[Check, ...]:
               lambda v: _other_incomes_2015(v, _MEMBERS_2015), unit="persons", sheet="01"),
     )
     return tuple(_by_size(c) for c in twins)
+
+
+# Censo 2020's tabulados 7n and 7p left (7w) -----------------------------------------------
+
+_EDU_2020 = "cpv2020_a_eum_07_educacion.xlsx"
+_HEALTH_2020 = "cpv2020_a_eum_09_servicios_de_salud.xlsx"
+_HOUSEHOLDS_2020 = "cpv2020_a_eum_13_hogares_censales.xlsx"
+_INCOMES_2020 = "cpv2020_a_eum_14_ingresos_mon_dif_trabajo.xlsx"
+_FOOD_2020 = "cpv2020_a_eum_15_alimentacion.xlsx"
+
+# 07-01/02: the fields of the CMPE (`NOMCAR_C`'s first two digits, catalog CARRERA)
+_FIELDS_2020 = ("Educación", "Artes y Humanidades", "Ciencias sociales y derecho",
+                "Administración y negocios", "Ciencias naturales, matemáticas y estadística",
+                "Tecnologías de la información y la comunicación",
+                "Ingeniería, manufactura y construcción", "Agronomía y veterinaria",
+                "Ciencias de la salud", "Servicios")
+
+
+def _technical_2020(p):
+    """07-02: the 15+ with a grade of a técnica or comercial career of media superior —
+    bachillerato tecnológico, técnica after secundaria, normal básica (``NIVACAD`` 05, 07, 09)
+    — by field (``NOMCAR_C``'s first two digits, 01–10; 9999 not specified)."""
+    u = _age(p).between(15, 130) & _code(p, "NIVACAD").isin([5, 7, 9])
+    career = _cat(p, "NOMCAR_C").astype(str)
+    return _counts_of(u, *(u & career.str[:2].eq(f"{d:02d}") for d in range(1, 11)),
+                      u & career.eq("9999"))
+
+
+# 08: the employed by division, sector or position (rows) × position, sector, hours, income or
+# benefits (cells); the divisions as the 2020 rows spell them
+_DIVISIONS_2020 = ("Funcionarios, directores y jefes", "Profesionistas y técnicos",
+                   "Trabajadores auxiliares en actividades administrativas",
+                   "Comerciantes, empleados en ventas y agentes de ventas",
+                   "Trabajadores en servicios personales y vigilancia",
+                   "Trabajadores en actividades agrícolas, ganaderas, forestales, pesca y caza",
+                   "Trabajadores artesanales, en la construcción y otros oficios",
+                   "Operadores de maquinaria industrial, ensambladores, choferes y conductores "
+                   "de transporte",
+                   "Trabajadores en actividades elementales y de apoyo", "No especificado")
+_DIVISION_ROWS_2020 = ("Total", *_DIVISIONS_2020)
+_POSITION_CELLS = ("employed", *(n for n, _ in _POSITIONS_2015))
+_SECTOR_CELLS = ("employed", *(n for n, _ in _SECTOR_GROUPS))
+_HOURS_2020 = (("up to 32", 1, 32), ("33-40", 33, 40), ("41-48", 41, 48), ("49-56", 49, 56),
+               ("more than 56", 57, 140), ("did not work", 0, 0), ("NE", 999, 999))
+_HOUR_CELLS = ("employed", *(n for n, *_ in _HOURS_2020))
+_BENEFIT_CELLS = ("salaried", "with benefits", *(n for n, *_ in _BENEFITS_2015), "without", "NE")
+_ACTIVITY_AGES_2020 = ("Total", "12-17 años", "18-29 años", "30-44 años", "45-59 años",
+                       "60-74 años", "75 años y más")
+
+
+def _position_names(footnote: int) -> tuple[str, ...]:
+    """The positions as a 2020 tabulado's rows name them (the salaried's footnote varies)."""
+    return ("Total", f"Trabajadores asalariados{footnote}", *_POSITION_ROWS[2:])
+
+
+def _cross(universe: Callable[[pd.DataFrame], pd.Series],
+           rows: Callable[[pd.DataFrame, pd.Series], list[pd.Series]],
+           cells: Callable[[pd.DataFrame, pd.Series], list[pd.Series]]):
+    """The persons of ``universe`` per ``rows`` group (the universe first), each with
+    ``cells`` (the group first)."""
+    def ours(p):
+        return _counts_of(*(m for g in rows(p, universe(p)) for m in cells(p, g)))
+    return ours
+
+
+def _age_rows(groups: tuple[str, ...]) -> Callable[[pd.DataFrame, pd.Series], list[pd.Series]]:
+    return lambda p, u: [u & _age_group(p, g) for g in groups]
+
+
+def _hours_2020(p: pd.DataFrame, u: pd.Series) -> list[pd.Series]:
+    """The employed of ``u`` by ``HORTRA`` as the tabulados group it: 0 hours (who had a job
+    but did not work, ``CONACT`` 20) apart, 999 not specified."""
+    h = _numeric(p, "HORTRA")
+    return [u, *(u & h.between(a, b) for _, a, b in _HOURS_2020)]
+
+
+def _activity_2020(p):
+    """08-27/28: the 12+ by activity (``CONACT``: the PEA 10–30 — employed 10–20, unemployed
+    30 —, the not active 40–80, not specified 99), per age group."""
+    act, twelve = _code(p, "CONACT"), _age(p).between(12, 130)
+    out = []
+    for label in _ACTIVITY_AGES_2020:
+        u = twelve & _age_group(p, label)
+        out += _counts_of(u, u & act.between(10, 30), u & act.between(10, 20), u & act.eq(30),
+                          u & act.between(40, 80), u & act.eq(99))
+    return out
+
+
+# 09-01/02: the use of health services (SERSALUD 01–09; 02/03 ISSSTE federal or state; 10 none)
+_USE_2020 = (1, (2, 3), 4, 5, 6, 7, 8, 9)
+_USE_CELLS_2020 = ("population", "users", "IMSS", "ISSSTE (federal or state)",
+                   "Pemex, Defensa or Marina", "SSA", "IMSS-BIENESTAR", "private", "pharmacy",
+                   "other", "non-users", "NE")
+_USE_AGES_2020 = ("Total", "00-14 años", "15-29 años", "30-59 años", "60-84 años",
+                  "85 años y más", "No especificado")
+
+
+def _use_2020(p):
+    """09-02: every person by ``SERSALUD`` (users and their institution, non-users, not
+    specified), per age group (every age: «Total» holds the unspecified)."""
+    use = _code(p, "SERSALUD")
+    out = []
+    for label in _USE_AGES_2020:
+        g = _age_group(p, label)
+        users = g & use.between(1, 9)
+        out += _counts_of(g, users, *(users & _is(use, c) for c in _USE_2020), g & use.eq(10),
+                          g & use.eq(99))
+    return out
+
+
+# 13: the population in households by kinship line (`PARENTESCO`'s codes, found on 13-02 in
+# every state and sex) and the 0–17 by their parents' residence and survival
+_LINES_2020 = (("head", (101,)), ("spouse or partner", (201, 202, 203)),
+               ("child", (301, 302, 303, 304)),
+               ("ascendants", (401, 402, 406, 407, 412, 416, 421)),
+               ("descendants", (408, 409, 410, 411, 413, 414, 418, 422)),
+               ("collaterals", (403, 404, 405, 415, 417, 419, 420, 423)),
+               ("other kinship", (424,)), ("not related", (501, 502, 503, 601, 611, 612, 613, 701)),
+               ("NE", (999,)))
+
+
+def _lines_2020(p):
+    """13-02: every person by kinship line: ascendants — parents, step-parents, grand- and
+    great-grandparents, uncles and aunts, parents-in-law, godparents —; descendants —
+    grandchildren, step-grandchildren, their spouses, great-grandchildren, nephews and nieces
+    and theirs, children-in-law, godchildren —; collaterals — siblings, cousins, the
+    children's parents-in-law, siblings-in-law, concuños, compadres —; «otros familiares»
+    another kinship; the unrelated, domestic workers, their families and guests none."""
+    kin = _code(p, "PARENTESCO")
+    return _counts_of(pd.Series(True, index=p.index), *(kin.isin(c) for _, c in _LINES_2020))
+
+
+def _parents_2020(survival: bool):
+    """13-04 (residence) / 13-06 (``survival``): the 0–17 by their mother's and father's
+    pointer (``IDENT_MADRE``/``IDENT_PADRE``: a row 01–54 lives here, 96 elsewhere, 97 died,
+    98 does not know, 99 not specified): not specified when either is 99, does not know when
+    either is 98 (neither 99), else both, only the mother, only the father, neither — living
+    here (residence) or alive, here or elsewhere (survival)."""
+    def ours(p):
+        u = _age(p).between(0, 17)
+        m, f = _code(p, "IDENT_MADRE"), _code(p, "IDENT_PADRE")
+        ne = u & (m.eq(99) | f.eq(99))
+        ns = u & ~ne & (m.eq(98) | f.eq(98))
+        if survival:
+            m_yes, f_yes = m.between(1, 54) | m.eq(96), f.between(1, 54) | f.eq(96)
+            m_no, f_no = m.eq(97), f.eq(97)
+        else:
+            m_yes, f_yes = m.between(1, 54), f.between(1, 54)
+            m_no, f_no = m.isin([96, 97]), f.isin([96, 97])
+        k = u & ~ne & ~ns
+        return _counts_of(u, k & m_yes & f_yes, k & m_yes & f_no, k & m_no & f_yes,
+                          k & m_no & f_no, ns, ne)
+    return ours
+
+
+# 14, 15: the households' other incomes and food access (the EIC 2015's codes; every dwelling
+# row is a household, the classes 07–09 included)
+_MEMBERS_2020 = (("Total", None), ("1 integrante", 1), ("2 a 4 integrantes", (2, 3, 4)),
+                 ("5 y más integrantes", "5+"))
+_ADULT_FOOD_2020 = (
+    ("Algún adulto tuvo una alimentación basada en muy poca variedad de alimentos",
+     "ALIM_ADL1", 1),
+    ("Algún adulto dejó de desayunar, comer o cenar", "ALIM_ADL2", 3),
+    ("Algún adulto comió menos de lo que usted piensa debía comer", "ING_ALIM_ADL1", 1),
+    ("Algún adulto sintió hambre pero no comió", "ING_ALIM_ADL2", 3),
+    ("Algún adulto sólo comió una vez al día o dejó de comer todo un día", "ING_ALIM_ADL3",
+     5))
+_YES_NO = ("households", "yes", "no", "NE")
+
+
+def _food_access_2020(v):
+    """15-02: the households by a lack of food for want of money (``ALIMENTACION`` 1 yes, 3
+    no, 9 not specified), per the head's sex (``JEFE_SEXO``)."""
+    sex, x = _code(v, "JEFE_SEXO"), _code(v, "ALIMENTACION")
+    out = []
+    for _, s in _HEAD_SEXES:
+        h = pd.Series(True, index=v.index) if s is None else sex.eq(s)
+        out += _counts_of(h, h & x.eq(1), h & x.eq(3), h & x.eq(9))
+    return out
+
+
+def _person_checks_2020_w() -> tuple[Check, ...]:
+    """Censo 2020's by-state tabulados 7n and 7p left: técnica fields (07-02), position, sector,
+    hours, income and benefits by division, sector or position and activity by age (08-02 …
+    08-28), the use of health services (09-02), commute times (10-04/10), kinship lines and
+    the parents of the 0–17 (13-02/04/06), other incomes (14-02) and food access (15-02/04)."""
+    total = lambda v: _counts(v[0], v[1:])  # noqa: E731
+    by = lambda sheet, rows, pick=total: _by_dims(  # noqa: E731
+        "Valor", sheet, rows, pick, sexed=True)
+    benefits = lambda v: _counts(v[0], v[1:], [0, *[1] * 7, 0, 0])  # noqa: E731
+    divisions, sectors = _division_rows, _sectors
+    salaried = ("Salaried = `SITTRA` 1–3; with benefits = some item «yes», without = all "
+                "seven «no», not specified = no «yes» and some item 9 (the EIC 2015's "
+                "rule; 7w).")
+    return (
+        Check("2020", "07-02", "Population 15+ with técnica media superior by field "
+              "(`NIVACAD`, `NOMCAR_C`)", _EDU_2020, "personas",
+              ("population 15+", *_FIELDS_2020, "not specified"),
+              _wide("Valor", total, sheet="02"), _technical_2020, unit="persons", sheet="02",
+              note="Bachillerato tecnológico, técnica after secundaria, normal básica "
+                   "(`NIVACAD` 05, 07, 09); the field = `NOMCAR_C`'s first two digits (7w)."),
+        Check("2020", "08-02", "Employed by position (`SITTRA`) and occupational division",
+              _ECO_2020, "personas", _grouped(("all", *_DIVISIONS_2020), _POSITION_CELLS),
+              by("02", _DIVISION_ROWS_2020), _cross(_employed, divisions, _position_rows),
+              unit="persons", sheet="02"),
+        Check("2020", "08-04", "Employed by position (`SITTRA`) and sector", _ECO_2020,
+              "personas", _grouped(_SECTOR_ROWS, _POSITION_CELLS), by("04", _SECTOR_ROWS),
+              _cross(_employed, sectors, _position_rows), unit="persons", sheet="04"),
+        Check("2020", "08-10", "Employed by sector and occupational division", _ECO_2020,
+              "personas", _grouped(("all", *_DIVISIONS_2020), _SECTOR_CELLS),
+              by("10", _DIVISION_ROWS_2020), _cross(_employed, divisions, sectors),
+              unit="persons", sheet="10"),
+        Check("2020", "08-14", "Hours worked (`HORTRA`) by sector", _ECO_2020, "personas",
+              _grouped(_SECTOR_ROWS, _HOUR_CELLS), by("14", _SECTOR_ROWS),
+              _cross(_employed, sectors, _hours_2020), unit="persons", sheet="14"),
+        Check("2020", "08-16", "Hours worked (`HORTRA`) by position (`SITTRA`)", _ECO_2020,
+              "personas", _grouped(_position_names(1), _HOUR_CELLS),
+              by("16", _position_names(1)), _cross(_employed, _position_rows, _hours_2020),
+              unit="persons", sheet="16"),
+        Check("2020", "08-20", "Income of the employed in minimum wages (`INGTRMEN_SM`) by "
+              "sector", _ECO_2020, "personas", _grouped(_SECTOR_ROWS, ("employed", *_SM_CELLS)),
+              by("20", _SECTOR_ROWS), _cross(_employed, sectors, _incomes), unit="persons",
+              sheet="20"),
+        Check("2020", "08-22", "Income of the employed in minimum wages (`INGTRMEN_SM`) by "
+              "position (`SITTRA`)", _ECO_2020, "personas",
+              _grouped(_position_names(2), ("employed", *_SM_CELLS)),
+              by("22", _position_names(2)), _cross(_employed, _position_rows, _incomes),
+              unit="persons", sheet="22"),
+        Check("2020", "08-24", "Benefits of the salaried (`SERVICIO_MEDICO` … "
+              "`CREDITO_VIVIENDA`) by occupational division", _ECO_2020, "personas",
+              _grouped(("all", *_DIVISIONS_2020), _BENEFIT_CELLS),
+              by("24", _DIVISION_ROWS_2020, benefits), _benefits(divisions, "SITTRA"),
+              unit="persons", sheet="24", note=salaried),
+        Check("2020", "08-26", "Benefits of the salaried by sector", _ECO_2020, "personas",
+              _grouped(_SECTOR_ROWS, _BENEFIT_CELLS), by("26", _SECTOR_ROWS, benefits),
+              _benefits(sectors, "SITTRA"), unit="persons", sheet="26", note=salaried),
+        Check("2020", "08-28", "Population 12+ by activity (`CONACT`) and age", _ECO_2020,
+              "personas", _grouped(_ACTIVITY_AGES_2020, ("population 12+", "PEA", "employed",
+                                                          "unemployed", "not active", "NE")),
+              by("28", _ACTIVITY_AGES_2020, lambda v: _counts(v[0], v[1:], [0, 1, 1, 0, 0])),
+              _activity_2020, unit="persons", sheet="28"),
+        Check("2020", "09-02", "Use of health services (`SERSALUD`) by age", _HEALTH_2020,
+              "personas", _grouped(_USE_AGES_2020, _USE_CELLS_2020),
+              by("02", _USE_AGES_2020, lambda v: _counts(v[0], v[1:], [0, *[1] * 8, 0, 0])),
+              _use_2020, unit="persons", sheet="02"),
+        Check("2020", "10-04", "Students 3+ by commute time (`TIE_TRASLADO_ESCU`) and age",
+              _MOV_2020, "personas",
+              _grouped(_STUDENT_AGES, ("students", "travel", *_TIMES, "do not travel", "NE")),
+              by("04", _STUDENT_AGES, lambda v: _counts(v[0], v[1:], [0, *[1] * 5, 0, 0])),
+              _cross(_students, _age_rows(_STUDENT_AGES), _school_times), unit="persons",
+              sheet="04"),
+        Check("2020", "10-10", "Employed by commute time (`TIE_TRASLADO_TRAB`) and position "
+              "(`SITTRA`)", _MOV_2020, "personas",
+              _grouped(_position_names(3), ("employed", "travel", *_TIMES,
+                                            "not possible to determine", "do not travel", "NE")),
+              by("10", _position_names(3), lambda v: _counts(v[0], v[1:], [0, *[1] * 6, 0, 0])),
+              _cross(_employed, _position_rows, _work_times), unit="persons", sheet="10"),
+        Check("2020", "13-02", "Population in households by kinship line (`PARENTESCO`)",
+              _HOUSEHOLDS_2020, "personas", ("population", *(n for n, _ in _LINES_2020)),
+              _wide("Valor", total, sheet="02"), _lines_2020, unit="persons", sheet="02",
+              note="INEGI's lines found on the tabulado in every state and sex (7w)."),
+        Check("2020", "13-04", "The 0–17 by their parents' residence (`IDENT_MADRE`, "
+              "`IDENT_PADRE`)", _HOUSEHOLDS_2020, "personas",
+              ("population 0-17", "both live here", "only the mother", "only the father",
+               "neither", "does not know", "NE"),
+              _wide("Valor", total, sheet="04"), _parents_2020(survival=False), unit="persons",
+              sheet="04", note="Not specified when either pointer is 99, does not know when "
+                               "either is 98 (7w)."),
+        Check("2020", "13-06", "The 0–17 by their parents' survival (`IDENT_MADRE`, "
+              "`IDENT_PADRE`)", _HOUSEHOLDS_2020, "personas",
+              ("population 0-17", "both alive", "only the mother", "only the father",
+               "both died", "does not know", "NE"),
+              _wide("Valor", total, sheet="06"), _parents_2020(survival=True), unit="persons",
+              sheet="06"),
+        Check("2020", "14-02", "Households by other incomes (`INGR_OTROS`) and source, by "
+              "household size (`NUMPERS`)", _INCOMES_2020, "viviendas",
+              _grouped(tuple(n for n, _ in _MEMBERS_2020), _INCOME_CELLS),
+              _by_dims("Valor", "02", tuple(n for n, _ in _MEMBERS_2020),
+                       lambda v: _counts(v[0], v[1:], [0, 1, 1, 1, 1, 0, 0])),
+              lambda v: _other_incomes_2015(v, _MEMBERS_2020), unit="persons", sheet="02",
+              note="On the derived `INGR_OTROS` (6z); every dwelling row, classes 07–09 "
+                   "included (7w)."),
+        Check("2020", "15-02", "Households by a lack of food (`ALIMENTACION`) and the head's "
+              "sex (`JEFE_SEXO`)", _FOOD_2020, "viviendas",
+              _grouped(tuple(f"{s} head" for s, _ in _HEAD_SEXES), _YES_NO),
+              _by_dims("Valor", "02", tuple(s for s, _ in _HEAD_SEXES), total),
+              _food_access_2020, unit="persons", sheet="02"),
+        Check("2020", "15-04", "Households by the adults' food access (`ALIM_ADL1`/2, "
+              "`ING_ALIM_ADL1`–3)", _FOOD_2020, "viviendas",
+              _grouped(tuple(n for n, *_ in _ADULT_FOOD_2020), _YES_NO),
+              _by_dims("Valor", "04", tuple(n for n, *_ in _ADULT_FOOD_2020), total),
+              _food_2015(_ADULT_FOOD_2020), unit="persons", sheet="04",
+              note="Every household (the items are asked of all); 7w."),
+    )
 
 
 # Fertility and infant mortality: the last child born alive (7o) -------------------------
@@ -4580,44 +4915,61 @@ CHECKS: tuple[Check, ...] = (
           "personas", tuple(n for n, _ in _SECTOR_GROUPS),
           _wide("Valor", lambda v: _counts(v[0], v[1:])[1:], sheet="08"), _sector,
           unit="persons", sheet="08"),
-    Check("2020", "08-18", "Income of the employed in minimum wages (`INGTRMEN_SM`)",
-          _ECO_2020, "personas", ("employed", *_SM_CELLS), _income_sm_published("Valor", "18"),
-          _income_sm, unit="persons", sheet="18",
+    Check("2020", "08-18", "Income of the employed in minimum wages (`INGTRMEN_SM`) by "
+          "occupational division", _ECO_2020, "personas",
+          _grouped(("all", *_DIVISIONS_2020), ("employed", *_SM_CELLS)),
+          _by_dims("Valor", "18", _DIVISION_ROWS_2020, lambda v: _counts(v[0], v[1:]),
+                   sexed=True),
+          _cross(_employed, _division_rows, _incomes), unit="persons", sheet="18",
           note="The Zona Libre de la Frontera Norte (5,566.80; San Quintín included) and the "
                "rest of the country (3,696.60), DOF 23/12/2019; 7c."),
-    Check("2020", "08-12", "Hours worked (`HORTRA_CAT`)", _ECO_2020, "personas",
-          ("employed", "up to 40 (none included)", "41-48", "49-56", "more than 56",
-           "not specified"),
-          _wide("Valor", lambda v: (c := _counts(v[0], v[1:]))[:1]
-                + [c[1] + c[2] + c[6], c[3], c[4], c[5], c[7]], sheet="12", dims=_total_row),
-          _hours, unit="persons", sheet="12"),
+    Check("2020", "08-12", "Hours worked (`HORTRA`) by occupational division", _ECO_2020,
+          "personas", _grouped(("all", *_DIVISIONS_2020), _HOUR_CELLS),
+          _by_dims("Valor", "12", _DIVISION_ROWS_2020, lambda v: _counts(v[0], v[1:]),
+                   sexed=True),
+          _cross(_employed, _division_rows, _hours_2020), unit="persons", sheet="12",
+          note="The raw hours (7w: `HORTRA_CAT` cannot split 32 hours; 0 = had a job but did "
+               "not work)."),
     Check("2020", "09-04", "Health affiliation by institution (`DHSERSAL_*`)",
           "cpv2020_a_eum_09_servicios_de_salud.xlsx", "personas",
           ("population", "affiliated", "IMSS", "ISSSTE (federal or state)",
            "PEMEX, Defensa or Marina", "INSABI", "IMSS-BIENESTAR", "private", "other",
            "not affiliated", "not specified"),
           _affiliation_published, _affiliation, unit="persons", sheet="04"),
-    Check("2020", "10-02", "Place of school by municipality (`LUGAR_ASI`)", _MOV_2020,
-          "personas", ("students 3+", *_PLACE_CELLS),
-          _wide("Valor", _place_published, sheet="02", dims=_total_row),
-          _place("LUGAR_ASI", _students), unit="persons", sheet="02", note="7b."),
-    Check("2020", "10-08", "Place of work by municipality (`LUGAR_TRAB`)", _MOV_2020,
-          "personas", ("employed", *_PLACE_CELLS),
-          _wide("Valor", _place_published, sheet="08", dims=_total_row),
-          _place("LUGAR_TRAB", _employed), unit="persons", sheet="08", note="7b."),
-    Check("2020", "10-06", "Commute to school (`MED_TRASLADO_ESC_*`)", _MOV_2020, "personas",
-          ("students who travel", *(n for n, _ in _MODES_ESC)),
-          _wide("Valor", lambda v: _counts(v[0], v[1:]), sheet="06", dims=_total_row),
-          _commute("MED_TRASLADO_ESC", _MODES_ESC, 3), unit="persons", sheet="06"),
-    Check("2020", "10-12", "Commute to work (`MED_TRASLADO_TRAB_*`)", _MOV_2020, "personas",
-          ("employed who travel", *(n for n, _ in _MODES_TRAB)),
-          _wide("Valor", lambda v: _counts(v[0], v[1:]), sheet="12", dims=_total_row),
-          _commute("MED_TRASLADO_TRAB", _MODES_TRAB, 12), unit="persons", sheet="12"),
-    Check("2020", "11-02", "Partner in the dwelling (`IDENT_PAREJA_CAT`)",
-          "cpv2020_a_eum_11_situacion_conyugal.xlsx", "personas",
-          ("married or in union, 12+", "partner lives here", "partner lives elsewhere",
-           "not specified"),
-          _wide("Valor", lambda v: _counts(v[0], v[1:]), sheet="02", dims=_total_row),
+    Check("2020", "10-02", "Place of school by municipality (`LUGAR_ASI`) by age", _MOV_2020,
+          "personas", _grouped(_STUDENT_AGES, ("students 3+", *_PLACE_CELLS)),
+          _by_dims("Valor", "02", _STUDENT_AGES, _place_published, sexed=True),
+          _place("LUGAR_ASI", _students, _age_rows(_STUDENT_AGES)), unit="persons", sheet="02",
+          tolerance={27: 2.0},
+          note="7b; by age 7w. Tabasco's women 6–11: INEGI publishes «same entity» as 100.0% "
+               "beside 2 not specified (0.001573%; its row sums to 100.0016%, the men's and "
+               "both sexes' agree), so that cell and «same municipality» (a share of it) are "
+               "2 persons above ours (7w)."),
+    Check("2020", "10-08", "Place of work by municipality (`LUGAR_TRAB`) by sector", _MOV_2020,
+          "personas", _grouped(_SECTOR_ROWS, ("employed", *_PLACE_CELLS)),
+          _by_dims("Valor", "08", _SECTOR_ROWS, _place_published, sexed=True),
+          _place("LUGAR_TRAB", _employed, _sectors), unit="persons", sheet="08",
+          note="7b; by sector 7w."),
+    Check("2020", "10-06", "Commute to school (`MED_TRASLADO_ESC_*`) by age", _MOV_2020,
+          "personas", _grouped(_STUDENT_AGES, ("students who travel",
+                                               *(n for n, _ in _MODES_ESC))),
+          _by_dims("Valor", "06", _STUDENT_AGES, lambda v: _counts(v[0], v[1:]), sexed=True),
+          _commute("MED_TRASLADO_ESC", _MODES_ESC, 3, _age_rows(_STUDENT_AGES)),
+          unit="persons", sheet="06"),
+    Check("2020", "10-12", "Commute to work (`MED_TRASLADO_TRAB_*`) by position (`SITTRA`)",
+          _MOV_2020, "personas", _grouped(_position_names(5), ("employed who travel",
+                                                              *(n for n, _ in _MODES_TRAB))),
+          _by_dims("Valor", "12", _position_names(5), lambda v: _counts(v[0], v[1:]),
+                   sexed=True),
+          _commute("MED_TRASLADO_TRAB", _MODES_TRAB, 12, _position_rows), unit="persons",
+          sheet="12"),
+    Check("2020", "11-02", "Partner in the dwelling (`IDENT_PAREJA_CAT`) by union "
+          "(`SITUA_CONYUGAL`)", "cpv2020_a_eum_11_situacion_conyugal.xlsx", "personas",
+          _grouped(("all", "married", "free union"),
+                   ("married or in union, 12+", "partner lives here", "partner lives elsewhere",
+                    "not specified")),
+          _by_dims("Valor", "02", ("Total", "Casada", "En unión libre"),
+                   lambda v: _counts(v[0], v[1:]), sexed=True),
           _partner, unit="persons", sheet="02"),
     Check("2020", "16-34", "Financing of the owned dwellings bought or built "
           "(`FINANCIAMIENTO_*`, several sources)", "cpv2020_a_eum_16_vivienda.xlsx",
@@ -4630,7 +4982,8 @@ CHECKS: tuple[Check, ...] = (
      + _person_checks_2010() + _person_checks_2020()                                 # 7m, 7n
      + _rate_checks()                                                                # 7o
      + _person_checks_2010_p() + _person_checks_2020_p()                             # 7p
-     + _person_checks_2015_v())                                                      # 7v
+     + _person_checks_2015_v()                                                       # 7v
+     + _person_checks_2020_w())                                                      # 7w
 
 
 # 7s: the checks by state INEGI repeats by locality size, with the same layout: Censo
@@ -4649,7 +5002,10 @@ _SIZE_TWINS = {
              "04-14", "05-02", "05-04", "06-02", "06-04", "06-06", "07-04", "08-06", "08-08",
              "08-12", "08-18", "09-04", "10-02", "10-06", "10-08", "10-12", "11-02",
              *(f"16-{n:02d}{s}" for n in (2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 26, 30, 32)
-               for s in "ab"), "16-28", "16-34", "16-36"),
+               for s in "ab"), "16-28", "16-34", "16-36",
+             "07-02", "08-02", "08-04", "08-10", "08-14", "08-16", "08-20", "08-22", "08-24",
+             "08-26", "08-28", "09-02", "10-04", "10-10", "13-02", "13-04", "13-06", "14-02",
+             "15-02", "15-04"),                                                        # 7w
 }
 
 

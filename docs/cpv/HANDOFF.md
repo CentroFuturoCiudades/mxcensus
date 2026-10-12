@@ -1,9 +1,11 @@
 # CPV family — session handoff
 
-**Status (2026-10-12): units 0–6z and 7a–7v are done. `cpv-integration` = **7v** (tabulado
-checks only: every EIC 2015 tabulado now read — 38 checks, 167,298 cells, every one exact; the
-report 376,570 cells; `tests/test_cpv_tabulados.py` 29 passed), committed on the branch;
-`main` = v0.14.0
+**Status (2026-10-12): units 0–6z and 7a–7w are done. `cpv-integration` = **7w** (tabulado
+checks only: every Censo 2020 tabulado now read, every row — 20 checks by state, their 20
+by-size twins, and the 7 checks (+ twins) that read only a «Total» row widened; 159,510 cells, every one
+exact but one inconsistent row of INEGI's; the report 529,879 cells; `tests/test_cpv_tabulados.py`
+30 passed), committed on the branch; before it **7v** (every EIC 2015 tabulado: 167,298
+cells); `main` = v0.14.0
 = **7u** (the historical localities: INEGI's Archivo Histórico de Localidades in the mirror —
 128 `ahl_{table}_20260918_{NN}` files, registered (4276 entries), uploaded and verified — and
 `load_ahl`, `load_ahl_poblacion`, `load_ahl_localidades`; the Mac's full suite: **1950
@@ -575,7 +577,29 @@ Before 0.12.0: v0.11.0 = 6u–7b, v0.10.0 = 6s–6t, 0.9.0 = 6k–6r. A session 
   - `_LANGUAGES_2015` = INEGI's `TC_LENGUA_INDIGENA_INALI_2015`, transcribed (a test compares
     it with the catalog when cached).
 
-Design: [`PLAN.md`](PLAN.md). Recent units: [`STEP_7v.md`](STEP_7v.md), [`STEP_7u.md`](STEP_7u.md), [`STEP_7t.md`](STEP_7t.md), [`STEP_7s.md`](STEP_7s.md), [`STEP_7r.md`](STEP_7r.md), [`STEP_7q.md`](STEP_7q.md), [`STEP_7p.md`](STEP_7p.md), [`STEP_7o.md`](STEP_7o.md), [`STEP_7n.md`](STEP_7n.md), [`STEP_7m.md`](STEP_7m.md), [`STEP_7l.md`](STEP_7l.md), [`STEP_7k.md`](STEP_7k.md), [`STEP_7j.md`](STEP_7j.md), [`STEP_7i.md`](STEP_7i.md), [`STEP_7h.md`](STEP_7h.md), [`STEP_7g.md`](STEP_7g.md), [`STEP_7f.md`](STEP_7f.md), [`STEP_7e.md`](STEP_7e.md), [`STEP_7d.md`](STEP_7d.md), [`STEP_7c.md`](STEP_7c.md), [`STEP_7b.md`](STEP_7b.md), [`STEP_7a.md`](STEP_7a.md), [`STEP_6z.md`](STEP_6z.md), [`STEP_6y.md`](STEP_6y.md), [`STEP_6x.md`](STEP_6x.md), [`STEP_6w.md`](STEP_6w.md), [`STEP_6v.md`](STEP_6v.md), [`STEP_6u.md`](STEP_6u.md), [`STEP_6t.md`](STEP_6t.md), [`STEP_6s.md`](STEP_6s.md), [`STEP_6r.md`](STEP_6r.md), [`STEP_6q.md`](STEP_6q.md), [`STEP_6p.md`](STEP_6p.md), [`STEP_6o.md`](STEP_6o.md), [`STEP_6n.md`](STEP_6n.md), [`STEP_6m.md`](STEP_6m.md), [`STEP_6l.md`](STEP_6l.md), [`STEP_6k.md`](STEP_6k.md), [`STEP_6j.md`](STEP_6j.md), [`STEP_6i.md`](STEP_6i.md), [`STEP_6h.md`](STEP_6h.md), [`STEP_6g.md`](STEP_6g.md), [`STEP_6f.md`](STEP_6f.md), [`STEP_6e.md`](STEP_6e.md),
+- **7w** (`STEP_7w.md`): HANDOFF candidate 3's «Censo 2020» item (the user's choice over
+  Censo 2010's leftovers, a 2015 locality edition and the small cleanups); checks only — no
+  loader, derivation or dictionary changed.
+  - **Every Censo 2020 tabulado is read, every row**: the 30 unread sheets of the cached
+    workbooks and three workbooks `SOURCES` lacked (INEGI's file-listing API, `idBiinegi`
+    3001): `13_hogares_censales`, `14_ingresos_mon_dif_trabajo`, `15_alimentacion`. 20 checks
+    by state (`_person_checks_2020_w`: técnica fields; position, sector, hours, income and
+    benefits by division, sector or position; activity by age; health-service use by age;
+    commute times; kinship lines; the parents of the 0–17; other incomes by size; food access)
+    and their 20 by-size twins; the seven checks that read only a breakdown's «Total» row
+    (08-12, 08-18, 10-02, 10-06, 10-08, 10-12, 11-02) and their twins read every row.
+  - **159,510 cells, every one exact** (≤ 0.62 of a person) but INEGI's one inconsistent row
+    (10-02, Tabasco's women 6–11: «same entity» published 100.0% beside 2 not specified;
+    `tolerance={27: 2.0}`, noted); the report **529,879 cells, 0 beyond tolerance**. INEGI's
+    rules found: técnica of media superior = `NIVACAD` 05/07/09; hours 0 = «no trabajó»;
+    the 2020 kinship lines (every `PARENTESCO` code, `_LINES_2020`); the parents' «no
+    especificado» (either 99) before «no sabe» (either 98); every dwelling row a household.
+  - **Shared builders**: `_cross(universe, rows, cells)` and row/cell functions
+    (`_division_rows`, `_sectors`, `_position_rows`, `_age_rows`, `_hours_2020`, `_incomes`,
+    `_school_times`, `_work_times`, `_benefits(rows, item)`); 7v's 2015 helpers rewritten on
+    them, the 2000/2010/2015 report sections byte-identical.
+
+Design: [`PLAN.md`](PLAN.md). Recent units: [`STEP_7w.md`](STEP_7w.md), [`STEP_7v.md`](STEP_7v.md), [`STEP_7u.md`](STEP_7u.md), [`STEP_7t.md`](STEP_7t.md), [`STEP_7s.md`](STEP_7s.md), [`STEP_7r.md`](STEP_7r.md), [`STEP_7q.md`](STEP_7q.md), [`STEP_7p.md`](STEP_7p.md), [`STEP_7o.md`](STEP_7o.md), [`STEP_7n.md`](STEP_7n.md), [`STEP_7m.md`](STEP_7m.md), [`STEP_7l.md`](STEP_7l.md), [`STEP_7k.md`](STEP_7k.md), [`STEP_7j.md`](STEP_7j.md), [`STEP_7i.md`](STEP_7i.md), [`STEP_7h.md`](STEP_7h.md), [`STEP_7g.md`](STEP_7g.md), [`STEP_7f.md`](STEP_7f.md), [`STEP_7e.md`](STEP_7e.md), [`STEP_7d.md`](STEP_7d.md), [`STEP_7c.md`](STEP_7c.md), [`STEP_7b.md`](STEP_7b.md), [`STEP_7a.md`](STEP_7a.md), [`STEP_6z.md`](STEP_6z.md), [`STEP_6y.md`](STEP_6y.md), [`STEP_6x.md`](STEP_6x.md), [`STEP_6w.md`](STEP_6w.md), [`STEP_6v.md`](STEP_6v.md), [`STEP_6u.md`](STEP_6u.md), [`STEP_6t.md`](STEP_6t.md), [`STEP_6s.md`](STEP_6s.md), [`STEP_6r.md`](STEP_6r.md), [`STEP_6q.md`](STEP_6q.md), [`STEP_6p.md`](STEP_6p.md), [`STEP_6o.md`](STEP_6o.md), [`STEP_6n.md`](STEP_6n.md), [`STEP_6m.md`](STEP_6m.md), [`STEP_6l.md`](STEP_6l.md), [`STEP_6k.md`](STEP_6k.md), [`STEP_6j.md`](STEP_6j.md), [`STEP_6i.md`](STEP_6i.md), [`STEP_6h.md`](STEP_6h.md), [`STEP_6g.md`](STEP_6g.md), [`STEP_6f.md`](STEP_6f.md), [`STEP_6e.md`](STEP_6e.md),
 [`STEP_6d.md`](STEP_6d.md),
 [`STEP_6c.md`](STEP_6c.md), [`STEP_6b.md`](STEP_6b.md), … [`STEP_0_probe.md`](STEP_0_probe.md).
 
@@ -628,10 +652,13 @@ files (4276 = the registry) and the upload ran there (`hf` is installed and logg
 7v ran on the Mac only (the EIC 2015 checks through a scratch harness on cached frames, then
 the full report); the Mac's tabulados cache now holds 2015's `13_…` and `15_…` workbooks,
 which `wsl`'s lacks (the script fetches them).
+7w ran on the Mac only (the 2020 checks through a scratch harness on cached frames, then the
+full report as one process per edition, spliced); the Mac's tabulados cache now holds 2020's
+`13_hogares_censales` and `15_alimentacion`, which `wsl`'s lacks (the script fetches them).
 
 ## Kickoff prompt for the next session
 
-> Continue the CPV census-family work in this repo (branch cpv-integration = 7v; main =
+> Continue the CPV census-family work in this repo (branch cpv-integration = 7w; main =
 > v0.14.0). Read docs/cpv/HANDOFF.md first, then agree with me which next unit to
 > take (candidates in HANDOFF §Next) before implementing it, following the session protocol
 > in docs/cpv/PLAN.md. Use .venv/bin/python, not uv run. Run wsl tasks without asking; ask
@@ -719,16 +746,18 @@ and **kept all seven** (merged as 0.9.0):
      numbers, 14 rival claims.
 3. More tabulado checks — the tabulados no check reads yet (`STEP_7s.md` §Left out; each
    new by-state check gets its by-size twin for free through `_by_size`/`_SIZE_TWINS`; the EIC
-   2015 is complete since 7v; INEGI's file-listing API lists every workbook of an edition —
-   `tipodocto` 5, `STEP_0_probe.md` — check it for workbooks `SOURCES` lacks):
+   2015 is complete since 7v, Censo 2020 since 7w; INEGI's file-listing API lists every
+   workbook of an edition — `tipodocto` 5, `STEP_0_probe.md` — check it for workbooks
+   `SOURCES` lacks):
+   - the rows the 2010/2015 checks skip (`STEP_7w.md` §Left out): 2010 `08_10A`, `08_15A`
+     and 2015 06-11, 07-02, 08-11, 10-01, 10-03, 10-04, 10-06, 11-02 read only their
+     breakdown's «Total» row (`dims=_total_row`, `_income_sm_published`) — 7w's `_cross`,
+     `_place(rows=)`, `_commute(rows=)` read the rest;
    - Censo 2010: international migrants by destination, return migrants' duration (04_07A–
      10A), limitation by age and by type (06_03A–06A), health services by age and by
      affiliation (09_01A/03A/05A), other incomes by household size (12_05A/06A), food access
      (12_07A), and the economic cross-tables 08_08A/09A/11A/12A/14A/16A (hours, income, place
      of work by sector, position or division; 08_01A position by size);
-   - Censo 2020: técnica fields (07-01/02), position, hours and income by division, sector
-     or position, benefits, activity (08-01–04, 08-09/10, 08-13–16, 08-19–28), services by
-     age (09-01/02), commute times (10-03/04, 10-09/10), other incomes (14-01/02);
    - a reproduction of the 2010/2015 infant mortality would need INEGI's procedure
      (`STEP_7o.md`): its rule is not in the sample.
 
