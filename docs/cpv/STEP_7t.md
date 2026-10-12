@@ -153,7 +153,7 @@ Mac and on `wsl`.
 - **`_REAL`** (needs `data/dict/ahl/AHL.zip` and every ITER): the bundled file equals a
   rebuild byte for byte; the check's contradictions ≤ 3% and unexplained codes ≤ 1% (1.5%
   in 1990 → 1995).
-- Full suite on the Mac: **1936 passed, 1 skipped** (34 min).
+- Full suite on the Mac: **1936 passed, 1 skipped** (34 min); merged into `main` as 0.13.0.
 
 ## Left out
 

@@ -1,9 +1,9 @@
 # CPV family — session handoff
 
-**Status (2026-10-11): units 0–6z and 7a–7t are done. `main` = v0.12.0 = 7c–7s, tagged and
-pushed (the `wsl` full suite at 7r: **1931 passed, 1 skipped**); `cpv-integration` = v0.12.0 +
-**7t** (the locality lineage: INEGI's Archivo Histórico de Localidades → `cpv_loc_lineage()`,
-`cpv_locality_units()`), not merged. 7c–7s: 7c (CGPV 2000's places, the income in minimum
+**Status (2026-10-12): units 0–6z and 7a–7t are done. `cpv-integration` = `main` = v0.13.0
+= **7t** (the locality lineage: INEGI's Archivo Histórico de Localidades →
+`cpv_loc_lineage()`, `cpv_locality_units()`; the Mac's full suite: **1936 passed, 1
+skipped**), tagged and pushed. v0.12.0 = 7c–7s: 7c (CGPV 2000's places, the income in minimum
 wages 2000–2020), 7d (tabulado checks: the EIC 2015's dwellings, CGPV 2000's employment and
 migration), 7e (ratio constraints), 7f (CGPV 2000 per dwelling, the 1990/1995 averages), the
 unattended night's 7g (constraint keys = the published columns; every constraint against the
@@ -13,7 +13,8 @@ the fertility rates and the infant mortality of 2010/2015/2020), 7p (tabulado ch
 2020's disability and migration causes, Censo 2010's by-state leftovers), 7q (quantities the
 FDs write as codes: CGPV 2000's hours and incomes, the 1990/1995 incomes), 7r (codes the FDs
 make numbers, sentinels labelled with their own code, 2000's `MFECRETA` parse) and 7s
-(tabulado checks: the tabulados by locality size).
+(tabulado checks: the tabulados by locality size; the `wsl` full suite at 7r: 1931 passed, 1
+skipped).
 Before 0.12.0: v0.11.0 = 6u–7b, v0.10.0 = 6s–6t, 0.9.0 = 6k–6r. A session starts by checking
 `git log`/`git status` against this line.**
 - **Released** (registered, uploaded, verified): every edition 1990–2025 (897 `cpv_` files)
@@ -556,13 +557,13 @@ fetches them). For the 0.12.0 release `wsl:~/mxcensus` was fast-forwarded to 7r 
 mirror: every ITER and the MG 2020/2025 locality layers; the Mac has MG 2025 for state 01
 only) from a copy in `/tmp/loc7t` (script + `src/`), `wsl:~/mxcensus/data/dict/ahl/AHL.zip`
 copied from the Mac. `wsl` asked for a Tailscale re-login in the middle of 7t (the user opens
-the printed URL).
+the printed URL). After the 0.13.0 push `wsl:~/mxcensus` was pulled to v0.13.0.
 `wsl:~/mxcensus3c` (3c's code copy) can be deleted.
 
 ## Kickoff prompt for the next session
 
-> Continue the CPV census-family work in this repo (branch cpv-integration = v0.12.0 + 7t;
-> main = v0.12.0). Read docs/cpv/HANDOFF.md first, then agree with me which next unit to
+> Continue the CPV census-family work in this repo (branch cpv-integration = main =
+> v0.13.0). Read docs/cpv/HANDOFF.md first, then agree with me which next unit to
 > take (candidates in HANDOFF §Next) before implementing it, following the session protocol
 > in docs/cpv/PLAN.md. Use .venv/bin/python, not uv run. Run wsl tasks without asking; ask
 > me before committing, pushing, installing packages or uploading.
@@ -634,7 +635,6 @@ and **kept all seven** (merged as 0.9.0):
 ## Next: candidates (none decided)
 
 1. Smaller:
-   - merge 7t into `main` (a version bump: a new public function and bundled file);
    - a 2000 occupation bridge (CMO → SINCO; no published table; 7d checked the CMO groups,
      the first two digits of `OCUACTIV_C`, against C2KEM04);
    - CGPV 1990's undocumented `TIP_HOGAR` 6 (96,370 persons, all `N_F_GPOS` 99 and a 9xx

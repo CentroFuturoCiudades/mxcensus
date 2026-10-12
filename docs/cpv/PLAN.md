@@ -122,7 +122,8 @@ day; 6u–7b were merged into `main` as 0.11.0 (2026-10-10, after a `wsl` full-s
 7r (HANDOFF candidate 2's «7q's leftovers», the user's choice over the 0.12.0 release and the tabulados by locality size; widened on the probe to every code typed as a number and to 2000's `MFECRETA`) followed in a new session the same day.
 7s (HANDOFF candidate 3's tabulados by locality size, the user's choice, run beside the 0.12.0 release's `wsl` suite on 7r) followed in a new session the same day; 7c–7s were
 merged into `main` as 0.12.0 (2026-10-11, after a `wsl` full-suite run).
-7t (HANDOFF candidate 1's locality-level lineage, the user's choice over more tabulado checks and the small cleanups; a bundled CSV and the 2025 frame at the user's choice) followed in a new session the same day.
+7t (HANDOFF candidate 1's locality-level lineage, the user's choice over more tabulado checks and the small cleanups; a bundled CSV and the 2025 frame at the user's choice) followed in a new session the same day;
+it was merged into `main` as 0.13.0 (2026-10-12, after the Mac's full-suite run).
 
 ### Session protocol
 
