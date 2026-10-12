@@ -1,21 +1,20 @@
 # CPV family — session handoff
 
-**Status (2026-10-11): units 0–6z and 7a–7s are done. `main` = v0.11.0 = 6u–7b, tagged and
-pushed. After it, on `cpv-integration` (not pushed): 7c (CGPV 2000's places, the income in
-minimum wages 2000–2020), 7d (tabulado checks: the EIC 2015's dwellings, CGPV 2000's
-employment and migration), 7e (ratio constraints), 7f (CGPV 2000 per dwelling, the 1990/1995
-averages), the unattended night's 7g (constraint keys = the published columns; every
-constraint against the census: fixes to 2000/2010/2020 cells, new 2010 `RELIGION_INEGI`) and
-7h–7n (tabulado checks only) — all reviewed and **kept** by the user on 2026-10-11 (§Review)
-— and 7o (tabulado checks: the fertility rates and the infant mortality of 2010/2015/2020)
-7p (tabulado checks: Censo 2020's disability and migration causes, Censo 2010's by-state
-leftovers), 7q (quantities the FDs write as codes: CGPV 2000's hours and incomes, the
-1990/1995 incomes), 7r (codes the FDs make numbers, sentinels labelled with their own code,
-2000's `MFECRETA` parse) and 7s (tabulado checks: the tabulados by locality size). The `wsl`
-full suite at 7r: **1931 passed, 1 skipped**; the 0.12.0 release (7c–7s, the user's choice)
-follows in its own commit.
-Before 0.11.0: v0.10.0 = 6s–6t, 0.9.0 = 6k–6r. A session starts by checking `git log`/`git
-status` against this line.**
+**Status (2026-10-11): units 0–6z and 7a–7s are done. `main` = v0.12.0 = 7c–7s, tagged and
+pushed (the `wsl` full suite at 7r: **1931 passed, 1 skipped**; 7s touches only the check
+script, its tests and docs): 7c (CGPV 2000's places, the income in minimum wages 2000–2020),
+7d (tabulado checks: the EIC 2015's dwellings, CGPV 2000's employment and migration), 7e
+(ratio constraints), 7f (CGPV 2000 per dwelling, the 1990/1995 averages), the unattended
+night's 7g (constraint keys = the published columns; every constraint against the census:
+fixes to 2000/2010/2020 cells, new 2010 `RELIGION_INEGI`) and 7h–7n (tabulado checks only) —
+all reviewed and **kept** by the user on 2026-10-11 (§Review) —, 7o (tabulado checks: the
+fertility rates and the infant mortality of 2010/2015/2020), 7p (tabulado checks: Censo
+2020's disability and migration causes, Censo 2010's by-state leftovers), 7q (quantities the
+FDs write as codes: CGPV 2000's hours and incomes, the 1990/1995 incomes), 7r (codes the FDs
+make numbers, sentinels labelled with their own code, 2000's `MFECRETA` parse) and 7s
+(tabulado checks: the tabulados by locality size).
+Before 0.12.0: v0.11.0 = 6u–7b, v0.10.0 = 6s–6t, 0.9.0 = 6k–6r. A session starts by checking
+`git log`/`git status` against this line.**
 - **Released** (registered, uploaded, verified): every edition 1990–2025 (897 `cpv_` files)
   and the Marco Geoestadístico 1995–2025 frames, incl. the EIC 2015's (6h); registry
   **4148** entries (`STEP_6b.md` §Release batch, `STEP_6h.md`).
@@ -520,13 +519,14 @@ suite).
 7s ran on the Mac (the by-size checks and the report, four processes, ~45 min); the Mac's
 tabulados cache now holds its 17 Censo 2010 workbooks, which `wsl`'s lacks (the script
 fetches them). For the 0.12.0 release `wsl:~/mxcensus` was fast-forwarded to 7r (09febd4, a
-`git bundle` 87cebf6..09febd4 over `scp`) and ran the full suite there (`~/pytest_7r.log`).
+`git bundle` 87cebf6..09febd4 over `scp`) and ran the full suite there (`~/pytest_7r.log`:
+1931 passed, 1 skipped, 1 h 58 min); after the push it was pulled to v0.12.0.
 `wsl:~/mxcensus3c` (3c's code copy) can be deleted.
 
 ## Kickoff prompt for the next session
 
-> Continue the CPV census-family work in this repo (branch cpv-integration = main = v0.11.0
-> + units 7c–7r). Read docs/cpv/HANDOFF.md first, then agree with me which next unit to
+> Continue the CPV census-family work in this repo (branch cpv-integration = main =
+> v0.12.0). Read docs/cpv/HANDOFF.md first, then agree with me which next unit to
 > take (candidates in HANDOFF §Next) before implementing it, following the session protocol
 > in docs/cpv/PLAN.md. Use .venv/bin/python, not uv run. Run wsl tasks without asking; ask
 > me before committing, pushing, installing packages or uploading.
@@ -597,10 +597,7 @@ and **kept all seven** (merged as 0.9.0):
 
 ## Next: candidates (none decided)
 
-1. **Release 7c–7s** as 0.12.0 (the user's choice, 2026-10-11): the `wsl` full suite at 7r
-   passed (1931, 1 h 58 min; 7s touches only the check script, its tests and docs); a
-   release commit, `main` fast-forwarded, tagged and pushed.
-2. Smaller:
+1. Smaller:
    - a 2000 occupation bridge (CMO → SINCO; no published table; 7d checked the CMO groups,
      the first two digits of `OCUACTIV_C`, against C2KEM04);
    - a locality-level lineage (6a covered municipalities only);
@@ -611,7 +608,7 @@ and **kept all seven** (merged as 0.9.0):
      if a later edition needs one;
    - 7p's kinship lines as a derived column (INEGI's 2010 lines for «otro parentesco» are
      now known: `STEP_7p.md`), if a constraint or a user needs them.
-3. More tabulado checks — the tabulados no check reads yet (`STEP_7s.md` §Left out; each
+2. More tabulado checks — the tabulados no check reads yet (`STEP_7s.md` §Left out; each
    new by-state check gets its by-size twin for free through `_by_size`/`_SIZE_TWINS`):
    - Censo 2010: international migrants by destination, return migrants' duration (04_07A–
      10A), limitation by age and by type (06_03A–06A), health services by age and by

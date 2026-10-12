@@ -119,7 +119,8 @@ day; 6u–7b were merged into `main` as 0.11.0 (2026-10-10, after a `wsl` full-s
 7p (HANDOFF candidate 3's first item, the user's choice over the 0.12.0 release, the tabulados by locality size and the small cleanups: Censo 2020's disability and migration causes with Censo 2010's by-state leftovers) followed in a new session the same day.
 7q (HANDOFF candidate 2's CGPV 2000 quantities typed as codes, the user's choice over the 0.12.0 release, the kinship lines and the tabulados by locality size; widened by the user to the 1990/1995 incomes) followed in the same session as 7p's commit.
 7r (HANDOFF candidate 2's «7q's leftovers», the user's choice over the 0.12.0 release and the tabulados by locality size; widened on the probe to every code typed as a number and to 2000's `MFECRETA`) followed in a new session the same day.
-7s (HANDOFF candidate 3's tabulados by locality size, the user's choice, run beside the 0.12.0 release's `wsl` suite on 7r) followed in a new session the same day.
+7s (HANDOFF candidate 3's tabulados by locality size, the user's choice, run beside the 0.12.0 release's `wsl` suite on 7r) followed in a new session the same day; 7c–7s were
+merged into `main` as 0.12.0 (2026-10-11, after a `wsl` full-suite run).
 
 ### Session protocol
 

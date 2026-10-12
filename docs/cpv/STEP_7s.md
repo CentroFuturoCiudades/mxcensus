@@ -80,8 +80,8 @@ the three replaced rows and the new ones; every other row byte-identical.
 - The by-size checks alone over the 32 states (above), then every check of every edition
   (2000 10 min, 2010 13, 2015 44, 2020 28 min; four processes) for the report.
 - `tests/test_cpv_tabulados.py`: 27 passed (state 01's real-data check included); 7s
-  touches only the check script and its tests. The full suite ran on `wsl` at 7r for the
-  0.12.0 release (HANDOFF).
+  touches only the check script and its tests. The full suite on `wsl` at 7r, for the
+  0.12.0 release (7c–7s): **1931 passed, 1 skipped** (1 h 58 min).
 
 ## Tests
 
