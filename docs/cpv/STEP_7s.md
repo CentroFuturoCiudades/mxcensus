@@ -1,0 +1,117 @@
+# CPV Unit 7s — more tabulado checks: the tabulados by locality size
+
+Done **2026-10-11** (on the Mac, with the user). HANDOFF candidate 3's first item, the user's
+choice: every edition's tabulados by locality size, run beside the 0.12.0 release's `wsl`
+suite. Gate: every new cell exact (1 person) in every size, sex and the nation; tests
+green. Checks only: no loader, derivation or dictionary changed.
+
+## The tabulados
+
+Censo 2010, the EIC 2015 and Censo 2020 publish most tabulados twice, by state and,
+nationally, by locality size (`TAMLOC`: 2010 four sizes, 2015/2020 five), with the same
+other dimensions and columns. The 2015/2020 workbooks put each by-size sheet just before its
+by-state twin; Censo 2010 has separate `NN_NNA_ESTATAL.xls` workbooks, dated 2013, the
+by-size one numbered just before its twin. A probe over every workbook in `SOURCES` and
+every `NN_NNA_ESTATAL.xls` INEGI serves (39 not read before) paired each by-size sheet with
+its twin and compared their layouts (dimensions after the first, columns, rows).
+
+CGPV 2000 publishes no tabulado by locality size (its `C2K*` series is by state).
+
+## What changed
+
+Only `scripts/check_cpv_tabulados.py` (and its tests, the report and the docs).
+
+- **`_by_size(twin, sheet, source, published=None)`**: a check by state → its by-size
+  twin. The same cells, each record counted in its locality size (`_sized_cells`: every cell
+  part becomes a `ByOrigin` whose origin is `TAMLOC`; 2010 `TAM_LOC`, state 15's `tam_loc`),
+  read by the twin's own reader on the by-size sheet with its sizes renamed «NN Localidades
+  de …» (`_sized_rows`: a pseudo-state for `_state_of`; the nation keeps its name), or by
+  `published` where the layout differs. A sheet that does not give every size raises. The
+  key is INEGI's: the by-size sheet's number (2015/2020) or workbook's (2010) with the
+  twin's suffix (`16-02b` → `16-01b`, `14_14Aa` → `14_13Aa`), and the title names the twin
+  («…, by locality size (as 16-02b)»). Such checks need all 32
+  states (`by_origin`), and the twin's per-state tolerances do not carry over (only its
+  default and the nation's).
+- **`Weighted` parts** may carry an `origin` (an average's numerator or denominator by size:
+  2020's 04-11m); `_part` groups them as `ByOrigin`.
+- **`Check.by_size`**: the report prints «size N» (`TAMLOC` N) where it prints a state, and
+  says so in its legend.
+- **`_SIZE_TWINS`** (the same-layout pairs) and **`_size_checks`** (them, plus seven twins
+  whose by-size sheet is laid out otherwise) append 106 checks to `CHECKS`:
+
+  | edition | checks by size | from their by-state twins |
+  |---|---|---|
+  | Censo 2010 | 20 | 01_01A, 02_03A, 04_01A, 04_03A, 06_01A, 09_02A, 12_01A, 12_03A, 14_01A, 14_04A, 14_06A, 14_08A, 14_11A, 14_13Aa/b; 07_01A (its «Total» level), 07_04A (by sex, the twin is not), 08_04A, 08_05A, 08_13A (one row per size and sex, not per division or sector) |
+  | EIC 2015 | 27 | 01-01, 02-01a/b, 04-01, 07-01, 08-01, 09-01, 11-01, 12-04/a/b, 14-01a/b, 14-03, 14-05, 14-07, 14-15/s, 14-19, 14-21, 14-23, 14-25, 14-35, 14-37; 08-08, 08-09 (divisions and sectors in columns); 14-12 (all sizes; its national row before) |
+  | Censo 2020 | 59 | 01-01, 01-03, 04-01, 04-03, 04-05, 04-07, 04-09, 04-11/m, 04-13, 05-01, 05-03, 06-01, 06-03, 06-05, 07-03, 08-05, 08-07, 08-11, 08-17, 09-03, 10-01, 10-05, 10-07, 10-11, 11-01, and the 33 dwelling checks 16-01a … 16-35 |
+
+- **Replaced**: Censo 2010's 06_01A and 12_01A (6q) compared the national row of these
+  by-size workbooks with cells of their own; they are now 06_02A's and 12_02A's by size
+  (every size; the causes of limitation, the age groups), and `_limitation` is gone. The EIC
+  2015's 14-12 (cooking stoves, published by size only) now compares every size.
+- **Sources**: 17 Censo 2010 workbooks added to `SOURCES` (01_01A, 02_03A, 04_01A, 04_03A,
+  07_01A, 07_04A, 08_04A, 08_05A, 08_13A, 09_02A, 12_03A, 14_01A, 14_04A, 14_06A, 14_08A,
+  14_11A, 14_13A).
+
+## The data
+
+Every by-size check over the full mirror (32 states; 2010 8 min, 2015 23 min, 2020 18 min,
+in parallel): **17,092 cells, every one exact** — the largest |Δ| 0.87 of a person (the EIC
+2015's six-decimal percentages of a national total), Censo 2010's 0.63 (09_02A, its
+published percentages), Censo 2020's 0.62. Nothing to find: the locality size of the
+microdata (`TAMLOC`/`TAM_LOC`) is the tabulados' in every edition, for persons, dwellings,
+occupants and the international migrants (2010 04_03A, 2020 04-03 … 04-13: by the migrant
+record's dwelling; their twins count the state left).
+
+| edition | cells | max \|Δ\| (where) |
+|---|---|---|
+| Censo 2010 | 4,810 | 0.63 (09_02A, nation, IMSS) |
+| EIC 2015 | 4,938 | 0.87 (04-01, nation, abroad) |
+| Censo 2020 | 7,344 | 0.62 (16-03b, nation, occupants under terrado roofs) |
+
+The 34 cells of the replaced nation-only checks are among them; the report grows by 17,058
+cells to **209,272 cells, none beyond tolerance**, regenerated by four single-edition
+runs in parallel (2000 with the code of this unit — its `Weighted` cells through the new
+`_part` — 39,315 cells as before). Its diff against 7r's: the intro and legend sentences,
+the three replaced rows and the new ones; every other row byte-identical.
+
+## Verification
+
+- The by-size checks alone over the 32 states (above), then every check of every edition
+  (2000 10 min, 2010 13, 2015 44, 2020 28 min; four processes) for the report.
+- `tests/test_cpv_tabulados.py`: 27 passed (state 01's real-data check included); 7s
+  touches only the check script and its tests. The full suite ran on `wsl` at 7r for the
+  0.12.0 release (HANDOFF).
+
+## Tests
+
+- New `test_by_size_checks`: `_sized_rows` (2010's sizes renamed, the nation kept, 2020's
+  size 1 not a 2010 size), `_by_size` (key, sheet, title, tolerance, the reader on renamed
+  rows, a missing size raises; the 2015/2020 key; a by-size check of its own sheet keeps its
+  key), `_sums` by size (`tam_loc`, a blank size counted only in the nation, a `Weighted`
+  part), `_place_label`.
+- `test_checks_are_consistent`: a by-size check counts by origin and is of 2010/2015/2020;
+  2020's by-size average 04-11m.
+- `test_state_01_within_tolerance`: the by-size checks need all 32 states (no state-01
+  rows; the count unchanged).
+
+## Left out
+
+The by-size sheets whose by-state twin no check reads (each pair would need its cells
+first), and the by-state tabulados the probe found unread:
+
+- **Censo 2010**: 04_07A/08A (international migrants by destination), 04_09A/10A (return
+  migrants' duration and average), 06_03A/04A (limitation by age), 06_05A/06A (causes by
+  type of limitation), 08_01A (position at work by size; 08_02A's positions are not
+  compared), 09_01A/03A (health services by age), 12_05A/06A (other incomes by household
+  size); by state only: 07_03A (07_02A transposed), 08_08A/09A (hours by sector, by
+  position), 08_11A/12A (income by sector, by position), 08_14A/16A (place of work by
+  division, by position), 09_05A (services by affiliation), 12_07A (food access).
+- **EIC 2015**: 06_educacion (aptitude to read, literacy, attendance, schooling by age),
+  07_servicios_de_salud 03–06 (use of services), 08_caracteristicas_economicas 03–05/10/12
+  (the inactive by type, participation rates by age, position by size, sector by division,
+  benefits), 12_hogares 01–03/06 (relationship, household size), 04_migracion 03/04/06
+  (nationality, residence in 2010 by age, net migration), 05_etnicidad 01–03/05–07.
+- **Censo 2020**: 07-01/02 (técnica fields), 08-01–04 and 08-09/10, 08-13–16, 08-19–28
+  (position, hours and income by division, sector or position; benefits; activity),
+  09-01/02 (services by age), 10-03/04, 10-09/10 (commute times), 14-01/02 (other incomes).

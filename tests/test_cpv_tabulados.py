@@ -10,6 +10,7 @@ of state 01 within its tolerance. All 32 states, both sexes and the nation:
 from __future__ import annotations
 
 import sys
+from dataclasses import replace
 from pathlib import Path
 
 import numpy as np
@@ -527,16 +528,58 @@ def test_checks_are_consistent():
         assert c.period == "2000" or c.unit == "persons" or c.tolerance      # 7j: exact
         assert c.table != "migrantes" or c.period in ("2000", "2010", "2020")  # 7m, 7n
         assert not c.by_origin or c.table == "migrantes" or c.period == "2000" or c.key in (
-            "05_01A", "05_02A")                                # 7d, 7m; 7p: the rest, 98
+            "05_01A", "05_02A") or c.by_size                   # 7d, 7m; 7p: the rest, 98; 7s
+        assert not c.by_size or c.by_origin and c.period in ("2010", "2015", "2020")    # 7s
         assert c.table != "hogares" or c.period == "2000"          # 6t: 2000's household rows
         assert c.unit != "persons" or c.period != "2000"          # 2000: shares, averages
         assert c.unit in ("persons", "rate") or c.period in ("2000", "2015") or (
-            c.key == "04-12m")                                  # 7j, 7o; 7p: months abroad
+            c.key in ("04-12m", "04-11m"))              # 7j, 7o; 7p: months abroad; 7s: by size
         assert c.source.endswith(".xlsx" if c.period == "2020" else ".xls")        # 6p
         assert None in ck._TOLERANCE[c.period]
     assert {c.period for c in ck.CHECKS} == set(ck.SOURCES)
     assert {n for _, (_, names) in ck.SOURCES.items() for n in names} == {
         c.source for c in ck.CHECKS}
+
+
+def test_by_size_checks():
+    """7s: a by-size sheet read by its by-state twin's reader (each size row a pseudo-state,
+    the nation kept, a missing size raises), the twin's cells counted in each record's
+    ``TAMLOC`` (a :class:`Weighted` part too), INEGI's keys."""
+    rows = [{"A": "Tamaño de localidad", "B": "Sexo", "C": "Estimador", "D": "Total"},
+            {"A": "Estados Unidos Mexicanos", "B": "Total", "C": "Parámetro", "D": "30"},
+            *({"A": f" {n} ", "B": "Total", "C": "Parámetro", "D": str(10 * i)}
+              for i, n in enumerate(ck._SIZES["2010"], 1)),
+            {"A": "1-2 499 habitantes", "B": "Total", "C": "Parámetro", "D": "5"}]   # 2020's size 1
+    renamed = ck._sized_rows(rows, "2010")
+    assert [r["A"] for r in renamed[1:]] == [
+        "Estados Unidos Mexicanos", "01 Localidades de Menos de 2 500 habitantes",
+        "02 Localidades de 2 500-14 999 habitantes", "03 Localidades de 15 000-99 999 habitantes",
+        "04 Localidades de 100 000 y más habitantes", "1-2 499 habitantes"]
+    assert [ck._state_of(r["A"]) for r in renamed[1:]] == [0, 1, 2, 3, 4, None]
+    every = lambda f: [(pd.Series(True, index=f.index), None),             # noqa: E731
+                       (ck.Weighted(pd.Series(True, index=f.index), f["NUMPERS"]), None)]
+    twin = ck.Check("2010", "14_14Aa", "Dwellings, nation", "14_14A_ESTATAL.xls", "viviendas",
+                    ("all", "occupants"), ck._wide("Parámetro", lambda v: v * 2,
+                                                    dims=lambda k: (k[0], "T")),
+                    every, unit="persons", tolerance={None: 0.5, 9: 3.0})
+    sized = ck._by_size(twin, source="14_13A_ESTATAL.xls")
+    assert (sized.key, sized.sheet, sized.by_size, sized.by_origin) == ("14_13Aa", None, True, True)
+    assert sized.title == "Dwellings, by locality size (as 14_14Aa)" and not sized.note
+    assert sized.tolerance == {None: 0.5}
+    assert sized.published({"x": rows}) == {(s, "T"): [10.0 * s] * 2 if s else [30.0] * 2
+                                            for s in range(5)}
+    with pytest.raises(RuntimeError, match="sizes"):
+        ck._by_size(twin, source="14_13A_ESTATAL.xls").published({"x": rows[:3]})
+    v = pd.DataFrame({"tam_loc": ["01", "04", "04", None], "NUMPERS": ["3", "2", "5", "1"],
+                      "FACTOR": ["1", "1", "2", "4"]})
+    sums = ck._sums(sized, v, 15)
+    assert sums == {"T": [({1: 1.0, 4: 3.0, 99: 4.0}, None), ({1: 3.0, 4: 12.0, 99: 4.0}, None)]}
+    # 2015/2020: the sheet's number and the twin's suffix; a nation-only by-size check keeps its key
+    c2020 = replace(twin, period="2020", key="16-02b", source="x.xlsx", sheet="02")
+    assert ck._by_size(c2020, "01").key == "16-01b"
+    assert ck._by_size(replace(c2020, key="14-12", sheet="12")).key == "14-12"
+    assert ck._place_label(sized, 0) == "00" and ck._place_label(sized, 3) == "size 3"
+    assert ck._place_label(twin, 3) == "03"
 
 
 @_REAL_SKIP
@@ -580,12 +623,13 @@ def test_state_01_within_tolerance(monkeypatch):
     #                                                 national); 7p: Censo 2010's fields, divisions,
     #                                                 parents, kinship (05_01A/02A need all 32),
     #                                                 Censo 2020's disability, return migrants
-    by_origin = {c.key for c in ck.CHECKS if c.by_origin}               # 7d: all 32 only
+    by_origin = {c.key for c in ck.CHECKS if c.by_origin and not c.by_size}  # 7d: all 32
     assert by_origin == {"MI02", "MI05", "MI10", "MI11", "MI12",
                          "04_04A", "04_05A", "04_06A",                     # 7m: 2010's migrants
                          "04-04", "04-06", "04-08", "04-10",               # 7n: 2020's
                          "05_01A", "05_02A", "04-15"}                      # 7p
-    assert not by_origin & {r["check"] for r in rows}
+    assert not {(c.period, c.key) for c in ck.CHECKS if c.by_origin} & {
+        (r["period"], r["check"]) for r in rows}                          # 7s: by size too
     income = [r for r in rows if r["check"] in ("EM08", "08_10A", "08-11", "08-18")]
     assert len(income) == 8 * 3 + 3 * 9 * 3
     head = [r for r in rows if r["check"] in ("HO04a", "HO04b", "12-05")]

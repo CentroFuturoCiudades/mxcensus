@@ -1,6 +1,6 @@
 # CPV family — session handoff
 
-**Status (2026-10-11): units 0–6z and 7a–7r are done. `main` = v0.11.0 = 6u–7b, tagged and
+**Status (2026-10-11): units 0–6z and 7a–7s are done. `main` = v0.11.0 = 6u–7b, tagged and
 pushed. After it, on `cpv-integration` (not pushed): 7c (CGPV 2000's places, the income in
 minimum wages 2000–2020), 7d (tabulado checks: the EIC 2015's dwellings, CGPV 2000's
 employment and migration), 7e (ratio constraints), 7f (CGPV 2000 per dwelling, the 1990/1995
@@ -10,8 +10,10 @@ constraint against the census: fixes to 2000/2010/2020 cells, new 2010 `RELIGION
 — and 7o (tabulado checks: the fertility rates and the infant mortality of 2010/2015/2020)
 7p (tabulado checks: Censo 2020's disability and migration causes, Censo 2010's by-state
 leftovers), 7q (quantities the FDs write as codes: CGPV 2000's hours and incomes, the
-1990/1995 incomes) and 7r (codes the FDs make numbers, sentinels labelled with their own code,
-2000's `MFECRETA` parse).
+1990/1995 incomes), 7r (codes the FDs make numbers, sentinels labelled with their own code,
+2000's `MFECRETA` parse) and 7s (tabulado checks: the tabulados by locality size). The `wsl`
+full suite at 7r: **1931 passed, 1 skipped**; the 0.12.0 release (7c–7s, the user's choice)
+follows in its own commit.
 Before 0.11.0: v0.10.0 = 6s–6t, 0.9.0 = 6k–6r. A session starts by checking `git log`/`git
 status` against this line.**
 - **Released** (registered, uploaded, verified): every edition 1990–2025 (897 `cpv_` files)
@@ -463,7 +465,27 @@ status` against this line.**
     labelled loaders (1,088 checks) clean; derivations and tabulado checks read raw codes
     (unchanged). Full suite on the Mac: **1931 passed, 1 skipped**.
 
-Design: [`PLAN.md`](PLAN.md). Recent units: [`STEP_7r.md`](STEP_7r.md), [`STEP_7q.md`](STEP_7q.md), [`STEP_7p.md`](STEP_7p.md), [`STEP_7o.md`](STEP_7o.md), [`STEP_7n.md`](STEP_7n.md), [`STEP_7m.md`](STEP_7m.md), [`STEP_7l.md`](STEP_7l.md), [`STEP_7k.md`](STEP_7k.md), [`STEP_7j.md`](STEP_7j.md), [`STEP_7i.md`](STEP_7i.md), [`STEP_7h.md`](STEP_7h.md), [`STEP_7g.md`](STEP_7g.md), [`STEP_7f.md`](STEP_7f.md), [`STEP_7e.md`](STEP_7e.md), [`STEP_7d.md`](STEP_7d.md), [`STEP_7c.md`](STEP_7c.md), [`STEP_7b.md`](STEP_7b.md), [`STEP_7a.md`](STEP_7a.md), [`STEP_6z.md`](STEP_6z.md), [`STEP_6y.md`](STEP_6y.md), [`STEP_6x.md`](STEP_6x.md), [`STEP_6w.md`](STEP_6w.md), [`STEP_6v.md`](STEP_6v.md), [`STEP_6u.md`](STEP_6u.md), [`STEP_6t.md`](STEP_6t.md), [`STEP_6s.md`](STEP_6s.md), [`STEP_6r.md`](STEP_6r.md), [`STEP_6q.md`](STEP_6q.md), [`STEP_6p.md`](STEP_6p.md), [`STEP_6o.md`](STEP_6o.md), [`STEP_6n.md`](STEP_6n.md), [`STEP_6m.md`](STEP_6m.md), [`STEP_6l.md`](STEP_6l.md), [`STEP_6k.md`](STEP_6k.md), [`STEP_6j.md`](STEP_6j.md), [`STEP_6i.md`](STEP_6i.md), [`STEP_6h.md`](STEP_6h.md), [`STEP_6g.md`](STEP_6g.md), [`STEP_6f.md`](STEP_6f.md), [`STEP_6e.md`](STEP_6e.md),
+- **7s** (`STEP_7s.md`): HANDOFF candidate 3's tabulados by locality size (the user's choice,
+  beside the 0.12.0 release's `wsl` suite); checks only — no loader, derivation or dictionary
+  changed.
+  - Censo 2010, the EIC 2015 and Censo 2020 publish most tabulados by state again, nationally,
+    by locality size, with the same columns (2015/2020: the sheet before the twin; 2010: its
+    own 2013 workbook, numbered before the twin's). `_by_size(twin, …)` reuses the twin's
+    cells with every record counted in its `TAMLOC` (`_sized_cells`: a `ByOrigin` origin;
+    `Weighted` parts may now carry one) and the twin's reader on the sheet with the sizes
+    renamed as pseudo-states (`_sized_rows`); a missing size raises; the key is INEGI's, the
+    title names the twin; `Check.by_size` → «size N» in the report.
+  - 106 checks: 2010 20 (17 workbooks added to `SOURCES`; 07_01A/04A and 08_04A/05A/13A with
+    a reader of their own), 2015 27 (08-08/09 too), 2020 59. 2010's nation-only 06_01A/12_01A
+    (6q) became 06_02A's/12_02A's by size, and 2015's 14-12 compares every size.
+  - **17,092 cells, every one exact** (≤ 0.87 of a person); the report **209,272 cells, 0
+    beyond tolerance** (four single-edition runs; every earlier row byte-identical).
+    `tests/test_cpv_tabulados.py` 27 passed.
+  - Left out (`STEP_7s.md` §Left out): the by-size pairs whose by-state twin no check reads,
+    and the by-state tabulados the probe found unread (2010 15 workbooks, 2015 ~25 sheets,
+    2020 ~30): HANDOFF candidate 3.
+
+Design: [`PLAN.md`](PLAN.md). Recent units: [`STEP_7s.md`](STEP_7s.md), [`STEP_7r.md`](STEP_7r.md), [`STEP_7q.md`](STEP_7q.md), [`STEP_7p.md`](STEP_7p.md), [`STEP_7o.md`](STEP_7o.md), [`STEP_7n.md`](STEP_7n.md), [`STEP_7m.md`](STEP_7m.md), [`STEP_7l.md`](STEP_7l.md), [`STEP_7k.md`](STEP_7k.md), [`STEP_7j.md`](STEP_7j.md), [`STEP_7i.md`](STEP_7i.md), [`STEP_7h.md`](STEP_7h.md), [`STEP_7g.md`](STEP_7g.md), [`STEP_7f.md`](STEP_7f.md), [`STEP_7e.md`](STEP_7e.md), [`STEP_7d.md`](STEP_7d.md), [`STEP_7c.md`](STEP_7c.md), [`STEP_7b.md`](STEP_7b.md), [`STEP_7a.md`](STEP_7a.md), [`STEP_6z.md`](STEP_6z.md), [`STEP_6y.md`](STEP_6y.md), [`STEP_6x.md`](STEP_6x.md), [`STEP_6w.md`](STEP_6w.md), [`STEP_6v.md`](STEP_6v.md), [`STEP_6u.md`](STEP_6u.md), [`STEP_6t.md`](STEP_6t.md), [`STEP_6s.md`](STEP_6s.md), [`STEP_6r.md`](STEP_6r.md), [`STEP_6q.md`](STEP_6q.md), [`STEP_6p.md`](STEP_6p.md), [`STEP_6o.md`](STEP_6o.md), [`STEP_6n.md`](STEP_6n.md), [`STEP_6m.md`](STEP_6m.md), [`STEP_6l.md`](STEP_6l.md), [`STEP_6k.md`](STEP_6k.md), [`STEP_6j.md`](STEP_6j.md), [`STEP_6i.md`](STEP_6i.md), [`STEP_6h.md`](STEP_6h.md), [`STEP_6g.md`](STEP_6g.md), [`STEP_6f.md`](STEP_6f.md), [`STEP_6e.md`](STEP_6e.md),
 [`STEP_6d.md`](STEP_6d.md),
 [`STEP_6c.md`](STEP_6c.md), [`STEP_6b.md`](STEP_6b.md), … [`STEP_0_probe.md`](STEP_0_probe.md).
 
@@ -495,6 +517,10 @@ lacks them and 2020's `06_discapacidad` — the script fetches them).
 7q ran on the Mac only (`--variables`, `--validate`, a 32-state sweep, the full suite); `wsl`
 is still at 87cebf6 (7n). 7r too (`--variables`, `--validate`, a 32-state sweep, the full
 suite).
+7s ran on the Mac (the by-size checks and the report, four processes, ~45 min); the Mac's
+tabulados cache now holds its 17 Censo 2010 workbooks, which `wsl`'s lacks (the script
+fetches them). For the 0.12.0 release `wsl:~/mxcensus` was fast-forwarded to 7r (09febd4, a
+`git bundle` 87cebf6..09febd4 over `scp`) and ran the full suite there (`~/pytest_7r.log`).
 `wsl:~/mxcensus3c` (3c's code copy) can be deleted.
 
 ## Kickoff prompt for the next session
@@ -571,12 +597,9 @@ and **kept all seven** (merged as 0.9.0):
 
 ## Next: candidates (none decided)
 
-1. **Release 7c–7r** as 0.12.0: the night's decisions are kept and the `wsl` full suite ran
-   on 7n (§Review 7); move 7o–7r there (`git bundle 87cebf6..cpv-integration`; 7o/7p touch
-   only the check script and its tests, 7q four YAMLs, `build_cpv.py` and the tests, 7r eight
-   YAMLs, `_dict_fd.py`, `build_cpv.py` and the tests), run the full suite there (or
-   `tests/test_cpv.py`, `test_cpv_derived.py`, `test_cpv_tabulados.py`), then merge into
-   `main`, tag and push — the user's call.
+1. **Release 7c–7s** as 0.12.0 (the user's choice, 2026-10-11): the `wsl` full suite at 7r
+   passed (1931, 1 h 58 min; 7s touches only the check script, its tests and docs); a
+   release commit, `main` fast-forwarded, tagged and pushed.
 2. Smaller:
    - a 2000 occupation bridge (CMO → SINCO; no published table; 7d checked the CMO groups,
      the first two digits of `OCUACTIV_C`, against C2KEM04);
@@ -588,11 +611,20 @@ and **kept all seven** (merged as 0.9.0):
      if a later edition needs one;
    - 7p's kinship lines as a derived column (INEGI's 2010 lines for «otro parentesco» are
      now known: `STEP_7p.md`), if a constraint or a user needs them.
-3. More tabulado checks (what 7d–7p left):
-   - every edition's tabulados by locality size (they repeat the state ones on `TAMLOC`;
-     7o's `_national` reads that layout): Censo 2010's 07_01A/04A, 08_04A/05A, 12_03A/05A
-     (dated 2013, in the same `ESTATAL` file names), Censo 2020's 06-01/03/05 and 04-11/13,
-     and the earlier units' by-size sheets;
+3. More tabulado checks — the tabulados no check reads yet (`STEP_7s.md` §Left out; each
+   new by-state check gets its by-size twin for free through `_by_size`/`_SIZE_TWINS`):
+   - Censo 2010: international migrants by destination, return migrants' duration (04_07A–
+     10A), limitation by age and by type (06_03A–06A), health services by age and by
+     affiliation (09_01A/03A/05A), other incomes by household size (12_05A/06A), food access
+     (12_07A), and the economic cross-tables 08_08A/09A/11A/12A/14A/16A (hours, income, place
+     of work by sector, position or division; 08_01A position by size);
+   - EIC 2015: education (06_educacion 01–10), use of services (07 03–06), the inactive,
+     participation rates, position, benefits (08 03–05/10/12), relationship and household
+     size (12_hogares 01–03/06), nationality, residence by age, net migration (04 03/04/06),
+     ethnicity (05 01–03/05–07);
+   - Censo 2020: técnica fields (07-01/02), position, hours and income by division, sector
+     or position, benefits, activity (08-01–04, 08-09/10, 08-13–16, 08-19–28), services by
+     age (09-01/02), commute times (10-03/04, 10-09/10), other incomes (14-01/02);
    - a reproduction of the 2010/2015 infant mortality would need INEGI's procedure
      (`STEP_7o.md`): its rule is not in the sample.
 

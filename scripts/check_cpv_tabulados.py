@@ -43,6 +43,12 @@ emigrants' causes, and Censo 2010's by-state tabulados 7m left: self-identificat
 states one by one, the others together as :data:`_REST`), fields of study, sector and hours
 by division, parents and kinship lines by age.
 
+7s added INEGI's national tabulados by locality size: Censo 2010, the EIC 2015 and Censo 2020
+repeat most tabulados by state on ``TAMLOC``, with the same columns (2010: in their own
+workbooks). Each such check (:func:`_by_size`) reuses its by-state twin's cells, every record
+counted in its locality size (a :class:`ByOrigin` origin), and its reader, on the sheet with
+the sizes numbered as states (:func:`_sized_rows`); the report's «size N» is ``TAMLOC`` N.
+
 The tabulados are fetched once into ``data/dict/tabulados/{period}/`` (git-ignored); the
 mirror is read from ``data/parquet`` (the full mirror: every state of each edition).
 
@@ -112,7 +118,12 @@ SOURCES = {
               # 7p: self-identification, fields of study, divisions, parents, kinship lines
               "05_01A_ESTATAL.xls", "05_02A_ESTATAL.xls", "07_02A_ESTATAL.xls",
               "07_05A_ESTATAL.xls", "08_06A_ESTATAL.xls", "08_07A_ESTATAL.xls",
-              "12_02A_ESTATAL.xls", "12_04A_ESTATAL.xls")),
+              "12_02A_ESTATAL.xls", "12_04A_ESTATAL.xls",
+              # 7s: by locality size (06_01A and 12_01A were read for the nation)
+              *(f"{n}_ESTATAL.xls" for n in (
+                  "01_01A", "02_03A", "04_01A", "04_03A", "07_01A", "07_04A", "08_04A",
+                  "08_05A", "08_13A", "09_02A", "12_03A", "14_01A", "14_04A", "14_06A",
+                  "14_08A", "14_11A", "14_13A")))),
     "2015": ("intercensal/2015/tabulados",
              ("01_poblacion.xls", "02_fecundidad.xls", "03_mortalidad.xls",           # 7j
               "09_trabajo_no_remunerado.xls", "04_migracion.xls", "05_etnicidad.xls", "06_educacion.xls",
@@ -428,6 +439,8 @@ class Check:
     by_origin: bool = False
     # 7o: the computed values → the published cells' (the TGF after each block's rates)
     combine: Callable[[list[float]], list[float]] | None = None
+    # 7s: national, by locality size — the report's «state» is the size (:func:`_by_size`)
+    by_size: bool = False
 
 
 @dataclass(frozen=True)
@@ -444,9 +457,11 @@ class ByOrigin:
 @dataclass(frozen=True)
 class Weighted:
     """A cell part whose records count their ``values`` (× the weight) instead of 1 (7i: the
-    numerators and denominators of an average — occupants, households, rooms)."""
+    numerators and denominators of an average — occupants, households, rooms); 7s: in their
+    ``origin``, as :class:`ByOrigin`, when one is given."""
     mask: pd.Series
     values: pd.Series
+    origin: pd.Series | None = None
 
 
 def _sheet(wb: dict, sheet: str | None) -> list[dict]:
@@ -1032,13 +1047,7 @@ def _educ_2015_published(v: list) -> list:
     return [c[0], c[1] + c[3], c[4], c[6] + c[8], c[7], c[9], c[10], c[11]]
 
 
-# Censo 2010 national (6q: the tabulados by locality size; their national row) --------
-
-def _limitation(p):
-    lim = _cat(p, "LIM_ACTIVIDAD")
-    return _counts_of(pd.Series(True, index=p.index),
-                      *(lim.eq(c) for c in ("Sí", "No", "No especificado")))
-
+# Censo 2010's parents in the dwelling (6q: 12_01A's national row; 7p: 12_02A by state) --
 
 def _parents(p):
     """The population by whether the father, the mother, both or neither live in the dwelling;
@@ -3235,6 +3244,70 @@ def _rate_checks() -> tuple[Check, ...]:
     return tuple(out)
 
 
+# The tabulados by locality size (7s) ----------------------------------------------------
+
+def _sized_rows(rows: list[dict], period: str) -> list[dict]:
+    """A tabulado by locality size as one by state: each size row (its first dimension, as
+    :data:`_SIZES` names it) renamed «NN Localidades de …», NN its ``TAMLOC`` code — a
+    pseudo-state for :func:`_state_of`; the nation keeps its name."""
+    order = lambda c: (len(c), c)  # noqa: E731 — column letters in sheet order
+    header = next(r for r in rows if "Estimador" in r.values())
+    est = next(c for c in header if header[c] == "Estimador")
+    first = min((c for c in header if order(c) < order(est)), key=order)
+    codes = {name: i for i, name in enumerate(_SIZES[period], 1)}
+    return [{**r, first: f"{codes[n]:02d} Localidades de {n}"}
+            if (n := r.get(first, "").strip()) in codes else r for r in rows]
+
+
+def _sized_cells(ours: Callable[[pd.DataFrame], list]):
+    """``ours``'s cells with every record counted in its locality size (``TAMLOC``, a
+    :class:`ByOrigin` origin) instead of its state."""
+    def cells(frame):
+        size = _size(frame)
+
+        def part(x):
+            if x is None:
+                return None
+            if isinstance(x, Weighted):
+                return replace(x, origin=size)
+            return ByOrigin(x.mask if isinstance(x, ByOrigin) else x, size)
+        return [(part(num), part(den)) for num, den in ours(frame)]
+    return cells
+
+
+def _by_size(twin: Check, sheet: str | None = None, source: str | None = None,
+             published: Callable[[dict], dict] | None = None) -> Check:
+    """7s: ``twin`` (a check by state) by locality size — INEGI's national tabulado that
+    repeats it on ``TAMLOC``: ``sheet`` of ``source`` (default the twin's workbook, and for a
+    twin that reads a by-size sheet's national row only, its own sheet). The twin's cells,
+    each record counted in its size (:func:`_sized_cells`), read by the twin's reader — or
+    ``published``, for a sheet laid out otherwise — on the sheet with its sizes numbered as
+    states (:func:`_sized_rows`): every size and the nation (all 32 states needed). The key
+    is INEGI's: the by-size sheet's (2015, 2020) or workbook's (2010) number with the twin's
+    suffix; the title names the twin."""
+    source = source or twin.source
+    if source == twin.source and sheet in (None, twin.sheet):
+        sheet, key = twin.sheet, twin.key
+    else:
+        suffix = re.fullmatch(r"\d\d[-_]\d\dA?(.*)", twin.key).group(1)
+        key = (source[:6] if twin.period == "2010" else f"{twin.key[:2]}-{sheet}") + suffix
+    read, inner = (twin.published, twin.sheet) if published is None else (published, sheet)
+    sizes = set(range(len(_SIZES[twin.period]) + 1))
+
+    def read_sized(wb):
+        out = read({inner: _sized_rows(_sheet(wb, sheet), twin.period)})
+        if {k[0] for k in out} != sizes:
+            raise RuntimeError(f"{twin.period} {key}: sizes {sorted({k[0] for k in out})}")
+        return out
+    tolerance = {s: t for s, t in (twin.tolerance or {}).items() if s in (None, _NATION)}
+    return replace(twin, key=key, source=source, sheet=sheet, published=read_sized,
+                   ours=_sized_cells(twin.ours), by_origin=True, by_size=True,
+                   tolerance=tolerance or None,
+                   title=twin.title.removesuffix(", nation") + ", by locality size"
+                   + ("" if key == twin.key else f" (as {twin.key})"),
+                   note=twin.note if key == twin.key else "")
+
+
 _ECO_2020 = "cpv2020_a_eum_08_caracteristicas_economicas.xlsx"
 _MOV_2020 = "cpv2020_a_eum_10_movilidad_cotidiana.xlsx"
 
@@ -3427,19 +3500,6 @@ CHECKS: tuple[Check, ...] = (
     Check("2010", "08_03A", "Employed by sector (`ACTIVIDADES_C_COARSE`)", "08_03A_ESTATAL.xls",
           "personas", tuple(n for n, _ in _SECTOR_GROUPS),
           _long("Parámetro", tuple(n for n, _ in _SECTOR_GROUPS)), _sector, unit="persons"),
-    Check("2010", "06_01A", "Limitation in activity (`LIM_ACTIVIDAD`), nation only",
-          "06_01A_ESTATAL.xls", "personas",
-          ("population", "with a limitation", "without", "not specified"),
-          _wide("Parámetro", lambda v: _counts(v[0], [v[1], v[8], v[9]])), _limitation,
-          unit="persons",
-          note="Published by locality size: the national row only (all 32 states needed)."),
-    Check("2010", "12_01A", "Parents in the dwelling (`MADRE_EN_VIVIENDA`, "
-          "`PADRE_EN_VIVIENDA`), nation only", "12_01A_ESTATAL.xls", "personas",
-          ("population", "both", "only the father", "only the mother", "neither",
-           "not specified"),
-          _wide("Parámetro", lambda v: _counts(v[0], v[1:]), dims=_total_row), _parents,
-          unit="persons",
-          note="Published by locality size: the national row only (all 32 states needed)."),
     Check("2015", "04-02", "Birthplace (`ENT_PAIS_NAC_INEGI`)", "04_migracion.xls", "personas",
           ("population", "this entity", "another entity", "abroad", "not specified"),
           _wide("Valor", lambda v: (c := _counts(v[0], v[1:]))[:3] + [c[3] + c[4], c[5]],
@@ -3627,13 +3687,14 @@ CHECKS: tuple[Check, ...] = (
           note="INEGI's dwellings that cook name a place (`LUGAR_COCINA` 1–3) or a fuel "
                "(`COMBUSTIBLE` 1–4): a fuel not specified without a place is left out "
                "(150,929 dwellings); electricity is «otro combustible» (7d)."),
-    Check("2015", "14-12", "Dwellings cooking with wood or charcoal by stove (`ESTUFA`), "
-          "nation", "14_vivienda.xls", "viviendas",
-          ("dwellings", "with a chimney", "without", "not specified"),
-          _wide("Valor", lambda v: _counts(v[0], v[1:]), sheet="12", dims=lambda k: (k[0], "T")),
-          _item("ESTUFA", (1, 3, 9),
-                lambda v: _cooks_2015(v) & _code(v, "COMBUSTIBLE").eq(1)),
-          unit="persons", sheet="12", note="Published by locality size: the national row."),
+    _by_size(Check(
+        "2015", "14-12", "Dwellings cooking with wood or charcoal by stove (`ESTUFA`), "
+        "nation", "14_vivienda.xls", "viviendas",
+        ("dwellings", "with a chimney", "without", "not specified"),
+        _wide("Valor", lambda v: _counts(v[0], v[1:]), sheet="12", dims=lambda k: (k[0], "T")),
+        _item("ESTUFA", (1, 3, 9), lambda v: _cooks_2015(v) & _code(v, "COMBUSTIBLE").eq(1)),
+        unit="persons", sheet="12",
+        note="Published by locality size only (7s: every size; the national row before).")),
     Check("2015", "14-17", "Owned dwellings by rooms and acquisition (`FORMA_ADQUI`)",
           "14_vivienda.xls", "viviendas",
           _row_cells(_ROOMS_2015, ("owned", "bought", "had it built", "built it", "inherited",
@@ -3792,6 +3853,59 @@ CHECKS: tuple[Check, ...] = (
      + _person_checks_2010_p() + _person_checks_2020_p())                            # 7p
 
 
+# 7s: the checks by state INEGI repeats by locality size, with the same layout: Censo
+# 2010's by-size workbook (twin key → its file's number), the EIC 2015's and Censo 2020's
+# by-size sheet (the one before the twin's)
+_SIZE_TWINS = {
+    "2010": {"01_02A": "01_01A", "02_04A": "02_03A", "04_02A": "04_01A", "04_04A": "04_03A",
+             "06_02A": "06_01A", "09_04A": "09_02A", "12_02A": "12_01A", "12_04A": "12_03A",
+             "14_02A": "14_01A", "14_05A": "14_04A", "14_07A": "14_06A", "14_09A": "14_08A",
+             "14_12A": "14_11A", "14_14Aa": "14_13A", "14_14Ab": "14_13A"},
+    "2015": ("01-02", "02-02a", "02-02b", "04-02", "07-02", "08-02", "09-02", "11-02",
+             "12-05", "12-05a", "12-05b", "14-02a", "14-02b", "14-04", "14-06", "14-08",
+             "14-16", "14-16s", "14-20", "14-22", "14-24", "14-26", "14-36", "14-38"),
+    "2020": ("01-02", "01-04", "04-02", "04-04", "04-06", "04-08", "04-10", "04-12", "04-12m",
+             "04-14", "05-02", "05-04", "06-02", "06-04", "06-06", "07-04", "08-06", "08-08",
+             "08-12", "08-18", "09-04", "10-02", "10-06", "10-08", "10-12", "11-02",
+             *(f"16-{n:02d}{s}" for n in (2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 26, 30, 32)
+               for s in "ab"), "16-28", "16-34", "16-36"),
+}
+
+
+def _size_checks(checks: tuple[Check, ...]) -> tuple[Check, ...]:
+    """7s: every check of :data:`_SIZE_TWINS` by locality size, and the twins whose by-size
+    workbook or sheet is laid out otherwise: Censo 2010's fields of study (07_01A by sex and
+    level, its «Total» level; 07_04A by sex), divisions, sectors and place of work (08_04A,
+    08_05A, 08_13A: one row per size and sex, not per division or sector) and the EIC 2015's
+    divisions and sectors (08-08, 08-09)."""
+    twin = {(c.period, c.key): c for c in checks}
+    total = lambda v: _counts(v[0], v[1:])  # noqa: E731
+    shares = lambda v: _counts(v[0], v[1:])[1:]  # noqa: E731 — the categories, not the total
+    out = [_by_size(twin["2010", k], source=f"{f}_ESTATAL.xls")
+           for k, f in _SIZE_TWINS["2010"].items()]
+    out += [_by_size(c, f"{int(c.sheet) - 1:02d}")
+            for p in ("2015", "2020") for c in (twin[p, k] for k in _SIZE_TWINS[p])]
+    out += [
+        _by_size(twin["2010", "07_02A"], source="07_01A_ESTATAL.xls",
+                 published=_wide("Parámetro", total,
+                                 dims=lambda k: k[:2] if k[2] == "Total" else None)),
+        _by_size(twin["2010", "07_05A"], source="07_04A_ESTATAL.xls",
+                 published=_wide("Parámetro", total)),
+        _by_size(twin["2010", "08_02A"], source="08_04A_ESTATAL.xls",
+                 published=_wide("Parámetro", shares)),
+        _by_size(twin["2010", "08_03A"], source="08_05A_ESTATAL.xls",
+                 published=_wide("Parámetro", shares)),
+        _by_size(twin["2010", "08_15A"], source="08_13A_ESTATAL.xls",
+                 published=_wide("Parámetro", _place_published)),
+        _by_size(twin["2015", "08-06"], "08", published=_wide("Valor", shares, sheet="08")),
+        _by_size(twin["2015", "08-07"], "09", published=_wide("Valor", shares, sheet="09")),
+    ]
+    return tuple(out)
+
+
+CHECKS += _size_checks(CHECKS)
+
+
 # --------------------------------------------------------------------------------------
 # running
 # --------------------------------------------------------------------------------------
@@ -3865,14 +3979,17 @@ _SEX_ITEM = {"personas": "SEXO", "migrantes": "MSEXO"}
 
 def _part(part, w: pd.Series, keep: pd.Series, state: int) -> dict[int, float]:
     """Σ weight of a cell part's records: in the frame's ``state``, or by their origin
-    (:class:`ByOrigin`)."""
+    (:class:`ByOrigin`; 7s: a :class:`Weighted` part's too)."""
     if isinstance(part, Weighted):                                          # 7i
-        mask = part.mask & keep
-        return {state: float((w * pd.to_numeric(part.values, errors="coerce"))[mask].sum())}
-    if not isinstance(part, ByOrigin):
+        w, origin = w * pd.to_numeric(part.values, errors="coerce"), part.origin
+    elif isinstance(part, ByOrigin):
+        origin = part.origin
+    else:
         return {state: float(w[part & keep].sum())}
     mask = part.mask & keep
-    origin = pd.to_numeric(part.origin, errors="coerce")
+    if origin is None:
+        return {state: float(w[mask].sum())}
+    origin = pd.to_numeric(origin, errors="coerce")
     origin = origin.where(origin.between(1, 32) | origin.eq(_REST), _UNSPECIFIED).astype(int)
     return {int(k): float(v) for k, v in w[mask].groupby(origin[mask]).sum().items()}
 
@@ -3987,6 +4104,12 @@ def _fmt(x: float, unit: str) -> str:
     return f"{x:.3f}" if unit in ("points", "average") else f"{x:,.2f}"
 
 
+def _place_label(check: Check, state: float) -> str:
+    """A report row's place: the state («00» the nation) or, by locality size (7s), the
+    size."""
+    return f"size {int(state)}" if check.by_size and state != _NATION else f"{int(state):02d}"
+
+
 def report(rows: list[dict], states: list[int]) -> str:
     """The Markdown report: per check, the cells compared, |Δ| statistics and the cells
     beyond tolerance."""
@@ -4001,7 +4124,8 @@ def report(rows: list[dict], states: list[int]) -> str:
              + " — the derived columns and, since 7d, the samples' raw items (the EIC 2015 "
              "dwellings', CGPV 2000's employment and migration items and its `migrantes` "
              "file; 7h: the Censo 2010 and 2020 dwellings', the owners' sex from the person "
-             "file). 2000: shares "
+             "file; 7s: the 2010, 2015 and 2020 checks again on INEGI's national tabulados by "
+             "locality size). 2000: shares "
              "in percentage points (published with two decimals; 7i: its dwelling averages as "
              "they are); 2010, 2015 and 2020: counts "
              "in persons (Σ `FACTOR`; published totals × percentages; the occupants Σ "
@@ -4024,7 +4148,7 @@ def report(rows: list[dict], states: list[int]) -> str:
             a = d["delta"].abs()
             worst = d.loc[a.idxmax()]
             bad = d[a > d["tolerance"]]
-            where = f"{int(worst['state']):02d} {worst['sex']} «{worst['cell']}»"
+            where = f"{_place_label(c, worst['state'])} {worst['sex']} «{worst['cell']}»"
             lines.append(f"| {key} {c.title} | `{c.source}`{' ' + c.sheet if c.sheet else ''} "
                          f"| {len(d)} | {_fmt(a.median(), c.unit)} | "
                          f"{_fmt(a.quantile(0.95), c.unit)} | {_fmt(a.max(), c.unit)} "
@@ -4039,14 +4163,16 @@ def report(rows: list[dict], states: list[int]) -> str:
                       "|---|---|---|---|---|---|---|"]
             for _, r in bad.iterrows():
                 u = by_key[period, r["check"]].unit
-                lines.append(f"| {r['check']} | {int(r['state']):02d} | {r['sex']} | {r['cell']} | "
+                lines.append(f"| {r['check']} | {_place_label(by_key[period, r['check']], r['state'])} "
+                             f"| {r['sex']} | {r['cell']} | "
                              f"{_fmt(r['published'], u)} | {_fmt(r['ours'], u)} | "
                              f"{_fmt(r['delta'], u)} |")
             lines.append("")
     lines += ["State 00 is the nation (the sum of the states); state 99 the origin not "
               "specified (the international migrants by the state they left); state 98 the "
-              "states a tabulado publishes together («Resto de las entidades»); sex T = both, "
-              "H = men, M = women.", ""]
+              "states a tabulado publishes together («Resto de las entidades»); in the checks "
+              "by locality size (7s), «size N» the tabulado's N-th size (`TAMLOC` N); sex T = "
+              "both, H = men, M = women.", ""]
     return "\n".join(lines)
 
 
