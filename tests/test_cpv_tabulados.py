@@ -757,6 +757,96 @@ def test_eic2015_rows_7x(monkeypatch, tmp_path):
     ck._CONVERTED.clear()
 
 
+def test_census2020_last_cells_7y():
+    """7y: Censo 2020's last cells — the unspecified age (a state without one publishes no
+    row: zeros), the superior's fields, the employed before their divisions and sectors, the
+    use of health services per affiliation and institution."""
+    assert ck._QUIN_2020[-1] == ck._REGISTRATION_AGES_2020[-1] == "No especificado"
+    head = {"A": "Entidad federativa", "B": "Grupos de edad", "C": "Estimador", "D": "Total"}
+    rows = [head, {"A": "01 Aguascalientes", "B": "Total", "C": "Valor", "D": "9"},
+            {"A": "01 Aguascalientes", "B": "No especificado", "C": "Valor", "D": "2"},
+            {"A": "02 Baja California", "B": "Total", "C": "Valor", "D": "5"}]
+    read = ck._by_dims("Valor", "02", ("Total", "No especificado"), lambda v: v)
+    assert read({"02": rows}) == {(1, "T"): [9, 2], (2, "T"): [5, 0.0]}
+    p = pd.DataFrame({"EDAD": ["25", "40", "17", "30", "30"],
+                      "EDUC_INEGI_DET": ["Superior", "Posgrado", "Superior", "Superior",
+                                         "Media_superior"],
+                      "NOMCAR_C": ["0411", "1021", "0411", "9999", "0411"]})
+    sup = [m.tolist() for m, _ in ck._superior(p)]
+    assert len(sup) == 12 and sup[0] == [True, True, False, True, False]
+    assert sup[4][0] and sup[10][1] and sup[11][3] and sum(map(sum, sup[1:])) == 3
+    p = pd.DataFrame({"EDAD": ["30"] * 4, "SERSALUD": ["01", "08", "10", "99"],
+                      "DHSERSAL_AFIL": [1, 1, 0, 0], "DHSERSAL_No afiliado": [0, 0, 1, 0],
+                      "DHSERSAL_IMSS": [1, 1, 0, 0], "DHSERSAL_ISSSTE": [0] * 4,
+                      "DHSERSAL_ISSSTE_E": [0, 1, 0, 0],
+                      **{f"DHSERSAL_{c}": [0] * 4 for c in (
+                          "P_D_M", "SALUD_PUBLICA", "IMSS_BIENESTAR", "Otro")},
+                      "DHSERSAL_Privado": [0, 1, 0, 0]})
+    use = [m.tolist() for m, _ in ck._use_by_affiliation_2020(p)]
+    assert len(use) == len(ck._AFFILIATION_NAMES_2020) * len(ck._USE_CELLS_2020) == 132
+    block = lambda i: use[12 * i:12 * (i + 1)]  # noqa: E731
+    assert block(0)[0] == [True] * 4 and block(0)[1] == [True, True, False, False]
+    assert block(0)[2] == [True, False, False, False] and block(0)[8] == [False, True, False,
+                                                                          False]  # pharmacy
+    assert block(0)[10:] == [[False, False, True, False], [False, False, False, True]]
+    assert block(2)[0] == [True, True, False, False]                 # IMSS: both
+    assert block(3)[0] == [False, True, False, False]                # ISSSTE estatal too
+    assert block(7)[0] == [False, True, False, False] and block(9)[0] == [False, False, True,
+                                                                          False]
+    assert block(10)[0] == [False, False, False, True]               # not specified
+    head = {"A": "Entidad federativa", "B": "Condición de afiliación", "C": "Institución",
+            "D": "Estimador", "E": "Población", **{c: c for c in "FGHIJKLMNOP"}}
+    sheet = [head, *({"A": "01 Aguascalientes", "B": a, "C": i + ("4" if i == "ISSSTE" else ""),
+                      "D": "Valor", "E": "200", "F": "90", **dict.fromkeys("GHIJKLMN", "12.5"),
+                      "O": "5", "P": "5"} for a, i in ck._AFFILIATION_ROWS)]
+    pub = ck._by_affiliation("Valor", "04", ck._AFFILIATION_ROWS,
+                             lambda v: ck._counts(v[0], v[1:], [0, *[1] * 8, 0, 0]))
+    got = pub({"04": sheet})[1, "T"]
+    assert len(got) == 132 and got[:12] == [200, 180, *[22.5] * 8, 10, 10]
+    assert [c.cells[0] for c in ck.CHECKS if c.period == "2020" and c.key in (
+        "08-06", "08-08")] == ["employed", "employed"]
+    ck._CONVERTED.clear()
+
+
+def test_coverage_traces_values(monkeypatch):
+    """7y: :func:`coverage` traces each published value through a check's reader — a total
+    read only into counts from its percentages is read, a value no compared cell comes from
+    (or only a missing one) is not; the reader's ``_num`` is restored."""
+    head = {"A": "Entidad federativa", "B": "Estimador", "C": "Total", "D": "Sí", "E": "No"}
+    sheet = [{"A": "Título"}, head,
+             {"A": "01 Aguascalientes", "B": "Valor", "C": "200", "D": "60", "E": "40"},
+             {"A": "01 Aguascalientes", "B": "Error estándar", "C": "9", "D": "1", "E": "1"},
+             {"A": "02 Baja California", "B": "Valor", "C": "50", "D": "", "E": "M.I."}]
+    monkeypatch.setattr(ck, "_workbook", lambda path: {"04": sheet})
+    check = ck.Check("2020", "x", "x", "x.xlsx", "personas", ("yes",),
+                     ck._wide("Valor", lambda v: ck._counts(v[0], v[1:])[1:2], sheet="04",
+                              dims=lambda k: (k[0], "T")),
+                     None, unit="persons", sheet="04")
+    plain = ck._num
+    found = ck.coverage("2020", {"2020/x.xlsx": Path("x.xlsx")}, (check,))
+    assert ck._num is plain
+    assert found == {("x.xlsx", "04"): [(("01 Aguascalientes",), "No"),   # 200, 60 read
+                                        (("02 Baja California",), "Total")]}  # into NaN only
+    every = replace(check, published=ck._wide("Valor", lambda v: ck._counts(v[0], v[1:]),
+                                              sheet="04", dims=lambda k: (k[0], "T")))
+    assert ck.coverage("2020", {"2020/x.xlsx": Path("x.xlsx")}, (every,)) == {}
+    t = ck._Traced(3.0, frozenset({1})) * 2 + ck._Traced(1.0, frozenset({2}))
+    assert t == 7.0 and t.cells == {1, 2} and (100 - t).cells == {1, 2}
+
+
+@_REAL_SKIP
+def test_every_published_value_is_read():
+    """7x, 7y: every published value of the Censo 2010, EIC 2015 and Censo 2020 tabulados
+    enters a compared cell (no frames needed: the readers only)."""
+    paths = {f"{p}/{n}": _TABS / p / n for p in ck._ESTIMATOR for n in ck.SOURCES[p][1]}
+    for period in ck._ESTIMATOR:
+        assert ck.coverage(period, paths) == {}, period
+    less = tuple(c for c in ck.CHECKS if (c.period, c.key) != ("2020", "09-04"))
+    found = ck.coverage("2020", paths, less)
+    assert set(found) == {("cpv2020_a_eum_09_servicios_de_salud.xlsx", "04")}
+    assert len(found["cpv2020_a_eum_09_servicios_de_salud.xlsx", "04"]) == 33 * 11 * 12
+
+
 def test_checks_are_consistent():
     """Every check names a fetched source, unique keys per edition, and a tolerance."""
     keys = [(c.period, c.key) for c in ck.CHECKS]
@@ -835,7 +925,8 @@ def test_state_01_within_tolerance(monkeypatch):
                          + 317 + 894 + 144 + 247 + 329 + 291 + 3 * 8 + 889 + 392
                          + 4645                                               # 7v: 2015
                          + 3931                                               # 7w: 2020
-                         + 2316 + 672 + 3511)                                 # 7x: 2010, 2015
+                         + 2316 + 672 + 3511                                  # 7x: 2010, 2015
+                         + 181)                                               # 7y: 2020
     #                                                 6q: 2015 affiliation, commute, marital status,
     #                                                 education (2010's are national); 6r: 2000
     #                                                 hours, education of the 12+/18+; 6t: 2000/2015
@@ -882,7 +973,11 @@ def test_state_01_within_tolerance(monkeypatch):
     #                                                 every row (+672); the EIC 2015's 04-02,
     #                                                 06-11, 07-02, 07-06, 08-02/06/07/11,
     #                                                 10-01/03/04/06, 11-02, 12-05a/b every row,
-    #                                                 06-11d/m, 11-02d, 14-02s (+3,511)
+    #                                                 06-11d/m, 11-02d, 14-02s (+3,511);
+    #                                                 7y: Censo 2020's unspecified age (01-02,
+    #                                                 01-04), the superior's fields (07-04),
+    #                                                 the employed (08-06/08), the use of
+    #                                                 services by affiliation (09-04)
     by_origin = {c.key for c in ck.CHECKS if c.by_origin and not c.by_size}  # 7d: all 32
     assert by_origin == {"MI02", "MI05", "MI10", "MI11", "MI12",
                          "04_04A", "04_05A", "04_06A",                     # 7m: 2010's migrants

@@ -74,6 +74,11 @@ category's count read every row (and the EIC 2015's cells its derived columns me
 raw items), and the international migrants whose state left is not specified are compared
 (2010, 2020).
 
+7y read Censo 2020's last cells: the unspecified age (01-01…04), the fields of higher
+education (07-03/04), the employed before their divisions and sectors (08-05…08) and the use
+of health services by affiliation and institution (09-03/04). Every published value of the
+2010, 2015 and 2020 tabulados now enters a compared cell.
+
 The tabulados are fetched once into ``data/dict/tabulados/{period}/`` (git-ignored); the
 mirror is read from ``data/parquet`` (the full mirror: every state of each edition).
 
@@ -82,12 +87,14 @@ Usage::
     python scripts/check_cpv_tabulados.py                  # 2000, 2010 and 2015, all states
     python scripts/check_cpv_tabulados.py --periods 2000 --states 1 7
     python scripts/check_cpv_tabulados.py --report-only    # no report file, print only
+    python scripts/check_cpv_tabulados.py --coverage       # 7y: published values no check reads
 
 The exit status is 1 when a cell is off by more than its tolerance.
 """
 from __future__ import annotations
 
 import argparse
+import operator
 import re
 import sys
 from collections import defaultdict
@@ -964,7 +971,8 @@ def _incomes(p: pd.DataFrame, u: pd.Series) -> list[pd.Series]:
 
 
 def _occupation(p):
-    return _counts_of(*_division_rows(p, _employed(p))[1:])
+    """08-06 (2020): the employed, then each occupational division (7y: the employed too)."""
+    return _counts_of(*_division_rows(p, _employed(p)))
 
 
 def _division_rows(p: pd.DataFrame, u: pd.Series) -> list[pd.Series]:
@@ -976,8 +984,8 @@ def _division_rows(p: pd.DataFrame, u: pd.Series) -> list[pd.Series]:
 
 
 def _sector(p):
-    code = _code_of(p, "ACTIVIDADES_C_COARSE")
-    return _counts_of(*(_employed(p) & code.isin(g) for _, g in _SECTOR_GROUPS))
+    """08-08 (2020): the employed, then each sector group (7y: the employed too)."""
+    return _counts_of(*_sectors(p, _employed(p)))
 
 
 def _financing_2015(v):
@@ -1014,14 +1022,10 @@ _AFFILIATION_ROWS = (("Total", "Total"), ("Afiliada", "Total"), ("Afiliada", "IM
                      ("Afiliada", "IMSS BIENESTAR"), ("Afiliada", "Institución privada"),
                      ("Afiliada", "Otra institución"), ("No afiliada", "Total"),
                      ("No especificado", "Total"))
-
-
-def _affiliation_published(wb):
-    """Servicios de salud 04: one row per (state, affiliation, institution); its count."""
-    rows = {(k[0], k[1], k[2].rstrip("0123456789")): v[0]
-            for k, v in _estimates(_sheet(wb, "04"), "Valor").items()}
-    return {(state, "T"): [rows[state, a, i] for a, i in _AFFILIATION_ROWS]
-            for state in {k[0] for k in rows}}
+# Servicios de salud 04: the rows above as :func:`_affiliation`'s groups (7y: each by its use)
+_AFFILIATION_NAMES_2020 = ("all", "affiliated", "IMSS", "ISSSTE (federal or state)",
+                           "PEMEX, Defensa or Marina", "INSABI", "IMSS-BIENESTAR", "private",
+                           "other", "not affiliated", "not specified")
 
 
 # Commute modes (several per person: each dummy set is «any of the person's three answers»).
@@ -1231,8 +1235,10 @@ def _indigenous_children_published(wb):
 
 
 def _superior(p):
-    """The 18+ with educación superior, the posgrado included (``EDUC_INEGI_DET``; 6w)."""
-    return _counts_of(_age(p).between(18, 130) & _cat(p, "EDUC_INEGI_DET").isin(_SUPERIOR))
+    """07-04: the 18+ with educación superior, the posgrado included (``EDUC_INEGI_DET``; 6w);
+    7y: by field (:func:`_fields_2020`)."""
+    u = _age(p).between(18, 130) & _cat(p, "EDUC_INEGI_DET").isin(_SUPERIOR)
+    return _counts_of(*_fields_2020(p, u))
 
 
 # EIC 2015 households and dwellings (7b) ------------------------------------------------
@@ -2290,9 +2296,11 @@ def _person_checks_2010() -> tuple[Check, ...]:
 
 # Censo 2020 persons and international migrants (7n) --------------------------------------
 
-_QUIN_2020 = ("Total", *(f"{a:02d}-{a + 4:02d} años" for a in range(0, 75, 5)), "75 años y más")
+# 7y: the unspecified age too (a state without one publishes no row: zeros, :func:`_by_dims`)
+_QUIN_2020 = ("Total", *(f"{a:02d}-{a + 4:02d} años" for a in range(0, 75, 5)), "75 años y más",
+              "No especificado")
 _REGISTRATION_AGES_2020 = ("Total", "00-04 años", "05-11 años", "12-17 años", "18-29 años",
-                           "30-44 años", "45-64 años", "65 años y más")
+                           "30-44 años", "45-64 años", "65 años y más", "No especificado")
 _BIRTHPLACES_2020 = ("Total", "En los Estados Unidos de América", "En otro país")
 _SPEAKERS_2020 = (("Total", None), ("Habla lengua indígena", 1), ("No habla lengua indígena", 3),
                   ("No especificado", 9))
@@ -3474,8 +3482,8 @@ def _use_by_affiliation_2015(p):
 
 def _by_affiliation(estimator: str, sheet: str | None, groups: tuple[tuple[str, str], ...],
                     pick: Callable[[list], list]):
-    """07-06 (2015), 09_05A (2010; 7x): rows (state, affiliation, institution — a footnote's
-    digit glued to the name): ``pick`` of each of ``groups``' values, in order."""
+    """07-06 (2015), 09_05A (2010; 7x), 09-04 (2020; 7y): rows (state, affiliation, institution
+    — a footnote's digit glued to the name): ``pick`` of each of ``groups``' values, in order."""
     def read(wb):
         rows = {(k[0], k[1], k[2].rstrip("0123456789")): v
                 for k, v in _estimates(_sheet(wb, sheet), estimator).items()}
@@ -3551,7 +3559,7 @@ def _position_2015(p):
 
 def _divisions(p: pd.DataFrame) -> list[pd.Series]:
     """The employed, then each occupational division (``OCUPACION_C_COARSE``; 08-06's)."""
-    return [_employed(p), *(m for m, _ in _occupation(p))]
+    return _division_rows(p, _employed(p))
 
 
 def _sectors(p: pd.DataFrame, u: pd.Series) -> list[pd.Series]:
@@ -4124,9 +4132,15 @@ def _technical_2020(p):
     bachillerato tecnológico, técnica after secundaria, normal básica (``NIVACAD`` 05, 07, 09)
     — by field (``NOMCAR_C``'s first two digits, 01–10; 9999 not specified)."""
     u = _age(p).between(15, 130) & _code(p, "NIVACAD").isin([5, 7, 9])
+    return _counts_of(*_fields_2020(p, u))
+
+
+def _fields_2020(p: pd.DataFrame, u: pd.Series) -> list[pd.Series]:
+    """The persons of ``u``, then each field of the CMPE (``NOMCAR_C``'s first two digits,
+    01–10) and the field not specified (9999): 07-02's técnica (7w), 07-04's superior (7y)."""
     career = _cat(p, "NOMCAR_C").astype(str)
-    return _counts_of(u, *(u & career.str[:2].eq(f"{d:02d}") for d in range(1, 11)),
-                      u & career.eq("9999"))
+    return [u, *(u & career.str[:2].eq(f"{d:02d}") for d in range(1, 11)),
+            u & career.eq("9999")]
 
 
 # 08: the employed by division, sector or position (rows) × position, sector, hours, income or
@@ -4204,17 +4218,25 @@ _USE_AGES_2020 = ("Total", "00-14 años", "15-29 años", "30-59 años", "60-84 a
                   "85 años y más", "No especificado")
 
 
-def _use_2020(p):
-    """09-02: every person by ``SERSALUD`` (users and their institution, non-users, not
-    specified), per age group (every age: «Total» holds the unspecified)."""
+def _users_2020(p: pd.DataFrame, g: pd.Series) -> list[pd.Series]:
+    """The persons of ``g`` by ``SERSALUD``: users and their institution, non-users, not
+    specified."""
     use = _code(p, "SERSALUD")
-    out = []
-    for label in _USE_AGES_2020:
-        g = _age_group(p, label)
-        users = g & use.between(1, 9)
-        out += _counts_of(g, users, *(users & _is(use, c) for c in _USE_2020), g & use.eq(10),
-                          g & use.eq(99))
-    return out
+    users = g & use.between(1, 9)
+    return [g, users, *(users & _is(use, c) for c in _USE_2020), g & use.eq(10), g & use.eq(99)]
+
+
+def _use_2020(p):
+    """09-02: every person by ``SERSALUD``, per age group (every age: «Total» holds the
+    unspecified)."""
+    return _counts_of(*(m for label in _USE_AGES_2020
+                        for m in _users_2020(p, _age_group(p, label))))
+
+
+def _use_by_affiliation_2020(p):
+    """09-04 (7y): every person by affiliation and institution (:func:`_affiliation`: one
+    person counts once per institution), each by ``SERSALUD``."""
+    return _counts_of(*(m for g, _ in _affiliation(p) for m in _users_2020(p, g)))
 
 
 # 13: the population in households by kinship line (`PARENTESCO`'s codes, found on 13-02 in
@@ -5492,18 +5514,20 @@ CHECKS: tuple[Check, ...] = (
           "14_vivienda.xls", "viviendas", _item_cells(_EQUIPMENT_2015),
           _stacked(tuple(n for n, *_ in _EQUIPMENT_2015), lambda v: _counts(v[0], v[1:]), "33"),
           _items(_EQUIPMENT_2015), unit="persons", sheet="33"),
-    Check("2020", "07-04", "Population 18+ with educación superior (`EDUC_INEGI_DET`)",
-          "cpv2020_a_eum_07_educacion.xlsx", "personas", ("18+, superior or posgrado",),
-          _wide("Valor", lambda v: v[:1], sheet="04"), _superior, unit="persons", sheet="04",
+    Check("2020", "07-04", "Population 18+ with educación superior (`EDUC_INEGI_DET`) by "
+          "field (`NOMCAR_C`)", "cpv2020_a_eum_07_educacion.xlsx", "personas",
+          ("18+, superior or posgrado", *_FIELDS_2020, "not specified"),
+          _wide("Valor", lambda v: _counts(v[0], v[1:]), sheet="04"), _superior,
+          unit="persons", sheet="04",
           note="Técnica after preparatoria, licenciatura, normal superior, especialidad, "
-               "maestría, doctorado (6w)."),
+               "maestría, doctorado (6w); the field = `NOMCAR_C`'s first two digits (7y)."),
     Check("2020", "08-06", "Employed by occupational division (`OCUPACION_C_COARSE`)",
-          _ECO_2020, "personas", _DIVISIONS,
-          _wide("Valor", lambda v: _counts(v[0], v[1:])[1:], sheet="06"), _occupation,
+          _ECO_2020, "personas", ("employed", *_DIVISIONS),
+          _wide("Valor", lambda v: _counts(v[0], v[1:]), sheet="06"), _occupation,
           unit="persons", sheet="06"),
     Check("2020", "08-08", "Employed by sector (`ACTIVIDADES_C_COARSE`)", _ECO_2020,
-          "personas", tuple(n for n, _ in _SECTOR_GROUPS),
-          _wide("Valor", lambda v: _counts(v[0], v[1:])[1:], sheet="08"), _sector,
+          "personas", _SECTOR_CELLS,
+          _wide("Valor", lambda v: _counts(v[0], v[1:]), sheet="08"), _sector,
           unit="persons", sheet="08"),
     Check("2020", "08-18", "Income of the employed in minimum wages (`INGTRMEN_SM`) by "
           "occupational division", _ECO_2020, "personas",
@@ -5520,12 +5544,14 @@ CHECKS: tuple[Check, ...] = (
           _cross(_employed, _division_rows, _hours_2020), unit="persons", sheet="12",
           note="The raw hours (7w: `HORTRA_CAT` cannot split 32 hours; 0 = had a job but did "
                "not work)."),
-    Check("2020", "09-04", "Health affiliation by institution (`DHSERSAL_*`)",
-          "cpv2020_a_eum_09_servicios_de_salud.xlsx", "personas",
-          ("population", "affiliated", "IMSS", "ISSSTE (federal or state)",
-           "PEMEX, Defensa or Marina", "INSABI", "IMSS-BIENESTAR", "private", "other",
-           "not affiliated", "not specified"),
-          _affiliation_published, _affiliation, unit="persons", sheet="04"),
+    Check("2020", "09-04", "Use of health services (`SERSALUD`) by affiliation and institution "
+          "(`DHSERSAL_*`)", "cpv2020_a_eum_09_servicios_de_salud.xlsx", "personas",
+          _grouped(_AFFILIATION_NAMES_2020, _USE_CELLS_2020),
+          _by_affiliation("Valor", "04", _AFFILIATION_ROWS,
+                          lambda v: _counts(v[0], v[1:], [0, *[1] * 8, 0, 0])),
+          _use_by_affiliation_2020, unit="persons", sheet="04",
+          note="One person counts once per institution; ISSSTE = federal or state (6p); 7y: "
+               "each row by its use of services (09-02's)."),
     Check("2020", "10-02", "Place of school by municipality (`LUGAR_ASI`) by age", _MOV_2020,
           "personas", _grouped(_STUDENT_AGES, ("students 3+", *_PLACE_CELLS)),
           _by_dims("Valor", "02", _STUDENT_AGES, _place_published, sexed=True),
@@ -5694,6 +5720,105 @@ def _size_twins_2010_x(twin: dict) -> tuple[Check, ...]:
 
 
 CHECKS += _size_checks(CHECKS)
+
+
+# --------------------------------------------------------------------------------------
+# coverage (7y): the published values no compared cell is computed from
+# --------------------------------------------------------------------------------------
+
+# the estimator rows whose values the checks compare (2000's tabulados have none)
+_ESTIMATOR = {"2010": _EST_2010, "2015": "Valor", "2020": "Valor"}
+
+
+class _CellText(str):
+    """A published cell's text that knows its place: (workbook, sheet, row, column)."""
+    place: tuple
+
+
+class _Traced(float):
+    """A published value, or a value computed from published ones, with the places of the
+    cells it comes from (``cells``): the readers' arithmetic carries them along."""
+
+    def __new__(cls, value: float, cells: frozenset):
+        out = float.__new__(cls, value)
+        out.cells = cells
+        return out
+
+
+def _traced(op: Callable[[float, float], float], reflected: bool = False):
+    def method(a: _Traced, b) -> _Traced:
+        x, y = (float(b), float(a)) if reflected else (float(a), float(b))
+        return _Traced(op(x, y), a.cells | getattr(b, "cells", frozenset()))
+    return method
+
+
+for _name, _op in (("add", operator.add), ("sub", operator.sub), ("mul", operator.mul),
+                   ("truediv", operator.truediv)):
+    setattr(_Traced, f"__{_name}__", _traced(_op))
+    setattr(_Traced, f"__r{_name}__", _traced(_op, reflected=True))
+_Traced.__neg__ = lambda a: _Traced(-float(a), a.cells)
+
+
+def coverage(period: str, paths: dict[str, Path], checks: tuple[Check, ...] | None = None
+             ) -> dict[tuple[str, str], list[tuple[tuple[str, ...], str]]]:
+    """Per (workbook, sheet) of ``period``, the published values — the numbers of its
+    :data:`_ESTIMATOR` rows — that no compared cell is computed from, as (the row's
+    dimensions, the column's header); empty when every value is read. Each value is traced
+    through the checks' readers (:class:`_Traced`): a total read only into counts from its
+    percentages counts as read (a wrong total puts every such count off)."""
+    global _num
+    estimator = _ESTIMATOR[period]
+    checks = tuple(c for c in (CHECKS if checks is None else checks) if c.period == period)
+    order = lambda c: (len(c), c)  # noqa: E731
+    places, workbooks = {}, {}
+    for source in {c.source for c in checks}:
+        sheets = {}
+        for sheet, rows in _workbook(paths[f"{period}/{source}"]).items():
+            header = next((r for r in rows if "Estimador" in r.values()), None)
+            est = header and next(c for c in header if header[c] == "Estimador")
+            out = []
+            for i, r in enumerate(rows):
+                if header is not None and r.get(est) == estimator:
+                    dims = tuple((r.get(c) or "").strip() for c in sorted(header, key=order)
+                                 if order(c) < order(est))
+                    r = dict(r)
+                    for c, text in r.items():
+                        if order(c) > order(est) and not np.isnan(_value_of(text)):
+                            r[c] = _CellText(text)
+                            r[c].place = place = (source, sheet, i, c)
+                            places[place] = (dims, (header.get(c) or c).strip())
+                out.append(r)
+            sheets[sheet] = out
+        workbooks[source] = sheets
+    plain, read = _num, set()
+
+    def traced(text):
+        value = plain(text)
+        if isinstance(text, _CellText) and not np.isnan(value):
+            return _Traced(value, frozenset([text.place]))
+        return value
+    _num = traced
+    try:
+        for c in checks:
+            for values in c.published(workbooks[c.source]).values():
+                for v in values:
+                    if not np.isnan(v):                    # a missing cell is not compared
+                        read |= getattr(v, "cells", frozenset())
+    finally:
+        _num = plain
+    unread = defaultdict(list)
+    for place, what in places.items():
+        if place not in read:
+            unread[place[:2]].append(what)
+    return dict(unread)
+
+
+def _value_of(text: str | None) -> float:
+    """A published cell as a number (:func:`_num`), NaN when it is none (a word, «M.I.»)."""
+    try:
+        return _num(text)
+    except ValueError:
+        return np.nan
 
 
 # --------------------------------------------------------------------------------------
@@ -6000,7 +6125,20 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--report", type=Path, default=_DEFAULT_REPORT)
     ap.add_argument("--report-only", action="store_true",
                     help="print the report instead of writing it")
+    ap.add_argument("--coverage", action="store_true",
+                    help="list the published values no check reads (2010, 2015, 2020; 7y) "
+                         "instead of running the checks")
     args = ap.parse_args(argv)
+    if args.coverage:
+        unread = 0
+        for period in (p for p in args.periods if p in _ESTIMATOR):
+            found = coverage(period, fetch([period], args.tab_dir))
+            unread += sum(map(len, found.values()))
+            print(f"{period}: {sum(map(len, found.values()))} published values unread")
+            for (source, sheet), values in sorted(found.items()):
+                rows = sorted({dims[1:] for dims, _ in values})
+                print(f"  {source} [{sheet}]: {len(values)}, rows e.g. {rows[:3]}")
+        return 1 if unread else 0
     rows = run(args.periods, args.states, args.tab_dir, args.mirror)
     text = report(rows, args.states)
     if args.report_only:

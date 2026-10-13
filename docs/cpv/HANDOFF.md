@@ -1,11 +1,14 @@
 # CPV family — session handoff
 
-**Status (2026-10-12): units 0–6z and 7a–7x are done. `cpv-integration` = **7x** (tabulado
-checks only: all 80 Censo 2010 ampliado workbooks, every cell — 10_01A from INEGI's PDF —;
-the migrants' unspecified state left (2010, 2020); every remaining row and cell of the EIC 2015; 228,598 cells, every one exact; the report
-758,477 cells; `tests/test_cpv_tabulados.py` 31 passed), committed on the branch; before it
-**7w** (every Censo 2020 tabulado: 159,510 cells) and **7v** (every EIC 2015 tabulado: 167,298
-cells); `main` = v0.14.0
+**Status (2026-10-12): units 0–6z and 7a–7y are done. `cpv-integration` = **7y** (tabulado
+checks only: Censo 2020's last cells — the unspecified age, the superior's fields, the employed,
+the use of health services by affiliation —: 7,059 cells, every one exact; the report 765,536
+cells; the coverage probe in the script, `--coverage`: every published value of the Censo
+2010, EIC 2015 and Censo 2020 tabulados read; `tests/test_cpv_tabulados.py` 34 passed), see
+`git log` for whether it is committed; before it **7x** (every Censo 2010 tabulado: 228,598
+cells; found uncommitted by 7y's session and committed then, a79d336), **7w** (every Censo
+2020 tabulado: 159,510 cells) and **7v** (every EIC 2015 tabulado: 167,298 cells); `main` =
+v0.14.0
 = **7u** (the historical localities: INEGI's Archivo Histórico de Localidades in the mirror —
 128 `ahl_{table}_20260918_{NN}` files, registered (4276 entries), uploaded and verified — and
 `load_ahl`, `load_ahl_poblacion`, `load_ahl_localidades`; the Mac's full suite: **1950
@@ -622,8 +625,20 @@ Before 0.12.0: v0.11.0 = 6u–7b, v0.10.0 = 6s–6t, 0.9.0 = 6k–6r. A session 
     employed; 12_07A's households are every dwelling (`CLAVIVP` 5–7 answer the food items);
     Censo 2010 asks the other incomes of each person 12+; 2020's rules for the destination,
     the return migrants' duration and the activity hold for 2010.
+- **7y** (`STEP_7y.md`): HANDOFF candidate 3's «Censo 2020's last cells» (the user's choice
+  over a 2015 locality edition, the lineage leftovers and the small cleanups); checks only.
+  - **Censo 2020's last cells**: the unspecified age of 01-02/01-04 (+ 01-01/01-03), the 18+
+    with educación superior by field (07-04/03: `NOMCAR_C`'s first two digits, 07-02's rule),
+    the employed before their divisions and sectors (08-06/08, 08-05/07), the use of health
+    services per affiliation and institution (09-04/03: 09-02's cells on each of the eleven
+    rows, `_by_affiliation`): **7,059 cells, every one exact**; the report **765,536 cells**,
+    0 beyond tolerance, only its 2020 section changed.
+  - **The coverage probe** (`coverage`, `--coverage`; 7x's was a lost scratch script): every
+    published value of the estimator rows traced through the checks' readers (`_Traced`); a
+    value is read when a compared cell is computed from it. 2010, 2015 and 2020: **none
+    unread** (`test_every_published_value_is_read`, real tabulados).
 
-Design: [`PLAN.md`](PLAN.md). Recent units: [`STEP_7x.md`](STEP_7x.md), [`STEP_7w.md`](STEP_7w.md), [`STEP_7v.md`](STEP_7v.md), [`STEP_7u.md`](STEP_7u.md), [`STEP_7t.md`](STEP_7t.md), [`STEP_7s.md`](STEP_7s.md), [`STEP_7r.md`](STEP_7r.md), [`STEP_7q.md`](STEP_7q.md), [`STEP_7p.md`](STEP_7p.md), [`STEP_7o.md`](STEP_7o.md), [`STEP_7n.md`](STEP_7n.md), [`STEP_7m.md`](STEP_7m.md), [`STEP_7l.md`](STEP_7l.md), [`STEP_7k.md`](STEP_7k.md), [`STEP_7j.md`](STEP_7j.md), [`STEP_7i.md`](STEP_7i.md), [`STEP_7h.md`](STEP_7h.md), [`STEP_7g.md`](STEP_7g.md), [`STEP_7f.md`](STEP_7f.md), [`STEP_7e.md`](STEP_7e.md), [`STEP_7d.md`](STEP_7d.md), [`STEP_7c.md`](STEP_7c.md), [`STEP_7b.md`](STEP_7b.md), [`STEP_7a.md`](STEP_7a.md), [`STEP_6z.md`](STEP_6z.md), [`STEP_6y.md`](STEP_6y.md), [`STEP_6x.md`](STEP_6x.md), [`STEP_6w.md`](STEP_6w.md), [`STEP_6v.md`](STEP_6v.md), [`STEP_6u.md`](STEP_6u.md), [`STEP_6t.md`](STEP_6t.md), [`STEP_6s.md`](STEP_6s.md), [`STEP_6r.md`](STEP_6r.md), [`STEP_6q.md`](STEP_6q.md), [`STEP_6p.md`](STEP_6p.md), [`STEP_6o.md`](STEP_6o.md), [`STEP_6n.md`](STEP_6n.md), [`STEP_6m.md`](STEP_6m.md), [`STEP_6l.md`](STEP_6l.md), [`STEP_6k.md`](STEP_6k.md), [`STEP_6j.md`](STEP_6j.md), [`STEP_6i.md`](STEP_6i.md), [`STEP_6h.md`](STEP_6h.md), [`STEP_6g.md`](STEP_6g.md), [`STEP_6f.md`](STEP_6f.md), [`STEP_6e.md`](STEP_6e.md),
+Design: [`PLAN.md`](PLAN.md). Recent units: [`STEP_7y.md`](STEP_7y.md), [`STEP_7x.md`](STEP_7x.md), [`STEP_7w.md`](STEP_7w.md), [`STEP_7v.md`](STEP_7v.md), [`STEP_7u.md`](STEP_7u.md), [`STEP_7t.md`](STEP_7t.md), [`STEP_7s.md`](STEP_7s.md), [`STEP_7r.md`](STEP_7r.md), [`STEP_7q.md`](STEP_7q.md), [`STEP_7p.md`](STEP_7p.md), [`STEP_7o.md`](STEP_7o.md), [`STEP_7n.md`](STEP_7n.md), [`STEP_7m.md`](STEP_7m.md), [`STEP_7l.md`](STEP_7l.md), [`STEP_7k.md`](STEP_7k.md), [`STEP_7j.md`](STEP_7j.md), [`STEP_7i.md`](STEP_7i.md), [`STEP_7h.md`](STEP_7h.md), [`STEP_7g.md`](STEP_7g.md), [`STEP_7f.md`](STEP_7f.md), [`STEP_7e.md`](STEP_7e.md), [`STEP_7d.md`](STEP_7d.md), [`STEP_7c.md`](STEP_7c.md), [`STEP_7b.md`](STEP_7b.md), [`STEP_7a.md`](STEP_7a.md), [`STEP_6z.md`](STEP_6z.md), [`STEP_6y.md`](STEP_6y.md), [`STEP_6x.md`](STEP_6x.md), [`STEP_6w.md`](STEP_6w.md), [`STEP_6v.md`](STEP_6v.md), [`STEP_6u.md`](STEP_6u.md), [`STEP_6t.md`](STEP_6t.md), [`STEP_6s.md`](STEP_6s.md), [`STEP_6r.md`](STEP_6r.md), [`STEP_6q.md`](STEP_6q.md), [`STEP_6p.md`](STEP_6p.md), [`STEP_6o.md`](STEP_6o.md), [`STEP_6n.md`](STEP_6n.md), [`STEP_6m.md`](STEP_6m.md), [`STEP_6l.md`](STEP_6l.md), [`STEP_6k.md`](STEP_6k.md), [`STEP_6j.md`](STEP_6j.md), [`STEP_6i.md`](STEP_6i.md), [`STEP_6h.md`](STEP_6h.md), [`STEP_6g.md`](STEP_6g.md), [`STEP_6f.md`](STEP_6f.md), [`STEP_6e.md`](STEP_6e.md),
 [`STEP_6d.md`](STEP_6d.md),
 [`STEP_6c.md`](STEP_6c.md), [`STEP_6b.md`](STEP_6b.md), … [`STEP_0_probe.md`](STEP_0_probe.md).
 
@@ -683,10 +698,12 @@ full report as one process per edition, spliced); the Mac's tabulados cache now 
 full report as one process per edition, spliced); the Mac's tabulados cache now holds the 28
 Censo 2010 workbooks and `10_01A_ESTATAL.pdf`, which `wsl`'s lacks (the script fetches them;
 reading the PDF needs poppler's `pdftotext` there).
+7y ran on the Mac only (a scratch harness over the twelve widened checks, then the 2020 report
+in one process, spliced; `--coverage` reads the cached tabulados only).
 
 ## Kickoff prompt for the next session
 
-> Continue the CPV census-family work in this repo (branch cpv-integration = 7x; main =
+> Continue the CPV census-family work in this repo (branch cpv-integration = 7y; main =
 > v0.14.0). Read docs/cpv/HANDOFF.md first, then agree with me which next unit to
 > take (candidates in HANDOFF §Next) before implementing it, following the session protocol
 > in docs/cpv/PLAN.md. Use .venv/bin/python, not uv run. Run wsl tasks without asking; ask
@@ -772,22 +789,30 @@ and **kept all seven** (merged as 0.9.0):
    - a 2015 locality edition (the EIC 2015's `LOC50K`; its cut on the MG 2015 frame);
    - the leftovers: 337 moves stated without a code left unpaired, 233 unverified locality
      numbers, 14 rival claims.
-3. More tabulado checks — Censo 2010 and the EIC 2015 are complete, every cell (7x's
-   coverage probe: each workbook's published «Parámetro»/«Valor» values against the cells the
-   checks read — `STEP_7x.md` §Data; rerun it per edition). Left:
-   - **Censo 2020's last cells** (the probe, `STEP_7x.md` §Left out): the unspecified-age rows
-     of 01-02 and 01-04 (+ their by-size twins), 07-03/04's fields of higher education (07-04
-     reads its total only), 08-05…08's employed (their shares only), 09-03/04's use of
-     services by affiliation (09-04 reads each row's population only) — small, 7x's
-     builders (`_by_affiliation`, the 2010 twins with the employed) cover them;
+3. More tabulado checks — Censo 2010, the EIC 2015 and Censo 2020 are complete: every
+   published value enters a compared cell (7y: `check_cpv_tabulados.py --coverage`,
+   `test_every_published_value_is_read`). Left:
    - a reproduction of the 2010/2015 infant mortality would need INEGI's procedure
-     (`STEP_7o.md`): its rule is not in the sample.
+     (`STEP_7o.md`): its rule is not in the sample;
+   - CGPV 2000's tabulados: `SOURCES` holds 66 `C2K*` workbooks (the Mac's cache also has
+     `C2KMI13.xls`, which no check reads); whether INEGI publishes more (its file-listing
+     API, `STEP_0_probe.md`) and a coverage probe for their block layout (no estimator rows)
+     are open.
+4. A release: 7v–7y (checks only) are on the branch, `main` = v0.14.0; a 0.15.0 would carry
+   no loader change (the Mac's suite for the version bump; `wsl` lacks the newer tabulados).
 
 ## Open questions for the user
 
 - None pending (7f's crosswalk renames were kept on 2026-10-11).
 
 ## Gotchas (carry forward)
+
+- **The coverage probe** (7y, `coverage`): it swaps the module's `_num` for a tracing one
+  during the call, so a reader must parse published values through `_num` (not `float()`)
+  and keep them in plain Python arithmetic (`_Traced` carries its cells through `+ - * /`;
+  NumPy arrays or `float(x)` drop them and the cells read as unread). A new check that reads
+  a sheet otherwise shows up as unread values in `--coverage` and fails
+  `test_every_published_value_is_read`.
 
 - **Censo 2010's 10_01A is a PDF** (7x): `check_cpv_tabulados.py` reads it with poppler's
   `pdftotext` (`_dict_fd.pdf_text`); a host without poppler cannot run the 2010 checks
