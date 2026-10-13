@@ -25,13 +25,18 @@ a POST to ``…/ahl/descarga`` (``clave=00&tipo=N``), cached in ``data/dict/ahl/
   inside a record («Hasta este evento estuvo registrada con clave Y» … «A partir de este
   evento cambia a la clave X», «Anteriormente tenía la clave Y»), a duplicate registration
   («Es la misma localidad (LLLL) del municipio (MMM)», «Misma que la localidad …»: the
-  duplicate is ``FROM``);
+  duplicate is ``FROM`` — the stating record, unless its history goes on and the other's
+  ends by then: the stating record is then the new code, 8d);
 - ``absorption`` — ``FROM`` joins ``TO`` («Se conurba a / Se fusiona a …» on the absorbed
-  record, «A esta localidad se conurba(n) / fusiona(n) / integra(n) …» on the other);
+  record, also «Se fusiona al municipio de X (MMM) Localidad NAME (LLLL)» and «Forma parte
+  de la localidad NAME (LLLL)», 8d; «A esta localidad se conurba(n) / fusiona(n) /
+  integra(n) …» on the other);
 - ``counted_with`` — ``FROM`` was counted with ``TO`` at that census only («Se censó con la
   localidad …»);
 - ``separation`` — ``FROM`` leaves ``TO`` («Se desconurba / Se desfusiona / Se desagrega de
-  …», «De esta localidad se desconurba(n) / desfusiona(n) …»).
+  …», «De esta localidad se desconurba(n) / desfusiona(n) …»); a part of ``TO`` that moves
+  to ``FROM`` («Parte de la localidad pasa al municipio … con clave …» / «… viene del
+  municipio …», 8d: ``TO`` keeps its code, no ``code`` link).
 
 A locality number stated with a name but no municipality («Se conurba a Playas de Rosarito
 (0001)») is placed by that name (``Resolver``, ``name_match``: abbreviations, ordinals and
@@ -45,33 +50,36 @@ stated on both records; with none, the target's own record decides (a new code t
 another origin is not this locality's), then a name-verified one, one stated on the
 locality's own record, the closest name (``lineage``).
 
-**INEGI's slips** (8b). A listed code («A esta localidad se conurban las …») that its own
-record never states is the one locality a slip apart — its number in another municipality
-or state, or one digit off — that states the event into the listing record at that edition
-(``repair_lists``: Telchac Pueblo lists Mayapán's 0052 and 0061 for its own). A locality
-number stated with the record's own name and another locality's number names the record
-itself (no link). The localities' own records then decide (``lineage``): a same-day
-absorption and separation of two localities, the locality's record; both at one edition
-cancel out; an absorption whose locality has a population of its own at that edition's
-census (the AHL's ``Habitantes``, read for that only) takes effect after its last census
-with one, or is dropped when only others state it; a separation whose locality is counted
-only later takes effect then.
+**INEGI's slips** (8b, 8d). A listed code («A esta localidad se conurban las …») of 8, 10
+or 11 digits is the AHL record a digit dropped or doubled away (that states the event, else
+the only one in the listing record's municipality); two codes written without a comma are
+split. A listed code that its own record never states is the one locality a slip apart —
+its number in another municipality or state, or one digit off — that states the event into
+the listing record at that edition (``repair_lists``: Telchac Pueblo lists Mayapán's 0052
+and 0061 for its own). A locality number stated with the record's own name and another
+locality's number names the record itself (no link). The localities' own records then
+decide (``lineage``): a same-day absorption and separation of two localities, the
+locality's record; both at one edition cancel out, as a move to another code and the move
+back on another day (8d); an absorption whose locality has a population of its own at that
+edition's census (the AHL's ``Habitantes``, read for that only) takes effect after its last
+census with one, or is dropped when only others state it; a separation whose locality is
+counted only later takes effect then.
 
 **Editions.** A link is dated by its event: a census or count row by that census's
-reference date, an update by its date, a decree by the first date in its text. ``PERIOD``
-is the first edition whose **cut** is on or after that date. The cut is the last change an
-edition's locality codes reflect, found on the data (``check``; STEP_7t.md, STEP_8c.md): the
-census day for 1990, 1995 and 2000, INEGI's geostatistical update of 30 October 2005 for the
-Conteo 2005, that of 15 October 2010 for the Censo 2010, every change up to 30 April 2015 for
-the EIC 2015's frame (MG 2015: the updates of 15 April applied, those of May not), every
-change of 2020 for the Censo 2020 (its ITER and MG frame), every change up to 30 November
-2025 for the MG 2025 frame. A code in a municipality that no frame has yet takes effect at
-the first frame that has it (the bundled municipal lineage: Chiapas's decree of 2011, in the
-MG 2020 frame). Links in effect by 1990 are dropped, except those counted with another
-locality at the 1990 census. A link stated on both records is ``CONFIRMED``. ``--check``
-also lists the units of ``cpv_locality_units(1990, 2025)`` joining localities of 2,500+
-whose path deserves a look (``large_units``: far apart, through a smaller locality, one
-record, a remnant).
+reference date, an update by its date, a decree by the first date in its text («de1992»
+too). ``PERIOD`` is the first edition whose **cut** is on or after that date. The cut is
+the last change an edition's locality codes reflect, found on the data (``check``;
+STEP_7t.md, STEP_8c.md): the census day for 1990, 1995 and 2000, INEGI's geostatistical
+update of 30 October 2005 for the Conteo 2005, that of 15 October 2010 for the Censo 2010,
+every change up to 30 April 2015 for the EIC 2015's frame (MG 2015: the updates of 15 April
+applied, those of May not), every change of 2020 for the Censo 2020 (its ITER and MG
+frame), every change up to 30 November 2025 for the MG 2025 frame. A code in a municipality
+that no frame has yet takes effect at the first frame that has it (the bundled municipal
+lineage: Chiapas's decree of 2011, in the MG 2020 frame). Links in effect by 1990 are
+dropped, except those counted with another locality at the 1990 census. A link stated on
+both records is ``CONFIRMED``. ``--check`` also lists the units of
+``cpv_locality_units(1990, 2025)`` joining localities of 2,500+ whose path deserves a look
+(``large_units``: far apart, through a smaller locality, one record, a remnant).
 
 Usage::
 
@@ -164,9 +172,10 @@ def ahl_date(path: Path) -> date:
 
 _CENSUS_RE = re.compile(r"\s*(censo|conteo)(?: de)? (\d{4})\b", re.I)
 _UPDATE_RE = re.compile(r"\s*actualizaci[oó]n geo\w*", re.I)
-_DATE_RE = re.compile(r"(\d{1,2})(?:o|º)? de (" + "|".join(_MESES) + r") (?:de |del )?(\d{4})",
+# a year may follow «de» without a space («Decreto No. 162 del 1 de marzo de1992»)
+_DATE_RE = re.compile(r"(\d{1,2})(?:o|º)? de (" + "|".join(_MESES) + r") (?:del? ?)?(\d{4})",
                       re.I)
-_YEAR_RE = re.compile(r"\b(1[89]\d\d|20[0-4]\d)\b")
+_YEAR_RE = re.compile(r"(?<!\d)(1[89]\d\d|20[0-4]\d)(?!\d)")
 
 
 def event(text: str) -> tuple[str, date | None]:
@@ -220,14 +229,19 @@ _KEYS = (
     r"localidad)?\s*\(?\s*(\d{4})\s*\)?",
 )
 _NO_KEY = r"(?![\s)]*\.?,?\s*(?:con|y) (?:la )?clave)"
-# localities listed by code, some only in part («… y parte de las localidades 151060125 …»)
-_LIST = (r"((?:(?:parte de (?:la |las )?(?:localidad(?:es)? )?)?\(?\d{9}\)?"
-         r"(?:\s*,\s*|\s+y\s+|\s+e\s+)?)+)")
+# localities listed by code, some only in part («… y parte de las localidades 151060125 …»),
+# some with a digit dropped or doubled («05190133», «0200013922»: ``repair_lists``), some
+# after a period («161020350.1610200357») or none («160530359160530378»: ``_listed``)
+_LIST = (r"((?:(?:parte de (?:la |las )?(?:localidad(?:es)? )?)?\(?\d{8,}\)?"
+         r"(?:\s*,\s*|\.(?=\d)|\s+y\s+|\s+e\s+)?)+)")
 _ART = r"(?:la |las |los |el )?(?:localidad(?:es)? )?(?:de )?"
 # a locality's name written after its number («(0321) Los Laureles.»), not its municipality
 _AFTER = r"(?!del? municipio|de la |,)([^\s.()\d][^.()]{0,89})"
 _HERE = r"a est[aá] localidad (?:se|de) (?:le )?"          # «A esta localidad se (le) …»
 _FROM_HERE = r"de est[aá] localidad (?:se|de) "
+# a part of the locality moves («Parte de la localidad pasa al municipio …»): no code link
+_WHOLE = r"(?<!parte de la localidad )(?<!parte de esta localidad )"
+_PART = r"parte de (?:la|esta) localidad "
 
 _PATTERNS: list[tuple[str, re.Pattern]] = [(name, re.compile(rx, re.I)) for name, rx in (
     # the same locality under another code
@@ -237,10 +251,10 @@ _PATTERNS: list[tuple[str, re.Pattern]] = [(name, re.compile(rx, re.I)) for name
                      r"municipio (?:de )?" + _N + _MUN + _KEY),
     ("viene_estado", r"viene del Distrito Federal \((09)\),? delegaci[oó]n " + _N
                      + r"\(\s*(\d{2,3})\s*\)" + _KEY),
-    *(("pasa", r"pasa (?:al mun[i]?cipio|a la delegaci[oó]n) (?:de )?" + _N + _MUN + key)
-      for key in (_KEY, *_KEYS)),
-    *(("viene", r"viene (?:del? mun[i]?cipio|de la delegaci[oó]n) (?:de )?" + _N + _MUN + key)
-      for key in (_KEY, *_KEYS)),
+    *(("pasa", _WHOLE + r"pasa (?:al mun[i]?cipio|a la delegaci[oó]n) (?:de )?" + _N + _MUN
+       + key) for key in (_KEY, *_KEYS)),
+    *(("viene", _WHOLE + r"viene (?:del? mun[i]?cipio|de la delegaci[oó]n) (?:de )?" + _N
+       + _MUN + key) for key in (_KEY, *_KEYS)),
     ("viene", r"pasa del municipio (?:de )?" + _N + _MUN + _KEYS[2]),
     ("pasa_sin", r"pasa al municipio (?:de )?(" + _N + r")\s*" + _MUN + _NO_KEY),
     ("viene_sin", r"viene del municipio (?:de )?(" + _N + r")\s*" + _MUN + _NO_KEY),
@@ -261,6 +275,16 @@ _PATTERNS: list[tuple[str, re.Pattern]] = [(name, re.compile(rx, re.I)) for name
                   r"(?:a|al|con) " + _ART + r"(?:(\d{9})|(" + _N + r"),? (?:con )?(?:la )?clave "
                   r"\(?(\d{9}|\d{4})\)?|\((\d{4})\)\s+" + _AFTER + r"|(" + _N
                   + r")\s*\((\d{4})\)(?:,? del municipio (?:de )?" + _N + _MUN + r")?)"),
+    # in another municipality, named first («Se fusiona al municipio de Coatepec (038)
+    # Localidad Briones (0031).», «Se conurba al municipio (011) San Francisco de los Romo
+    # localidad (0001).»)
+    ("absorbida_mun", r"se (?:conurba|fusiona) al municipio (?:de )?(?:" + _N + _MUN + r"|"
+                      + _MUN + _N + r")\s*,?\s*(?:la )?localidad\s*(" + _N
+                      + r")\s*\((\d{4})\)"),
+    # «Baja de localidad. Forma parte de la localidad El Vergel (0051) del municipio de
+    # Aquismón (003).»
+    ("forma_parte", r"(?:forma|es) parte de " + _ART + r"(?:(\d{9})|(" + _N
+                    + r")\s*\((\d{4})\)(?:,? del municipio (?:de )?" + _N + _MUN + r")?)"),
     ("absorbe", _HERE + r"(?:conurba|fusiona|integra)n? (?:a )?(?:parte de )?" + _ART + _LIST),
     ("censo_clave", r"cens[oó] con (?:la )?clave(?: de localidad)? \(?(\d{4})\)?"),
     ("censo_con", r"(?:se )?cens[oó] con (?!(?:la )?clave)" + _ART + r"(" + _N
@@ -270,6 +294,11 @@ _PATTERNS: list[tuple[str, re.Pattern]] = [(name, re.compile(rx, re.I)) for name
                  + r")\s*\((\d{4})\)(?:,? del municipio (?:de )?" + _N + _MUN + r")?)"),
     ("separa", r"(?:" + _FROM_HERE + r"|" + _HERE + r")de(?:s)?(?:conurba|fusiona)n? "
                + _ART + _LIST),
+    # a part moves to another locality («Parte de la localidad pasa al municipio de Nextlalpan
+    # (059) con clave de localidad (0041).»; the other record: «Parte de la localidad viene
+    # del municipio de Tultepec (108) con clave de localidad (0019).»)
+    ("parte_pasa", _PART + r"pasa al municipio (?:de )?" + _N + _MUN + _KEY),
+    ("parte_viene", _PART + r"viene del? municipio (?:de )?" + _N + _MUN + _KEY),
 )]
 
 
@@ -306,6 +335,15 @@ class Link:
     record: str      # the AHL record that states it
     verified: bool | None = True    # False: a locality number placed without its name
                                     # matching; None: stated with the record's own name
+
+
+def _listed(lst: str) -> list[str]:
+    """The codes of a list: a run of digits as long as several codes is split into them
+    («160530359160530378»); any other run is one code, whatever its length (a digit dropped
+    or doubled: ``repair_lists``)."""
+    return [run[i:i + 9] if len(run) % 9 == 0 else run
+            for run in re.findall(r"\d+", lst)
+            for i in (range(0, len(run), 9) if len(run) % 9 == 0 else (0,))]
 
 
 def _expand(x: str, ent: str, mun: str) -> str:
@@ -421,12 +459,25 @@ class Resolver:
         return own, False
 
 
-def record_links(rows: list[Row], resolve: Resolver | None = None) -> list[Link]:
+def record_links(rows: list[Row], resolve: Resolver | None = None,
+                 ends: dict[str, date] | None = None) -> list[Link]:
     """The links one AHL record states (its rows in ``INDICE`` order); ``resolve`` places
-    a locality number stated with a name (the record's municipality without one)."""
+    a locality number stated with a name (the record's municipality without one); ``ends``
+    (each record's last dated event) orients a duplicate (``duplicate``)."""
     links: list[Link] = []
     code = rows[0].code
     ent, mun = code[:2], code[2:5]
+    last = max((r.day for r in rows if r.day), default=None)
+
+    def duplicate(other: str, r: Row) -> tuple[str, str]:
+        # «Es la misma localidad (LLLL) …»: the duplicate is FROM — the stating record,
+        # unless its history goes on past the statement and the other's ends by it: then it
+        # is the new code (Las Cañadas, 160100621, starts at the Conteo 1995 «Es la misma
+        # localidad (0608)»; 0608's record ends there)
+        end = (ends or {}).get(other)
+        if r.day and last and last > r.day and end and end <= r.day:
+            return other, code
+        return code, other
     if resolve is None:
         def resolve(e, m, loc, name, stated="", own_name=""):
             return e + (stated or m) + loc, True
@@ -481,9 +532,9 @@ def record_links(rows: list[Row], resolve: Resolver | None = None) -> list[Link]
         for m, loc in f.get("viene", []):
             add(_expand(loc, ent, m), code, "code", r)
         for loc, m in f.get("misma", []):
-            add(code, ent + m + loc, "code", r)
+            add(*duplicate(ent + m + loc, r), "code", r)
         for (x,) in f.get("misma_que", []):
-            add(code, x, "code", r)
+            add(*duplicate(x, r), "code", r)
         for (x,) in f.get("antes", []):
             add(_expand(x, ent, mun), code, "code", r)
         for full, name2, key, loc3, name3, name, loc, m in f.get("absorbida", []):
@@ -491,8 +542,12 @@ def record_links(rows: list[Row], resolve: Resolver | None = None) -> list[Link]
                    or resolve(ent, mun, key or loc3 or loc, name2 or name3 or name,
                               m or to_mun, r.name))
             add(code, dst, "absorption", r)
+        for m1, m2, name, loc in f.get("absorbida_mun", []):
+            add(code, resolve(ent, mun, loc, name, m1 or m2, r.name), "absorption", r)
+        for full, name, loc, m in f.get("forma_parte", []):
+            add(code, full or resolve(ent, mun, loc, name, m, r.name), "absorption", r)
         for (lst,) in f.get("absorbe", []):
-            for x in re.findall(r"\d{9}", lst):
+            for x in _listed(lst):
                 add(x, code, "absorption", r)
         for (loc,) in f.get("censo_clave", []):       # its own number at that census
             add(code, ent + mun + loc, "counted_with", r)
@@ -503,8 +558,13 @@ def record_links(rows: list[Row], resolve: Resolver | None = None) -> list[Link]
                                       r.name),
                 "separation", r)
         for (lst,) in f.get("separa", []):
-            for x in re.findall(r"\d{9}", lst):
+            for x in _listed(lst):
                 add(x, code, "separation", r)
+        # a part moves: the code it takes separates from the locality, which keeps its own
+        for m, loc in f.get("parte_pasa", []):
+            add(_expand(loc, ent, m), code, "separation", r)
+        for m, loc in f.get("parte_viene", []):
+            add(code, _expand(loc, ent, m), "separation", r)
     return links
 
 
@@ -519,11 +579,15 @@ def parse(mov: pd.DataFrame) -> tuple[list[Row], list[Link], Counter]:
         kind, day = event(text)
         rows.append(Row(code, i, name, text, kind, day, statements(text)))
     resolve = Resolver(rows)
+    ends: dict[str, date] = {}
+    for r in rows:
+        if r.day and (r.code not in ends or r.day > ends[r.code]):
+            ends[r.code] = r.day
     links: list[Link] = []
     start = 0
     for end in range(1, len(rows) + 1):
         if end == len(rows) or rows[end].code != rows[start].code:
-            links.extend(record_links(rows[start:end], resolve))
+            links.extend(record_links(rows[start:end], resolve, ends))
             start = end
     # a locality number stated with the record's own name: a link only when the other
     # record states it too (its number was right: «San Juan: Se fusiona a San Juan (0009)»,
@@ -549,15 +613,35 @@ def _twin(a: str, b: str) -> bool:
     return a != b and (a[5:] == b[5:] or sum(x != y for x, y in zip(a, b)) == 1)
 
 
-def repair_lists(links: list[Link]) -> tuple[list[Link], pd.DataFrame]:
+def _digit_off(code: str) -> set[str]:
+    """The 9-digit codes a listed code of another length is with a digit put back (8
+    digits) or the extra digits taken out (10 or more)."""
+    if len(code) == 8:
+        return {code[:i] + d + code[i:] for i in range(9) for d in "0123456789"}
+    out = {code}
+    for _ in range(len(code) - 9):
+        out = {c[:i] + c[i + 1:] for c in out for i in range(len(c))}
+    return out
+
+
+def repair_lists(links: list[Link], records: set[str] | None = None
+                 ) -> tuple[list[Link], pd.DataFrame]:
     """INEGI's slips in the lists of absorbed or separated localities («A esta localidad se
-    conurban las …», «De esta localidad se desconurba …»). A listed code whose own record
-    does not state the event, while exactly one locality a slip apart (``_twin``) states it
-    into the listing record at that edition without being listed — and no other listed code
-    claims that one —, is that locality: «Telchac Pueblo: A esta localidad se conurba la
-    310490052 y 310490061» lists Mayapán's codes for its own 0052 and 0061, which state «Se
-    conurba a Telchac Pueblo (0001)» that day. Returns the links with the listed code
-    replaced, and the replacements (``KIND``, ``LISTED``, ``MEANT``, ``RECORD``, ``DATE``)."""
+    conurban las …», «De esta localidad se desconurba …»):
+
+    - a listed code of 8, 10 or 11 digits («05190133», «0200013922») is the one AHL record
+      (``records``) a digit dropped or doubled away (``_digit_off``) that states the event
+      into the listing record at that edition, else the only such record in the listing
+      record's municipality (*a digit off*); with none or several it is dropped (*unread*);
+    - a listed code whose own record does not state the event, while exactly one locality
+      a slip apart (``_twin``) states it into the listing record at that edition without
+      being listed — and no other listed code claims that one —, is that locality (*a slip
+      apart*): «Telchac Pueblo: A esta localidad se conurba la 310490052 y 310490061» lists
+      Mayapán's codes for its own 0052 and 0061, which state «Se conurba a Telchac Pueblo
+      (0001)» that day.
+
+    Returns the links with the listed code replaced, and the replacements (``RULE``,
+    ``KIND``, ``LISTED``, ``MEANT`` — empty when unread —, ``RECORD``, ``DATE``)."""
     kinds = ("absorption", "separation")
     stated = defaultdict(set)                   # (source, target, kind) → stating records
     own = defaultdict(list)                     # (target, kind) → statements of the source
@@ -570,6 +654,29 @@ def repair_lists(links: list[Link]) -> tuple[list[Link], pd.DataFrame]:
     def edition(day):
         return edition_of(day) if day else None
 
+    # a digit dropped or doubled
+    records = records or set()
+    fixed, log = [], []
+    for l in links:
+        if len(l.source) == 9:
+            fixed.append(l)
+            continue
+        cands = _digit_off(l.source) & records
+        says = {o.source for o in own[(l.target, l.kind)]
+                if o.source in cands and edition(o.day) == edition(l.day)}
+        here = {c for c in cands if c[:5] == l.target[:5]}
+        meant = (says if len(says) == 1 else here if not says and len(here) == 1 else set())
+        if meant:
+            fixed.append(replace(l, source=meant.pop()))
+            log.append(("a digit off", l.kind, l.source, fixed[-1].source, l.record, l.day))
+        else:
+            log.append(("unread", l.kind, l.source, "", l.record, l.day))
+    links = fixed
+    stated = defaultdict(set)
+    for l in links:
+        if l.kind in kinds:
+            stated[(l.source, l.target, l.kind)].add(l.record)
+
     claims = {}                                 # (listed, target, kind, edition) → twin
     for l in links:
         if (l.kind not in kinds or l.record != l.target or l.day is None
@@ -581,15 +688,15 @@ def repair_lists(links: list[Link]) -> tuple[list[Link], pd.DataFrame]:
         if len(twins) == 1:
             claims[(l.source, l.target, l.kind, edition(l.day))] = twins.pop()
     meant = Counter((t, k, e, twin) for (_, t, k, e), twin in claims.items())
-    out, log = [], []
+    out = []
     for l in links:
         twin = claims.get((l.source, l.target, l.kind, edition(l.day)))
         if twin and l.record == l.target and meant[(l.target, l.kind, edition(l.day), twin)] == 1:
             out.append(Link(twin, l.target, l.kind, l.day, l.event, l.record, l.verified))
-            log.append((l.kind, l.source, twin, l.record, l.day))
+            log.append(("a slip apart", l.kind, l.source, twin, l.record, l.day))
         else:
             out.append(l)
-    log = pd.DataFrame(log, columns=["KIND", "LISTED", "MEANT", "RECORD", "DATE"])
+    log = pd.DataFrame(log, columns=["RULE", "KIND", "LISTED", "MEANT", "RECORD", "DATE"])
     return out, log.drop_duplicates(ignore_index=True)
 
 
@@ -793,6 +900,10 @@ def lineage(rows: list[Row], links: list[Link], latest: date,
       it joined the other and left it again, or left and joined it again, between two
       editions (*joined and left*: La Luz Francisco I. Madero, conurbed to Córdoba in 2001,
       «Se desconurba de Córdoba» at the Conteo 2005);
+    - a ``code`` link and its reverse at one edition, stated on different days, cancel out
+      too (*moved and moved back*: Luvianos, created by decree on 2 October 2001 with
+      localities of Tejupilco that «Viene del municipio de Luvianos …» at the Conteo
+      2005); the same day they are two records each stating the other as its origin (kept);
     - an absorption whose locality has a population of its own at that edition's census
       (``counted``: ``populated``, the AHL's ``Habitantes`` = the edition's ITER, up to its
       cut; a frame without a census, 2015, by the next census's) did not take effect then:
@@ -852,6 +963,19 @@ def lineage(rows: list[Row], links: list[Link], latest: date,
               for s, t, k, p in zip(df.loc[cancel, "source"], df.loc[cancel, "target"],
                                     df.loc[cancel, "kind"], df.loc[cancel, "PERIOD"])]
     df = df[~cancel]
+    # a move and the move back at one edition, on different days, cancel out too: the
+    # locality ends under the code it started with (Luvianos, created in 2001 with localities
+    # of Tejupilco that «Viene del municipio de Luvianos …» at the Conteo 2005); the same
+    # day, they are two records each stating the other as its origin (kept)
+    co = df["kind"] == "code"
+    first = df[co].groupby(["source", "target", "PERIOD"])["day"].min().to_dict()
+    back = pd.Series([k == "code" and (t, s, p) in first and first[(t, s, p)] != first[(s, t, p)]
+                      for s, t, p, k in zip(df["source"], df["target"], df["PERIOD"],
+                                            df["kind"])], index=df.index)
+    fixes += [("moved and moved back", p, "code", s, t, "")
+              for s, t, p in zip(df.loc[back, "source"], df.loc[back, "target"],
+                                 df.loc[back, "PERIOD"])]
+    df = df[~back]
     counted = counted or {}
     ab = df["kind"] == "absorption"
     own = set(zip(df.loc[ab & (df["side"] == "from"), "source"],
@@ -998,7 +1122,7 @@ def build(path: Path) -> tuple[pd.DataFrame, list[Row], dict]:
     """The lineage table, the history rows and the build's counts."""
     latest = ahl_date(path)
     rows, links, placed = parse(read_ahl(path, "Movimientos"))
-    links, repaired = repair_lists(links)
+    links, repaired = repair_lists(links, {r.code for r in rows})
     extra, unkeyed, left = pair_unkeyed(rows, links, latest)
     table, rivals, fixes = lineage(rows, links + extra, latest,
                                    populated(read_ahl(path, "Habitantes")), mun_frames())
@@ -1131,17 +1255,30 @@ def _spans(codes: dict[str, set[str]]) -> list[tuple[str, str, set[str], set[str
 
 
 _GONE = ("link", "removed", "uninhabited", "was uninhabited", "1-2 dwellings",
-         "no information", "not in the AHL", "unexplained")
+         "no information", "not listed", "not in the AHL", "unexplained")
 _NEW = ("link", "new record", "created", "reactivated", "was empty", "no information",
-        "record starts later", "not in the AHL", "unexplained")
+        "not listed", "record starts later", "not in the AHL", "unexplained")
 
 
-def check(table: pd.DataFrame, rows: list[Row], codes: dict[str, set[str]]) -> dict:
+def unlisted(hab: pd.DataFrame) -> dict[str, set[str]]:
+    """The censuses at which the AHL's ``Habitantes`` marks a locality «*»: one its ITER does
+    not list (the Conteo 1995's ITER only in its 9998/9999 aggregates)."""
+    out: dict[str, set[str]] = {}
+    for code, year, total in zip(hab["CVE_GEOEST"], hab["EVE_CENSAL"], hab["TOT_HAB"]):
+        if year in CENSUS_DATES and total.strip() == "*":
+            out.setdefault(code, set()).add(year)
+    return out
+
+
+def check(table: pd.DataFrame, rows: list[Row], codes: dict[str, set[str]],
+          stars: dict[str, set[str]] | None = None) -> dict:
     """The lineage against each edition's codes: (a) a ``code`` or ``absorption`` link whose
     ``FROM`` is still there at its edition, or a ``separation`` whose ``FROM`` was there
     before but not at its edition, is contradicted; (b) every code that leaves or enters
-    between two consecutive editions, by what explains it (``unexplained`` lists the rest)."""
+    between two consecutive editions, by what explains it (``unexplained`` lists the rest;
+    ``stars``: ``unlisted``, a code the AHL marks «*» at the census it is missing from)."""
     flags, first = _status(rows)
+    stars = stars or {}
     contra, explained, unexplained = [], [], {}
     for a, b, A, B in _spans(codes):
         span = table[table.PERIOD.map(lambda p: a < p <= b)]
@@ -1176,6 +1313,7 @@ def check(table: pd.DataFrame, rows: list[Row], codes: dict[str, set[str]]) -> d
                    "was uninhabited" if "uninhabited" in fa else
                    "1-2 dwellings" if "1-2 dwellings" in fb else
                    "no information" if "no information" in fb else
+                   "not listed" if b in stars.get(c, ()) else
                    "not in the AHL" if c not in first else "unexplained")
             why_gone[why] += 1
             if why == "unexplained":
@@ -1189,6 +1327,7 @@ def check(table: pd.DataFrame, rows: list[Row], codes: dict[str, set[str]]) -> d
                    "reactivated" if "reactivated" in fa | fb else
                    "was empty" if fa & {"uninhabited", "removed"} else
                    "no information" if "no information" in fa else
+                   "not listed" if a in stars.get(c, ()) else
                    "not in the AHL" if c not in first else
                    "record starts later" if first[c] != "before" and first[c] > b else
                    "unexplained")
@@ -1432,17 +1571,23 @@ def report(table: pd.DataFrame, stats: dict, result: dict, path: Path) -> None:
         "",
         "## Corrections",
         "",
-        f"INEGI's slips in the lists of absorbed or separated localities (`repair_lists`):"
-        f" {len(repaired)} listed codes («A esta localidad se conurban las …») whose own"
-        " record does not state the event, read as the one locality a slip apart (its number"
-        " in another municipality or state, or one digit off) that states it into the listing"
-        " record at that edition without being listed:",
+        "INEGI's slips in the lists of absorbed or separated localities (`repair_lists`):"
+        " a listed code of 8, 10 or 11 digits read as the AHL record a digit dropped or"
+        " doubled away that states the event into the listing record at that edition, else"
+        " the only one in its municipality (*a digit off*; *unread* with none or several); a"
+        " listed code whose own record does not state the event, read as the one locality a"
+        " slip apart (its number in another municipality or state, or one digit off) that"
+        " states it into the listing record at that edition without being listed (*a slip"
+        " apart*):",
         "",
-        _md(repaired.groupby("KIND").size().rename("codes").reset_index()),
+        _md(repaired.groupby(["RULE", "KIND"]).size().rename("codes").reset_index()
+            .rename(columns={"RULE": "rule", "KIND": "kind"})),
         "",
         "Then the localities' own records (`lineage`): an absorption and a separation of two"
         " localities stated the same day on two records, the locality's own record deciding"
         " (*contradicted the same day*); both at one edition, cancelled (*joined and left*);"
+        " a move to another code and the move back at one edition, on different days,"
+        " cancelled (*moved and moved back*);"
         " an absorption whose locality has a population of its own at that edition's census"
         " (the AHL's `Habitantes`), taking effect after its last census with one (*moved*,"
         " its own record stating it) or dropped (*counted on its own*, stated only by others);"
@@ -1486,7 +1631,9 @@ def report(table: pd.DataFrame, stats: dict, result: dict, path: Path) -> None:
         " of the span; the AHL's «baja», «inexistente» or «en tapias o ruinas» (*removed*) or"
         " «deshabitada» (*uninhabited*) in the span's rows; one or two dwellings (the Conteo"
         " 1995's ITER lists them only in aggregates); «Sin información» / «No hubo acceso»"
-        " (*no information*: the Conteo 1995 did not reach part of Chiapas); a code the AHL"
+        " (*no information*: the Conteo 1995 did not reach part of Chiapas); a code the AHL's"
+        " `Habitantes` marks «*» at the census it is missing from (*not listed*: that ITER"
+        " does not list it, the Conteo 1995's only in its aggregates); a code the AHL"
         " does not hold (the frames' industrial parks and service sites); for a code that"
         " enters, an AHL record that starts in the span (*new record*), a creation or"
         " reactivation, a locality uninhabited or removed before (*was empty*), or an AHL"
@@ -1553,7 +1700,8 @@ def main(argv: list[str] | None = None) -> int:
     print(table.pivot_table(index="KIND", columns="PERIOD", values="FROM", aggfunc="size",
                             fill_value=0, observed=False))
     if args.check:
-        result = check(table, rows, edition_codes(args.mirror))
+        result = check(table, rows, edition_codes(args.mirror),
+                       unlisted(read_ahl(args.ahl, "Habitantes")))
         result["large"] = large_units(table, edition_localities(args.mirror), points(args.ahl))
         print(result["contradictions"].to_string())
         print(result["gone"].to_string())

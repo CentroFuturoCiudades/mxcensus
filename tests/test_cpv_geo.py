@@ -169,6 +169,26 @@ def test_locality_lineage_document():
     # counted in 2010, joined to Las Lomas at the Censo 2020 by its own record: 2020, not
     # the frame between
     assert _links(lin, "020013944", "020013593")["PERIOD"].tolist() == ["2020"]
+    # 8d: «Es la misma localidad» on the record that starts there is the new code (Las
+    # Cañadas: both records state it; El Potrero: the old one's statement is of 1990)
+    assert _links(lin, "160100608", "160100621")["CONFIRMED"].tolist() == [True]
+    assert _links(lin, "160100621").empty
+    assert _links(lin, "160150140", "160150575")["PERIOD"].tolist() == ["1995"]
+    # a move and the move back by the Conteo 2005 (Luvianos, created in 2001): no link
+    assert _links(lin, "150820106").empty and _links(lin, "151230233").empty
+    # a part's move is a separation (Ejido Tultepec keeps its code)
+    row = _links(lin, "150590041", "151080019").iloc[0]
+    assert (row["KIND"], row["PERIOD"], row["CONFIRMED"]) == ("separation", "2010", True)
+    assert _links(lin, "151080019").empty
+    # «Se fusiona al municipio de Coatepec (038) Localidad Tecojotal (…) (0196)»; «Forma parte
+    # de la localidad El Vergel (0051) del municipio de Aquismón (003)»
+    assert _links(lin, "301820020", "300380196")["KIND"].tolist() == ["absorption"]
+    assert _links(lin, "240130248", "240030051")["PERIOD"].tolist() == ["1995"]
+    # «Decreto No. 162 del 01 de marzo de1992» dates the old record's statement
+    assert _links(lin, "010010148", "010100018")["CONFIRMED"].tolist() == [True]
+    # listed codes with a digit dropped («05190133») or without a comma («…0359160530378…»)
+    assert _links(lin, "050190133", "050190001")["PERIOD"].tolist() == ["2005"]
+    assert _links(lin, "160530378", "160530001")["CONFIRMED"].tolist() == [True]
     assert len(loc_doc()) == len(lin)
     assert mxcensus.cpv_loc_lineage is cpv_loc_lineage
 
@@ -308,6 +328,28 @@ def test_loc_lineage_parser():
     assert st("Se censó con la localidad El Potrero (0199).")["censo_con"] == [
         ("El Potrero", "0199")]
     assert st("Es la misma localidad (0046) del municipio (012).")["misma"] == [("0046", "012")]
+    # 8d: another municipality named first; «Forma parte de»; a part's move; «de1992»
+    assert st("Se fusiona al municipio de Coatepec (038) Localidad Tecojotal (Ejido San "
+              "Antonio) (0196).") == {
+        "absorbida_mun": [("038", "", "Tecojotal (Ejido San Antonio)", "0196")]}
+    assert st("Se conurba al municipio (011) San Francisco de los Romo localidad (0001).") == {
+        "absorbida_mun": [("", "011", "", "0001")]}
+    assert st("Baja de localidad. Forma parte de la localidad El Vergel (0051) del municipio "
+              "de Aquismón (003).") == {"forma_parte": [("", "El Vergel", "0051", "003")]}
+    assert st("Forma parte de la localidad 240470089.") == {
+        "forma_parte": [("240470089", "", "", "")]}
+    assert st("Parte de la localidad pasa al municipio de Nextlalpan (059) con clave de "
+              "localidad (0041).") == {"parte_pasa": [("059", "0041")]}
+    assert st("Parte de la localidad viene del municipio de Tultepec (108) con clave de "
+              "localidad (0019).") == {"parte_viene": [("108", "0019")]}
+    assert b.event("Decreto No. 162 del 01 de marzo de1992. Pasa al…") == (
+        "other", date(1992, 3, 1))
+    assert b.event("Actualización Geoestadística del 13 de mayo de2001.")[1] == date(2001, 5, 13)
+    assert b.event("Censo de 1990. Viene de la 240281990.") == ("census", date(1990, 3, 12))
+    assert b._listed("160530358,160530359160530378 y 05190133, 0200013922") == [
+        "160530358", "160530359", "160530378", "05190133", "0200013922"]
+    assert st("A esta localidad se conurban las 161020350.1610200357 y 161020405.")[
+        "absorbe"] == [("161020350.1610200357 y 161020405",)]
     assert st("En este evento se censó con clave de localidad (0041).") == {
         "censo_clave": [("0041",)]}
     # the code written another way after the municipality (7t's leftovers)
@@ -383,6 +425,18 @@ def test_loc_lineage_parser():
         ("211380013", "211380009", "211380009", True),
         ("211380013", "211380009", "211380013", True)}
     assert placed["its own name"] == 1 and placed["its own name, stated by the other"] == 1
+    # «Es la misma localidad»: the stating record is the duplicate, unless its history goes
+    # on and the other's ends by then (it is the new code)
+    t = "Conteo de 1995. Es la misma localidad (0140) del municipio (015)."
+    rows = [b.Row("160150575", i, "El Potrero", x, *b.event(x), b.statements(x))
+            for i, x in ((1, t), (2, "Censo de 2000."))]
+    ends = {"160150140": date(1990, 3, 12), "160150575": date(2000, 2, 14)}
+    assert [(l.source, l.target) for l in b.record_links(rows, None, ends)] == [
+        ("160150140", "160150575")]
+    assert [(l.source, l.target) for l in b.record_links(rows[:1], None, ends)] == [
+        ("160150575", "160150140")]                     # its history ends there: the duplicate
+    assert [(l.source, l.target) for l in b.record_links(rows)] == [
+        ("160150575", "160150140")]                     # without the other's history
     # a move stated without the code beside an absorption: the absorber is in the
     # municipality it moves to
     t = "Conteo de 2005. Pasa al municipio Tultitlán (109). Se conurba a San Pablo (0025)."
@@ -488,11 +542,30 @@ def test_loc_lineage_list_slips():
     fixed, log = b.repair_lists(links)
     assert set(zip(log["LISTED"], log["MEANT"])) == {("310490052", "310820052"),
                                                      ("310490061", "310820061")}
+    assert set(log["RULE"]) == {"a slip apart"}
     table, rivals, fixes = b.lineage(rows, fixed, date(2026, 9, 18))
     got = dict(zip(zip(table["FROM"], table["TO"]), table["CONFIRMED"]))
     assert got[("310820052", "310820001")] and got[("310820061", "310820001")]
     assert ("310490052", "310820001") not in got
     assert ("310490052", "310490001") in got
+    # 8d: a listed code of 8 or 10 digits: the record a digit away that states the event,
+    # else the only one in the listing record's municipality; else unread
+    b, rows, links = _history(
+        ("050190001", [(1, "Allende", "Actualización Geoestadística del 30 de junio de 2004. A "
+                        "esta localidad se conurban las 05190133, 0501900138 y 05019099.")]),
+        ("050190133", [(1, "Uno", "Censo de 2000.")]),
+        ("050190138", [(1, "Dos", "Actualización Geoestadística del 30 de junio de 2004. Se "
+                        "conurba a Allende (0001).")]),
+        ("051900138", [(1, "Tres", "Censo de 2000.")]),
+        ("050190999", [(1, "Cuatro", "Censo de 2000.")]),
+        ("050199099", [(1, "Cinco", "Censo de 2000.")]))
+    fixed, log = b.repair_lists(links, {r.code for r in rows})
+    assert sorted(l.source for l in fixed if l.record == "050190001") == [
+        "050190133", "050190138"]
+    assert dict(zip(log["LISTED"], zip(log["RULE"], log["MEANT"]))) == {
+        "05190133": ("a digit off", "050190133"),            # the only one in Allende
+        "0501900138": ("a digit off", "050190138"),          # the one that states it
+        "05019099": ("unread", "")}                          # 050190999 or 050199099
 
 
 def test_loc_lineage_own_records():
@@ -536,6 +609,16 @@ def test_loc_lineage_own_records():
         # absorber: dropped
         ("990010001", [(1, "Pueblo", "Actualización Geoestadística del 15 de agosto de 2014. A "
                         "esta localidad se conurba la 990010002.")]),
+        # 8d: moved to Luvianos by its decree of 2001, back by the Conteo 2005: no link; the
+        # same day, each record naming the other as its origin: both kept
+        ("150820106", [(1, "La Palma Cuata", "Decreto No. 34 del 2 de octubre de 2001. Pasa al "
+                        "municipio de Luvianos (123) con clave de localidad (0233)."),
+                       (2, "La Palma Cuata", "Conteo de 2005. Viene del municipio de Luvianos "
+                        "(123) con clave de localidad (0233).")]),
+        ("040030947", [(1, "La Esperanza", "Censo de 2000. Viene del municipio Candelaria (011) "
+                        "con clave de localidad (0182).")]),
+        ("040110182", [(1, "La Esperanza", "Censo de 2000. Viene del municipio Carmen (003) con "
+                        "clave de localidad (0947).")]),
         # a move into a municipality the MG 2020 frame has first (Emiliano Zapata, Chiapas)
         ("070020003", [(1, "Familia Alfaro", "Decreto No. 008 del 23 de noviembre de 2011. "
                         "Pasa al municipio de Emiliano Zapata (123) con clave de localidad "
@@ -572,6 +655,9 @@ def test_loc_lineage_own_records():
     assert rule[("160530417", "absorption")] == rule[("290260005", "separation")] == "moved"
     assert rule[("990010002", "absorption")] == "counted on its own"
     assert rule[("070020003", "code")] == "its municipality is new"
+    assert not [k for k in got if "150820106" in k[:2]]
+    assert rule[("150820106", "code")] == rule[("151230233", "code")] == "moved and moved back"
+    assert got[("040030947", "040110182", "code")] == got[("040110182", "040030947", "code")]
 
 
 def test_loc_lineage_large_units():
@@ -608,17 +694,18 @@ def test_loc_lineage_rebuilds_and_checks(tmp_path):
     bundled = Path(mxcensus.__file__).parent / "_yaml" / "cpv_loc_lineage.csv.gz"
     assert out.read_bytes() == bundled.read_bytes()
     codes = b.edition_codes(_MIRROR)                   # the ITERs and the frames there
-    result = b.check(table, rows, codes)
+    result = b.check(table, rows, codes, b.unlisted(b.read_ahl(_AHL, "Habitantes")))
     contra = result["contradictions"]
-    assert (contra["contradicted"] <= 0.03 * contra["links"]).all()
+    assert (contra["contradicted"] <= 0.015 * contra["links"]).all()
     frames = {"2010→2015", "2015→2020", "2020→2025"} & set(result["gone"]["span"])
     if "2015" in codes:
         assert {"2010→2015", "2015→2020"} <= frames
         assert len(contra[contra["span"] == "2010→2015"]) == 3
     for frame in (result["gone"], result["new"]):
-        early = frame["span"] == "1990→1995"           # the Conteo 1995's gaps
         mg = frame["span"].isin(frames)                # Campeche's records that end in 2010
-        assert (frame.loc[~early & ~mg, "unexplained"]
-                <= 0.01 * frame.loc[~early & ~mg, "codes"]).all()
-        assert (frame.loc[early, "unexplained"] <= 0.015 * frame.loc[early, "codes"]).all()
+        assert (frame.loc[~mg, "unexplained"] <= 0.01 * frame.loc[~mg, "codes"]).all()
         assert (frame.loc[mg, "unexplained"] <= 0.05 * frame.loc[mg, "codes"]).all()
+    # the Conteo 1995's ITER lists its one- and two-dwelling localities in aggregates only:
+    # the AHL marks them «*»
+    early = result["gone"].set_index("span").loc["1990→1995"]
+    assert early["not listed"] > early["unexplained"]
