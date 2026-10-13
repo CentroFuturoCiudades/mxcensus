@@ -1,14 +1,13 @@
 # CPV family — session handoff
 
-**Status (2026-10-12): units 0–6z and 7a–7y are done. `cpv-integration` = **7y** (tabulado
-checks only: Censo 2020's last cells — the unspecified age, the superior's fields, the employed,
-the use of health services by affiliation —: 7,059 cells, every one exact; the report 765,536
-cells; the coverage probe in the script, `--coverage`: every published value of the Censo
-2010, EIC 2015 and Censo 2020 tabulados read; `tests/test_cpv_tabulados.py` 34 passed), see
-`git log` for whether it is committed; before it **7x** (every Censo 2010 tabulado: 228,598
-cells; found uncommitted by 7y's session and committed then, a79d336), **7w** (every Censo
-2020 tabulado: 159,510 cells) and **7v** (every EIC 2015 tabulado: 167,298 cells); `main` =
-v0.14.0
+**Status (2026-10-12): units 0–6z and 7a–7z are done. `cpv-integration` = **7z** (tabulado
+checks only: every CGPV 2000 tabulado, every value — INEGI's listing names 95 ampliado
+workbooks, the checks read 66: the 29 others (23 by locality size) and every unread value of
+the 66, mostly their counts, exact in every state but Chiapas —: 2000 now 71,560 cells, the
+report 797,781, 0 beyond tolerance; the coverage probe reads 2000 too: none unread in any
+edition; `tests/test_cpv_tabulados.py` 35 passed), see `git log` for whether it is committed;
+before it **7y** (Censo 2020's last cells; the coverage probe), **7x** (every Censo 2010
+tabulado) and **7w**/**7v** (every Censo 2020 / EIC 2015 tabulado); `main` = v0.14.0
 = **7u** (the historical localities: INEGI's Archivo Histórico de Localidades in the mirror —
 128 `ahl_{table}_20260918_{NN}` files, registered (4276 entries), uploaded and verified — and
 `load_ahl`, `load_ahl_poblacion`, `load_ahl_localidades`; the Mac's full suite: **1950
@@ -637,8 +636,36 @@ Before 0.12.0: v0.11.0 = 6u–7b, v0.10.0 = 6s–6t, 0.9.0 = 6k–6r. A session 
     published value of the estimator rows traced through the checks' readers (`_Traced`); a
     value is read when a compared cell is computed from it. 2010, 2015 and 2020: **none
     unread** (`test_every_published_value_is_read`, real tabulados).
+- **7z** (`STEP_7z.md`): HANDOFF candidate 3's «CGPV 2000's tabulados» (the user's choice over
+  the 0.15.0 release, a 2015 locality edition and the lineage leftovers; widened by the user
+  on the probe to every value); checks only.
+  - **INEGI's listing** (`idBiinegi` 2, `tipodocto` 5): 95 ampliado workbooks; the 29 the
+    checks lacked are read — 23 by locality size (`TAM_LOC` 1, 2, 3–5, 6–7: `_size_2000`,
+    `_sized_2000`), SS03/07/08/09 (coverage and use of health services by age, sex,
+    coverage), ED14 (causes of leaving school), MI13 (each state left's share of the
+    nation's migrants per destination: `Check.of_nation`). The 13 básico workbooks are the
+    census, out of scope.
+  - **Every value of the 66** (the probe on 2000's layout: every number from the nation's row
+    down, `_c2k_traced`): the counts (`_counted`, keys ending in «n», 72 checks), every age
+    row (EC02, MI01, MI03), the net migration, the 100% totals, LI02's «Resto de las
+    entidades» (`_selected`), the migrants' share of the residents (MI09r,
+    `_with_migrants_2000`), average schooling (ED10m). `_c2k_every` reads the layout row by
+    row.
+  - **The counts are exact in every state but Chiapas** (INEGI's tabulados = the public
+    sample's records and weights, Chiapas's apart: its sexes ±228, dwellings −484, households
+    −583, at most 1,324 persons; the nation inherits it): `_COUNTS_2000` (1; Chiapas and the
+    nation 1,500; every locality size 7,000). The by-size shares Chiapas weighs on:
+    `_SIZED_POINTS` (eleven checks, 0.06–0.34; each gap a fraction of Chiapas's whole
+    contribution). FE06's infant mortality is not reproducible (as 2010/2015's, 7o).
+  - **Definitions found**: `SERSALUD` 7 = another public institution, 6 = private;
+    `ABANESCO` 1–8 = stopped (8 the cause not specified); a blank `NIVACAD` is «sin
+    instrucción»; INEGI's 2000 religion catalog is in the RNM DDI 141 — pentecostals are
+    1201–1299 but 1217 «Cristiana» and 1219 «Evangélica» (other evangelical).
+  - **2000: 71,560 cells** (39,315 before), the report **797,781**, 0 beyond tolerance (its
+    header and 2000 section spliced); the probe: none unread in 2000 (73,705 values), 2010,
+    2015, 2020.
 
-Design: [`PLAN.md`](PLAN.md). Recent units: [`STEP_7y.md`](STEP_7y.md), [`STEP_7x.md`](STEP_7x.md), [`STEP_7w.md`](STEP_7w.md), [`STEP_7v.md`](STEP_7v.md), [`STEP_7u.md`](STEP_7u.md), [`STEP_7t.md`](STEP_7t.md), [`STEP_7s.md`](STEP_7s.md), [`STEP_7r.md`](STEP_7r.md), [`STEP_7q.md`](STEP_7q.md), [`STEP_7p.md`](STEP_7p.md), [`STEP_7o.md`](STEP_7o.md), [`STEP_7n.md`](STEP_7n.md), [`STEP_7m.md`](STEP_7m.md), [`STEP_7l.md`](STEP_7l.md), [`STEP_7k.md`](STEP_7k.md), [`STEP_7j.md`](STEP_7j.md), [`STEP_7i.md`](STEP_7i.md), [`STEP_7h.md`](STEP_7h.md), [`STEP_7g.md`](STEP_7g.md), [`STEP_7f.md`](STEP_7f.md), [`STEP_7e.md`](STEP_7e.md), [`STEP_7d.md`](STEP_7d.md), [`STEP_7c.md`](STEP_7c.md), [`STEP_7b.md`](STEP_7b.md), [`STEP_7a.md`](STEP_7a.md), [`STEP_6z.md`](STEP_6z.md), [`STEP_6y.md`](STEP_6y.md), [`STEP_6x.md`](STEP_6x.md), [`STEP_6w.md`](STEP_6w.md), [`STEP_6v.md`](STEP_6v.md), [`STEP_6u.md`](STEP_6u.md), [`STEP_6t.md`](STEP_6t.md), [`STEP_6s.md`](STEP_6s.md), [`STEP_6r.md`](STEP_6r.md), [`STEP_6q.md`](STEP_6q.md), [`STEP_6p.md`](STEP_6p.md), [`STEP_6o.md`](STEP_6o.md), [`STEP_6n.md`](STEP_6n.md), [`STEP_6m.md`](STEP_6m.md), [`STEP_6l.md`](STEP_6l.md), [`STEP_6k.md`](STEP_6k.md), [`STEP_6j.md`](STEP_6j.md), [`STEP_6i.md`](STEP_6i.md), [`STEP_6h.md`](STEP_6h.md), [`STEP_6g.md`](STEP_6g.md), [`STEP_6f.md`](STEP_6f.md), [`STEP_6e.md`](STEP_6e.md),
+Design: [`PLAN.md`](PLAN.md). Recent units: [`STEP_7z.md`](STEP_7z.md), [`STEP_7y.md`](STEP_7y.md), [`STEP_7x.md`](STEP_7x.md), [`STEP_7w.md`](STEP_7w.md), [`STEP_7v.md`](STEP_7v.md), [`STEP_7u.md`](STEP_7u.md), [`STEP_7t.md`](STEP_7t.md), [`STEP_7s.md`](STEP_7s.md), [`STEP_7r.md`](STEP_7r.md), [`STEP_7q.md`](STEP_7q.md), [`STEP_7p.md`](STEP_7p.md), [`STEP_7o.md`](STEP_7o.md), [`STEP_7n.md`](STEP_7n.md), [`STEP_7m.md`](STEP_7m.md), [`STEP_7l.md`](STEP_7l.md), [`STEP_7k.md`](STEP_7k.md), [`STEP_7j.md`](STEP_7j.md), [`STEP_7i.md`](STEP_7i.md), [`STEP_7h.md`](STEP_7h.md), [`STEP_7g.md`](STEP_7g.md), [`STEP_7f.md`](STEP_7f.md), [`STEP_7e.md`](STEP_7e.md), [`STEP_7d.md`](STEP_7d.md), [`STEP_7c.md`](STEP_7c.md), [`STEP_7b.md`](STEP_7b.md), [`STEP_7a.md`](STEP_7a.md), [`STEP_6z.md`](STEP_6z.md), [`STEP_6y.md`](STEP_6y.md), [`STEP_6x.md`](STEP_6x.md), [`STEP_6w.md`](STEP_6w.md), [`STEP_6v.md`](STEP_6v.md), [`STEP_6u.md`](STEP_6u.md), [`STEP_6t.md`](STEP_6t.md), [`STEP_6s.md`](STEP_6s.md), [`STEP_6r.md`](STEP_6r.md), [`STEP_6q.md`](STEP_6q.md), [`STEP_6p.md`](STEP_6p.md), [`STEP_6o.md`](STEP_6o.md), [`STEP_6n.md`](STEP_6n.md), [`STEP_6m.md`](STEP_6m.md), [`STEP_6l.md`](STEP_6l.md), [`STEP_6k.md`](STEP_6k.md), [`STEP_6j.md`](STEP_6j.md), [`STEP_6i.md`](STEP_6i.md), [`STEP_6h.md`](STEP_6h.md), [`STEP_6g.md`](STEP_6g.md), [`STEP_6f.md`](STEP_6f.md), [`STEP_6e.md`](STEP_6e.md),
 [`STEP_6d.md`](STEP_6d.md),
 [`STEP_6c.md`](STEP_6c.md), [`STEP_6b.md`](STEP_6b.md), … [`STEP_0_probe.md`](STEP_0_probe.md).
 
@@ -700,10 +727,13 @@ Censo 2010 workbooks and `10_01A_ESTATAL.pdf`, which `wsl`'s lacks (the script f
 reading the PDF needs poppler's `pdftotext` there).
 7y ran on the Mac only (a scratch harness over the twelve widened checks, then the 2020 report
 in one process, spliced; `--coverage` reads the cached tabulados only).
+7z ran on the Mac only (scratch runs over 32 states, a run with Chiapas's frames emptied, then
+the 2000 report in one process, spliced); the Mac's tabulados cache now holds the 29 CGPV
+2000 workbooks 7z added, which `wsl`'s lacks (the script fetches them).
 
 ## Kickoff prompt for the next session
 
-> Continue the CPV census-family work in this repo (branch cpv-integration = 7y; main =
+> Continue the CPV census-family work in this repo (branch cpv-integration = 7z; main =
 > v0.14.0). Read docs/cpv/HANDOFF.md first, then agree with me which next unit to
 > take (candidates in HANDOFF §Next) before implementing it, following the session protocol
 > in docs/cpv/PLAN.md. Use .venv/bin/python, not uv run. Run wsl tasks without asking; ask
@@ -789,16 +819,16 @@ and **kept all seven** (merged as 0.9.0):
    - a 2015 locality edition (the EIC 2015's `LOC50K`; its cut on the MG 2015 frame);
    - the leftovers: 337 moves stated without a code left unpaired, 233 unverified locality
      numbers, 14 rival claims.
-3. More tabulado checks — Censo 2010, the EIC 2015 and Censo 2020 are complete: every
-   published value enters a compared cell (7y: `check_cpv_tabulados.py --coverage`,
-   `test_every_published_value_is_read`). Left:
-   - a reproduction of the 2010/2015 infant mortality would need INEGI's procedure
-     (`STEP_7o.md`): its rule is not in the sample;
-   - CGPV 2000's tabulados: `SOURCES` holds 66 `C2K*` workbooks (the Mac's cache also has
-     `C2KMI13.xls`, which no check reads); whether INEGI publishes more (its file-listing
-     API, `STEP_0_probe.md`) and a coverage probe for their block layout (no estimator rows)
-     are open.
-4. A release: 7v–7y (checks only) are on the branch, `main` = v0.14.0; a 0.15.0 would carry
+3. More tabulado checks — every edition with a sample tabulado is complete: CGPV 2000, Censo
+   2010, the EIC 2015 and Censo 2020 (every published value enters a compared cell: 7y, 7z,
+   `check_cpv_tabulados.py --coverage`, `test_every_published_value_is_read`). Left:
+   - the infant mortality of 2000, 2010 and 2015 (`STEP_7o.md`, `STEP_7z.md`): INEGI's rule
+     is not in the sample;
+   - CGPV 2000's Chiapas: its records are not those of INEGI's tabulados (nothing to do in
+     the mirror; documented);
+   - the 2000/2010/2020 cuestionario-básico tabulados are the census, not the sample (the ITER
+     covers them: 7g).
+4. A release: 7v–7z (checks only) are on the branch, `main` = v0.14.0; a 0.15.0 would carry
    no loader change (the Mac's suite for the version bump; `wsl` lacks the newer tabulados).
 
 ## Open questions for the user
@@ -806,6 +836,12 @@ and **kept all seven** (merged as 0.9.0):
 - None pending (7f's crosswalk renames were kept on 2026-10-11).
 
 ## Gotchas (carry forward)
+
+- **CGPV 2000's layout** (7z): the coverage probe treats every number from the nation's row
+  («ESTADOS UNIDOS MEXICANOS») down as published — a column a check does not read (a count, a
+  100% total) shows up as unread. Its counts are exact but in Chiapas: a count check carries
+  `_COUNTS_2000` (by size `_sized_2000` swaps in `_SIZED_COUNTS`). A row of every age is
+  `_ALL` in `_universes`, never (0, 130), which leaves the unspecified age (999) out.
 
 - **The coverage probe** (7y, `coverage`): it swaps the module's `_num` for a tracing one
   during the call, so a reader must parse published values through `_num` (not `float()`)

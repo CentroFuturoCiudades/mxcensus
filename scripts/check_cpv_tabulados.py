@@ -6,9 +6,9 @@ sexes and the nation, and the result is written to ``docs/cpv/TABULADOS_REPORT.m
 
 - **CGPV 2000** — the «Tabulados de la muestra censal» (``ccpv/2000/tabulados/ampliado/
   C2K*.xls``, Excel 95 workbooks, read with :func:`_dict_fd.read_xls`): percentages with
-  two decimals. The public sample's weights are a ratio estimator on preliminary counts
-  (4a), so the shares agree within a few hundredths of a point, Chiapas worse
-  (:data:`_TOLERANCE`).
+  two decimals. The shares agree within a few hundredths of a point, Chiapas worse
+  (:data:`_TOLERANCE`); 7z: the counts are exact in every state but Chiapas — INEGI computed
+  the tabulados from the public sample's records and weights, but Chiapas's.
 - **Censo 2010** — the cuestionario ampliado tabulados (``ccpv/2010/tabulados/Ampliado/
   NN_NNA_ESTATAL.xls``, estimator «Parámetro», full precision): exact, in persons.
 - **EIC 2015** — the survey's tabulados (``intercensal/2015/tabulados/NN_tema.xls``,
@@ -79,6 +79,17 @@ education (07-03/04), the employed before their divisions and sectors (08-05…0
 of health services by affiliation and institution (09-03/04). Every published value of the
 2010, 2015 and 2020 tabulados now enters a compared cell.
 
+7z read every CGPV 2000 tabulado (INEGI's file listing names 95 ampliado workbooks; the
+checks read 66), every value: the 29 workbooks no check read — 23 by locality size
+(``TAM_LOC`` 1, 2, 3–5, 6–7: :func:`_size_2000`, :func:`_sized_2000`), the use of health
+services, coverage by age, causes of leaving school, religion in INEGI's 2000 groups,
+self-ascription, children born alive, infant mortality, the migrants' destinations — and,
+in the 66, the counts (each row's population, dwellings or households: :func:`_counted`, keys
+ending in «n»; exact but in Chiapas, :data:`_COUNTS_2000`), every age row of a breakdown,
+the net migration, the migrants' share of the residents and average schooling.
+:func:`_c2k_every` reads CGPV 2000's layout row by row; the coverage probe reads it from the
+nation's row down (:func:`_c2k_traced`).
+
 The tabulados are fetched once into ``data/dict/tabulados/{period}/`` (git-ignored); the
 mirror is read from ``data/parquet`` (the full mirror: every state of each edition).
 
@@ -87,7 +98,7 @@ Usage::
     python scripts/check_cpv_tabulados.py                  # 2000, 2010 and 2015, all states
     python scripts/check_cpv_tabulados.py --periods 2000 --states 1 7
     python scripts/check_cpv_tabulados.py --report-only    # no report file, print only
-    python scripts/check_cpv_tabulados.py --coverage       # 7y: published values no check reads
+    python scripts/check_cpv_tabulados.py --coverage       # 7y, 7z: published values no check reads
 
 The exit status is 1 when a cell is off by more than its tolerance.
 """
@@ -132,7 +143,13 @@ SOURCES = {
               "C2KFE04.xls", "C2KFE05.xls", "C2KLI02.xls",
               # 7l: the households and education
               "C2KHO01.xls", "C2KHO02.xls", "C2KHO05.xls", "C2KHO07.xls", "C2KHO08.xls",
-              "C2KED02.xls", "C2KED04.xls", "C2KED06.xls", "C2KED12.xls")),
+              "C2KED02.xls", "C2KED04.xls", "C2KED06.xls", "C2KED12.xls",
+              # 7z: every workbook the checks did not read (INEGI's file listing: 95)
+              *(f"C2K{n}.xls" for n in (
+                  "DI03", "DI05", "EC01", "ED01", "ED03", "ED05", "ED07", "ED09", "ED13",
+                  "ED14", "ED15", "FE01", "FE02", "FE06", "HO03", "HO06", "LI01", "LI03",
+                  "MI13", "PO02", "RE01", "SS01", "SS02", "SS03", "SS05", "SS06", "SS07",
+                  "SS08", "SS09")))),
     "2010": ("ccpv/2010/tabulados/Ampliado",
              ("04_02A_ESTATAL.xls", "06_01A_ESTATAL.xls", "08_02A_ESTATAL.xls",
               "08_03A_ESTATAL.xls", "08_10A_ESTATAL.xls", "08_15A_ESTATAL.xls",
@@ -241,8 +258,9 @@ _REST_NAME = "Resto de las entidades"
 
 
 def _num(text: str | None) -> float:
-    """A published cell; blank or «M.I.» (CGPV 2000: muestra insuficiente; 7k) is missing."""
-    return float(text) if text not in (None, "", "M.I.") else np.nan
+    """A published cell; blank or «M.I.» (CGPV 2000: muestra insuficiente; 7k; C2KHO03 writes
+    «M.I», 7z) is missing."""
+    return float(text) if text not in (None, "", "M.I.", "M.I") else np.nan
 
 
 def _state_of(name: str) -> int | None:
@@ -257,7 +275,7 @@ def _state_of(name: str) -> int | None:
         return int(m.group(1))
     if name in _STATE_NAMES_2010:                                           # 7p
         return _STATE_NAMES_2010.index(name) + 1
-    if name == _REST_NAME:
+    if name.upper() == _REST_NAME.upper():                                  # 7z: C2KLI02's too
         return _REST
     return None
 
@@ -493,6 +511,9 @@ class Check:
     combine: Callable[[list[float]], list[float]] | None = None
     # 7s: national, by locality size — the report's «state» is the size (:func:`_by_size`)
     by_size: bool = False
+    # 7z: every cell's denominator is the nation's (C2KMI13: a state's share of each
+    # destination's migrants); needs all 32 states
+    of_nation: bool = False
 
 
 @dataclass(frozen=True)
@@ -4442,7 +4463,10 @@ _SIZES = {"2010": ("Menos de 2 500 habitantes", "2 500-14 999 habitantes",
                    "15 000-49 999 habitantes", "50 000-99 999 habitantes",
                    "100 000 y más habitantes"),
           "2020": ("1-2 499 habitantes", "2 500-14 999 habitantes", "15 000-49 999 habitantes",
-                   "50 000-99 999 habitantes", "100 000 y más habitantes")}
+                   "50 000-99 999 habitantes", "100 000 y más habitantes"),
+          # 7z: CGPV 2000's four (``TAM_LOC`` 1, 2, 3–5, 6–7: :func:`_size_2000`)
+          "2000": ("MENOS DE 2 500 HABITANTES", "2 500 A 14 999 HABITANTES",
+                   "15 000 A 99 999 HABITANTES", "100 000 Y MÁS HABITANTES")}
 _RATE_CELLS = (*(g.removesuffix(" años") for g, *_ in _FERTILE_AGES), "TGF")
 
 
@@ -4578,11 +4602,12 @@ def _sized_rows(rows: list[dict], period: str) -> list[dict]:
             if (n := r.get(first, "").strip()) in codes else r for r in rows]
 
 
-def _sized_cells(ours: Callable[[pd.DataFrame], list]):
+def _sized_cells(ours: Callable[[pd.DataFrame], list],
+                 size_of: Callable[[pd.DataFrame], pd.Series] | None = None):
     """``ours``'s cells with every record counted in its locality size (``TAMLOC``, a
-    :class:`ByOrigin` origin) instead of its state."""
+    :class:`ByOrigin` origin; 7z: ``size_of``'s) instead of its state."""
     def cells(frame):
-        size = _size(frame)
+        size = (size_of or _size)(frame)
 
         def part(x):
             if x is None:
@@ -5723,11 +5748,730 @@ CHECKS += _size_checks(CHECKS)
 
 
 # --------------------------------------------------------------------------------------
+# CGPV 2000: every value (7z)
+# --------------------------------------------------------------------------------------
+# INEGI's file listing names 95 ampliado workbooks; the checks read 66. 7z reads the 29
+# others (23 by locality size) and every value of the 66 no check compared: the counts (each
+# row's population, dwellings or households, mostly column B), the rows of a breakdown read
+# by its total only, and a few columns (net migration, the migrants' share of the residents,
+# average schooling). The counts are exact in every state but Chiapas, whose records are not
+# the ones INEGI's tabulados were computed from (their total is, STEP_7z.md); the nation
+# inherits Chiapas's gap.
+
+# the counts' largest |Δ| (persons, dwellings, households): Chiapas and the nation (the
+# largest seen: 1,324, SS09n), and every locality size, which all hold Chiapas's records
+# (6,533, LI03n)
+_CHIAPAS_COUNTS = 1500.0
+_SIZED_COUNTS = 7000.0
+_COUNTS_2000 = {None: 1.0, 7: _CHIAPAS_COUNTS, _NATION: _CHIAPAS_COUNTS}
+# the shares by locality size beyond the edition's 0.04: Chiapas's records weigh on a base
+# (each gap a fraction of Chiapas's whole contribution to the cell: STEP_7z.md)
+_SIZED_POINTS = {"LI01": 0.18, "LI03": 0.15, "RE01": 0.34, "ED13": 0.09, "ED15": 0.09,
+                 "HO03": 0.09, "HO03p": 0.09, "DI03": 0.06, "DI05": 0.06, "ED01": 0.06,
+                 "SS05": 0.06}
+
+
+def _c2k_every(cols: str | dict[str, str], row: Callable[[list], list] | None = None):
+    """A CGPV 2000 tabulado row by row: under each place (a state, the nation, «RESTO DE LAS
+    ENTIDADES», a locality size :func:`_sized_rows_2000` names as a state) every row with
+    values, its own first, and under its HOMBRES and MUJERES rows theirs: ``{(place, sex):
+    [cells of cols, row after row]}``. ``cols`` as ``{sex: cols}`` reads the sexes in
+    columns; ``row`` maps each row's cells to the compared ones (7z)."""
+    in_columns = isinstance(cols, dict)
+
+    def read(wb):
+        out, place, sex = {}, None, "T"
+        for r in _sheet(wb, None):
+            a = (r.get("A") or "").strip()
+            if (s := _state_of(a)) is not None:
+                place, sex = s, "T"
+            elif place is not None and not in_columns and a in ("HOMBRES", "MUJERES"):
+                sex = a[0]
+            if place is None or not any(v for c, v in r.items() if c != "A"):
+                continue
+            for x, cs in (cols.items() if in_columns else ((sex, cols),)):
+                values = [_num(r.get(c)) for c in cs]
+                out.setdefault((place, x), []).extend(row(values) if row else values)
+        return out
+    return read
+
+
+def _size_2000(p: pd.DataFrame) -> pd.Series:
+    """CGPV 2000's ``TAM_LOC`` (1–7) as its tabulados' four sizes: under 2,500; 2,500–14,999;
+    15,000–99,999 (3–5); 100,000 and more (6–7)."""
+    return _code(p, "TAM_LOC").map({1: 1, 2: 2, 3: 3, 4: 3, 5: 3, 6: 4, 7: 4})
+
+
+def _sized_rows_2000(rows: list[dict]) -> list[dict]:
+    """A CGPV 2000 tabulado by locality size as one by state: each size row renamed «NN
+    LOCALIDADES DE …», NN its :func:`_size_2000` code (its spacing and a leading «DE »
+    vary)."""
+    codes = {name: i for i, name in enumerate(_SIZES["2000"], 1)}
+    norm = lambda a: " ".join(a.split()).removeprefix("DE ")  # noqa: E731
+    return [{**r, "A": f"{codes[a]:02d} LOCALIDADES DE {a}"}
+            if (a := norm(r.get("A") or "")) in codes else r for r in rows]
+
+
+def _sized_2000(check: Check, key: str | None = None, source: str | None = None) -> Check:
+    """``check`` (by state, or built for its tabulado by size) on CGPV 2000's tabulado by
+    locality size (``source``, its ``key``): its cells with every record counted in its
+    size, its reader on the sheet with the sizes renamed as states (all four and the nation,
+    or it raises)."""
+    read, sizes = check.published, set(range(len(_SIZES["2000"]) + 1))
+    key = key or check.key
+
+    def read_sized(wb):
+        out = read({None: _sized_rows_2000(_sheet(wb, None))})
+        if {k[0] for k in out} != sizes:
+            raise RuntimeError(f"2000 {key}: sizes {sorted({k[0] for k in out})}")
+        return out
+    tolerance = check.tolerance
+    if tolerance is _COUNTS_2000:          # every size holds Chiapas's records
+        tolerance = {None: _SIZED_COUNTS}
+    note = check.note
+    if key in _SIZED_POINTS:
+        tolerance = {None: _SIZED_POINTS[key]}
+        note = (note + " " if note else "") + (
+            f"Chiapas's records weigh on small bases in every size: up to {_SIZED_POINTS[key]} "
+            "points (7z).")
+    title = check.title + ("" if key == check.key else f" (as {check.key})")
+    return replace(check, key=key, source=source or check.source, title=title, note=note,
+                   published=read_sized, ours=_sized_cells(check.ours, _size_2000),
+                   by_origin=True, by_size=True, tolerance=tolerance)
+
+
+def _per_row(rows: Callable[[pd.DataFrame], list],
+             cells: Callable[[pd.DataFrame, pd.Series], list]):
+    """A tabulado's cells row by row: ``cells(frame, u)`` for each row's universe ``u`` of
+    ``rows(frame)`` (7z)."""
+    def ours(frame):
+        return [cell for u in rows(frame) for cell in cells(frame, u)]
+    return ours
+
+
+def _counted(check: Check, published: Callable[[dict], dict],
+             rows: Callable[[pd.DataFrame], list] | None = None,
+             names: tuple[str, ...] = ("all",), what: str = "population",
+             suffix: str = "n") -> Check:
+    """7z: the counts of ``check``'s rows — each row's universe, ``rows(frame)`` (default: the
+    universe of its first cell) — read by ``published`` (mostly column B); in persons,
+    dwellings or households (``check.weight``)."""
+    rows = rows or (lambda frame: [check.ours(frame)[0][1]])
+    title = re.split(r", (?:%|as %|selected)", check.title)[0]
+    return replace(check, key=check.key + suffix, title=f"{title}: {what} (counts)",
+                   cells=names, published=published, unit="persons",
+                   ours=lambda frame: [(u, None) for u in rows(frame)],
+                   tolerance=_COUNTS_2000, combine=None, note="")
+
+
+def _universes(groups: tuple, item: Callable[[pd.DataFrame], pd.Series] | None = None,
+               universe: Callable[[pd.DataFrame], pd.Series] | None = None):
+    """Each age group's universe (a group: (lo, hi), ``None`` = 999 not specified, ``_ALL``
+    = every age), within ``universe`` (default: every record)."""
+    def rows(p):
+        u = pd.Series(True, index=p.index) if universe is None else universe(p)
+        age = _age(p) if item is None else item(p)
+        return [u if g == _ALL else u & (age.eq(999) if g is None else age.between(*g))
+                for g in groups]
+    return rows
+
+
+def _age_names(groups: tuple) -> tuple[str, ...]:
+    return tuple("all" if g == _ALL else "NE" if g is None else
+                 f"{g[0]}+" if g[1] >= 130 else f"{g[0]}-{g[1]}" for g in groups)
+
+
+def _selected(states: tuple[int, ...], ours: Callable[[pd.DataFrame], list]):
+    """C2KLI02: a few states one by one, «the rest of the states» together — the records of
+    the others count in :data:`_REST` (:class:`ByOrigin`, numerators and denominators; 7z)."""
+    def cells(p):
+        state = _code(p, "ENT")
+        origin = state.where(state.isin(states), _REST)
+        return [(ByOrigin(n, origin), None if d is None else ByOrigin(d, origin))
+                for n, d in ours(p)]
+    return cells
+
+
+_ALL = "all"                                # 7z: a row of every age (999 too)
+_EC02_AGES = ((12, 130), (12, 14), (15, 19), (20, 29), (30, 39), (40, 49), (50, 59), (60, 130))
+_MI01_AGES = (_ALL, (0, 14), (15, 24), (25, 49), (50, 130), None)
+_MI03_AGES = ((5, 130), (5, 14), (15, 24), (25, 49), (50, 130))
+_LI02_STATES = (7, 9, 12, 13, 15, 16, 20, 21, 23, 24, 30, 31)
+
+
+def _place_cells(col: str):
+    """MI01/MI03: the residents by their birthplace or 1995 residence (``col``'s legacy
+    categories): this entity, another entity or abroad, not specified."""
+    def cells(p, u):
+        x = _cat(p, col)
+        return _of(u, x.eq("EstaEnt"), x.isin(["OtraEnt", "OtroPais"]), x.eq("No especificado"))
+    return cells
+
+
+def _marital_cells(p, u):
+    sc = _cat(p, "SITUA_CONYUGAL_CAT")
+    return _of(u, *(sc.eq(c) for c in ("soltero", "casado", "separado", "No especificado")))
+
+
+def _vi18_z(v):
+    """C2KVI18 (7i) with each block's total (100) first."""
+    how, often = _code(v, "ELIBAS"), _code(v, "ELIBASPE")
+    return [cell for codes in ((1, 2, 3, 4), 1, 2, (3, 4)) for u in [_is(how, codes)]
+            for cell in [(u, u), *_of(u, *(often.eq(c) for c in (1, 2, 3, 4, 5, 6, 9)))]]
+
+
+def _residents_2000(p: pd.DataFrame) -> pd.Series:
+    return pd.Series(True, index=p.index)
+
+
+def _schooling_2000(p):
+    """C2KED10/09's grado promedio de escolaridad: the mean years approved (``ESCOACUM``) of
+    the 15+ who gave them."""
+    years = _code(p, "ESCOACUM")
+    known = _age(p).between(15, 130) & years.le(24)
+    return [(Weighted(known, years), known)]
+
+
+def _migrants_share_2000(p):
+    """C2KMI09's column C: the international migrants of the dwellings of the state (the
+    ``migrantes`` file, ``_MIGRANTS`` on each dwelling's first person, :func:`_frame`) as % of
+    the residents."""
+    every = pd.Series(True, index=p.index)
+    return [(Weighted(every, p["_MIGRANTS"]), every)]
+
+
+def _reworked_2000(checks: tuple[Check, ...]) -> dict[str, Check]:
+    """The 2000 checks 7z widens, by key: EC02, MI01, MI03 every age row; MI02/MI05 the net
+    migration; MI07, MI10–12 and VI18 their «100» totals; LI02 «the rest of the states»."""
+    by = {c.key: c for c in checks if c.period == "2000"}
+    ec02 = by["EC02"]
+    marital = ("single", "married or in a free union", "separated, divorced, widowed",
+               "not specified")
+    out = {
+        "EC02": replace(ec02, title="Marital status (`SITUA_CONYUGAL_CAT`) by age, % of the 12+",
+                        cells=_grouped(_age_names(_EC02_AGES), marital),
+                        published=_c2k_every("CDEFG", lambda v: [v[0], v[1] + v[2], v[3], v[4]]),
+                        ours=_per_row(_universes(_EC02_AGES), _marital_cells),
+                        note="Every age row (7z)."),
+        "MI01": replace(by["MI01"], title="Birthplace (`ENT_PAIS_NAC_CAT`) by age, % of all",
+                        cells=_grouped(_age_names(_MI01_AGES), by["MI01"].cells),
+                        published=_c2k_every("CDE"),
+                        ours=_per_row(_universes(_MI01_AGES), _place_cells("ENT_PAIS_NAC_CAT")),
+                        note="Every age row (7z)."),
+        "MI03": replace(by["MI03"], title="Residence in 1995 (`ENT_PAIS_RES_CAT`) by age, % of "
+                        "the 5+", cells=_grouped(_age_names(_MI03_AGES), by["MI03"].cells),
+                        published=_c2k_every("CDE"),
+                        ours=_per_row(_universes(_MI03_AGES), _place_cells("ENT_PAIS_RES_CAT")),
+                        note="Every age row (7z)."),
+    }
+    for key in ("MI02", "MI05"):
+        out[key] = replace(by[key], cells=(*by[key].cells, "net"), published=_c2k("BCD"),
+                           combine=lambda v: [v[0], v[1], v[0] - v[1]],
+                           note=by[key].note + " Net = immigrants − emigrants (7z).")
+    mi07 = by["MI07"]
+    groups = ("all", *(f"{a}-{b}" if b < 130 else ("50+" if a == 50 else "age not specified")
+                       for a, b in _AGES_MI07))
+    out["MI07"] = replace(mi07, cells=tuple(f"{g}: {mv}" for g in groups
+                                            for mv in ("all", *_MOVEMENTS)),
+                          published=_c2k_national("BCDE"),
+                          ours=lambda m: [(g & mv, g)
+                                          for g in (pd.Series(True, index=m.index),
+                                                    *_ages(m, _AGES_MI07))
+                                          for mv in (pd.Series(True, index=m.index),
+                                                     *_movement(m))])
+    for key, cols, cells in (("MI10", "BCD", lambda m: [m["MSEXO"].eq("1"), m["MSEXO"].eq("2")]),
+                             ("MI11", "BCDEFGH", lambda m: _ages(m, _AGES_MI11)),
+                             ("MI12", "BCDE", _destination)):
+        out[key] = replace(by[key], cells=("all", *by[key].cells), published=_c2k_states(cols),
+                           ours=_by_origin(lambda m, f=cells: [pd.Series(True, index=m.index),
+                                                               *f(m)]))
+    for key in ("VI18", "VI18o"):
+        c = by[key]
+        ways = ("all", "collection service", "container", "street, vacant lot or ravine")
+        out[key] = replace(c, cells=tuple(f"{w}: {f}" for w in ways for f in (
+            "total", "daily", "every third day", "twice a week", "once a week", "now and then",
+            "never", "NE")), published=_c2k_repeated("BCDEFGHI", "VIVIENDAS" if key == "VI18"
+                                                       else "OCUPANTES"), ours=_vi18_z)
+    di04 = by["DI04"]
+    out["DI04"] = replace(di04, cells=("total", *di04.cells), published=_c2k("BCDEFGH"),
+                          ours=lambda p: [(u := _disability_2000(p)[1], u), *di04.ours(p)],
+                          note="Its column B, the total (100), too (7z).")
+    li02 = by["LI02"]
+    out["LI02"] = replace(li02, published=_c2k_every("CDEFGH"),
+                          ours=_selected(_LI02_STATES, li02.ours), by_origin=True,
+                          note=li02.note + " «Resto de las entidades» = the other 20 states "
+                               "(7z).")
+    return out
+
+
+def _counts_2000(checks: tuple[Check, ...]) -> tuple[Check, ...]:
+    """7z: the counts of the 2000 checks by state (``…n``): each row's population, dwellings,
+    occupants or households."""
+    by = {c.key: c for c in checks if c.period == "2000"}
+    every = lambda f: [pd.Series(True, index=f.index)]  # noqa: E731
+    sexed = _c2k_every("B")
+    out = [_counted(by[k], sexed, what=what) for k, what in (
+        ("RE02", "the 5+"), ("SS04", "population"), ("EM01", "the 12+"), ("ED08", "the 12+"),
+        ("ED11", "the 18+"), ("ED10", "the 15+"), ("EM02", "the inactive 12+"),
+        ("EM06", "the employed"), ("EM07", "the employed"), ("EM08", "the employed"),
+        ("EM09", "the wage earners"), ("MI04", "the 5+"), ("MI06", "the migrants 5+"),
+        ("DI02", "population"), ("EM10", "the employed"))]
+    out += [_counted(by[k], _c2k_sex_columns({"T": "B", "H": "C", "M": "D"}), what="the employed")
+            for k in ("EM04", "EM05")]
+    for key, groups in (("EC02", _EC02_AGES), ("MI01", _MI01_AGES), ("MI03", _MI03_AGES)):
+        out.append(_counted(by[key], sexed, rows=_universes(groups), names=_age_names(groups),
+                            what="by age"))
+    out += [_counted(by["HO04a"], _c2k("B"), what="households"),
+            _counted(by["HO04b"], _c2k("E"), what="population in households"),
+            _counted(by["HO08"], _c2k_states("B"), what="households"),
+            _counted(by["VI19"], _c2k_states("B"), what="dwellings"),
+            _counted(by["VI04"], _c2k_states("B"), what="dwellings"),
+            _counted(by["VI12"], _c2k_states("B"),
+                     what="dwellings with piped water in the grounds")]
+    for key in ("HO01", "HO02", "HO05", "HO07"):
+        out += [_counted(by[key], _c2k_repeated("B", "HOGARES"), what="households"),
+                _counted(by[key + "p"], _c2k_repeated("B", "POBLACIÓN"), what="population")]
+    for key in ("VI01", "VI02", "VI03", "VI05", "VI06", "VI07", "VI08", "VI09", "VI10", "VI11",
+                "VI13", "VI14", "VI15", "VI17"):
+        out += [_counted(by[key], _c2k("B", level="dwellings"), rows=every, what="dwellings"),
+                _counted(by[key + ("do" if key in ("VI06", "VI10") else "o")],
+                         _c2k("B", level="occupants"), rows=every, what="occupants")]
+    goods = tuple(n for n, *_ in _GOODS_2000)
+    out += [_counted(by["VI16"], _c2k_items("B"), rows=lambda f: every(f) * len(goods),
+                     names=goods, what="dwellings"),
+            _counted(by["VI16o"], _c2k_items("F"), rows=lambda f: every(f) * len(goods),
+                     names=goods, what="occupants")]
+    out += [_counted(by["DI01"], _c2k_rows("B"), rows=_universes((_ALL, *_DISABILITY_AGES_2000)),
+                     names=_age_names((_ALL, *_DISABILITY_AGES_2000)), what="by age"),
+            _counted(by["ED12"], _c2k_rows("B"),
+                     rows=_universes(_NOT_ATTENDING_AGES_2000,
+                                     universe=lambda p: _code(p, "ASISTEN").eq(2)),
+                     names=_age_names(_NOT_ATTENDING_AGES_2000), what="the 7-29 not attending")]
+    for key, groups in (("ED02", _LITERACY_AGES_2000), ("ED04", _LITERACY15_AGES_2000),
+                        ("ED06", _ATTENDANCE_AGES_2000)):
+        out.append(_counted(by[key], _c2k_rows_by_sex({"T": "B", "H": "C", "M": "D"}),
+                            rows=_universes(groups), names=_age_names(groups), what="by age"))
+    out += [
+        _counted(by["MI08"], lambda wb: {k: v[:4] for k, v in _c2k_national("BCDE")(wb).items()},
+                 rows=lambda m: [pd.Series(True, index=m.index), *_movement(m)],
+                 names=("all", *_MOVEMENTS), what="international migrants"),
+        _counted(by["LI02"], _c2k_every("B"), what="the 5+"),
+        Check("2000", "MI09n", "Residents (counts)", "C2KMI09.xls", "personas", ("all",),
+              _c2k_states("B"), lambda p: [(pd.Series(True, index=p.index), None)],
+              unit="persons", tolerance=_COUNTS_2000),
+        Check("2000", "MI09r", "International migrants (`migrantes`), % of the residents",
+              "C2KMI09.xls", "personas", ("international migrants",), _c2k_states("C"),
+              _migrants_share_2000,
+              note="Every record of the `migrantes` file over the residents of the dwellings' "
+                   "state (7z)."),
+        Check("2000", "ED10m", "Grado promedio de escolaridad of the 15+ (`ESCOACUM`)",
+              "C2KED10.xls", "personas", ("years",), _c2k("M"), _schooling_2000,
+              unit="average", note="The mean years approved of the 15+ who gave them (7z)."),
+    ]
+    return tuple(out)
+
+
+# the 29 workbooks (7z) ------------------------------------------------------------------
+
+_AGES5_2000 = (_ALL, *_AGES_2000)                            # all, the five-year ages, NE
+_HEALTH_AGES_2000 = (_ALL, *_DISABILITY_AGES_2000)           # all, 0-14 … 60+, NE
+_LANGUAGE_AGES_2000 = ((5, 130), *((a, a + 4) for a in range(5, 50, 5)), (50, 130))
+_SINGLE_AGES_2000 = ((6, 14), *((a, a) for a in range(6, 15)))
+_LEVEL_AGES_2000 = ((6, 130), *((a, a) for a in range(6, 15)), (15, 29), (30, 130))
+_FERTILITY_AGES_2000 = ((12, 130), (12, 14), *((a, a + 4) for a in range(15, 60, 5)),
+                        (60, 130))
+_HEAD_AGES_2000 = (_ALL, (0, 11), (12, 14), *((a, a + 4) for a in range(15, 65, 5)),
+                   (65, 130), None)
+_MOTHER_AGES_TMI = ((12, 49), (12, 19), (20, 34), (35, 49))
+_IN_COLUMNS = {"T": "B", "H": "C", "M": "D"}                 # counts with the sexes in columns
+_COVERAGE_CELLS = ("not covered", "covered", "IMSS (% of covered)", "ISSSTE",
+                   "PEMEX, Defensa, Marina", "other institution", "NE")
+_USE_CELLS_2000 = ("users", "IMSS (% of users)", "ISSSTE", "PEMEX, Defensa, Marina", "SSA",
+                   "IMSS Solidaridad", "other public", "private", "no users", "NE")
+_CAUSES_2000 = ("total", "personal", "economic", "school", "family", "marriage or union",
+                "finished studying", "other", "NE")
+_DI_CAUSES = ("birth", "illness", "accident", "old age", "other", "NE")
+_COVERAGE_ROWS = ("all", "not covered", "covered", "IMSS", "ISSSTE", "PEMEX, Defensa, Marina",
+                  "other institution", "NE")
+
+
+def _coverage_cells(p, u):
+    """C2KSS01–04's cells of a row: not covered, covered (% of the row), each institution (%
+    of the covered; a person may hold several), not specified."""
+    afil, none = _dummy(p, "DHSERSAL_AFIL"), _dummy(p, "DHSERSAL_No afiliado")
+    covered = u & afil
+    return [(u & none, u), (covered, u),
+            *_of(covered, *(_dummy(p, f"DHSERSAL_{c}") for c in ("IMSS", "ISSSTE", "P_D_M",
+                                                                  "Otro"))),
+            (u & ~afil & ~none, u)]
+
+
+def _use_cells(p, u):
+    """C2KSS05–09's cells of a row: the users of health services (``SERSALUD`` 1–7; % of the
+    row), each institution (% of the users: IMSS 1, ISSSTE 2, PEMEX/Defensa/Marina 3, SSA 4,
+    IMSS Solidaridad 5, another public one 7, private 6), no users (8), not specified (9)."""
+    use = _code(p, "SERSALUD")
+    users = u & use.between(1, 7)
+    return [(users, u), *_of(users, *(use.eq(c) for c in (1, 2, 3, 4, 5, 7, 6))),
+            (u & use.eq(8), u), (u & use.eq(9), u)]
+
+
+def _coverage_rows(p) -> list[pd.Series]:
+    """C2KSS09's rows: everyone, not covered, covered, each institution, not specified."""
+    every = pd.Series(True, index=p.index)
+    afil, none = _dummy(p, "DHSERSAL_AFIL"), _dummy(p, "DHSERSAL_No afiliado")
+    return [every, none, afil, *(afil & _dummy(p, f"DHSERSAL_{c}")
+                                 for c in ("IMSS", "ISSSTE", "P_D_M", "Otro")), ~afil & ~none]
+
+
+def _stopped_2000(p) -> pd.Series:
+    """The 7–29 who stopped attending school (``ASISTEN`` 2, ``ABANESCO`` 1–8)."""
+    return _age(p).between(7, 29) & _code(p, "ASISTEN").eq(2) & _code(p, "ABANESCO").between(1, 8)
+
+
+def _cause_cells(p, u):
+    """C2KED13–15's causes of leaving school (``ABANESCO``): personal (1: did not want to),
+    economic (2), school (4: too far or none), family (5), marriage or union (3), finished
+    (6), other (7), not specified (8); the row's total (100) first."""
+    cause = _code(p, "ABANESCO")
+    return [(u, u), *_of(u, *(cause.eq(c) for c in (1, 2, 4, 5, 3, 6, 7, 8)))]
+
+
+def _levels_2000(p) -> list[pd.Series]:
+    """C2KED15's levels (``EDUC_INEGI_DET``): none, primaria, secundaria and técnica after
+    primaria, media superior, superior, not specified."""
+    e = _cat(p, "EDUC_INEGI_DET")
+    return [e.eq("Sin Educación"), e.isin(["Primaria_incom", "Primaria_com"]),
+            e.isin(["Técnica_primaria", "Secundaria_incom", "Secundaria_com"]),
+            e.eq("Media_superior"), e.isin(_SUPERIOR), e.eq("No especificado")]
+
+
+def _di_cause_cells(p, u):
+    cause = _code(p, "CAUSADIS")
+    return _of(u, *(cause.eq(c) for c in (1, 2, 3, 4, 5, 9)))
+
+
+def _li_cells(p, u):
+    """C2KLI01/02's cells of a row: speaks an indigenous language (``HLENGUA`` 1; % of the
+    row), and of them Spanish too, not, not specified (``HESPANOL``); speaks none (2), not
+    specified (9)."""
+    speaks, spanish = _code(p, "HLENGUA"), _code(p, "HESPANOL")
+    s = u & speaks.eq(1)
+    return [(s, u), *_of(s, spanish.eq(3), spanish.eq(4), spanish.eq(9)),
+            *_of(u, speaks.eq(2), speaks.eq(9))]
+
+
+def _ethnic_rows(p) -> list[pd.Series]:
+    """C2KLI03's rows: the 5+, those speaking an indigenous language, not, not specified."""
+    five, speaks = _five(p), _code(p, "HLENGUA")
+    return [five, *(five & speaks.eq(c) for c in (1, 2, 9))]
+
+
+def _ethnic_cells(p, u):
+    """C2KLI03: indigenous self-ascription (``PERETN``: yes, no, not specified)."""
+    x = _code(p, "PERETN")
+    return _of(u, *(x.eq(c) for c in (1, 2, 9)))
+
+
+def _women_2000(p) -> pd.Series:
+    return p["SEXO"].astype(str).eq("2")
+
+
+def _children_cells(p, u):
+    """C2KFE01: the women by children born alive (``NUMHIJ`` 0 … 7, 8 and more, not
+    specified: 98, 99)."""
+    born = _code(p, "NUMHIJ")
+    return _of(u, *(born.eq(k) for k in range(8)), born.between(8, 97), born.isin([98, 99]))
+
+
+def _children_by_size_2000(p):
+    """C2KFE02: children born alive per woman of 12 and more who said (``NUMHIJ`` below 98),
+    by her age group (the rows), nationally and in each locality size (the columns)."""
+    women, born = _mothers_2000(p)
+    size = _size_2000(p)
+    every = pd.Series(True, index=p.index)
+    out = []
+    for g in _ages_2000(p, _FERTILITY_AGES_2000):
+        for s in (every, *(size.eq(k) for k in range(1, 5))):
+            u = women & g & s
+            out.append((Weighted(u, born), u))
+    return out
+
+
+def _infant_mortality_2000(p):
+    """C2KFE06: the last children born alive in 1999 (``FECNACA``) of the women of 12–49 who
+    died before their first birthday (``SOBREVI`` 2, ``EDAMORA`` not given), per 1,000, by the
+    mother's age group."""
+    born = _women_2000(p) & _code(p, "FECNACA").eq(1999)
+    died = born & _code(p, "SOBREVI").eq(2) & _code(p, "EDAMORA").isna()
+    age = _age(p)
+    return [(died & age.between(*g), born & age.between(*g)) for g in _MOTHER_AGES_TMI]
+
+
+# C2KRE01's religions (``OTRAREL_C``, its codes in INEGI's 2000 catalog, the DDI's): the
+# groups as % of the 5+, their parts as % of the group
+_RELIGIONS_2000 = (
+    ("Catholic", (1,), ()),
+    ("Protestant and evangelical", tuple(range(1101, 1500)), (
+        ("historical", tuple(range(1101, 1200))),
+        ("Pentecostal and neo-Pentecostal", tuple(c for c in range(1201, 1300)
+                                                  if c not in (1217, 1219))),
+        ("Iglesia del Dios Vivo… La Luz del Mundo", (1301,)),
+        ("other evangelical", (1217, 1219, *range(1401, 1500))))),
+    ("biblical not evangelical", (2001, 2002, 2003), (
+        ("Seventh-day Adventist", (2001,)), ("Mormon", (2002,)), ("Jehovah's Witnesses", (2003,)))),
+    ("Jewish", (5001,), ()),
+    ("other religions", (*range(3001, 5000), *range(6001, 9002)), ()),
+    ("none", (9100,), ()),
+    ("NE", (9999,), ()),
+)
+_RELIGION_CELLS_2000 = tuple(n for name, _, parts in _RELIGIONS_2000
+                             for n in (name, *(f"{name}: {p}" for p, _ in parts)))
+
+
+def _religion_cells_2000(p, u):
+    """C2KRE01's cells: each group of the 5+ (% of them), its parts (% of the group)."""
+    code = _code(p, "OTRAREL_C")
+    out = []
+    for _, codes, parts in _RELIGIONS_2000:
+        g = u & code.isin(codes)
+        out += [(g, u), *_of(g, *(code.isin(c) for _, c in parts))]
+    return out
+
+
+def _level_cells_2000(p, u):
+    """C2KED07: none (``NIVACAD`` 0, preescolar 1 or blank: 4.55% of the 6-year-olds),
+    primaria by grade (``ESCOLARI`` 1–6, not specified 9), posprimaria (3–8), not specified
+    (9)."""
+    level, grade = _code(p, "NIVACAD"), _code(p, "ESCOLARI")
+    primaria = level.eq(2)
+    return _of(u, level.isin([0, 1]) | level.isna(), *(primaria & grade.eq(k) for k in range(1, 7)),
+               primaria & grade.eq(9), level.between(3, 8), level.eq(9))
+
+
+def _head_rows_2000(h) -> list[pd.Series]:
+    """C2KHO03's rows: every household, then by its head's age group (``_HEAD_AGE``; 999 not
+    specified)."""
+    age = pd.to_numeric(h["_HEAD_AGE"], errors="coerce")
+    return [pd.Series(True, index=h.index) if g == _ALL else age.eq(999) if g is None
+            else age.between(*g) for g in _HEAD_AGES_2000]
+
+
+def _head_sex_cells(h, u):
+    head = _cat(h, "JEFE_SEXO")
+    return _of(u, head.eq("Hombre"), head.eq("Mujer"))
+
+
+def _other_income_2000(h):
+    """C2KHO06: the households without income other than from work (``OTINGHOG`` 0), with
+    (every other one: as % of them its amount in the municipality's monthly minimum wages, the
+    amount not specified last — :func:`_household_income`'s groups)."""
+    groups = _household_income("OTINGHOG")(h)               # none, below 1, …, above 10, NE
+    every = pd.Series(True, index=h.index)
+    none = groups[0][0]
+    some = every & ~none
+    return [(none, every), (some, every), *_of(some, *(n for n, _ in groups[1:]))]
+
+
+def _new_2000(checks: tuple[Check, ...]) -> tuple[Check, ...]:
+    """7z: the 29 CGPV 2000 workbooks no check read — six by state or nation (ED14,
+    SS03/07/08/09, MI13), 23 by locality size."""
+    by = {c.key: c for c in checks if c.period == "2000"}
+    every = lambda f: pd.Series(True, index=f.index)  # noqa: E731
+    sexed_counts = _c2k_every("B")
+    use_rows = lambda groups: _universes(groups)  # noqa: E731
+    out = []
+
+    def pair(key, title, source, table, row_names, rows, cell_names, cells, cols, counts="B",
+             what="population", **kw):
+        """A share check of every row and, when the tabulado has them, its counts."""
+        share = Check("2000", key, title, source, table, _grouped(row_names, cell_names),
+                      _c2k_every(cols), _per_row(rows, cells), **kw)
+        if counts is None:
+            return [share]
+        reader = _c2k_every(counts) if isinstance(counts, (str, dict)) else counts
+        return [share, _counted(share, reader, rows=rows, names=row_names, what=what)]
+
+    # by state ---------------------------------------------------------------------------
+    out += pair("SS03", "Health coverage (`DHSERSAL_*`) by age group, %", "C2KSS03.xls",
+                "personas", _age_names(_HEALTH_AGES_2000), _universes(_HEALTH_AGES_2000),
+                _COVERAGE_CELLS, _coverage_cells, "CDEFGHI")
+    out += pair("SS07", "Use of health services (`SERSALUD`) by age group, %", "C2KSS07.xls",
+                "personas", _age_names(_HEALTH_AGES_2000), _universes(_HEALTH_AGES_2000),
+                _USE_CELLS_2000, _use_cells, "CDEFGHIJKL")
+    out += pair("SS08", "Use of health services (`SERSALUD`), %", "C2KSS08.xls", "personas",
+                ("all",), lambda p: [every(p)], _USE_CELLS_2000, _use_cells, "CDEFGHIJKL")
+    out += pair("SS09", "Use of health services (`SERSALUD`) by health coverage (`DHSERSAL_*`), "
+                "%", "C2KSS09.xls", "personas", _COVERAGE_ROWS, _coverage_rows,
+                _USE_CELLS_2000, _use_cells, "CDEFGHIJKL")
+    out += pair("ED14", "The 7-29 who stopped attending school by cause (`ABANESCO`), %",
+                "C2KED14.xls", "personas", ("all",), lambda p: [_stopped_2000(p)],
+                _CAUSES_2000, _cause_cells, "BCDEFGHIJ", counts=None,
+                note="Stopped: `ASISTEN` 2, `ABANESCO` 1–8 (8: the cause not specified); the "
+                     "groups by INEGI's footnotes (7z).")
+    out += [
+        Check("2000", "MI13", "International migrants by destination (`MPDESOTR_C`), each state "
+              "left's share of the nation's", "C2KMI13.xls", "migrantes",
+              ("all", "United States", "rest of the world", "not specified"),
+              lambda wb: {k: v for k, v in _c2k_states("BCDE")(wb).items() if k[0] != _NATION},
+              lambda m: [(c, c) for c, _ in _by_origin(
+                  lambda x: [pd.Series(True, index=x.index), *_destination(x)])(m)],
+              by_origin=True, of_nation=True,
+              note="Each state left's migrants (`MLUGORI_C`; 99 not specified) as % of the "
+                   "nation's, per destination (7z)."),
+        Check("2000", "MI13n", "International migrants by destination (`MPDESOTR_C`) (counts)",
+              "C2KMI13.xls", "migrantes", ("all", "United States", "rest of the world",
+                                           "not specified"),
+              lambda wb: {k: v for k, v in _c2k_states("BCDE")(wb).items() if k[0] == _NATION},
+              lambda m: [(c, None) for c in (pd.Series(True, index=m.index), *_destination(m))],
+              unit="persons", tolerance=_COUNTS_2000),
+    ]
+
+    # by locality size: the by-state checks on the twin tabulado --------------------------
+    for twin, key, source in (("SS04", "SS02", "C2KSS02.xls"), ("SS04n", "SS02n", "C2KSS02.xls"),
+                              ("SS08", "SS06", "C2KSS06.xls"), ("SS08n", "SS06n", "C2KSS06.xls"),
+                              ("EC02", "EC01", "C2KEC01.xls"), ("EC02n", "EC01n", "C2KEC01.xls"),
+                              ("ED04", "ED03", "C2KED03.xls"), ("ED04n", "ED03n", "C2KED03.xls"),
+                              ("ED06", "ED05", "C2KED05.xls"), ("ED06n", "ED05n", "C2KED05.xls"),
+                              ("ED10", "ED09", "C2KED09.xls"), ("ED10n", "ED09n", "C2KED09.xls"),
+                              ("ED10m", "ED09m", "C2KED09.xls")):
+        twin_check = by.get(twin) or next(c for c in out if c.key == twin)
+        out.append(_sized_2000(twin_check, key, source))
+
+    # by locality size: the others, each with a twin built for it -------------------------
+    built = []
+    built += pair("SS01", "Health coverage (`DHSERSAL_*`) by five-year age, %", "C2KSS01.xls",
+                  "personas", _age_names(_AGES5_2000), _universes(_AGES5_2000), _COVERAGE_CELLS,
+                  _coverage_cells, "CDEFGHI")
+    built += pair("SS05", "Use of health services (`SERSALUD`) by five-year age, %",
+                  "C2KSS05.xls", "personas", _age_names(_AGES5_2000), _universes(_AGES5_2000),
+                  _USE_CELLS_2000, _use_cells, "CDEFGHIJKL")
+    built += pair("DI03", "The disabled by age group and cause (`CAUSADIS`), %", "C2KDI03.xls",
+                  "personas", _age_names(_HEALTH_AGES_2000),
+                  _universes(_HEALTH_AGES_2000, universe=lambda p: _disability_2000(p)[1]),
+                  _DI_CAUSES, _di_cause_cells, "CDEFGH", what="the disabled")
+    types = tuple(n for n, _ in _DISABILITY_TYPES_2000)
+    built += pair("DI05", "The disabled by type and cause (`CAUSADIS`), %", "C2KDI05.xls",
+                  "personas", ("all", *types),
+                  lambda p: [(d := _disability_2000(p))[1], *d[3].values()],
+                  ("total", *_DI_CAUSES), lambda p, u: [(u, u), *_di_cause_cells(p, u)],
+                  "BCDEFGH", counts=None,
+                  note="A person with several types counts in each, with their one cause (7z).")
+    built += pair("LI01", "Indigenous language and Spanish of the 5+ (`HLENGUA`, `HESPANOL`) by "
+                  "five-year age, %", "C2KLI01.xls", "personas",
+                  _age_names(_LANGUAGE_AGES_2000), _universes(_LANGUAGE_AGES_2000),
+                  ("speaks one", "and Spanish", "not Spanish", "Spanish NE", "speaks none", "NE"),
+                  _li_cells, "CDEFGH", what="the 5+")
+    built += pair("LI03", "Indigenous self-ascription of the 5+ (`PERETN`) by language, %",
+                  "C2KLI03.xls", "personas", ("all", "speaks one", "speaks none", "NE"),
+                  _ethnic_rows, ("considers itself indigenous", "does not", "NE"),
+                  _ethnic_cells, "CDE", what="the 5+")
+    built += pair("FE01", "Women 12+ by children born alive (`NUMHIJ`) and age, %",
+                  "C2KFE01.xls", "personas", _age_names(_FERTILITY_AGES_2000),
+                  _universes(_FERTILITY_AGES_2000, universe=_women_2000),
+                  ("0", "1", "2", "3", "4", "5", "6", "7", "8+", "NE"), _children_cells,
+                  "CDEFGHIJKL", what="women 12+")
+    built += pair("ED13", "The 7-29 who stopped attending school by cause (`ABANESCO`) and age, %",
+                  "C2KED13.xls", "personas", _age_names(_NOT_ATTENDING_AGES_2000),
+                  _universes(_NOT_ATTENDING_AGES_2000, universe=_stopped_2000), _CAUSES_2000,
+                  _cause_cells, "BCDEFGHIJ", counts=None)
+    built += pair("ED15", "The 7-29 who stopped attending school by cause (`ABANESCO`) and "
+                  "level (`EDUC_INEGI_DET`), %", "C2KED15.xls", "personas",
+                  ("all", "none", "primaria", "secundaria or técnica after primaria",
+                   "media superior", "superior", "NE"),
+                  lambda p: [(u := _stopped_2000(p)), *(u & x for x in _levels_2000(p))],
+                  _CAUSES_2000, _cause_cells, "BCDEFGHIJ", counts=None)
+    built += pair("ED07", "Level of the 6+ with the grades of primaria (`NIVACAD`, `ESCOLARI`) by "
+                  "age, %", "C2KED07.xls", "personas", _age_names(_LEVEL_AGES_2000),
+                  _universes(_LEVEL_AGES_2000),
+                  ("none", *(f"primaria {k}" for k in range(1, 7)), "primaria, grade NE",
+                   "posprimaria", "NE"), _level_cells_2000, "CDEFGHIJKL", what="the 6+")
+    built += pair("ED01", "Literacy of the 6-14 (`ALFABET`) by age, %", "C2KED01.xls",
+                  "personas", _age_names(_SINGLE_AGES_2000), _universes(_SINGLE_AGES_2000),
+                  ("can read and write", "cannot", "NE"),
+                  lambda p, u: _of(u, *(_code(p, "ALFABET").eq(c) for c in (1, 2, 9))),
+                  {"T": "EHK", "H": "FIL", "M": "GJM"}, counts=_IN_COLUMNS, what="the 6-14")
+    built += pair("PO02", "Population by five-year age and sex (counts)", "C2KPO02.xls",
+                  "personas",
+                  _age_names(_AGES5_2000), _universes(_AGES5_2000), ("population",),
+                  lambda p, u: [(u, None)], _IN_COLUMNS, counts=None, unit="persons",
+                  tolerance=_COUNTS_2000)
+    religion = pair("RE01", "Religion of the 5+ (`OTRAREL_C`, INEGI's 2000 groups), %",
+                    "C2KRE01.xls", "personas", ("5+",), lambda p: [_five(p)],
+                    _RELIGION_CELLS_2000, _religion_cells_2000, _IN_COLUMNS,
+                    counts=lambda wb: {k: v[:1] for k, v in _c2k_every(_IN_COLUMNS)(wb).items()},
+                    what="the 5+",
+                    note="Pentecostal = `OTRAREL_C` 1201–1299 but «Cristiana» (1217) and "
+                         "«Evangélica» (1219), which INEGI counts among the other evangelical "
+                         "(14xx); other religions 3001–4999 and 6001–9001 (7z).")
+    religion[0] = replace(religion[0], cells=_RELIGION_CELLS_2000, published=lambda wb: {
+        k: v[1:] for k, v in _c2k_every(_IN_COLUMNS)(wb).items()})
+    built += religion
+    households = lambda: [  # noqa: E731
+        Check("2000", "HO03", "Households by the head's age group and sex (`JEFE_SEXO`), %",
+              "C2KHO03.xls", "hogares", _grouped(_age_names(_HEAD_AGES_2000), ("male", "female")),
+              _c2k_every("CD"), _per_row(_head_rows_2000, _head_sex_cells),
+              note="The head's age from the person file (`_with_members_2000`; 7z)."),
+        Check("2000", "HO03p", "Population in households by the head's age group and sex, %",
+              "C2KHO03.xls", "hogares", _grouped(_age_names(_HEAD_AGES_2000), ("male", "female")),
+              _c2k_every("FG"), _per_row(_head_rows_2000, _head_sex_cells),
+              weight=_household_persons)]
+    ho03, ho03p = households()
+    built += [ho03, _counted(ho03, _c2k_every("B"), rows=_head_rows_2000,
+                             names=_age_names(_HEAD_AGES_2000), what="households"),
+              ho03p, _counted(ho03p, _c2k_every("E"), rows=_head_rows_2000,
+                              names=_age_names(_HEAD_AGES_2000), what="population in households")]
+    income = ("no other income", "other income", "below 1", "1-2", "2-3", "3-5", "5-10",
+              "above 10", "NE")
+    for suffix, label, weight in (("", "HOGARES", None), ("p", "POBLACIÓN", _household_persons)):
+        whom = "households" if not suffix else "population"
+        c = Check("2000", "HO06" + suffix, "Households by income other than from work "
+                  f"(`OTINGHOG`) in minimum wages, % of the {whom}",
+                  "C2KHO06.xls", "hogares", income, _c2k_repeated("CDEFGHIJK", label),
+                  _other_income_2000, weight=weight,
+                  note="" if suffix else "The household's other incomes against its "
+                                         "municipality's monthly minimum wage (7c's table; 7z).")
+        built += [c, _counted(c, _c2k_repeated("B", label), rows=lambda h: [every(h)],
+                              what="households" if not suffix else "population")]
+    out += [_sized_2000(c) for c in built]
+    out += [
+        Check("2000", "FE02", "Children born alive per woman 12+ (`NUMHIJ`) by age and locality "
+              "size, nation", "C2KFE02.xls", "personas",
+              _grouped(_age_names(_FERTILITY_AGES_2000), ("nation", *_SIZES["2000"])),
+              _c2k_every("BCDEF"), _children_by_size_2000, unit="average",
+              note="Of the women who said how many (`NUMHIJ` below 98; 7z)."),
+        _sized_2000(Check("2000", "FE06", "Infant mortality of 1999 (`FECNACA`, `SOBREVI`, "
+                          "`EDAMORA`) by the mother's age", "C2KFE06.xls", "personas",
+                          _age_names(_MOTHER_AGES_TMI), _c2k_every("B"), _infant_mortality_2000,
+                          unit="rate", tolerance={None: 1.9},
+                          note="Not reproducible from the sample, as 2010's and 2015's (7o): "
+                               "INEGI's rates of «the deaths that occurred in 1999» are no "
+                               "ratio of its records (the nation's 17.51; the last children "
+                               "born in 1999 who died before their first birthday, ours, 16.62 "
+                               "per 1,000 of them; STEP_7z.md); tolerance = the largest gap.")),
+    ]
+    return tuple(out)
+
+
+def _checks_2000_z(checks: tuple[Check, ...]) -> tuple[Check, ...]:
+    """7z: the 2000 checks widened (:func:`_reworked_2000`), their counts
+    (:func:`_counts_2000`), the 29 workbooks no check read (:func:`_new_2000`)."""
+    reworked = _reworked_2000(checks)
+    checks = tuple(reworked.get(c.key, c) if c.period == "2000" else c for c in checks)
+    checks += _counts_2000(checks)
+    return checks + _new_2000(checks)
+
+
+CHECKS = _checks_2000_z(CHECKS)
+
+
+# --------------------------------------------------------------------------------------
 # coverage (7y): the published values no compared cell is computed from
 # --------------------------------------------------------------------------------------
 
-# the estimator rows whose values the checks compare (2000's tabulados have none)
-_ESTIMATOR = {"2010": _EST_2010, "2015": "Valor", "2020": "Valor"}
+# the estimator rows whose values the checks compare (2000's tabulados have none: every
+# number from the nation's row down, :func:`_c2k_traced`; 7z)
+_ESTIMATOR = {"2000": None, "2010": _EST_2010, "2015": "Valor", "2020": "Valor"}
 
 
 class _CellText(str):
@@ -5767,13 +6511,16 @@ def coverage(period: str, paths: dict[str, Path], checks: tuple[Check, ...] | No
     through the checks' readers (:class:`_Traced`): a total read only into counts from its
     percentages counts as read (a wrong total puts every such count off)."""
     global _num
-    estimator = _ESTIMATOR[period]
+    estimator = _ESTIMATOR[period]           # 7z: CGPV 2000's (None) by its layout
     checks = tuple(c for c in (CHECKS if checks is None else checks) if c.period == period)
     order = lambda c: (len(c), c)  # noqa: E731
     places, workbooks = {}, {}
     for source in {c.source for c in checks}:
         sheets = {}
         for sheet, rows in _workbook(paths[f"{period}/{source}"]).items():
+            if estimator is None:                                               # 7z
+                sheets[sheet] = _c2k_traced(source, sheet, rows, places)
+                continue
             header = next((r for r in rows if "Estimador" in r.values()), None)
             est = header and next(c for c in header if header[c] == "Estimador")
             out = []
@@ -5813,6 +6560,25 @@ def coverage(period: str, paths: dict[str, Path], checks: tuple[Check, ...] | No
     return dict(unread)
 
 
+def _c2k_traced(source: str, sheet: str, rows: list[dict], places: dict) -> list[dict]:
+    """7z: a CGPV 2000 sheet with its published values traced — every number but column A's
+    from the nation's row («ESTADOS UNIDOS MEXICANOS», where every tabulado's data start)
+    down; ``places`` gets each value's (row label, column)."""
+    first = next(i for i, r in enumerate(rows)
+                 if (r.get("A") or "").strip().upper() == _C2K_NATION)
+    out = []
+    for i, r in enumerate(rows):
+        if i >= first:
+            r = dict(r)
+            for c, text in r.items():
+                if c != "A" and not np.isnan(_value_of(text)):
+                    r[c] = _CellText(text)
+                    r[c].place = place = (source, sheet, i, c)
+                    places[place] = (((r.get("A") or "").strip(),), c)
+        out.append(r)
+    return out
+
+
 def _value_of(text: str | None) -> float:
     """A published cell as a number (:func:`_num`), NaN when it is none (a word, «M.I.»)."""
     try:
@@ -5839,7 +6605,26 @@ def _frame(period: str, table: str, state: int) -> pd.DataFrame:
         frame = _with_dwelling(frame, period, state, ("TIPOHOG", "CLAVIVP"))   # 7x
     if table == "hogares" and period == "2000":
         frame = _with_members_2000(frame, state)                           # 7l
+    if table == "personas" and period == "2000":
+        frame = _with_migrants_2000(frame, state)                          # 7z
     return frame
+
+
+def _with_migrants_2000(p: pd.DataFrame, state: int) -> pd.DataFrame:
+    """7z: each CGPV 2000 dwelling's international migrants (its records in the `migrantes`
+    file; ``FACTOR`` is the dwelling's) as ``_MIGRANTS`` on its first person, 0 elsewhere."""
+    import mxcensus
+
+    m = mxcensus.load_cpv_migrantes("2000", state=state, labels=False)
+    per_dwelling = pd.Series(m.index.get_level_values(0)).value_counts()
+    dwelling = pd.Series(p.index.get_level_values(0))
+    first = ~dwelling.duplicated()
+    out = p.copy()
+    out["_MIGRANTS"] = np.where(first, dwelling.map(per_dwelling).fillna(0), 0)
+    missing = set(per_dwelling.index) - set(dwelling)
+    if missing:
+        raise RuntimeError(f"2000 state {state}: {len(missing)} migrant dwellings without persons")
+    return out
 
 
 def _with_members_2000(h: pd.DataFrame, state: int) -> pd.DataFrame:
@@ -6020,6 +6805,9 @@ def run(periods: list[str], states: list[int], tab_dir: Path = _DEFAULT_TAB_DIR,
                 if key != c.key or (state, sex) not in published[c.key]:
                     continue
                 pub = published[c.key][state, sex]
+                if c.of_nation:                                                 # 7z
+                    cells = [(num, den) for (num, _), (_, den) in
+                             zip(cells, sums[key, _NATION, sex])]
                 values = [_value(num, den, c.unit) for num, den in cells]
                 if c.combine:                                                   # 7o
                     values = c.combine(values)
@@ -6066,7 +6854,8 @@ def report(rows: list[dict], states: list[int]) -> str:
              "file; 7s: the 2010, 2015 and 2020 checks again on INEGI's national tabulados by "
              "locality size). 2000: shares "
              "in percentage points (published with two decimals; 7i: its dwelling averages as "
-             "they are); 2010, 2015 and 2020: counts "
+             "they are; 7z: its counts in persons, dwellings or households, and its tabulados "
+             "by locality size); 2010, 2015 and 2020: counts "
              "in persons (Σ `FACTOR`; published totals × percentages; the occupants Σ "
              "`FACTOR` × `NUMPERS`; 7o: the fertility rates and infant mortality per 1,000, to "
              "0.0001 unless a note says otherwise; 7x: Censo 2010's 10_01A, published as a PDF "
@@ -6076,8 +6865,14 @@ def report(rows: list[dict], states: list[int]) -> str:
         tol = _TOLERANCE[period]
         extra = ", ".join(f"state {s:02d}: {t}" for s, t in tol.items() if s is not None)
         unit = "points" if period == "2000" else "persons"
+        counts = (f" Counts (7z, the keys ending in «n»): {_COUNTS_2000[None]:g}, but Chiapas "
+                  f"and the nation {_CHIAPAS_COUNTS:,.0f}, every locality size "
+                  f"{_SIZED_COUNTS:,.0f} "
+                  "(Chiapas's records are not those INEGI's tabulados were computed from)."
+                  if period == "2000" else "")
         lines += [f"## {period}", "",
-                  f"Tolerance: {tol[None]} {unit}" + (f" ({extra})" if extra else "") + ".", "",
+                  f"Tolerance: {tol[None]} {unit}" + (f" ({extra})" if extra else "") + "."
+                  + counts, "",
                   "| check | tabulado | cells | median \\|Δ\\| | 95th pct. \\|Δ\\| | max \\|Δ\\| "
                   "(where) | beyond tolerance |",
                   "|---|---|---|---|---|---|---|"]
@@ -6126,7 +6921,7 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--report-only", action="store_true",
                     help="print the report instead of writing it")
     ap.add_argument("--coverage", action="store_true",
-                    help="list the published values no check reads (2010, 2015, 2020; 7y) "
+                    help="list the published values no check reads (7y; 2000 since 7z) "
                          "instead of running the checks")
     args = ap.parse_args(argv)
     if args.coverage:
@@ -6136,7 +6931,7 @@ def main(argv: list[str] | None = None) -> int:
             unread += sum(map(len, found.values()))
             print(f"{period}: {sum(map(len, found.values()))} published values unread")
             for (source, sheet), values in sorted(found.items()):
-                rows = sorted({dims[1:] for dims, _ in values})
+                rows = sorted({dims[1:] or dims for dims, _ in values})
                 print(f"  {source} [{sheet}]: {len(values)}, rows e.g. {rows[:3]}")
         return 1 if unread else 0
     rows = run(args.periods, args.states, args.tab_dir, args.mirror)

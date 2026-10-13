@@ -834,10 +834,85 @@ def test_coverage_traces_values(monkeypatch):
     assert t == 7.0 and t.cells == {1, 2} and (100 - t).cells == {1, 2}
 
 
+def test_cgpv2000_every_value_7z(monkeypatch):
+    """7z: CGPV 2000's layout row by row (a place's rows, its HOMBRES and MUJERES blocks, or
+    the sexes in columns; rows without values skipped; «RESTO DE LAS ENTIDADES»), its
+    locality sizes (``TAM_LOC`` 1, 2, 3–5, 6–7; the rows' spellings), the counts' checks, a
+    state's share of the nation's (``of_nation``), the migrants on the dwelling's first
+    person and the coverage probe on its layout (every number from the nation's row down)."""
+    rows = [{"A": "INEGI. TABULADOS", "B": "POBLACIÓN"}, {"C": "0", "D": "1"},   # a header
+            {"A": "ESTADOS UNIDOS MEXICANOS", "B": "100", "C": "60"},
+            {"A": "12 - 14  AÑOS", "B": "40", "C": "M.I"},
+            {"A": "HOMBRES", "B": "50", "C": "55"}, {"A": "12 - 14  AÑOS", "B": "20", "C": "50"},
+            {"A": "MUJERES", "B": "50", "C": "65"},
+            {"A": "01 AGUASCALIENTES"},                     # a place without values: no row
+            {"A": "SERVICIO", "B": "7", "C": "1"},
+            {"A": "RESTO DE LAS ENTIDADES", "B": "9", "C": "2"}, {"A": "/1 NOTA AL PIE."}]
+    read = ck._c2k_every("BC")({"x": rows})
+    assert read[0, "T"][:3] == [100, 60, 40] and np.isnan(read[0, "T"][3])
+    assert read[0, "H"] == [50, 55, 20, 50] and read[0, "M"] == [50, 65]
+    assert read[1, "T"] == [7, 1] and read[98, "T"] == [9, 2] and len(read) == 5
+    assert ck._c2k_every({"T": "B", "H": "C"}, row=lambda v: [2 * v[0]])({"x": rows[2:3]}) == {
+        (0, "T"): [200], (0, "H"): [120]}
+    sized = ck._sized_rows_2000([{"A": " MENOS DE 2 500  HABITANTES "},
+                                 {"A": "DE 2 500 A 14 999 HABITANTES"},
+                                 {"A": "15 000 A 99 999 HABITANTES"},
+                                 {"A": "100 000 Y MÁS   HABITANTES"}, {"A": "12 - 14  AÑOS"}])
+    assert [ck._state_of(r["A"]) for r in sized] == [1, 2, 3, 4, None]
+    assert ck._size_2000(pd.DataFrame({"TAM_LOC": list("1234567")})).tolist() == [
+        1, 2, 3, 3, 3, 4, 4]
+    by = {c.key: c for c in ck.CHECKS if c.period == "2000"}
+    n = by["SS04n"]
+    assert (n.unit, n.tolerance, n.cells) == ("persons", ck._COUNTS_2000, ("all",))
+    assert n.title == "Health coverage (`DHSERSAL_*`): population (counts)"
+    assert (by["SS02n"].tolerance, by["SS02n"].source, by["SS02n"].by_size) == (
+        {None: ck._SIZED_COUNTS}, "C2KSS02.xls", True)
+    assert by["SS02"].title.endswith("(as SS04)") and by["SS02"].tolerance is None
+    with pytest.raises(RuntimeError, match="sizes"):
+        by["SS02"].published({"x": rows})
+    # the migrants of each dwelling on its first person
+    p = pd.DataFrame({"x": range(4)}, index=pd.MultiIndex.from_tuples(
+        [("A", 1, 1), ("A", 1, 2), ("B", 1, 1), ("C", 2, 1)]))
+    m = pd.DataFrame({"y": range(3)}, index=pd.MultiIndex.from_tuples(
+        [("A", 1, 1), ("A", 1, 2), ("C", 2, 1)]))
+    import mxcensus
+    monkeypatch.setattr(mxcensus, "load_cpv_migrantes", lambda *a, **k: m)
+    assert ck._with_migrants_2000(p, 1)["_MIGRANTS"].tolist() == [2, 0, 0, 1]
+    monkeypatch.setattr(mxcensus, "load_cpv_migrantes", lambda *a, **k: pd.concat(
+        [m, pd.DataFrame({"y": [9]}, index=pd.MultiIndex.from_tuples([("D", 1, 1)]))]))
+    with pytest.raises(RuntimeError, match="without persons"):
+        ck._with_migrants_2000(p, 1)
+    # MI13: each state left's share of the nation's migrants to a destination
+    states = [f"{s:02d}  ESTADO" for s in range(1, 33)]
+    sheet = [{"A": "ESTADOS UNIDOS MEXICANOS", "B": "64", "C": "32", "D": "31", "E": "1"},
+             *({"A": a, "B": "3.125", "C": "3.125", "D": "0" if s == 1 else "3.2258",
+                "E": "100" if s == 1 else "0"} for s, a in enumerate(states, 1))]
+    frames = {s: pd.DataFrame({"FACTOR": ["1", "1"], "MSEXO": ["1", "2"],
+                               "MLUGORI_C": [f"{s:02d}"] * 2,
+                               "MPDESOTR_C": ["221", "999" if s == 1 else "300"]})
+              for s in range(1, 33)}
+    from mxcensus.data import _registry
+    monkeypatch.setattr(_registry.POOCH, "fetch", _registry.POOCH.fetch)
+    monkeypatch.setattr(ck, "CHECKS", (by["MI13"], by["MI13n"]))
+    monkeypatch.setattr(ck, "fetch", lambda periods, tab_dir: {"2000/C2KMI13.xls": "x"})
+    monkeypatch.setattr(ck, "_workbook", lambda path: {"Sheet1": sheet})
+    monkeypatch.setattr(ck, "_frame", lambda period, table, state: frames[state])
+    out = ck.run(["2000"], list(range(1, 33)), log=lambda *a: None)
+    assert {r["check"] for r in out} == {"MI13", "MI13n"}
+    assert max(abs(r["delta"]) for r in out) < 1e-3 and len(out) == 4 + 32 * 4
+    # the coverage probe: column C and none of the header's numbers unread
+    monkeypatch.setattr(ck, "_workbook", lambda path: {"Sheet1": rows})
+    check = ck.Check("2000", "x", "x", "x.xls", "personas", ("all",), ck._c2k_every("B"), None)
+    found = ck.coverage("2000", {"2000/x.xls": Path("x.xls")}, (check,))
+    assert found == {("x.xls", "Sheet1"): [((a,), "C") for a in (
+        "ESTADOS UNIDOS MEXICANOS", "HOMBRES", "12 - 14  AÑOS", "MUJERES", "SERVICIO",
+        "RESTO DE LAS ENTIDADES")]}
+
+
 @_REAL_SKIP
 def test_every_published_value_is_read():
     """7x, 7y: every published value of the Censo 2010, EIC 2015 and Censo 2020 tabulados
-    enters a compared cell (no frames needed: the readers only)."""
+    enters a compared cell (no frames needed: the readers only); 7z: CGPV 2000's too."""
     paths = {f"{p}/{n}": _TABS / p / n for p in ck._ESTIMATOR for n in ck.SOURCES[p][1]}
     for period in ck._ESTIMATOR:
         assert ck.coverage(period, paths) == {}, period
@@ -845,6 +920,10 @@ def test_every_published_value_is_read():
     found = ck.coverage("2020", paths, less)
     assert set(found) == {("cpv2020_a_eum_09_servicios_de_salud.xlsx", "04")}
     assert len(found["cpv2020_a_eum_09_servicios_de_salud.xlsx", "04"]) == 33 * 11 * 12
+    less = tuple(c for c in ck.CHECKS if (c.period, c.key) != ("2000", "VI16n"))   # 7z
+    found = ck.coverage("2000", paths, less)
+    assert set(found) == {("C2KVI16.xls", "Sheet1")}
+    assert len(found["C2KVI16.xls", "Sheet1"]) == 33 * 10          # the dwellings per good
 
 
 def test_checks_are_consistent():
@@ -859,9 +938,10 @@ def test_checks_are_consistent():
         assert c.table != "migrantes" or c.period in ("2000", "2010", "2020")  # 7m, 7n
         assert not c.by_origin or c.table == "migrantes" or c.period == "2000" or c.key in (
             "05_01A", "05_02A", "04-06") or c.by_size  # 7d, 7m; 7p: the rest, 98; 7s; 7v: 2010
-        assert not c.by_size or c.by_origin and c.period in ("2010", "2015", "2020")    # 7s
+        assert not c.by_size or c.by_origin                                 # 7s; 7z: 2000
         assert c.table != "hogares" or c.period == "2000"          # 6t: 2000's household rows
-        assert c.unit != "persons" or c.period != "2000"          # 2000: shares, averages
+        assert c.unit != "persons" or c.period != "2000" or c.tolerance in (  # 7z: counts
+            ck._COUNTS_2000, {None: ck._SIZED_COUNTS})
         assert c.unit in ("persons", "rate") or c.period in ("2000", "2015") or (
             c.key in ("04-12m", "04-11m", "04_10Am", "04_09Am", "10_01As"))
         #                                      7j, 7o; 7p: months abroad; 7s: by size; 7x: 2010
@@ -926,7 +1006,8 @@ def test_state_01_within_tolerance(monkeypatch):
                          + 4645                                               # 7v: 2015
                          + 3931                                               # 7w: 2020
                          + 2316 + 672 + 3511                                  # 7x: 2010, 2015
-                         + 181)                                               # 7y: 2020
+                         + 181                                                # 7y: 2020
+                         + 673)                                               # 7z: 2000
     #                                                 6q: 2015 affiliation, commute, marital status,
     #                                                 education (2010's are national); 6r: 2000
     #                                                 hours, education of the 12+/18+; 6t: 2000/2015
@@ -977,14 +1058,20 @@ def test_state_01_within_tolerance(monkeypatch):
     #                                                 7y: Censo 2020's unspecified age (01-02,
     #                                                 01-04), the superior's fields (07-04),
     #                                                 the employed (08-06/08), the use of
-    #                                                 services by affiliation (09-04)
+    #                                                 services by affiliation (09-04);
+    #                                                 7z: CGPV 2000's counts (+258), every age
+    #                                                 row (EC02 +84, MI01 +45, MI03 +36), totals
+    #                                                 (VI18/VI18o +8, DI04 +3), ED10m, MI09r,
+    #                                                 SS03/07/08/09, ED14 (the by-size ones are
+    #                                                 national, MI13 needs all 32 states)
     by_origin = {c.key for c in ck.CHECKS if c.by_origin and not c.by_size}  # 7d: all 32
     assert by_origin == {"MI02", "MI05", "MI10", "MI11", "MI12",
                          "04_04A", "04_05A", "04_06A",                     # 7m: 2010's migrants
                          "04-04", "04-06", "04-08", "04-10",               # 7n: 2020's
                          "05_01A", "05_02A", "04-15",                      # 7p
                          "04-06",                                          # 7v: the 2015 internal
-                         "04_08A"}                                         # 7x
+                         "04_08A",                                         # 7x
+                         "LI02", "LI02n", "MI13"}                          # 7z
     assert not {(c.period, c.key) for c in ck.CHECKS if c.by_origin} & {
         (r["period"], r["check"]) for r in rows}                          # 7s: by size too
     income = [r for r in rows if r["check"] in ("EM08", "08_10A", "08-11", "08-18")]
@@ -1001,7 +1088,9 @@ def test_state_01_within_tolerance(monkeypatch):
         "14-14", "14-16s")]                                                # 7h
     assert len(raw) == 262 + 25 + 275 + 10 and {r["sex"] for r in raw} == {"T"}  # + 16-34
     vi = [r for r in rows if r["check"].startswith("VI") and r["check"] not in ("VI06", "VI10")]
-    assert len(vi) == 317 and {r["sex"] for r in vi} == {"T"}                # 7i
+    counts = [r for r in vi if r["check"].endswith("n")]                     # 7z: the counts
+    assert len(vi) == 317 + 8 + 51 and len(counts) == 51 and {r["sex"] for r in vi} == {"T"}
+    #                                                          7i; 7z: VI18's totals, the counts
     new = {c.key for c in ck._person_checks_2015_v()}
     v = [r for r in rows if r["period"] == "2015" and r["check"] in new]
     assert len(v) == 4645 + 66                                       # 7v; 7x: 07-06's «Total»
