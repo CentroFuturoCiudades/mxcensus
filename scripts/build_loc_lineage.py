@@ -45,6 +45,18 @@ stated on both records; with none, the target's own record decides (a new code t
 another origin is not this locality's), then a name-verified one, one stated on the
 locality's own record, the closest name (``lineage``).
 
+**INEGI's slips** (8b). A listed code («A esta localidad se conurban las …») that its own
+record never states is the one locality a slip apart — its number in another municipality
+or state, or one digit off — that states the event into the listing record at that edition
+(``repair_lists``: Telchac Pueblo lists Mayapán's 0052 and 0061 for its own). A locality
+number stated with the record's own name and another locality's number names the record
+itself (no link). The localities' own records then decide (``lineage``): a same-day
+absorption and separation of two localities, the locality's record; both at one edition
+cancel out; an absorption whose locality has a population of its own at that edition's
+census (the AHL's ``Habitantes``, read for that only) takes effect after its last census
+with one, or is dropped when only others state it; a separation whose locality is counted
+only later takes effect then.
+
 **Editions.** A link is dated by its event: a census or count row by that census's
 reference date, an update by its date, a decree by the first date in its text. ``PERIOD``
 is the first edition whose **cut** is on or after that date. The cut is the last change an
@@ -53,7 +65,9 @@ for 1990, 1995 and 2000, INEGI's geostatistical update of 30 October 2005 for th
 2005, that of 15 October 2010 for the Censo 2010, every change of 2020 for the Censo 2020
 (its ITER and MG frame), every change up to 30 November 2025 for the MG 2025 frame. Links in
 effect by 1990 are dropped, except those counted with another locality at the 1990 census. A
-link stated on both records is ``CONFIRMED``.
+link stated on both records is ``CONFIRMED``. ``--check`` also lists the units of
+``cpv_locality_units(1990, 2025)`` joining localities of 2,500+ whose path deserves a look
+(``large_units``: far apart, through a smaller locality, one record, a remnant).
 
 Usage::
 
@@ -74,8 +88,8 @@ import unicodedata
 import urllib.parse
 import urllib.request
 import zipfile
-from collections import Counter
-from dataclasses import dataclass, field
+from collections import Counter, defaultdict
+from dataclasses import dataclass, field, replace
 from datetime import date
 from pathlib import Path
 
@@ -235,11 +249,13 @@ _PATTERNS: list[tuple[str, re.Pattern]] = [(name, re.compile(rx, re.I)) for name
     # absorptions, counted with, separations; a locality number may come with its name
     # before («Tenabo, con clave (0001)», «Acatepec (San Antonio) (0054)») or after it
     # («(0321) Los Laureles»)
-    ("absorbida", r"(?:se (?:conurba|fusiona)|(?:localidad )?(?:conurbada|fusionada)) "
+    # («A esta localidad se conurba a 220140470» lists the absorbed: «absorbe»)
+    ("absorbida", r"(?<!a esta localidad )(?<!a está localidad )"
+                  r"(?:se (?:conurba|fusiona)|(?:localidad )?(?:conurbada|fusionada)) "
                   r"(?:a|al|con) " + _ART + r"(?:(\d{9})|(" + _N + r"),? (?:con )?(?:la )?clave "
                   r"\(?(\d{9}|\d{4})\)?|\((\d{4})\)\s+" + _AFTER + r"|(" + _N
                   + r")\s*\((\d{4})\)(?:,? del municipio (?:de )?" + _N + _MUN + r")?)"),
-    ("absorbe", _HERE + r"(?:conurba|fusiona|integra)n? (?:parte de )?" + _ART + _LIST),
+    ("absorbe", _HERE + r"(?:conurba|fusiona|integra)n? (?:a )?(?:parte de )?" + _ART + _LIST),
     ("censo_clave", r"cens[oó] con (?:la )?clave(?: de localidad)? \(?(\d{4})\)?"),
     ("censo_con", r"(?:se )?cens[oó] con (?!(?:la )?clave)" + _ART + r"(" + _N
                   + r")\s*\((\d{4})\)"),
@@ -282,7 +298,8 @@ class Link:
     day: date | None
     event: str
     record: str      # the AHL record that states it
-    verified: bool = True    # False: a locality number placed without its name matching
+    verified: bool | None = True    # False: a locality number placed without its name
+                                    # matching; None: stated with the record's own name
 
 
 def _expand(x: str, ent: str, mun: str) -> str:
@@ -341,12 +358,20 @@ def name_match(a: str, b: str, fuzzy: bool = True) -> int:
                and difflib.SequenceMatcher(None, sa, sb).ratio() >= 0.85)
 
 
+def _names_itself(stated: str, own: str) -> bool:
+    """``stated`` is ``own`` (``name_match`` 2 or 3) or a misspelling of it."""
+    level = name_match(stated, own)
+    return level >= 2 or (level == 1 and not name_match(stated, own, fuzzy=False))
+
+
 class Resolver:
     """A locality number (4 digits) stated with a name, without its municipality: among
     the state's localities with that number, the one whose names in the AHL match the name
     best (``name_match``; a misspelling only when no name matches otherwise), the stating
     record's municipality on a tie with it; the record's municipality when none matches or
-    several tie (counted as unverified)."""
+    several tie (counted as unverified) — unless the name is the stating record's own and
+    the number another locality's: it names itself (``verified`` ``None``; ``parse`` keeps
+    the link only when the other record states it)."""
 
     def __init__(self, rows: list[Row]):
         self.names: dict[str, set[str]] = {}
@@ -358,8 +383,12 @@ class Resolver:
         self.counts = Counter()
 
     def __call__(self, ent: str, mun: str, loc: str, name: str,
-                 stated_mun: str = "") -> tuple[str, bool]:
-        """The code and whether its name matched."""
+                 stated_mun: str = "", own_name: str = "") -> tuple[str, bool | None]:
+        """The code and whether its name matched; ``None`` when the number is another
+        locality's of the record's municipality, no locality of that number bears the name,
+        and it is ``own_name``, the stating record's name then: the record names itself
+        («Colinas del Aeropuerto: Se conurba a Colinas del Areopuerto (0001)», Pesquería's
+        number)."""
         if stated_mun:
             return ent + stated_mun + loc, True
         own = ent + mun + loc
@@ -379,6 +408,9 @@ class Resolver:
         if best and len(top) == 1:
             self.counts["other municipality"] += 1
             return top[0], True
+        if own_name and own in self.names and _names_itself(name, own_name):
+            self.counts["its own name"] += 1
+            return own, None
         self.counts["unverified"] += 1
         return own, False
 
@@ -390,7 +422,7 @@ def record_links(rows: list[Row], resolve: Resolver | None = None) -> list[Link]
     code = rows[0].code
     ent, mun = code[:2], code[2:5]
     if resolve is None:
-        def resolve(e, m, loc, name, stated=""):
+        def resolve(e, m, loc, name, stated="", own_name=""):
             return e + (stated or m) + loc, True
 
     def add(src, dst, kind, r, verified=True):
@@ -451,7 +483,7 @@ def record_links(rows: list[Row], resolve: Resolver | None = None) -> list[Link]
         for full, name2, key, loc3, name3, name, loc, m in f.get("absorbida", []):
             dst = (full or (key if len(key) == 9 else "")
                    or resolve(ent, mun, key or loc3 or loc, name2 or name3 or name,
-                              m or to_mun))
+                              m or to_mun, r.name))
             add(code, dst, "absorption", r)
         for (lst,) in f.get("absorbe", []):
             for x in re.findall(r"\d{9}", lst):
@@ -459,9 +491,10 @@ def record_links(rows: list[Row], resolve: Resolver | None = None) -> list[Link]
         for (loc,) in f.get("censo_clave", []):       # its own number at that census
             add(code, ent + mun + loc, "counted_with", r)
         for name, loc in f.get("censo_con", []):
-            add(code, resolve(ent, mun, loc, name), "counted_with", r)
+            add(code, resolve(ent, mun, loc, name, "", r.name), "counted_with", r)
         for full, loc3, name3, name, loc, m in f.get("separada", []):
-            add(code, full or resolve(ent, mun, loc3 or loc, name3 or name, m or from_mun),
+            add(code, full or resolve(ent, mun, loc3 or loc, name3 or name, m or from_mun,
+                                      r.name),
                 "separation", r)
         for (lst,) in f.get("separa", []):
             for x in re.findall(r"\d{9}", lst):
@@ -486,7 +519,72 @@ def parse(mov: pd.DataFrame) -> tuple[list[Row], list[Link], Counter]:
         if end == len(rows) or rows[end].code != rows[start].code:
             links.extend(record_links(rows[start:end], resolve))
             start = end
-    return rows, links, resolve.counts
+    # a locality number stated with the record's own name: a link only when the other
+    # record states it too (its number was right: «San Juan: Se fusiona a San Juan (0009)»,
+    # which lists it), else none
+    stated = defaultdict(set)
+    for l in links:
+        stated[(l.source, l.target, l.kind)].add(l.record)
+    out = []
+    for l in links:
+        if l.verified is None:
+            if not stated[(l.source, l.target, l.kind)] - {l.record}:
+                continue
+            resolve.counts["its own name"] -= 1
+            resolve.counts["its own name, stated by the other"] += 1
+            l = replace(l, verified=True)
+        out.append(l)
+    return rows, out, resolve.counts
+
+
+def _twin(a: str, b: str) -> bool:
+    """Codes a slip apart: the locality number in another municipality or state, or one
+    digit off."""
+    return a != b and (a[5:] == b[5:] or sum(x != y for x, y in zip(a, b)) == 1)
+
+
+def repair_lists(links: list[Link]) -> tuple[list[Link], pd.DataFrame]:
+    """INEGI's slips in the lists of absorbed or separated localities («A esta localidad se
+    conurban las …», «De esta localidad se desconurba …»). A listed code whose own record
+    does not state the event, while exactly one locality a slip apart (``_twin``) states it
+    into the listing record at that edition without being listed — and no other listed code
+    claims that one —, is that locality: «Telchac Pueblo: A esta localidad se conurba la
+    310490052 y 310490061» lists Mayapán's codes for its own 0052 and 0061, which state «Se
+    conurba a Telchac Pueblo (0001)» that day. Returns the links with the listed code
+    replaced, and the replacements (``KIND``, ``LISTED``, ``MEANT``, ``RECORD``, ``DATE``)."""
+    kinds = ("absorption", "separation")
+    stated = defaultdict(set)                   # (source, target, kind) → stating records
+    own = defaultdict(list)                     # (target, kind) → statements of the source
+    for l in links:
+        if l.kind in kinds:
+            stated[(l.source, l.target, l.kind)].add(l.record)
+            if l.record == l.source:
+                own[(l.target, l.kind)].append(l)
+
+    def edition(day):
+        return edition_of(day) if day else None
+
+    claims = {}                                 # (listed, target, kind, edition) → twin
+    for l in links:
+        if (l.kind not in kinds or l.record != l.target or l.day is None
+                or l.source in stated[(l.source, l.target, l.kind)]):
+            continue
+        twins = {o.source for o in own[(l.target, l.kind)]
+                 if edition(o.day) == edition(l.day) and _twin(o.source, l.source)
+                 and l.target not in stated[(o.source, l.target, l.kind)]}
+        if len(twins) == 1:
+            claims[(l.source, l.target, l.kind, edition(l.day))] = twins.pop()
+    meant = Counter((t, k, e, twin) for (_, t, k, e), twin in claims.items())
+    out, log = [], []
+    for l in links:
+        twin = claims.get((l.source, l.target, l.kind, edition(l.day)))
+        if twin and l.record == l.target and meant[(l.target, l.kind, edition(l.day), twin)] == 1:
+            out.append(Link(twin, l.target, l.kind, l.day, l.event, l.record, l.verified))
+            log.append((l.kind, l.source, twin, l.record, l.day))
+        else:
+            out.append(l)
+    log = pd.DataFrame(log, columns=["KIND", "LISTED", "MEANT", "RECORD", "DATE"])
+    return out, log.drop_duplicates(ignore_index=True)
 
 
 @functools.cache
@@ -506,6 +604,23 @@ def _in_scope(day: date | None, kind: str, latest: date) -> bool:
 def _previous(period: str) -> str:
     eds = list(EDITIONS)
     return eds[max(eds.index(period) - 1, 0)]
+
+
+def _next(period: str) -> str:
+    eds = list(EDITIONS)
+    return eds[min(eds.index(period) + 1, len(eds) - 1)]
+
+
+def populated(hab: pd.DataFrame) -> dict[str, list[date]]:
+    """The censuses 1990–2020 at which each locality has a population of its own, from the
+    AHL's ``Habitantes``: a number of inhabitants (its rows with one are the ITER's
+    localities but INEGI's copies at code changes, 7t/7u; «*» is a locality the ITER does not
+    list — in 1995 also a count it reserves —, «0» and «-» none)."""
+    out: dict[str, list[date]] = {}
+    for code, year, total in zip(hab["CVE_GEOEST"], hab["EVE_CENSAL"], hab["TOT_HAB"]):
+        if year in CENSUS_DATES and re.fullmatch(r"[\d,]*[1-9][\d,]*", total.strip()):
+            out.setdefault(code, []).append(CENSUS_DATES[year])
+    return out
 
 
 def pair_unkeyed(rows: list[Row], links: list[Link], latest: date
@@ -625,8 +740,9 @@ def pair_unkeyed(rows: list[Row], links: list[Link], latest: date
         "PERIOD", "MOVE", "RECORD", "MUNICIPALITY", "NAME", "WHY", "CANDIDATES", "TEXT"])
 
 
-def lineage(rows: list[Row], links: list[Link], latest: date
-            ) -> tuple[pd.DataFrame, pd.DataFrame]:
+def lineage(rows: list[Row], links: list[Link], latest: date,
+            counted: dict[str, list[date]] | None = None
+            ) -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
     """The links in scope, one per (``FROM``, ``TO``, ``KIND``, ``PERIOD``): ``DATE`` the
     earliest statement's, ``CONFIRMED`` when both records state it.
 
@@ -644,14 +760,94 @@ def lineage(rows: list[Row], links: list[Link], latest: date
     Undecided ``code`` claims on a locality whose record goes on under its own code at a later
     census (none of them a renumbering) are all dropped; any other undecided claims are all
     kept (a unit only gets coarser) — among them a locality split in two, each part stating
-    it as its origin. Returns the table and the rival claims (every claim of a locality with
-    several, the rule that decided them, ``KEPT``)."""
+    it as its origin.
+
+    Before the rival claims, the localities' own records (``corrections``, ``RULE``):
+
+    - an absorption and a separation of the same two localities stated the same day on two
+      records: the locality's own record decides (*contradicted the same day*: Zamora «Se
+      conurba a Ciudad Melchor Múzquiz», Múzquiz «De esta localidad se desconurban las …
+      050200772», 15 June 2009);
+    - an absorption and a separation of the same two localities at one edition cancel out:
+      it joined the other and left it again, or left and joined it again, between two
+      editions (*joined and left*: La Luz Francisco I. Madero, conurbed to Córdoba in 2001,
+      «Se desconurba de Córdoba» at the Conteo 2005);
+    - an absorption whose locality has a population of its own at that edition's census
+      (``counted``: ``populated``, the AHL's ``Habitantes`` = the edition's ITER, up to its
+      cut) did not take effect then: when the locality's own record states it, it takes
+      effect at the first edition after whose census it has none (*moved*; 2025 after 2020);
+      stated only by others, it is dropped (*counted on its own*: «Hermosillo: A esta
+      localidad se conurban las 260300535 …», San Pedro el Saucito counted in 2020);
+    - a separation whose locality has no population of its own at that edition's census
+      (2000–2020) but has one later takes effect at the first edition whose census counts
+      it (*moved*: San Miguel Contla and San Lucas Tlacochcalco, stated apart from Santa
+      Cruz Tlaxcala at the Censo 2000, first counted in 2005).
+
+    Returns the table, the rival claims (every claim of a locality with several, the rule
+    that decided them, ``KEPT``) and the corrections (``RULE``, ``PERIOD``, ``KIND``,
+    ``FROM``, ``TO``, ``TO_PERIOD`` — the edition a moved link takes effect at)."""
     df = pd.DataFrame([l.__dict__ for l in links])
     df = df[[_in_scope(d, k, latest) for d, k in zip(df["day"], df["kind"])]].copy()
     df["PERIOD"] = df["day"].map(edition_of)
     df["side"] = ["from" if rec == s else "to" if rec == t else "other"
                   for rec, s, t in zip(df["record"], df["source"], df["target"])]
     df = df.sort_values("day", kind="stable")
+    fixes = []
+    # one record states an absorption, the other a separation, the same day: the locality's
+    # own record decides
+    day_kinds, day_own = defaultdict(set), defaultdict(set)
+    for s, t, d, k, sd in zip(df["source"], df["target"], df["day"], df["kind"], df["side"]):
+        if k in ("absorption", "separation"):
+            day_kinds[(s, t, d)].add(k)
+            if sd == "from":
+                day_own[(s, t, d)].add(k)
+    wrong = {(*key, (ks - day_own[key]).pop()) for key, ks in day_kinds.items()
+             if len(ks) == 2 and len(day_own[key]) == 1}
+    gone = pd.Series([(s, t, d, k) in wrong for s, t, d, k in
+                      zip(df["source"], df["target"], df["day"], df["kind"])], index=df.index)
+    fixes += [("contradicted the same day", p, k, s, t, "") for s, t, k, p in
+              zip(df.loc[gone, "source"], df.loc[gone, "target"], df.loc[gone, "kind"],
+                  df.loc[gone, "PERIOD"])]
+    df = df[~gone]
+    pair = list(zip(df["source"], df["target"], df["PERIOD"]))
+    both = ({k for k, kind in zip(pair, df["kind"]) if kind == "absorption"}
+            & {k for k, kind in zip(pair, df["kind"]) if kind == "separation"})
+    cancel = pd.Series([k in both for k in pair], index=df.index) & df["kind"].isin(
+        ["absorption", "separation"])
+    fixes += [("joined and left", p, k, s, t, "")
+              for s, t, k, p in zip(df.loc[cancel, "source"], df.loc[cancel, "target"],
+                                    df.loc[cancel, "kind"], df.loc[cancel, "PERIOD"])]
+    df = df[~cancel]
+    counted = counted or {}
+    ab = df["kind"] == "absorption"
+    own = set(zip(df.loc[ab & (df["side"] == "from"), "source"],
+                  df.loc[ab & (df["side"] == "from"), "target"]))
+    drop = pd.Series(False, index=df.index)
+    for (s, t, p), g in df[ab].groupby(["source", "target", "PERIOD"], sort=False):
+        # a population at that edition's census: the census (= its codes, up to its cut)
+        # counts it on its own
+        pops = set(counted.get(s, ()))
+        if p not in CENSUS_DATES or CENSUS_DATES[p] not in pops:
+            continue
+        if (s, t) in own:
+            to = p
+            while to in CENSUS_DATES and CENSUS_DATES[to] in pops:
+                to = _next(to)
+            df.loc[g.index, "PERIOD"] = to
+            fixes.append(("moved", p, "absorption", s, t, to))
+        else:
+            drop[g.index] = True
+            fixes.append(("counted on its own", p, "absorption", s, t, ""))
+    df = df[~drop]
+    # a separated locality without a population of its own at that edition's census, with
+    # one later (not the Conteo 1995, whose «*» is also a count its ITER reserves)
+    se = df["kind"] == "separation"
+    for (s, t, p), g in df[se].groupby(["source", "target", "PERIOD"], sort=False):
+        pops = set(counted.get(s, ()))
+        later = [q for q in CENSUS_DATES if q > p and CENSUS_DATES[q] in pops]
+        if p in CENSUS_DATES and p != "1995" and CENSUS_DATES[p] not in pops and later:
+            df.loc[g.index, "PERIOD"] = later[0]
+            fixes.append(("moved", p, "separation", s, t, later[0]))
     out = (df.groupby(["source", "target", "kind", "PERIOD"], sort=False)
              .agg(DATE=("day", "first"), EVENT=("event", "first"),
                   sides=("side", lambda s: frozenset(s)), verified=("verified", "max"))
@@ -719,16 +915,21 @@ def lineage(rows: list[Row], links: list[Link], latest: date
     out = out.rename(columns={"source": "FROM", "target": "TO", "kind": "KIND"})
     out = out[["PERIOD", "DATE", "EVENT", "KIND", "FROM", "TO", "CONFIRMED"]]
     out["KIND"] = pd.Categorical(out["KIND"], KINDS)
+    fixes = pd.DataFrame(fixes, columns=["RULE", "PERIOD", "KIND", "FROM", "TO", "TO_PERIOD"])
     return (out.sort_values(["PERIOD", "KIND", "FROM", "TO"]).reset_index(drop=True),
-            rivals.reset_index(drop=True))
+            rivals.reset_index(drop=True),
+            fixes.drop_duplicates().sort_values(["RULE", "PERIOD", "FROM", "TO"],
+                                                ignore_index=True))
 
 
 def build(path: Path) -> tuple[pd.DataFrame, list[Row], dict]:
     """The lineage table, the history rows and the build's counts."""
     latest = ahl_date(path)
     rows, links, placed = parse(read_ahl(path, "Movimientos"))
+    links, repaired = repair_lists(links)
     extra, unkeyed, left = pair_unkeyed(rows, links, latest)
-    table, rivals = lineage(rows, links + extra, latest)
+    table, rivals, fixes = lineage(rows, links + extra, latest,
+                                   populated(read_ahl(path, "Habitantes")))
     # the links that rest on a locality number placed without its name matching, stated
     # on no other record
     verified: dict[tuple, bool] = {}
@@ -741,7 +942,7 @@ def build(path: Path) -> tuple[pd.DataFrame, list[Row], dict]:
         table["CONFIRMED"]))
     stats = {"rows": len(rows), "records": len({r.code for r in rows}),
              "statements": len(links), "unkeyed": dict(unkeyed), "unpaired": left,
-             "rivals": rivals,
+             "rivals": rivals, "repaired": repaired, "fixes": fixes,
              "latest": latest,
              "undated": sum(1 for l in links if l.day is None),
              "after_export": sum(1 for l in links if l.day and l.day > latest),
@@ -939,6 +1140,124 @@ def municipal_moves(table: pd.DataFrame) -> pd.DataFrame:
     return pd.DataFrame(rows).fillna(0)
 
 
+_POPULATION = {"1990": "P_TOTAL", "1995": "POBTOTAL", "2000": "POBTOT", "2005": "P_TOTAL",
+               "2010": "POBTOT", "2020": "POBTOT"}
+
+
+def edition_localities(mirror: Path) -> pd.DataFrame:
+    """Every ITER locality 1990–2020 (``CODE``, ``PERIOD``, ``NAME``, ``POP``), from the
+    mirror; an edition with a file missing is left out."""
+    import pyarrow.parquet as pq
+    frames = []
+    for period, pcol in _POPULATION.items():
+        files = [mirror / f"cpv_iter_{period}_{s:02d}.parquet" for s in range(1, 33)]
+        if not all(f.exists() for f in files):
+            continue
+        for f in files:
+            cols = {c.upper(): c for c in pq.read_schema(f).names}
+            t = pq.read_table(f, columns=[cols[c] for c in ("ENTIDAD", "MUN", "LOC", "NOM_LOC",
+                                                             pcol)]).to_pandas()
+            t.columns = ["E", "M", "L", "NAME", "POP"]
+            t = t[(t.M.str.zfill(3) != "000") & ~t.L.str.zfill(4).isin(["0000", "9998", "9999"])]
+            frames.append(pd.DataFrame({
+                "CODE": t.E.str.zfill(2) + t.M.str.zfill(3) + t.L.str.zfill(4),
+                "PERIOD": period, "NAME": t.NAME,
+                "POP": pd.to_numeric(t.POP, errors="coerce")}))
+    return pd.concat(frames, ignore_index=True) if frames else pd.DataFrame(
+        columns=["CODE", "PERIOD", "NAME", "POP"])
+
+
+def points(path: Path) -> dict[str, tuple[float, float]]:
+    """Each AHL record's coordinates (decimal degrees, ``mxcensus.ahl``'s reading)."""
+    sys.path.insert(0, str(_REPO_ROOT / "src"))
+    from mxcensus.ahl import _degrees
+    m = read_ahl(path, "Maestro")
+    lat, lon = _degrees(m["LATITUD"], "LATITUD"), _degrees(m["LONGITUD"], "LONGITUD")
+    return {c: (a, o) for c, a, o in zip(m["CVE_GEOEST"], lat, lon)
+            if pd.notna(a) and pd.notna(o)}
+
+
+def _km(a: tuple[float, float], b: tuple[float, float]) -> float:
+    import math
+    p = math.pi / 180
+    h = (math.sin((b[0] - a[0]) * p / 2) ** 2
+         + math.cos(a[0] * p) * math.cos(b[0] * p) * math.sin((b[1] - a[1]) * p / 2) ** 2)
+    return 12742 * math.asin(math.sqrt(h))
+
+
+def large_units(table: pd.DataFrame, locs: pd.DataFrame, xy: dict, start: str = "1990",
+                end: str = "2025", size: int = 2500) -> tuple[int, pd.DataFrame]:
+    """The units of ``cpv_locality_units(start, end)`` that join two or more localities of
+    ``size`` inhabitants or more at some ITER (the audit of 8b): how many, and each large
+    member joined to its unit's largest by the shortest path of links, flagged when they lie
+    more than 10 km apart (``xy``) and the path is not code changes only (*far*), when the
+    path runs through a smaller locality (*through a smaller one*), when a link of it is
+    stated on one record only (*one record*), or when it is code changes only and both
+    codes are counted at one ITER (*both counted*). Returns the count and the flagged."""
+    eds = list(EDITIONS)
+    ia, ib = eds.index(start), eds.index(end)
+    pos = table["PERIOD"].map(eds.index)
+    counted = table["KIND"] == "counted_with"
+    span = table[(~counted & (pos > ia) & (pos <= ib)) | (counted & (pos >= ia) & (pos <= ib))]
+    adj = defaultdict(list)
+    for r in span.itertuples(index=False):
+        adj[r.FROM].append((r.TO, r))
+        adj[r.TO].append((r.FROM, r))
+    pop = locs.groupby("CODE")["POP"].max()
+    at = locs.groupby("CODE")["PERIOD"].agg(set)
+    name = locs.sort_values("PERIOD").groupby("CODE")["NAME"].last()
+    seen, rows, n = set(), [], 0
+    for root in adj:
+        if root in seen:
+            continue
+        unit, todo = {root}, [root]
+        while todo:
+            for nxt, _ in adj[todo.pop()]:
+                if nxt not in unit:
+                    unit.add(nxt)
+                    todo.append(nxt)
+        seen |= unit
+        big = sorted((c for c in unit if pop.get(c, 0) >= size), key=lambda c: -pop[c])
+        if len(big) < 2:
+            continue
+        n += 1
+        hub = big[0]
+        prev = {hub: None}
+        queue = [hub]
+        for c in queue:                                     # breadth first from the largest
+            for nxt, r in adj[c]:
+                if nxt not in prev:
+                    prev[nxt] = (c, r)
+                    queue.append(nxt)
+        for c in big[1:]:
+            path, via, node = [], [], c
+            while prev[node]:
+                node, r = prev[node]
+                path.append(r)
+                via.append(node)
+            via = via[:-1]                                  # the last is the largest
+            codes_only = all(r.KIND == "code" for r in path)
+            km = _km(xy[c], xy[hub]) if c in xy and hub in xy else float("nan")
+            flags = [f for f, hit in (
+                ("far", not codes_only and km > 10),
+                ("through a smaller one", any(pop.get(x, 0) < size for x in via)),
+                ("one record", not all(r.CONFIRMED for r in path)),
+                ("both counted", codes_only and bool(at.get(c, set()) & at.get(hub, set()))))
+                if hit]
+            if flags:
+                rows.append({
+                    "unit's largest": f"{hub} {name.get(hub, '')}",
+                    "member": f"{c} {name.get(c, '')}", "inhabitants": int(pop[c]),
+                    "path": ", ".join(f"{r.KIND} {r.PERIOD}" for r in path),
+                    "km": "" if km != km else f"{km:.1f}", "flags": ", ".join(flags)})
+    out = pd.DataFrame(rows)
+    if len(out):
+        out = out.sort_values(["unit's largest", "inhabitants"], ascending=[True, False],
+                              ignore_index=True)
+        out["inhabitants"] = out["inhabitants"].map("{:,}".format)
+    return n, out
+
+
 def _md(df: pd.DataFrame, index: bool = False) -> str:
     """A markdown table (numbers with thousands separators)."""
     if index:
@@ -957,6 +1276,10 @@ def report(table: pd.DataFrame, stats: dict, result: dict, path: Path) -> None:
     left = stats["unpaired"]
     left_by = (left.pivot_table(index="WHY", columns="PERIOD", values="RECORD",
                                 aggfunc="size", fill_value=0) if len(left) else pd.DataFrame())
+    placed = stats["placed"]
+    fixes, repaired = stats["fixes"], stats["repaired"]
+    rule_counts = (fixes.groupby(["RULE", "KIND"]).size().rename("links").reset_index()
+                   if len(fixes) else pd.DataFrame(columns=["RULE", "KIND", "links"]))
     rivals = stats["rivals"]
     kept = rivals.groupby(["PERIOD", "KIND", "FROM"])["KEPT"].transform("sum")
     open_claims = (rivals[kept != 1].groupby(["PERIOD", "KIND", "FROM", "RULE"], sort=True)
@@ -971,10 +1294,13 @@ def report(table: pd.DataFrame, stats: dict, result: dict, path: Path) -> None:
         f" {stats['statements']:,} stated links; {len(table):,} in scope). Statements"
         f" without a date: {stats['undated']}; dated after the export (typos):"
         f" {stats['after_export']}. Locality numbers stated with a name, without their"
-        " municipality («Se conurba a Playas de Rosarito (0001)»), placed by that name: "
-        + ", ".join(f"{k} {v:,}" for k, v in sorted(stats["placed"].items()))
-        + f" (in the record's municipality; {stats['unverified_links']} links of the lineage"
-        " rest on one and no other record states them).",
+        " municipality («Se conurba a Playas de Rosarito (0001)»), placed by that name:"
+        f" own municipality {placed.get('own municipality', 0):,}, other municipality"
+        f" {placed.get('other municipality', 0):,}, unverified"
+        f" {placed.get('unverified', 0):,} (in the record's municipality;"
+        f" {stats['unverified_links']} links of the lineage rest on one and no other record"
+        f" states them), the record's own name {placed.get('its own name', 0):,} (no link; and"
+        f" {placed.get('its own name, stated by the other', 0):,} the other record states).",
         "",
         "## Links by kind and edition",
         "",
@@ -1011,6 +1337,32 @@ def report(table: pd.DataFrame, stats: dict, result: dict, path: Path) -> None:
         "Left with several claims (all kept: a unit only gets coarser) or with none:",
         "",
         _md(open_claims) if len(open_claims) else "None.",
+        "",
+        "## Corrections",
+        "",
+        f"INEGI's slips in the lists of absorbed or separated localities (`repair_lists`):"
+        f" {len(repaired)} listed codes («A esta localidad se conurban las …») whose own"
+        " record does not state the event, read as the one locality a slip apart (its number"
+        " in another municipality or state, or one digit off) that states it into the listing"
+        " record at that edition without being listed:",
+        "",
+        _md(repaired.groupby("KIND").size().rename("codes").reset_index()),
+        "",
+        "Then the localities' own records (`lineage`): an absorption and a separation of two"
+        " localities stated the same day on two records, the locality's own record deciding"
+        " (*contradicted the same day*); both at one edition, cancelled (*joined and left*);"
+        " an absorption whose locality has a population of its own at that edition's census"
+        " (the AHL's `Habitantes`), taking effect after its last census with one (*moved*,"
+        " its own record stating it) or dropped (*counted on its own*, stated only by others);"
+        " a separation whose locality has a population only at a later census, taking effect"
+        " there (*moved*):",
+        "",
+        _md(rule_counts.rename(columns={"RULE": "rule", "KIND": "kind"})),
+        "",
+        "Moved and dropped:",
+        "",
+        _md(fixes[fixes["RULE"].isin(["moved", "counted on its own"])]
+            .rename(columns={"TO_PERIOD": "to"})) if len(fixes) else "None.",
         "",
         "## Links against each edition's codes",
         "",
@@ -1052,6 +1404,23 @@ def report(table: pd.DataFrame, stats: dict, result: dict, path: Path) -> None:
             {c: int for c in result["municipalities"].columns if c != "span"})),
         "",
     ]
+    if "large" in result:
+        n, large = result["large"]
+        lines += [
+            "## Units joining localities of 2,500+",
+            "",
+            f"The units of `cpv_locality_units(1990, 2025)` that join two or more localities of"
+            f" 2,500 inhabitants or more at some ITER 1990–2020: {n} (8b read every one against"
+            " the texts). Each large member is joined to its unit's largest by the shortest"
+            " path of links; listed when they lie more than 10 km apart by the AHL's"
+            " coordinates and the path is not code changes only (*far*: a city's"
+            " conurbations), when the path runs through a smaller locality, when a link of it"
+            " is stated on one record only, or when it is code changes only and both codes"
+            " are counted at one ITER (*both counted*: a remnant that kept the old code):",
+            "",
+            _md(large) if len(large) else "None.",
+            "",
+        ]
     path.write_text("\n".join(lines), encoding="utf-8")
 
 
@@ -1074,6 +1443,7 @@ def main(argv: list[str] | None = None) -> int:
                             fill_value=0, observed=False))
     if args.check:
         result = check(table, rows, edition_codes(args.mirror))
+        result["large"] = large_units(table, edition_localities(args.mirror), points(args.ahl))
         print(result["contradictions"].to_string())
         print(result["gone"].to_string())
         print(result["new"].to_string())

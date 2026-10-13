@@ -122,12 +122,15 @@ def test_locality_lineage_document():
     assert lin["FROM"].str.fullmatch(r"\d{9}").all() and lin["TO"].str.fullmatch(r"\d{9}").all()
     assert (lin["FROM"] != lin["TO"]).all()
     assert not lin.duplicated(["PERIOD", "KIND", "FROM", "TO"]).any()
-    # each link dated within its edition: after the previous cut, on or before its own
+    # each link dated within its edition: after the previous cut, on or before its own —
+    # but the few a census shows in effect only later (8b: moved, 44)
     cut = lin["PERIOD"].map(_CUTS).astype("datetime64[us]")
     prev = lin["PERIOD"].map(lambda p: _CUTS[_LOC_PERIODS[max(_LOC_PERIODS.index(p) - 1, 0)]])
     assert (lin["DATE"] <= cut).all()
     later = lin["PERIOD"] != "1990"
-    assert (lin.loc[later, "DATE"] > prev[later].astype("datetime64[us]")).all()
+    early = lin.loc[later, "DATE"] <= prev[later].astype("datetime64[us]")
+    assert early.sum() <= 50
+    assert set(lin.loc[early[early].index, "KIND"]) <= {"absorption", "separation"}
     # only the localities counted with another at the 1990 census are in effect by 1990
     assert set(lin.loc[lin["PERIOD"] == "1990", "KIND"]) == {"counted_with"}
     assert set(lin.loc[lin["KIND"] == "counted_with", "PERIOD"]) == {"1990", "1995"}
@@ -251,6 +254,14 @@ def test_loc_lineage_parser():
         "A esta localidad se conurban las 151060169, 151060189 y parte de las localidades "
         "151060125, 151060152 y 151060158.")["absorbe"][0][0])) == [
         "151060125", "151060152", "151060158", "151060169", "151060189"]
+    # «A esta localidad se conurba a …» (an «a» too many) lists the absorbed; «Esta
+    # localidad se conurba a …» is the record's own absorption
+    assert st("Actualización Geoestadística del 15 de abril de 2015. a esta localidad se "
+              "conurba a 220140470.") == {"absorbe": [("220140470",)]}
+    assert st("A esta localidad se conurban a las 190060218 y 190060379.") == {
+        "absorbe": [("190060218 y 190060379",)]}
+    assert st("Censo de 2010. Esta localidad se conurba a Galeana (0001)")["absorbida"] == [
+        ("", "", "", "", "", "Galeana", "0001", "")]
     assert st("De esta localidad se desconurba la 110460072.")["separa"] == [("110460072",)]
     assert st("Localidad desagregada de la localidad Xolol (0021).")["separada"] == [
         ("", "", "", "Xolol", "0021", "")]
@@ -310,6 +321,30 @@ def test_loc_lineage_parser():
     rows = [b.Row(c, 1, n, "", "census", date(2000, 2, 14)) for c, n in (
         ("120630001", "Tlacoapa (Cab.)"), ("120010001", "Acapulco de Juárez"))]
     assert b.Resolver(rows)("12", "063", "0001", "Tlacopa") == ("120630001", True)
+    # the record's own name with another locality's number: it names itself, no link; a
+    # number no record has stays an unverified link
+    t = ("Actualización Geoestadística del 15 mayo de 2008 Se conurba a Colinas del "
+         "Areopuerto (0001).")
+    rows = [b.Row("190410001", 1, "Pesquería (Cab.)", "", "census", date(2010, 6, 12)),
+            b.Row("190410337", 1, "Colinas del Aeropuerto", t, *b.event(t), b.statements(t))]
+    resolve = b.Resolver(rows)
+    assert [l.verified for l in b.record_links(rows[1:], resolve)] == [None]
+    assert resolve("19", "041", "4713", "López", "", "Rancho López") == ("190414713", False)
+    # parse keeps such a statement only when the other record states the link (San Juan's
+    # number was right: Xaltetipa lists it)
+    mov = pd.DataFrame([(c, "1", n, t) for c, n, t in (
+        ("190410001", "Pesquería (Cab.)", "Censo de 2010."),
+        ("190410337", "Colinas del Aeropuerto", t),
+        ("211380009", "Xaltetipa", "Actualización Geoestadística del 15 de junio de 2009. A "
+                                   "esta localidad se fusiona la 211380013."),
+        ("211380013", "San Juan", "Actualización Geoestadística del 15 de junio de 2009. Se "
+                                  "fusiona a San Juan (0009).")
+    )], columns=["CVE_GEOEST", "INDICE", "NOM_LOC", "ORI_MODIF"])
+    rows, links, placed = b.parse(mov)
+    assert {(l.source, l.target, l.record, l.verified) for l in links} == {
+        ("211380013", "211380009", "211380009", True),
+        ("211380013", "211380009", "211380013", True)}
+    assert placed["its own name"] == 1 and placed["its own name, stated by the other"] == 1
     # a move stated without the code beside an absorption: the absorber is in the
     # municipality it moves to
     t = "Conteo de 2005. Pasa al municipio Tultitlán (109). Se conurba a San Pablo (0025)."
@@ -357,7 +392,7 @@ def test_loc_lineage_unkeyed_moves():
     assert ("050300604", "050270086", "050300604") in got          # not the one gone by 1960
     assert counts["confirms a code link"] == 1 and counts["paired by name"] == 2
     assert counts["one side, by name"] == 1 and left.empty
-    table, rivals = b.lineage(rows, links + extra, latest)
+    table, rivals, fixes = b.lineage(rows, links + extra, latest)
     assert table.set_index("FROM").loc["040032696", "CONFIRMED"]
 
 
@@ -388,7 +423,7 @@ def test_loc_lineage_rival_claims():
         ("302080015", [(1, "Cerro de Torres 1", "Decreto No. 26 del 30 de noviembre de 1996. "
                         "Viene del municipio de Cosamaloapan (045) con clave de localidad "
                         "(0073).")]))
-    table, rivals = b.lineage(rows, links, latest)
+    table, rivals, fixes = b.lineage(rows, links, latest)
     to = table.groupby("FROM")["TO"].apply(set).to_dict()
     assert to["040030889"] == {"040110127"} and to["040030887"] == {"040110129"}
     assert "190100027" not in to
@@ -397,6 +432,95 @@ def test_loc_lineage_rival_claims():
     assert rule["040030889"] == "the target states another origin"
     assert rule["190100027"].startswith("undecided, the locality keeps its code")
     assert rule["300450073"] == "each states it as its origin (all kept)"
+
+
+def test_loc_lineage_list_slips():
+    from datetime import date
+    b, rows, links = _history(
+        # Telchac's list names Mayapán's 0052 and 0061 for its own, which state it that day
+        ("310820001", [(1, "Telchac (Cab.)", "Actualización Geoestadística del 15 de octubre "
+                        "de 2014. A esta localidad se conurba la 310490052 y 310490061")]),
+        ("310820052", [(1, "Tres Hermanos", "Actualización Geoestadística del 15 de octubre de "
+                        "2014. Se conurba a Telchac Pueblo (0001).")]),
+        ("310820061", [(1, "Ninguno", "Censo 2010. Creación de localidad."),
+                       (2, "Ninguno", "Actualización Geoestadística del 15 de octubre de 2014. "
+                        "Se conurba a Telchac Pueblo (0001).")]),
+        ("310490052", [(1, "Mayapán", "Actualización Geoestadística del 15 de marzo de 2009. "
+                        "Se conurba a Mayapán (0001).")]))
+    fixed, log = b.repair_lists(links)
+    assert set(zip(log["LISTED"], log["MEANT"])) == {("310490052", "310820052"),
+                                                     ("310490061", "310820061")}
+    table, rivals, fixes = b.lineage(rows, fixed, date(2026, 9, 18))
+    got = dict(zip(zip(table["FROM"], table["TO"]), table["CONFIRMED"]))
+    assert got[("310820052", "310820001")] and got[("310820061", "310820001")]
+    assert ("310490052", "310820001") not in got
+    assert ("310490052", "310490001") in got
+
+
+def test_loc_lineage_own_records():
+    from datetime import date
+    b, rows, links = _history(
+        # the same day, Zamora's record says absorbed and Múzquiz's that it left: its own
+        ("050200772", [(1, "Zamora", "Conteo de 2005."),
+                       (2, "Zamora", "Actualización Geoestadística del 15 de junio de 2009. Se "
+                        "conurba a Ciudad Melchor Múzquiz (0001).")]),
+        ("050200001", [(1, "Ciudad Melchor Múzquiz", "Actualización Geoestadística del 15 de "
+                        "junio de 2009. De esta localidad se desconurban las 050200063 y "
+                        "050200772.")]),
+        # conurbed and separated again between two editions
+        ("300440047", [(1, "La Luz", "Censo de 2000."),
+                       (2, "La Luz", "Acuerdo del 23 de febrero de 2001. Se conurba a Córdoba "
+                        "(0001)."),
+                       (3, "La Luz", "Conteo de 2005. Se desconurba de Córdoba (0001).")]),
+        # counted on its own at that edition's census: dropped from another's list, moved
+        # when its own record states it
+        ("260300001", [(1, "Hermosillo (Cab.)", "Actualización Geoestadística del 15 de julio "
+                        "de 2019. A esta localidad se conurban las 260300535 y 260303510.")]),
+        ("260303510", [(1, "Maccsa", "Actualización Geoestadística del 15 de julio de 2019. Se "
+                        "conurba a Hemosillo (0001).")]),
+        ("160530417", [(1, "Lomas de Chapultepec", "Actualización Geoestadística del 15 de "
+                        "octubre de 2008. Se conurba a Morelia (0001).")]),
+        # stated apart at the Censo 2000, first counted at the Conteo 2005
+        ("290260001", [(1, "Santa Cruz Tlaxcala (Cab.)", "Censo de 2000. De esta localidad se "
+                        "desconurban las 290260004 y 290260005.")]))
+    counted = {"260300535": [date(2010, 6, 12), date(2020, 3, 15)],
+               "160530417": [date(2005, 10, 17), date(2010, 6, 12)],
+               "290260005": [date(2005, 10, 17), date(2010, 6, 12)]}
+    table, rivals, fixes = b.lineage(rows, links, date(2026, 9, 18), counted)
+    got = dict(zip(zip(table["FROM"], table["TO"], table["KIND"].astype(str)), table["PERIOD"]))
+    assert got[("050200772", "050200001", "absorption")] == "2010"
+    assert ("050200772", "050200001", "separation") not in got
+    assert not [k for k in got if k[0] == "300440047"]
+    assert ("260300535", "260300001", "absorption") not in got
+    assert got[("260303510", "260300001", "absorption")] == "2020"
+    assert got[("160530417", "160530001", "absorption")] == "2020"
+    assert got[("290260005", "290260001", "separation")] == "2005"
+    assert got[("290260004", "290260001", "separation")] == "2000"   # never counted: stays
+    rule = dict(zip(zip(fixes["FROM"], fixes["KIND"]), fixes["RULE"]))
+    assert rule[("050200772", "separation")] == "contradicted the same day"
+    assert rule[("300440047", "absorption")] == rule[("300440047", "separation")] == (
+        "joined and left")
+    assert rule[("260300535", "absorption")] == "counted on its own"
+    assert rule[("160530417", "absorption")] == rule[("290260005", "separation")] == "moved"
+
+
+def test_loc_lineage_large_units():
+    b = _build_module()
+    table = pd.DataFrame({
+        "PERIOD": ["2020", "2020", "2010"], "KIND": ["absorption", "absorption", "code"],
+        "FROM": ["010010002", "010010003", "010010004"],
+        "TO": ["010010003", "010010001", "010020001"], "CONFIRMED": [True, False, True]})
+    locs = pd.DataFrame({
+        "CODE": ["010010001", "010010002", "010010003", "010010004", "010020001"],
+        "PERIOD": ["2010", "2010", "2010", "2005", "2010"],
+        "NAME": ["Ciudad", "Pueblo", "Rancho", "Villa", "Villa"],
+        "POP": [100_000, 5_000, 500, 3_000, 3_200]})
+    xy = {"010010001": (21.88, -102.29), "010010002": (21.88, -102.0),
+          "010010003": (21.88, -102.1)}
+    n, large = b.large_units(table, locs, xy)
+    assert n == 2              # the town joined through a ranch; the village renumbered
+    assert large[["member", "flags"]].values.tolist() == [
+        ["010010002 Pueblo", "far, through a smaller one, one record"]]
 
 
 _AHL = Path(__file__).resolve().parent.parent / "data" / "dict" / "ahl" / "AHL.zip"

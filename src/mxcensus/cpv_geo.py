@@ -148,7 +148,8 @@ def cpv_loc_lineage() -> pd.DataFrame:
 
     - ``PERIOD`` — the first edition whose locality codes reflect it (``1990``, ``1995``,
       ``2000``, ``2005``, ``2010``, ``2020``: the ITER; ``2025``: the EIC 2025's frame, MG
-      2025);
+      2025): its date's, or a later one when that edition's census still counts the
+      absorbed locality on its own, or does not yet count the separated one (44 links);
     - ``DATE``, ``EVENT`` — the event that records it (``census``: a census or count, dated
       by its reference date; ``update``: a geostatistical update; ``other``: a decree…);
     - ``KIND`` — ``code`` (the same locality under another code: a move to another
