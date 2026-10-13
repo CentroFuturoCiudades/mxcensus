@@ -92,22 +92,6 @@ def test_estimates_dimensions_and_blanks():
     assert len(out) == 2
 
 
-def test_long_matches_category_words():
-    """2010 spells a division «forestales, caza y pesca», 2015 «forestales, pesca y caza»;
-    footnote digits are dropped; a missing category raises."""
-    rows = [{"A": "Entidad federativa", "B": "Sexo", "C": "División ocupacional1",
-             "D": "Estimador", "E": "Población ocupada"},
-            {"A": "01 Aguascalientes", "B": "Total", "C": "Total", "D": "Parámetro", "E": "30"},
-            {"A": "01 Aguascalientes", "B": "Total", "C": "Trabajadores agrícolas, caza y pesca2",
-             "D": "Parámetro", "E": "10"},
-            {"A": "01 Aguascalientes", "B": "Total", "C": "No especificado", "D": "Parámetro",
-             "E": "20"}]
-    read = ck._long("Parámetro", ("No especificado", "Trabajadores agrícolas, pesca y caza"))
-    assert read({"s": rows}) == {(1, "T"): [20.0, 10.0]}
-    with pytest.raises(KeyError):
-        ck._long("Parámetro", ("Comercio",))({"s": rows})
-
-
 def test_c2k_sectors_total_and_sex_columns():
     """7d: C2KEM03 keeps the state row (the 12+) before its age rows; C2KEM11 has one row
     per state with the sexes in columns."""
@@ -647,6 +631,132 @@ def test_census2020_rules_7w():
     ck._CONVERTED.clear()
 
 
+def test_census2010_rules_7x(monkeypatch):
+    """7x: the international migrants' unspecified state left (99), their destination, the
+    limited by type and cause, the 12+'s other incomes by household size, the food access of
+    every dwelling, the SCIAN sectors' two layouts and 10_01A's PDF."""
+    rows = [{"A": "Entidad federativa expulsora", "B": "Estimador", "C": "Total"},
+            {"A": "No especificado", "B": "Parámetro", "C": "5"},
+            {"A": "01 Aguascalientes", "B": "Parámetro", "C": "7"}]
+    assert ck._estimates(rows, "Parámetro") == {(99,): [5.0], (1,): [7.0]}
+    rows[0] = {**rows[0], "A": "Entidad federativa expusora"}      # 04_05A's spelling
+    assert ck._estimates(rows, "Parámetro") == {(99,): [5.0], (1,): [7.0]}
+    rows[0] = {**rows[0], "A": "Entidad federativa"}
+    assert ck._estimates(rows, "Parámetro") == {(1,): [7.0]}        # a state of residence
+    m = pd.DataFrame({"MPDESOTR_C": ["221", "213", "999", None, "600"]})
+    dest = [x.tolist() for x in ck._destination_of("MPDESOTR_C")(m)]
+    assert dest[1:] == [[True, False, False, False, False], [False, True, False, False, True],
+                        [False, False, True, True, False]]
+    p = pd.DataFrame({"LIM_ACTIVIDAD": ["Sí", "Sí", "No"],
+                      **{f"DISCAP{k}": [None] * 3 for k in range(1, 8)},
+                      **{f"CAUSADIS{k}": [None] * 3 for k in range(1, 8)}})
+    p.loc[0, ["DISCAP1", "CAUSADIS1", "DISCAP2", "CAUSADIS2"]] = ["10", "2", "11", "4"]
+    p.loc[1, ["DISCAP4", "CAUSADIS4"]] = ["13", "9"]
+    lim = [x.tolist() for x, _ in ck._limitation_by_type_2010(p)]
+    assert lim[0] == [True, True, False] and lim[2] == lim[4] == [True, False, False]
+    assert lim[6] == [False, True, False]                           # any limitation's cause
+    assert lim[9] == lim[14] == lim[18] == [True, False, False]     # walking's illness,
+    #                                                                 seeing and its old age
+    assert lim[21] == lim[27] == [False, True, False]               # hearing (4), cause NE
+    q = pd.DataFrame({"EDAD": ["30", "12", "5", "70"], "AYUPROGOB": ["1", "2", "2", "2"],
+                      "AYUJUBPEN": ["4", "4", None, "9"], "AYUPEDP": ["4", "4", None, "4"],
+                      "AYUPEOP": ["2", "2", None, "2"], "AYUOTRFTE": ["2", "2", None, "2"]},
+                     index=pd.MultiIndex.from_tuples([(1, 1), (1, 2), (1, 3), (2, 1)],
+                                                     names=["ID_VIV", "ID_PER"]))
+    inc = [x.tolist() for x, _ in ck._other_incomes_2010(q)]
+    assert inc[0] == [True, True, False, True] and inc[2] == [True, False, False, False]
+    assert inc[7] == [False, True, False, False] and inc[8] == [False, False, False, True]
+    assert inc[9] == [False, False, False, True] and inc[18] == [True, True, False, False]
+    v = pd.DataFrame({"CLAVIVP": ["1", "5", "7"], "COMIO1VEZ": ["1", "2", None],
+                      "NOCOMI1D": ["4", "4", None], "SINCOMER": ["2", "2", None]})
+    food = [x.tolist() for x, _ in ck._food_2010(v)]
+    assert food[:4] == [[True] * 3, [True, False, False], [False, True, False],
+                        [False, False, True]]                       # the locale (5) counts
+    names = [n for n, _ in ck._SCIAN_2010]
+    head = {"A": "Sexo", "B": "Sector de actividad económica", "C": "Estimador", "D": "Total"}
+    sheet = [head, *({"A": "Total", "B": n, "C": "Parámetro",
+                      **dict(zip("DEFGH", ("100", "20", "20", "20", "40") if n == "Total"
+                                 else ("10",) * 5))} for n in names)]
+    by_size = ck._scian_published(of_size=True)({"s": sheet})[0, "T"]
+    assert by_size[:10] == [100, 20, 20, 20, 40, 10, 2, 2, 2, 4] and len(by_size) == 110
+    assert ck._scian_published(of_size=False)({"s": sheet})[0, "T"][5:10] == [10, 1, 1, 1, 1]
+    text = ("  Población de 12 años y más actualmente unida   Situación conyugal 1\n"
+            "   Estados Unidos Mexicanos        46 879 066      95.37      2.94     1.69\n"
+            "      Casado(a)                    34 620 467      95.98      2.69     1.33\n"
+            "       Civil y religiosamente      22 090 166      96.66      2.25     1.08\n"
+            "   Hombres                         23 173 962      96.46      1.94     1.60\n"
+            "www.inegi.org.mx\n"
+            "  2 500-14 999 habitantes           6 778 592      95.42      2.82     1.76\n")
+    monkeypatch.setattr(ck.fd, "pdf_text", lambda path: text)
+    pdf = ck._unions_pdf(Path("10_01A_ESTATAL.pdf"))
+    rows = pdf["10_01A_ESTATAL"]
+    assert [(r["A"], r["B"], r["C"], r["D"], r["F"]) for r in rows[1:]] == [
+        ("Estados Unidos Mexicanos", "Total", "Total", "Total", "46879066"),
+        ("Estados Unidos Mexicanos", "Total", "Casado(a)", "Total", "34620467"),
+        ("Estados Unidos Mexicanos", "Total", "Casado(a)", "Civil y religiosamente", "22090166"),
+        ("Estados Unidos Mexicanos", "Hombres", "Total", "Total", "23173962"),
+        ("2 500-14 999 habitantes", "Total", "Total", "Total", "6778592")]
+    assert ck._estimates(rows, "Parámetro")[0, "H", "Total", "Total"] == [23173962, 96.46, 1.94,
+                                                                         1.6]
+    s = pd.DataFrame({"EDAD": ["30"] * 3, "ESTCON": ["5", "1", "8"],
+                      "IDENT_PAREJA_CAT": ["Sí", "No", "Blanco por pase"]})
+    shares = ck._spouse_shares_2010(s)
+    assert len(shares) == 18 and shares[0][1].tolist() == [True, True, False]
+    assert shares[0][0].tolist() == [True, False, False] and shares[1][0].tolist() == [
+        False, True, False]
+    ck._CONVERTED.clear()
+
+
+def test_eic2015_rows_7x(monkeypatch, tmp_path):
+    """7x: the EIC 2015's birthplace abroad split, 06-11's raw levels and average schooling,
+    the raw marital status, the households by class per the head's sex and the dwelling's
+    items on the persons."""
+    import pyarrow as pa
+    import pyarrow.parquet as pq
+    from mxcensus.data import _registry
+
+    p = pd.DataFrame({"ENT_PAIS_NAC_INEGI": ["EstaEnt", "OtroPais", "OtroPais",
+                                             "No especificado"],
+                      "ENT_PAIS_NAC": ["1", "221", "213", "997"]})
+    born = [m.tolist() for m, _ in ck._birthplace_2015(p)]
+    assert born[3:5] == [[False, True, False, False], [False, False, True, False]]
+    e = pd.DataFrame({"EDAD": ["20", "30", "40", "16", "18", "25", "50", "60", "14"],
+                      "NIVACAD": ["0", "1", "6", "3", "3", "9", "12", "99", "2"],
+                      "ESCOLARI": [None, None, "6", "2", "99", "3", "4", "99", "6"],
+                      "ESCOACUM": ["0", "0", "12", "8", "99", "12", "20", "99", "6"]})
+    detail = [m.tolist() for m, _ in ck._schooling_detail_2015(("Total",))(e)]
+    assert [sum(m) for m in detail] == [8, 1, 4, 1, 1, 2, 1, 0, 1, 1, 1, 1]
+    assert detail[4][2] and detail[6][3] and detail[8][4]           # técnica after primaria
+    num, den = ck._schooling_years_2015(("Total",))(e)[0]
+    assert den.tolist() == [True, True, True, True, False, True, True, False, False]
+    w = pd.Series(1.0, index=e.index)
+    assert ck._part(num, w, w.astype(bool), 1)[1] / den.sum() == pytest.approx(52 / 6)
+    m = pd.DataFrame({"EDAD": ["30"] * 7, "SITUA_CONYUGAL": ["6", "5", "1", "2", "3", "4", "9"]})
+    marital = [x.tolist() for x, _ in ck._marital_2015(("Total",))(m)]
+    assert [r.index(True) for r in zip(*marital[1:])] == list(range(7))
+    rows = [{"A": "Entidad federativa", "B": "Sexo del jefe o la jefa",
+             "C": "Hogares/Población en hogares", "D": "Estimador", "E": "Total"},
+            *({"A": "01 Aguascalientes", "B": head, "C": kind, "D": "Valor",
+               **dict(zip("EFGHIJKLMN", [str(n)] + ["10"] * 9))}
+              for head, n in (("Mujeres", 30), ("Total", 100), ("Hombres", 70))
+              for kind in ("Hogares", "Población en hogares"))]
+    out = ck._household_class_published("Hogares")({"05": rows})[1, "T"]
+    assert len(out) == 30 and out[::10] == [100, 70, 30]
+    dwellings = pa.table({"ID_VIV": ["10010000001", "10010000002"], "TIPOHOG": ["1", "5"],
+                          "CLAVIVP": ["1", "4"]})
+    pq.write_table(dwellings, tmp_path / "cpv_viviendas_2015_01.parquet")
+    monkeypatch.setattr(_registry.POOCH, "fetch", lambda name, **kw: str(tmp_path / name))
+    q = pd.DataFrame({"SEXO": ["1", "3", "3"]}, index=pd.MultiIndex.from_tuples(
+        [("010010000001", "1"), ("010010000001", "2"), ("010010000002", "1")],
+        names=["ID_VIV", "ID_PERSONA"]))
+    out = ck._with_dwelling(q, "2015", 1, ("TIPOHOG", "CLAVIVP"))
+    assert out["TIPOHOG"].tolist() == ["1", "1", "5"] and out["CLAVIVP"].tolist()[2] == "4"
+    occupants = [x.tolist() for x, _ in ck._occupants_by_sex_2015(out)]
+    assert occupants[:3] == [[True] * 3, [True, False, False], [False, True, True]]
+    assert occupants[3:6] == [[True, True, False], [True, False, False], [False, True, False]]
+    ck._CONVERTED.clear()
+
+
 def test_checks_are_consistent():
     """Every check names a fetched source, unique keys per edition, and a tolerance."""
     keys = [(c.period, c.key) for c in ck.CHECKS]
@@ -663,8 +773,10 @@ def test_checks_are_consistent():
         assert c.table != "hogares" or c.period == "2000"          # 6t: 2000's household rows
         assert c.unit != "persons" or c.period != "2000"          # 2000: shares, averages
         assert c.unit in ("persons", "rate") or c.period in ("2000", "2015") or (
-            c.key in ("04-12m", "04-11m"))              # 7j, 7o; 7p: months abroad; 7s: by size
-        assert c.source.endswith(".xlsx" if c.period == "2020" else ".xls")        # 6p
+            c.key in ("04-12m", "04-11m", "04_10Am", "04_09Am", "10_01As"))
+        #                                      7j, 7o; 7p: months abroad; 7s: by size; 7x: 2010
+        assert c.source.endswith(".xlsx" if c.period == "2020" else ".xls") or (
+            c.source == "10_01A_ESTATAL.pdf")                              # 6p; 7x: a PDF
         assert None in ck._TOLERANCE[c.period]
     assert {c.period for c in ck.CHECKS} == set(ck.SOURCES)
     assert {n for _, (_, names) in ck.SOURCES.items() for n in names} == {
@@ -722,7 +834,8 @@ def test_state_01_within_tolerance(monkeypatch):
     assert len(rows) == (317 + 159 + 120 + 45 + 7 + 13 + 149 + 132 + 183 + 463 + 562  # 6p: 2020;
                          + 317 + 894 + 144 + 247 + 329 + 291 + 3 * 8 + 889 + 392
                          + 4645                                               # 7v: 2015
-                         + 3931)                                              # 7w: 2020
+                         + 3931                                               # 7w: 2020
+                         + 2316 + 672 + 3511)                                 # 7x: 2010, 2015
     #                                                 6q: 2015 affiliation, commute, marital status,
     #                                                 education (2010's are national); 6r: 2000
     #                                                 hours, education of the 12+/18+; 6t: 2000/2015
@@ -762,25 +875,33 @@ def test_state_01_within_tolerance(monkeypatch):
     #                                                 states; 05-02, 04-04 and by size are
     #                                                 national); 7w: Censo 2020's (2,758 new
     #                                                 cells; 08-12, 08-18, 10-02, 10-06, 10-08,
-    #                                                 10-12, 11-02 read every row: 159 → 1,332)
+    #                                                 10-12, 11-02 read every row: 159 → 1,332);
+    #                                                 7x: Censo 2010's last tabulados (2,316;
+    #                                                 04_08A needs all 32, 08_21A/22A and the
+    #                                                 sizes are national), 08_02A/03A/10A/15A
+    #                                                 every row (+672); the EIC 2015's 04-02,
+    #                                                 06-11, 07-02, 07-06, 08-02/06/07/11,
+    #                                                 10-01/03/04/06, 11-02, 12-05a/b every row,
+    #                                                 06-11d/m, 11-02d, 14-02s (+3,511)
     by_origin = {c.key for c in ck.CHECKS if c.by_origin and not c.by_size}  # 7d: all 32
     assert by_origin == {"MI02", "MI05", "MI10", "MI11", "MI12",
                          "04_04A", "04_05A", "04_06A",                     # 7m: 2010's migrants
                          "04-04", "04-06", "04-08", "04-10",               # 7n: 2020's
                          "05_01A", "05_02A", "04-15",                      # 7p
-                         "04-06"}                                          # 7v: the 2015 internal
+                         "04-06",                                          # 7v: the 2015 internal
+                         "04_08A"}                                         # 7x
     assert not {(c.period, c.key) for c in ck.CHECKS if c.by_origin} & {
         (r["period"], r["check"]) for r in rows}                          # 7s: by size too
     income = [r for r in rows if r["check"] in ("EM08", "08_10A", "08-11", "08-18")]
-    assert len(income) == 8 * 3 + 2 * 9 * 3 + 11 * 9 * 3              # 7w: 2020 by division
+    assert len(income) == 8 * 3 + 3 * 11 * 9 * 3      # 7w: 2020 by division; 7x: 2010, 2015
     head = [r for r in rows if r["check"] in ("HO04a", "HO04b", "12-05")]
     assert len(head) == 7 and {r["sex"] for r in head} == {"T"}
     places = [r for r in rows if (r["period"], r["check"]) in (
         ("2010", "04_02A"), ("2010", "08_15A"), ("2015", "04-05"), ("2015", "10-01"),
         ("2015", "10-04"), ("2020", "10-02"), ("2020", "10-08"))]       # 7v: 2015's 10-02 too
-    assert len(places) == 5 * 7 * 3 + (8 + 7) * 7 * 3        # 7b; 7w: 2020 by age, sector
+    assert len(places) == (1 + 7 + 1 + 8 + 7 + 8 + 7) * 7 * 3  # 7b; 7w, 7x: by age, sector
     dwellings = [r for r in rows if r["check"] in ("12-05a", "12-05b", "14-13", "14-16")]
-    assert len(dwellings) == 10 + 4 + 6 + 6 and {r["sex"] for r in dwellings} == {"T"}
+    assert len(dwellings) == 30 + 30 + 6 + 6 and {r["sex"] for r in dwellings} == {"T"}  # 7x
     raw = [r for r in rows if r["check"].startswith(("14_", "16-")) or r["check"] in (
         "14-14", "14-16s")]                                                # 7h
     assert len(raw) == 262 + 25 + 275 + 10 and {r["sex"] for r in raw} == {"T"}  # + 16-34
@@ -788,13 +909,21 @@ def test_state_01_within_tolerance(monkeypatch):
     assert len(vi) == 317 and {r["sex"] for r in vi} == {"T"}                # 7i
     new = {c.key for c in ck._person_checks_2015_v()}
     v = [r for r in rows if r["period"] == "2015" and r["check"] in new]
-    assert len(v) == 4645                                                             # 7v
+    assert len(v) == 4645 + 66                                       # 7v; 7x: 07-06's «Total»
     assert {r["sex"] for r in v if r["check"] in ("06-02", "05-05", "05-03", "07-06", "12-03",
                                                    "12-06", "13-02", "15-01", "15-02")} == {"T"}
     new = {c.key for c in ck._person_checks_2020_w()}
     w = [r for r in rows if r["period"] == "2020" and r["check"] in new]
     assert len(w) == 2758                                                             # 7w
     assert {r["sex"] for r in w if r["check"] in ("14-02", "15-02", "15-04")} == {"T"}
+    new = {c.key for c in ck._person_checks_2010_x()}
+    x = [r for r in rows if r["period"] == "2010" and r["check"] in new]
+    assert len(x) == 2316                                                             # 7x
+    assert {r["sex"] for r in x if r["check"] in ("06_04A", "06_06A", "07_03A", "09_03A",
+                                                   "09_05A", "12_06A", "12_07A",
+                                                   "04_10A")} == {"T"}
+    assert {r["sex"] for r in rows if r["period"] == "2015" and r["check"] in (
+        "12-05a", "12-05b", "14-02s")} == {"T"}
     bad = [r for r in rows if abs(r["delta"]) > r["tolerance"]]
     assert not bad, bad[:5]
     exact = [r for r in rows if r["period"] != "2000"]

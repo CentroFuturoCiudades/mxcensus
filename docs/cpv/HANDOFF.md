@@ -1,10 +1,10 @@
 # CPV family — session handoff
 
-**Status (2026-10-12): units 0–6z and 7a–7w are done. `cpv-integration` = **7w** (tabulado
-checks only: every Censo 2020 tabulado now read, every row — 20 checks by state, their 20
-by-size twins, and the 7 checks (+ twins) that read only a «Total» row widened; 159,510 cells, every one
-exact but one inconsistent row of INEGI's; the report 529,879 cells; `tests/test_cpv_tabulados.py`
-30 passed), committed on the branch; before it **7v** (every EIC 2015 tabulado: 167,298
+**Status (2026-10-12): units 0–6z and 7a–7x are done. `cpv-integration` = **7x** (tabulado
+checks only: all 80 Censo 2010 ampliado workbooks, every cell — 10_01A from INEGI's PDF —;
+the migrants' unspecified state left (2010, 2020); every remaining row and cell of the EIC 2015; 228,598 cells, every one exact; the report
+758,477 cells; `tests/test_cpv_tabulados.py` 31 passed), committed on the branch; before it
+**7w** (every Censo 2020 tabulado: 159,510 cells) and **7v** (every EIC 2015 tabulado: 167,298
 cells); `main` = v0.14.0
 = **7u** (the historical localities: INEGI's Archivo Histórico de Localidades in the mirror —
 128 `ahl_{table}_20260918_{NN}` files, registered (4276 entries), uploaded and verified — and
@@ -598,8 +598,32 @@ Before 0.12.0: v0.11.0 = 6u–7b, v0.10.0 = 6s–6t, 0.9.0 = 6k–6r. A session 
     (`_division_rows`, `_sectors`, `_position_rows`, `_age_rows`, `_hours_2020`, `_incomes`,
     `_school_times`, `_work_times`, `_benefits(rows, item)`); 7v's 2015 helpers rewritten on
     them, the 2000/2010/2015 report sections byte-identical.
+- **7x** (`STEP_7x.md`): HANDOFF candidate 3's «Censo 2010» item and its «rows the 2010/2015
+  checks skip» (the user's choice over the small cleanups, the lineage leftovers and a 2015
+  locality edition); checks only — no loader, derivation or dictionary changed.
+  - **All 80 Censo 2010 ampliado workbooks, every cell** (INEGI's file-listing API,
+    `idBiinegi` 487): 28 new workbooks and **10_01A, published as a PDF only** (its `.xls` is 0
+    bytes; read with poppler's `pdftotext -layout` — `_unions_pdf`, `_workbook` — as 10_02A's
+    layout: counts exact, the two-decimal shares in points within 0.005). 21 checks by state
+    (`_person_checks_2010_x`) and 11 by size (`_SIZE_TWINS`, `_size_twins_2010_x`); 08_02A/03A
+    (positions), 08_10A (by division), 08_15A (by sector), 07_01A (by level), 08_04A/05A (the
+    employed) read every row; the migrants' «No especificado» state left (`MLUGORI_C` 999) is
+    state 99 in `_estimates` for 2010 and **Censo 2020** (`_LEFT`: 04_05A spells it
+    «expusora»).
+  - **The EIC 2015's remaining rows and cells** (a coverage probe — published values vs the
+    cells read — found more than this file listed): 04-02, 06-11, 07-02, 07-06, 08-02/06/07/11,
+    10-01/03/04/06, 11-02, 12-05a/b every row; new 06-11d/11-02d (the cells `EDUC` and
+    `SITUA_CONYUGAL_CAT` merge, on the raw items), 06-11m (the average grades approved),
+    14-02s (the occupants by sex; `_frame` gives the 2015 persons their dwelling's `TIPOHOG`
+    and `CLAVIVP`, `_with_dwelling`).
+  - **228,598 cells, every one exact** (but 7c's State of México income gap, ≤ 525 persons,
+    now also in 08_11A/12A); the report **758,477 cells, 0 beyond tolerance**, its 2000
+    section byte-identical. INEGI's rules found: 08_21A's sectors are shares of each size's
+    employed; 12_07A's households are every dwelling (`CLAVIVP` 5–7 answer the food items);
+    Censo 2010 asks the other incomes of each person 12+; 2020's rules for the destination,
+    the return migrants' duration and the activity hold for 2010.
 
-Design: [`PLAN.md`](PLAN.md). Recent units: [`STEP_7w.md`](STEP_7w.md), [`STEP_7v.md`](STEP_7v.md), [`STEP_7u.md`](STEP_7u.md), [`STEP_7t.md`](STEP_7t.md), [`STEP_7s.md`](STEP_7s.md), [`STEP_7r.md`](STEP_7r.md), [`STEP_7q.md`](STEP_7q.md), [`STEP_7p.md`](STEP_7p.md), [`STEP_7o.md`](STEP_7o.md), [`STEP_7n.md`](STEP_7n.md), [`STEP_7m.md`](STEP_7m.md), [`STEP_7l.md`](STEP_7l.md), [`STEP_7k.md`](STEP_7k.md), [`STEP_7j.md`](STEP_7j.md), [`STEP_7i.md`](STEP_7i.md), [`STEP_7h.md`](STEP_7h.md), [`STEP_7g.md`](STEP_7g.md), [`STEP_7f.md`](STEP_7f.md), [`STEP_7e.md`](STEP_7e.md), [`STEP_7d.md`](STEP_7d.md), [`STEP_7c.md`](STEP_7c.md), [`STEP_7b.md`](STEP_7b.md), [`STEP_7a.md`](STEP_7a.md), [`STEP_6z.md`](STEP_6z.md), [`STEP_6y.md`](STEP_6y.md), [`STEP_6x.md`](STEP_6x.md), [`STEP_6w.md`](STEP_6w.md), [`STEP_6v.md`](STEP_6v.md), [`STEP_6u.md`](STEP_6u.md), [`STEP_6t.md`](STEP_6t.md), [`STEP_6s.md`](STEP_6s.md), [`STEP_6r.md`](STEP_6r.md), [`STEP_6q.md`](STEP_6q.md), [`STEP_6p.md`](STEP_6p.md), [`STEP_6o.md`](STEP_6o.md), [`STEP_6n.md`](STEP_6n.md), [`STEP_6m.md`](STEP_6m.md), [`STEP_6l.md`](STEP_6l.md), [`STEP_6k.md`](STEP_6k.md), [`STEP_6j.md`](STEP_6j.md), [`STEP_6i.md`](STEP_6i.md), [`STEP_6h.md`](STEP_6h.md), [`STEP_6g.md`](STEP_6g.md), [`STEP_6f.md`](STEP_6f.md), [`STEP_6e.md`](STEP_6e.md),
+Design: [`PLAN.md`](PLAN.md). Recent units: [`STEP_7x.md`](STEP_7x.md), [`STEP_7w.md`](STEP_7w.md), [`STEP_7v.md`](STEP_7v.md), [`STEP_7u.md`](STEP_7u.md), [`STEP_7t.md`](STEP_7t.md), [`STEP_7s.md`](STEP_7s.md), [`STEP_7r.md`](STEP_7r.md), [`STEP_7q.md`](STEP_7q.md), [`STEP_7p.md`](STEP_7p.md), [`STEP_7o.md`](STEP_7o.md), [`STEP_7n.md`](STEP_7n.md), [`STEP_7m.md`](STEP_7m.md), [`STEP_7l.md`](STEP_7l.md), [`STEP_7k.md`](STEP_7k.md), [`STEP_7j.md`](STEP_7j.md), [`STEP_7i.md`](STEP_7i.md), [`STEP_7h.md`](STEP_7h.md), [`STEP_7g.md`](STEP_7g.md), [`STEP_7f.md`](STEP_7f.md), [`STEP_7e.md`](STEP_7e.md), [`STEP_7d.md`](STEP_7d.md), [`STEP_7c.md`](STEP_7c.md), [`STEP_7b.md`](STEP_7b.md), [`STEP_7a.md`](STEP_7a.md), [`STEP_6z.md`](STEP_6z.md), [`STEP_6y.md`](STEP_6y.md), [`STEP_6x.md`](STEP_6x.md), [`STEP_6w.md`](STEP_6w.md), [`STEP_6v.md`](STEP_6v.md), [`STEP_6u.md`](STEP_6u.md), [`STEP_6t.md`](STEP_6t.md), [`STEP_6s.md`](STEP_6s.md), [`STEP_6r.md`](STEP_6r.md), [`STEP_6q.md`](STEP_6q.md), [`STEP_6p.md`](STEP_6p.md), [`STEP_6o.md`](STEP_6o.md), [`STEP_6n.md`](STEP_6n.md), [`STEP_6m.md`](STEP_6m.md), [`STEP_6l.md`](STEP_6l.md), [`STEP_6k.md`](STEP_6k.md), [`STEP_6j.md`](STEP_6j.md), [`STEP_6i.md`](STEP_6i.md), [`STEP_6h.md`](STEP_6h.md), [`STEP_6g.md`](STEP_6g.md), [`STEP_6f.md`](STEP_6f.md), [`STEP_6e.md`](STEP_6e.md),
 [`STEP_6d.md`](STEP_6d.md),
 [`STEP_6c.md`](STEP_6c.md), [`STEP_6b.md`](STEP_6b.md), … [`STEP_0_probe.md`](STEP_0_probe.md).
 
@@ -655,10 +679,14 @@ which `wsl`'s lacks (the script fetches them).
 7w ran on the Mac only (the 2020 checks through a scratch harness on cached frames, then the
 full report as one process per edition, spliced); the Mac's tabulados cache now holds 2020's
 `13_hogares_censales` and `15_alimentacion`, which `wsl`'s lacks (the script fetches them).
+7x ran on the Mac only (the new checks through a scratch harness on cached frames, then the
+full report as one process per edition, spliced); the Mac's tabulados cache now holds the 28
+Censo 2010 workbooks and `10_01A_ESTATAL.pdf`, which `wsl`'s lacks (the script fetches them;
+reading the PDF needs poppler's `pdftotext` there).
 
 ## Kickoff prompt for the next session
 
-> Continue the CPV census-family work in this repo (branch cpv-integration = 7w; main =
+> Continue the CPV census-family work in this repo (branch cpv-integration = 7x; main =
 > v0.14.0). Read docs/cpv/HANDOFF.md first, then agree with me which next unit to
 > take (candidates in HANDOFF §Next) before implementing it, following the session protocol
 > in docs/cpv/PLAN.md. Use .venv/bin/python, not uv run. Run wsl tasks without asking; ask
@@ -744,20 +772,14 @@ and **kept all seven** (merged as 0.9.0):
    - a 2015 locality edition (the EIC 2015's `LOC50K`; its cut on the MG 2015 frame);
    - the leftovers: 337 moves stated without a code left unpaired, 233 unverified locality
      numbers, 14 rival claims.
-3. More tabulado checks — the tabulados no check reads yet (`STEP_7s.md` §Left out; each
-   new by-state check gets its by-size twin for free through `_by_size`/`_SIZE_TWINS`; the EIC
-   2015 is complete since 7v, Censo 2020 since 7w; INEGI's file-listing API lists every
-   workbook of an edition — `tipodocto` 5, `STEP_0_probe.md` — check it for workbooks
-   `SOURCES` lacks):
-   - the rows the 2010/2015 checks skip (`STEP_7w.md` §Left out): 2010 `08_10A`, `08_15A`
-     and 2015 06-11, 07-02, 08-11, 10-01, 10-03, 10-04, 10-06, 11-02 read only their
-     breakdown's «Total» row (`dims=_total_row`, `_income_sm_published`) — 7w's `_cross`,
-     `_place(rows=)`, `_commute(rows=)` read the rest;
-   - Censo 2010: international migrants by destination, return migrants' duration (04_07A–
-     10A), limitation by age and by type (06_03A–06A), health services by age and by
-     affiliation (09_01A/03A/05A), other incomes by household size (12_05A/06A), food access
-     (12_07A), and the economic cross-tables 08_08A/09A/11A/12A/14A/16A (hours, income, place
-     of work by sector, position or division; 08_01A position by size);
+3. More tabulado checks — Censo 2010 and the EIC 2015 are complete, every cell (7x's
+   coverage probe: each workbook's published «Parámetro»/«Valor» values against the cells the
+   checks read — `STEP_7x.md` §Data; rerun it per edition). Left:
+   - **Censo 2020's last cells** (the probe, `STEP_7x.md` §Left out): the unspecified-age rows
+     of 01-02 and 01-04 (+ their by-size twins), 07-03/04's fields of higher education (07-04
+     reads its total only), 08-05…08's employed (their shares only), 09-03/04's use of
+     services by affiliation (09-04 reads each row's population only) — small, 7x's
+     builders (`_by_affiliation`, the 2010 twins with the employed) cover them;
    - a reproduction of the 2010/2015 infant mortality would need INEGI's procedure
      (`STEP_7o.md`): its rule is not in the sample.
 
@@ -767,6 +789,10 @@ and **kept all seven** (merged as 0.9.0):
 
 ## Gotchas (carry forward)
 
+- **Censo 2010's 10_01A is a PDF** (7x): `check_cpv_tabulados.py` reads it with poppler's
+  `pdftotext` (`_dict_fd.pdf_text`); a host without poppler cannot run the 2010 checks
+  (`brew install poppler` / `apt install poppler-utils`). Its shares have two decimals: the
+  shares check `10_01As` compares points within 0.005.
 - **The check script's conversion cache** (7v, `check_cpv_tabulados._CONVERTED`): `_numeric`,
   `_code`, `_age` and `_cat` return one converted column per frame (held with the frame, cleared
   per state). A check must never modify a frame or a converted column in place; a frame changed
