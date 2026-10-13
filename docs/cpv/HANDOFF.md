@@ -1,12 +1,14 @@
 # CPV family — session handoff
 
-**Status (2026-10-12): units 0–6z and 7a–7z are done. `cpv-integration` = **7z** (tabulado
-checks only: every CGPV 2000 tabulado, every value — INEGI's listing names 95 ampliado
-workbooks, the checks read 66: the 29 others (23 by locality size) and every unread value of
-the 66, mostly their counts, exact in every state but Chiapas —: 2000 now 71,560 cells, the
-report 797,781, 0 beyond tolerance; the coverage probe reads 2000 too: none unread in any
-edition; `tests/test_cpv_tabulados.py` 35 passed), see `git log` for whether it is committed;
-before it **7y** (Censo 2020's last cells; the coverage probe), **7x** (every Censo 2010
+**Status (2026-10-12): units 0–6z, 7a–7z and 8a are done. `cpv-integration` = **8a** (the
+locality lineage's leftovers: the parser reads the codes 7t missed, names allow abbreviations,
+ordinals and misspellings but never a placeholder, moves stated without a code confirm or pair,
+rival claims are decided in order — the target stating another origin first —; the bundled
+`cpv_loc_lineage.csv.gz` 33,161 → 33,210 links, code confirmed 72.7% → 77.2%, San Antonio's two
+claims dropped (7t's units joined Ciudad General Escobedo with El Carmen's seat);
+contradictions unchanged; checked on the Mac; the Mac's full suite: 1960 passed, 1 skipped),
+see `git log` for whether it is committed;
+before it **7z** (every CGPV 2000 tabulado, every value: the report 797,781 cells), **7y** (Censo 2020's last cells; the coverage probe), **7x** (every Censo 2010
 tabulado) and **7w**/**7v** (every Censo 2020 / EIC 2015 tabulado); `main` = v0.14.0
 = **7u** (the historical localities: INEGI's Archivo Histórico de Localidades in the mirror —
 128 `ahl_{table}_20260918_{NN}` files, registered (4276 entries), uploaded and verified — and
@@ -665,7 +667,38 @@ Before 0.12.0: v0.11.0 = 6u–7b, v0.10.0 = 6s–6t, 0.9.0 = 6k–6r. A session 
     header and 2000 section spliced); the probe: none unread in 2000 (73,705 values), 2010,
     2015, 2020.
 
-Design: [`PLAN.md`](PLAN.md). Recent units: [`STEP_7z.md`](STEP_7z.md), [`STEP_7y.md`](STEP_7y.md), [`STEP_7x.md`](STEP_7x.md), [`STEP_7w.md`](STEP_7w.md), [`STEP_7v.md`](STEP_7v.md), [`STEP_7u.md`](STEP_7u.md), [`STEP_7t.md`](STEP_7t.md), [`STEP_7s.md`](STEP_7s.md), [`STEP_7r.md`](STEP_7r.md), [`STEP_7q.md`](STEP_7q.md), [`STEP_7p.md`](STEP_7p.md), [`STEP_7o.md`](STEP_7o.md), [`STEP_7n.md`](STEP_7n.md), [`STEP_7m.md`](STEP_7m.md), [`STEP_7l.md`](STEP_7l.md), [`STEP_7k.md`](STEP_7k.md), [`STEP_7j.md`](STEP_7j.md), [`STEP_7i.md`](STEP_7i.md), [`STEP_7h.md`](STEP_7h.md), [`STEP_7g.md`](STEP_7g.md), [`STEP_7f.md`](STEP_7f.md), [`STEP_7e.md`](STEP_7e.md), [`STEP_7d.md`](STEP_7d.md), [`STEP_7c.md`](STEP_7c.md), [`STEP_7b.md`](STEP_7b.md), [`STEP_7a.md`](STEP_7a.md), [`STEP_6z.md`](STEP_6z.md), [`STEP_6y.md`](STEP_6y.md), [`STEP_6x.md`](STEP_6x.md), [`STEP_6w.md`](STEP_6w.md), [`STEP_6v.md`](STEP_6v.md), [`STEP_6u.md`](STEP_6u.md), [`STEP_6t.md`](STEP_6t.md), [`STEP_6s.md`](STEP_6s.md), [`STEP_6r.md`](STEP_6r.md), [`STEP_6q.md`](STEP_6q.md), [`STEP_6p.md`](STEP_6p.md), [`STEP_6o.md`](STEP_6o.md), [`STEP_6n.md`](STEP_6n.md), [`STEP_6m.md`](STEP_6m.md), [`STEP_6l.md`](STEP_6l.md), [`STEP_6k.md`](STEP_6k.md), [`STEP_6j.md`](STEP_6j.md), [`STEP_6i.md`](STEP_6i.md), [`STEP_6h.md`](STEP_6h.md), [`STEP_6g.md`](STEP_6g.md), [`STEP_6f.md`](STEP_6f.md), [`STEP_6e.md`](STEP_6e.md),
+- **8a** (`STEP_8a.md`): HANDOFF candidate 2's leftovers of the locality lineage (the user's
+  choice over the 0.15.0 release, a 2015 locality edition and the small derived columns);
+  `scripts/build_loc_lineage.py`, the bundled lineage and its report, tests.
+  - **Statements 7t missed**: the code after a decree's sentence (195 rows: Campeche's 1998
+    municipalities), «con nombre y clave NAME (LLLL)», «(MMM),con», «, localidad NAME
+    (LLLL)», «en donde tenía la clave», «Pasa del municipio … en el que tenía la clave …» (a
+    provenance), «Anteriormente tenía la clave» (4 or 9 digits), «y parte de las localidades
+    …», a name after the number, «, con clave (LLLL)», «se censó con clave de localidad»;
+    patterns sharing a name pool their matches; a move without the code beside an absorption
+    or a separation places it in that municipality. Stated links 75,563 → 75,839.
+  - **Names**: abbreviations and ordinals spelled out (`_WORDS`), «Ciudad»/«Cabecera»…
+    generic, a misspelling level 1 (`difflib` ≥ 0.85; the `Resolver` tries it only when
+    nothing else matches), placeholders («Ninguno», «Sin nombre») match nothing. Unverified
+    233 → 173; 35 links rest on one that no other record states.
+  - **Moves without a code** (`pair_unkeyed`, now `(links, counts, left)`): confirm the
+    other record's link when it is the only one (393), beside an absorption/separation (19),
+    pairs by any name in the records' histories (22 moves), one side to the only namesake
+    there at that edition (31); left 248 per record and move (186 no record of that name, 50
+    whose old code has no record, 12 among namesakes).
+  - **Rival claims** (`lineage`, now `(table, rivals)` — every claim of a locality with
+    several, the deciding `RULE`, `KEPT`): in order, the target stating another origin (26;
+    each keeps its namesake), its number matched its name (17), stated on its own record
+    (59), the closest name (19); undecided code claims of a locality that keeps its own code
+    are dropped (San Antonio 190100027), others kept (5 + 2 each stating it as their origin);
+    Toluca's three partial absorptions are confirmed on both records now (Cacalomacán joins
+    Toluca's 1990 → 2020 unit).
+  - **33,210 links** (code +61 / −13, absorption +3 / −2; 588 newly confirmed); every
+    added/removed link read against the texts. Check: contradictions unchanged, unexplained
+    1990 → 1995 447 → 437 / 811 → 809, 1995 → 2000 leaving 100 → 91. `ahl._copies` flags the
+    same rows. Units 2000 → 2020 10,297 → 10,300; the Chiapas example unchanged.
+
+Design: [`PLAN.md`](PLAN.md). Recent units: [`STEP_8a.md`](STEP_8a.md), [`STEP_7z.md`](STEP_7z.md), [`STEP_7y.md`](STEP_7y.md), [`STEP_7x.md`](STEP_7x.md), [`STEP_7w.md`](STEP_7w.md), [`STEP_7v.md`](STEP_7v.md), [`STEP_7u.md`](STEP_7u.md), [`STEP_7t.md`](STEP_7t.md), [`STEP_7s.md`](STEP_7s.md), [`STEP_7r.md`](STEP_7r.md), [`STEP_7q.md`](STEP_7q.md), [`STEP_7p.md`](STEP_7p.md), [`STEP_7o.md`](STEP_7o.md), [`STEP_7n.md`](STEP_7n.md), [`STEP_7m.md`](STEP_7m.md), [`STEP_7l.md`](STEP_7l.md), [`STEP_7k.md`](STEP_7k.md), [`STEP_7j.md`](STEP_7j.md), [`STEP_7i.md`](STEP_7i.md), [`STEP_7h.md`](STEP_7h.md), [`STEP_7g.md`](STEP_7g.md), [`STEP_7f.md`](STEP_7f.md), [`STEP_7e.md`](STEP_7e.md), [`STEP_7d.md`](STEP_7d.md), [`STEP_7c.md`](STEP_7c.md), [`STEP_7b.md`](STEP_7b.md), [`STEP_7a.md`](STEP_7a.md), [`STEP_6z.md`](STEP_6z.md), [`STEP_6y.md`](STEP_6y.md), [`STEP_6x.md`](STEP_6x.md), [`STEP_6w.md`](STEP_6w.md), [`STEP_6v.md`](STEP_6v.md), [`STEP_6u.md`](STEP_6u.md), [`STEP_6t.md`](STEP_6t.md), [`STEP_6s.md`](STEP_6s.md), [`STEP_6r.md`](STEP_6r.md), [`STEP_6q.md`](STEP_6q.md), [`STEP_6p.md`](STEP_6p.md), [`STEP_6o.md`](STEP_6o.md), [`STEP_6n.md`](STEP_6n.md), [`STEP_6m.md`](STEP_6m.md), [`STEP_6l.md`](STEP_6l.md), [`STEP_6k.md`](STEP_6k.md), [`STEP_6j.md`](STEP_6j.md), [`STEP_6i.md`](STEP_6i.md), [`STEP_6h.md`](STEP_6h.md), [`STEP_6g.md`](STEP_6g.md), [`STEP_6f.md`](STEP_6f.md), [`STEP_6e.md`](STEP_6e.md),
 [`STEP_6d.md`](STEP_6d.md),
 [`STEP_6c.md`](STEP_6c.md), [`STEP_6b.md`](STEP_6b.md), … [`STEP_0_probe.md`](STEP_0_probe.md).
 
@@ -730,10 +763,15 @@ in one process, spliced; `--coverage` reads the cached tabulados only).
 7z ran on the Mac only (scratch runs over 32 states, a run with Chiapas's frames emptied, then
 the 2000 report in one process, spliced); the Mac's tabulados cache now holds the 29 CGPV
 2000 workbooks 7z added, which `wsl`'s lacks (the script fetches them).
+8a ran on the Mac only: `wsl` asked for a Tailscale re-login at the start (the user opens the
+printed URL). The Mac's cache (`~/Library/Caches/mxcensus`) now holds the 64 MG 2025 `l`/`lpr`
+files, so `--check` runs on the Mac with `--mirror` a directory of symlinks to
+`data/parquet/cpv_iter_*`, `mg_l_NN`/`mg_lpr_NN` and the cached `mg_l(pr)_2025_NN` (8a's
+report was made so).
 
 ## Kickoff prompt for the next session
 
-> Continue the CPV census-family work in this repo (branch cpv-integration = 7z; main =
+> Continue the CPV census-family work in this repo (branch cpv-integration = 8a; main =
 > v0.14.0). Read docs/cpv/HANDOFF.md first, then agree with me which next unit to
 > take (candidates in HANDOFF §Next) before implementing it, following the session protocol
 > in docs/cpv/PLAN.md. Use .venv/bin/python, not uv run. Run wsl tasks without asking; ask
@@ -815,10 +853,12 @@ and **kept all seven** (merged as 0.9.0):
      if a later edition needs one;
    - 7p's kinship lines as a derived column (INEGI's 2010 lines for «otro parentesco» are
      now known: `STEP_7p.md`), if a constraint or a user needs them.
-2. From 7t/7u (`STEP_7t.md`, `STEP_7u.md` §Left out):
+2. From 7t/7u/8a (`STEP_7t.md`, `STEP_7u.md` §Left out, `STEP_8a.md` §Left):
    - a 2015 locality edition (the EIC 2015's `LOC50K`; its cut on the MG 2015 frame);
-   - the leftovers: 337 moves stated without a code left unpaired, 233 unverified locality
-     numbers, 14 rival claims.
+   - a wider audit of the units joining localities of 2,500+ (1990 → 2020: 138 units; 7t
+     reviewed the 20,000+ ones, which missed Escobedo + El Carmen's seat, 8a);
+   - what the AHL cannot decide (8a): 248 moves left unpaired, 35 links on an unverified
+     number, 5 undecided rival claims.
 3. More tabulado checks — every edition with a sample tabulado is complete: CGPV 2000, Censo
    2010, the EIC 2015 and Censo 2020 (every published value enters a compared cell: 7y, 7z,
    `check_cpv_tabulados.py --coverage`, `test_every_published_value_is_read`). Left:
@@ -828,8 +868,10 @@ and **kept all seven** (merged as 0.9.0):
      the mirror; documented);
    - the 2000/2010/2020 cuestionario-básico tabulados are the census, not the sample (the ITER
      covers them: 7g).
-4. A release: 7v–7z (checks only) are on the branch, `main` = v0.14.0; a 0.15.0 would carry
-   no loader change (the Mac's suite for the version bump; `wsl` lacks the newer tabulados).
+4. A release: 7v–7z (checks only) and 8a (the bundled locality lineage: `cpv_loc_lineage()`
+   and `cpv_locality_units()` change — 49 more links, two rival claims resolved differently,
+   San Antonio's dropped) are on the branch, `main` = v0.14.0 (the Mac's suite for the version
+   bump; `wsl` lacks the newer tabulados).
 
 ## Open questions for the user
 
@@ -869,6 +911,15 @@ and **kept all seven** (merged as 0.9.0):
   listed), and the bundled lineage (7t) should be rebuilt from it in the same unit — the
   copy rule (`ahl._copies`) reads the bundled lineage whatever the snapshot. `_SHIFTED`
   (11 rows) is snapshot-specific but guarded (applied only while the row is inconsistent).
+
+- **The lineage's rules** (8a): `name_match` levels 3/2 are exact (abbreviations, ordinals,
+  generic words), level 1 includes a misspelling unless `fuzzy=False`; a placeholder name
+  matches nothing. The `Resolver` is two-pass (exact first: fuzzy matching every candidate
+  took the build from 28 s to 68 s). `pair_unkeyed` returns `(links, counts, left)` and
+  `lineage` `(table, rivals)`; the report's rival and unpaired sections come from those. A new
+  statement shape: add a pattern to `_PATTERNS` (same name to pool) and a case to
+  `test_loc_lineage_parser`; then read the table's diff against the bundled file link by link
+  (8a caught three of its own bugs that way).
 
 - **The locality lineage** (`cpv_loc_lineage.csv.gz`) is generated by
   `scripts/build_loc_lineage.py`, never hand-edited; its `EDITIONS` cuts were found on the

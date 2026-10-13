@@ -5,6 +5,7 @@ the Marco Geoestadístico municipal layers in ``data/parquet`` and join it to th
 """
 from __future__ import annotations
 
+import re
 import sys
 from pathlib import Path
 
@@ -163,6 +164,10 @@ def test_locality_units():
     assert "190210001" not in unit or unit["190210001"] != unit["190390001"]
     early = cpv_locality_units(1990, 1995).set_index("CVEGEO")["UNIT"]
     assert early["020040223"] == early["020050001"]          # the 1995 move
+    for start, end in ((1990, 1995), (1990, 2020)):          # San Antonio's rival claims:
+        span = cpv_locality_units(start, end).set_index("CVEGEO")["UNIT"]   # Escobedo
+        assert span.get("190210001", "a") != span.get("190100001", "b")     # apart from El
+    assert "190100027" not in early                                         # Carmen
     assert early["030010002"] == early["030090001"]
     assert early["240370286"] == early["240370037"]          # counted with it in 1990
     late = cpv_locality_units(2010, 2020).set_index("CVEGEO")["UNIT"]
@@ -231,17 +236,52 @@ def test_loc_lineage_parser():
     assert st("A esta localidad se conurban las 010010114, 010010707 y 010012460.")[
         "absorbe"] == [("010010114, 010010707 y 010012460",)]
     assert st("Se conurba a Acatepec (San Antonio) (0054).")["absorbida"] == [
-        ("", "", "Acatepec (San Antonio)", "0054", "")]
+        ("", "", "", "", "", "Acatepec (San Antonio)", "0054", "")]
     assert st("Se fusiona a San Juan (0003) del municipio de Tlaxco (034).")["absorbida"] == [
-        ("", "", "San Juan", "0003", "034")]
+        ("", "", "", "", "", "San Juan", "0003", "034")]
     assert st("Se conurba a Ciudad Ixtepec, clave (200430001).")["absorbida"] == [
-        ("", "200430001", "", "", "")]
+        ("", "Ciudad Ixtepec", "200430001", "", "", "", "", "")]
+    assert st("Conurbada a Tenabo, con clave (0001).")["absorbida"] == [
+        ("", "Tenabo", "0001", "", "", "", "", "")]
+    assert st("Se fusiona a (0321) Los Laureles.")["absorbida"] == [            # name after
+        ("", "", "", "0321", "Los Laureles", "", "", "")]
+    assert st("Se fusiona a la localidad (0105) del municipio de San Martín Chalchicuautla "
+              "(029).")["absorbida"] == [("", "", "", "", "", "", "0105", "029")]
+    assert sorted(re.findall(r"\d{9}", st(
+        "A esta localidad se conurban las 151060169, 151060189 y parte de las localidades "
+        "151060125, 151060152 y 151060158.")["absorbe"][0][0])) == [
+        "151060125", "151060152", "151060158", "151060169", "151060189"]
     assert st("De esta localidad se desconurba la 110460072.")["separa"] == [("110460072",)]
     assert st("Localidad desagregada de la localidad Xolol (0021).")["separada"] == [
-        ("", "Xolol", "0021", "")]
+        ("", "", "", "Xolol", "0021", "")]
+    assert st("Se desfusiona de (0322) Nuevo Progreso Dos.")["separada"] == [
+        ("", "0322", "Nuevo Progreso Dos", "", "", "")]
     assert st("Se censó con la localidad El Potrero (0199).")["censo_con"] == [
         ("El Potrero", "0199")]
     assert st("Es la misma localidad (0046) del municipio (012).")["misma"] == [("0046", "012")]
+    assert st("En este evento se censó con clave de localidad (0041).") == {
+        "censo_clave": [("0041",)]}
+    # the code written another way after the municipality (7t's leftovers)
+    for text, key, code in (
+            ("Viene del municipio Escárcega 009. Decreto No. 66 del 23 de junio de 1998. con "
+             "clave de localidad 0144.", "viene", ("009", "0144")),
+            ("Pasa al municipio Hecelchakán (005),con clave de localidad (0064).", "pasa",
+             ("005", "0064")),
+            ("Pasa al municipio Huichapan (029), localidad El Betel (0119).", "pasa",
+             ("029", "0119")),
+            ("Viene del municipio Pesquería (041) de la localidad (0077).", "viene",
+             ("041", "0077")),
+            ("Viene del municipio de Rioverde (024) con nombre y clave El Tepetate (0278).",
+             "viene", ("024", "0278")),
+            ("Pasa al municipio Huichapan (029), El Jarillal con clave de localidad (0123).",
+             "pasa", ("029", "0123")),
+            ("Viene del municipio Manuel Doblado (008) en donde tenía la clave (0313).",
+             "viene", ("008", "0313")),
+            ("Pasa del municipio de San Luis de la Paz (033) en el que tenía la clave (0169) al "
+             "municipio de Dolores Hidalgo (014).", "viene", ("033", "0169")),
+            ("Esta localidad anteriormente tenía la clave 0135.", "antes", ("0135",)),
+            ("Anteriormente tenia la clave 250170584.", "antes", ("250170584",))):
+        assert st(text)[key] == [code], text
     # renumbering inside a record: «hasta» closes a code, «cambia» opens the next
     rows = [b.Row("230060378", i, "San Juan", t, *b.event(t), b.statements(t)) for i, t in (
         (1, "Censo de 1980. Hasta este evento la localidad estuvo registrada con clave 230060044."),
@@ -260,6 +300,103 @@ def test_loc_lineage_parser():
     assert resolve("15", "091", "0001", "Nowhere") == ("150910001", False)
     assert b.name_match("Playas de Rosarito", "Playas de Rosarito (Cab.)") == 2
     assert b.name_match("El Refugio (El Conejo)", "San Ramón") == 0
+    assert b.name_match("Cd. Juarez", "Ciudad Juárez") == 2                # abbreviations
+    assert b.name_match("La Elvira I", "La Elvira Uno") == 2                # ordinals
+    assert b.name_match("Tlacopa", "Tlacoapa (Cab.)") == 1                  # a misspelling
+    assert b.name_match("Tlacopa", "Tlacoapa (Cab.)", fuzzy=False) == 0
+    assert b.name_match("Ninguno", "Ninguno") == 0                         # placeholders
+    assert b.name_match("Localidad Sin Nombre", "Rancho Sin Nombre") == 0
+    assert b.name_match("La Ciudad", "Ciudad") == 1     # generic words only: no placeholder
+    rows = [b.Row(c, 1, n, "", "census", date(2000, 2, 14)) for c, n in (
+        ("120630001", "Tlacoapa (Cab.)"), ("120010001", "Acapulco de Juárez"))]
+    assert b.Resolver(rows)("12", "063", "0001", "Tlacopa") == ("120630001", True)
+    # a move stated without the code beside an absorption: the absorber is in the
+    # municipality it moves to
+    t = "Conteo de 2005. Pasa al municipio Tultitlán (109). Se conurba a San Pablo (0025)."
+    rows = [b.Row("151080048", 1, "San Pablo", t, *b.event(t), b.statements(t))]
+    assert [(l.source, l.target, l.kind) for l in b.record_links(rows)] == [
+        ("151080048", "151090025", "absorption")]
+
+
+def _history(*records):
+    """History rows from (code, [(index, name, text), …]) and every link they state."""
+    b = _build_module()
+    rows = [b.Row(code, i, name, t, *b.event(t), b.statements(t))
+            for code, events in records for i, name, t in events]
+    links = [l for code, _ in records
+             for l in b.record_links([r for r in rows if r.code == code])]
+    return b, rows, links
+
+
+def test_loc_lineage_unkeyed_moves():
+    from datetime import date
+    latest = date(2026, 9, 18)
+    b, rows, links = _history(
+        # confirmed by the other record's unkeyed statement
+        ("040032696", [(1, "La Esperanza", "Conteo de 1995."),
+                       (2, "La Esperanza", "Censo de 2000. Pasa al municipio Candelaria 011.")]),
+        ("040110185", [(1, "La Esperanza", "Censo de 2000. Viene del municipio Carmen (003) "
+                                           "con clave de localidad (2696).")]),
+        # paired by name though renamed («La Joringa» → «La Jeringa»)
+        ("040030063", [(1, "La Joringa", "Censo de 1990."),
+                       (2, "La Joringa", "Conteo de 1995. Pasa al municipio Escárcega (009).")]),
+        ("040090589", [(1, "La Joringa", "Censo de 1980."),
+                       (2, "La Jeringa", "Conteo de 1995. Cambio de nombre de localidad. "
+                                         "Viene del municipio Carmen 003.")]),
+        # one side: the only «San Carlos» of Ramos Arizpe there in 1995
+        ("050300604", [(1, "San Carlos", "Censo de 1990."),
+                       (2, "San Carlos", "Conteo de 1995. Pasa al municipio Ramos Arizpe "
+                                         "(027).")]),
+        ("050270086", [(1, "San Carlos", "Censo de 1910."), (2, "San Carlos", "Censo de 2000.")]),
+        ("050270999", [(1, "San Carlos", "Censo de 1960. Baja de localidad.")]))
+    extra, counts, left = b.pair_unkeyed(rows, links, latest)
+    got = {(l.source, l.target, l.record) for l in extra}
+    assert ("040032696", "040110185", "040032696") in got
+    assert {("040030063", "040090589", "040030063"),
+            ("040030063", "040090589", "040090589")} <= got
+    assert ("050300604", "050270086", "050300604") in got          # not the one gone by 1960
+    assert counts["confirms a code link"] == 1 and counts["paired by name"] == 2
+    assert counts["one side, by name"] == 1 and left.empty
+    table, rivals = b.lineage(rows, links + extra, latest)
+    assert table.set_index("FROM").loc["040032696", "CONFIRMED"]
+
+
+def test_loc_lineage_rival_claims():
+    from datetime import date
+    latest = date(2026, 9, 18)
+    b, rows, links = _history(
+        # the old record points to 0129, whose own record names another origin
+        ("040030889", [(1, "Las Delicias de los Tres Hermanos", "Censo de 2000. Pasa al "
+                        "municipio Candelaria (011) con clave de localidad (0129).")]),
+        ("040110127", [(1, "Las Delicias de los Tres Hermanos", "Censo de 2000. Viene del "
+                        "municipio Carmen (003) con clave de localidad (0889).")]),
+        ("040110129", [(1, "Las Delicias", "Censo de 2000. Viene del municipio Carmen (003) "
+                        "con clave de localidad (0887).")]),
+        # a locality that goes on under its own code: neither claim is a renumbering
+        ("190100027", [(1, "San Antonio", "Censo de 1990. Localidad deshabitada."),
+                       (2, "San Antonio", "Conteo de 1995. pasa al municipio de General "
+                        "Escobedo(021) con clave de localidad (0001)."),
+                       (3, "San Antonio", "Censo de 2010.")]),
+        ("190100001", [(1, "El Carmen (Cab.)", "Conteo de 1995. Viene del municipio de China "
+                        "(010) con clave de localidad (0027).")]),
+        ("190210001", [(1, "General Escobedo (Cab.)", "Censo de 1990.")]),
+        # a locality split in two, each part stating it as its origin
+        ("300450073", [(1, "Cerro de Torres", "Censo de 2000. Baja de localidad.")]),
+        ("302080014", [(1, "Cerro de Torres Dos", "Decreto No. 26 del 30 de noviembre de 1996. "
+                        "Viene del municipio de Cosamaloapan (045) con clave de localidad "
+                        "(0073).")]),
+        ("302080015", [(1, "Cerro de Torres 1", "Decreto No. 26 del 30 de noviembre de 1996. "
+                        "Viene del municipio de Cosamaloapan (045) con clave de localidad "
+                        "(0073).")]))
+    table, rivals = b.lineage(rows, links, latest)
+    to = table.groupby("FROM")["TO"].apply(set).to_dict()
+    assert to["040030889"] == {"040110127"} and to["040030887"] == {"040110129"}
+    assert "190100027" not in to
+    assert to["300450073"] == {"302080014", "302080015"}
+    rule = rivals.drop_duplicates("FROM").set_index("FROM")["RULE"]
+    assert rule["040030889"] == "the target states another origin"
+    assert rule["190100027"].startswith("undecided, the locality keeps its code")
+    assert rule["300450073"] == "each states it as its origin (all kept)"
 
 
 _AHL = Path(__file__).resolve().parent.parent / "data" / "dict" / "ahl" / "AHL.zip"
