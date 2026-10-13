@@ -101,10 +101,11 @@ from mxcensus._resources import cpv_loc_lineage as loc_doc  # noqa: E402
 from mxcensus.cpv_geo import cpv_loc_lineage, cpv_locality_units  # noqa: E402
 
 _SCRIPTS = Path(__file__).resolve().parent.parent / "scripts"
-_LOC_PERIODS = ("1990", "1995", "2000", "2005", "2010", "2020", "2025")
+_LOC_PERIODS = ("1990", "1995", "2000", "2005", "2010", "2015", "2020", "2025")
+_ITER_PERIODS = ("1990", "1995", "2000", "2005", "2010", "2020")
 _CUTS = {"1990": "1990-03-12", "1995": "1995-11-05", "2000": "2000-02-14",
-         "2005": "2005-10-30", "2010": "2010-10-15", "2020": "2020-12-31",
-         "2025": "2025-12-31"}
+         "2005": "2005-10-30", "2010": "2010-10-15", "2015": "2015-04-30",
+         "2020": "2020-12-31", "2025": "2025-12-31"}
 
 
 def _links(lin, frm, to=None):
@@ -123,14 +124,18 @@ def test_locality_lineage_document():
     assert (lin["FROM"] != lin["TO"]).all()
     assert not lin.duplicated(["PERIOD", "KIND", "FROM", "TO"]).any()
     # each link dated within its edition: after the previous cut, on or before its own —
-    # but the few a census shows in effect only later (8b: moved, 44)
+    # but the few a census shows in effect only later (8b: moved, 46) and the codes in a
+    # municipality no frame has yet (8c: Chiapas's decree of 2011, in the MG 2020 frame)
     cut = lin["PERIOD"].map(_CUTS).astype("datetime64[us]")
     prev = lin["PERIOD"].map(lambda p: _CUTS[_LOC_PERIODS[max(_LOC_PERIODS.index(p) - 1, 0)]])
     assert (lin["DATE"] <= cut).all()
     later = lin["PERIOD"] != "1990"
-    early = lin.loc[later, "DATE"] <= prev[later].astype("datetime64[us]")
-    assert early.sum() <= 50
-    assert set(lin.loc[early[early].index, "KIND"]) <= {"absorption", "separation"}
+    early = lin[later & (lin["DATE"] <= prev.astype("datetime64[us]"))]
+    mun = cpv_mun_lineage()
+    first = dict(zip(mun["CVEGEO"], mun["PERIOD_TO"]))         # a new municipality's frame
+    new_mun = early["TO"].str[:5].map(first) == early["PERIOD"]
+    assert (early.loc[~new_mun, "KIND"].isin(["absorption", "separation"])).all()
+    assert (~new_mun).sum() <= 50 and new_mun.sum() >= 430
     # only the localities counted with another at the 1990 census are in effect by 1990
     assert set(lin.loc[lin["PERIOD"] == "1990", "KIND"]) == {"counted_with"}
     assert set(lin.loc[lin["KIND"] == "counted_with", "PERIOD"]) == {"1990", "1995"}
@@ -152,6 +157,18 @@ def test_locality_lineage_document():
     row = _links(lin, "010012150", "010010001").iloc[0]
     assert (row["KIND"], row["PERIOD"], str(row["DATE"].date())) == (
         "absorption", "2025", "2025-06-30")
+    # the MG 2015 frame (8c): the updates of 15 April 2015 are in it, those of May not
+    assert _links(lin, "010020289", "010020059")["PERIOD"].tolist() == ["2015"]
+    assert _links(lin, "071090230", "071090001")["PERIOD"].tolist() == ["2020"]
+    assert lin.loc[lin["PERIOD"] == "2015", "DATE"].max() <= pd.Timestamp("2015-04-30")
+    # a code in a municipality no frame has yet: Chiapas's decree of 23 November 2011
+    # (Emiliano Zapata, 07123, in the MG 2020 frame), Calakmul's of the Conteo 1995 (in 2000)
+    row = _links(lin, "070020003", "071230029").iloc[0]
+    assert (row["PERIOD"], str(row["DATE"].date())) == ("2020", "2011-11-23")
+    assert _links(lin, "040031040", "040110243")["PERIOD"].tolist() == ["2000"]
+    # counted in 2010, joined to Las Lomas at the Censo 2020 by its own record: 2020, not
+    # the frame between
+    assert _links(lin, "020013944", "020013593")["PERIOD"].tolist() == ["2020"]
     assert len(loc_doc()) == len(lin)
     assert mxcensus.cpv_loc_lineage is cpv_loc_lineage
 
@@ -191,8 +208,27 @@ def test_locality_units():
     strict = cpv_locality_units(2020, 2025, confirmed=True)
     assert set(strict["CVEGEO"]) == set(conf["FROM"]) | set(conf["TO"])
     assert len(strict) < len(full)
+    # the EIC 2015's frame between 2010 and 2020 (8c): the two spans join what 2010 → 2020
+    # joins, and no more
+    a, b = cpv_locality_units(2010, 2015), cpv_locality_units(2015, 2020)
+    assert set(a["CVEGEO"]) | set(b["CVEGEO"]) == set(late.index)
+    for part in (a, b):
+        assert part.groupby("UNIT")["CVEGEO"].agg(lambda c: late[c].nunique()).eq(1).all()
+    parent = {c: c for c in late.index}
+
+    def find(c):
+        while parent[c] != c:
+            c = parent[c]
+        return c
+
+    for part in (a, b):
+        for unit, code in zip(part["UNIT"], part["CVEGEO"]):
+            parent[find(code)] = find(unit)
+    assert len({find(c) for c in late.index}) == late.nunique()
+    chiapas = b.set_index("CVEGEO")["UNIT"]
+    assert chiapas["070020003"] == chiapas["071230029"] and "070020003" not in set(a["CVEGEO"])
     with pytest.raises(ValueError, match="no locality codes"):
-        cpv_locality_units(2015, 2020)
+        cpv_locality_units(2014, 2020)
     with pytest.raises(ValueError, match="no locality codes"):
         cpv_locality_units(1985, 1990)
     with pytest.raises(ValueError, match="after end"):
@@ -221,6 +257,8 @@ def test_loc_lineage_parser():
     # an edition's cut: the Conteo 2005 has the update of 30 October 2005, not the next day's
     assert b.edition_of(date(2005, 10, 30)) == "2005"
     assert b.edition_of(date(2005, 10, 31)) == "2010"
+    assert b.edition_of(date(2010, 10, 16)) == b.edition_of(date(2015, 4, 30)) == "2015"
+    assert b.edition_of(date(2015, 5, 1)) == "2020"             # the MG 2015 frame's cut
     assert b.edition_of(date(2020, 11, 17)) == "2020"
     assert b.edition_of(date(2026, 1, 1)) is None
     st = b.statements
@@ -482,18 +520,48 @@ def test_loc_lineage_own_records():
                         "octubre de 2008. Se conurba a Morelia (0001).")]),
         # stated apart at the Censo 2000, first counted at the Conteo 2005
         ("290260001", [(1, "Santa Cruz Tlaxcala (Cab.)", "Censo de 2000. De esta localidad se "
-                        "desconurban las 290260004 y 290260005.")]))
+                        "desconurban las 290260004 y 290260005.")]),
+        # 8c, the MG 2015 frame: counted in 2010, its absorber's record dates it 2019 (→ 2020)
+        ("020013944", [(1, "Rancho Fátima", "Censo de 2010."),
+                       (2, "Rancho Fátima", "Actualización Geoestadística del 15 de junio de "
+                        "2019. Se fusiona a Las Lomas [Residencial Campestre] (3593).")]),
+        ("020013593", [(1, "Las Lomas", "Actualización Geoestadística del 15 de marzo de 2010. "
+                        "A esta localidad se fusiona la 020013944.")]),
+        # absorbed by 2015, separated again by 2020: the 2020 count is no reason to move it
+        ("090130236", [(1, "Camino Real a San Pedro", "Actualización Geoestadística del 15 de "
+                        "abril de 2015. Se fusiona a Ixotitla (0096)."),
+                       (2, "Camino Real a San Pedro", "Actualización Geoestadística del 15 de "
+                        "junio de 2019. Se desfusiona de Ixotitla (0096).")]),
+        # (made up) absorbed by 2015, counted in 2020 on its own, stated only by its
+        # absorber: dropped
+        ("990010001", [(1, "Pueblo", "Actualización Geoestadística del 15 de agosto de 2014. A "
+                        "esta localidad se conurba la 990010002.")]),
+        # a move into a municipality the MG 2020 frame has first (Emiliano Zapata, Chiapas)
+        ("070020003", [(1, "Familia Alfaro", "Decreto No. 008 del 23 de noviembre de 2011. "
+                        "Pasa al municipio de Emiliano Zapata (123) con clave de localidad "
+                        "(0029).")]))
     counted = {"260300535": [date(2010, 6, 12), date(2020, 3, 15)],
                "160530417": [date(2005, 10, 17), date(2010, 6, 12)],
-               "290260005": [date(2005, 10, 17), date(2010, 6, 12)]}
-    table, rivals, fixes = b.lineage(rows, links, date(2026, 9, 18), counted)
+               "290260005": [date(2005, 10, 17), date(2010, 6, 12)],
+               "020013944": [date(2010, 6, 12)],
+               "090130236": [date(2010, 6, 12), date(2020, 3, 15)],
+               "990010002": [date(2010, 6, 12), date(2020, 3, 15)]}
+    table, rivals, fixes = b.lineage(rows, links, date(2026, 9, 18), counted, {"07123": "2020"})
     got = dict(zip(zip(table["FROM"], table["TO"], table["KIND"].astype(str)), table["PERIOD"]))
     assert got[("050200772", "050200001", "absorption")] == "2010"
     assert ("050200772", "050200001", "separation") not in got
     assert not [k for k in got if k[0] == "300440047"]
     assert ("260300535", "260300001", "absorption") not in got
     assert got[("260303510", "260300001", "absorption")] == "2020"
-    assert got[("160530417", "160530001", "absorption")] == "2020"
+    assert got[("160530417", "160530001", "absorption")] == "2015"   # after 2010, no census
+    assert got[("020013944", "020013593", "absorption")] == "2020"   # where Las Lomas dates it
+    assert ("020013944", "020013593", "absorption") in set(
+        zip(table.loc[table["CONFIRMED"], "FROM"], table.loc[table["CONFIRMED"], "TO"],
+            table.loc[table["CONFIRMED"], "KIND"].astype(str)))
+    assert got[("090130236", "090130096", "absorption")] == "2015"
+    assert got[("090130236", "090130096", "separation")] == "2020"
+    assert ("990010002", "990010001", "absorption") not in got
+    assert got[("070020003", "071230029", "code")] == "2020"
     assert got[("290260005", "290260001", "separation")] == "2005"
     assert got[("290260004", "290260001", "separation")] == "2000"   # never counted: stays
     rule = dict(zip(zip(fixes["FROM"], fixes["KIND"]), fixes["RULE"]))
@@ -502,6 +570,8 @@ def test_loc_lineage_own_records():
         "joined and left")
     assert rule[("260300535", "absorption")] == "counted on its own"
     assert rule[("160530417", "absorption")] == rule[("290260005", "separation")] == "moved"
+    assert rule[("990010002", "absorption")] == "counted on its own"
+    assert rule[("070020003", "code")] == "its municipality is new"
 
 
 def test_loc_lineage_large_units():
@@ -525,7 +595,7 @@ def test_loc_lineage_large_units():
 
 _AHL = Path(__file__).resolve().parent.parent / "data" / "dict" / "ahl" / "AHL.zip"
 _ITERS = all((_MIRROR / f"cpv_iter_{p}_{s:02d}.parquet").exists()
-             for p in _LOC_PERIODS[:-1] for s in range(1, 33))
+             for p in _ITER_PERIODS for s in range(1, 33))
 
 
 @pytest.mark.skipif(not (_AHL.exists() and _ITERS),
@@ -537,11 +607,18 @@ def test_loc_lineage_rebuilds_and_checks(tmp_path):
     b.write(table, out)
     bundled = Path(mxcensus.__file__).parent / "_yaml" / "cpv_loc_lineage.csv.gz"
     assert out.read_bytes() == bundled.read_bytes()
-    codes = {p: c for p, c in b.edition_codes(_MIRROR).items() if p in _LOC_PERIODS[:-1]}
+    codes = b.edition_codes(_MIRROR)                   # the ITERs and the frames there
     result = b.check(table, rows, codes)
     contra = result["contradictions"]
     assert (contra["contradicted"] <= 0.03 * contra["links"]).all()
+    frames = {"2010→2015", "2015→2020", "2020→2025"} & set(result["gone"]["span"])
+    if "2015" in codes:
+        assert {"2010→2015", "2015→2020"} <= frames
+        assert len(contra[contra["span"] == "2010→2015"]) == 3
     for frame in (result["gone"], result["new"]):
         early = frame["span"] == "1990→1995"           # the Conteo 1995's gaps
-        assert (frame.loc[~early, "unexplained"] <= 0.01 * frame.loc[~early, "codes"]).all()
+        mg = frame["span"].isin(frames)                # Campeche's records that end in 2010
+        assert (frame.loc[~early & ~mg, "unexplained"]
+                <= 0.01 * frame.loc[~early & ~mg, "codes"]).all()
         assert (frame.loc[early, "unexplained"] <= 0.015 * frame.loc[early, "codes"]).all()
+        assert (frame.loc[mg, "unexplained"] <= 0.05 * frame.loc[mg, "codes"]).all()

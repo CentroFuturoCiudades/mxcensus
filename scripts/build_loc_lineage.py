@@ -60,21 +60,26 @@ only later takes effect then.
 **Editions.** A link is dated by its event: a census or count row by that census's
 reference date, an update by its date, a decree by the first date in its text. ``PERIOD``
 is the first edition whose **cut** is on or after that date. The cut is the last change an
-edition's locality codes reflect, found on the data (``check``; STEP_7t.md): the census day
-for 1990, 1995 and 2000, INEGI's geostatistical update of 30 October 2005 for the Conteo
-2005, that of 15 October 2010 for the Censo 2010, every change of 2020 for the Censo 2020
-(its ITER and MG frame), every change up to 30 November 2025 for the MG 2025 frame. Links in
-effect by 1990 are dropped, except those counted with another locality at the 1990 census. A
-link stated on both records is ``CONFIRMED``. ``--check`` also lists the units of
-``cpv_locality_units(1990, 2025)`` joining localities of 2,500+ whose path deserves a look
-(``large_units``: far apart, through a smaller locality, one record, a remnant).
+edition's locality codes reflect, found on the data (``check``; STEP_7t.md, STEP_8c.md): the
+census day for 1990, 1995 and 2000, INEGI's geostatistical update of 30 October 2005 for the
+Conteo 2005, that of 15 October 2010 for the Censo 2010, every change up to 30 April 2015 for
+the EIC 2015's frame (MG 2015: the updates of 15 April applied, those of May not), every
+change of 2020 for the Censo 2020 (its ITER and MG frame), every change up to 30 November
+2025 for the MG 2025 frame. A code in a municipality that no frame has yet takes effect at
+the first frame that has it (the bundled municipal lineage: Chiapas's decree of 2011, in the
+MG 2020 frame). Links in effect by 1990 are dropped, except those counted with another
+locality at the 1990 census. A link stated on both records is ``CONFIRMED``. ``--check``
+also lists the units of ``cpv_locality_units(1990, 2025)`` joining localities of 2,500+
+whose path deserves a look (``large_units``: far apart, through a smaller locality, one
+record, a remnant).
 
 Usage::
 
     .venv/bin/python scripts/build_loc_lineage.py              # download (once) + build
     .venv/bin/python scripts/build_loc_lineage.py --download   # refresh data/dict/ahl/AHL.zip
     .venv/bin/python scripts/build_loc_lineage.py --check      # + the check against the
-                                                               #   ITER and MG 2025 → report
+                                                               #   ITER and the MG 2015,
+                                                               #   2020, 2025 frames → report
 """
 from __future__ import annotations
 
@@ -107,11 +112,12 @@ CENSUS_DATES: dict[str, date] = {
     "1990": date(1990, 3, 12), "1995": date(1995, 11, 5), "2000": date(2000, 2, 14),
     "2005": date(2005, 10, 17), "2010": date(2010, 6, 12), "2020": date(2020, 3, 15),
 }
-# Each edition's cut: the last change its locality codes reflect (module doc).
+# Each edition's cut: the last change its locality codes reflect (module doc). 2015 and
+# 2025 are frames (MG 2015, MG 2025), not censuses.
 EDITIONS: dict[str, date] = {
     "1990": date(1990, 3, 12), "1995": date(1995, 11, 5), "2000": date(2000, 2, 14),
-    "2005": date(2005, 10, 30), "2010": date(2010, 10, 15), "2020": date(2020, 12, 31),
-    "2025": date(2025, 12, 31),
+    "2005": date(2005, 10, 30), "2010": date(2010, 10, 15), "2015": date(2015, 4, 30),
+    "2020": date(2020, 12, 31), "2025": date(2025, 12, 31),
 }
 _MESES = {m: i + 1 for i, m in enumerate(
     "enero febrero marzo abril mayo junio julio agosto septiembre octubre noviembre "
@@ -611,6 +617,20 @@ def _next(period: str) -> str:
     return eds[min(eds.index(period) + 1, len(eds) - 1)]
 
 
+def _census_from(period: str) -> str | None:
+    """The first edition from ``period`` on with a census (2015 → 2020; 2025: none)."""
+    eds = list(EDITIONS)
+    return next((p for p in eds[eds.index(period):] if p in CENSUS_DATES), None)
+
+
+def mun_frames() -> dict[str, str]:
+    """Each municipality created since the MG 1995 frame → the first edition whose frame has
+    it (the bundled municipal lineage, ``cpv_mun_lineage``)."""
+    sys.path.insert(0, str(_REPO_ROOT / "src"))
+    from mxcensus._resources import cpv_mun_lineage
+    return {c["CVEGEO"]: c["hasta"] for c in cpv_mun_lineage()["cambios"]}
+
+
 def populated(hab: pd.DataFrame) -> dict[str, list[date]]:
     """The censuses 1990–2020 at which each locality has a population of its own, from the
     AHL's ``Habitantes``: a number of inhabitants (its rows with one are the ITER's
@@ -741,7 +761,8 @@ def pair_unkeyed(rows: list[Row], links: list[Link], latest: date
 
 
 def lineage(rows: list[Row], links: list[Link], latest: date,
-            counted: dict[str, list[date]] | None = None
+            counted: dict[str, list[date]] | None = None,
+            created: dict[str, str] | None = None
             ) -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
     """The links in scope, one per (``FROM``, ``TO``, ``KIND``, ``PERIOD``): ``DATE`` the
     earliest statement's, ``CONFIRMED`` when both records state it.
@@ -774,14 +795,26 @@ def lineage(rows: list[Row], links: list[Link], latest: date,
       «Se desconurba de Córdoba» at the Conteo 2005);
     - an absorption whose locality has a population of its own at that edition's census
       (``counted``: ``populated``, the AHL's ``Habitantes`` = the edition's ITER, up to its
-      cut) did not take effect then: when the locality's own record states it, it takes
-      effect at the first edition after whose census it has none (*moved*; 2025 after 2020);
-      stated only by others, it is dropped (*counted on its own*: «Hermosillo: A esta
-      localidad se conurban las 260300535 …», San Pedro el Saucito counted in 2020);
+      cut; a frame without a census, 2015, by the next census's) did not take effect then:
+      when the locality's own record states it, it takes effect at the first edition after
+      the censuses that go on counting it (*moved*; 2025 after 2020), past the MG 2015
+      frame at the edition another record states up to the next census (Rancho Fátima,
+      Ensenada, listed by Las Lomas on 15 March 2010, counted in 2010, «Se fusiona a Las
+      Lomas» on its own record on 15 June 2019: 2020), else 2015; stated only
+      by others, it is dropped (*counted on its own*: «Hermosillo: A esta localidad se
+      conurban las 260300535 …», San Pedro el Saucito counted in 2020);
     - a separation whose locality has no population of its own at that edition's census
-      (2000–2020) but has one later takes effect at the first edition whose census counts
-      it (*moved*: San Miguel Contla and San Lucas Tlacochcalco, stated apart from Santa
-      Cruz Tlaxcala at the Censo 2000, first counted in 2005).
+      (2000–2020) but has one later takes effect at the first edition after the last census
+      without it (*moved*: San Miguel Contla and San Lucas Tlacochcalco, stated apart from
+      Santa Cruz Tlaxcala at the Censo 2000, first counted in 2005; 2015 for one first
+      counted in 2020: the MG 2015 frame lists all ten such).
+
+    After the rival claims (which compete at the edition of their date), a link with a code
+    in a municipality that no frame has yet at its edition (``created``: municipality → the
+    first edition whose frame has it, ``mun_frames``) takes effect there (*its municipality
+    is new*: Chiapas's moves into the municipalities its decree of 23 November 2011 created,
+    in INEGI's frame from 2020; Calakmul's and Candelaria's of the Conteo 1995, from 2000),
+    merged with the link stated there if any.
 
     Returns the table, the rival claims (every claim of a locality with several, the rule
     that decided them, ``KEPT``) and the corrections (``RULE``, ``PERIOD``, ``KIND``,
@@ -793,6 +826,7 @@ def lineage(rows: list[Row], links: list[Link], latest: date,
                   for rec, s, t in zip(df["record"], df["source"], df["target"])]
     df = df.sort_values("day", kind="stable")
     fixes = []
+    eds = list(EDITIONS)
     # one record states an absorption, the other a separation, the same day: the locality's
     # own record decides
     day_kinds, day_own = defaultdict(set), defaultdict(set)
@@ -823,16 +857,33 @@ def lineage(rows: list[Row], links: list[Link], latest: date,
     own = set(zip(df.loc[ab & (df["side"] == "from"), "source"],
                   df.loc[ab & (df["side"] == "from"), "target"]))
     drop = pd.Series(False, index=df.index)
+    left_at = defaultdict(set)                  # (locality, other) → editions it leaves at
+    for s, t, p in zip(df.loc[df["kind"] == "separation", "source"],
+                       df.loc[df["kind"] == "separation", "target"],
+                       df.loc[df["kind"] == "separation", "PERIOD"]):
+        left_at[(s, t)].add(p)
+    stated_at = defaultdict(set)                # (locality, other) → editions it joins at
+    for s, t, p in zip(df.loc[ab, "source"], df.loc[ab, "target"], df.loc[ab, "PERIOD"]):
+        stated_at[(s, t)].add(p)
     for (s, t, p), g in df[ab].groupby(["source", "target", "PERIOD"], sort=False):
-        # a population at that edition's census: the census (= its codes, up to its cut)
-        # counts it on its own
+        # a population at that edition's census (a frame: the next census's, unless it
+        # leaves the other by then): the census (= its codes, up to its cut) counts it on
+        # its own
         pops = set(counted.get(s, ()))
-        if p not in CENSUS_DATES or CENSUS_DATES[p] not in pops:
+        census = _census_from(p)
+        if (census is None or CENSUS_DATES[census] not in pops
+                or any(p < q <= census for q in left_at[(s, t)])):
             continue
         if (s, t) in own:
             to = p
-            while to in CENSUS_DATES and CENSUS_DATES[to] in pops:
-                to = _next(to)
+            while (c := _census_from(to)) and CENSUS_DATES[c] in pops:
+                to = _next(c)
+            # past a frame without a census: the edition another record states, if any by
+            # the next census (Rancho Fátima, 020013944: 2020, not 2015)
+            nxt = _census_from(to)
+            later = [q for q in stated_at[(s, t)]
+                     if nxt and eds.index(to) < eds.index(q) <= eds.index(nxt)]
+            to = min(later, key=eds.index, default=to)
             df.loc[g.index, "PERIOD"] = to
             fixes.append(("moved", p, "absorption", s, t, to))
         else:
@@ -840,14 +891,17 @@ def lineage(rows: list[Row], links: list[Link], latest: date,
             fixes.append(("counted on its own", p, "absorption", s, t, ""))
     df = df[~drop]
     # a separated locality without a population of its own at that edition's census, with
-    # one later (not the Conteo 1995, whose «*» is also a count its ITER reserves)
+    # one later (not the Conteo 1995, whose «*» is also a count its ITER reserves): the
+    # edition after the last census without it
     se = df["kind"] == "separation"
     for (s, t, p), g in df[se].groupby(["source", "target", "PERIOD"], sort=False):
         pops = set(counted.get(s, ()))
         later = [q for q in CENSUS_DATES if q > p and CENSUS_DATES[q] in pops]
         if p in CENSUS_DATES and p != "1995" and CENSUS_DATES[p] not in pops and later:
-            df.loc[g.index, "PERIOD"] = later[0]
-            fixes.append(("moved", p, "separation", s, t, later[0]))
+            before = [q for q in CENSUS_DATES if p <= q < later[0]]
+            to = _next(before[-1])
+            df.loc[g.index, "PERIOD"] = to
+            fixes.append(("moved", p, "separation", s, t, to))
     out = (df.groupby(["source", "target", "kind", "PERIOD"], sort=False)
              .agg(DATE=("day", "first"), EVENT=("event", "first"),
                   sides=("side", lambda s: frozenset(s)), verified=("verified", "max"))
@@ -908,6 +962,24 @@ def lineage(rows: list[Row], links: list[Link], latest: date,
         keep.append(g[kept])
         log.append(g.assign(RULE=rule, KEPT=kept))
     out = pd.concat(keep)
+    # a code in a municipality no frame has yet: the link takes effect at its first frame
+    # (after the rival claims, which compete at the edition of their date)
+    created = created or {}
+    out["moved"] = False
+    for i, s, t, k, p in zip(out.index, out["source"], out["target"], out["kind"],
+                             out["PERIOD"]):
+        first = max((created.get(c[:5], p) for c in (s, t)), key=eds.index)
+        if eds.index(first) > eds.index(p):
+            out.loc[i, ["PERIOD", "moved"]] = first, True
+            fixes.append(("its municipality is new", p, k, s, t, first))
+    # merged with the link stated there, the date is that statement's (Bacalar's 0257,
+    # «Censo de 2010» on its record, moved by the decree of 2011: its 2010 row is a copy)
+    out = (out.sort_values(["moved", "DATE"], kind="stable")
+              .groupby(["source", "target", "kind", "PERIOD"], sort=False)
+              .agg(DATE=("DATE", "first"), EVENT=("EVENT", "first"),
+                   sides=("sides", lambda sd: frozenset().union(*sd)))
+              .reset_index())
+    out["CONFIRMED"] = [{"from", "to"} <= sd for sd in out["sides"]]
     rivals = (pd.concat(log) if log else out.head(0).assign(RULE="", KEPT=False)).rename(
         columns={"source": "FROM", "target": "TO", "kind": "KIND"})
     rivals["SIDES"] = rivals["sides"].map(lambda sd: "+".join(sorted(sd)))
@@ -929,7 +1001,7 @@ def build(path: Path) -> tuple[pd.DataFrame, list[Row], dict]:
     links, repaired = repair_lists(links)
     extra, unkeyed, left = pair_unkeyed(rows, links, latest)
     table, rivals, fixes = lineage(rows, links + extra, latest,
-                                   populated(read_ahl(path, "Habitantes")))
+                                   populated(read_ahl(path, "Habitantes")), mun_frames())
     # the links that rest on a locality number placed without its name matching, stated
     # on no other record
     verified: dict[tuple, bool] = {}
@@ -978,8 +1050,9 @@ _ITER_EDITIONS = ("1990", "1995", "2000", "2005", "2010", "2020")
 
 
 def edition_codes(mirror: Path) -> dict[str, set[str]]:
-    """The locality codes of each ITER (its locality rows) and of the MG 2025 frame (its
-    ``l`` and ``lpr`` layers), from the mirror; an edition with a file missing is left out."""
+    """The locality codes of each ITER (its locality rows) and of the MG 2015, 2020
+    (``2020mg``) and 2025 frames (their ``l`` and ``lpr`` layers), from the mirror; an
+    edition with a file missing is left out."""
     import pyarrow.parquet as pq
     out: dict[str, set[str]] = {}
     for period in _ITER_EDITIONS:
@@ -996,15 +1069,16 @@ def edition_codes(mirror: Path) -> dict[str, set[str]]:
             t = t[(t.M.str.zfill(3) != "000") & ~t.L.str.zfill(4).isin(["0000", "9998", "9999"])]
             codes |= set(t.E.str.zfill(2) + t.M.str.zfill(3) + t.L.str.zfill(4))
         out[period] = codes
-    files = [mirror / f"mg_{sfx}_2025_{s:02d}.parquet" for sfx in ("l", "lpr")
-             for s in range(1, 33)]
-    if all(f.exists() for f in files):
-        out["2025"] = set()
-        for f in files:
-            t = pq.read_table(f, columns=["CVEGEO"]).to_pandas()
-            out["2025"] |= set(t.CVEGEO.str[:9])
-    else:
-        print(f"  MG 2025: files missing in {mirror}, left out", flush=True)
+    for period in ("2015", "2025"):          # lpr: 9 characters + AGEB and a point id
+        files = [mirror / f"mg_{sfx}_{period}_{s:02d}.parquet" for sfx in ("l", "lpr")
+                 for s in range(1, 33)]
+        if all(f.exists() for f in files):
+            out[period] = set()
+            for f in files:
+                t = pq.read_table(f, columns=["CVEGEO"]).to_pandas()
+                out[period] |= set(t.CVEGEO.str[:9])
+        else:
+            print(f"  MG {period}: files missing in {mirror}, left out", flush=True)
     files = [mirror / f"mg_{sfx}_{s:02d}.parquet" for sfx in ("l", "lpr") for s in range(1, 33)]
     if all(f.exists() for f in files):          # MG 2020: 9 characters (lpr: + a point id)
         out["2020mg"] = set()
@@ -1028,7 +1102,7 @@ def _status(rows: list[Row]) -> tuple[dict[tuple[str, str], set[str]], dict[str,
         first.setdefault(r.code, period if r.day > date(1985, 1, 1) else "before")
         t = r.text.lower()
         f = flags.setdefault((r.code, period), set())
-        if "baja" in t:
+        if "baja" in t or "inexistente" in t or "ruinas" in t:
             f.add("removed")
         if "deshabitada" in t:
             f.add("uninhabited")
@@ -1044,19 +1118,22 @@ def _status(rows: list[Row]) -> tuple[dict[tuple[str, str], set[str]], dict[str,
 
 
 def _spans(codes: dict[str, set[str]]) -> list[tuple[str, str, set[str], set[str]]]:
-    """Consecutive editions to compare: the ITERs, then the MG 2020 frame against the MG 2025
-    frame (both list the uninhabited localities too)."""
+    """Consecutive editions to compare: the ITERs, then the frames — the ITER 2010 (= the MG
+    2010 frame's localities) against the MG 2015 frame, MG 2015 against MG 2020 and MG 2020
+    against MG 2025 (the frames since 2015 list the uninhabited localities too)."""
     eds = [p for p in _ITER_EDITIONS if p in codes]
     out = [(a, b, codes[a], codes[b]) for a, b in zip(eds[:-1], eds[1:])]
-    if "2020mg" in codes and "2025" in codes:
-        out.append(("2020", "2025", codes["2020mg"], codes["2025"]))
+    frames = [(p, k) for p, k in (("2010", "2010"), ("2015", "2015"), ("2020", "2020mg"),
+                                  ("2025", "2025")) if k in codes]
+    out += [(a, b, codes[ka], codes[kb]) for (a, ka), (b, kb) in zip(frames[:-1], frames[1:])
+            if list(EDITIONS).index(b) == list(EDITIONS).index(a) + 1]
     return out
 
 
 _GONE = ("link", "removed", "uninhabited", "was uninhabited", "1-2 dwellings",
          "no information", "not in the AHL", "unexplained")
 _NEW = ("link", "new record", "created", "reactivated", "was empty", "no information",
-        "not in the AHL", "unexplained")
+        "record starts later", "not in the AHL", "unexplained")
 
 
 def check(table: pd.DataFrame, rows: list[Row], codes: dict[str, set[str]]) -> dict:
@@ -1068,10 +1145,20 @@ def check(table: pd.DataFrame, rows: list[Row], codes: dict[str, set[str]]) -> d
     contra, explained, unexplained = [], [], {}
     for a, b, A, B in _spans(codes):
         span = table[table.PERIOD.map(lambda p: a < p <= b)]
+        within = [p for p in EDITIONS if a < p <= b]      # the AHL's rows of the span
+        since = [p for p in CENSUS_DATES if p < a]        # and of the earlier edition's,
+        upto = [p for p in EDITIONS if (not since or p > since[-1]) and p <= a]  # from the
+        # census before it (2020: since 2010, the MG 2015 frame's rows too)
+        # the pair's last word in the span: a locality absorbed at 2015 and separated again
+        # at 2020 is in the 2020 ITER
+        pairs = span[span.KIND.isin(["absorption", "separation"])]
+        last = pairs.sort_values("PERIOD", kind="stable").groupby(["FROM", "TO"])["KIND"].last()
         for kind in ("code", "absorption", "separation"):
             s = span[span.KIND == kind]
-            bad = (s[~s.FROM.isin(B) & s.FROM.isin(A)] if kind == "separation"
-                   else s[s.FROM.isin(B)])
+            final = s.KIND.astype(str) if kind == "code" else pd.Series(
+                [last[(f, t)] for f, t in zip(s.FROM, s.TO)], index=s.index, dtype=object)
+            bad = (s[~s.FROM.isin(B) & s.FROM.isin(A) & (final == kind)] if kind == "separation"
+                   else s[s.FROM.isin(B) & (final == kind)])
             contra.append({"span": f"{a}→{b}", "kind": kind, "links": len(s),
                            "contradicted": len(bad),
                            "of them confirmed": int(bad.CONFIRMED.sum()),
@@ -1082,7 +1169,8 @@ def check(table: pd.DataFrame, rows: list[Row], codes: dict[str, set[str]]) -> d
                    | set(table[(table.KIND == "counted_with") & (table.PERIOD == a)].FROM))
         why_gone, why_new = Counter(), Counter()
         for c in sorted(A - B):
-            fa, fb = flags.get((c, a), set()), flags.get((c, b), set())
+            fa = set().union(*(flags.get((c, p), set()) for p in upto))
+            fb = set().union(*(flags.get((c, p), set()) for p in within))
             why = ("link" if c in moved else "removed" if "removed" in fa | fb else
                    "uninhabited" if "uninhabited" in fb else
                    "was uninhabited" if "uninhabited" in fa else
@@ -1093,14 +1181,17 @@ def check(table: pd.DataFrame, rows: list[Row], codes: dict[str, set[str]]) -> d
             if why == "unexplained":
                 unexplained.setdefault(f"{a}→{b} gone", []).append(c)
         for c in sorted(B - A):
-            fa, fb = flags.get((c, a), set()), flags.get((c, b), set())
+            fa = set().union(*(flags.get((c, p), set()) for p in upto))
+            fb = set().union(*(flags.get((c, p), set()) for p in within))
             why = ("link" if c in arrived else
-                   "new record" if first.get(c) == b else
+                   "new record" if first.get(c) in within else
                    "created" if "created" in fa | fb else
                    "reactivated" if "reactivated" in fa | fb else
                    "was empty" if fa & {"uninhabited", "removed"} else
                    "no information" if "no information" in fa else
-                   "not in the AHL" if c not in first else "unexplained")
+                   "not in the AHL" if c not in first else
+                   "record starts later" if first[c] != "before" and first[c] > b else
+                   "unexplained")
             why_new[why] += 1
             if why == "unexplained":
                 unexplained.setdefault(f"{a}→{b} new", []).append(c)
@@ -1281,6 +1372,7 @@ def report(table: pd.DataFrame, stats: dict, result: dict, path: Path) -> None:
     rule_counts = (fixes.groupby(["RULE", "KIND"]).size().rename("links").reset_index()
                    if len(fixes) else pd.DataFrame(columns=["RULE", "KIND", "links"]))
     rivals = stats["rivals"]
+    gone15 = result["unexplained"].get("2015→2020 gone", [])
     kept = rivals.groupby(["PERIOD", "KIND", "FROM"])["KEPT"].transform("sum")
     open_claims = (rivals[kept != 1].groupby(["PERIOD", "KIND", "FROM", "RULE"], sort=True)
                    .apply(lambda g: " ".join(f"{t} ({sd})" for t, sd in zip(g["TO"], g["SIDES"])),
@@ -1355,7 +1447,10 @@ def report(table: pd.DataFrame, stats: dict, result: dict, path: Path) -> None:
         " (the AHL's `Habitantes`), taking effect after its last census with one (*moved*,"
         " its own record stating it) or dropped (*counted on its own*, stated only by others);"
         " a separation whose locality has a population only at a later census, taking effect"
-        " there (*moved*):",
+        " after the last census without it (*moved*; the MG 2015 frame has no census); after"
+        " the rival claims, a link with a code in a municipality no frame has yet, taking"
+        " effect at the first frame that has it (*its municipality is new*, the bundled"
+        " municipal lineage):",
         "",
         _md(rule_counts.rename(columns={"RULE": "rule", "KIND": "kind"})),
         "",
@@ -1364,25 +1459,41 @@ def report(table: pd.DataFrame, stats: dict, result: dict, path: Path) -> None:
         _md(fixes[fixes["RULE"].isin(["moved", "counted on its own"])]
             .rename(columns={"TO_PERIOD": "to"})) if len(fixes) else "None.",
         "",
+        "Moved to a new municipality's first frame, by edition:",
+        "",
+        _md(fixes[fixes["RULE"] == "its municipality is new"]
+            .groupby(["PERIOD", "TO_PERIOD", "KIND"]).size().rename("links").reset_index()
+            .rename(columns={"TO_PERIOD": "to"})),
+        "",
         "## Links against each edition's codes",
         "",
         "A `code` or `absorption` link whose `FROM` is still in the later edition, or a"
         " `separation` whose `FROM` was in the earlier edition but not the later one, is"
-        " contradicted.",
+        " contradicted — unless the pair's last link in the span says otherwise (absorbed at"
+        " 2015, separated again at 2020). The ITERs 1990–2020 (2010 → 2020 spans the MG 2015"
+        " frame's links too), then the frames: the ITER 2010 (= the MG 2010 frame's"
+        " localities) against the MG 2015 frame, MG 2015 against MG 2020, MG 2020 against MG"
+        " 2025.",
         "",
         _md(result["contradictions"]),
         "",
         "## Codes that leave or enter between editions",
         "",
-        "The ITERs' locality codes 1990–2020; 2020 → 2025 compares the MG 2020 frame with the"
-        " MG 2025 frame (`l` + `lpr`; both list uninhabited localities too). What explains a"
-        " code, in this order: a link of the span; the AHL's «baja» (*removed*) or"
-        " «deshabitada» (*uninhabited*) at either edition; one or two dwellings (the Conteo"
+        "The ITERs' locality codes 1990–2020, then the frames: 2010 → 2015 compares the ITER"
+        " 2010 with the MG 2015 frame, 2015 → 2020 the MG 2015 frame with the MG 2020 frame,"
+        " 2020 → 2025 the MG 2020 frame with the MG 2025 frame (`l` + `lpr`; the frames since"
+        " 2015 list uninhabited localities too). What explains a code, in this order: a link"
+        " of the span; the AHL's «baja», «inexistente» or «en tapias o ruinas» (*removed*) or"
+        " «deshabitada» (*uninhabited*) in the span's rows; one or two dwellings (the Conteo"
         " 1995's ITER lists them only in aggregates); «Sin información» / «No hubo acceso»"
         " (*no information*: the Conteo 1995 did not reach part of Chiapas); a code the AHL"
         " does not hold (the frames' industrial parks and service sites); for a code that"
-        " enters, an AHL record that starts there (*new record*), a creation or reactivation,"
-        " or a locality uninhabited or removed before (*was empty*).",
+        " enters, an AHL record that starts in the span (*new record*), a creation or"
+        " reactivation, a locality uninhabited or removed before (*was empty*), or an AHL"
+        " record that starts only at a later census (*record starts later*: the frame lists"
+        " it first). Most codes that leave unexplained after 2010 are Campeche's (2015 → 2020:"
+        f" {sum(c[:2] == '04' for c in gone15):,} of {len(gone15):,}): records whose history"
+        " ends at the Censo 2010 without a word, absent from every later edition.",
         "",
         "Codes that leave:",
         "",
@@ -1430,7 +1541,7 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--download", action="store_true", help="refresh the AHL ZIP")
     parser.add_argument("--output", type=Path, default=_DEFAULT_OUTPUT, metavar="FILE")
     parser.add_argument("--check", action="store_true",
-                        help="check against the mirror's ITER and MG 2025 → --report")
+                        help="check against the mirror's ITER and MG frames → --report")
     parser.add_argument("--mirror", type=Path, default=_DEFAULT_MIRROR, metavar="DIR")
     parser.add_argument("--report", type=Path, default=_DEFAULT_REPORT, metavar="FILE")
     args = parser.parse_args(argv)

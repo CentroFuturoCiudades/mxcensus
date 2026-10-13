@@ -407,8 +407,8 @@ frames, for comparing editions on one geography. Localities change far more (ten
 thousands dropped, created, renumbered, moved or absorbed between two censuses):
 `cpv_loc_lineage()` lists every link between two locality codes that INEGI's Archivo
 Histórico de Localidades documents from 1990 on, and `cpv_locality_units(start, end)`
-joins the codes two editions (the ITERs 1990–2020, the MG 2025 frame) must be summed
-over to compare them:
+joins the codes two editions (the ITERs 1990–2020, the EIC 2015's and 2025's frames MG
+2015 and MG 2025) must be summed over to compare them:
 
 ```python
 units = mxcensus.cpv_locality_units(2000, 2020).set_index("CVEGEO")["UNIT"]

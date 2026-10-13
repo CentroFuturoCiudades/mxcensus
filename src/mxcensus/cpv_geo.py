@@ -27,7 +27,10 @@ Localities change far more: between two censuses tens of thousands are dropped, 
 renumbered, moved to a new municipality, absorbed by a growing town or split off again.
 INEGI's Archivo Histórico de Localidades records each locality's history; the links it
 documents between two codes from 1990 on are bundled (``_yaml/cpv_loc_lineage.csv.gz``,
-built by ``scripts/build_loc_lineage.py``).
+built by ``scripts/build_loc_lineage.py``). The editions are the ITERs 1990–2010 and 2020
+and the frames of the two intercensal surveys, which publish no ITER: the EIC 2015's (MG
+2015, every change to 30 April 2015) and the EIC 2025's (MG 2025) — ``load_mg("l",
+period="2015")`` and the microdata's ``LOC50K``.
 
 - :func:`cpv_loc_lineage` — those links as a table.
 - :func:`cpv_locality_units` — the localities two editions' codes must be joined into to
@@ -126,9 +129,10 @@ def cpv_municipal_units(start, end, *, min_share: float = 0.10,
                          "FIRST": [first[c] for c in codes]})
 
 
-# The editions with locality codes, oldest first: the ITERs 1990–2020 and the EIC 2025's
-# frame (MG 2025). A link takes effect at the first one whose codes reflect it.
-_LOC_PERIODS = ("1990", "1995", "2000", "2005", "2010", "2020", "2025")
+# The editions with locality codes, oldest first: the ITERs 1990–2010 and 2020 and the EIC
+# 2015's and 2025's frames (MG 2015, MG 2025). A link takes effect at the first one whose
+# codes reflect it.
+_LOC_PERIODS = ("1990", "1995", "2000", "2005", "2010", "2015", "2020", "2025")
 _LOC_KINDS = ("code", "absorption", "counted_with", "separation")
 
 
@@ -147,9 +151,11 @@ def cpv_loc_lineage() -> pd.DataFrame:
     from INEGI's Archivo Histórico de Localidades:
 
     - ``PERIOD`` — the first edition whose locality codes reflect it (``1990``, ``1995``,
-      ``2000``, ``2005``, ``2010``, ``2020``: the ITER; ``2025``: the EIC 2025's frame, MG
-      2025): its date's, or a later one when that edition's census still counts the
-      absorbed locality on its own, or does not yet count the separated one (44 links);
+      ``2000``, ``2005``, ``2010``, ``2020``: the ITER; ``2015``, ``2025``: the EIC 2015's
+      and 2025's frames, MG 2015 and MG 2025): its date's, or a later one when that
+      edition's census still counts the absorbed locality on its own, or does not yet count
+      the separated one, or when no frame has its municipality yet (Chiapas's moves by the
+      decree of 2011, in the MG 2020 frame);
     - ``DATE``, ``EVENT`` — the event that records it (``census``: a census or count, dated
       by its reference date; ``update``: a geostatistical update; ``other``: a decree…);
     - ``KIND`` — ``code`` (the same locality under another code: a move to another
@@ -171,7 +177,9 @@ def _loc_period(value) -> str:
 def cpv_locality_units(start, end, *, absorptions: bool = True,
                        confirmed: bool = False) -> pd.DataFrame:
     """The locality units that make editions ``start`` and ``end`` comparable (``1990``,
-    ``1995``, ``2000``, ``2005``, ``2010``, ``2020``, ``2025``).
+    ``1995``, ``2000``, ``2005``, ``2010``, ``2015``, ``2020``, ``2025``; 2015 and 2025 are
+    the EIC's frames, MG 2015 and MG 2025: their ``l``/``lpr`` layers, and the EIC
+    microdata's ``LOC50K``).
 
     Returns one row per locality code that a link joins to another between the two
     editions: ``CVEGEO`` (9 characters) and ``UNIT``, the smallest code of its unit. A
