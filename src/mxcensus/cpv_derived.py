@@ -79,7 +79,10 @@ reads its marital status from ``ESTCON``, 2015 its residence five years earlier 
   group, the religion's group gives ``RELIGION_CAT`` (:data:`_RELIGION_2010`).
 
 The coarse occupation is SINCO's two-digit group, labelled as in SINCO 2019; the 2010/2015
-group 59, which SINCO 2019 dropped, joins 52 (:data:`_RECODE`). The coarse activity is the
+group 59, which SINCO 2019 dropped, joins 52 (:data:`_RECODE`). CGPV 2000 codes occupations
+in the CMO: a bundled bridge gives each code its SINCO group (8e, ``cpv_cmo_sinco.csv``,
+``_ocup_cmo``) — INEGI's SINCO 2011 comparison table, ENOE's 2012 panel where it splits a
+code, 99 «No especificado» for the few codes nothing places (0.55% of the employed). The coarse activity is the
 SCIAN sector, the same in the 2010, 2015 and 2020 catalogs (2010's item: ``ACTTRAB_C``).
 ``SECTOR`` (new, 6o) groups it into INEGI's three sectors (primary, secondary, tertiary,
 the 1990/2000 ITER's ``POCUSECP/S/T``) in 1990 (its CMAP division) and 2000–2025.
@@ -87,8 +90,8 @@ the 1990/2000 ITER's ``POCUSECP/S/T``) in 1990 (its CMAP division) and 2000–20
 CGPV 2000 and the Conteo 2005 (unweighted) get the columns their items allow: age,
 education (from their level-and-antecedent items), health coverage (one item per
 institution: :data:`_DHSERSAL_ITEMS`), residence five years earlier, dwelling class, rooms
-and drainage; 2000 also income, hours, activity, sector (SCIAN subsector), marital status,
-birthplace and religion (asked of the 5+: its ``RELIGION_CAT`` adds «Blanco por pase»).
+and drainage; 2000 also income, hours, activity, sector (SCIAN subsector), occupation
+(SINCO group, 8e), marital status, birthplace and religion (asked of the 5+: its ``RELIGION_CAT`` adds «Blanco por pase»).
 
 CGPV 1990 (unweighted) and the Conteo 1995 publish person files only (their dwelling
 frames are built from them, ``cpv._DWELLINGS_FROM_PERSONS``): age, education (1990 from
@@ -792,6 +795,28 @@ def _coarse(var: str, name: str, divisor: int):
     return fn
 
 
+@functools.cache
+def _cmo_sinco() -> dict[float, int]:
+    """CGPV 2000's CMO code → its SINCO group (the bundled bridge, ``cpv_cmo_sinco.csv``;
+    SINCO 2011's 59 → 52, as SINCO 2019 and the 2010/2015 recodes)."""
+    from mxcensus._resources import cpv_cmo_sinco
+    table = cpv_cmo_sinco()
+    return {float(c): {59: 52}.get(int(g), int(g)) for c, g in zip(table["CMO"], table["GROUP"])}
+
+
+def _ocup_cmo(src):
+    """CGPV 2000's ``OCUPACION_C_COARSE`` (8e): its CMO code (``OCUACTIV_C``) through the
+    bridge to SINCO groups — INEGI's SINCO 2011 comparison table, ENOE's 2012 panel where
+    the table splits a code, the CMO subgroup's group where it lacks one, 99 «No
+    especificado» where none places it (``scripts/build_cmo_sinco.py``); 9999 = not
+    specified; blank = not employed. A code the bridge lacks stays missing (``derive``
+    raises)."""
+    code = src["OCUACTIV_C"]
+    group = code.map(_cmo_sinco()).mask(code.isna(), _BLANK)
+    name = "OCUPACION_C_COARSE"
+    return {name: _as(group.map(_legacy_map("personas", name)), "personas", name)}
+
+
 _SECONDARY = (21, 22, 23, 31, 32, 33)  # SCIAN: mining, utilities, construction, manufacturing
 
 
@@ -1408,6 +1433,7 @@ def _registry() -> tuple[_Derivation, ...]:
           _coarse("OCUPACION_C", "OCUPACION_C_COARSE", 10)),
         D(per, ("OCUPACION_C_COARSE",), ("OCUACTIV_C",), ("2010",),
           _coarse("OCUACTIV_C", "OCUPACION_C_COARSE", 100)),
+        D(per, ("OCUPACION_C_COARSE",), ("OCUACTIV_C",), ("2000",), _ocup_cmo),     # 8e: CMO
         D(per, ("ACTIVIDADES_C_COARSE",), ("ACTIVIDADES_C",), _ALL,
           _coarse("ACTIVIDADES_C", "ACTIVIDADES_C_COARSE", 100)),
         D(per, ("ACTIVIDADES_C_COARSE",), ("ACTTRAB_C",), ("2000",),      # SCIAN subsector

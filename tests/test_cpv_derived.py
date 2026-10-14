@@ -113,6 +113,8 @@ _OWN_CODES = {
     ("2000", "NIVELACAD"): {0, 10, 20, 30, 40, 51, 52, 61, 62, 63, 73, 80, 90},
     ("2000", "IMSS"): {1, 9}, ("2000", "ISSSTE"): {2}, ("2000", "PEMEX"): {3},
     ("2000", "OTRINS_V"): {4}, ("2000", "NOTIEDER"): {5}, ("2000", "OTRAREL_C"): {9999},
+    # 8e: its CMO occupation (1100–8390, text; its sentinel 9999), placed by the bridge
+    ("2000", "OCUACTIV_C"): {9999},
     ("2000", "ENT_PAIS_NAC"): {600, 999}, ("2000", "ENT_PAIS_RES_5A"): {600, 999},
     # 7f: its household number (1–9) and kitchen items (a room for cooking 1/2, slept in 3/4)
     ("2000", "NUMHOG"): set(), ("2000", "COCINA"): {1, 2, 9}, ("2000", "COCDOR"): {3, 4, 9},
@@ -151,7 +153,8 @@ _OWN_CODES = {
 _NO_CATALOG = {("2000", "ENT_PAIS_NAC"), ("2000", "ENT_PAIS_RES_5A"),
                ("2000", "LTRABPAI_C"),                                          # 7c
                ("2000", "ACTTRAB_C"), ("2000", "OTRAREL_C"), ("2000", "LTRABMUN_C"),
-               ("2000", "MUN_RES_5A")}                                          # 7r
+               ("2000", "MUN_RES_5A"),                                          # 7r
+               ("2000", "OCUACTIV_C")}                                          # 8e
 _LATER_OPTIONS = {*d._ESC[1:], *d._TRAB[1:]}      # list fewer codes (options are ordered)
 # 2020 catalog items whose FD row names no catalog (7b: the municipality of work; its
 # school and residence municipalities name «MUN»).
@@ -402,7 +405,8 @@ def test_cpv_derivations_listing():
     assert set(mxcensus.cpv_derivations("personas", 2000)["COLUMN"]) == {     # 6i
         "EDAD_CAT", "EDAD_QUIN", "INGTRMEN_CAT", *sm, "HORTRA_CAT", *educ, "ACTIVIDADES_C_COARSE",
         "SECTOR", "CONACT_CAT", "SITUA_CONYUGAL_CAT", *migration, "RELIGION_CAT", *dhs2000,
-        *head, *ind, *clase, *work}                    # 7c: the 1995 residence and work
+        *head, *ind, *clase, *work,                    # 7c: the 1995 residence and work
+        "OCUPACION_C_COARSE"}                          # 8e: the CMO through the bridge
     assert set(mxcensus.cpv_derivations("personas", 2005)["COLUMN"]) == {
         "EDAD_CAT", "EDAD_QUIN", *educ, "ENT_PAIS_RES_CAT", *dhs2000, "DHSERSAL_ISSSTE_E",
         "DHSERSAL_SALUD_PUBLICA", "DHSERSAL_Privado", *head, *ind}
@@ -1085,6 +1089,8 @@ def _persons_2000() -> pd.DataFrame:
         "NOTIEDER": ["", "5", "", ""], "ENT": ["01", "01", "01", "01"],
         "LNACEDO_C": ["001", "014", "221", "600"], "RES95EDO_C": ["001", "999", "", "600"],
         "ACTTRAB_C": ["311", "", "", "999"], "OTRAREL_C": ["0001", "2002", "", "9100"],
+        # 8e: the CMO occupation (domestic worker; not specified)
+        "OCUACTIV_C": ["8200", "", "", "9999"],
         # 6t: one dwelling, two households: a woman heads the first, a man the second
         "MUN": ["001"] * 4, "LOC": ["0001"] * 4, "NUMVIV": ["000001"] * 4,
         "NUMHOG": ["1", "1", "2", "2"], "OTROPARE_C": ["100", "300", "300", "100"],
@@ -1110,6 +1116,19 @@ def test_derive_persons_2000_recodes():
     assert list(out["INGTRMEN_CAT"]) == ["1,000-4,999", "Blanco por pase", "Blanco por pase",
                                          "No especificado"]
     assert list(out["HORTRA_CAT"])[::3] == ["41-48", "No especificado"]
+    # 8e: the CMO's domestic workers (8200: SINCO 51 or 96, the ENOE panel's 96), not
+    # specified; 8190 (SINCO 2011's 5999, group 59 → 52); 6290 (not in INEGI's table, no
+    # group placed: 99); a code the bridge lacks raises
+    assert list(out["OCUPACION_C_COARSE"]) == [
+        "Trabajadores domésticos, de limpieza, planchadores y otros trabajadores de limpieza",
+        "Blanco por pase", "Blanco por pase", "No especificado"]
+    other = d.derive(_persons_2000().assign(OCUACTIV_C=["8190", "6290", "", "4100"]),
+                     "personas", 2000)
+    assert list(other["OCUPACION_C_COARSE"]) == [
+        "Trabajadores en cuidados personales y del hogar", "No especificado",
+        "Blanco por pase", "Trabajadores en actividades agrícolas y ganaderas"]
+    with pytest.raises(ValueError, match="OCUPACION_C_COARSE"):
+        d.derive(_persons_2000().assign(OCUACTIV_C=["1234", "", "", ""]), "personas", 2000)
     # 6r: who had a job but did not work (CONACT 20) reported hours; they count at 0
     had = d.derive(_persons_2000().assign(CONACT=["20", "40", "", "60"]), "personas", 2000)
     assert list(had["HORTRA_CAT"])[::3] == ["0-5", "No especificado"]
@@ -2891,3 +2910,54 @@ def test_1990_1995_constraints_equal_iter(local_mirror, period):
             gap[ind] = 100 * (w[hit].sum() / w.sum() - float(it[ind]) / float(it[base]))
     assert len(gap) == {"1990": 34, "1995": 15}[period]   # 6o: own; 7f: VIVPAR_HAB, OCUPVIVPAR
     assert max(abs(v) for v in gap.values()) < _ITER_TOLERANCE[period], gap
+
+
+# --- 8e: the CMO → SINCO bridge for CGPV 2000 ------------------------------------------------
+
+def test_cmo_sinco_bridge():
+    """The bundled bridge: one row per CMO code; a code INEGI's table gives one SINCO group
+    takes it, one it splits takes one of its groups (the ENOE panel's), one it lacks takes
+    the panel's group on 10+ persons, its CMO subgroup's only group, or 99."""
+    from mxcensus._resources import cpv_cmo_sinco
+    t = cpv_cmo_sinco()
+    assert list(t.columns) == ["CMO", "GROUP", "RULE", "SHARE", "PERSONS", "UNITS"]
+    assert t["CMO"].str.fullmatch(r"\d{4}").all() and t["CMO"].is_unique
+    assert set(t["GROUP"].astype(int)) - {59} <= set(d._legacy_map("personas",
+                                                                   "OCUPACION_C_COARSE"))
+    assert set(t["RULE"]) == {"table", "panel", "siblings", "not placed"}
+    units = t["UNITS"].str.split().map(lambda us: {u[:2] for u in us} if us else set())
+    one = t["RULE"].eq("table")
+    assert (units[one].map(len) == 1).all()
+    assert all(g in u for g, u in zip(t.loc[one, "GROUP"], units[one]))
+    split = t["RULE"].eq("panel") & t["UNITS"].ne("")
+    assert (units[split].map(len) > 1).all()
+    assert all(g in u for g, u in zip(t.loc[split, "GROUP"], units[split]))
+    assert (t.loc[split, "PERSONS"].astype(int) >= 1).all()
+    absent = t["UNITS"].eq("")
+    on_panel = absent & t["RULE"].eq("panel")
+    assert (t.loc[on_panel, "PERSONS"].astype(int) >= 10).all()
+    assert (t.loc[on_panel, "SHARE"].astype(float) >= 0.5).all()
+    assert (t.loc[absent & t["RULE"].eq("siblings"), "GROUP"] != "99").all()
+    assert (t.loc[t["RULE"].eq("not placed"), "GROUP"] == "99").all()
+    g = t.set_index("CMO")["GROUP"]
+    assert g["9999"] == "99" and g["4100"] == "61"            # not specified; farm workers
+    assert (g["8200"], g["8303"], g["4109"]) == ("96", "53", "91")    # the panel's
+    assert len(t) == 461 and int(on_panel.sum()) == 0 and int(absent.sum()) == 13
+
+
+_SINCO_XLS = Path(__file__).resolve().parent.parent / "data" / "dict" / "sinco" / \
+    "sinco_tablas_comparativas.xls"
+
+
+@pytest.mark.skipif(not (_SINCO_XLS.exists() and (_MIRROR / "cpv_personas_2000_01.parquet")
+                         .exists()), reason="needs data/dict/sinco/ and the CPV 2000 mirror")
+def test_cmo_sinco_rebuilds(tmp_path):
+    """``scripts/build_cmo_sinco.py`` writes the bundled bridge byte for byte (ENOE's
+    2012-T2/T3 COE1 through the loader)."""
+    import sys
+    sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "scripts"))
+    import build_cmo_sinco as b
+    out = tmp_path / "bridge.csv"
+    b.write(b.bridge(b.table_pairs(_SINCO_XLS), b.panel(), b.codes_2000(_MIRROR).index), out)
+    bundled = Path(mxcensus.__file__).parent / "_yaml" / "cpv_cmo_sinco.csv"
+    assert out.read_bytes() == bundled.read_bytes()

@@ -229,10 +229,16 @@ the few hundred persons whose state is not specified: INEGI counts them as not s
 the derived columns as another state (the legacy 2020 rule, kept in every edition).
 The coarse occupation (`OCUPACION_C_COARSE`) is the SINCO two-digit group in every edition
 (Censo 2010 codes four digits, EIC 2015 three, as 2020); SINCO 2019 dropped group 59, so
-its few 2010/2015 workers join group 52, where SINCO 2019 put them. The coarse activity is
-the SCIAN sector, and `SECTOR` groups it into INEGI's three sectors (primary, secondary,
-tertiary; also for CGPV 1990, from its own activity code). Both reproduce INEGI's 2010 and
-2015 tabulados by occupational division and sector in every state. Censo 2010's religion follows 2020's grouping, which counts the
+its few 2010/2015 workers join group 52, where SINCO 2019 put them. CGPV 2000 coded
+occupations in the older CMO: a bundled bridge places each CMO code in a SINCO group, from
+INEGI's SINCO 2011 comparison table and, where that table splits a code, from ENOE's panel
+across INEGI's 2012 switch (the same persons coded CMO one quarter and SINCO the next);
+0.55% of 2000's employed hold codes nothing places («No especificado»). The farm laborers'
+group (91) is where coders differ most: compare it with the farm workers (61) summed. The
+coarse activity is the SCIAN sector, and `SECTOR` groups it into INEGI's three sectors
+(primary, secondary, tertiary; also for CGPV 1990, from its own activity code). Both
+reproduce INEGI's 2010 and 2015 tabulados by occupational division and sector in every
+state. Censo 2010's religion follows 2020's grouping, which counts the
 neo-Israelite movements as evangelical (the 2010 ITER: other religions). CGPV 2000 asked
 religion of persons aged 5 and over only, so its `RELIGION_CAT` has a «Blanco por pase»
 category for the under-5s, and its health coverage (one question per institution) has no

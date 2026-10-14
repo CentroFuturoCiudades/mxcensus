@@ -133,6 +133,18 @@ def cpv_loc_lineage():
                            keep_default_na=False)
 
 
+@functools.cache
+def cpv_cmo_sinco():
+    """The CMO → SINCO 2011 group bridge for CGPV 2000's occupation as a string
+    ``DataFrame`` (``CMO``, ``GROUP``, ``RULE``, ``SHARE``, ``PERSONS``, ``UNITS``; generated
+    by ``scripts/build_cmo_sinco.py`` from INEGI's comparison tables and ENOE's panel; read
+    through :mod:`mxcensus.cpv_derived`)."""
+    import pandas as pd
+    pkg = resources.files("mxcensus._yaml")
+    with (pkg / "cpv_cmo_sinco.csv").open("rb") as f:
+        return pd.read_csv(f, comment="#", dtype=str, keep_default_na=False)
+
+
 def constraints_personas() -> dict:
     return _load_yaml("constraints_personas.yaml")
 

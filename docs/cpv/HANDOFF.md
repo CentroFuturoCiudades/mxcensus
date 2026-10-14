@@ -1,13 +1,14 @@
 # CPV family — session handoff
 
-**Status (2026-10-13): units 0–6z, 7a–7z and 8a–8d are done. `cpv-integration` = **8d**
-(the locality lineage's leftovers: «Es la misma localidad» oriented by the records'
-histories, a `code` move and the move back at one edition cancelled, five statement shapes
-the parser skipped — Coatepec's, «Forma parte», a part's move as a separation, «de1992» —,
-listed codes with a digit dropped or doubled or without a comma; the bundled
-`cpv_loc_lineage.csv.gz` 33,005 → 32,905 links, 199 newly confirmed, contradicted `code` links
-197 → 55; the check's *not listed*; checked on the Mac; the Mac's full suite: 1963 passed, 1 skipped), see
-`git log` for whether it is committed; before it **8c** (the EIC 2015's locality edition:
+**Status (2026-10-13): units 0–6z, 7a–7z and 8a–8e are done. `cpv-integration` = **8e**
+(CGPV 2000's occupation in SINCO groups: `derived=True` gives 2000 `OCUPACION_C_COARSE` through
+a bundled CMO → SINCO bridge, `cpv_cmo_sinco.csv` by `scripts/build_cmo_sinco.py` — INEGI's
+SINCO 2011 comparison table from the Internet Archive, ENOE's panel across the 2012 switch
+for the codes it splits, 0.55% of 2000's employed not placed; the Mac's full suite:
+1966 passed, 1 skipped), see `git log` for whether it is committed; before it **8d** (the locality
+lineage's leftovers: «Es la misma localidad» oriented, moves and returns cancelled, five
+skipped statement shapes, listed codes a digit off; 33,005 → 32,905 links, 199 newly
+confirmed, contradicted `code` links 197 → 55; committed as 289ebb5), **8c** (the EIC 2015's locality edition:
 `PERIOD` 2015 = the MG 2015 frame, cut 30 April 2015; Chiapas's 2011 decree at 2020;
 32,978 → 33,005 links; committed at the start of 8d's session), **8b** (the audit of the large locality units: 33,210 → 32,978 links, 5 wrong joins of large
 localities gone), **8a** (the
@@ -791,7 +792,27 @@ Before 0.12.0: v0.11.0 = 6u–7b, v0.10.0 = 6s–6t, 0.9.0 = 6k–6r. A session 
     Units 2010 → 2020 16,662/6,251 → 16,655/6,250. `load_ahl_poblacion` identical in the 16
     states whose `code` links changed.
 
-Design: [`PLAN.md`](PLAN.md). Recent units: [`STEP_8d.md`](STEP_8d.md), [`STEP_8c.md`](STEP_8c.md), [`STEP_8b.md`](STEP_8b.md), [`STEP_8a.md`](STEP_8a.md), [`STEP_7z.md`](STEP_7z.md), [`STEP_7y.md`](STEP_7y.md), [`STEP_7x.md`](STEP_7x.md), [`STEP_7w.md`](STEP_7w.md), [`STEP_7v.md`](STEP_7v.md), [`STEP_7u.md`](STEP_7u.md), [`STEP_7t.md`](STEP_7t.md), [`STEP_7s.md`](STEP_7s.md), [`STEP_7r.md`](STEP_7r.md), [`STEP_7q.md`](STEP_7q.md), [`STEP_7p.md`](STEP_7p.md), [`STEP_7o.md`](STEP_7o.md), [`STEP_7n.md`](STEP_7n.md), [`STEP_7m.md`](STEP_7m.md), [`STEP_7l.md`](STEP_7l.md), [`STEP_7k.md`](STEP_7k.md), [`STEP_7j.md`](STEP_7j.md), [`STEP_7i.md`](STEP_7i.md), [`STEP_7h.md`](STEP_7h.md), [`STEP_7g.md`](STEP_7g.md), [`STEP_7f.md`](STEP_7f.md), [`STEP_7e.md`](STEP_7e.md), [`STEP_7d.md`](STEP_7d.md), [`STEP_7c.md`](STEP_7c.md), [`STEP_7b.md`](STEP_7b.md), [`STEP_7a.md`](STEP_7a.md), [`STEP_6z.md`](STEP_6z.md), [`STEP_6y.md`](STEP_6y.md), [`STEP_6x.md`](STEP_6x.md), [`STEP_6w.md`](STEP_6w.md), [`STEP_6v.md`](STEP_6v.md), [`STEP_6u.md`](STEP_6u.md), [`STEP_6t.md`](STEP_6t.md), [`STEP_6s.md`](STEP_6s.md), [`STEP_6r.md`](STEP_6r.md), [`STEP_6q.md`](STEP_6q.md), [`STEP_6p.md`](STEP_6p.md), [`STEP_6o.md`](STEP_6o.md), [`STEP_6n.md`](STEP_6n.md), [`STEP_6m.md`](STEP_6m.md), [`STEP_6l.md`](STEP_6l.md), [`STEP_6k.md`](STEP_6k.md), [`STEP_6j.md`](STEP_6j.md), [`STEP_6i.md`](STEP_6i.md), [`STEP_6h.md`](STEP_6h.md), [`STEP_6g.md`](STEP_6g.md), [`STEP_6f.md`](STEP_6f.md), [`STEP_6e.md`](STEP_6e.md),
+- **8e** (`STEP_8e.md`): HANDOFF candidate 1's 2000 occupation bridge (the user's choice over
+  the 0.15.0 release, the small derived columns and the lineage leftovers); new
+  `scripts/build_cmo_sinco.py`, the bundled `cpv_cmo_sinco.csv` and its report
+  `CMO_SINCO_REPORT.md`, `cpv_derived` (`_cmo_sinco`, `_ocup_cmo`), `_resources.cpv_cmo_sinco`,
+  tests.
+  - **Source**: INEGI's SINCO 2011 «Tablas comparativas» (`SINCO-CMO`, November 2012), gone
+    from INEGI's site; the Internet Archive's copy (2014-02-26, sha256 pinned): 531 pairs, 448
+    CMO codes; CGPV 2000's `OCUACTIV_C` is that CMO (447 of 460 codes, 99.45% of the employed).
+  - **The user's choices**: the 37 codes the table splits across SINCO groups (17.3%) take
+    the ENOE panel's modal group among the table's (109,566 persons coded CMO in 2012-T2,
+    SINCO in 2012-T3: 8200 → 96 at 97%, 4109 → 91, 7201 → 95 at 46%…); the 13 it lacks: the
+    panel on 10+ persons and 50%+ (none qualifies), else the CMO subgroup's only group (4),
+    else 99 «No especificado» (9 + the split 4139 without panel persons: 0.55%; «missing» is
+    99 because `derive` refuses a missing category).
+  - **Checks**: ENOE 2012-T2 bridged vs T3 within ±0.4 points per group but the farm laborer
+    split (61 +5.5 / 91 −5.9: ENOE's coders put 6% of the employed in 91, Censo 2010's 2.5%),
+    street vendors (95/42 ±1.2) and 94; CGPV 2000 vs Censo 2010 dissimilarity 10.7 points
+    (plausible change); a `SITTRA` rule for the farm split rejected (Censo 2010's jornaleros:
+    55% 61, 43% 91). All 32 states derive, no missing value; the 2000 constraints unchanged.
+
+Design: [`PLAN.md`](PLAN.md). Recent units: [`STEP_8e.md`](STEP_8e.md), [`STEP_8d.md`](STEP_8d.md), [`STEP_8c.md`](STEP_8c.md), [`STEP_8b.md`](STEP_8b.md), [`STEP_8a.md`](STEP_8a.md), [`STEP_7z.md`](STEP_7z.md), [`STEP_7y.md`](STEP_7y.md), [`STEP_7x.md`](STEP_7x.md), [`STEP_7w.md`](STEP_7w.md), [`STEP_7v.md`](STEP_7v.md), [`STEP_7u.md`](STEP_7u.md), [`STEP_7t.md`](STEP_7t.md), [`STEP_7s.md`](STEP_7s.md), [`STEP_7r.md`](STEP_7r.md), [`STEP_7q.md`](STEP_7q.md), [`STEP_7p.md`](STEP_7p.md), [`STEP_7o.md`](STEP_7o.md), [`STEP_7n.md`](STEP_7n.md), [`STEP_7m.md`](STEP_7m.md), [`STEP_7l.md`](STEP_7l.md), [`STEP_7k.md`](STEP_7k.md), [`STEP_7j.md`](STEP_7j.md), [`STEP_7i.md`](STEP_7i.md), [`STEP_7h.md`](STEP_7h.md), [`STEP_7g.md`](STEP_7g.md), [`STEP_7f.md`](STEP_7f.md), [`STEP_7e.md`](STEP_7e.md), [`STEP_7d.md`](STEP_7d.md), [`STEP_7c.md`](STEP_7c.md), [`STEP_7b.md`](STEP_7b.md), [`STEP_7a.md`](STEP_7a.md), [`STEP_6z.md`](STEP_6z.md), [`STEP_6y.md`](STEP_6y.md), [`STEP_6x.md`](STEP_6x.md), [`STEP_6w.md`](STEP_6w.md), [`STEP_6v.md`](STEP_6v.md), [`STEP_6u.md`](STEP_6u.md), [`STEP_6t.md`](STEP_6t.md), [`STEP_6s.md`](STEP_6s.md), [`STEP_6r.md`](STEP_6r.md), [`STEP_6q.md`](STEP_6q.md), [`STEP_6p.md`](STEP_6p.md), [`STEP_6o.md`](STEP_6o.md), [`STEP_6n.md`](STEP_6n.md), [`STEP_6m.md`](STEP_6m.md), [`STEP_6l.md`](STEP_6l.md), [`STEP_6k.md`](STEP_6k.md), [`STEP_6j.md`](STEP_6j.md), [`STEP_6i.md`](STEP_6i.md), [`STEP_6h.md`](STEP_6h.md), [`STEP_6g.md`](STEP_6g.md), [`STEP_6f.md`](STEP_6f.md), [`STEP_6e.md`](STEP_6e.md),
 [`STEP_6d.md`](STEP_6d.md),
 [`STEP_6c.md`](STEP_6c.md), [`STEP_6b.md`](STEP_6b.md), … [`STEP_0_probe.md`](STEP_0_probe.md).
 
@@ -870,10 +891,14 @@ v0.14.0) but not needed.
 kept: the report's «Units joining localities of 2,500+» regenerates the part to look at.
 8d ran on the Mac only, the same way (a scratch `--mirror` of symlinks: `data/parquet`'s
 `cpv_iter_*`, `mg_l_*`, `mg_lpr_*` and the cache's `mg_l(pr)_2025_NN`); `wsl` not needed.
+8e ran on the Mac (the build reads ENOE's 2012-T2/T3 COE1 through `load_enoe` — the Mac's
+cache now holds them — and the mirror's CPV 2000/2010 personas; the comparison workbook in
+`data/dict/sinco/`); the first panel probe ran on `wsl` (`/tmp/enoe_panel_2012.pkl`, can be
+deleted).
 
 ## Kickoff prompt for the next session
 
-> Continue the CPV census-family work in this repo (branch cpv-integration = 8d; main =
+> Continue the CPV census-family work in this repo (branch cpv-integration = 8e; main =
 > v0.14.0). Read docs/cpv/HANDOFF.md first, then agree with me which next unit to
 > take (candidates in HANDOFF §Next) before implementing it, following the session protocol
 > in docs/cpv/PLAN.md. Use .venv/bin/python, not uv run. Run wsl tasks without asking; ask
@@ -946,8 +971,6 @@ and **kept all seven** (merged as 0.9.0):
 ## Next: candidates (none decided)
 
 1. Smaller:
-   - a 2000 occupation bridge (CMO → SINCO; no published table; 7d checked the CMO groups,
-     the first two digits of `OCUACTIV_C`, against C2KEM04);
    - CGPV 1990's undocumented `TIP_HOGAR` 6 (96,370 persons, all `N_F_GPOS` 99 and a 9xx
      relationship: a dwelling without its household composition; identity-labelled,
      `STEP_6u.md` §Left out);
@@ -973,14 +996,18 @@ and **kept all seven** (merged as 0.9.0):
      the mirror; documented);
    - the 2000/2010/2020 cuestionario-básico tabulados are the census, not the sample (the ITER
      covers them: 7g).
-4. A release (recommended: the lineage changed in four units since v0.14.0): 7v–7z (checks
-   only), 8a–8d (the bundled locality lineage: `cpv_loc_lineage()` and
-   `cpv_locality_units()` change — 8a 49 more links, San Antonio's claims dropped; 8b 232
-   fewer, five wrong joins of large localities gone; 8c a 2015 edition, 2,152 links from 2020
-   to it, Chiapas's 2011 moves at 2020; 8d 100 fewer, duplicates oriented, moves and returns
-   cancelled, 199 newly confirmed) are on the branch, `main` = v0.14.0 (the Mac's suite for
-   the version bump; `wsl` lacks the newer tabulados). No data upload: the lineage is
-   bundled.
+4. A release (recommended: the lineage changed in four units since v0.14.0, and 8e adds a
+   derived column): 7v–7z (checks only), 8a–8d (the bundled locality lineage:
+   `cpv_loc_lineage()` and `cpv_locality_units()` change — 8a 49 more links, San Antonio's
+   claims dropped; 8b 232 fewer, five wrong joins of large localities gone; 8c a 2015
+   edition, 2,152 links from 2020 to it, Chiapas's 2011 moves at 2020; 8d 100 fewer,
+   duplicates oriented, moves and returns cancelled, 199 newly confirmed) and 8e (2000's
+   `OCUPACION_C_COARSE` with `derived=True`) are on the branch, `main` = v0.14.0 (the Mac's
+   suite for the version bump; `wsl` lacks the newer tabulados). No data upload: the
+   lineage and the bridge are bundled.
+5. From 8e (`STEP_8e.md` §Left): the farm laborer boundary (61/91) differs between INEGI's
+   coders — documented, kept as INEGI's table; 5190/6290 (0.51%) not placed; no SINCO
+   subgroup for 2000.
 
 ## Open questions for the user
 
@@ -1053,6 +1080,14 @@ edition** — a link both records state but date at two editions is two one-reco
   (`ahl._copies` reads `DATE`: Bacalar's 0257 lost its 2010 copy with the earliest).
   `_LOC_PERIODS` (`cpv_geo`), `EDITIONS` (build) and the tests' `_LOC_PERIODS`/`_CUTS`/
   `_ITER_PERIODS` list the editions; the `_REAL` test spells the ITER periods out.
+
+- **The CMO bridge** (8e): `cpv_cmo_sinco.csv` is generated by `scripts/build_cmo_sinco.py`
+  (never hand-edited) from the Internet Archive's copy of INEGI's comparison workbook (sha256
+  pinned: the URL must keep the `id_` suffix, which serves the raw file) and ENOE's
+  2012-T2/T3 COE1 through `load_enoe` (Pooch); `test_cmo_sinco_rebuilds` checks it byte for
+  byte where `data/dict/sinco/` and the CPV 2000 mirror exist. `_ocup_cmo` maps codes, not
+  numbers through `_mapped` (whose `fillna` would turn an unknown code into a blank): an
+  unknown code must stay missing so `derive` raises.
 
 - **The lineage's 8d hooks**: `record_links(rows, resolve, ends)` orients a duplicate only
   with `ends` (every record's last dated event; `parse` passes it — the tests' `_history`
