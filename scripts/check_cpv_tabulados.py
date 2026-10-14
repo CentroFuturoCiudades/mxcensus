@@ -2673,26 +2673,19 @@ _KIN_AGES_2010 = ("Total", "00-14 años", "15-29 años", "30-59 años", "60 año
                   "No especificado")
 _KINSHIP = ("head", "spouse or partner", "ascendants", "descendants", "collaterals",
             "not related", "NE")
-# 12_04A's lines for «otro parentesco» (`PARENT` 08), by its detail (`OTROPARE_C`), found on
-# the tabulado in every state: ascendants — step-parents, grand-, great- and
-# great-great-grandparents, uncles and aunts, godparents; descendants — great- and
-# great-great-grandchildren, nephews and nieces, godchildren; «Familiar» (623) not
-# specified; every other code (siblings, cousins, in-laws, co-parents…) or none collateral
-_ASCENDANTS_2010 = (602, 606, 607, 608, 612, 620)
-_DESCENDANTS_2010 = (610, 611, 613, 621)
 
 
 def _kinship_2010(p) -> list[pd.Series]:
-    """12_04A: head (``PARENT`` 01), spouse (02), ascendants (06 parents, 07 parents-in-law
-    and :data:`_ASCENDANTS_2010`), descendants (03 children, 04 grandchildren, 05 children-in-
-    law and :data:`_DESCENDANTS_2010`), collaterals (the rest of 08), not related (09), not
-    specified (99 and «Familiar»)."""
-    rel, other = _code(p, "PARENT"), _code(p, "OTROPARE_C")
-    unspecified = rel.eq(99) | (rel.eq(8) & other.eq(623))
-    up = rel.isin([6, 7]) | (rel.eq(8) & other.isin(_ASCENDANTS_2010))
-    down = rel.isin([3, 4, 5]) | (rel.eq(8) & other.isin(_DESCENDANTS_2010))
-    return [rel.eq(1), rel.eq(2), up, down, rel.eq(8) & ~up & ~down & ~unspecified, rel.eq(9),
-            unspecified]
+    """12_04A's seven lines on the derived ``LINEA_PARENTESCO`` (8f; INEGI's lines for «otro
+    parentesco», 08, found on the tabulado in every state, 7p): descendants = «Hija(o)» +
+    «Descendente»; the column's «Otro parentesco» is collateral without a detail code
+    (``OTROPARE_C`` blank) and not specified with one (623 «Familiar»)."""
+    line, blank = _cat(p, "LINEA_PARENTESCO"), _code(p, "OTROPARE_C").isna()
+    other = line.eq("Otro parentesco")
+    return [line.eq("Persona de referencia"), line.eq("Esposa(o) o pareja"),
+            line.eq("Ascendente"), line.isin(["Hija(o)", "Descendente"]),
+            line.eq("Colateral") | (other & blank), line.eq("Sin parentesco"),
+            line.eq("No especificado") | (other & ~blank)]
 
 
 def _by_age_2010(groups: tuple[str, ...], cells: Callable[[pd.DataFrame], list[pd.Series]]):
@@ -4260,26 +4253,27 @@ def _use_by_affiliation_2020(p):
     return _counts_of(*(m for g, _ in _affiliation(p) for m in _users_2020(p, g)))
 
 
-# 13: the population in households by kinship line (`PARENTESCO`'s codes, found on 13-02 in
-# every state and sex) and the 0–17 by their parents' residence and survival
-_LINES_2020 = (("head", (101,)), ("spouse or partner", (201, 202, 203)),
-               ("child", (301, 302, 303, 304)),
-               ("ascendants", (401, 402, 406, 407, 412, 416, 421)),
-               ("descendants", (408, 409, 410, 411, 413, 414, 418, 422)),
-               ("collaterals", (403, 404, 405, 415, 417, 419, 420, 423)),
-               ("other kinship", (424,)), ("not related", (501, 502, 503, 601, 611, 612, 613, 701)),
-               ("NE", (999,)))
+# 13: the population in households by kinship line (the derived `LINEA_PARENTESCO`, 8f;
+# `PARENTESCO`'s lines found on 13-02 in every state and sex, 7w) and the 0–17 by their
+# parents' residence and survival
+_LINES_2020 = (("head", "Persona de referencia"), ("spouse or partner", "Esposa(o) o pareja"),
+               ("child", "Hija(o)"), ("ascendants", "Ascendente"),
+               ("descendants", "Descendente"), ("collaterals", "Colateral"),
+               ("other kinship", "Otro parentesco"), ("not related", "Sin parentesco"),
+               ("NE", "No especificado"))
 
 
 def _lines_2020(p):
-    """13-02: every person by kinship line: ascendants — parents, step-parents, grand- and
-    great-grandparents, uncles and aunts, parents-in-law, godparents —; descendants —
-    grandchildren, step-grandchildren, their spouses, great-grandchildren, nephews and nieces
-    and theirs, children-in-law, godchildren —; collaterals — siblings, cousins, the
-    children's parents-in-law, siblings-in-law, concuños, compadres —; «otros familiares»
-    another kinship; the unrelated, domestic workers, their families and guests none."""
-    kin = _code(p, "PARENTESCO")
-    return _counts_of(pd.Series(True, index=p.index), *(kin.isin(c) for _, c in _LINES_2020))
+    """13-02: every person by kinship line, the derived ``LINEA_PARENTESCO`` (8f; INEGI's
+    lines found on the tabulado in every state and sex, 7w: ascendants — parents,
+    step-parents, grand- and great-grandparents, uncles and aunts, parents-in-law, godparents
+    —; descendants — grandchildren, step-grandchildren, their spouses, great-grandchildren,
+    nephews and nieces and theirs, children-in-law, godchildren —; collaterals — siblings,
+    cousins, the children's parents-in-law, siblings-in-law, concuños, compadres —; «otros
+    familiares» another kinship; the unrelated, domestic workers, their families and guests
+    none)."""
+    line = _cat(p, "LINEA_PARENTESCO")
+    return _counts_of(pd.Series(True, index=p.index), *(line.eq(c) for _, c in _LINES_2020))
 
 
 def _parents_2020(survival: bool):

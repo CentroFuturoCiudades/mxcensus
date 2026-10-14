@@ -383,10 +383,11 @@ ABANESCO:
     '5': Su familia ya no lo(a) dejó o por ayudar en las tareas del hogar
     '6': Terminó sus estudios
     '7': Otro motivo
-    '8': '8'
   Especiales:
+    '8': Causa no especificada
     '9': No especificado
-  Nota: 'códigos observados sin etiqueta en el FD: [''8'']'
+  Nota: '8 sin etiqueta en el FD: la causa no especificada de quien dejó de asistir a la escuela (ASISTEN
+    2), la columna «No especificado» de los tabulados C2KED13–15, que cuentan 1–8; 9 = no especificado'
 ESCOLARI:
   Descripción: Escolaridad (Número de años aprobados)
   Tipo: categorical

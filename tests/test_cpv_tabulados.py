@@ -476,12 +476,24 @@ def test_migration_duration_and_causes_2020():
                                              [False, True, True, False], [False] * 4]
 
 
+def _with_lines(p: pd.DataFrame, period: str) -> pd.DataFrame:
+    """``p`` with its derived ``LINEA_PARENTESCO`` (8f), by the edition's derivation alone."""
+    from mxcensus import cpv_derived
+
+    dv, = (dv for dv in cpv_derived._derivations("personas", period)
+           if "LINEA_PARENTESCO" in dv.columns)
+    src = pd.DataFrame({s: cpv_derived._codes(p[s], None) for s in dv.sources})
+    return p.assign(LINEA_PARENTESCO=dv.func(src)["LINEA_PARENTESCO"].to_numpy())
+
+
 def test_kinship_fields_and_selected_states_2010():
-    """7p: 12_04A's lines on ``PARENT`` and «otro parentesco»'s detail; 07_02A's fields =
-    ``NOMCAR_C``'s first digit; 05_01A's unpublished states count together in 98."""
-    p = pd.DataFrame({"PARENT": ["01", "08", "08", "08", "08", "08", "06", "04", "99", "09"],
-                      "OTROPARE_C": [None, "612", "613", "603", None, "623", None, "609",
-                                     "999", "501"]})
+    """7p: 12_04A's lines on ``PARENT`` and «otro parentesco»'s detail (8f: read on the
+    derived ``LINEA_PARENTESCO``); 07_02A's fields = ``NOMCAR_C``'s first digit; 05_01A's
+    unpublished states count together in 98."""
+    p = _with_lines(pd.DataFrame({
+        "PARENT": ["01", "08", "08", "08", "08", "08", "06", "04", "99", "09"],
+        "OTROPARE_C": [None, "612", "613", "603", None, "623", None, "609", "999", "501"]}),
+        "2010")
     lines = [m.tolist() for m in ck._kinship_2010(p)]
     assert [ck._KINSHIP[[ln[i] for ln in lines].index(True)] for i in range(10)] == [
         "head", "ascendants", "descendants", "collaterals", "collaterals", "NE", "ascendants",
@@ -585,8 +597,9 @@ def test_census2020_rules_7w():
     lives here, 96 elsewhere, 97 died), the hours (0 = did not work, 32 | 33, 999), the técnica
     of media superior (``NIVACAD`` 05/07/09, 15+) by field, the cross tables' order, the
     partner by union and the food access by the head's sex."""
-    p = pd.DataFrame({"PARENTESCO": ["101", "203", "304", "416", "421", "410", "418", "417",
-                                     "423", "424", "601", "701", "999"]})
+    p = _with_lines(pd.DataFrame({"PARENTESCO": ["101", "203", "304", "416", "421", "410",
+                                                 "418", "417", "423", "424", "601", "701",
+                                                 "999"]}), "2020")
     lines = [m.tolist() for m, _ in ck._lines_2020(p)]
     assert lines[0] == [True] * 13
     assert [sum(m) for m in lines[1:]] == [1, 1, 1, 2, 2, 2, 1, 2, 1]

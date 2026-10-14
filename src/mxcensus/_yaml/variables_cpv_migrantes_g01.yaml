@@ -49,7 +49,9 @@ ZONA:
     '50': Localidades de 2,500 a 19,999 habitantes
     '60': Localidades menores de 2,500 habitantes
     '07': '07'
-  Nota: 'códigos observados sin etiqueta en el FD: [''07'']'
+  Nota: '01..07 = las zonas de la entidad en el «Catálogo de áreas metropolitanas» (catalogos_cpv1995.pdf;
+    un número por entidad: el código solo no nombra la zona); 06 y 07, fuera del «01..05» del FD, sólo
+    en Veracruz: A.M. de Poza Rica y A.M. de Veracruz'
 ESTRATO:
   Descripción: Estrato de diseño muestral (alfanumérico, p. ej. 0100101022 en 2000, 400-01-001-0003 en
     2010, 01-001-05 en 2015, 01-001-0000-03 en 2020 y 15-001-0000-030 en 2025; 2005 no tiene diseño expandible)

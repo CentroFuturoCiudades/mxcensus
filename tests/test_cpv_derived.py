@@ -176,6 +176,19 @@ _BORROWED = {("viviendas", "SEXO"): ("personas", "viviendas", "JEFE_SEXO"),
                 for item in ("PARENTESCO", "HLENGUA", "AFRODES")}}            # 7a: AFRODES
 
 
+# 8f: the relationship items the kinship line reads besides PARENTESCO (each edition's own
+# codes: 1990 CVE_PAR, 2005/2010 PARENT, 2010 OTROPARE_C, 2015 PARENT_OTRO_C).
+_KIN_ITEMS = {"CVE_PAR", "PARENT", "OTROPARE_C", "PARENT_OTRO_C"}
+
+
+def _line_of(period: str, source: str) -> dict[int, str]:
+    """8f: the kinship line of each code of ``source`` in ``period`` (Censo 2010: PARENT's
+    groups but «otro parentesco», OTROPARE_C's detail of it)."""
+    if period == "2010":
+        return dict(d._PARENT_2010 if source == "PARENT" else d._OTRO_2010)
+    return {code: line for line, codes in d._LINEAS[period].items() for code in codes}
+
+
 # 6w: the labels of the relationship codes (other than the head's) whose language makes a
 # household indigenous — partners, parents, step-parents, grandparents, parents-in-law.
 _MEMBER_WORDS = ("Espos", "Concubin", "Amasi", "Querid", "Amante", "Madre", "Madrastra",
@@ -201,12 +214,25 @@ def test_source_codes_match_2020(table, period, source):
     name = next(a for a in d._ALIASES.get(source, (source,))
                 if a in labels and a.upper() in columns)
     new = labels[name]
+    if source in _KIN_ITEMS:                  # 8f: every code of the catalog has a line
+        tipo, codes = _codes(new)
+        lines = set(_line_of(period, source))
+        assert tipo == "categorical"
+        if period != "2010":
+            assert codes <= lines
+        elif source == "PARENT":                                   # 08: OTROPARE_C's detail
+            assert codes - {8} == lines
+        else:
+            assert {c for c in codes if 600 <= c < 700} == lines
+        return
     if source == "PARENTESCO":                # 6t: own codes; the head's are documented
         tipo, codes = _codes(new)             # (6u: 1995 from its catalog PDF, 2000 from
         heads = set(d._HEAD_CODES[period])    # its FD's code groups)
         labelled = {int(k): v for k, v in (new.get("Categorías") or {}).items()}
         assert tipo == "categorical" and heads <= codes
         assert all(("Jef" in labelled[h]) or labelled[h] == "Persona sola" for h in heads)
+        if d._LINEA_ITEMS.get(period) == "PARENTESCO":                      # 8f: a line each
+            assert codes <= set(_line_of(period, source))
         if period in d._IND_CODES:            # 6w: the head, partner and ascendants
             members = set(d._IND_CODES[period])
             assert members <= codes and heads <= members
@@ -370,10 +396,12 @@ def test_cpv_derivations_listing():
     clase = {"CLASE_HOG"}                                  # 6z: 2000, 2010–2025 (both tables)
     assert head | ind | clase <= p20 & p25
     sm = {"INGTRMEN_SM"}                                           # 7c: 2000, 2010–2020
+    line = {"LINEA_PARENTESCO"}                                    # 8f: 1990, 2005–2025
+    assert line <= p20 & p25
     assert p15 == {"EDAD_CAT", "EDAD_QUIN", "INGTRMEN_CAT", *sm, *educ, "CONACT_CAT",
                    "SITUA_CONYUGAL_CAT",
                    "IDENT_MADRE_CAT", "IDENT_PADRE_CAT", *migration, *coresidence,
-                   *dhsersal, *commute, *coarse, *head, *ind, *clase, *work, *school}
+                   *dhsersal, *commute, *coarse, *head, *ind, *clase, *work, *school, *line}
     assert {"MED_TRASLADO_ESC_Caminando", "MED_TRASLADO_TRAB_Transporte de personal"} <= p15 & p20
     assert {"MADRE_EN_VIVIENDA", "PADRE_EN_VIVIENDA", "SIN_DISC_LIM"} <= p20 & p25
     # 7a: five-year ages (every edition), the residence by municipality, the place of school
@@ -386,7 +414,7 @@ def test_cpv_derivations_listing():
     assert set(mxcensus.cpv_derivations("personas", 2010)["COLUMN"]) == {
         "EDAD_CAT", "EDAD_QUIN", "INGTRMEN_CAT", *sm, "HORTRA_CAT", *educ, "CONACT_CAT",
         "SITUA_CONYUGAL_CAT", "LIM_ACTIVIDAD", "RELIGION_CAT", *migration, *coresidence,
-        *dhsersal, *coarse, *head, *ind, *clase, *work, "RELIGION_INEGI"}           # 7g
+        *dhsersal, *coarse, *head, *ind, *clase, *work, "RELIGION_INEGI", *line}    # 7g
     rooms = {"OCUP_CUARTO_CAT"}                                    # 6z: 2010–2025
     assert set(mxcensus.cpv_derivations("viviendas", 2010)["COLUMN"]) == {   # 6n, 6s, 6x
         "CLAVIVP_CAT", "CUADORM_CAT", "TOTCUART_CAT", "DRENAJE_CAT", "INGTRHOG_CAT", "JEFE_SEXO",
@@ -409,7 +437,7 @@ def test_cpv_derivations_listing():
         "OCUPACION_C_COARSE"}                          # 8e: the CMO through the bridge
     assert set(mxcensus.cpv_derivations("personas", 2005)["COLUMN"]) == {
         "EDAD_CAT", "EDAD_QUIN", *educ, "ENT_PAIS_RES_CAT", *dhs2000, "DHSERSAL_ISSSTE_E",
-        "DHSERSAL_SALUD_PUBLICA", "DHSERSAL_Privado", *head, *ind}
+        "DHSERSAL_SALUD_PUBLICA", "DHSERSAL_Privado", *head, *ind, *line}
     assert set(mxcensus.cpv_derivations("viviendas", 2000)["COLUMN"]) == {
         "CLAVIVP_CAT", "CUADORM_CAT", "TOTCUART_CAT", "DRENAJE_CAT", "INGTRHOG_CAT", "JEFE_SEXO",
         *ind, *clase,                               # 6x: its dwelling rows are households
@@ -436,7 +464,7 @@ def test_cpv_derivations_listing():
     oldest = {"EDAD_CAT", "EDAD_QUIN", "INGTRMEN_CAT", "HORTRA_CAT", *educ,          # 6j
               "CONACT_CAT", "SITUA_CONYUGAL_CAT", *migration}
     assert set(mxcensus.cpv_derivations("personas", 1990)["COLUMN"]) == {
-        *oldest, "RELIGION_CAT", "SECTOR"}
+        *oldest, "RELIGION_CAT", "SECTOR", *line}
     assert set(mxcensus.cpv_derivations("personas", 1995)["COLUMN"]) == {*oldest, *head}
     assert set(mxcensus.cpv_derivations("viviendas", 1990)["COLUMN"]) == {
         "CLAVIVP_CAT", "CUADORM_CAT", "TOTCUART_CAT", "DRENAJE_CAT"}
@@ -962,7 +990,8 @@ def _persons_2015() -> pd.DataFrame:
         # 6t: one dwelling (2015's un-padded key), a male head (1) and his wife; 6w: she
         # speaks an indigenous language
         "ID_VIV": ["01001000001"] * 2, "PARENT": ["1", "2"], "SEXO": ["1", "3"],
-        "HLENGUA": ["3", "1"], "TIPOHOG": ["1", "1"]}, dtype="str")   # 6z: nuclear
+        "HLENGUA": ["3", "1"], "TIPOHOG": ["1", "1"],                  # 6z: nuclear
+        "PARENT_OTRO_C": ["101", "201"]}, dtype="str")                 # 8f: the detail
 
 
 def test_derive_persons_2015_recodes():
@@ -1024,7 +1053,8 @@ def _persons_2010() -> pd.DataFrame:
         # speaks an indigenous language, his answer is not specified
         "ID_VIV": ["00000001", "00000001", "00000002"], "PARENT": ["03", "01", "01"],
         "SEXO": ["1", "3", "1"], "HLENGUA": ["3", "1", "9"],
-        "TIPOHOG": ["1", "1", "5"]}, dtype="str")       # 6z: nuclear; the man is alone
+        "TIPOHOG": ["1", "1", "5"],                     # 6z: nuclear; the man is alone
+        "OTROPARE_C": ["", "", ""]}, dtype="str")       # 8f: «otro parentesco»'s detail
     for i in range(1, 8):
         df[f"DISCAP{i}"] = ""
     df.loc[1, ["DISCAP2", "DISCAP7"]] = ["11", "16"]
@@ -1464,6 +1494,92 @@ def test_derive_hog_ind_households():
         d.derive(v25, "viviendas", 2025, members=grandparent.drop(columns="HLENGUA"))
 
 
+def test_derive_linea_parentesco():
+    """8f: each person's kinship line (Censo 2020's nine), from the edition's relationship
+    item: CGPV 1990's CVE_PAR, the Conteo 2005's PARENT (102 «persona sola» heads a
+    household), Censo 2010's PARENT and, for its «otro parentesco» (08), OTROPARE_C — a
+    detail of no line raises, none or «Familiar» (623) is «Otro parentesco» —, the EIC 2015's
+    PARENT_OTRO_C, 2020/2025 PARENTESCO. 1995 and 2000 have none."""
+    ref, spouse, child = "Persona de referencia", "Esposa(o) o pareja", "Hija(o)"
+    cases = (("2025", _persons_2025(), [ref, child]),
+             ("2015", _persons_2015(), [ref, spouse]),
+             ("2010", _persons_2010(), [child, ref, ref]),
+             # the first person (the head's child in the fixture) another relative
+             *(("2010", _persons_2010().assign(PARENT=[parent, "01", "01"],
+                                               OTROPARE_C=[detail, "", ""]), [line, ref, ref])
+               for parent, detail, line in (
+                   ("08", "612", "Ascendente"), ("08", "613", "Descendente"),
+                   ("08", "603", "Colateral"), ("08", "", "Otro parentesco"),
+                   ("08", "623", "Otro parentesco"), ("04", "609", "Descendente"),
+                   ("07", "", "Ascendente"), ("09", "501", "Sin parentesco"),
+                   ("99", "", "No especificado"))),
+             ("2005", _persons_2005(), [ref, child, ref]),
+             ("1990", _persons_1990(), [ref, spouse, child, "Descendente", "Ascendente"]))
+    for period, frame, expected in cases:
+        out = d.derive(frame, "personas", period)
+        assert list(out["LINEA_PARENTESCO"]) == expected, period
+        assert out["LINEA_PARENTESCO"].dtype == d._LINEA_PARENTESCO
+    for period in ("1995", "2000"):
+        assert "LINEA_PARENTESCO" not in d.derived_dtypes("personas", period)
+    with pytest.raises(ValueError, match="LINEA_PARENTESCO"):          # 699: no such detail
+        d.derive(_persons_2010().assign(PARENT=["08", "01", "01"], OTROPARE_C=["699", "", ""]),
+                 "personas", 2010)
+
+
+# 8f: the words of each kinship line's relationship labels (lower case, no accents; at the
+# start of a word, so «compadre» is no «padre»)
+_LINE_WORDS = {
+    "Persona de referencia": ("jef", "persona sola"),
+    "Esposa(o) o pareja": ("espos", "companer", "concubin", "amasi", "querid", "amante",
+                           "marido"),
+    "Hija(o)": ("hij", "entenad", "adopt", "recogid"),
+    "Ascendente": ("madre", "padre", "madrastr", "padrastr", "abuel", "bisabuel",
+                   "tatarabuel", "tio", "tia", "suegr", "padrino", "madrina"),
+    "Descendente": ("niet", "bisniet", "tataraniet", "sobrin", "nuera", "yerno", "ahijad"),
+    "Colateral": ("herman", "prim", "cunad", "concun", "consuegr", "compadre", "comadre"),
+    "Otro parentesco": ("familiar", "pariente", "otro parentesco"),
+    "Sin parentesco": ("domestic", "huesped", "tutor", "tutelad", "no tiene parentesco",
+                       "sin parentesco", "amig", "ningun", "sirvient", "criad", "recamarer",
+                       "cociner", "lavander", "niner", "mozo", "jardiner", "velador",
+                       "vigilante", "porter", "chofer", "ama de llaves", "mayordomo",
+                       "dama de compania"),
+    "No especificado": ("no especificad", "parentesco no especificad"),
+}
+
+
+def test_linea_parentesco_labels():
+    """8f: each relationship code's line agrees with its label in the edition's dictionary
+    (the lines were assigned by the labels: 2020 = INEGI's 13-02, Censo 2010 = its 12_04A;
+    the others by 2020's rule), and only the «Sin parentesco» labels name a domestic worker,
+    a guest or a tutor."""
+    import re
+    import unicodedata
+
+    def plain(label: str) -> str:
+        text = unicodedata.normalize("NFD", label.lower())
+        return "".join(ch for ch in text if unicodedata.category(ch) != "Mn")
+
+    items = {**{p: (item,) for p, item in d._LINEA_ITEMS.items()},
+             "2010": ("PARENT", "OTROPARE_C")}
+    for period, sources in items.items():
+        _, gid, _ = d._frame_group("personas", period)
+        labels = variables_cpv_labels("personas", gid)
+        for source in sources:
+            entry = labels[source]
+            codes = {int(k): plain(v) for k, v in {**(entry.get("Categorías") or {}),
+                                                   **(entry.get("Especiales") or {})}.items()}
+            for code, line in _line_of(period, source).items():
+                if code not in codes:                   # a code the edition does not list
+                    continue
+                # 1990's first digit is the relationship, CATPAREN's word what was written:
+                # its 702 «huésped», 703 «abonado» live alone (group 7, «persona sola»)
+                label = "persona sola" if (period, code // 100) == ("1990", 7) else codes[code]
+                words = "|".join(_LINE_WORDS[line])
+                assert re.search(rf"\b({words})", label), (period, code, label, line)
+                if line != "Sin parentesco":
+                    assert not re.search(r"\b(domestic|huesped|tutor)", label), (period, code)
+
+
 def test_household_members(monkeypatch, tmp_path):
     """6x: ``cpv._household_members`` reads the members' person items under the edition's
     names (2010: ``PARENT``, though the file also has ``OTROPARE_C``; 2005: ``HABLENIN``) and
@@ -1608,6 +1724,7 @@ def _persons_1990() -> pd.DataFrame:
         "CVE_P_RES": ["001", "999", "000", "001", "300"],
         "RELIGION": ["2", "4", "0", "3", "9"],
         "C_A_ECO": ["31102", "00000", "00000", "00000", "10001"],
+        "CVE_PAR": ["100", "200", "300", "608", "614"],         # 8f: grandchild, parent-in-law
     }, dtype="str")
 
 

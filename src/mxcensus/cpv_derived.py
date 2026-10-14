@@ -152,6 +152,17 @@ count, and ``TOTCUART_INEGI``, the first numeric derived column (``Int64``, miss
 the rooms are not specified): its rooms as its ITER counts them, ``TOTCUART`` less an
 exclusive kitchen nobody sleeps in, the value of its occupants per room.
 
+8f adds ``LINEA_PARENTESCO``, the person's kinship line to the household head as INEGI
+tabulates it (Censo 2020's 13-02: reference person, partner, child, ascendant,
+descendant, collateral, another relative, none, not specified; :data:`_LINEAS`), in every
+edition whose relationship catalog names each relative (CGPV 1990, Conteo 2005, Censo
+2010, EIC 2015, Censo 2020, EIC 2025; the Conteo 1995's has groups only, CGPV 2000's
+details no labels). Censo 2020's equals its tabulado, line by line, in every state and
+sex; Censo 2010's tabulado (12_04A: seven lines) is read on it with children among the
+descendants, the «otro parentesco» without a detail among the collaterals and its
+«Familiar» not specified — both «Otro parentesco» here, as the EIC 2015's and Censo 2020's
+unspecified relatives (:func:`_linea_2010`).
+
 :func:`cpv_derivations` lists the columns per edition. The check that the source codes
 match after the recode is a test (``tests/test_cpv_derived.py``).
 
@@ -404,6 +415,73 @@ _IND_CODES: dict[str, tuple[int, ...]] = {
     "2015": (1, 2), "2020": (101, *_PARTNERS, 401, 416),
     "2025": (101, *_PARTNERS, 401, 402, 406, 407, 416)}
 
+
+def _span(first: int, last: int) -> tuple[int, ...]:
+    return tuple(range(first, last + 1))
+
+
+# 8f: the kinship lines («líneas de parentesco»: the population in households by its
+# relationship to the head; Censo 2020's tabulado 13-02, Censo 2010's 12_04A), each found on
+# its tabulado in every state and sex (STEP_7w.md, STEP_7p.md). Censo 2020's nine lines in
+# every edition whose catalog names each relative, by its labels; the Conteo 1995's
+# catalog has groups only and CGPV 2000's detail codes have no labels. Edition → line →
+# its relationship codes (2020/2025 PARENTESCO, EIC 2015 PARENT_OTRO_C, Conteo 2005 PARENT,
+# CGPV 1990 CVE_PAR; Censo 2010: :func:`_linea_2010`). The domestic workers, their
+# relatives, the guests and tutors have none; a «persona sola» heads a household of one.
+# CGPV 1990's first digit is the relationship (its FD's groups), the other two CATPAREN's
+# word as written: its 702 «huésped» and 703 «abonado» are persons alone (one-person
+# dwellings), so heads; its «otro parentesco» (6xx) is read by the word.
+_LINEAS: dict[str, dict[str, tuple[int, ...]]] = {
+    "2020": {"Persona de referencia": (101,), "Esposa(o) o pareja": (201, 202, 203),
+             "Hija(o)": _span(301, 304),
+             "Ascendente": (401, 402, 406, 407, 412, 416, 421),
+             "Descendente": (408, 409, 410, 411, 413, 414, 418, 422),
+             "Colateral": (403, 404, 405, 415, 417, 419, 420, 423),
+             "Otro parentesco": (424,),
+             "Sin parentesco": (501, 502, 503, 601, 611, 612, 613, 701),
+             "No especificado": (999,)},
+    "2015": {"Persona de referencia": (101,), "Esposa(o) o pareja": _span(201, 204),
+             "Hija(o)": _span(301, 304),
+             "Ascendente": (401, 402, 406, 407, 408, 412, 415, 420),
+             "Descendente": (409, 410, 411, 413, 417, 421),
+             "Colateral": (403, 404, 405, 414, 416, 418, 419, 422),
+             "Otro parentesco": (423,),
+             "Sin parentesco": (*_span(501, 503), 601, *_span(611, 615), 701, *_span(711, 715)),
+             "No especificado": (999,)},
+    "2005": {"Persona de referencia": (101, 102), "Esposa(o) o pareja": _span(201, 204),
+             "Hija(o)": _span(301, 305),
+             "Ascendente": (601, 602, 606, 607, 608, 612, 615, 620),
+             "Descendente": (609, 610, 611, 613, 617, 621),
+             "Colateral": (603, 604, 605, 614, 616, 618, 619, 622),
+             "Otro parentesco": (623,),
+             "Sin parentesco": (*_span(401, 413), 421, 431, 441, 451, 461, *_span(501, 503),
+                                701, *_span(711, 715)),
+             "No especificado": (999,)},
+    "1990": {"Persona de referencia": (*_span(100, 199), *_span(700, 799)),
+             "Esposa(o) o pareja": _span(200, 299), "Hija(o)": _span(300, 399),
+             "Ascendente": (601, 602, 605, 606, 607, 611, 614, 620),
+             "Descendente": (608, 609, 610, 612, 615, 621),
+             "Colateral": (603, 604, 613, 616, 617, 622),
+             "Otro parentesco": (600, 623),
+             "Sin parentesco": (*_span(400, 599), 618, 619),
+             "No especificado": _span(900, 999)},
+}
+_LINEAS["2025"] = _LINEAS["2020"]                 # the same catalog
+_LINEA_ITEMS = {"1990": "CVE_PAR", "2005": "PARENT", "2015": "PARENT_OTRO_C",
+                "2020": "PARENTESCO", "2025": "PARENTESCO"}
+# Censo 2010: PARENT's groups (01 head … 07 parent-in-law, 09 none, 99) and, for its «otro
+# parentesco» (08), the detail OTROPARE_C, numbered as the Conteo 2005's 6xx. INEGI's 12_04A
+# counts the 08 without a detail code (44,098 records) collateral; here they are «Otro
+# parentesco», as the EIC 2015's «Otro familiar» and 2020's «Otros familiares» (the user's
+# choice), so 12_04A's collaterals = «Colateral» + those, its «No especificado» = the rest
+# of «Otro parentesco» (623 «Familiar») + «No especificado», its descendants = «Hija(o)» +
+# «Descendente».
+_PARENT_2010 = {1: "Persona de referencia", 2: "Esposa(o) o pareja", 3: "Hija(o)",
+                4: "Descendente", 5: "Descendente", 6: "Ascendente", 7: "Ascendente",
+                9: "Sin parentesco", 99: "No especificado"}
+_OTRO_2010 = {code: line for line, codes in _LINEAS["2005"].items() for code in codes
+              if 601 <= code <= 623}
+
 _BLANK = -1  # a blank (not asked) code, as the legacy dictionaries spell it
 _DUMMY = pd.CategoricalDtype([0, 1])
 # Derived columns the legacy loaders do not have (the others take the legacy dtype).
@@ -458,13 +536,19 @@ _SM_2000 = pd.CategoricalDtype(["No recibe ingresos", "Menos de 1 s.m.", "De 1 h
 _SM = pd.CategoricalDtype(["No recibe ingresos", "Hasta 1 s.m.", "Más de 1 a 2 s.m.",
                            "Más de 2 a 3 s.m.", "Más de 3 a 5 s.m.", "Más de 5 a 10 s.m.",
                            "Más de 10 s.m.", "No especificado", "Blanco por pase"], ordered=True)
+# 8f: the kinship line, Censo 2020's tabulado 13-02's (:data:`_LINEAS`).
+_LINEA_PARENTESCO = pd.CategoricalDtype(["Persona de referencia", "Esposa(o) o pareja",
+                                         "Hija(o)", "Ascendente", "Descendente", "Colateral",
+                                         "Otro parentesco", "Sin parentesco",
+                                         "No especificado"])
 _DTYPES = {"DISCAPACIDAD": _YES_NO, "LIMITACION": _YES_NO, "SIN_DISC_LIM": _YES_NO,
            "LIM_ACTIVIDAD": _YES_NO, "MADRE_EN_VIVIENDA": _YES_NO, "PADRE_EN_VIVIENDA": _YES_NO,
            "EDUC_INEGI": _EDUC_INEGI, "EDUC_INEGI_DET": _EDUC_INEGI_DET, "SECTOR": _SECTOR,
            "HOG_IND": _SI_NO, "OCUP_CUARTO_CAT": _OCUP_CUARTO, "CLASE_HOG": _CLASE_HOG,
            "INGR_OTROS": _YES_NO, "EDAD_QUIN": _EDAD_QUIN, "LUGAR_RES_5A": _LUGAR_RES,
            "LUGAR_ASI": _LUGAR_RES, "LUGAR_TRAB": _LUGAR_RES, "HOG_AFRO": _SI_NO,
-           "INGTRMEN_SM": _SM, "PRIMER_HOGAR": _SI_NO, "TOTCUART_INEGI": pd.Int64Dtype()}
+           "INGTRMEN_SM": _SM, "PRIMER_HOGAR": _SI_NO, "TOTCUART_INEGI": pd.Int64Dtype(),
+           "LINEA_PARENTESCO": _LINEA_PARENTESCO}
 # Derived columns with another column's legacy dtype: the household head's sex on the
 # person (6t) has the dwelling item's; INEGI's birthplace (6y) the legacy one's; the place
 # of school and work by INEGI's rule (7a) the residence's (with «Blanco por pase»).
@@ -1355,6 +1439,27 @@ def _hog_afro(members: tuple[int, ...]):
     return _hog_flag("HOG_AFRO", "AFRODES", members)
 
 
+def _linea(item: str, lines: Mapping[str, tuple[int, ...]]):
+    """The kinship line of each person (8f) from the edition's relationship ``item`` and its
+    ``lines`` (:data:`_LINEAS`); a code of no line is left missing (:func:`derive` reports
+    it)."""
+    lookup = {code: line for line, codes in lines.items() for code in codes}
+
+    def func(src):
+        return {"LINEA_PARENTESCO": _as(src[item].map(lookup), "personas", "LINEA_PARENTESCO")}
+    return func
+
+
+def _linea_2010(src):
+    """Censo 2010's kinship line (8f): ``PARENT``'s, and for its «otro parentesco» (08) the
+    detail ``OTROPARE_C``'s (:data:`_OTRO_2010`); an 08 without a detail code is «Otro
+    parentesco», an unknown detail is left missing."""
+    rel, other = src["PARENT"], src["OTROPARE_C"]
+    detail = other.map(_OTRO_2010).where(other.notna(), "Otro parentesco")
+    values = rel.map(_PARENT_2010).where(rel.ne(8), detail)
+    return {"LINEA_PARENTESCO": _as(values, "personas", "LINEA_PARENTESCO")}
+
+
 def _periods_by(codes: Mapping[str, tuple]) -> dict[tuple, tuple[str, ...]]:
     """Edition → codes, inverted: codes → the editions that share them."""
     out: dict[tuple, tuple[str, ...]] = {}
@@ -1537,6 +1642,10 @@ def _registry() -> tuple[_Derivation, ...]:
             household=True, members=True)
           for members, periods in _periods_by(_AFRO_CODES).items()
           for table, editions in _household_records(periods).items()),
+        # 8f: the kinship line of INEGI's tabulados, by each edition's relationship catalog
+        *(D(per, ("LINEA_PARENTESCO",), (item,), (p,), _linea(item, _LINEAS[p]))
+          for p, item in _LINEA_ITEMS.items()),
+        D(per, ("LINEA_PARENTESCO",), ("PARENT", "OTROPARE_C"), ("2010",), _linea_2010),
         D(viv, ("CLAVIVP_CAT",), ("CLAVIVP",), ("1990", "2000", "2005", "2010", *_SINCE_2015),
           _cat(viv, "CLAVIVP", "CLAVIVP_CAT")),
         D(viv, ("JEFE_SEXO",), ("SEXO",), ("2000", "2005", "2010"), _jefe_sexo),  # the head's

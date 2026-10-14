@@ -721,6 +721,7 @@ def _write_variables_yaml(out_dir: Path, map_path: Path, yaml_dir: Path,
             _label_code_groups(entries, paths, doc, g["periods"], set(core_t))
             if set(g["periods"]) & _BLANK_ZERO:
                 _label_blank_zero(entries, set(core_t))
+            _label_undocumented(entries, g["periods"], set(core_t))
             _label_quantities(entries, g["periods"], set(core_t), doc)
             _label_codes(entries, g["periods"], set(core_t), doc, dict_dir)
             _label_sentinels(entries, g["periods"], set(core_t))
@@ -866,6 +867,77 @@ def _label_blank_zero(entries: dict, skip: set[str]) -> None:
                     if rest else ""
         notes.append("0 = no aplica (sin etiqueta en el FD): «Blanco por pase»")
         meta["Nota"] = "; ".join(n for n in notes if n)
+
+
+# Codes a categorical entry labels with themselves because its FD leaves them out (the note
+# «códigos observados sin etiqueta en el FD», :func:`_dict_ddi.dictionary_entry`), explained
+# from INEGI's other documents and the records (8f). (period, column) → the codes it
+# explains: a label makes the code a sentinel (``Especiales``), ``None`` keeps its identity
+# label (a code whose meaning is per state); and the note that replaces the FD's.
+class _Undocumented(NamedTuple):
+    codes: dict[str, str | None]
+    nota: str
+
+
+_UNDOCUMENTED: dict[tuple[str, str], _Undocumented] = {
+    # CGPV 1990 (fd_cgpv1990.pdf: «1..5 Y 7»): 6 is every person of the dwellings whose
+    # household items were not answered — F_G_COC 9, N_F_GPOS 99 and a 9xx relationship, in
+    # those 96,370 records only —; 7 is a household with its members whose type is unknown
+    ("1990", "TIP_HOGAR"): _Undocumented(
+        {"6": "NO ESPECIFICADO (SIN DATOS DEL HOGAR)"},
+        "6 sin etiqueta en el FD («1..5 Y 7»): las personas de las viviendas sin datos del "
+        "hogar (F_G_COC 9, N_F_GPOS 99 y un parentesco no especificado, 9xx: 96,370 "
+        "personas, toda su vivienda); 7 = el tipo no especificado de un hogar con sus "
+        "integrantes"),
+    # Conteo 1995 (fd_encuesta_cpv1995.pdf: «01..05» the metropolitan areas, cities of
+    # 100,000+ and state capitals, «Ver Catálogo»): its «Catálogo de áreas metropolitanas»
+    # numbers each state's zones, Veracruz's up to 7
+    ("1995", "ZONA"): _Undocumented(
+        {"06": None, "07": None},
+        "01..07 = las zonas de la entidad en el «Catálogo de áreas metropolitanas» "
+        "(catalogos_cpv1995.pdf; un número por entidad: el código solo no nombra la zona); "
+        "06 y 07, fuera del «01..05» del FD, sólo en Veracruz: A.M. de Poza Rica y A.M. de "
+        "Veracruz"),
+    # CGPV 2000 (fd_muestra_censal_2000.pdf: 0–7, 9): 8 is the cause not specified of who
+    # stopped attending school (ASISTEN 2), its tabulados' «No especificado» (C2KED13–15,
+    # 1–8; STEP_7z.md); 9 not specified is not among them
+    ("2000", "ABANESCO"): _Undocumented(
+        {"8": "Causa no especificada"},
+        "8 sin etiqueta en el FD: la causa no especificada de quien dejó de asistir a la "
+        "escuela (ASISTEN 2), la columna «No especificado» de los tabulados C2KED13–15, que "
+        "cuentan 1–8; 9 = no especificado"),
+}
+
+
+def _label_undocumented(entries: dict, periods: list[str], skip: set[str]) -> None:
+    """Explain the codes each categorical entry labels with themselves for want of an FD
+    label, by :data:`_UNDOCUMENTED`: a labelled code becomes a sentinel (``Especiales``),
+    and the spec's note replaces the FD's. An entry whose codes the table does not explain
+    raises. The core entries (``skip``) are left alone."""
+    for col, meta in entries.items():
+        if col in skip or meta.get("Tipo") != "categorical":
+            continue
+        notes = [n for n in (meta.get("Nota") or "").split("; ") if n]
+        found = [(i, m) for i, n in enumerate(notes) if (m := _UNLABELLED_RE.fullmatch(n))]
+        if not found:
+            continue
+        (i, m), = found
+        codes = {c.strip("'") for c in m.group(1).split(", ")}
+        spec = next((s for (p, c), s in _UNDOCUMENTED.items() if c == col and p in periods),
+                    None)
+        if spec is None or not codes <= set(spec.codes):
+            raise ValueError(f"{periods} {col}: codes {sorted(codes)} without an FD label "
+                             f"({spec})")
+        cats, special = dict(meta.get("Categorías") or {}), dict(meta.get("Especiales") or {})
+        for code, label in spec.codes.items():
+            if code in codes and label is not None:
+                cats.pop(code)
+                special[code] = label
+        meta["Categorías"] = cats
+        if special:
+            meta["Especiales"] = dict(sorted(special.items()))
+        notes[i] = spec.nota
+        meta["Nota"] = "; ".join(notes)
 
 
 # FD items that are quantities, not lists of codes (7f, 7q), which the parser reads as codes:

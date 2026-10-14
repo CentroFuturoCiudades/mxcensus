@@ -283,10 +283,12 @@ TIP_HOGAR:
     '3': COMPUESTO
     '4': CORRESIDENTE
     '5': UNIPERSONAL
-    '6': '6'
   Especiales:
+    '6': NO ESPECIFICADO (SIN DATOS DEL HOGAR)
     '7': NO ESPECIFICADO
-  Nota: 'códigos observados sin etiqueta en el FD: [''6'']'
+  Nota: '6 sin etiqueta en el FD («1..5 Y 7»): las personas de las viviendas sin datos del hogar (F_G_COC
+    9, N_F_GPOS 99 y un parentesco no especificado, 9xx: 96,370 personas, toda su vivienda); 7 = el tipo
+    no especificado de un hogar con sus integrantes'
 CVE_PAR:
   Descripción: CLAVE DE PARENTESCO
   Tipo: categorical

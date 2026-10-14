@@ -3482,6 +3482,47 @@ def test_label_blank_zero():
     assert _bcpv._BLANK_ZERO == {"1990"}
 
 
+def test_label_undocumented_8f():
+    """8f: every code a categorical entry labels with itself for want of an FD label is
+    explained (``_UNDOCUMENTED``): CGPV 1990's ``TIP_HOGAR`` 6 and CGPV 2000's ``ABANESCO`` 8
+    become sentinels with their own label, the Conteo 1995's Veracruz zones keep their
+    numbers; the note replaces the FD's. A code the table does not explain raises."""
+    import yaml
+
+    unlabelled = "códigos observados sin etiqueta en el FD"
+    for path in sorted(Path(mxcensus.__file__).parent.joinpath("_yaml").glob(
+            "variables_cpv_*_g*.yaml")):
+        for col, entry in yaml.safe_load(path.read_text(encoding="utf-8")).items():
+            if entry.get("Tipo") == "categorical":
+                assert unlabelled not in (entry.get("Nota") or ""), (path.name, col)
+    tip = variables_cpv("personas", _gid("personas", "1990"))["TIP_HOGAR"]
+    assert "6" not in tip["Categorías"] and tip["Especiales"] == {
+        "6": "NO ESPECIFICADO (SIN DATOS DEL HOGAR)", "7": "NO ESPECIFICADO"}
+    aban = variables_cpv("personas", _gid("personas", "2000"))["ABANESCO"]
+    assert aban["Especiales"] == {"8": "Causa no especificada", "9": "No especificado"}
+    for table in ("personas", "migrantes"):
+        zona = variables_cpv(table, _gid(table, "1995"))["ZONA"]
+        assert zona["Categorías"]["07"] == "07" and "Veracruz" in zona["Nota"]
+    entries = {
+        "TIP_HOGAR": {"Tipo": "categorical", "Categorías": {"1": "NUCLEAR", "6": "6"},
+                      "Especiales": {"7": "NO ESPECIFICADO"},
+                      "Nota": f"otra nota; {unlabelled}: ['6']"},
+        "N_F_GPOS": {"Tipo": "numeric", "Especiales": {"99": "99"},
+                     "Nota": f"{unlabelled}: ['99']"},
+    }
+    _bcpv._label_undocumented(entries, ["1990"], set())
+    assert entries["TIP_HOGAR"]["Categorías"] == {"1": "NUCLEAR"}
+    assert list(entries["TIP_HOGAR"]["Especiales"]) == ["6", "7"]
+    assert entries["TIP_HOGAR"]["Nota"].startswith("otra nota; 6 sin etiqueta en el FD")
+    assert entries["N_F_GPOS"]["Especiales"] == {"99": "99"}     # numeric: _label_sentinels'
+    with pytest.raises(ValueError, match="without an FD label"):            # not listed
+        _bcpv._label_undocumented({"X": {"Tipo": "categorical", "Categorías": {"5": "5"},
+                                         "Nota": f"{unlabelled}: ['5']"}}, ["1990"], set())
+    with pytest.raises(ValueError, match="without an FD label"):            # another code
+        _bcpv._label_undocumented({"ZONA": {"Tipo": "categorical", "Categorías": {"08": "08"},
+                                            "Nota": f"{unlabelled}: ['08']"}}, ["1995"], set())
+
+
 def test_dictionary_fixes_6l():
     """The generated dictionaries: no ellipsis code in the Conteo 2005's; CGPV 1990's «not
     asked» 0 is «Blanco por pase» in its 20 coded person items (none left as '0')."""
