@@ -20,15 +20,15 @@ Requires **Python 3.13+**. Install the latest release straight from GitHub:
 ```bash
 uv pip install "git+https://github.com/CentroFuturoCiudades/mxcensus.git"
 # or pin to a released tag:
-uv pip install "git+https://github.com/CentroFuturoCiudades/mxcensus.git@v0.1.0"
+uv pip install "git+https://github.com/CentroFuturoCiudades/mxcensus.git@v0.15.0"
 # or add it to a project:
-uv add "git+https://github.com/CentroFuturoCiudades/mxcensus.git@v0.1.0"
+uv add "git+https://github.com/CentroFuturoCiudades/mxcensus.git@v0.15.0"
 ```
 
 Plain `pip` works too:
 
 ```bash
-pip install "git+https://github.com/CentroFuturoCiudades/mxcensus.git@v0.1.0"
+pip install "git+https://github.com/CentroFuturoCiudades/mxcensus.git@v0.15.0"
 ```
 
 No data ships with the package — DataFrames are fetched on first use from the
@@ -118,312 +118,38 @@ The `cpv` family holds every census, conteo and intercensal survey INEGI has pub
 | **Censo 2010** (cuestionario ampliado) | `viviendas`, `personas`, `migrantes` | `iter`, `ageb` | `FACTOR` |
 | **II Conteo 2005** (sample) | `viviendas`, `hogares`, `personas` | `iter` | none |
 | **XII Censo General 2000** (sample) | `viviendas`, `personas`, `migrantes` | `iter` | `FACTOR` |
-| **Conteo 1995** (sample) | `personas`, `migrantes` | `iter` | `FAC_POB`, `FAC_VIV`, `FAC_PROM`¹ |
+| **Conteo 1995** (sample) | `personas`, `migrantes` | `iter` | `FAC_POB`, `FAC_VIV`, `FAC_PROM` |
 | **XI Censo General 1990** (10% sample) | `personas` | `iter` | none |
-
-The EIC 2025 is representative of all 2,478 municipalities and the 233 localities of 50k+
-inhabitants; `cpv_estimaciones_2025` is INEGI's national table of estimates. The Censo 2020
-files hold the same values as the legacy `viviendas_NN`/`personas_NN`/`iter_NN`/
-`resargebub_NN` files (checked cell by cell for all 32 states), but as INEGI's text:
-zero-padded codes and the aggregates' `*`/`N/D`/`N/A` markers kept. The legacy loaders
-(`load_census`, `load_extended_*`) and their files are unchanged. The 1990 and 1995 samples
-are person files (each person carries the dwelling's items); `load_cpv_viviendas` builds
-their dwellings from them, one row per dwelling. The 1990–2005 samples have no key column:
-`ID_VIV`, `ID_HOG`, `ID_PERSONA` are derived from INEGI's composite parts.
-
-¹ `FAC_POB` weights persons, `FAC_VIV` dwellings, households and emigrants, `FAC_PROM` the
-health-coverage and disability items; with `harmonize=True` the persons' `FACTOR` is
-`FAC_POB` and the emigrants' `FAC_VIV`.
 
 ```python
 # Analysis-ready, labelled frames indexed by the record key (ID_VIV ⊂ ID_PERSONA / ID_MII)
-viv, per, mig = mxcensus.load_cpv_survey(state=1)          # Aguascalientes
+viv, per, mig = mxcensus.load_cpv_survey(state=1)          # EIC 2025, Aguascalientes
 per["FACTOR"].sum()                                         # 1,534,416 = published POBTOT
-per.groupby("SEXO", observed=True)["FACTOR"].sum()          # weighted, labelled
-per = mxcensus.load_cpv_personas(state=[1, 9])              # several states, concatenated
-raw = mxcensus.load_cpv(table="personas", state=1)          # faithful raw codes
+per = mxcensus.load_cpv_personas(2000, state=1, derived=True)   # any edition; + derived columns
+raw = mxcensus.load_cpv(table="personas", period=2010, state=1)  # faithful raw codes
 
-# Older editions: the same loaders with period=
-viv, per, mig = mxcensus.load_cpv_survey(2020, state=1)
-viv15, per15, _ = mxcensus.load_cpv_survey(2015, state=1)    # no emigrants in 2015
-hog05 = mxcensus.load_cpv_hogares(2005, state=1)            # the only household table
-hog05 = mxcensus.load_cpv_hogares(2005, state=1, derived=True)   # + CLAVIVP_CAT, JEFE_SEXO
-it = mxcensus.load_cpv(table="iter", period=2020, state=1, labels=True)  # '*'/'N/D' → NA
+it = mxcensus.load_cpv_iter(1990, state=1)                  # ITER 1990–2020, by level
+est = mxcensus.load_cpv_estimaciones(nivel="municipal", counts=True)   # the EIC 2025 estimates
 
-# ITER/AGEB by level, on string keys (CVE_ENT, CVE_MUN, CVE_LOC[, CVE_AGEB, CVE_MZA])
-it = mxcensus.load_cpv_iter(2000, state=1)        # NIVEL estatal/municipal/agregado/localidad
-ag = mxcensus.load_cpv_ageb(2010, state=1, nivel="ageb")
-st, mun, loc, ageb = mxcensus.load_cpv_census(2020, state=1)   # = load_census(state=1)
-
-# The published estimates: one row per geography, one column per indicator
-est = mxcensus.load_cpv_estimaciones(nivel="municipal", state=1)
-ee = mxcensus.load_cpv_estimaciones(estimador="ee")          # standard errors (also li/ls/cv)
-# … and the counts behind its percentages (PCN_VPH_PISOTI → VPH_PISOTI = % × base / 100)
-cnt = mxcensus.load_cpv_estimaciones(nivel="municipal", state=1, counts=True)
+cons = mxcensus.cpv_constraints("personas", 2025)           # published indicator → sample cells
+units = mxcensus.cpv_locality_units(2000, 2020)             # localities comparable across editions
 ```
 
-The EIC 2025 expansion factors are calibrated to the estimates: Σ `FACTOR` over the
-microdata equals the published population and occupied-dwelling totals **exactly** at every
-geographic level, and the 2015 and 2010 Σ `FACTOR` equal INEGI's tabulados exactly. (The
-2020 sample expands to the population of inhabited private dwellings, 125.5 M, not the
-census total. CGPV 2000's `FACTOR` is a ratio estimator on preliminary counts, so it comes
-close to the ITER without matching it.) The files are mirrored per state, so `state=` is
-required (an INEGI code or a sequence of them). Variable dictionaries come from INEGI's data
-dictionaries (the FD workbooks of 2005–2025, the PDF annexes of 1990–2000, and the ITER/AGEB
-indicator dictionaries), overlaid by a hand-curated core. Every file is fingerprinted into a
-per-table schema group and validated on load.
+Every edition loads the same way (`period=`, `state=`). The labelled loaders validate
+against INEGI's dictionaries, `harmonize=True` puts the shared core on the latest
+edition's names, and `derived=True` adds analysis columns recoded onto one set of
+categories in every edition (the legacy `load_extended_*` columns and INEGI's own rules
+beside them). `cpv_constraints` and `cpv_ratio_constraints` give, for each indicator an
+edition publishes (its ITER, or the EIC 2025 estimates), the sample records it counts, for
+calibration and small-area estimation. `cpv_municipal_units`/`cpv_locality_units` make
+the editions' geographies comparable. The EIC 2025's weights reproduce its estimates
+exactly; the Censo 2020 files hold the legacy `personas_NN`/`viviendas_NN`/`iter_NN`/
+`resargebub_NN` values, and the legacy loaders are unchanged.
 
-Editions keep INEGI's own column names. `harmonize=True` puts the shared **core** on the
-latest edition's names, which are also the Marco Geoestadístico's: the 2020 `ENT`/`MUN`
-become `CVE_ENT`/`CVE_MUN` and a `CVEGEO` is derived (in the ITER/AGEB also `ENTIDAD`/`LOC`/
-`AGEB`/`MZA` → `CVE_ENT`/`CVE_LOC`/`CVE_AGEB`/`CVE_MZA`, with a 9- or 16-character
-`CVEGEO`), codes the 2015 CSVs left unpadded are padded, and the 2010 keys (serials within
-a state) become national. The ITER indicators an older edition spells differently take the
-newest mnemonic (`cpv_iter_crosswalk()` lists them). Rows and Σ `FACTOR` are unchanged and
-every other column stays verbatim. Each call loads one edition; stack editions yourself:
-
-```python
-import pandas as pd
-
-frames = {p: mxcensus.load_cpv_personas(p, state=1, harmonize=True, labels=False)
-          for p in (2020, 2025)}
-per = pd.concat(frames, names=["PERIOD"])                   # core columns aligned
-```
-
-Only the core (keys, geography, sample design, `FACTOR`, `CLAVIVP`, `SEXO`, `EDAD`,
-`TAMLOC`) is comparable across editions; other items keep each edition's codes.
-
-`derived=True` adds the analysis columns of the legacy `load_extended_*` loaders, computed
-from the raw codes: `EDAD_CAT`, `EDUC`, `CONACT_CAT`, `SITUA_CONYUGAL_CAT`, the health
-coverage (`DHSERSAL_*`), commute (`MED_TRASLADO_*`) and financing (`FINANCIAMIENTO_*`)
-dummies, `DIS_CON`/`DIS_LIMI`, the income and room bins… plus `DISCAPACIDAD`/`LIMITACION`,
-INEGI's own definitions of disability and limitation (the legacy `DIS_CON`/`DIS_LIMI` count
-a difficulty of unknown degree as unspecified, and the disabled as limited too),
-`SIN_DISC_LIM`, INEGI's population without disability, limitation or mental condition (only
-persons with all seven answers unspecified are left out; it reproduces every EIC 2025
-`PSIND_LIM` estimate), and
-`MADRE_EN_VIVIENDA`/`PADRE_EN_VIVIENDA` (whether the mother/father lives in the dwelling), and
-`EDUC_INEGI`, the levels of INEGI's census counts: `EDUC` with technical or commercial
-studies after primaria as their own category (`EDUC` counts them as complete primaria,
-which INEGI's ITER and census tabulados do not; the EIC 2015 tabulados do), and
-`EDUC_INEGI_DET`, `EDUC_INEGI` with «Posbásica» split into media superior, superior and
-posgrado (INEGI's levels: CGPV 2000's ITER and tabulados, the EIC 2015 and Censo 2020
-tabulados and the EIC 2025 estimates). For Censo
-2020 the columns equal `load_extended_*`'s; the EIC 2025 gets the same columns through a
-recode of the items INEGI renumbered (`SITUA_CONYUGAL`, `DHSERSAL`, two country codes).
-EIC 2015, Censo 2010, CGPV 2000 and Conteo 2005 get the columns whose items map onto the
-2020 codes (age, income,
-education, activity, occupation and economic sector, marital status, health coverage,
-birthplace and residence five years earlier, the partner and parents in the dwelling, and
-religion in 2010 and 2000; `cpv_derivations()` lists them per edition; 2005 has age,
-education, health coverage and residence five years earlier), with these differences. Neither edition has `DHSERSAL_IMSS_BIENESTAR`, because
-neither asked about IMSS-PROSPERA/BIENESTAR. The EIC 2015 commute dummies follow its 7
-modes, with 2015's wording for the three that 2020 splits, and its financing dummies follow
-its one item, whose first code merges INFONAVIT, FOVISSSTE and PEMEX. Censo 2010 measured
-disability with another question, so it gets its own `LIM_ACTIVIDAD` («limitación en la
-actividad») instead of `DIS_*`/`DISCAPACIDAD`; it asked only whether the mother/father
-lives in the dwelling, so it gets the co-residence flags but not `IDENT_MADRE_CAT`/
-`IDENT_PADRE_CAT`. The EIC 2015 birthplace and residence columns reproduce INEGI's
-tabulados in every state, and Censo 2010's residence reproduces its ampliado tabulado, up to
-the few hundred persons whose state is not specified: INEGI counts them as not specified,
-the derived columns as another state (the legacy 2020 rule, kept in every edition).
-The coarse occupation (`OCUPACION_C_COARSE`) is the SINCO two-digit group in every edition
-(Censo 2010 codes four digits, EIC 2015 three, as 2020); SINCO 2019 dropped group 59, so
-its few 2010/2015 workers join group 52, where SINCO 2019 put them. CGPV 2000 coded
-occupations in the older CMO: a bundled bridge places each CMO code in a SINCO group, from
-INEGI's SINCO 2011 comparison table and, where that table splits a code, from ENOE's panel
-across INEGI's 2012 switch (the same persons coded CMO one quarter and SINCO the next);
-0.55% of 2000's employed hold codes nothing places («No especificado»). The farm laborers'
-group (91) is where coders differ most: compare it with the farm workers (61) summed. The
-coarse activity is the SCIAN sector, and `SECTOR` groups it into INEGI's three sectors
-(primary, secondary, tertiary; also for CGPV 1990, from its own activity code). Both
-reproduce INEGI's 2010 and 2015 tabulados by occupational division and sector in every
-state. Censo 2010's religion follows 2020's grouping, which counts the
-neo-Israelite movements as evangelical (the 2010 ITER: other religions). CGPV 2000 asked
-religion of persons aged 5 and over only, so its `RELIGION_CAT` has a «Blanco por pase»
-category for the under-5s, and its health coverage (one question per institution) has no
-Seguro Popular or private columns; the Conteo 2005 adds them. The CGPV 2000 columns
-reproduce INEGI's sample tabulados to within a few hundredths of a point. CGPV 1990 and the
-Conteo 1995 get age, education, activity, marital status, birthplace, residence five years
-earlier, hours worked and income (1990's converted to new pesos), 1990's religion, and on
-their dwelling frames the rooms, bedrooms, drainage and (1990) dwelling class; neither asked
-each person about health coverage or disability. Against the 1990 and 1995 ITER, the person
-constraints agree to within a few tenths of a point nationally (1990: under one point in
-every state). The dwelling characteristics run about one point above the ITER nationally.
-The household head's sex is a dwelling item in Censo 2020 and the EIC 2025 (`JEFE_SEXO`);
-for CGPV 2000, the Conteo 2005 and Censo 2010, `load_cpv_viviendas(derived=True)` reads
-the head from the person file into the same column. Every edition from 1995 on also carries
-it on each person, as `HOGJEF_SEXO` (the sex of the person's own household head; in the
-Conteo 2005, whose dwellings can hold several households, it can differ from the
-dwelling's, which is its first household's head). So the constraints count the
-households and the population by the head's sex (`HOGJEF_F`/`HOGJEF_M`,
-`PHOGJEF_F`/`PHOGJEF_M`), and the EIC 2025 ones equal its estimates in every municipality.
-The persons of 2000–2025 also get `HOG_IND`, whether their household is indigenous, by each
-edition's own definition. The household counts if one of the following speaks an indigenous
-language:
-
-- up to the EIC 2015, the head or the partner;
-- in Censo 2020, also the head's mother or father and parents-in-law;
-- in the EIC 2025, also step-parents, grandparents and great-grandparents.
-
-`HOG_IND` reproduces the EIC 2025 estimates (`PHOG_IND`, `HOG_IND`) in every
-municipality. It also reproduces the 2010 and 2020 ITER's `PHOG_IND` in the municipalities
-each sample enumerated completely, and the EIC 2015 tabulado of children aged 0–2 in such
-households in every state. `PHOG_IND` is a constraint for 2005–2025 except 2015. As the
-definitions differ, the crosswalk marks 2005/2010's `PHOG_IND` not comparable with 2020's.
-The households carry `HOG_IND` too, under the same name: the dwellings of 2000 (one row per
-household) and 2010–2025, and the Conteo 2005's households. The loader computes it over the
-household's members, read from the person file. On the EIC 2025 dwellings it is a constraint
-(`HOG_IND`, the indigenous households), equal to the estimates in every municipality.
-The Conteo 2005's dwelling rows are dwellings, while its ITER counts households, so its
-household constraints (`TOTHOG`, `HOGJEF_F`/`HOGJEF_M`) are counted on its household frame:
-`cpv_constraints("hogares", 2005)` on `load_cpv_hogares(2005, derived=True)`, which adds
-the dwelling's class and the household's own head's sex.
-The person sets carry two totals over every sampled person: the legacy `POBTOT` and
-`POBHOG`, the population in households, which is the samples' own universe. Censo 2020's
-weights add up to `POBHOG` exactly, and in the EIC 2025 the two totals are equal. The CGPV
-2000 and Censo 2010 weights add up to neither: they sit above `POBHOG` and within about
-1% of `POBTOT`. CGPV 1990 and the Conteo 1995 publish no `POBHOG`; their samples' universe
-is `OCUPVIVPAR`, the occupants of private dwellings, and the Conteo's person weights add up
-to it in every state but Chiapas (whose weights carry its official total, 17% above its
-ITER).
-CGPV 2000's dwelling file has one row per household (3.1% of the rows share a dwelling),
-so its dwelling constraints count the first household's row (`PRIMER_HOGAR`, from
-`derived=True`) and its household constraints (`TOTHOG`, `HOGJEF_*`) every row. Its
-«Otro» dwellings (locales no construidos para habitación, viviendas móviles) and CGPV
-1990's móviles have their dwelling items recorded, and their ITERs count them, so the 1990 and 2000
-dwelling constraints count every private dwelling, not only the «Vivienda» class the 2010–2025
-cells keep. With the dwellings themselves (`VIVPAR_HAB`, 1990–2000), every CGPV 2000 dwelling
-constraint equals its ITER in the 186 municipalities its sample enumerated completely.
-`cpv_constraints(table, period)` filters the census constraint sets (ITER indicator →
-microdata cells) to the indicators an edition publishes and can reproduce, for
-`get_tables_dict`. Each key is the column the edition publishes the indicator under (a
-column of `load_cpv_iter(period)`, or of the EIC 2025's `load_cpv_estimaciones(counts=True)`):
-an older edition's own name where the crosswalk keeps it apart, e.g. CGPV 2000's `PNACOENT`
-(born outside the entity or the country) or Censo 2010's `PRES2005`. Its education cells
-read `EDUC_INEGI`, so `P15PRI_CO` leaves out the
-technical studies after primaria as the ITER does in 1990, 2000, 2010 and 2020 (the legacy
-`constraints_personas` cell counts them: 352,797 persons, 2.9% of `P15PRI_CO` in 2020).
-For Censo 2010 it adds the ITER's own limitation indicators (`PCON_LIM`,
-`PSIN_LIM`, `PCLIM_*`) and religion groups (`PNCATOLICA`, `POTRAS_REL` on `RELIGION_INEGI`,
-its own classification: the neo-Israelites among the other credos); for the older samples, the same
-indicators on each edition's own items and labels (literacy, indigenous language, school
-attendance, floor, electricity, water, sanitary service, goods) and the indicators each
-ITER publishes under its own name (1990/2000 employed by sector, 2000/2005 age groups and
-attendance, 2000 cooking fuel and tenure, 2005 basic education by sex, the 2005/2010
-Seguro Popular…), each within a fraction of a point of the ITER in most states.
-The EIC 2025 estimates publish most indicators only as percentages (`PCN_*`, two
-decimals). `load_cpv_estimaciones(counts=True)` turns each percentage whose base is known
-into a count (percentage × base / 100, named without the prefix), and those counts are
-constraints too: 2025 has 307 (214 person, 93 dwelling), each equal to the estimates at
-every published geography (a published count exactly; a percentage to its rounding). The
-dwelling set covers walls, roofs, floors, crowding (`OCUP_CUARTO_CAT`), cooking, equipment,
-waste, tenure and deeds, and the household items: the household class (`CLASE_HOG`,
-familiar or not, also on the persons), income from other sources (`INGR_OTROS`), food
-insecurity, forced displacement and Afro-descendant households (`HOG_AFRO`, also on the
-persons). The person set covers five-year age groups by sex (`EDAD_QUIN`), residence in
-2020 by municipality (`LUGAR_RES_5A`), indigenous self-identification, disability by sex and
-age, attendance, education levels, position at work, health affiliation, access
-(`DHSERSAL_AFIL_ACCESO`) and use (`SERSALUD`), the students' and the employed's place
-(`ENT_PAIS_ASI_INEGI`, `ENT_PAIS_TRAB_INEGI`) and time of commute, the students' modes
-(`MED_TRASLADO_ESC_METRO_T`…) and marital status by sex. Eleven percentages have no count:
-a share of children (`PCN_HF`) and three bases the estimates do not give (the employed's
-nine commute modes, `PCN_P3NHLI_CLI`); they are ratio constraints instead (below). Some
-follow the survey's own definitions: born in another state leaves out the unspecified state
-(`ENT_PAIS_NAC_INEGI`; the 2010 and 2020 ITER too, and their residents in another state five
-years earlier, on `LUGAR_RES_5A`), the ISSSTE is federal or state (`DHSERSAL_ISSSTE_T`), the sanitary
-service includes a latrine. In 2020 and 2025 the limitation by activity (`PCLIM_*`) counts
-only the persons with a limitation and no disability (`LIMITACION`), and the disability by
-activity (`PCDISC_*`) includes an unknown degree, as INEGI's 2020 ITER and 2025 estimates do
-(the frozen legacy cells count every «poca dificultad»):
-
-```python
-per = mxcensus.load_cpv_personas(2025, state=1, derived=True)
-per.groupby(["EDAD_CAT", "CONACT_CAT"], observed=True)["FACTOR"].sum()
-tables = mxcensus.get_tables_dict(mxcensus.cpv_constraints("personas", 2025), per.dtypes)
-```
-
-A published share of a base that is not published, or an average, constrains the weights
-without any count: r = scale × Σ w·N / Σ w·D over a geography's records, i.e.
-Σ w·(N − r / scale · D) = 0. `cpv_ratio_constraints(table, period)` gives each one's
-numerator and denominator cells (as `cpv_constraints`), the value a record counts on each
-side instead of 1 (children, years of schooling, occupants, rooms), the columns that must
-be known (who did not say is left out of both sides) and the scale (100 for a
-percentage); `cpv_ratio_terms(frame, ratios)` gives each record's N and D. The EIC 2025
-has 17: the eleven percentages above, the children born alive per woman (`PROM_HNV`), the
-years of schooling (`GRAPROES`, by sex too), the occupants per room and per dwelling
-(`PRO_OCUP_C`, `PROM_OCUP`), each equal to the estimates at every published geography.
-Censo 2010 and 2020 have their ITER's six averages, exact in the municipalities their
-samples enumerated completely. CGPV 2000's occupants per dwelling and per room are counted
-once per dwelling, its rooms less an exclusive kitchen nobody sleeps in (`TOTCUART_INEGI`,
-a number), and are exact in those municipalities too. CGPV 1990's and the Conteo 1995's
-occupants per dwelling (and 1990's per room) are their published counts' ratio truncated;
-1990's extract sits within 0.07, the Conteo's dwelling weights up to 0.21 off (they are
-calibrated apart from its person weights):
-
-```python
-ratios = mxcensus.cpv_ratio_constraints("personas", 2025)
-num, den = mxcensus.cpv_ratio_terms(per, ratios)          # per: labelled, derived=True
-w, mun = per["FACTOR"], per["CVE_MUN"]
-scale = pd.Series({ind: r["scale"] for ind, r in ratios.items()})
-scale * num.mul(w, axis=0).groupby(mun).sum() / den.mul(w, axis=0).groupby(mun).sum()
-```
-
-The places come by municipality, as INEGI's tabulados give them: `LUGAR_RES_5A` (the
-residence five years earlier; 2000, 2010–2025), `LUGAR_ASI` (the place of school; 2015–2025)
-and `LUGAR_TRAB` (the place of work; 2000, 2010–2025) say the same municipality, another
-municipality of the same entity, a municipality not specified, another entity, the United
-States, another country, not specified, or not asked. `ENT_PAIS_ASI_INEGI`/
-`ENT_PAIS_TRAB_INEGI` give the same at the entity level. CGPV 2000 and Censo 2010 asked no
-place of school, and Censo 2010 records the residence and the place of work in an entity
-item and a country item.
-
-`INGTRMEN_SM` (2000, 2010, 2015, 2020) is the monthly income from work in minimum wages, in
-the groups of INEGI's tabulados: each person's municipality has its minimum wage at the
-edition's date (the CONASAMI area — three in 2000 and 2010, two in 2015, the northern border
-zone in 2020 —, the daily wage × 30, as INEGI's catalogs give it). CGPV 2000's groups are
-bounded as its ITER's `P_1SM` … `P10_SM` (below 1, from 1 to 2, above 2 and below 3, from 3
-to 5…), which are 2000 constraints; 2010–2020's as their tabulados (up to 1, above 1 to 2…).
-
-`scripts/check_cpv_tabulados.py` (maintainer) checks the derived columns against INEGI's
-published sample tabulados in every state, both sexes and the nation, and writes
-[docs/cpv/TABULADOS_REPORT.md](docs/cpv/TABULADOS_REPORT.md): Censo 2020, EIC 2015 and Censo
-2010 match to the person (occupation, sector, hours, health affiliation, commute modes,
-marital status, education, migration, the places of residence, school and work by
-municipality, household class, tenure and deeds, financing, co-residence, limitation, income
-in minimum wages); CGPV 2000 within a few hundredths of a point (its public sample's weights;
-Chiapas a few tenths), but for the residence in 1995 by municipality in four states, where
-INEGI counts up to a point more municipal migrants than the answers give. The samples' own
-items are checked too: every EIC 2015 dwelling tabulado by state (materials, rooms and
-occupants, cooking, acquisition, water, drainage, electricity, sanitary service, waste, goods
-and equipment) matches to the dwelling and the occupant, and CGPV 2000's employment
-(inactivity, participation rates, occupation, position, benefits, unemployment rates) and
-migration tabulados (lifetime and recent migrants by state, their causes, the international
-migrants of the `migrantes` file) sit in its band.
-
-The legacy health-coverage dummies `DHSERSAL_Popular_NGenración_SBienestar` and
-`DHSERSAL_IMSS_Prospera/Bienestar` are named `DHSERSAL_SALUD_PUBLICA` and
-`DHSERSAL_IMSS_BIENESTAR` here: the EIC 2025 swapped the two codes and widened the first
-(any public health centre, including INSABI and Seguro Popular).
-Municipalities were created between editions (2,428 in 1995, 2,457 in 2015, 2,478 in 2025;
-none retired):
-`cpv_mun_lineage()` lists each new code with its parents, and
-`cpv_municipal_units(start, end)` maps every municipality to a unit stable between two
-frames, for comparing editions on one geography. Localities change far more (tens of
-thousands dropped, created, renumbered, moved or absorbed between two censuses):
-`cpv_loc_lineage()` lists every link between two locality codes that INEGI's Archivo
-Histórico de Localidades documents from 1990 on, and `cpv_locality_units(start, end)`
-joins the codes two editions (the ITERs 1990–2020, the EIC 2015's and 2025's frames MG
-2015 and MG 2025) must be summed over to compare them:
-
-```python
-units = mxcensus.cpv_locality_units(2000, 2020).set_index("CVEGEO")["UNIT"]
-pob = {p: mxcensus.load_cpv_iter(p, state=7, nivel="localidad")
-           .assign(UNIT=lambda d: d.CVEGEO.map(units).fillna(d.CVEGEO))
-           .groupby("UNIT")["POBTOT"].sum()
-       for p in (2000, 2020)}
-```
-
+**[The CPV user guide](docs/cpv/GUIDE.md)** explains all of it with worked examples: the
+keys and nesting of each edition, harmonizing and stacking editions, the derived columns
+by edition, the ITER and the estimates, the constraints and which total to fit, the
+municipal and locality lineage, and each edition's pitfalls. Its examples run as tests.
 Schema groups, reports and the implementation history live in [docs/cpv/](docs/cpv/).
 
 ### Localities 1900–2020 (Archivo Histórico de Localidades)
@@ -616,7 +342,8 @@ pts = mxcensus.load_mg("lpr", state=9, crs="EPSG:4326")      # reprojected
 ```
 
 Codes (`CVEGEO`, `CVE_ENT`, `CVE_MUN`, …) stay zero-padded strings, so the 2025
-municipalities join the EIC 2025 estimates and microdata on `CVEGEO`. INEGI ships its one
+municipalities join the EIC 2025 microdata on `CVEGEO` and its estimates on
+`CVE_ENT`/`CVE_MUN` (the estimates' `CVEGEO` has nine characters: entity, municipality and locality). INEGI ships its one
 Lambert conformal conic projection under two spellings (a custom `MEXICO_ITRF_2008_LCC` WKT
 on most layers, EPSG:6372 on a few), which geopandas treats as different CRSs.
 `load_mg` therefore returns every layer on EPSG:6372 by default, without moving any
@@ -648,10 +375,10 @@ mxcensus.variables_enigh("concentradohogar", "g06")   # ENIGH variables for a (t
 mxcensus.variables_enigh_core()    # ENIGH analytical-core labels (clase_hog, educa_jefe, …)
 mxcensus.variables_enigh_labels("poblacion", "g08")   # merged dictionary (core over DDI)
 mxcensus.cpv_schema_map()          # CPV-family per-table schema groups (viviendas/personas/…)
-mxcensus.variables_cpv("personas", "g05")   # CPV variables for a (table, schema group): g05 = EIC 2025
-mxcensus.variables_cpv("personas", "g04")   # g04 = Censo 2020, g03 = EIC 2015, g01/g02 = Censo 2010
+mxcensus.variables_cpv("personas", "g09")   # CPV variables for a (table, schema group): g09 = EIC 2025
+mxcensus.variables_cpv("personas", "g08")   # g08 = Censo 2020, g07 = EIC 2015, … g01 = CGPV 1990
 mxcensus.variables_cpv_core()      # CPV analytical-core labels (keys, geography, SEXO, EDAD, …)
-mxcensus.variables_cpv_labels("personas", "g05")   # merged dictionary (core over the FD)
+mxcensus.variables_cpv_labels("personas", "g09")   # merged dictionary (core over the FD)
 ```
 
 The ENOE and ENIGH per-group dictionaries carry a human-readable `Descripción`, the

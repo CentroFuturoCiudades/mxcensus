@@ -8,14 +8,15 @@ left). A session starts by checking `git log`/`git status` against the status be
 
 ## Status (2026-10-14)
 
-- **Units 0–6z, 7a–7z and 8a–8g are done.** `cpv-integration` = `main` = **v0.15.0** (7v–8g:
-  every tabulado checked, the lineage's leftovers and the EIC 2015 edition, CGPV 2000's SINCO
-  groups, the kinship lines; `STEP_8g.md` §Release), pushed.
+- **Units 0–6z, 7a–7z and 8a–8h are done.** `cpv-integration` = **8h** (the CPV user guide,
+  `docs/cpv/GUIDE.md`: `STEP_8h.md`), committed locally, not pushed; `main` = **v0.15.0**
+  (7v–8g, `STEP_8g.md` §Release), pushed and tagged.
 - **Mirror**: every CPV edition 1990–2025 (897 `cpv_` files), the Marco Geoestadístico frames
   1995–2025 and the Archivo Histórico de Localidades (128 `ahl_` files, snapshot 20260918):
   registry **4276** entries, all uploaded and verified. No unit since 7u changed the mirror
   (the lineage, the CMO bridge and the dictionaries are bundled).
-- **Tests**: the Mac's full suite at 8g (v0.15.0): **1976 passed, 1 skipped** (35 min).
+- **Tests**: the Mac's full suite at 8g (v0.15.0): **1976 passed, 1 skipped** (35 min); 8h's
+  4 new tests (`tests/test_cpv_guide.py`) pass apart (20 s).
 - **Releases**:
 
   | version | units | content |
@@ -40,10 +41,11 @@ left). A session starts by checking `git log`/`git status` against the status be
   tabulado workbook in `data/dict/tabulados/`, the FDs and catalogs in `data/dict/fd/`, the
   AHL export `data/dict/ahl/AHL.zip`, the SINCO comparison workbook `data/dict/sinco/`;
   poppler installed. Units since 7v ran here only.
-- **`wsl`** (`ssh wsl`, `~/mxcensus`): at **v0.15.0** (pulled at the release), the full
-  mirror (4276), `hf` installed and logged in — **uploads run from here only**. Its tabulados
-  cache is partial (`check_cpv_tabulados.py` fetches what is missing) and it has **no
-  poppler** (`pdftotext`: Censo 2010's 10_01A and the 1990/1995 FD parsers need it). Stale
+- **`wsl`** (`ssh wsl`, `~/mxcensus`): at **v0.14.0** — **pull `main` (v0.15.0)**: the
+  release's pull waited for a Tailscale re-login —, the full mirror (4276), `hf` installed
+  and logged in — **uploads run from here only**. Its tabulados cache is partial
+  (`check_cpv_tabulados.py` fetches what is missing) and it has **no poppler** (`pdftotext`:
+  Censo 2010's 10_01A and the 1990/1995 FD parsers need it). Stale
   leftovers that can be deleted (ask first): `~/mxcensus3c`, `~/sweep_7c.py`/`.json`,
   `~/pytest_7f.log`, `~/pytest_7r.log`, `/tmp/enoe_panel_2012.pkl`, and the untracked
   `build_cpv_*.log` in `~/mxcensus`.
@@ -52,7 +54,7 @@ left). A session starts by checking `git log`/`git status` against the status be
 
 ## Kickoff prompt for the next session
 
-> Continue the CPV census-family work in this repo (branch cpv-integration = main =
+> Continue the CPV census-family work in this repo (branch cpv-integration = 8h; main =
 > v0.15.0). Read docs/cpv/HANDOFF.md first, then agree with me which next unit to
 > take (candidates in HANDOFF §Next) before implementing it, following the session protocol
 > in docs/cpv/PLAN.md. Use .venv/bin/python, not uv run. Run wsl tasks without asking; ask
@@ -62,14 +64,17 @@ left). A session starts by checking `git log`/`git status` against the status be
 
 Every edition is in the mirror, derived and constrained, every published sample tabulado
 value of 2000, 2010, 2015 and 2020 enters a compared cell, and the locality lineage reads
-everything the AHL decides (8g). What is left is small items, INEGI's own, or new ideas:
+everything the AHL decides (8g), and the guide (8h) shows how to use all of it. What is
+left is small items, INEGI's own, or new ideas:
 
 1. **Conditional small items**: the hand-curated minimum-wage tables
    (`cpv_derived._SALARIOS_MINIMOS`) as a generated YAML, only if a later edition needs one
    (none does: the EIC 2025 publishes no income, the 1990/1995 ITERs no income groups); 8e's
    leftovers (`STEP_8e.md` §Left: the farm laborer boundary 61/91 differs between INEGI's
    coders — documented, kept as INEGI's table; 5190/6290, 0.51%, not placed; no SINCO
-   subgroup for 2000).
+   subgroup for 2000); a public `cpv_constraint_terms(frame, constraints)`, the count
+   constraints' sibling of `cpv_ratio_terms` (each record's 0/1 term: the guide's `design()`
+   helper, `STEP_8h.md` §Left).
 2. **Not reproducible / nothing to do in the mirror** (documented): the infant mortality of
    2000, 2010 and 2015 (`STEP_7o.md`, `STEP_7z.md`: INEGI's rule is not in the sample); CGPV
    2000's Chiapas (its records are not those of INEGI's tabulados); the 2000/2010/2020
@@ -78,9 +83,9 @@ everything the AHL decides (8g). What is left is small items, INEGI's own, or ne
    unpaired, 31 links on an unverified number, 4 rival claims, codes INEGI reused, the 16
    absorptions MG 2025 still lists, kept by the user's choice; `CONFIRMED` stays per edition,
    8c's question closed by the user).
-3. **Ideas not yet scoped** (the session's, not the user's): a user guide for the CPV family
-   (loaders, `derived=True`, constraints, the lineage) in `docs/`; a cross-edition ITER panel
-   on the stable units (`cpv_municipal_units`, `cpv_locality_units`).
+3. **Ideas not yet scoped** (the session's, not the user's): a cross-edition ITER panel on
+   the stable units (`cpv_municipal_units`, `cpv_locality_units`: the guide's §6 recipe for
+   every indicator the crosswalk pairs); the next release (8h only, docs: no hurry).
 
 ## Open questions for the user
 
@@ -128,6 +133,14 @@ None.
   `_LEGACY_NA`; state 01 has no `N/D`, so only a 32-state run covers it). 6c's NA guard in
   `aggregate.impute_collective` made `load_census` equal `load_cpv_census(2020)` in all 32
   states.
+
+- **The user guide** (`docs/cpv/GUIDE.md`, 8h) is tested: its `pycon` examples are doctests
+  on the mirror's real outputs (`tests/test_cpv_guide.py`, `_REAL`: the 18 files `_NEEDED`
+  lists), and its two generated tables (derived columns by edition, constraints by edition)
+  are rebuilt offline. A unit that changes a loader's output, adds a derived column or a
+  constraint fails it: rerun the example and paste its new output (pandas display width 88,
+  20 columns: `_OPTIONS`), or paste `derived_matrix()`/`constraint_counts()` between the
+  markers. A new user-facing feature belongs in the guide too (the README only links it).
 
 ### Builds and dictionaries (`build_cpv.py`, `_dict_fd.py`, `_dbf.py`)
 

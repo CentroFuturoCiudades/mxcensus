@@ -204,5 +204,6 @@ name nearby*). The corrections table adds *a part* and *the other way round*.
 
 With the user's go-ahead (2026-10-14), 7v–8g as **0.15.0** (`pyproject.toml`, `uv.lock`):
 the Mac's full suite on 8g, **1976 passed, 1 skipped** (35 min); `main` fast-forwarded to
-the release commit, tagged `v0.15.0` and pushed with `cpv-integration`; `wsl` pulled. No
-data changed (registry 4276; the lineage, the CMO bridge and the dictionaries are bundled).
+the release commit, tagged `v0.15.0` and pushed with `cpv-integration`; `wsl`'s pull waited
+for a Tailscale re-login (HANDOFF). No data changed (registry 4276; the lineage, the CMO
+bridge and the dictionaries are bundled).

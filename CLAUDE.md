@@ -9,7 +9,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 uv pip install -e ".[dev]"            # or: uv sync --extra dev --extra notebook
 
 # Run tests (DENUE suite tests/test_denue.py ~93 tests; ENOE tests/test_enoe.py; ENIGH tests/test_enigh.py;
-# CPV tests/test_cpv.py (+ tests/test_cpv_derived.py); MG tests/test_mg.py; AHL tests/test_ahl.py; CLI tests/test_cli.py; frozen 2020 path tests/test_census_legacy.py)
+# CPV tests/test_cpv.py (+ tests/test_cpv_derived.py, the user guide's examples tests/test_cpv_guide.py); MG tests/test_mg.py; AHL tests/test_ahl.py; CLI tests/test_cli.py; frozen 2020 path tests/test_census_legacy.py)
 pytest
 pytest tests/test_denue.py        # single file
 
@@ -495,6 +495,7 @@ primaria, as INEGI's ITER in 1990–2020; the frozen legacy cell overshoots it b
 **8e**: CGPV 2000's occupation in SINCO groups — `OCUPACION_C_COARSE` for 2000 through a bundled CMO → SINCO bridge (`cpv_cmo_sinco.csv`, `scripts/build_cmo_sinco.py`): INEGI's SINCO 2011 comparison table (from the Internet Archive; 447 of 2000's 460 codes, 99.45% of its employed), ENOE's panel across the 2012 switch for the 37 codes the table splits (17.3%), the CMO subgroup's group or 99 for the 13 it lacks (0.55% not placed); on ENOE within ±0.4 points per group but the farm laborers (`docs/cpv/STEP_8e.md`).
 **8f**: the kinship lines and the codes the FDs leave out — new derived `LINEA_PARENTESCO` (CGPV 1990, Conteo 2005, Censo 2010, EIC 2015, Censo 2020, EIC 2025: Censo 2020's nine lines of its tabulado 13-02 by each catalog's labels; = 13-02's national row exactly, Censo 2010's 12_04A as sums; the 2010/2020 kinship checks read it) and `build_cpv._UNDOCUMENTED` (1990 `TIP_HOGAR` 6 = the dwellings without household data, 2000 `ABANESCO` 8 = the cause not specified, 1995 `ZONA` 06/07 = Veracruz's zones; 4 dictionary entries) (`docs/cpv/STEP_8f.md`).
 **8g**: the locality lineage's last leftovers — a part's move is a separation (Villa de Pozos's seat, 2024: San Luis Potosí keeps its code), absorptions stated the wrong way round dropped (El Caudillo, El Chaparral, two Ensenada ranches), the 311 statements of moves between states the parser skipped (3-digit state codes, no «con», only the state: the only namesake within 10 km), the statements without a date (the other record's date, else the record's neighbours: 32 of 36); 32,905 → 32,933 links, 30 newly confirmed, contradicted at 2020 → 2025 21 → 16; `load_ahl_poblacion` unchanged; the rest is INEGI's, documented as final (`docs/cpv/STEP_8g.md`). **0.15.0** (2026-10-14) merged 7v–8g.
+**8h**: the CPV user guide — `docs/cpv/GUIDE.md` (editions, loaders, keys, harmonizing and stacking, the derived columns by edition, the ITER and the estimates, the constraints and which total to fit, ratio constraints, the MG and the municipal/locality units, the AHL, edition notes); its `pycon` examples are doctests on the mirror's real outputs, run by `tests/test_cpv_guide.py` (`_REAL`, 18 files), and its two generated tables (`derived_matrix()`, `constraint_counts()`, between `<!-- … -->` markers) are rebuilt offline; the README's CPV section is an overview that links it.
 Next: per HANDOFF.
 **Before working on it read `docs/cpv/HANDOFF.md`** (status, next unit, kickoff prompt) and
 `docs/cpv/PLAN.md` (design, unit table, session protocol); `docs/cpv/STEP_0_probe.md` records
