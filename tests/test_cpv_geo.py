@@ -189,6 +189,19 @@ def test_locality_lineage_document():
     # listed codes with a digit dropped («05190133») or without a comma («…0359160530378…»)
     assert _links(lin, "050190133", "050190001")["PERIOD"].tolist() == ["2005"]
     assert _links(lin, "160530378", "160530001")["CONFIRMED"].tolist() == [True]
+    # 8g: Villa de Pozos's seat is a part of San Luis Potosí (the city keeps its code), its
+    # statement dated by Villa de Pozos's decree; El Caudillo's reversed «Forma parte»; moves
+    # between states written another way (3-digit state codes, no «con»), one named only by
+    # its state (Reforma el Alto, 1,008 inhabitants in 1995, back in San Luis Potosí in 2000)
+    row = _links(lin, "240590001", "240280001").iloc[0]
+    assert (row["KIND"], row["PERIOD"], str(row["DATE"].date()), row["CONFIRMED"]) == (
+        "separation", "2025", "2024-07-22", True)
+    assert _links(lin, "240280001", "240590001").empty
+    assert _links(lin, "240470085").empty
+    assert _links(lin, "240470089", "240470085")["PERIOD"].tolist() == ["1995"]
+    assert _links(lin, "190050852", "280140570")["CONFIRMED"].tolist() == [True]
+    assert _links(lin, "301230911", "240160023")["PERIOD"].tolist() == ["2000"]
+    assert _links(lin, "150820352").empty                   # Guerrero's namesake is 165 km off
     assert len(loc_doc()) == len(lin)
     assert mxcensus.cpv_loc_lineage is cpv_loc_lineage
 
@@ -373,6 +386,44 @@ def test_loc_lineage_parser():
             ("Esta localidad anteriormente tenía la clave 0135.", "antes", ("0135",)),
             ("Anteriormente tenia la clave 250170584.", "antes", ("250170584",))):
         assert st(text)[key] == [code], text
+    # 8g: another state written another way; named only by its state; a part's territory
+    for text, code in (
+            ("Viene del estado Nuevo León (019) del municipio Anáhuac (005) con clave de "
+             "localidad (0852).", ("19", "005", "0852")),
+            ("Viene del Estado de Baja California Sur (03) municipio de Mulegé (002) clave "
+             "(0890).", ("03", "002", "0890")),
+            ("Viene del estado de Zacatecas (032), del municipio Melchor Ocampo (0027), con "
+             "clave de localidad la Morita (0038).", ("32", "027", "0038")),
+            ("Viene del Estado de Coahuila de Zaragoza (05), municipio (027), Ramos Arispe "
+             "(0154).", ("05", "027", "0154")),
+            ("Viene del Estado Tamaulipas (028) municipio Mainero (020) con clave de localidad "
+             "(0073).", ("28", "020", "0073")),
+            ("Viene del estado de San Luis Potosí (24) del de municipio Salinas (025) con clave "
+             "de localidad (0142).", ("24", "025", "0142"))):
+        assert st(text)["viene_estado"] == [code], text
+    assert st("Pasa al estado de Sinaloa (025), en el municipio de Concordia(004) con clave de "
+              "localidad (0657)")["pasa_estado"] == [("25", "004", "0657")]
+    assert st("Conteo de 1995. Viene del Estado de Jalisco con clave (140530848).") == {
+        "viene_clave": [("", "140530848")]}
+    for text, key, got in (
+            ("Conteo de 1995. Pasa al Estado Tabasco", "pasa_estado_sin", ("Tabasco", "", "")),
+            ("Conteo de 1995. Pasa al Estado de Durango (10).", "pasa_estado_sin",
+             ("Durango", "10", "")),
+            ("Censo de 2000. Pasa al Estado de Zacatecas (32) municipio (051).",
+             "pasa_estado_sin", ("Zacatecas", "32", "051")),
+            ("Censo de 2010. Pasa al Estado de Zacatecas (32) municipio (053) Villa González "
+             "Ortega.", "pasa_estado_sin", ("Zacatecas", "32", "053")),
+            ("Conteo de 1995. Viene del Estado de Guerrero", "viene_estado_sin",
+             ("Guerrero", "", ""))):
+        assert st(text) == {key: [got]}, text
+    assert "pasa_estado_sin" not in st("Pasa al Estado de Zacatecas (32) con clave de localidad "
+                                       "(0524).")
+    assert [b.state_code(n) for n in ("Michoacán de Ocampo", "Baja California Sur",
+                                      "Baja California", "Coahuila de Zaragoza", "México",
+                                      "Ninguno")] == ["16", "03", "02", "05", "15", ""]
+    assert st("Parte del territorio de la localidad San Luis Potosí (0001) del municipio de San "
+              "Luis Potosí (028) se integra al municipio de Villa de Pozos (059) con clave de "
+              "localidad (0001).") == {"parte_integra": [("0001", "028", "059", "0001")]}
     # renumbering inside a record: «hasta» closes a code, «cambia» opens the next
     rows = [b.Row("230060378", i, "San Juan", t, *b.event(t), b.statements(t)) for i, t in (
         (1, "Censo de 1980. Hasta este evento la localidad estuvo registrada con clave 230060044."),
@@ -486,6 +537,64 @@ def test_loc_lineage_unkeyed_moves():
     assert counts["one side, by name"] == 1 and left.empty
     table, rivals, fixes = b.lineage(rows, links + extra, latest)
     assert table.set_index("FROM").loc["040032696", "CONFIRMED"]
+
+
+def test_loc_lineage_dating():
+    # 8g: a row without a date takes the other record's date of the same link inside its
+    # window, else its next row's when the window is one edition; else it stays undated
+    from datetime import date
+    b, rows, links = _history(
+        ("240280001", [(19, "San Luis Potosí", "Censo de 2020."),
+                       (20, "San Luis Potosí", "Parte del territorio de la localidad San Luis "
+                        "Potosí (0001) del municipio de San Luis Potosí (028) se integra al "
+                        "municipio de Villa de Pozos (059) con clave de localidad (0001).")]),
+        ("240590001", [(1, "Villa de Pozos", "Decreto No. 1074 del 22 de julio de 2024. Viene "
+                        "del municipio de San Luis Potosí (028) con clave de localidad (0001).")]),
+        ("190440417", [(1, "Carlos y Abel", "Se desconurba de la localidad 190440001."),
+                       (2, "Carlos y Abel", "Censo de 2010.")]),
+        ("130770001", [(1, "Tepeji", "Conteo de 2005."),
+                       (2, "Tepeji", "A esta localidad se conurba la 130770106."),
+                       (3, "Tepeji", "Censo de 2010.")]))
+    fixed, log = b.date_statements(rows, links)
+    days = {(l.source, l.target): l.day for l in fixed}
+    assert days[("240590001", "240280001")] == date(2024, 7, 22)     # Villa de Pozos's decree
+    assert days[("190440417", "190440001")] == date(2010, 6, 12)     # the record starts there
+    assert days[("130770106", "130770001")] is None     # 17–30 October 2005 or the Censo 2010
+    assert dict(zip(log["RECORD"], log["RULE"])) == {
+        "240280001": "the other record's date", "190440417": "its neighbours"}
+    assert next(r for r in rows if r.code == "240280001" and r.indice == 20).day == date(
+        2024, 7, 22)
+    # the old record calls it a part: the new record's move is a separation, confirmed
+    table, rivals, fixes = b.lineage(rows, fixed, date(2026, 9, 18))
+    got = table.set_index(["FROM", "TO"])
+    assert (got.loc[("240590001", "240280001"), ["KIND", "PERIOD", "CONFIRMED"]].tolist()
+            == ["separation", "2025", True])
+    assert ("240280001", "240590001") not in got.index
+    assert fixes.set_index("FROM").loc["240280001", "RULE"] == "a part"
+
+
+def test_loc_lineage_unkeyed_states():
+    # 8g: a move named only by its state links to the only namesake there within 10 km
+    from datetime import date
+    b, rows, links = _history(
+        ("300370009", [(1, "Plan Chico", "Censo de 1990. Localidad de una vivienda."),
+                       (2, "Plan Chico", "Conteo de 1995. Pasa al Estado de Puebla (21).")]),
+        ("210890021", [(1, "Plan Chico", "Censo de 1990."), (2, "Plan Chico", "Conteo de 1995.")]),
+        ("210990005", [(1, "Plan Chico", "Censo de 1990."), (2, "Plan Chico", "Conteo de 1995.")]),
+        ("150820352", [(1, "Cuadrilla Vieja", "Censo de 1990. Localidad deshabitada."),
+                       (2, "Cuadrilla Vieja", "Conteo de 1995. Pasa al estado de Guerrero "
+                        "(12).")]),
+        ("120400340", [(1, "Cuadrilla Vieja", "Censo de 1990. Localidad deshabitada."),
+                       (2, "Cuadrilla Vieja", "Conteo de 1995. Localidad deshabitada.")]))
+    xy = {"300370009": (20.10, -97.80), "210890021": (20.10, -97.80),
+          "210990005": (19.50, -97.20), "150820352": (18.90, -100.20),
+          "120400340": (17.90, -99.40)}
+    extra, counts, left = b.pair_unkeyed(rows, links, date(2026, 9, 18), xy)
+    assert {(l.source, l.target) for l in extra} == {("300370009", "210890021")}
+    assert counts["one side, by name and place"] == 1
+    assert dict(zip(left["RECORD"], left["WHY"])) == {"150820352": "none of that name nearby"}
+    extra, counts, left = b.pair_unkeyed(rows, links, date(2026, 9, 18))   # no coordinates
+    assert not extra and set(left["WHY"]) == {"none of that name nearby"}
 
 
 def test_loc_lineage_rival_claims():
@@ -622,13 +731,26 @@ def test_loc_lineage_own_records():
         # a move into a municipality the MG 2020 frame has first (Emiliano Zapata, Chiapas)
         ("070020003", [(1, "Familia Alfaro", "Decreto No. 008 del 23 de noviembre de 2011. "
                         "Pasa al municipio de Emiliano Zapata (123) con clave de localidad "
-                        "(0029).")]))
+                        "(0029).")]),
+        # 8g: each stated absorbed by the other; only El Caudillo is counted afterwards
+        ("240470089", [(1, "La Zorra", "Conteo de 1995. Forma parte de la localidad El Caudillo "
+                        "(La Zorra) (0085).")]),
+        ("240470085", [(1, "El Caudillo", "Conteo de 2005. Forma parte de la localidad "
+                        "240470089.")]),
+        # both counted afterwards (San Miguel Vindhó, Santa María Ilucán): both kept
+        ("130760027", [(1, "Santa María Ilucán", "Conteo de 1995. Se conurba a San Miguel "
+                        "Vindho (0024).")]),
+        ("130760024", [(1, "San Miguel Vindhó", "Censo de 2000. Se conurba a Santa María "
+                        "Ilucán (0027).")]))
     counted = {"260300535": [date(2010, 6, 12), date(2020, 3, 15)],
                "160530417": [date(2005, 10, 17), date(2010, 6, 12)],
                "290260005": [date(2005, 10, 17), date(2010, 6, 12)],
                "020013944": [date(2010, 6, 12)],
                "090130236": [date(2010, 6, 12), date(2020, 3, 15)],
-               "990010002": [date(2010, 6, 12), date(2020, 3, 15)]}
+               "990010002": [date(2010, 6, 12), date(2020, 3, 15)],
+               "240470085": [date(2000, 2, 14), date(2005, 10, 17), date(2020, 3, 15)],
+               "130760024": [date(1995, 11, 5), date(2000, 2, 14), date(2020, 3, 15)],
+               "130760027": [date(2010, 6, 12), date(2020, 3, 15)]}
     table, rivals, fixes = b.lineage(rows, links, date(2026, 9, 18), counted, {"07123": "2020"})
     got = dict(zip(zip(table["FROM"], table["TO"], table["KIND"].astype(str)), table["PERIOD"]))
     assert got[("050200772", "050200001", "absorption")] == "2010"
@@ -658,6 +780,11 @@ def test_loc_lineage_own_records():
     assert not [k for k in got if "150820106" in k[:2]]
     assert rule[("150820106", "code")] == rule[("151230233", "code")] == "moved and moved back"
     assert got[("040030947", "040110182", "code")] == got[("040110182", "040030947", "code")]
+    assert got[("240470089", "240470085", "absorption")] == "1995"
+    assert not [k for k in got if k[0] == "240470085"]
+    assert rule[("240470085", "absorption")] == "the other way round"
+    assert ("130760027", "130760024", "absorption") in got
+    assert ("130760024", "130760027", "absorption") in got     # moved: counted in 2000
 
 
 def test_loc_lineage_large_units():
