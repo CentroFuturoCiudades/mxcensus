@@ -8,15 +8,14 @@ left). A session starts by checking `git log`/`git status` against the status be
 
 ## Status (2026-10-14)
 
-- **Units 0–6z, 7a–7z and 8a–8g are done.** `cpv-integration` = **8g** (the locality
-  lineage's last leftovers: Villa de Pozos a part, absorptions stated the wrong way round, the
-  moves between states, the undated statements: `STEP_8g.md`), committed locally, not pushed;
-  `main` = **v0.14.0** (7u). 7v–8g wait for the 0.15.0 release (candidate 1).
+- **Units 0–6z, 7a–7z and 8a–8g are done.** `cpv-integration` = `main` = **v0.15.0** (7v–8g:
+  every tabulado checked, the lineage's leftovers and the EIC 2015 edition, CGPV 2000's SINCO
+  groups, the kinship lines; `STEP_8g.md` §Release), pushed.
 - **Mirror**: every CPV edition 1990–2025 (897 `cpv_` files), the Marco Geoestadístico frames
   1995–2025 and the Archivo Histórico de Localidades (128 `ahl_` files, snapshot 20260918):
   registry **4276** entries, all uploaded and verified. No unit since 7u changed the mirror
   (the lineage, the CMO bridge and the dictionaries are bundled).
-- **Tests**: the Mac's full suite at 8g: **1976 passed, 1 skipped** (34 min).
+- **Tests**: the Mac's full suite at 8g (v0.15.0): **1976 passed, 1 skipped** (35 min).
 - **Releases**:
 
   | version | units | content |
@@ -32,7 +31,7 @@ left). A session starts by checking `git log`/`git status` against the status be
   | 0.12.0 | 7c–7s | 2000's places and minimum wages, ratio constraints, 2000 per dwelling, constraint keys, FD quantities and codes, tabulado checks |
   | 0.13.0 | 7t | the locality lineage |
   | 0.14.0 | 7u | the Archivo Histórico de Localidades |
-  | *0.15.0* | 7v–8g | *pending*: every tabulado checked (7v–7z), the lineage's leftovers and the EIC 2015 edition (8a–8d, 8g), CGPV 2000's SINCO groups (8e), the kinship lines and undocumented codes (8f) |
+  | 0.15.0 | 7v–8g | every tabulado checked (7v–7z), the lineage's leftovers and the EIC 2015 edition (8a–8d, 8g), CGPV 2000's SINCO groups (8e), the kinship lines and undocumented codes (8f) |
 
 ## Hosts
 
@@ -41,7 +40,7 @@ left). A session starts by checking `git log`/`git status` against the status be
   tabulado workbook in `data/dict/tabulados/`, the FDs and catalogs in `data/dict/fd/`, the
   AHL export `data/dict/ahl/AHL.zip`, the SINCO comparison workbook `data/dict/sinco/`;
   poppler installed. Units since 7v ran here only.
-- **`wsl`** (`ssh wsl`, `~/mxcensus`): at **v0.14.0** (pull to `main` after the next push), the full
+- **`wsl`** (`ssh wsl`, `~/mxcensus`): at **v0.15.0** (pulled at the release), the full
   mirror (4276), `hf` installed and logged in — **uploads run from here only**. Its tabulados
   cache is partial (`check_cpv_tabulados.py` fetches what is missing) and it has **no
   poppler** (`pdftotext`: Censo 2010's 10_01A and the 1990/1995 FD parsers need it). Stale
@@ -53,8 +52,8 @@ left). A session starts by checking `git log`/`git status` against the status be
 
 ## Kickoff prompt for the next session
 
-> Continue the CPV census-family work in this repo (branch cpv-integration = 8g; main =
-> v0.14.0). Read docs/cpv/HANDOFF.md first, then agree with me which next unit to
+> Continue the CPV census-family work in this repo (branch cpv-integration = main =
+> v0.15.0). Read docs/cpv/HANDOFF.md first, then agree with me which next unit to
 > take (candidates in HANDOFF §Next) before implementing it, following the session protocol
 > in docs/cpv/PLAN.md. Use .venv/bin/python, not uv run. Run wsl tasks without asking; ask
 > me before committing, pushing, installing packages or uploading.
@@ -63,24 +62,15 @@ left). A session starts by checking `git log`/`git status` against the status be
 
 Every edition is in the mirror, derived and constrained, every published sample tabulado
 value of 2000, 2010, 2015 and 2020 enters a compared cell, and the locality lineage reads
-everything the AHL decides (8g). What is left is the release, small items or INEGI's own:
+everything the AHL decides (8g). What is left is small items, INEGI's own, or new ideas:
 
-1. **The 0.15.0 release** (recommended): 7v–8g are on the branch. 7v–7z changed only the
-   check script; 8a–8d and 8g the bundled locality lineage (`cpv_loc_lineage()` and
-   `cpv_locality_units()`: 8a 49 more links, 8b 232 fewer — five wrong joins of large
-   localities gone —, 8c a 2015 edition, 8d 100 fewer with 199 newly confirmed, 8g 28 more
-   with 30 newly confirmed — Villa de Pozos a part, the moves between states); 8e 2000's
-   `OCUPACION_C_COARSE`; 8f `LINEA_PARENTESCO` and four dictionary entries. Steps: the version
-   bump (`pyproject.toml`, `uv.lock`, PLAN/STEP_8g/HANDOFF), the suite (the Mac's at 8g:
-   1976 passed), fast-forward `main`, tag `v0.15.0`, push `main`, `cpv-integration` and
-   the tag (ask first), pull `wsl`. No data upload.
-2. **Conditional small items**: the hand-curated minimum-wage tables
+1. **Conditional small items**: the hand-curated minimum-wage tables
    (`cpv_derived._SALARIOS_MINIMOS`) as a generated YAML, only if a later edition needs one
    (none does: the EIC 2025 publishes no income, the 1990/1995 ITERs no income groups); 8e's
    leftovers (`STEP_8e.md` §Left: the farm laborer boundary 61/91 differs between INEGI's
    coders — documented, kept as INEGI's table; 5190/6290, 0.51%, not placed; no SINCO
    subgroup for 2000).
-3. **Not reproducible / nothing to do in the mirror** (documented): the infant mortality of
+2. **Not reproducible / nothing to do in the mirror** (documented): the infant mortality of
    2000, 2010 and 2015 (`STEP_7o.md`, `STEP_7z.md`: INEGI's rule is not in the sample); CGPV
    2000's Chiapas (its records are not those of INEGI's tabulados); the 2000/2010/2020
    cuestionario-básico tabulados (the census, not the sample: the ITER covers them, 7g); the
@@ -88,7 +78,7 @@ everything the AHL decides (8g). What is left is the release, small items or INE
    unpaired, 31 links on an unverified number, 4 rival claims, codes INEGI reused, the 16
    absorptions MG 2025 still lists, kept by the user's choice; `CONFIRMED` stays per edition,
    8c's question closed by the user).
-4. **Ideas not yet scoped** (the session's, not the user's): a user guide for the CPV family
+3. **Ideas not yet scoped** (the session's, not the user's): a user guide for the CPV family
    (loaders, `derived=True`, constraints, the lineage) in `docs/`; a cross-edition ITER panel
    on the stable units (`cpv_municipal_units`, `cpv_locality_units`).
 

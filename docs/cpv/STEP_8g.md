@@ -199,3 +199,10 @@ name nearby*). The corrections table adds *a part* and *the other way round*.
 - The 16 absorptions at 2020 → 2025 that the MG 2025 frame still lists (the user's decision:
   kept); Campeche's records that end at the Censo 2010 (the AHL's gap); the 11 pairs either
   side of the 2015 cut; the 4 undated links; the 6 unread state statements.
+
+## Release
+
+With the user's go-ahead (2026-10-14), 7v–8g as **0.15.0** (`pyproject.toml`, `uv.lock`):
+the Mac's full suite on 8g, **1976 passed, 1 skipped** (35 min); `main` fast-forwarded to
+the release commit, tagged `v0.15.0` and pushed with `cpv-integration`; `wsl` pulled. No
+data changed (registry 4276; the lineage, the CMO bridge and the dictionaries are bundled).

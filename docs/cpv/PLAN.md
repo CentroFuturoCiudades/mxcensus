@@ -150,7 +150,8 @@ its files were uploaded and it was merged into `main` as 0.14.0 (2026-10-12, aft
 8d (HANDOFF candidate 2's leftovers of the locality lineage, the user's choice over the 0.15.0 release, the small derived columns and the 2000 occupation bridge) followed in a new session the same day, after 8c's commit.
 8e (HANDOFF candidate 1's 2000 occupation bridge, the user's choice over the 0.15.0 release, the small derived columns and the lineage leftovers) followed in the same session, after 8d's commit.
 8f (HANDOFF candidate 1's small items — 1990's `TIP_HOGAR` 6 and the kinship lines —, the user's choice over the lineage and 8e leftovers) followed on 2026-10-14; that session also rewrote `HANDOFF.md` to its current state only (the unit history is this table and the `STEP_*.md`). The user committed 8f only: the 0.15.0 release (7v–8f) waits.
-8g (HANDOFF candidate 2's leftovers of the locality lineage, the user's choice over the 0.15.0 release, a CPV user guide and a cross-edition ITER panel; scoped on the probe — the wrong kinds the check shows, the undated statements, the rest documented as final — and widened to the moves between states the parser skipped; the 2025 absorptions MG 2025 still lists kept and `CONFIRMED` per edition, the user's answers) followed the same day in a new session.
+8g (HANDOFF candidate 2's leftovers of the locality lineage, the user's choice over the 0.15.0 release, a CPV user guide and a cross-edition ITER panel; scoped on the probe — the wrong kinds the check shows, the undated statements, the rest documented as final — and widened to the moves between states the parser skipped; the 2025 absorptions MG 2025 still lists kept and `CONFIRMED` per edition, the user's answers) followed the same day in a new session;
+7v–8g were merged into `main` as 0.15.0 (2026-10-14, after the Mac's full-suite run).
 
 ### Session protocol
 
