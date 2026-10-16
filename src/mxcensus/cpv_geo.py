@@ -1,10 +1,13 @@
 """Cross-edition municipal and locality geography for the CPV family (1990–2025).
 
-Municipalities split between censuses: Mexico had 2,428 in the 1995 frame and 2,478 in
-2025. A split keeps the parent's code and gives the seceding part a new one; codes are
-never retired. The lineage of every new code comes from the Marco Geoestadístico polygons
-(``_yaml/cpv_mun_lineage.yaml``, built by ``scripts/build_geo_crosswalk.py``): which
-municipalities of the previous frame its territory came from, and in what shares.
+Municipalities split between censuses: Mexico had 2,403 in the 1990 census, 2,428 in the
+1995 frame and 2,478 in 2025. A split keeps the parent's code and gives the seceding part a
+new one; codes are never retired. The lineage of every new code comes from the Marco
+Geoestadístico polygons (``_yaml/cpv_mun_lineage.yaml``, built by
+``scripts/build_geo_crosswalk.py``): which municipalities of the previous frame its
+territory came from, and in what shares. The 1990 census has no frame: its step to 1995
+comes from the localities (8i) — the 25 municipalities the 1990 ITER lacks take as parents
+the municipalities whose localities moved into them, with shares of population.
 
 - :func:`cpv_mun_lineage` — that lineage as a table.
 - :func:`cpv_municipal_units` — stable municipal units between two editions: every
@@ -19,9 +22,6 @@ Example — municipal population 2000 vs 2020 on common units::
     pob = {p: f.reset_index().assign(CVEGEO=lambda d: d.CVE_ENT + d.CVE_MUN)
                .merge(units, on="CVEGEO").groupby("UNIT")["POBTOT"].sum()
            for p, f in it.items()}
-
-The 1990 census has no frame, so its municipalities have no lineage here (its codes are a
-subset of 1995's).
 
 Localities change far more: between two censuses tens of thousands are dropped, created,
 renumbered, moved to a new municipality, absorbed by a growing town or split off again.
@@ -68,11 +68,19 @@ def _lineage() -> pd.DataFrame:
 
 def cpv_mun_lineage() -> pd.DataFrame:
     """Every municipality created between two consecutive Marco Geoestadístico frames
-    (1995, 2000, 2005, 2010, 2020, 2025), one row per parent: ``PERIOD_FROM`` /
-    ``PERIOD_TO`` (the frames it falls between), ``CVEGEO`` (the new municipality, entity +
-    municipality), ``PARENT`` (a municipality of ``PERIOD_FROM`` covering at least 5% of
-    it), ``SHARE_NEW`` (that share of the new municipality's area) and ``SHARE_PARENT``
-    (the share of the parent's area that went to it)."""
+    (1995, 2000, 2005, 2010, 2015, 2020, 2025) or between the 1990 census and the 1995
+    frame, one row per parent: ``PERIOD_FROM`` / ``PERIOD_TO`` (the editions it falls
+    between), ``CVEGEO`` (the new municipality, entity + municipality), ``PARENT`` (a
+    municipality of ``PERIOD_FROM`` covering at least 5% of it), ``SHARE_NEW`` (that share
+    of the new municipality's area) and ``SHARE_PARENT`` (the share of the parent's area
+    that went to it).
+
+    1990 has no frame (8i): its 25 new municipalities' parents are the 1990 municipalities
+    whose localities INEGI's Archivo Histórico de Localidades moves into them at the
+    Conteo 1995 (:func:`cpv_loc_lineage`'s ``code`` and ``absorption`` links of 1995), and
+    the shares are of population, at the Conteo 1995: ``SHARE_NEW`` = the parent's share of
+    the moved localities' population, ``SHARE_PARENT`` = their share of the parent's
+    population before the split (its 1995 population plus what it lost)."""
     return _lineage().copy()
 
 
@@ -80,20 +88,22 @@ def _period(value) -> str:
     periods = _lineage_doc()["periodos"]
     p = str(value)
     if p not in periods:
-        raise ValueError(f"no municipal frame for {value!r}; frames: {periods} (1990 has none)")
+        raise ValueError(f"no municipal lineage for {value!r}; editions: {periods}")
     return p
 
 
 def cpv_municipal_units(start, end, *, min_share: float = 0.10,
                         cross_state: bool = False) -> pd.DataFrame:
-    """Stable municipal units between editions ``start`` and ``end`` (frames 1995–2025).
+    """Stable municipal units between editions ``start`` and ``end`` (the 1990 census and
+    the frames 1995–2025).
 
     Returns one row per municipality of ``end`` (``CVEGEO``, 5 characters): ``UNIT``, the
     smallest code of its unit, and ``FIRST``, the frame where the code first appears
     (``start`` for the municipalities that already existed). A unit joins every
     municipality created after ``start`` (up to ``end``) with the parents that gave it at
-    least ``min_share`` of its area, transitively; unchanged municipalities are units of
-    their own. A parent in another state (a boundary dispute: Quintana Roo's 23009
+    least ``min_share`` of its area (of its population for the 1990 → 1995 step, see
+    :func:`cpv_mun_lineage`), transitively; unchanged municipalities are units of their
+    own. A parent in another state (a boundary dispute: Quintana Roo's 23009
     Bacalar and Yucatán's 31019, 5%) is ignored unless ``cross_state``. Merge an edition's
     municipal rows on ``CVEGEO`` and aggregate by ``UNIT``; the editions' municipalities
     are then comparable.

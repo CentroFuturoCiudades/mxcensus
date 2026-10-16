@@ -10,6 +10,9 @@
   :func:`load_cpv_census`, the port of the legacy :func:`mxcensus.load_census` (four count
   levels with the collective-population columns and the zero imputation) onto the ``cpv_``
   files — equal to it for 2020. Indicator names across editions: ``cpv_iter_crosswalk``.
+- **The ITER across editions** (:func:`load_cpv_iter_panel`, 8i): several editions (and the
+  EIC 2025's municipal estimates) on the municipal or locality units stable between them,
+  the counts summed and the averages recomputed.
 
 The geography is split on the **string** codes (never cast to int), so the keys stay
 joinable with the microdata (:mod:`mxcensus.cpv`) and the Marco Geoestadístico.
@@ -626,3 +629,272 @@ def load_cpv_census(
                    {**agebs, "ageb": ageb}, _edition("ageb", period).period)
     cols = ageb.columns
     return st[cols], mun[cols], loc[cols], ageb
+
+
+# ---------------------------------------------------------------------------------------
+# The ITER across editions (8i): every edition on stable municipal or locality units
+# ---------------------------------------------------------------------------------------
+# The editions a panel takes: the censuses' ITER, and (municipalities only) the EIC 2025's
+# estimates, whose indicators are matched to the ITER's by name.
+PANEL_PERIODS: tuple[str, ...] = ("1990", "1995", "2000", "2005", "2010", "2020", "2025")
+_ESTIMATES = "2025"
+_PANEL_NIVELES = ("municipal", "localidad")
+_PANEL_NAMES = {"municipal": ["NOM_ENT", "NOM_MUN"],
+                "localidad": ["NOM_ENT", "NOM_MUN", "NOM_LOC"]}
+# Columns of an ITER row that are no indicator.
+_NOT_INDICATORS = frozenset({"NIVEL", "CVEGEO", "NOM_ENT", "NOM_MUN", "NOM_LOC", "LONGITUD",
+                             "LATITUD", "ALTITUD", "TAMLOC"})
+# Every count of every ITER adds up: the municipalities' to their state's in all 32 states
+# of every edition (8i). The averages do not; a unit's value is (indicator → rule, by
+# edition, "*" = every other edition):
+# - ("ratio", numerator, denominator, scale): the ratio of the unit's counts, exact (INEGI's
+#   ITER divides them: REL_H_M = POBMAS / POBFEM × 100; PROM_OCUP = OCUPVIVPAR /
+#   VIVPAR_HAB, in 2020 / TVIVPARHAB — each within the published rounding at every state and
+#   municipality, 1990/1995 truncate);
+# - ("mean", weight): the members' published values weighted by a published count — exact
+#   (up to the rounding) where the weight is the average's own base (the EIC 2025's
+#   PROM_OCUP, of the VIVPARHAB_C dwellings), else a near base: the years of schooling of
+#   the 15 and more who gave them weighted by P_15YMAS, the children per woman of 12 and
+#   more who said how many by P_12YMAS_F, the occupants per room by the rooms their own
+#   ratio implies (OCUPVIVPAR / PRO_OCUP_C, "rooms") — within 0.015 of INEGI's state value
+#   when its municipalities are weighted so (rounding: 0.005). CGPV 2000's GRAPROES
+#   (GRADOESCO) is published in whole years.
+_AVERAGES: dict[str, dict[str, tuple]] = {
+    "REL_H_M": {"*": ("ratio", "POBMAS", "POBFEM", 100)},
+    "PROM_OCUP": {"*": ("ratio", "OCUPVIVPAR", "VIVPAR_HAB", 1),
+                  "2020": ("ratio", "OCUPVIVPAR", "TVIVPARHAB", 1),
+                  _ESTIMATES: ("mean", "VIVPARHAB_C")},
+    "PRO_OCUP_C": {"*": ("mean", "rooms")},
+    "GRAPROES": {"*": ("mean", "P_15YMAS")},
+    "GRAPROES_F": {"*": ("mean", "P_15YMAS_F")},
+    "GRAPROES_M": {"*": ("mean", "P_15YMAS_M")},
+    "PROM_HNV": {"*": ("mean", "P_12YMAS_F")},
+}
+# The EIC 2025's indicators named as the ITER's but defined otherwise: its indigenous
+# households also count the step-parents and grandparents (cpv_derived._IND_CODES, 6w).
+_ESTIMATES_NOT_COMPARABLE = frozenset({"PHOG_IND"})
+
+
+def _rule(indicator: str, period: str) -> tuple:
+    rules = _AVERAGES[indicator]
+    return rules.get(period, rules["*"])
+
+
+def _panel_indicators(df: pd.DataFrame) -> list[str]:
+    """An edition's indicators a panel can carry: its counts and the averages."""
+    return [c for c in df.columns if c not in _NOT_INDICATORS
+            and (c in _AVERAGES or str(df[c].dtype) == "Int64")]
+
+
+def _panel_rows(period: str, states: list[int], nivel: str) -> pd.DataFrame:
+    """One edition's rows of ``nivel`` for ``states`` with ``CODE`` (5 or 9 characters)."""
+    if period == _ESTIMATES:
+        df = load_cpv_estimaciones(period, nivel="municipal", state=states)
+    else:
+        df = load_cpv_iter(period, state=states, nivel=nivel)
+    df = df.reset_index()
+    code = df["CVE_ENT"] + df["CVE_MUN"]
+    df.insert(0, "CODE", code if nivel == "municipal" else code + df["CVE_LOC"])
+    return df
+
+
+def _unit_sum(values: pd.DataFrame, unit: pd.Series) -> pd.DataFrame:
+    """Each unit's sum over its members' known values (missing where none is known)."""
+    return values.groupby(unit, sort=False).sum(min_count=1)
+
+
+def _unit_values(df: pd.DataFrame, period: str, indicators: list[str]) -> pd.DataFrame:
+    """One edition's rows (with ``UNIT``) → one row per unit: the counts summed, the
+    averages by their rule (``_AVERAGES``); an indicator the edition lacks missing."""
+    unit = df["UNIT"]
+    present = set(_panel_indicators(df))
+    counts = [c for c in indicators if c in present and c not in _AVERAGES]
+    out = _unit_sum(df[counts], unit) if counts else pd.DataFrame(
+        index=pd.Index(unit.unique(), name="UNIT"))
+    for ind in indicators:
+        if ind not in present:
+            out[ind] = pd.array([pd.NA] * len(out), dtype="Float64" if ind in _AVERAGES
+                                else "Int64")
+            continue
+        if ind not in _AVERAGES:
+            continue
+        rule = _rule(ind, period)
+        needed = [c for c in rule[1:3] if isinstance(c, str) and c != "rooms"]
+        missing = [c for c in needed if c not in df.columns]
+        if missing:
+            raise ValueError(f"CPV ITER panel {period}: {ind} needs {missing}, which the "
+                             f"edition does not publish")
+        value = df[ind].astype("Float64")
+        if rule[0] == "ratio":              # over the members that give both counts
+            num, den = (df[c].astype("Float64") for c in rule[1:3])
+            known = num.notna() & den.notna()
+            sums = _unit_sum(pd.DataFrame({"n": num.where(known), "d": den.where(known)}), unit)
+            res = sums["n"] / sums["d"].mask(sums["d"] == 0) * rule[3]
+        else:                               # over the members that give value and weight
+            if rule[1] == "rooms":
+                occ = df["OCUPVIVPAR"].astype("Float64")
+                weight = (occ / value).mask(occ == 0, 0)
+            else:
+                weight = df[rule[1]].astype("Float64")
+            known = value.notna() & weight.notna()
+            sums = _unit_sum(pd.DataFrame({"vw": (value * weight).where(known),
+                                           "w": weight.where(known)}), unit)
+            res = sums["vw"] / sums["w"].mask(sums["w"] == 0)
+        out[ind] = res.astype("Float64")
+    return out[indicators]
+
+
+def load_cpv_iter_panel(
+    periods: Sequence[str | int],
+    *,
+    state: int | Sequence[int],
+    nivel: str = "municipal",
+    indicators: Sequence[str] | None = None,
+    min_share: float = 0.10,
+    cross_state: bool = False,
+    absorptions: bool = True,
+    confirmed: bool = False,
+) -> pd.DataFrame:
+    """The ITER of several editions on units stable between them: a long panel indexed
+    ``(PERIOD, UNIT)``, one row per unit and edition, one column per indicator.
+
+    ``nivel="municipal"`` joins each municipality created between the first and the last
+    of ``periods`` with its parents (:func:`mxcensus.cpv_municipal_units`, ``min_share``,
+    ``cross_state``; the 1990 → 1995 step comes from the localities that moved, 8i);
+    ``nivel="localidad"`` joins the localities a link of the lineage joins between them —
+    a renumbered or moved locality with its old code, an absorbed one with the locality
+    that absorbed it (:func:`mxcensus.cpv_locality_units`, ``absorptions``,
+    ``confirmed``) —; every other code is a unit of its own. ``UNIT`` is the smallest code
+    of the unit (5 or 9 characters). ``periods`` are ITER editions (1990, 1995, 2000, 2005,
+    2010, 2020) and, at the municipal level, 2025: the EIC 2025's municipal estimates
+    (:func:`load_cpv_estimaciones`, ``valor``), whose indicators are matched to the ITER's
+    by name — a survey's estimates, not a census count.
+
+    Each unit has a row in every edition (a balanced panel): ``N_CODES`` (how many of the
+    edition's municipalities or localities it holds; 0 = none listed, every value missing:
+    the Conteo 1995 did not count 15 municipalities of Chiapas, a locality created or
+    abandoned in between), ``N_RESERVED`` and ``RESERVED_POB`` (how many of them have a
+    count of the panel reserved, and their population — missing where that is reserved
+    too, as the Conteo 1995's smallest localities'), the names of its most populous member
+    in that edition (``NOM_ENT``, ``NOM_MUN``, ``NOM_LOC``), then the indicators:
+
+    - **counts** (every ``Int64`` ITER column) summed over the members' known values. INEGI
+      reserves the counts of the localities of one or two dwellings (``*``, left after the
+      forced-zero imputation of :func:`load_cpv_iter`), so a locality unit's count of
+      persons lies between its sum and the sum plus ``RESERVED_POB`` — exact where
+      ``N_RESERVED`` is 0 (municipalities always but CGPV 2000's Nicolás Ruíz, Chiapas,
+      published with its population only); a unit whose members are all reserved is
+      missing;
+    - **averages** recomputed: ``REL_H_M`` and ``PROM_OCUP`` as the ratio of the unit's
+      counts (exact; INEGI rounds or truncates the published one), the others —
+      ``GRAPROES`` (``_F``, ``_M``), ``PROM_HNV``, ``PRO_OCUP_C``, the EIC 2025's
+      ``PROM_OCUP`` — as the members' published values weighted by a published count
+      (``P_15YMAS``, ``P_12YMAS_F``, the rooms ``OCUPVIVPAR / PRO_OCUP_C``, ``VIVPARHAB_C``):
+      an unchanged unit keeps its published value, a joined one is within ~0.015 of
+      INEGI's (its base — the persons who gave their schooling, the women who said how
+      many children — is not published). Both run over the members that publish their
+      terms. CGPV 2000's ``GRAPROES`` is published in whole years. An average of nobody is
+      missing.
+
+    ``indicators=None`` keeps the indicators every requested edition publishes (under the
+    crosswalk's canonical names, :func:`mxcensus.cpv_iter_crosswalk`) but those the
+    crosswalk marks ``Comparable: false`` (``PHOG_IND``, ``PCLIM_VIS``, ``PCLIM_MOT2``,
+    ``PDER_SEGP``; the EIC 2025's ``PHOG_IND`` with any census) and the Conteo 1995's
+    percentages; a list keeps those, missing in the editions that lack one (an indicator no
+    requested edition publishes raises). Read the crosswalk's ``Nota`` before comparing an
+    indicator across editions: the same name may count a slightly different universe.
+
+    ``state`` selects the units with a member in those states; a unit that spans two
+    states (a locality moved between them, 248 between 1990 and 2020; municipalities only
+    with ``cross_state``) is complete: the other state's members are read too. At the
+    locality level the municipalities' totals are not the sums of their localities:
+    ``POBTOT``, ``TVIVHAB`` and ``VIVTOT`` of a municipality include persons and dwellings
+    INEGI places in no locality, and the Conteo 1995 lists the localities of one and two
+    dwellings only as each municipality's sums (left out here).
+    """
+    from mxcensus._resources import cpv_iter_crosswalk
+    from mxcensus.cpv import _states
+    from mxcensus.cpv_geo import cpv_locality_units, cpv_municipal_units
+
+    nivel = _choice(nivel, _PANEL_NIVELES, "nivel")
+    if len(nivel) != 1:
+        raise ValueError(f"nivel is one of {_PANEL_NIVELES}")
+    nivel = nivel[0]
+    if isinstance(periods, (str, int)):
+        periods = [periods]
+    ps = list(dict.fromkeys(str(p) for p in periods))
+    allowed = PANEL_PERIODS if nivel == "municipal" else PANEL_PERIODS[:-1]
+    if not ps or any(p not in allowed for p in ps):
+        raise ValueError(f"CPV ITER panel ({nivel}): periods must be among {allowed}, "
+                         f"got {list(periods)}")
+    ps.sort(key=PANEL_PERIODS.index)
+    states = _states(state)
+    if states is None:
+        raise ValueError("pass state= (an INEGI code 1-32 or a sequence of them)")
+    first, last = ps[0], ps[-1]
+    if nivel == "municipal":
+        units = cpv_municipal_units(first, last, min_share=min_share,
+                                    cross_state=cross_state)
+    else:
+        units = cpv_locality_units(first, last, absorptions=absorptions, confirmed=confirmed)
+    unit_of = dict(zip(units["CVEGEO"], units["UNIT"]))
+
+    def assign(df: pd.DataFrame, p: str) -> pd.DataFrame:
+        if nivel == "municipal":
+            unknown = sorted(set(df["CODE"]) - unit_of.keys())
+            if unknown:
+                raise ValueError(f"CPV ITER panel {p}: municipalities without a unit "
+                                 f"{unknown[:5]}")
+            return df.assign(UNIT=df["CODE"].map(unit_of))
+        return df.assign(UNIT=df["CODE"].map(unit_of).fillna(df["CODE"]))
+
+    wanted = {f"{s:02d}" for s in states}
+    frames = {p: assign(_panel_rows(p, states, nivel), p) for p in ps}
+    if nivel == "municipal":
+        touching = {u for c, u in unit_of.items() if c[:2] in wanted}
+    else:
+        touching = set().union(*(set(f["UNIT"]) for f in frames.values()))
+    extra = sorted({int(c[:2]) for c, u in unit_of.items() if u in touching} - set(states))
+    if extra:
+        for p in ps:
+            more = assign(_panel_rows(p, extra, nivel), p)
+            frames[p] = pd.concat([frames[p], more[more["UNIT"].isin(touching)]],
+                                  ignore_index=True)
+
+    available = {p: _panel_indicators(f) for p, f in frames.items()}
+    if indicators is None:
+        common = set.intersection(*(set(a) for a in available.values()))
+        if len(ps) > 1:
+            xw = cpv_iter_crosswalk()
+            common -= {k for k, v in xw.items() if v.get("Comparable") is False}
+            if _ESTIMATES in ps:
+                common -= _ESTIMATES_NOT_COMPARABLE
+        chosen = [c for c in available[last] if c in common]
+    else:
+        chosen = list(dict.fromkeys(indicators))
+        everywhere = set().union(*(set(a) for a in available.values()))
+        absent = [c for c in chosen if c not in everywhere]
+        if absent:
+            raise ValueError(f"CPV ITER panel: no requested edition {ps} publishes {absent} "
+                             f"as a count or an average")
+
+    index = pd.Index(sorted(touching), name="UNIT")
+    names = _PANEL_NAMES[nivel]
+    out = {}
+    for p, df in frames.items():
+        values = _unit_values(df, p, chosen).reindex(index)
+        lead = (df.assign(_POB=df["POBTOT"].astype("Float64"))
+                .sort_values(["_POB", "CODE"], ascending=[False, True], na_position="last")
+                .groupby("UNIT")[[c for c in names if c in df.columns]].first()
+                .reindex(index))
+        n = df.groupby("UNIT").size().reindex(index, fill_value=0).astype("int64")
+        counts = [c for c in chosen if c in available[p] and c not in _AVERAGES]
+        reserved = (df[counts].isna().any(axis=1) if counts
+                    else pd.Series(False, index=df.index))
+        n_reserved = reserved.groupby(df["UNIT"]).sum().reindex(index, fill_value=0)
+        reserved_pob = (df["POBTOT"].where(reserved, 0).groupby(df["UNIT"]).sum(skipna=False)
+                        .reindex(index).astype("Int64").where(n > 0))
+        out[p] = pd.concat([n.rename("N_CODES"), n_reserved.astype("int64").rename("N_RESERVED"),
+                            reserved_pob.rename("RESERVED_POB"),
+                            lead.reindex(columns=names), values], axis=1)
+    return pd.concat(out, names=["PERIOD"])

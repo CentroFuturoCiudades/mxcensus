@@ -132,7 +132,9 @@ it = mxcensus.load_cpv_iter(1990, state=1)                  # ITER 1990–2020, 
 est = mxcensus.load_cpv_estimaciones(nivel="municipal", counts=True)   # the EIC 2025 estimates
 
 cons = mxcensus.cpv_constraints("personas", 2025)           # published indicator → sample cells
+X = mxcensus.cpv_constraint_terms(per, mxcensus.cpv_constraints("personas", 2000))  # 0/1 terms
 units = mxcensus.cpv_locality_units(2000, 2020)             # localities comparable across editions
+panel = mxcensus.load_cpv_iter_panel([1990, 2000, 2020], state=1)   # the ITER on stable units
 ```
 
 Every edition loads the same way (`period=`, `state=`). The labelled loaders validate
@@ -141,8 +143,10 @@ edition's names, and `derived=True` adds analysis columns recoded onto one set o
 categories in every edition (the legacy `load_extended_*` columns and INEGI's own rules
 beside them). `cpv_constraints` and `cpv_ratio_constraints` give, for each indicator an
 edition publishes (its ITER, or the EIC 2025 estimates), the sample records it counts, for
-calibration and small-area estimation. `cpv_municipal_units`/`cpv_locality_units` make
-the editions' geographies comparable. The EIC 2025's weights reproduce its estimates
+calibration and small-area estimation, and `cpv_constraint_terms` each record's 0/1 term.
+`cpv_municipal_units`/`cpv_locality_units` make the editions' geographies comparable, and
+`load_cpv_iter_panel` puts the ITER of several editions (and the EIC 2025's municipal
+estimates) on those units, every count summed and the averages recomputed. The EIC 2025's weights reproduce its estimates
 exactly; the Censo 2020 files hold the legacy `personas_NN`/`viviendas_NN`/`iter_NN`/
 `resargebub_NN` values, and the legacy loaders are unchanged.
 

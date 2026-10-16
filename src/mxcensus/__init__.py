@@ -56,6 +56,7 @@ from mxcensus.cpv_geo import (
     cpv_municipal_units,
 )
 from mxcensus.cpv_derived import (
+    cpv_constraint_terms,
     cpv_constraints,
     cpv_derivations,
     cpv_ratio_constraints,
@@ -64,6 +65,7 @@ from mxcensus.cpv_derived import (
 from mxcensus.cpv_aggregates import (
     load_cpv_estimaciones,
     load_cpv_iter,
+    load_cpv_iter_panel,
     load_cpv_ageb,
     load_cpv_census,
 )
@@ -127,7 +129,7 @@ __all__ = [
     "load_enigh_personas",
     "load_enigh_survey",
     "variables_enigh_labels",
-    # CPV family (censos, conteos y encuestas intercensales 2000-2025)
+    # CPV family (censos, conteos y encuestas intercensales 1990-2025)
     "load_cpv",
     "load_cpv_viviendas",
     "load_cpv_hogares",
@@ -136,6 +138,7 @@ __all__ = [
     "load_cpv_survey",
     "load_cpv_estimaciones",
     "load_cpv_iter",
+    "load_cpv_iter_panel",
     "load_cpv_ageb",
     "load_cpv_census",
     "cpv_mun_lineage",
@@ -144,6 +147,7 @@ __all__ = [
     "cpv_locality_units",
     "cpv_derivations",
     "cpv_constraints",
+    "cpv_constraint_terms",
     "cpv_ratio_constraints",
     "cpv_ratio_terms",
     "variables_cpv_labels",

@@ -468,20 +468,15 @@ category the cells name. Where the edition's definition differs, the cells follo
 (e.g. 2000's religions count the population of 5 and over, as its ITER).
 
 `get_tables_dict(cons, frame.dtypes)` groups them into contingency tables by variable set.
-To count them on the sample, turn each indicator into a 0/1 column:
+To count them on the sample, `cpv_constraint_terms(frame, constraints)` turns each
+indicator into a 0/1 column, each record's term (it raises on a frame that lacks a
+variable or does not label its categories):
 
 ```pycon
->>> def design(df, constraints):
-...     """Each record's 0/1 term of each count constraint."""
-...     cols = {}
-...     for ind, cells in constraints.items():
-...         m = pd.Series(True, index=df.index)
-...         for var, cats in cells.items():
-...             m &= df[var].isin(cats)
-...         cols[ind] = m.astype(float)
-...     return pd.DataFrame(cols)
 >>> per = mxcensus.load_cpv_personas(2025, state=1, derived=True)
->>> X = design(per, cons)
+>>> X = mxcensus.cpv_constraint_terms(per, cons)
+>>> X.shape
+(177984, 214)
 >>> sample = X.mul(per["FACTOR"], axis=0).groupby(per["CVE_MUN"]).sum()
 >>> est = mxcensus.load_cpv_estimaciones(nivel="municipal", state=1, counts=True)
 >>> published = est.droplevel(["CVE_ENT", "CVE_LOC"])[list(cons)].astype(float)
@@ -628,9 +623,20 @@ UNIT
 
 Each new municipality joins its parents: 23002 is Felipe Carrillo Puerto with
 Solidaridad and Tulum, 23004 Othón P. Blanco with Bacalar, 23005 Benito Juárez with
-Puerto Morelos. 1990 has no frame, so the lineage starts in 1995: the 25 municipality
-codes the 1995 ITER has and the 1990 ITER lacks (Aguascalientes's El Llano and San
-Francisco de los Romo, 16 in Tlaxcala…) need their parents by hand.
+Puerto Morelos. 1990 has no frame. Its step to 1995 comes from the localities instead:
+the 25 municipalities the 1990 ITER lacks (Aguascalientes's El Llano and San Francisco
+de los Romo, Valle de Chalco, 16 in Tlaxcala…) take as parents the municipalities whose
+localities moved into them at the Conteo 1995, with shares of population rather than
+area (`cpv_mun_lineage()`'s rows from 1990):
+
+```pycon
+>>> mxcensus.cpv_municipal_units(1990, 2020).set_index("CVEGEO").loc[["01001", "01010", "01011"]]
+         UNIT FIRST
+CVEGEO
+01001   01001  1990
+01010   01001  1995
+01011   01001  1995
+```
 
 ### Localities
 
@@ -677,6 +683,75 @@ the city (594,092 inhabitants in 2000) and the 25 localities of 2000 that are pa
 by 2020. The lineage leaves out what the archive cannot
 decide (moves stated without a code it cannot pair, codes INEGI reused); see
 [LOC_LINEAGE_REPORT.md](LOC_LINEAGE_REPORT.md).
+
+### The ITER on stable units
+
+`load_cpv_iter_panel(periods, state=…, nivel=…)` does the above for every indicator at
+once: the ITER of several editions on the units stable between the first and the last,
+a long panel indexed `(PERIOD, UNIT)` with a row per unit in every edition. `UNIT` is the
+unit's smallest code. `N_CODES` counts the edition's municipalities or localities in
+the unit. The names are those of its most populous member:
+
+```pycon
+>>> panel = mxcensus.load_cpv_iter_panel([1990, 2000, 2020], state=1)
+>>> panel.xs("01001", level="UNIT")[["N_CODES", "POBTOT", "VIVPAR_HAB", "PROM_OCUP", "P15YM_AN"]]
+        N_CODES   POBTOT  VIVPAR_HAB  PROM_OCUP  P15YM_AN
+PERIOD
+1990          1   506274       94713   5.320495     18690
+2000          3   678812      147674   4.555812     17847
+2020          3  1031840      279043   3.564366     13168
+>>> panel.shape
+(27, 27)
+```
+
+By default the panel holds the indicators every requested edition publishes, under the
+crosswalk's canonical names. Indicators the crosswalk marks `Comparable: false` are left
+out. `indicators=[…]` picks others, missing in the editions that lack them. Read the
+crosswalk's `Nota` before comparing an indicator: the same name may count a slightly
+different universe.
+
+- **Counts** are summed: every ITER count adds up from the municipalities to the state.
+- **Averages** are recomputed. `REL_H_M` and `PROM_OCUP` are the ratio of the unit's
+  counts: exact and unrounded, so an unchanged unit shows 5.320495 where INEGI
+  truncated to 5.32. `GRAPROES`, `PROM_HNV` and `PRO_OCUP_C` have no published base.
+  They are the members' values weighted by a near one (`P_15YMAS`, `P_12YMAS_F`, the
+  rooms `OCUPVIVPAR / PRO_OCUP_C`): an unchanged unit keeps its published value, and a
+  joined one lands within about 0.015 of INEGI's. CGPV 2000 publishes `GRAPROES` in
+  whole years.
+
+At the municipal level `periods` may end in 2025: the EIC 2025's municipal estimates,
+matched to the ITER by name. These are a survey's estimates, not a census count.
+`PHOG_IND`, which counts more relatives in 2025, is left out:
+
+```pycon
+>>> mxcensus.load_cpv_iter_panel([2020, 2025], state=1).xs("01001", level="UNIT")[
+...     ["POBTOT", "GRAPROES", "PROM_HNV", "PROM_OCUP"]]
+         POBTOT  GRAPROES  PROM_HNV  PROM_OCUP
+PERIOD
+2020     948990     10.84      1.98   3.544164
+2025    1025505     11.43      1.87       3.31
+```
+
+At the locality level (`nivel="localidad"`, 1990–2020), INEGI reserves the counts of the
+localities of one or two dwellings (`*`). A unit's counts are the sums of its members'
+known values. `N_RESERVED` and `RESERVED_POB` give the members with a reserved count and
+their population, so a count of persons lies between the sum and the sum plus
+`RESERVED_POB`. Aguascalientes city's unit held 26 localities in 2000:
+
+```pycon
+>>> loc = mxcensus.load_cpv_iter_panel([2000, 2020], state=1, nivel="localidad")
+>>> loc.xs("010010001", level="UNIT")[["N_CODES", "N_RESERVED", "RESERVED_POB", "POBTOT", "GRAPROES"]]
+        N_CODES  N_RESERVED  RESERVED_POB  POBTOT  GRAPROES
+PERIOD
+2000         26          17           108  594934  8.999887
+2020          1           0             0  863893     11.01
+```
+
+A unit that spans two states (a locality moved between them) is complete: the other
+state's members are read too. At the locality level a municipality's `POBTOT`,
+`TVIVHAB` and `VIVTOT` are not the sums of its localities, since they include persons
+and dwellings INEGI places in no locality. The Conteo 1995 lists the localities of one
+and two dwellings only as each municipality's sums, which the panel leaves out.
 
 ## 7. Localities 1900–2020
 
@@ -784,9 +859,10 @@ The implementation history, one note per unit, is in `STEP_*.md` (the unit table
 | `load_cpv_iter` / `load_cpv_ageb` / `load_cpv_census` | the census aggregates, harmonized and labelled |
 | `cpv_iter_crosswalk()` | the ITER/AGEB indicators across editions |
 | `load_cpv_estimaciones(estimador=, nivel=, counts=)` | the EIC 2025 estimates |
-| `cpv_constraints(table, period)`, `get_tables_dict` | count constraints: indicator → cells |
+| `cpv_constraints(table, period)`, `cpv_constraint_terms`, `get_tables_dict` | count constraints: indicator → cells, each record's 0/1 term |
 | `cpv_ratio_constraints(table, period)`, `cpv_ratio_terms` | ratio and average constraints |
 | `load_mg(layer, state=, period=)` | Marco Geoestadístico layers |
-| `cpv_mun_lineage()`, `cpv_municipal_units(start, end)` | municipalities across frames |
+| `cpv_mun_lineage()`, `cpv_municipal_units(start, end)` | municipalities across editions (1990 and the frames) |
 | `cpv_loc_lineage()`, `cpv_locality_units(start, end)` | localities across editions |
+| `load_cpv_iter_panel(periods, state=, nivel=)` | the ITER (and the EIC 2025's estimates) on stable units |
 | `load_ahl`, `load_ahl_poblacion`, `load_ahl_localidades` | the Archivo Histórico de Localidades |

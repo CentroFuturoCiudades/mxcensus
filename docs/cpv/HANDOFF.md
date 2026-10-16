@@ -6,17 +6,19 @@ table (one row per unit, with its gate and result, and the narrative of the user
 under it) and one `STEP_<unit>.md` per unit (what was built, decisions, numbers, what was
 left). A session starts by checking `git log`/`git status` against the status below.
 
-## Status (2026-10-14)
+## Status (2026-10-15)
 
-- **Units 0–6z, 7a–7z and 8a–8h are done.** `cpv-integration` = **8h** (the CPV user guide,
-  `docs/cpv/GUIDE.md`: `STEP_8h.md`), committed locally, not pushed; `main` = **v0.15.0**
-  (7v–8g, `STEP_8g.md` §Release), pushed and tagged.
+- **Units 0–6z, 7a–7z and 8a–8i are done.** `cpv-integration` = **8i** (the ITER on stable
+  units, `load_cpv_iter_panel`; the 1990 → 1995 municipal step; `cpv_constraint_terms`:
+  `STEP_8i.md`) on top of 8h (the CPV user guide, `docs/cpv/GUIDE.md`: `STEP_8h.md`), both
+  committed locally, not pushed; `main` = **v0.15.0** (7v–8g, `STEP_8g.md` §Release),
+  pushed and tagged.
 - **Mirror**: every CPV edition 1990–2025 (897 `cpv_` files), the Marco Geoestadístico frames
   1995–2025 and the Archivo Histórico de Localidades (128 `ahl_` files, snapshot 20260918):
   registry **4276** entries, all uploaded and verified. No unit since 7u changed the mirror
-  (the lineage, the CMO bridge and the dictionaries are bundled).
-- **Tests**: the Mac's full suite at 8g (v0.15.0): **1976 passed, 1 skipped** (35 min); 8h's
-  4 new tests (`tests/test_cpv_guide.py`) pass apart (20 s).
+  (the lineages, the CMO bridge and the dictionaries are bundled).
+- **Tests**: the Mac's full suite at 8i: **1989 passed, 1 skipped** (`STEP_8i.md` §Tests;
+  35 min at 8g, longer at 8i on a machine that slept — the national panel test adds ~4 min).
 - **Releases**:
 
   | version | units | content |
@@ -54,7 +56,7 @@ left). A session starts by checking `git log`/`git status` against the status be
 
 ## Kickoff prompt for the next session
 
-> Continue the CPV census-family work in this repo (branch cpv-integration = 8h; main =
+> Continue the CPV census-family work in this repo (branch cpv-integration = 8i; main =
 > v0.15.0). Read docs/cpv/HANDOFF.md first, then agree with me which next unit to
 > take (candidates in HANDOFF §Next) before implementing it, following the session protocol
 > in docs/cpv/PLAN.md. Use .venv/bin/python, not uv run. Run wsl tasks without asking; ask
@@ -63,18 +65,21 @@ left). A session starts by checking `git log`/`git status` against the status be
 ## Next: candidates (none decided)
 
 Every edition is in the mirror, derived and constrained, every published sample tabulado
-value of 2000, 2010, 2015 and 2020 enters a compared cell, and the locality lineage reads
-everything the AHL decides (8g), and the guide (8h) shows how to use all of it. What is
-left is small items, INEGI's own, or new ideas:
+value of 2000, 2010, 2015 and 2020 enters a compared cell, the locality lineage reads
+everything the AHL decides (8g), the guide (8h) shows how to use all of it, and the ITER of
+every edition sits on stable units (8i). What is left is the release, small items,
+INEGI's own, or new ideas:
 
+0. **The 0.16.0 release** (8h + 8i: the guide, `load_cpv_iter_panel`, the 1990 municipal
+   step, `cpv_constraint_terms`; no mirror change, so no upload): the full suite, the
+   version bump, merge into `main`, tag, push (ask first); pull on `wsl`.
 1. **Conditional small items**: the hand-curated minimum-wage tables
    (`cpv_derived._SALARIOS_MINIMOS`) as a generated YAML, only if a later edition needs one
    (none does: the EIC 2025 publishes no income, the 1990/1995 ITERs no income groups); 8e's
    leftovers (`STEP_8e.md` §Left: the farm laborer boundary 61/91 differs between INEGI's
    coders — documented, kept as INEGI's table; 5190/6290, 0.51%, not placed; no SINCO
-   subgroup for 2000); a public `cpv_constraint_terms(frame, constraints)`, the count
-   constraints' sibling of `cpv_ratio_terms` (each record's 0/1 term: the guide's `design()`
-   helper, `STEP_8h.md` §Left).
+   subgroup for 2000); 8i's (`STEP_8i.md` §Left: the EIC 2025's counts behind its
+   percentages in the panel, exact only to their rounding).
 2. **Not reproducible / nothing to do in the mirror** (documented): the infant mortality of
    2000, 2010 and 2015 (`STEP_7o.md`, `STEP_7z.md`: INEGI's rule is not in the sample); CGPV
    2000's Chiapas (its records are not those of INEGI's tabulados); the 2000/2010/2020
@@ -83,9 +88,9 @@ left is small items, INEGI's own, or new ideas:
    unpaired, 31 links on an unverified number, 4 rival claims, codes INEGI reused, the 16
    absorptions MG 2025 still lists, kept by the user's choice; `CONFIRMED` stays per edition,
    8c's question closed by the user).
-3. **Ideas not yet scoped** (the session's, not the user's): a cross-edition ITER panel on
-   the stable units (`cpv_municipal_units`, `cpv_locality_units`: the guide's §6 recipe for
-   every indicator the crosswalk pairs); the next release (8h only, docs: no hurry).
+3. **Ideas not yet scoped** (the session's, not the user's): a notebook running the guide's
+   panel examples with plots (8h: the user chose Markdown only); the AGEB file on stable
+   units (no AGEB lineage exists: the MG `a` polygons of 2010/2020 would give one).
 
 ## Open questions for the user
 
@@ -202,7 +207,8 @@ None.
   lies); `ageb_14` (2020) and the 2015 CSVs are cp1252 (one ASCII file sniffs UTF-8).
 - **Generated, never hand-edited**: `cpv_loc_lineage.csv.gz` (`build_loc_lineage.py`),
   `cpv_mun_lineage.yaml` (`build_geo_crosswalk.py` from the `mg_mun_*` of 1995–2025, all on
-  disk; rebuild after any MG rebuild; a test compares it with a rebuild), `cpv_cmo_sinco.csv`
+  disk, and — its 1990 step, 8i — the locality lineage and the 1990/1995 ITER; rebuild after
+  any MG or locality-lineage rebuild; a test compares it with a rebuild), `cpv_cmo_sinco.csv`
   (`build_cmo_sinco.py`: the Internet Archive's copy of INEGI's comparison workbook, sha256
   pinned — the URL must keep the `id_` suffix — and ENOE's 2012-T2/T3 COE1;
   `test_cmo_sinco_rebuilds` checks it byte for byte where `data/dict/sinco/` exists).
@@ -251,6 +257,21 @@ None.
   attribute names stay INEGI's. MG 2015 is one product per state (`MgEdition.products`), 12
   layers + `ti` (named `NNterritorioinsular`), LCC on ITRF92; Empalme (26025) has a second,
   empty polygon.
+
+- **The ITER panel** (`load_cpv_iter_panel`, 8i): every `Int64` column of an ITER is
+  treated as a count (checked: all add up municipalities → state in 32 states, but 2000's
+  `GRAPROES`, an average in whole years, which `_AVERAGES` names); a new ITER or estimate
+  column that is an average typed `Int64`, or an average in `Float64` not in `_AVERAGES`,
+  needs an entry there (a `Float64` column not listed is dropped). `_AVERAGES` rules are by
+  edition (`PROM_OCUP` divides by `TVIVPARHAB` in 2020, weighs by `VIVPARHAB_C` in 2025). A
+  2025 indicator is matched to the ITER by **name**: one defined otherwise goes in
+  `_ESTIMATES_NOT_COMPARABLE` (`PHOG_IND`). The national test runs the localities 1990 →
+  2020 only (all six editions: 4 min).
+- **The municipal lineage's 1990 step** (8i) is built from the bundled locality lineage
+  and the 1990/1995 ITER (`build_geo_crosswalk._from_localities`): rebuild
+  `cpv_mun_lineage.yaml` after the locality lineage changes, and its rebuild test needs the
+  1990/1995 ITER besides the MG frames. Its shares are of population (at the Conteo 1995),
+  the frames' of area.
 
 ### Derived columns (`cpv_derived.py`)
 

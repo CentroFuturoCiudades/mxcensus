@@ -18,14 +18,15 @@ from mxcensus.cpv_geo import cpv_mun_lineage, cpv_municipal_units
 from mxcensus.data._catalog import mg_filename
 
 _MIRROR = Path(__file__).resolve().parent.parent / "data" / "parquet"
-_PERIODS = ("1995", "2000", "2005", "2010", "2015", "2020", "2025")
+_FRAMES = ("1995", "2000", "2005", "2010", "2015", "2020", "2025")
+_PERIODS = ("1990", *_FRAMES)       # 8i: the 1990 census's step to 1995, from the localities
 
 
 def test_lineage_document():
     doc = lineage_doc()
     assert doc["periodos"] == list(_PERIODS)
-    assert doc["municipios"] == {"1995": 2_428, "2000": 2_443, "2005": 2_454, "2010": 2_456,
-                                 "2015": 2_457, "2020": 2_469, "2025": 2_478}
+    assert doc["municipios"] == {"1990": 2_403, "1995": 2_428, "2000": 2_443, "2005": 2_454,
+                                 "2010": 2_456, "2015": 2_457, "2020": 2_469, "2025": 2_478}
     assert len(doc["claves"]) == len(set(doc["claves"])) == doc["municipios"]["2025"]
     lin = cpv_mun_lineage()
     created = lin.groupby(["PERIOD_FROM", "PERIOD_TO"])["CVEGEO"].nunique()
@@ -39,6 +40,14 @@ def test_lineage_document():
     assert lin.loc[lin["CVEGEO"] == "02007", "PARENT"].tolist() == ["02001", "02002"]
     # 6h: the EIC 2015 frame dates Bacalar (2011) to 2010 → 2015, the other 12 to 2015 → 2020
     assert lin.loc[lin["PERIOD_TO"] == "2015", "CVEGEO"].unique().tolist() == ["23010"]
+    # 8i: 1990 → 1995 by the localities that moved, population shares at the Conteo 1995:
+    # Valle de Chalco from Chalco (62% of its population), La Magdalena Tlaltelulco from
+    # two municipalities, Tlaxcala's 16 new ones
+    first = lin[lin["PERIOD_FROM"] == "1990"].set_index(["CVEGEO", "PARENT"])
+    assert (first.loc[("15122", "15025"), ["SHARE_NEW", "SHARE_PARENT"]].tolist()
+            == [0.999, 0.62])
+    assert first.loc["29048"].index.tolist() == ["29010", "29029"]
+    assert (first.index.get_level_values("CVEGEO").str[:2] == "29").sum() >= 16
 
 
 def test_municipal_units():
@@ -58,41 +67,50 @@ def test_municipal_units():
     assert wide.set_index("CVEGEO").loc["31019", "UNIT"] == "31019"
     loose = cpv_municipal_units(2005, 2010, min_share=0.05, cross_state=True).set_index("CVEGEO")
     assert loose.loc["31019", "UNIT"] == loose.loc["23009", "UNIT"]
-    with pytest.raises(ValueError, match="1990 has none"):
-        cpv_municipal_units(1990, 2020)
+    # 8i: from 1990 too — El Llano and San Francisco de los Romo (1991) with Aguascalientes
+    old = cpv_municipal_units(1990, 2020).set_index("CVEGEO")
+    assert len(old) == 2_469 and old.loc[["01010", "01011"], "UNIT"].eq("01001").all()
+    assert old.loc["01010", "FIRST"] == "1995" and old.loc["01001", "FIRST"] == "1990"
+    assert old.loc["15122", "UNIT"] == "15025"
+    with pytest.raises(ValueError, match="no municipal lineage"):
+        cpv_municipal_units(1985, 2020)
     with pytest.raises(ValueError, match="after end"):
         cpv_municipal_units(2020, 2000)
     assert mxcensus.cpv_municipal_units is cpv_municipal_units
 
 
-_REAL = all((_MIRROR / mg_filename("mun", s, p)).exists() for p in _PERIODS for s in range(1, 33))
+_REAL = all((_MIRROR / mg_filename("mun", s, p)).exists() for p in _FRAMES for s in range(1, 33)) \
+    and all((_MIRROR / f"cpv_iter_{p}_{s:02d}.parquet").exists() for p in ("1990", "1995")
+            for s in range(1, 33))
 
 
-@pytest.mark.skipif(not _REAL, reason="needs the municipal layers of every MG frame")
+@pytest.mark.skipif(not _REAL, reason="needs the municipal layers of every MG frame and the "
+                                      "1990/1995 ITER")
 def test_lineage_rebuilds_from_the_frames():
     sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "scripts"))
     import build_geo_crosswalk as b
     assert b.build(_MIRROR) == {k: v for k, v in lineage_doc().items()}
 
 
-_ITER = all((_MIRROR / f"cpv_iter_{p}_{s:02d}.parquet").exists() for p in ("2000", "2020")
-            for s in range(1, 33))
+_ITER = all((_MIRROR / f"cpv_iter_{p}_{s:02d}.parquet").exists()
+            for p in ("1990", "2000", "2020") for s in range(1, 33))
 
 
-@pytest.mark.skipif(not _ITER, reason="needs the 2000 and 2020 ITER of every state")
-def test_units_cover_the_iter(monkeypatch):
+@pytest.mark.skipif(not _ITER, reason="needs the 1990, 2000 and 2020 ITER of every state")
+@pytest.mark.parametrize("start,total", [("2000", 97_483_412), ("1990", 81_249_645)])
+def test_units_cover_the_iter(monkeypatch, start, total):
     from mxcensus.data import _registry
     monkeypatch.setattr(_registry.POOCH, "fetch", lambda f, **_: str(_MIRROR / f))
-    units = cpv_municipal_units(2000, 2020)
+    units = cpv_municipal_units(start, 2020)
     sums = {}
-    for p in ("2000", "2020"):
+    for p in (start, "2020"):
         it = mxcensus.load_cpv_iter(p, state=list(range(1, 33)), nivel="municipal").reset_index()
         it["CVEGEO"] = it["CVE_ENT"] + it["CVE_MUN"]
         merged = it.merge(units, on="CVEGEO", how="left")
         assert merged["UNIT"].notna().all(), p
         sums[p] = merged.groupby("UNIT")["POBTOT"].sum()
-    assert sums["2000"].index.equals(sums["2020"].index)      # one common set of units
-    assert int(sums["2000"].sum()) == 97_483_412
+    assert sums[start].index.equals(sums["2020"].index)       # one common set of units
+    assert int(sums[start].sum()) == total
 
 
 # --------------------------------------------------------------------------- localities (7t)

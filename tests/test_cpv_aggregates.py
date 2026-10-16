@@ -648,3 +648,137 @@ def test_iter_1990_1995_national(local_mirror):
         assert sum(int(pd.read_parquet(_MIRROR / cpv_filename("iter", period, s),
                                        filters=[("MUN", "==", "000"), ("LOC", "==", "0000")])
                        .iloc[0, 9]) for s in range(1, 33)) == total
+
+
+# --- the ITER across editions (8i) -------------------------------------------------------------
+
+def test_panel_unit_values():
+    """8i: a unit's counts are its members' known values summed (missing when none is
+    known); REL_H_M and PROM_OCUP the ratio of its counts over the members giving both;
+    the other averages the members' values weighted by their base (PRO_OCUP_C by the rooms
+    OCUPVIVPAR / PRO_OCUP_C); an indicator the edition lacks is missing."""
+    i64 = lambda *v: pd.array(v, dtype="Int64")         # noqa: E731
+    f64 = lambda *v: pd.array(v, dtype="Float64")       # noqa: E731
+    df = pd.DataFrame({
+        "UNIT": ["A", "A", "B", "C"],
+        "POBTOT": i64(10, 20, 5, None), "POBFEM": i64(6, None, 3, None),
+        "POBMAS": i64(4, None, 2, None), "P_15YMAS": i64(8, 12, 4, None),
+        "GRAPROES": f64(9.0, 7.0, 6.0, None), "REL_H_M": f64(66.67, None, 66.67, None),
+        "OCUPVIVPAR": i64(10, 20, 5, None), "VIVPAR_HAB": i64(2, 5, 1, None),
+        "PROM_OCUP": f64(5.0, 4.0, 5.0, None), "PRO_OCUP_C": f64(1.0, 2.0, 0.5, None)})
+    inds = ["POBTOT", "POBFEM", "GRAPROES", "REL_H_M", "PROM_OCUP", "PRO_OCUP_C", "VPH_X"]
+    out = ca._unit_values(df, "2010", inds)
+    assert list(out.columns) == inds and out.index.tolist() == ["A", "B", "C"]
+    assert out["POBTOT"].tolist() == [30, 5, pd.NA] and str(out["POBTOT"].dtype) == "Int64"
+    assert out["POBFEM"].tolist() == [6, 3, pd.NA]
+    assert out.loc["A", "GRAPROES"] == pytest.approx((9 * 8 + 7 * 12) / 20)
+    assert out.loc["B", "GRAPROES"] == 6.0                     # one member: published value
+    assert out.loc["A", "REL_H_M"] == pytest.approx(400 / 6)   # the member giving both
+    assert out.loc["A", "PROM_OCUP"] == pytest.approx(30 / 7)
+    assert out.loc["A", "PRO_OCUP_C"] == pytest.approx(30 / 20)
+    assert out.loc["C"].isna().all() and out["VPH_X"].isna().all()
+    assert str(out["VPH_X"].dtype) == "Int64" and str(out["PROM_OCUP"].dtype) == "Float64"
+    # 2020 divides the occupants by TVIVPARHAB; the EIC 2025 weighs by VIVPARHAB_C
+    assert ca._rule("PROM_OCUP", "2020")[2] == "TVIVPARHAB"
+    assert ca._rule("PROM_OCUP", "2025") == ("mean", "VIVPARHAB_C")
+    with pytest.raises(ValueError, match="does not publish"):
+        ca._unit_values(df.drop(columns="VIVPAR_HAB"), "2010", ["PROM_OCUP"])
+
+
+def test_panel_arguments():
+    with pytest.raises(ValueError, match="periods must be among"):
+        mxcensus.load_cpv_iter_panel([2000, 2015], state=1)
+    with pytest.raises(ValueError, match="periods must be among"):     # no 2025 localities
+        mxcensus.load_cpv_iter_panel([2020, 2025], state=1, nivel="localidad")
+    with pytest.raises(ValueError, match="nivel"):
+        mxcensus.load_cpv_iter_panel([2020], state=1, nivel="ageb")
+    with pytest.raises(ValueError, match="state"):
+        mxcensus.load_cpv_iter_panel([2020], state=None)
+
+
+_PANEL_STATES = [s for s in range(1, 33) if all(
+    (_MIRROR / cpv_filename("iter", p, s)).exists() for p in ca.PANEL_PERIODS[:-1])]
+_PANEL_SKIP = pytest.mark.skipif(1 not in _PANEL_STATES, reason="no local ITER 1990-2020 of 01")
+
+
+@_PANEL_SKIP
+def test_iter_panel_municipal_real(local_mirror):
+    """8i: Aguascalientes 1990/2000/2020: El Llano and San Francisco de los Romo (1995) join
+    Aguascalientes; each edition's population once; unchanged units keep their published
+    values; the default indicators are the ones every edition publishes."""
+    panel = mxcensus.load_cpv_iter_panel([2020, 1990, 2000], state=1)
+    assert panel.index.names == ["PERIOD", "UNIT"]
+    assert panel.index.get_level_values("PERIOD").unique().tolist() == ["1990", "2000", "2020"]
+    assert list(panel.columns[:5]) == ["N_CODES", "N_RESERVED", "RESERVED_POB", "NOM_ENT",
+                                       "NOM_MUN"]
+    ags = panel.xs("01001", level="UNIT")
+    assert ags["N_CODES"].tolist() == [1, 3, 3] and (ags["N_RESERVED"] == 0).all()
+    assert ags["POBTOT"].tolist() == [506_274, 678_812, 1_031_840]
+    assert len(panel) == 3 * 9 and "REL_H_M" not in panel        # 1990/2000 do not publish it
+    for p in ("1990", "2000", "2020"):
+        it = mxcensus.load_cpv_iter(p, state=1, nivel="municipal")
+        assert int(panel.xs(p)["POBTOT"].sum()) == int(it["POBTOT"].sum())
+        one = panel.xs(p)[panel.xs(p)["N_CODES"] == 1]
+        pub = it.set_index(it["CVEGEO"].str[:5]).loc[one.index]
+        counts = [c for c in one.columns[5:] if c not in ca._AVERAGES]
+        assert one[counts].equals(pub[counts].rename_axis("UNIT")), p
+        assert (one["PRO_OCUP_C"] - pub["PRO_OCUP_C"]).abs().max() <= 1e-9, p
+        assert (one["PROM_OCUP"] - pub["PROM_OCUP"]).abs().max() <= 0.01 + 1e-9  # 1990 truncates
+    # an explicit list: missing where an edition lacks the indicator
+    rel = mxcensus.load_cpv_iter_panel([1990, 2020], state=1, indicators=["REL_H_M", "POBTOT"])
+    assert rel.xs("1990")["REL_H_M"].isna().all() and rel.xs("2020")["REL_H_M"].notna().all()
+    with pytest.raises(ValueError, match="publishes"):
+        mxcensus.load_cpv_iter_panel([1990, 2020], state=1, indicators=["P_P0A4"])
+
+
+@pytest.mark.skipif(not (_MIRROR / "cpv_estimaciones_2025.parquet").exists()
+                    or 29 not in _PANEL_STATES, reason="no local ITER/estimates of 29")
+def test_iter_panel_1990_2025_real(local_mirror):
+    """8i: Tlaxcala 1990-2025 (16 municipalities created in 1995): the EIC 2025's estimates
+    as the last edition, matched by name; PHOG_IND, defined otherwise in 2025, left out."""
+    panel = mxcensus.load_cpv_iter_panel(ca.PANEL_PERIODS, state=29)
+    units = panel.index.get_level_values("UNIT").unique()
+    assert len(units) < 60 and panel.xs("1990")["N_CODES"].sum() == 44
+    assert panel.xs("2025")["N_CODES"].sum() == 60
+    est = mxcensus.load_cpv_estimaciones(nivel="estatal", state=29)
+    assert int(panel.xs("2025")["POBTOT"].sum()) == int(est["POBTOT"].iloc[0])
+    assert {"POBTOT", "OCUPVIVPAR", "PROM_OCUP"} <= set(panel.columns)
+    both = mxcensus.load_cpv_iter_panel([2020, 2025], state=29)
+    assert "PHOG_IND" not in both and "GRAPROES" in both and "PCON_DISC" in both
+    assert "PHOG_IND" in mxcensus.load_cpv_iter_panel([2025], state=29)
+
+
+@_PANEL_SKIP
+def test_iter_panel_localities_real(local_mirror):
+    """8i: Aguascalientes city 2000 → 2020 holds 26 localities of 2000: known sums, the
+    reserved members' population as the bound, the averages weighted over those known."""
+    panel = mxcensus.load_cpv_iter_panel([2000, 2020], state=1, nivel="localidad")
+    city = panel.xs("010010001", level="UNIT")
+    assert city["N_CODES"].tolist() == [26, 1] and city["POBTOT"].tolist() == [594_934, 863_893]
+    assert city.loc["2000", ["N_RESERVED", "RESERVED_POB"]].tolist() == [17, 108]
+    assert city[["GRAPROES", "PROM_OCUP"]].notna().all().all()
+    for p in ("2000", "2020"):
+        it = mxcensus.load_cpv_iter(p, state=1, nivel="localidad")
+        assert int(panel.xs(p)["POBTOT"].sum()) == int(it["POBTOT"].sum())
+        assert int(panel.xs(p)["N_CODES"].sum()) == len(it)
+
+
+@pytest.mark.skipif(len(_PANEL_STATES) < 32, reason="needs every ITER 1990-2020 of all states")
+@pytest.mark.parametrize("nivel", ["municipal", "localidad"])
+def test_iter_panel_national(local_mirror, nivel):
+    """8i: every state: each edition's municipalities or localities once, the units that
+    span two states (localities moved between them) identical in both states' panels.
+    The municipalities over the six ITER editions; the localities 1990 → 2020 (all six
+    editions, 4 min: STEP_8i.md)."""
+    periods = ca.PANEL_PERIODS[:-1] if nivel == "municipal" else ("1990", "2020")
+    panels = pd.concat([mxcensus.load_cpv_iter_panel(periods, state=s, nivel=nivel)
+                        for s in range(1, 33)])
+    twice = panels.index.duplicated(keep=False)
+    assert (nivel == "municipal") == (not twice.any())
+    shared = panels[twice].astype(str).groupby(level=["PERIOD", "UNIT"]).nunique()
+    assert (shared <= 1).all().all()
+    panels = panels[~panels.index.duplicated()]
+    for p in periods:
+        it = mxcensus.load_cpv_iter(p, state=list(range(1, 33)), nivel=nivel)
+        assert int(panels.xs(p)["POBTOT"].sum()) == int(it["POBTOT"].sum()), p
+        assert int(panels.xs(p)["N_CODES"].sum()) == len(it), p

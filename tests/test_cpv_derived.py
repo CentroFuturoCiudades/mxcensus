@@ -2216,6 +2216,30 @@ def test_cpv_ratio_terms():
         mxcensus.cpv_ratio_terms(df.assign(HNV=df["HNV"].astype(str)), ratios)
 
 
+def test_cpv_constraint_terms():
+    """8i: each record's term of each count constraint — 1 inside every variable's cells at
+    once, 0 elsewhere (``{}`` = every record) —, the guide's ``design()``; raw codes, a
+    category the frame lacks or a variable it lacks raise."""
+    sex = pd.Categorical(["Mujer", "Mujer", "Hombre", None], categories=["Hombre", "Mujer"])
+    age = pd.Categorical(["0-2", "12-14", "12-14", "12-14"], categories=["0-2", "12-14"])
+    df = pd.DataFrame({"SEXO": sex, "EDAD_CAT": age}, index=pd.Index(list("abcd"), name="ID"))
+    cons = {"POBFEM": {"SEXO": ["Mujer"]}, "P_12YMAS_F": {"SEXO": ["Mujer"],
+                                                          "EDAD_CAT": ["12-14"]},
+            "POBTOT": {}, "BOTH": {"SEXO": ["Mujer", "Hombre"]}}
+    terms = mxcensus.cpv_constraint_terms(df, cons)
+    assert list(terms.columns) == list(cons) and terms.index.equals(df.index)
+    assert (terms.dtypes == "float64").all()
+    assert terms.to_dict("list") == {"POBFEM": [1, 1, 0, 0], "P_12YMAS_F": [0, 1, 0, 0],
+                                     "POBTOT": [1, 1, 1, 1], "BOTH": [1, 1, 1, 0]}
+    assert mxcensus.cpv_constraint_terms(df, {}).shape == (4, 0)
+    with pytest.raises(ValueError, match="labels=True"):                 # raw codes
+        mxcensus.cpv_constraint_terms(df.assign(SEXO=["3", "3", "1", None]), cons)
+    with pytest.raises(ValueError, match="labels=True"):                 # a category missing
+        mxcensus.cpv_constraint_terms(df, {"X": {"SEXO": ["Otro"]}})
+    with pytest.raises(ValueError, match="derived=True"):                # a variable missing
+        mxcensus.cpv_constraint_terms(df, {"X": {"HOG_IND": ["Sí"]}})
+
+
 def test_published_name():
     """7g: a constraint's key is the column its edition publishes the indicator under: the
     canonical name, or the older edition's column of a pair the crosswalk keeps apart."""
@@ -2536,14 +2560,11 @@ def test_eic2025_constraints_equal_estimates(local_mirror, table):
     # published: those counts take PCON_DISC's)
     base_cells = {"_DISC_EDADESP": {"DISCAPACIDAD": ["Sí"], "EDAD_QUIN": d._QUIN}} \
         if table == "personas" else {}
-    mun, sums = frame["CVE_MUN"].astype(str), {}
-    for ind, cells in {**cons, **base_cells}.items():
-        mask = pd.Series(True, index=frame.index)
-        for var, cats in cells.items():
-            mask &= frame[var].isin(cats)
-        by = frame["FACTOR"].where(mask, 0).groupby(mun).sum()
-        sums[ind] = pd.concat([by, pd.Series({"000": by.sum()})])
-    got = pd.DataFrame(sums).reindex(est.index)
+    # 8i: each record's 0/1 term of each constraint
+    terms = mxcensus.cpv_constraint_terms(frame, {**cons, **base_cells})
+    by = terms.mul(frame["FACTOR"].astype(float), axis=0).groupby(
+        frame["CVE_MUN"].astype(str).to_numpy()).sum()
+    got = pd.concat([by, by.sum().to_frame("000").T]).reindex(est.index)
     pct = {_count_name(p): p for p in _PERCENT_BASES}
     by_age = {f"PCON_DISC{a}" for a in ("0A14", "15A29", "30A59", "60YM")}
     for ind in cons:

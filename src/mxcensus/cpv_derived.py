@@ -202,7 +202,7 @@ from __future__ import annotations
 
 import functools
 import warnings
-from collections.abc import Callable, Mapping
+from collections.abc import Callable, Mapping, Sequence
 from dataclasses import dataclass
 
 import numpy as np
@@ -2876,6 +2876,42 @@ def cpv_ratio_constraints(table: str, period: str | int) -> dict:
             if ind in published and available(spec)}
 
 
+def _cell_mask(df: pd.DataFrame, cells: Mapping[str, Sequence], ind: str,
+               caller: str) -> np.ndarray:
+    """The records of ``df`` in a constraint's cells (every variable at once; ``{}`` =
+    every record), as a boolean array. A cell variable that is not categorical, or lacks a
+    category the cell names, raises: the frame must be the labelled one."""
+    mask = np.ones(len(df), dtype=bool)
+    for var, cats in cells.items():
+        if var not in df.columns:
+            raise ValueError(f"{caller}: {ind} counts {var}, which the frame lacks (load it "
+                             f"with derived=True)")
+        col = df[var]
+        if not isinstance(col.dtype, pd.CategoricalDtype) or not (
+                set(cats) <= set(col.cat.categories)):
+            raise ValueError(f"{caller}: {ind} counts {var} {list(cats)}, which the frame "
+                             f"does not label (load it with labels=True, derived=True)")
+        mask &= col.isin(cats).to_numpy(dtype=bool)
+    return mask
+
+
+def cpv_constraint_terms(df: pd.DataFrame, constraints: Mapping[str, Mapping]
+                         ) -> pd.DataFrame:
+    """Each record's term of each count constraint (:func:`cpv_constraints`): a ``float64``
+    frame on ``df``'s index, one column per indicator, 1 where the record is in the
+    indicator's cells and 0 elsewhere. ``df`` is the labelled frame with ``derived=True``
+    of the same table and edition; a cell variable it lacks, that is not categorical or
+    lacks a category the cell names, raises.
+
+    The sample's count of an indicator in a geography is Σ w·X over its records (``w`` =
+    ``FACTOR``): ``X.mul(w, axis=0).groupby(geo).sum()``, the published count is what a fit
+    makes it equal. :func:`cpv_ratio_terms` is its sibling for the ratio constraints.
+    """
+    return pd.DataFrame({ind: _cell_mask(df, cells, ind, "cpv_constraint_terms")
+                         .astype(float) for ind, cells in constraints.items()},
+                        index=df.index, columns=list(constraints))
+
+
 def cpv_ratio_terms(df: pd.DataFrame, constraints: Mapping[str, dict]
                     ) -> tuple[pd.DataFrame, pd.DataFrame]:
     """Each record's numerator and denominator term of each ratio constraint
@@ -2888,19 +2924,8 @@ def cpv_ratio_terms(df: pd.DataFrame, constraints: Mapping[str, dict]
     (``w`` = ``FACTOR``): ``N.mul(w, axis=0).groupby(geo).sum()`` and the same for ``D``
     give both sums, and Σ w·(N − r / scale · D) = 0 is the constraint a fit imposes.
     """
-    columns: dict[str, np.ndarray] = {}
-
     def cells(spec: dict, ind: str) -> np.ndarray:
-        mask = np.ones(len(df), dtype=bool)
-        for var, cats in spec.items():
-            col = df[var]
-            if not isinstance(col.dtype, pd.CategoricalDtype) or not (
-                    set(cats) <= set(col.cat.categories)):
-                raise ValueError(f"cpv_ratio_terms: {ind} counts {var} {cats}, which the "
-                                 f"frame does not label (load it with labels=True, "
-                                 f"derived=True)")
-            mask &= col.isin(cats).to_numpy()
-        return mask
+        return _cell_mask(df, spec, ind, "cpv_ratio_terms")
 
     def value(name: str | None, ind: str) -> np.ndarray:
         if name is None:
