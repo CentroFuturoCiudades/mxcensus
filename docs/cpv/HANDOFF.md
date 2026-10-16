@@ -8,17 +8,16 @@ left). A session starts by checking `git log`/`git status` against the status be
 
 ## Status (2026-10-15)
 
-- **Units 0–6z, 7a–7z and 8a–8i are done.** `cpv-integration` = **8i** (the ITER on stable
-  units, `load_cpv_iter_panel`; the 1990 → 1995 municipal step; `cpv_constraint_terms`:
-  `STEP_8i.md`) on top of 8h (the CPV user guide, `docs/cpv/GUIDE.md`: `STEP_8h.md`), both
-  committed locally, not pushed; `main` = **v0.15.0** (7v–8g, `STEP_8g.md` §Release),
-  pushed and tagged.
+- **Units 0–6z, 7a–7z and 8a–8i are done.** `cpv-integration` = `main` = **v0.16.0** (8h–8i:
+  the CPV user guide, `docs/cpv/GUIDE.md`; the ITER on stable units, `load_cpv_iter_panel`;
+  the 1990 → 1995 municipal step; `cpv_constraint_terms`: `STEP_8i.md` §Release), pushed and
+  tagged.
 - **Mirror**: every CPV edition 1990–2025 (897 `cpv_` files), the Marco Geoestadístico frames
   1995–2025 and the Archivo Histórico de Localidades (128 `ahl_` files, snapshot 20260918):
   registry **4276** entries, all uploaded and verified. No unit since 7u changed the mirror
   (the lineages, the CMO bridge and the dictionaries are bundled).
-- **Tests**: the Mac's full suite at 8i: **1989 passed, 1 skipped** (`STEP_8i.md` §Tests;
-  35 min at 8g, longer at 8i on a machine that slept — the national panel test adds ~4 min).
+- **Tests**: the Mac's full suite at 8i (v0.16.0): **1989 passed, 1 skipped** (1 h 7 min;
+  35 min at 8g — the panel tests add ~5 min, and the Mac's clock varies: `STEP_8i.md` §Tests).
 - **Releases**:
 
   | version | units | content |
@@ -35,6 +34,7 @@ left). A session starts by checking `git log`/`git status` against the status be
   | 0.13.0 | 7t | the locality lineage |
   | 0.14.0 | 7u | the Archivo Histórico de Localidades |
   | 0.15.0 | 7v–8g | every tabulado checked (7v–7z), the lineage's leftovers and the EIC 2015 edition (8a–8d, 8g), CGPV 2000's SINCO groups (8e), the kinship lines and undocumented codes (8f) |
+  | 0.16.0 | 8h–8i | the CPV user guide (8h), the ITER on stable units, the 1990 → 1995 municipal step and the count constraints' terms (8i) |
 
 ## Hosts
 
@@ -43,21 +43,21 @@ left). A session starts by checking `git log`/`git status` against the status be
   tabulado workbook in `data/dict/tabulados/`, the FDs and catalogs in `data/dict/fd/`, the
   AHL export `data/dict/ahl/AHL.zip`, the SINCO comparison workbook `data/dict/sinco/`;
   poppler installed. Units since 7v ran here only.
-- **`wsl`** (`ssh wsl`, `~/mxcensus`): at **v0.14.0** — **pull `main` (v0.15.0)**: the
-  release's pull waited for a Tailscale re-login —, the full mirror (4276), `hf` installed
-  and logged in — **uploads run from here only**. Its tabulados cache is partial
+- **`wsl`** (`ssh wsl`, `~/mxcensus`): at **v0.14.0** — **pull `main` (v0.16.0)**: the 0.15.0
+  and 0.16.0 releases' pulls waited for a Tailscale re-login —, the full mirror (4276), `hf`
+  installed and logged in — **uploads run from here only**. Its tabulados cache is partial
   (`check_cpv_tabulados.py` fetches what is missing) and it has **no poppler** (`pdftotext`:
-  Censo 2010's 10_01A and the 1990/1995 FD parsers need it). Stale
-  leftovers that can be deleted (ask first): `~/mxcensus3c`, `~/sweep_7c.py`/`.json`,
-  `~/pytest_7f.log`, `~/pytest_7r.log`, `/tmp/enoe_panel_2012.pkl`, and the untracked
-  `build_cpv_*.log` in `~/mxcensus`.
+  Censo 2010's 10_01A and the 1990/1995 FD parsers need it). Stale leftovers that can be
+  deleted (ask first): `~/mxcensus3c`, `~/sweep_7c.py`/`.json`, `~/pytest_7f.log`,
+  `~/pytest_7r.log`, `/tmp/enoe_panel_2012.pkl`, and the untracked `build_cpv_*.log` in
+  `~/mxcensus`.
 - The user's standing rules: run `wsl` tasks without asking; ask before committing, pushing,
   installing packages or uploading.
 
 ## Kickoff prompt for the next session
 
-> Continue the CPV census-family work in this repo (branch cpv-integration = 8i; main =
-> v0.15.0). Read docs/cpv/HANDOFF.md first, then agree with me which next unit to
+> Continue the CPV census-family work in this repo (branch cpv-integration = main =
+> v0.16.0). Read docs/cpv/HANDOFF.md first, then agree with me which next unit to
 > take (candidates in HANDOFF §Next) before implementing it, following the session protocol
 > in docs/cpv/PLAN.md. Use .venv/bin/python, not uv run. Run wsl tasks without asking; ask
 > me before committing, pushing, installing packages or uploading.
@@ -67,12 +67,9 @@ left). A session starts by checking `git log`/`git status` against the status be
 Every edition is in the mirror, derived and constrained, every published sample tabulado
 value of 2000, 2010, 2015 and 2020 enters a compared cell, the locality lineage reads
 everything the AHL decides (8g), the guide (8h) shows how to use all of it, and the ITER of
-every edition sits on stable units (8i). What is left is the release, small items,
-INEGI's own, or new ideas:
+every edition sits on stable units (8i), all released as 0.16.0. What is left is small
+items, INEGI's own, or new ideas:
 
-0. **The 0.16.0 release** (8h + 8i: the guide, `load_cpv_iter_panel`, the 1990 municipal
-   step, `cpv_constraint_terms`; no mirror change, so no upload): the full suite, the
-   version bump, merge into `main`, tag, push (ask first); pull on `wsl`.
 1. **Conditional small items**: the hand-curated minimum-wage tables
    (`cpv_derived._SALARIOS_MINIMOS`) as a generated YAML, only if a later edition needs one
    (none does: the EIC 2025 publishes no income, the 1990/1995 ITERs no income groups); 8e's

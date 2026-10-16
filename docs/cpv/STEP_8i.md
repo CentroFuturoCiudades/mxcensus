@@ -154,4 +154,12 @@ throttled part of the run: 2 h 26 min wall at 51% CPU). New and changed:
 - A 2015 edition for the panel: the EIC 2015 publishes no aggregate in the mirror.
 - The 1995 locality panel cannot see the localities of one and two dwellings (INEGI lists
   them only as each municipality's sums).
-- Release 0.16.0 (8h + 8i).
+
+## Release
+
+With the user's go-ahead (2026-10-15, the user's choice over the AGEB on stable units, a
+panel notebook and the small leftovers), 8h–8i as **0.16.0** (`pyproject.toml`, `uv.lock`,
+the README's install pins): the Mac's full suite on 8i, **1989 passed, 1 skipped** (1 h 7
+min); `main` fast-forwarded to the release commit, tagged `v0.16.0` and pushed with
+`cpv-integration`; `wsl`'s pull waits for a Tailscale re-login (HANDOFF). No data changed
+(registry 4276; the lineages are bundled).

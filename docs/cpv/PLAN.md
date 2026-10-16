@@ -155,7 +155,8 @@ its files were uploaded and it was merged into `main` as 0.14.0 (2026-10-12, aft
 8g (HANDOFF candidate 2's leftovers of the locality lineage, the user's choice over the 0.15.0 release, a CPV user guide and a cross-edition ITER panel; scoped on the probe — the wrong kinds the check shows, the undated statements, the rest documented as final — and widened to the moves between states the parser skipped; the 2025 absorptions MG 2025 still lists kept and `CONFIRMED` per edition, the user's answers) followed the same day in a new session;
 7v–8g were merged into `main` as 0.15.0 (2026-10-14, after the Mac's full-suite run).
 8h (HANDOFF candidate 3's user guide, the user's choice «release, then the guide»: one Markdown file, the README trimmed to link it, its examples tested) followed in the same session, after the 0.15.0 release; committed locally.
-8i (HANDOFF candidates 1's `cpv_constraint_terms` and 3's cross-edition ITER panel, the user's choice «both together»; exact + weighted averages, the 1990 → 1995 step from the localities, the EIC 2025's published counts, complete cross-state units and — asked after the probe — the known sums with a reserved-population bound, all at the user's choice) followed in a new session on 2026-10-15.
+8i (HANDOFF candidates 1's `cpv_constraint_terms` and 3's cross-edition ITER panel, the user's choice «both together»; exact + weighted averages, the 1990 → 1995 step from the localities, the EIC 2025's published counts, complete cross-state units and — asked after the probe — the known sums with a reserved-population bound, all at the user's choice) followed in a new session on 2026-10-15;
+8h–8i were merged into `main` as 0.16.0 (2026-10-15, after the Mac's full-suite run).
 
 ### Session protocol
 

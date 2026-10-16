@@ -20,15 +20,15 @@ Requires **Python 3.13+**. Install the latest release straight from GitHub:
 ```bash
 uv pip install "git+https://github.com/CentroFuturoCiudades/mxcensus.git"
 # or pin to a released tag:
-uv pip install "git+https://github.com/CentroFuturoCiudades/mxcensus.git@v0.15.0"
+uv pip install "git+https://github.com/CentroFuturoCiudades/mxcensus.git@v0.16.0"
 # or add it to a project:
-uv add "git+https://github.com/CentroFuturoCiudades/mxcensus.git@v0.15.0"
+uv add "git+https://github.com/CentroFuturoCiudades/mxcensus.git@v0.16.0"
 ```
 
 Plain `pip` works too:
 
 ```bash
-pip install "git+https://github.com/CentroFuturoCiudades/mxcensus.git@v0.15.0"
+pip install "git+https://github.com/CentroFuturoCiudades/mxcensus.git@v0.16.0"
 ```
 
 No data ships with the package — DataFrames are fetched on first use from the
